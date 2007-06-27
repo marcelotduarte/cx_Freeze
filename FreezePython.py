@@ -17,7 +17,7 @@ installation."""
 
 VERSION = \
 """
-%prog 3.0.3
+%prog HEAD
 Copyright (c) 2002-2006 Computronix Corporation. All rights reserved."""
 
 # parse the command line
