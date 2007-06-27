@@ -1,0 +1,12 @@
+Common.c
+Console.c
+ConsoleKeepPath.c
+ModuleFinder.py
+FreezePython.py
+Freezer.py
+HISTORY.txt
+LICENSE.txt
+MakeFrozenBases.py
+README.txt
+Win32GUI.c
+initscripts

@@ -28,11 +28,11 @@ def BuildBase(name, linkerFlags = "", sharedLib = False):
         import win32api
         linkerFlags += " " + win32api.GetModuleFileName(sys.dllhandle)
     else:
-        linkerFlags += " %s %s -L%s" % \
-                (vars["LDFLAGS"], vars["LINKFORSHARED"], vars["LIBPL"])
+        linkerFlags += " %s %s %s/%s" % \
+                (vars["LDFLAGS"], vars["LINKFORSHARED"], vars["LIBPL"],
+                 vars["INSTSONAME"])
         if sys.platform == "hp-ux11":
             linkerFlags += " -lcl"
-        linkerFlags += " -lpython%d.%d" % sys.version_info[:2]
         linkerFlags += " %s %s %s %s" % \
                 (vars["LIBS"], vars["LIBM"], vars["LOCALMODLIBS"],
                  vars["BASEMODLIBS"])
