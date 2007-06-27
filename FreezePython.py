@@ -71,12 +71,14 @@ parser.add_option("--no-copy-deps", "--keep-path",
                "the target executable requires a Python installation to "
                "execute properly")
 parser.add_option("--default-path",
+        action = "append",
         dest = "defaultPath",
         metavar = "DIRS",
         help = "list of paths separated by the standard path separator for "
                "the platform which will be used to initialize sys.path prior "
                "to running the module finder")
 parser.add_option("--include-path",
+        action = "append",
         dest = "includePath",
         metavar = "DIRS",
         help = "list of paths separated by the standard path separator for "
@@ -161,9 +163,10 @@ if options.excludeModules:
 
 # modify sys.path as needed
 if options.defaultPath is not None:
-    sys.path = options.defaultPath.split(os.pathsep)
+    sys.path = [p for mp in options.defaultPath for p in mp.split(os.pathsep)]
 if options.includePath is not None:
-    sys.path = options.includePath.split(os.pathsep) + sys.path
+    paths = [p for mp in options.includePath for p in mp.split(os.pathsep)]
+    sys.path = paths + sys.path
 if options.script is not None:
     sys.path.insert(0, os.path.dirname(options.script))
 
