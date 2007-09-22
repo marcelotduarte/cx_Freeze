@@ -1,3 +1,25 @@
+Changes from 3.0.3 to 4.0b1
+ 1) Added support for placing modules in library.zip or in a separate zip file
+    for each executable that is produced.
+ 2) Added support for copying binary dependent files (DLLs and shared
+    libraries)
+ 3) Added support for including all submodules in a package
+ 4) Added support for including icons in Windows executables
+ 5) Added support for constants module which can be used for determining
+    certain build constants at runtime
+ 6) Added support for relative imports available in Python 2.5 and up
+ 7) Added support for building Windows installers (Python 2.5 and up) and
+    RPM packages
+ 8) Added support for distutils configuration scripts
+ 9) Added support for hooks which can force inclusion or exclusion of modules
+    when certain modules are included
+10) Added documentation and samples
+11) Added setup.py for building the cx_Freeze package instead of a script
+    used to build only the frozen bases
+12) FreezePython renamed to a script called freeze in the Python distribution
+13) On Linux and other platforms that support it set LD_RUN_PATH to include
+    the directory in which the executable is located
+
 Changes from 3.0.2 to 3.0.3
  1) In Common.c, used MAXPATHLEN defined in the Python OS independent include
     file rather than the PATH_MAX define which is OS dependent and is not

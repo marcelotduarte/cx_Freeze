@@ -105,7 +105,6 @@ static PyObject *ArgumentValue(
 static int FatalScriptError()
 {
     PyObject *type, *value, *traceback, *argsTuple, *module, *method, *result;
-    const char *messages[3];
     int tracebackLength, i;
     char *tracebackStr;
 
@@ -181,9 +180,7 @@ int WINAPI WinMain(
     LPSTR commandLine,			// command line
     int showFlag)			// show flag
 {
-    PyObject *pathList, *temp;
     const char *fileName;
-    int result;
 
     // initialize Python
     Py_NoSiteFlag = 1;

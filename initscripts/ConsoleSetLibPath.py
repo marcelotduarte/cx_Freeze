@@ -14,23 +14,17 @@ import sys
 import warnings
 import zipimport
 
-fileName = sys.path[0]
-while os.path.islink(fileName):
-    fileName = os.path.normpath(os.path.join(os.path.dirname(fileName),
-            os.readlink(fileName)))
-dirName = os.path.dirname(fileName)
-
 paths = os.environ.get("LD_LIBRARY_PATH", "").split(os.pathsep)
-if dirName not in paths:
-    paths.insert(0, dirName)
+if DIR_NAME not in paths:
+    paths.insert(0, DIR_NAME)
     os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(paths)
     os.execv(sys.executable, sys.argv)
 
 sys.frozen = True
-sys.path = [fileName, dirName]
+sys.path = sys.path[:4]
 
 m = __import__("__main__")
-importer = zipimport.zipimporter(fileName)
+importer = zipimport.zipimporter(INITSCRIPT_ZIP_FILE_NAME)
 code = importer.get_code(m.__name__)
 exec code in m.__dict__
 
