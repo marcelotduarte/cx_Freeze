@@ -24,6 +24,19 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
         specFile.insert(0, "%define _unpackaged_files_terminate_build 0%{nil}")
         return specFile
 
+    def run(self):
+        distutils.command.bdist_rpm.bdist_rpm.run(self)
+        specFile = os.path.join(self.rpm_base, "SPECS",
+                "%s.spec" % self.distribution.get_name())
+        queryFormat = "%{name}-%{version}-%{release}.%{arch}.rpm"
+        command = "rpm -q --qf '%s' --specfile %s" % (queryFormat, specFile)
+        origFileName = os.popen(command).read()
+        parts = origFileName.split("-")
+        parts.insert(2, "py%s.%s" % sys.version_info[:2])
+        newFileName = "-".join(parts)
+        self.move_file(os.path.join("dist", origFileName),
+                os.path.join("dist", newFileName))
+
 
 class build_ext(distutils.command.build_ext.build_ext):
 
