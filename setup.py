@@ -86,26 +86,6 @@ class build_scripts(distutils.command.build_scripts.build_scripts):
                 file(batFileName, "w").write("@echo off\n\n%s" % command)
 
 
-class BuildPackageData(object):
-
-    def run(self):
-        sourceDirs = [os.path.join("cx_Freeze", d) \
-                for d in ("initscripts", "samples")]
-        while sourceDirs:
-            sourceDir = sourceDirs.pop(0)
-            targetDir = os.path.join(self.build_lib, sourceDir)
-            self.mkpath(targetDir)
-            for name in os.listdir(sourceDir):
-                if name == "build" or name.startswith("."):
-                    continue
-                fullSourceName = os.path.join(sourceDir, name)
-                if os.path.isdir(fullSourceName):
-                    sourceDirs.append(fullSourceName)
-                else:
-                    fullTargetName = os.path.join(targetDir, name)
-                    self.copy_file(fullSourceName, fullTargetName)
-
-
 class install(distutils.command.install.install):
 
     def get_sub_commands(self):
@@ -125,7 +105,7 @@ class install_packagedata(distutils.command.install_data.install_data):
             targetDir = os.path.join(installDir, "cx_Freeze", sourceDir)
             self.mkpath(targetDir)
             for name in os.listdir(sourceDir):
-                if name.startswith("."):
+                if name == "build" or name.startswith("."):
                     continue
                 fullSourceName = os.path.join(sourceDir, name)
                 if os.path.isdir(fullSourceName):
