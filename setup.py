@@ -7,6 +7,7 @@ import distutils.command.build_ext
 import distutils.command.build_scripts
 import distutils.command.install
 import distutils.command.install_data
+import distutils.sysconfig
 import os
 import sys
 
@@ -38,12 +39,26 @@ class build_ext(distutils.command.build_ext.build_ext):
                 depends = ext.depends)
         fileName = os.path.splitext(self.get_ext_filename(ext.name))[0]
         fullName = os.path.join(self.build_lib, fileName)
+        libraryDirs = ext.library_dirs or []
+        libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
         if sys.platform != "win32":
+            if sys.version_info[:2] < (2, 5):
+                vars = distutils.sysconfig.get_config_vars()
+                libraryDirs.append(vars["LIBPL"])
+                libraries.append("python%s.%s" % sys.version_info[:2])
+                if vars["LIBS"]:
+                    extraArgs.extend(vars["LIBS"].split())
+                if vars["LIBM"]:
+                    extraArgs.append(vars["LIBM"])
+                if vars["BASEMODLIBS"]:
+                    extraArgs.extend(vars["BASEMODLIBS"].split())
+                if vars["LOCALMODLIBS"]:
+                    extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
         self.compiler.link_executable(objects, fullName,
-                libraries = self.get_libraries(ext),
-                library_dirs = ext.library_dirs,
+                libraries = libraries,
+                library_dirs = libraryDirs,
                 runtime_library_dirs = ext.runtime_library_dirs,
                 extra_postargs = extraArgs,
                 debug = self.debug)
@@ -69,8 +84,6 @@ class build_scripts(distutils.command.build_scripts.build_scripts):
                 command = "%s %s %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9" % \
                         (sys.executable, scriptDir)
                 file(batFileName, "w").write("@echo off\n\n%s" % command)
-
-
 
 
 class BuildPackageData(object):
