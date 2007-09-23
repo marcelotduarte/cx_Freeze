@@ -47,6 +47,8 @@ class build_ext(distutils.command.build_ext.build_ext):
                 vars = distutils.sysconfig.get_config_vars()
                 libraryDirs.append(vars["LIBPL"])
                 libraries.append("python%s.%s" % sys.version_info[:2])
+                if vars["LINKFORSHARED"]:
+                    extraArgs.extend(vars["LINKFORSHARED"].split())
                 if vars["LIBS"]:
                     extraArgs.extend(vars["LIBS"].split())
                 if vars["LIBM"]:
