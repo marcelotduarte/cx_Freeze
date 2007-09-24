@@ -255,7 +255,8 @@ def setup(**attrs):
     attrs["distclass"] = Distribution
     commandClasses = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _AddCommandClass(commandClasses, "bdist_msi", cx_Freeze.bdist_msi)
+        if sys.version_info[:2] >= (2, 5):
+            _AddCommandClass(commandClasses, "bdist_msi", cx_Freeze.bdist_msi)
     else:
         _AddCommandClass(commandClasses, "bdist_rpm", cx_Freeze.bdist_rpm)
     _AddCommandClass(commandClasses, "build", build)
