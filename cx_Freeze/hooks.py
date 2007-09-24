@@ -6,6 +6,7 @@ def initialize(finder):
        automatic exclusions for various platforms."""
     finder.ExcludeModule("os.path")
     if os.name == "nt":
+        finder.ExcludeModule("fcntl")
         finder.ExcludeModule("grp")
         finder.ExcludeModule("pwd")
         finder.ExcludeModule("readline")
