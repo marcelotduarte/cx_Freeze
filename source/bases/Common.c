@@ -45,10 +45,9 @@ static int SetExecutableName(
 #ifndef WIN32
     char linkData[MAXPATHLEN + 1];
     struct stat statData;
+    size_t linkSize, i;
     PyObject *dirName;
-    size_t linkSize;
 #endif
-    size_t i;
 
     // store file name
     g_FileName = PyString_FromString(fileName);
