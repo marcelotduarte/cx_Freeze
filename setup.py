@@ -164,9 +164,6 @@ docFiles = "LICENSE.txt README.txt HISTORY.txt doc/cx_Freeze.html"
 
 classifiers = [
         "Development Status :: 5 - Production/Stable",
-        "Environment :: Console",
-        "Environment :: Win32 (MS Windows)",
-        "Environment :: X11 Applications",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Python Software Foundation License",
         "Natural Language :: English",
@@ -174,6 +171,7 @@ classifiers = [
         "Programming Language :: C",
         "Programming Language :: Python",
         "Topic :: Software Development :: Build Tools",
+        "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Software Distribution",
         "Topic :: Utilities"
 ]
@@ -191,5 +189,7 @@ setup(name = "cx_Freeze",
         maintainer_email="anthony.tuininga@gmail.com",
         url = "http://cx-freeze.sourceforge.net",
         scripts = ["freeze"],
-        classifiers = classifiers)
+        classifiers = classifiers,
+        keywords = "freeze",
+        license = "Python Software Foundation License")
 
