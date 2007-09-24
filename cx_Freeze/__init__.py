@@ -1,7 +1,7 @@
 import sys
 
 from dist import *
-if sys.platform == "win32":
+if sys.platform == "win32" and sys.version_info[:2] >= (2, 5):
     from windist import *
 from finder import *
 from freezer import *
