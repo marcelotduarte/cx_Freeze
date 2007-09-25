@@ -9,7 +9,6 @@ def initialize(finder):
         finder.ExcludeModule("fcntl")
         finder.ExcludeModule("grp")
         finder.ExcludeModule("pwd")
-        finder.ExcludeModule("readline")
         finder.ExcludeModule("termios")
     else:
         finder.ExcludeModule("_winreg")
@@ -30,7 +29,6 @@ def initialize(finder):
         finder.ExcludeModule("posixpath")
     if os.name != "mac":
         finder.ExcludeModule("Carbon")
-        finder.ExcludeModule("EasyDialogs")
         finder.ExcludeModule("ic")
         finder.ExcludeModule("mac")
         finder.ExcludeModule("MacOS")
@@ -137,4 +135,20 @@ def load_xml(finder, module):
        that module should take its role instead; ignore the failure to find
        this module, though."""
     module.IgnoreName("_xmlplus")
+
+
+def missing_EasyDialogs(finder, caller):
+    """the EasyDialogs module is not normally present on Windows but it also
+       may be so instead of excluding it completely, ignore it if it can't be
+       found"""
+    if sys.platform == "win32":
+        caller.IgnoreName("EasyDialogs")
+
+
+def missing_readline(finder, caller):
+    """the readline module is not normally present on Windows but it also may
+       be so instead of excluding it completely, ignore it if it can't be
+       found"""
+    if sys.platform == "win32":
+        caller.IgnoreName("readline")
 

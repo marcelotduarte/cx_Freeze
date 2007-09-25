@@ -157,6 +157,7 @@ class ModuleFinder(object):
         if module is None:
             if caller is None:
                 raise ImportError, "No module named %s" % name
+            self._RunHook("missing", name, caller)
             if returnError and name not in caller.ignoreNames:
                 callers = self._badModules.setdefault(name, {})
                 callers[caller.name] = None
@@ -217,7 +218,7 @@ class ModuleFinder(object):
                 raise ImportError, "Bad magic number in %s" % path
             fp.read(4)
             module.code = marshal.load(fp)
-        self._RunHook(module)
+        self._RunHook("load", module.name, module)
         if module.code is not None:
             if self.replacePaths:
                 topLevelModule = module
@@ -260,12 +261,12 @@ class ModuleFinder(object):
                 co.co_varnames, newFileName, co.co_name, co.co_firstlineno,
                 co.co_lnotab, co.co_freevars, co.co_cellvars)
 
-    def _RunHook(self, module):
+    def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
-        name = "load_%s" % module.name.replace(".", "_")
+        name = "%s_%s" % (hookName, moduleName.replace(".", "_"))
         method = getattr(cx_Freeze.hooks, name, None)
         if method is not None:
-            method(self, module)
+            method(self, *args)
 
     def _ScanCode(self, co, module, deferredImports):
         """Scan code, looking for imported modules and keeping track of the
