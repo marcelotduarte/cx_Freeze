@@ -26,7 +26,6 @@ def initialize(finder):
         finder.ExcludeModule("win32service")
     if os.name != "posix":
         finder.ExcludeModule("posix")
-        finder.ExcludeModule("posixpath")
     if os.name != "mac":
         finder.ExcludeModule("Carbon")
         finder.ExcludeModule("ic")
