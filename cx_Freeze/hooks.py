@@ -62,6 +62,18 @@ def load_cx_Oracle(finder, module):
     finder.IncludeModule("datetime")
 
 
+def load_docutils_frontend(finder, module):
+    """The optik module is the old name for the optparse module; ignore the
+       module if it cannot be found."""
+    module.IgnoreName("optik")
+
+
+def load_dummy_threading(finder, module):
+    """the dummy_threading module plays games with the name of the threading
+       module for its own purposes; ignore that here"""
+    finder.ExcludeModule("_dummy_threading")
+
+
 def load_email(finder, module):
     """the email package has a bunch of aliases as the submodule names were
        all changed to lowercase in Python 2.5; mimic that here."""
