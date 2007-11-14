@@ -25,3 +25,7 @@ else:
 code = importer.get_code(moduleName)
 exec code in m.__dict__
 
+module = sys.modules.get("threading")
+if module is not None:
+    module._shutdown()
+
