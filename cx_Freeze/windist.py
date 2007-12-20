@@ -322,7 +322,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         sversion = "%d.%d.%d" % \
                 distutils.version.StrictVersion(version).version
         self.db = msilib.init_database(filename, msilib.schema,
-                fullname, msilib.gen_uuid(), sversion, author)
+                self.distribution.metadata.name, msilib.gen_uuid(), sversion,
+                author)
         msilib.add_tables(self.db, msilib.sequence)
         self.add_properties()
         self.add_config(fullname)
