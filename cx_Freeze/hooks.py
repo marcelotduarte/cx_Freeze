@@ -114,6 +114,27 @@ def load_pywintypes(finder, module):
     module.code = None
 
 
+def load_PyQt4_Qt(finder, module):
+    """the PyQt4.Qt module is an extension module which imports a number of
+       other modules and injects their namespace into its own. It seems a
+       foolish way of doing things but perhaps there is some hidden advantage
+       to this technique over pure Python."""
+    finder.IncludeModule("PyQt4._qt")
+    finder.IncludeModule("PyQt4.QtCore")
+    finder.IncludeModule("PyQt4.QtGui")
+    finder.IncludeModule("PyQt4.QtSvg")
+    finder.IncludeModule("PyQt4.Qsci")
+    finder.IncludeModule("PyQt4.QtAssistant")
+    finder.IncludeModule("PyQt4.QtNetwork")
+    finder.IncludeModule("PyQt4.QtOpenGL")
+    finder.IncludeModule("PyQt4.QtScript")
+    finder.IncludeModule("PyQt4.QtSql")
+    finder.IncludeModule("PyQt4.QtSvg")
+    finder.IncludeModule("PyQt4.QtTest")
+    finder.IncludeModule("PyQt4.QtXml")
+    finder.IncludeModule("sip")
+
+
 def load_tempfile(finder, module):
     """the tempfile module attempts to load the fcntl and thread modules but
        continues if these modules cannot be found; ignore these modules if they
