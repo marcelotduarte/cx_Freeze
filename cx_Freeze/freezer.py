@@ -80,7 +80,7 @@ class Freezer(object):
             base = None, path = None, createLibraryZip = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
-            binPathExcludes = [], icon = None):
+            binPathExcludes = [], icon = None, includeFiles = []):
         self.executables = executables
         self.constantsModules = constantsModules
         self.includes = includes
@@ -107,6 +107,7 @@ class Freezer(object):
         for name in binPathExcludes:
             self.binPathExcludes[name.lower()] = None
         self.icon = icon
+        self.includeFiles = includeFiles
         self._VerifyConfiguration()
 
     def _CopyFile(self, source, target, copyDependentFiles,
@@ -309,6 +310,12 @@ class Freezer(object):
             self.path = sys.path
         if self.appendScriptToLibrary:
             self._VerifyCanAppendToLibrary()
+        for sourceFileName, targetFileName in self.includeFiles:
+            if not os.path.exists(sourceFileName):
+                raise ConfigError("cannot find file/directory named %s",
+                        sourceFileName)
+            if os.path.isabs(targetFileName):
+                raise ConfigError("target file/directory cannot be absolute")
         for executable in self.executables:
             executable._VerifyConfiguration(self)
 
@@ -392,6 +399,24 @@ class Freezer(object):
             self._RemoveFile(fileName)
             self._WriteModules(fileName, self.initScript, self.finder,
                     self.compress, self.copyDependentFiles)
+        for sourceFileName, targetFileName in self.includeFiles:
+            fullName = os.path.join(self.targetDir, targetFileName)
+            if os.path.isdir(sourceFileName):
+                for path, dirNames, fileNames in os.walk(sourceFileName):
+                    shortPath = path[len(sourceFileName) + 1:]
+                    if ".svn" in dirNames:
+                        dirNames.remove(".svn")
+                    if "CVS" in dirNames:
+                        dirNames.remove("CVS")
+                    for fileName in fileNames:
+                        fullSourceName = os.path.join(path, fileName)
+                        fullTargetName = os.path.join(self.targetDir,
+                                targetFileName, shortPath, fileName)
+                        self._CopyFile(fullSourceName, fullTargetName,
+                                copyDependentFiles = False)
+            else:
+                self._CopyFile(sourceFileName, fullName,
+                        copyDependentFiles = False)
 
 
 class ConfigError(Exception):
