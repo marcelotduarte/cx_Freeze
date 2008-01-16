@@ -90,7 +90,9 @@ class build_exe(distutils.core.Command):
         ('icon', None,
          'include the icon along with the frozen executable(s)'),
         ('constants=', None,
-         'comma-separated list of constants to include')
+         'comma-separated list of constants to include'),
+        ('include-files=', 'f',
+         'list of tuples of additional files to include in distribution')
     ]
     boolean_options = ["compressed", "copy_dependent_files",
             "create_shared_zip", "append_script_to_exe",
@@ -123,6 +125,7 @@ class build_exe(distutils.core.Command):
         self.include_in_shared_zip = None
         self.icon = None
         self.constants = []
+        self.include_files = []
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_exe'))
@@ -149,7 +152,8 @@ class build_exe(distutils.core.Command):
                 self.replace_paths, self.compressed, self.optimize,
                 self.copy_dependent_files, self.init_script, self.base,
                 self.path, self.create_shared_zip, self.append_script_to_exe,
-                self.include_in_shared_zip, self.build_exe, icon = self.icon)
+                self.include_in_shared_zip, self.build_exe, icon = self.icon,
+                includeFiles = self.include_files)
         freezer.Freeze()
 
 
