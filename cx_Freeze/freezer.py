@@ -199,6 +199,9 @@ class Freezer(object):
                     if len(parts) != 2:
                         continue
                     dependentFile = parts[1]
+                    if dependentFile == "not found":
+                        print "WARNING: cannot find", parts[0]
+                        continue
                     pos = dependentFile.find(" (")
                     if pos >= 0:
                         dependentFile = dependentFile[:pos].strip()
