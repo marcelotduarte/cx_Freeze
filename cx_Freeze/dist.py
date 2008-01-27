@@ -92,7 +92,11 @@ class build_exe(distutils.core.Command):
         ('constants=', None,
          'comma-separated list of constants to include'),
         ('include-files=', 'f',
-         'list of tuples of additional files to include in distribution')
+         'list of tuples of additional files to include in distribution'),
+        ('bin-includes', None,
+         'list of names of files to include when determining dependencies'),
+        ('bin-excludes', None,
+         'list of names of files to exclude when determining dependencies')
     ]
     boolean_options = ["compressed", "copy_dependent_files",
             "create_shared_zip", "append_script_to_exe",
@@ -126,6 +130,8 @@ class build_exe(distutils.core.Command):
         self.icon = None
         self.constants = []
         self.include_files = []
+        self.bin_excludes = []
+        self.bin_includes = []
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_exe'))
@@ -153,7 +159,9 @@ class build_exe(distutils.core.Command):
                 self.copy_dependent_files, self.init_script, self.base,
                 self.path, self.create_shared_zip, self.append_script_to_exe,
                 self.include_in_shared_zip, self.build_exe, icon = self.icon,
-                includeFiles = self.include_files)
+                includeFiles = self.include_files,
+                binIncludes = self.bin_includes,
+                binExcludes = self.bin_excludes)
         freezer.Freeze()
 
 

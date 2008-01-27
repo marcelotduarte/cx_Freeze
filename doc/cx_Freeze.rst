@@ -239,6 +239,14 @@ It can be further customized:
 |                       | directories); the target must not be an absolute    |
 |                       | path                                                |
 +-----------------------+-----------------------------------------------------+
+| bin-includes          | list of names of files to include when determining  |
+|                       | dependencies of binary files that would normally be |
+|                       | excluded                                            |
++-----------------------+-----------------------------------------------------+
+| bin-excludes          | list of names of files to exclude when determining  |
+|                       | dependencies of binary files that would normally be |
+|                       | included                                            |
++-----------------------+-----------------------------------------------------+
 
 install
 ```````
