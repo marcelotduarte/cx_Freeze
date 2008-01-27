@@ -99,7 +99,7 @@ class Freezer(object):
         self.targetDir = targetDir
         self.binIncludes = dict.fromkeys(GLOBAL_BIN_INCLUDES)
         for name in binIncludes:
-            self.binIncludes[name.lower()] = None
+            self.binIncludes[os.path.normcase(name)] = None
         self.binExcludes = dict.fromkeys(GLOBAL_BIN_EXCLUDES)
         for name in binExcludes:
             self.binExcludes[name.lower()] = None
