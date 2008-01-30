@@ -162,6 +162,12 @@ def load_win32com(finder, module):
     module.path.append(os.path.join(baseDir, "win32comext"))
 
 
+def load_win32file(finder, module):
+    """the win32api module implicitly loads the pywintypes module; make sure
+       this happens."""
+    finder.IncludeModule("pywintypes")
+
+
 def load_xml(finder, module):
     """the builtin xml package attempts to load the _xmlplus module to see if
        that module should take its role instead; ignore the failure to find
