@@ -22,7 +22,7 @@ __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
 if sys.platform == "win32":
     pythonDll = "python%s%s.dll" % sys.version_info[:2]
-    GLOBAL_BIN_PATH_EXCLUDES = [cx_Freeze.util.GetSystemDir().lower()]
+    GLOBAL_BIN_PATH_EXCLUDES = [cx_Freeze.util.GetSystemDir()]
     GLOBAL_BIN_INCLUDES = [
             pythonDll,
             "gdiplus.dll",
@@ -42,7 +42,8 @@ else:
             "libclntsh.so",
             "libwtc9.so"
     ]
-    GLOBAL_BIN_PATH_EXCLUDES = ["/lib", "/usr/lib"]
+    GLOBAL_BIN_PATH_EXCLUDES = ["/lib", "/lib32", "/lib64", "/usr/lib",
+            "/usr/lib32", "/usr/lib64"]
 
 
 # NOTE: the try: except: block in this code is not necessary under Python 2.4
@@ -80,7 +81,8 @@ class Freezer(object):
             base = None, path = None, createLibraryZip = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
-            binPathExcludes = [], icon = None, includeFiles = []):
+            binPathIncludes = [], binPathExcludes = [], icon = None,
+            includeFiles = []):
         self.executables = executables
         self.constantsModules = constantsModules
         self.includes = includes
@@ -97,15 +99,13 @@ class Freezer(object):
         self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.targetDir = targetDir
-        self.binIncludes = dict.fromkeys(GLOBAL_BIN_INCLUDES)
-        for name in binIncludes:
-            self.binIncludes[os.path.normcase(name)] = None
-        self.binExcludes = dict.fromkeys(GLOBAL_BIN_EXCLUDES)
-        for name in binExcludes:
-            self.binExcludes[os.path.normcase(name)] = None
-        self.binPathExcludes = dict.fromkeys(GLOBAL_BIN_PATH_EXCLUDES)
-        for name in binPathExcludes:
-            self.binPathExcludes[os.path.normcase(name)] = None
+        self.binIncludes = [os.path.normcase(n) \
+                for n in GLOBAL_BIN_INCLUDES + binIncludes]
+        self.binExcludes = [os.path.normcase(n) \
+                for n in GLOBAL_BIN_EXCLUDES + binExcludes]
+        self.binPathIncludes = [os.path.normcase(n) for n in binPathIncludes]
+        self.binPathExcludes = [os.path.normcase(n) \
+                for n in GLOBAL_BIN_PATH_EXCLUDES + binPathExcludes]
         self.icon = icon
         self.includeFiles = includeFiles
         self._VerifyConfiguration()
@@ -284,8 +284,12 @@ class Freezer(object):
             return True
         if name in self.binExcludes:
             return False
-        if dir in self.binPathExcludes:
-            return False
+        for path in self.binPathIncludes:
+            if dir.startswith(path):
+                return True
+        for path in self.binPathExcludes:
+            if dir.startswith(path):
+                return False
         return True
 
     def _VerifyCanAppendToLibrary(self):
