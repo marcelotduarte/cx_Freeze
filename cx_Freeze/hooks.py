@@ -50,6 +50,12 @@ def initialize(finder):
         finder.ExcludeModule("org.python.core")
 
 
+def load_cElementTree(finder, module):
+    """the cElementTree module implicitly loads the elementtree.ElementTree
+       module; make sure this happens."""
+    finder.IncludeModule("elementtree.ElementTree")
+
+
 def load_ceODBC(finder, module):
     """the ceODBC module implicitly imports both datetime and decimal; make
        sure this happens."""
