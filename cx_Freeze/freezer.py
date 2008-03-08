@@ -102,10 +102,10 @@ class Freezer(object):
             self.binIncludes[os.path.normcase(name)] = None
         self.binExcludes = dict.fromkeys(GLOBAL_BIN_EXCLUDES)
         for name in binExcludes:
-            self.binExcludes[name.lower()] = None
+            self.binExcludes[os.path.normcase(name)] = None
         self.binPathExcludes = dict.fromkeys(GLOBAL_BIN_PATH_EXCLUDES)
         for name in binPathExcludes:
-            self.binPathExcludes[name.lower()] = None
+            self.binPathExcludes[os.path.normcase(name)] = None
         self.icon = icon
         self.includeFiles = includeFiles
         self._VerifyConfiguration()
@@ -214,11 +214,11 @@ class Freezer(object):
     def _GetFileName(self, dir, name):
         if os.path.isabs(name):
             return name
-        name = name.lower()
+        name = os.path.normcase(name)
         fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dir)
         if os.path.isdir(fullDir):
             for fileName in os.listdir(fullDir):
-                if name == os.path.splitext(fileName.lower())[0]:
+                if name == os.path.splitext(os.path.normcase(fileName))[0]:
                     return os.path.join(fullDir, fileName)
 
     def _GetInitScriptFileName(self, argsSource = None):
