@@ -194,6 +194,13 @@ def load_xml_etree_cElementTree(finder, module):
     finder.IncludeModule("xml.etree.ElementTree")
 
 
+def missing_cElementTree(finder, caller):
+    """the cElementTree has been incorporated into the standard library in
+       Python 2.5 so ignore its absence if it cannot found."""
+    if sys.version_info[:2] >= (2, 5):
+        caller.IgnoreName("cElementTree")
+
+
 def missing_EasyDialogs(finder, caller):
     """the EasyDialogs module is not normally present on Windows but it also
        may be so instead of excluding it completely, ignore it if it can't be
@@ -208,4 +215,13 @@ def missing_readline(finder, caller):
        found"""
     if sys.platform == "win32":
         caller.IgnoreName("readline")
+
+
+def missing_xml_etree(finder, caller):
+    """the xml.etree package is new for Python 2.5 but it is common practice
+       to use a try..except.. block in order to support versions earlier than
+       Python 2.5 transparently; ignore the absence of the package in this
+       situation."""
+    if sys.version_info[:2] < (2, 5):
+        caller.IgnoreName("xml.etree")
 
