@@ -4,10 +4,9 @@ import shutil
 import stat
 import sys
 
-from cx_Freeze import Freezer, Executable
+import cx_Freeze
 
 __all__ = ["main"]
-
 
 USAGE = \
 """
@@ -19,9 +18,10 @@ installation."""
 
 VERSION = \
 """
-%prog HEAD
-Copyright (c) 2007 Colt Engineering. All rights reserved.
-Copyright (c) 2002-2006 Computronix Corporation. All rights reserved."""
+%%prog %s
+Copyright (c) 2007-2008 Colt Engineering. All rights reserved.
+Copyright (c) 2002-2006 Computronix Corporation. All rights reserved.""" % \
+        cx_Freeze.version
 
 
 def ParseCommandLine():
@@ -152,8 +152,9 @@ def ParseCommandLine():
 
 def main():
     options = ParseCommandLine()
-    executables = [Executable(options.script, targetName = options.targetName)]
-    freezer = Freezer(executables,
+    executables = [cx_Freeze.Executable(options.script,
+            targetName = options.targetName)]
+    freezer = cx_Freeze.Freezer(executables,
             includes = options.includeModules,
             excludes = options.excludeModules,
             replacePaths = options.replacePaths,
