@@ -1,5 +1,6 @@
-import sys
+version = "4.0b1"
 
+import sys
 from dist import *
 if sys.platform == "win32" and sys.version_info[:2] >= (2, 5):
     from windist import *
