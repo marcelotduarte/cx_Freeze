@@ -28,6 +28,7 @@ def initialize(finder):
         finder.ExcludeModule("posix")
     if os.name != "mac":
         finder.ExcludeModule("Carbon")
+        finder.ExcludeModule("gestalt")
         finder.ExcludeModule("ic")
         finder.ExcludeModule("mac")
         finder.ExcludeModule("MacOS")
@@ -88,6 +89,12 @@ def load_ftplib(finder, module):
     """the ftplib module attempts to import the SOCKS module; ignore this
        module if it cannot be found"""
     module.IgnoreName("SOCKS")
+
+
+def load_numpy_linalg(finder, module):
+    """the numpy.linalg module implicitly loads the lapack_lite module; make
+       sure this happens"""
+    finder.IncludeModule("numpy.linalg.lapack_lite")
 
 
 def load_pythoncom(finder, module):
@@ -173,6 +180,12 @@ def load_xml(finder, module):
        that module should take its role instead; ignore the failure to find
        this module, though."""
     module.IgnoreName("_xmlplus")
+
+
+def load_xml_etree_cElementTree(finder, module):
+    """the xml.etree.cElementTree module implicitly loads the
+       xml.etree.ElementTree module; make sure this happens."""
+    finder.IncludeModule("xml.etree.ElementTree")
 
 
 def missing_EasyDialogs(finder, caller):
