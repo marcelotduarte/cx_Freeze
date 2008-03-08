@@ -131,21 +131,19 @@ def load_PyQt4_Qt(finder, module):
     """the PyQt4.Qt module is an extension module which imports a number of
        other modules and injects their namespace into its own. It seems a
        foolish way of doing things but perhaps there is some hidden advantage
-       to this technique over pure Python."""
+       to this technique over pure Python; ignore the absence of some of
+       the modules since not every installation includes all of them."""
     finder.IncludeModule("PyQt4._qt")
     finder.IncludeModule("PyQt4.QtCore")
     finder.IncludeModule("PyQt4.QtGui")
-    finder.IncludeModule("PyQt4.QtSvg")
-    finder.IncludeModule("PyQt4.Qsci")
-    finder.IncludeModule("PyQt4.QtAssistant")
-    finder.IncludeModule("PyQt4.QtNetwork")
-    finder.IncludeModule("PyQt4.QtOpenGL")
-    finder.IncludeModule("PyQt4.QtScript")
-    finder.IncludeModule("PyQt4.QtSql")
-    finder.IncludeModule("PyQt4.QtSvg")
-    finder.IncludeModule("PyQt4.QtTest")
-    finder.IncludeModule("PyQt4.QtXml")
     finder.IncludeModule("sip")
+    for name in ("PyQt4.QtSvg", "PyQt4.Qsci", "PyQt4.QtAssistant",
+            "PyQt4.QtNetwork", "PyQt4.QtOpenGL", "PyQt4.QtScript",
+            "PyQt4.QtSql", "PyQt4.QtSvg", "PyQt4.QtTest", "PyQt4.QtXml"):
+        try:
+            finder.IncludeModule(name)
+        except ImportError:
+            pass
 
 
 def load_tempfile(finder, module):
