@@ -1,4 +1,4 @@
-Copyright © 2007, Colt Engineering, Edmonton, Alberta, Canada.
+Copyright © 2007-2008, Colt Engineering, Edmonton, Alberta, Canada.
 Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta, Canada.
 All rights reserved.
 
