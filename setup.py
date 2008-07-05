@@ -56,20 +56,19 @@ class build_ext(distutils.command.build_ext.build_ext):
         libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
         if sys.platform != "win32":
-            if sys.version_info[:2] < (2, 5):
-                vars = distutils.sysconfig.get_config_vars()
-                libraryDirs.append(vars["LIBPL"])
-                libraries.append("python%s.%s" % sys.version_info[:2])
-                if vars["LINKFORSHARED"]:
-                    extraArgs.extend(vars["LINKFORSHARED"].split())
-                if vars["LIBS"]:
-                    extraArgs.extend(vars["LIBS"].split())
-                if vars["LIBM"]:
-                    extraArgs.append(vars["LIBM"])
-                if vars["BASEMODLIBS"]:
-                    extraArgs.extend(vars["BASEMODLIBS"].split())
-                if vars["LOCALMODLIBS"]:
-                    extraArgs.extend(vars["LOCALMODLIBS"].split())
+            vars = distutils.sysconfig.get_config_vars()
+            libraryDirs.append(vars["LIBPL"])
+            libraries.append("python%s.%s" % sys.version_info[:2])
+            if vars["LINKFORSHARED"]:
+                extraArgs.extend(vars["LINKFORSHARED"].split())
+            if vars["LIBS"]:
+                extraArgs.extend(vars["LIBS"].split())
+            if vars["LIBM"]:
+                extraArgs.append(vars["LIBM"])
+            if vars["BASEMODLIBS"]:
+                extraArgs.extend(vars["BASEMODLIBS"].split())
+            if vars["LOCALMODLIBS"]:
+                extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
