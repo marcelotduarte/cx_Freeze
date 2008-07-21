@@ -146,6 +146,20 @@ def load_PyQt4_Qt(finder, module):
             pass
 
 
+def load_Tkinter(finder, module):
+    """the Tkinter module has data files that are required to be loaded so
+       ensure that they are copied into the directory that is expected at
+       runtime."""
+    import Tkinter
+    import _tkinter
+    tk = _tkinter.create()
+    tclDir = os.path.dirname(tk.call("info", "library"))
+    tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
+    tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
+    finder.IncludeFiles(tclSourceDir, "tcl")
+    finder.IncludeFiles(tkSourceDir, "tk")
+
+
 def load_tempfile(finder, module):
     """the tempfile module attempts to load the fcntl and thread modules but
        continues if these modules cannot be found; ignore these modules if they

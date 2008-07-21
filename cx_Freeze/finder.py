@@ -22,7 +22,8 @@ __all__ = [ "Module", "ModuleFinder" ]
 
 class ModuleFinder(object):
 
-    def __init__(self, excludes = [], path = None, replacePaths = []):
+    def __init__(self, includeFiles, excludes, path, replacePaths):
+        self.includeFiles = includeFiles
         self.excludes = dict.fromkeys(excludes)
         self.replacePaths = replacePaths
         self.path = path or sys.path
@@ -330,6 +331,10 @@ class ModuleFinder(object):
                 deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
+
+    def IncludeFiles(self, sourcePath, targetPath):
+        """Include the files in the given directory in the target build."""
+        self.includeFiles.append((sourcePath, targetPath))
 
     def IncludeModule(self, name):
         """Include the named module in the frozen executable."""
