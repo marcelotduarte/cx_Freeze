@@ -15,6 +15,9 @@ import zipimport
 sys.frozen = True
 sys.path = sys.path[:4]
 
+os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
+os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
+
 m = __import__("__main__")
 importer = zipimport.zipimporter(INITSCRIPT_ZIP_FILE_NAME)
 if INITSCRIPT_ZIP_FILE_NAME != SHARED_ZIP_FILE_NAME:
