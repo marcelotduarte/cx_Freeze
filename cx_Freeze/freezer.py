@@ -237,8 +237,8 @@ class Freezer(object):
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
             argsSource = self
-        finder = cx_Freeze.ModuleFinder(argsSource.excludes, argsSource.path,
-                argsSource.replacePaths)
+        finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
+                argsSource.path, argsSource.replacePaths)
         if argsSource.copyDependentFiles:
             finder.IncludeModule("imp")
             finder.IncludeModule("os")
