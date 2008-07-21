@@ -23,6 +23,9 @@ if DIR_NAME not in paths:
 sys.frozen = True
 sys.path = sys.path[:4]
 
+os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
+os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
+
 m = __import__("__main__")
 importer = zipimport.zipimporter(INITSCRIPT_ZIP_FILE_NAME)
 code = importer.get_code(m.__name__)
