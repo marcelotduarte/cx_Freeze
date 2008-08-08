@@ -9,6 +9,7 @@ import new
 import opcode
 import os
 import sys
+import zipfile
 
 import cx_Freeze.hooks
 
@@ -32,6 +33,8 @@ class ModuleFinder(object):
         self._modules = dict.fromkeys(excludes)
         self._builtinModules = dict.fromkeys(sys.builtin_module_names)
         self._badModules = {}
+        self._zipFileEntries = {}
+        self._zipFiles = {}
         cx_Freeze.hooks.initialize(self)
 
     def _AddModule(self, name):
@@ -68,6 +71,36 @@ class ModuleFinder(object):
                     continue
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
+
+    def _FindModule(self, name, path):
+        try:
+            return imp.find_module(name, path)
+        except ImportError:
+            for location in path:
+                if name in self._zipFileEntries:
+                    break
+                if location in self._zipFiles:
+                    continue
+                if os.path.isdir(location) or not zipfile.is_zipfile(location):
+                    self._zipFiles[location] = None
+                    continue
+                zip = zipfile.ZipFile(location)
+                for archiveName in zip.namelist():
+                    baseName, ext = os.path.splitext(archiveName)
+                    if ext not in ('.pyc', '.pyo'):
+                        continue
+                    moduleName = ".".join(baseName.split("/"))
+                    if moduleName in self._zipFileEntries:
+                        continue
+                    self._zipFileEntries[moduleName] = (zip, archiveName)
+                self._zipFiles[location] = None
+            info = self._zipFileEntries.get(name)
+            if info is not None:
+                zip, archiveName = info
+                fp = zip.read(archiveName)
+                info = (".pyc", "rb", imp.PY_COMPILED)
+                return fp, os.path.join(zip.filename, archiveName), info
+            raise
 
     def _GetParentByName(self, name):
         """Return the parent module given the name of a module."""
@@ -195,7 +228,7 @@ class ModuleFinder(object):
             self._modules[name] = module
             return module, returnError
         try:
-            fp, path, info = imp.find_module(searchName, path)
+            fp, path, info = self._FindModule(searchName, path)
         except ImportError:
             self._modules[name] = None
             return None, True
@@ -215,10 +248,18 @@ class ModuleFinder(object):
         if type == imp.PY_SOURCE:
             module.code = compile(fp.read() + "\n", path, "exec")
         elif type == imp.PY_COMPILED:
-            if fp.read(4) != imp.get_magic():
+            if isinstance(fp, str):
+                magic = fp[:4]
+            else:
+                magic = fp.read(4)
+            if magic != imp.get_magic():
                 raise ImportError, "Bad magic number in %s" % path
-            fp.read(4)
-            module.code = marshal.load(fp)
+            if isinstance(fp, str):
+                module.code = marshal.loads(fp[8:])
+                module.inZipFile = True
+            else:
+                fp.read(4)
+                module.code = marshal.load(fp)
         self._RunHook("load", module.name, module)
         if module.code is not None:
             if self.replacePaths:
@@ -376,6 +417,7 @@ class Module(object):
         self.globalNames = {}
         self.excludeNames = {}
         self.ignoreNames = {}
+        self.inZipFile = False
 
     def __repr__(self):
         parts = ["name=%s" % repr(self.name)]

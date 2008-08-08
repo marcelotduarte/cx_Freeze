@@ -525,6 +525,8 @@ class ConstantsModule(object):
         for module in finder.modules:
             if module.file is None:
                 continue
+            if module.inZipFile:
+                continue
             if not os.path.exists(module.file):
                 raise ConfigError("no file named %s", module.file)
             timestamp = os.stat(module.file).st_mtime
