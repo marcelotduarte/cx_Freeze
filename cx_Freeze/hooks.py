@@ -4,6 +4,7 @@ import sys
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
+    finder.ExcludeModule("FCNTL")
     finder.ExcludeModule("os.path")
     if os.name == "nt":
         finder.ExcludeModule("fcntl")
@@ -22,7 +23,13 @@ def initialize(finder):
         finder.ExcludeModule("pywintypes")
         finder.ExcludeModule("winerror")
         finder.ExcludeModule("winsound")
+        finder.ExcludeModule("win32api")
         finder.ExcludeModule("win32con")
+        finder.ExcludeModule("win32event")
+        finder.ExcludeModule("win32file")
+        finder.ExcludeModule("win32pipe")
+        finder.ExcludeModule("win32process")
+        finder.ExcludeModule("win32security")
         finder.ExcludeModule("win32service")
     if os.name != "posix":
         finder.ExcludeModule("posix")
@@ -34,6 +41,8 @@ def initialize(finder):
         finder.ExcludeModule("MacOS")
         finder.ExcludeModule("macpath")
         finder.ExcludeModule("macurl2path")
+        if os.name != "nt":
+            finder.ExcludeModule("EasyDialogs")
     if os.name != "os2":
         finder.ExcludeModule("os2")
         finder.ExcludeModule("os2emxpath")
@@ -101,6 +110,11 @@ def load_numpy_linalg(finder, module):
     """the numpy.linalg module implicitly loads the lapack_lite module; make
        sure this happens"""
     finder.IncludeModule("numpy.linalg.lapack_lite")
+
+
+def load_pty(finder, module):
+    """The sgi module is not needed for this module to function."""
+    module.IgnoreName("sgi")
 
 
 def load_pythoncom(finder, module):
