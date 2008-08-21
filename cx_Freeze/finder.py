@@ -15,6 +15,7 @@ import cx_Freeze.hooks
 
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
+IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
 STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
@@ -136,9 +137,12 @@ class ModuleFinder(object):
 
     def _ImportDeferredImports(self, deferredImports):
         """Import any sub modules that were deferred, if applicable."""
-        for packageModule, subModuleNames in deferredImports:
-            self._EnsureFromList(packageModule, packageModule, subModuleNames,
-                    deferredImports)
+        while deferredImports:
+            newDeferredImports = []
+            for packageModule, subModuleNames in deferredImports:
+                self._EnsureFromList(packageModule, packageModule,
+                        subModuleNames, newDeferredImports)
+            deferredImports = newDeferredImports
 
     def _ImportModule(self, name, deferredImports, caller = None,
             relativeImportIndex = 0):
@@ -341,6 +345,8 @@ class ModuleFinder(object):
                         if fromList and subModule.path is not None:
                             self._EnsureFromList(module, subModule, fromList,
                                     deferredImports)
+            elif op == IMPORT_FROM:
+                opIndex += 3
             else:
                 arguments = []
                 if op in STORE_OPS:
