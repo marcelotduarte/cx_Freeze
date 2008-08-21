@@ -106,6 +106,19 @@ def load_ftplib(finder, module):
     module.IgnoreName("SOCKS")
 
 
+def load_matplotlib(finder, module):
+    """the matplotlib module requires data to be found in mpl-data in the
+       same directory as the frozen executable so oblige it"""
+    dir = os.path.join(module.path[0], "mpl-data")
+    finder.IncludeFiles(dir, "mpl-data")
+
+
+def load_matplotlib_numerix(finder, module):
+    """the numpy.numerix module loads a number of modules dynamically"""
+    for name in ("ma", "fft", "linear_algebra", "random_array", "mlab"):
+        finder.IncludeModule("%s.%s" % (module.name, name))
+
+
 def load_numpy_linalg(finder, module):
     """the numpy.linalg module implicitly loads the lapack_lite module; make
        sure this happens"""
