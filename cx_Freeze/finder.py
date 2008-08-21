@@ -13,6 +13,8 @@ import zipfile
 
 import cx_Freeze.hooks
 
+BUILD_LIST = opcode.opmap["BUILD_LIST"]
+INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
 IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
@@ -67,8 +69,10 @@ class ModuleFinder(object):
         if caller is not packageModule:
             deferredImports.append((packageModule, fromList))
         else:
+            if fromList == ("*",):
+                fromList = packageModule.allNames
             for name in fromList:
-                if name == "*" or name in packageModule.globalNames:
+                if name in packageModule.globalNames:
                     continue
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
@@ -347,11 +351,13 @@ class ModuleFinder(object):
                                     deferredImports)
             elif op == IMPORT_FROM:
                 opIndex += 3
-            else:
-                arguments = []
+            elif op not in (BUILD_LIST, INPLACE_ADD):
                 if op in STORE_OPS:
                     name = co.co_names[opArg]
+                    if name == "__all__":
+                        module.allNames.extend(arguments)
                     module.globalNames[name] = None
+                arguments = []
         for constant in co.co_consts:
             if isinstance(constant, type(co)):
                 self._ScanCode(constant, module, deferredImports)
@@ -423,6 +429,7 @@ class Module(object):
         self.globalNames = {}
         self.excludeNames = {}
         self.ignoreNames = {}
+        self.allNames = []
         self.inZipFile = False
 
     def __repr__(self):
