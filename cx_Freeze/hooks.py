@@ -27,10 +27,12 @@ def initialize(finder):
         finder.ExcludeModule("win32con")
         finder.ExcludeModule("win32event")
         finder.ExcludeModule("win32file")
+        finder.ExcludeModule("win32pdh")
         finder.ExcludeModule("win32pipe")
         finder.ExcludeModule("win32process")
         finder.ExcludeModule("win32security")
         finder.ExcludeModule("win32service")
+        finder.ExcludeModule("wx.activex")
     if os.name != "posix":
         finder.ExcludeModule("posix")
     if os.name != "mac":
