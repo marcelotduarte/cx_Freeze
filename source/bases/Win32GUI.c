@@ -99,6 +99,41 @@ static PyObject *ArgumentValue(
 
 
 //-----------------------------------------------------------------------------
+// HandleSystemExitException()
+//   Handles a system exit exception differently. If an integer value is passed
+// through then that becomes the exit value; otherwise the string value of the
+// value passed through is displayed in a message box.
+//-----------------------------------------------------------------------------
+static void HandleSystemExitException()
+{
+    PyObject *type, *value, *traceback, *valueStr;
+    int exitCode = 0;
+    char *message;
+
+    PyErr_Fetch(&type, &value, &traceback);
+    if (PyExceptionInstance_Check(value)) {
+        PyObject *code = PyObject_GetAttrString(value, "code");
+        if (code) {
+            Py_DECREF(value);
+            value = code;
+            if (value == Py_None)
+                Py_Exit(0);
+        }
+    }
+    if (PyInt_Check(value))
+        exitCode = PyInt_AsLong(value);
+    else {
+        message = StringifyObject(value, &valueStr);
+        MessageBox(NULL, message, "cx_Freeze: Application Terminated",
+                MB_ICONERROR);
+        Py_XDECREF(valueStr);
+        exitCode = 1;
+    }
+    Py_Exit(exitCode);
+}
+
+
+//-----------------------------------------------------------------------------
 // FatalScriptError()
 //   Handle a fatal Python error with traceback.
 //-----------------------------------------------------------------------------
@@ -107,6 +142,10 @@ static int FatalScriptError()
     PyObject *type, *value, *traceback, *argsTuple, *module, *method, *result;
     int tracebackLength, i;
     char *tracebackStr;
+
+    // if a system exception, handle it specially
+    if (PyErr_ExceptionMatches(PyExc_SystemExit))
+        HandleSystemExitException();
 
     // get the exception details
     PyErr_Fetch(&type, &value, &traceback);
