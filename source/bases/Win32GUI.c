@@ -11,7 +11,7 @@
 //   Handle a fatal error.
 //-----------------------------------------------------------------------------
 static int FatalError(
-    char *a_Message)			// message to display
+    char *a_Message)                    // message to display
 {
     MessageBox(NULL, a_Message, "cx_Freeze Fatal Error", MB_ICONERROR);
     Py_Finalize();
@@ -24,8 +24,8 @@ static int FatalError(
 //   Stringify a Python object.
 //-----------------------------------------------------------------------------
 static char *StringifyObject(
-    PyObject *object,			// object to stringify
-    PyObject **stringRep)		// string representation
+    PyObject *object,                   // object to stringify
+    PyObject **stringRep)               // string representation
 {
     if (object) {
         *stringRep = PyObject_Str(object);
@@ -45,9 +45,9 @@ static char *StringifyObject(
 //   Handle a fatal Python error without traceback.
 //-----------------------------------------------------------------------------
 static int FatalPythonErrorNoTraceback(
-    PyObject *origType,			// exception type
-    PyObject *origValue,		// exception value
-    char *message)			// message to display
+    PyObject *origType,                 // exception type
+    PyObject *origValue,                // exception value
+    char *message)                      // message to display
 {
     PyObject *typeStrRep, *valueStrRep, *origTypeStrRep, *origValueStrRep;
     char *totalMessage, *typeStr, *valueStr, *origTypeStr, *origValueStr;
@@ -87,7 +87,7 @@ static int FatalPythonErrorNoTraceback(
 //   Return a suitable argument value by replacing NULL with Py_None.
 //-----------------------------------------------------------------------------
 static PyObject *ArgumentValue(
-    PyObject *object)			// object to stringify
+    PyObject *object)                   // argument to massage
 {
     if (object) {
         Py_INCREF(object);
@@ -214,10 +214,10 @@ static int FatalScriptError()
 //   Main routine for the executable in Windows.
 //-----------------------------------------------------------------------------
 int WINAPI WinMain(
-    HINSTANCE instance,			// handle to application
-    HINSTANCE prevInstance,		// previous handle to application
-    LPSTR commandLine,			// command line
-    int showFlag)			// show flag
+    HINSTANCE instance,                 // handle to application
+    HINSTANCE prevInstance,             // previous handle to application
+    LPSTR commandLine,                  // command line
+    int showFlag)                       // show flag
 {
     const char *fileName;
 

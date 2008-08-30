@@ -14,7 +14,7 @@
 //   Prints a fatal error.
 //-----------------------------------------------------------------------------
 static int FatalError(
-    const char *message)		// message to print
+    const char *message)                // message to print
 {
     PyErr_Print();
     Py_FatalError(message);
