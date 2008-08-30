@@ -111,7 +111,7 @@ static void HandleSystemExitException()
     char *message;
 
     PyErr_Fetch(&type, &value, &traceback);
-    if (PyExceptionInstance_Check(value)) {
+    if (PyInstance_Check(value)) {
         PyObject *code = PyObject_GetAttrString(value, "code");
         if (code) {
             Py_DECREF(value);
