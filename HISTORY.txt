@@ -1,3 +1,33 @@
+Changes from 4.0b1 to 4.0
+ 1) Added support for copying files to the target directory.
+ 2) Added support for a hook that runs when a module is missing.
+ 3) Added support for binary path includes as well as excludes; use sequences
+    rather than dictionaries as a more convenient API; exclude the standard
+    locations for 32-bit and 64-bit libaries in multi-architecture systems.
+ 4) Added support for searching zip files (egg files) for modules.
+ 5) Added support for handling system exit exceptions similarly to what Python
+    does itself as requested by Sylvain.
+ 6) Added code to wait for threads to shut down like the normal Python
+    interpreter does. Thanks to Mariano Disanzo for discovering this
+    discrepancy.
+ 7) Hooks added or modified based on feedback from many people.
+ 8) Don't include the version name in the display name of the MSI.
+ 9) Use the OS dependent path normalization routines rather than simply use the
+    lowercase value as on Unix case is important; thanks to Artie Eoff for
+    pointing this out.
+10) Include a version attribute in the cx_Freeze package and display it in the
+    output for the --version option to the script.
+11) Include build instructions as requested by Norbert Sebok.
+12) Add support for copying files when modules are included which require data
+    files to operate properly; add support for copying the necessary files for
+    the Tkinter and matplotlib modules.
+13) Handle deferred imports recursively as needed; ensure that from lists do
+    not automatically indicate that they are part of the module or the deferred
+    import processing doesn't actually work!
+14) Handle the situation where a module imports everything from a package and
+    the __all__ variable has been defined but the package has not actually
+    imported everything in the __all__ variable during initialization.
+
 Changes from 3.0.3 to 4.0b1
  1) Added support for placing modules in library.zip or in a separate zip file
     for each executable that is produced.
