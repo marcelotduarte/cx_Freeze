@@ -27,6 +27,8 @@ Changes from 4.0b1 to 4.0
 14) Handle the situation where a module imports everything from a package and
     the __all__ variable has been defined but the package has not actually
     imported everything in the __all__ variable during initialization.
+15) Modified license text to more closely match the Python Software Foundation
+    license as was intended.
 
 Changes from 3.0.3 to 4.0b1
  1) Added support for placing modules in library.zip or in a separate zip file
