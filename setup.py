@@ -93,10 +93,10 @@ class build_scripts(distutils.command.build_scripts.build_scripts):
         if sys.platform == "win32":
             for script in self.scripts:
                 batFileName = os.path.join(self.build_dir, script + ".bat")
-                scriptDir = r"%s\Scripts\freeze" % \
-                        os.path.dirname(sys.executable)
+                fullScriptName = r"%s\Scripts\%s" % \
+                        (os.path.dirname(sys.executable), script)
                 command = "%s %s %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9" % \
-                        (sys.executable, scriptDir)
+                        (sys.executable, fullScriptName)
                 file(batFileName, "w").write("@echo off\n\n%s" % command)
 
 
@@ -178,7 +178,7 @@ classifiers = [
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "4.0b1",
+        version = "4.0",
         cmdclass = commandClasses,
         options = dict(bdist_rpm = dict(doc_files = docFiles),
                 install = dict(optimize = 1)),
@@ -187,7 +187,7 @@ setup(name = "cx_Freeze",
         maintainer="Anthony Tuininga",
         maintainer_email="anthony.tuininga@gmail.com",
         url = "http://cx-freeze.sourceforge.net",
-        scripts = ["freeze"],
+        scripts = ["cxfreeze"],
         classifiers = classifiers,
         keywords = "freeze",
         license = "Python Software Foundation License")

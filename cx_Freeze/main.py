@@ -20,7 +20,7 @@ VERSION = \
 """
 %%prog %s
 Copyright (c) 2007-2008 Colt Engineering. All rights reserved.
-Copyright (c) 2002-2006 Computronix Corporation. All rights reserved.""" % \
+Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.""" % \
         cx_Freeze.version
 
 
