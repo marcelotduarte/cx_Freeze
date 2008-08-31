@@ -30,6 +30,8 @@ Changes from 4.0b1 to 4.0
 15) Modified license text to more closely match the Python Software Foundation
     license as was intended.
 16) Added sample script for freezing an application using matplotlib.
+17) Renamed freeze to cxfreeze to avoid conflict with another package that uses
+    that executable as requested by Siegfried Gevatter.
 
 Changes from 3.0.3 to 4.0b1
  1) Added support for placing modules in library.zip or in a separate zip file
