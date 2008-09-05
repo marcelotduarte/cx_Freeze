@@ -215,7 +215,9 @@ class ModuleFinder(object):
         except KeyError:
             pass
         if name in self._builtinModules:
-            return self._AddModule(name), False
+            module = self._AddModule(name)
+            self._RunHook("load", module.name, module)
+            return module, False
         pos = name.rfind(".")
         if pos < 0:
             path = self.path
