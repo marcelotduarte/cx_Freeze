@@ -31,7 +31,8 @@ if sys.platform == "win32":
             "msvcr71.dll"
     ]
     GLOBAL_BIN_EXCLUDES = [
-            "oci.dll"
+            "oci.dll",
+            "cx_Logging.pyd"
     ]
 else:
     extension = distutils.sysconfig.get_config_var("SO")
