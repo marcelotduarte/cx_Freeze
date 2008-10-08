@@ -145,7 +145,10 @@ utilModule = Extension("cx_Freeze.util", ["source/util.c"],
         libraries = libraries)
 depends = ["source/bases/Common.c"]
 if sys.platform == "win32":
-    extraSources = ["source/bases/dummy.rc"]
+    if sys.version_info[:2] >= (2, 6):
+        extraSources = ["source/bases/manifest.rc"]
+    else:
+        extraSources = ["source/bases/dummy.rc"]
 else:
     extraSources = []
 console = Extension("cx_Freeze.bases.Console",
