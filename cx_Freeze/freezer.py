@@ -31,6 +31,7 @@ if sys.platform == "win32":
             "msvcr71.dll"
     ]
     GLOBAL_BIN_EXCLUDES = [
+            "comctl32.dll",
             "oci.dll",
             "cx_Logging.pyd"
     ]
