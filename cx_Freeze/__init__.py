@@ -1,4 +1,4 @@
-version = "4.0"
+version = "4.0.1"
 
 import sys
 from dist import *
