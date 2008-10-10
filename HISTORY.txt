@@ -1,3 +1,8 @@
+Changes from 4.0 to 4.0.1
+ 1) Added support for Python 2.6. On Windows a manifest file is now required
+    because of the switch to using the new Microsoft C runtime.
+ 2) Ensure that hooks are run for builtin modules.
+
 Changes from 4.0b1 to 4.0
  1) Added support for copying files to the target directory.
  2) Added support for a hook that runs when a module is missing.

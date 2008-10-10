@@ -181,7 +181,7 @@ classifiers = [
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "4.0",
+        version = "4.0.1",
         cmdclass = commandClasses,
         options = dict(bdist_rpm = dict(doc_files = docFiles),
                 install = dict(optimize = 1)),
