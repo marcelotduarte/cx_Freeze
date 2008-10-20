@@ -56,6 +56,12 @@ static PyObject *g_BindErrorException = NULL;
 static PyObject *g_ImageNames = NULL;
 #endif
 
+// define PyInt_* macros for Python 3.x
+#ifndef PyInt_Check
+#define PyInt_Check             PyLong_Check
+#define PyInt_FromLong          PyLong_FromLong
+#endif
+
 
 #ifdef WIN32
 //-----------------------------------------------------------------------------
@@ -353,10 +359,16 @@ static PyObject *ExtGetSystemDir(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments (ignored)
 {
+#if PY_MAJOR_VERSION >= 3
+    OLECHAR dir[MAX_PATH + 1];
+    if (GetSystemDirectoryW(dir, sizeof(dir)))
+        return PyUnicode_FromUnicode(dir, wcslen(dir));
+#else
     char dir[MAX_PATH + 1];
-
     if (GetSystemDirectory(dir, sizeof(dir)))
         return PyString_FromString(dir);
+#endif
+
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
@@ -370,10 +382,16 @@ static PyObject *ExtGetWindowsDir(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments (ignored)
 {
+#if PY_MAJOR_VERSION >= 3
+    OLECHAR dir[MAX_PATH + 1];
+    if (GetWindowsDirectoryW(dir, sizeof(dir)))
+        return PyUnicode_FromUnicode(dir, wcslen(dir));
+#else
     char dir[MAX_PATH + 1];
-
     if (GetWindowsDirectory(dir, sizeof(dir)))
         return PyString_FromString(dir);
+#endif
+
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
@@ -413,24 +431,63 @@ static PyMethodDef g_ModuleMethods[] = {
 };
 
 
+#if PY_MAJOR_VERSION >= 3
 //-----------------------------------------------------------------------------
-// initutil()
-//   Initialization routine for the shared libary.
+//   Declaration of module definition for Python 3.x.
 //-----------------------------------------------------------------------------
-void initutil(void)
+static struct PyModuleDef g_ModuleDef = {
+    PyModuleDef_HEAD_INIT,
+    "cx_Freeze.util",
+    NULL,
+    -1,
+    g_ModuleMethods,                       // methods
+    NULL,                                  // m_reload
+    NULL,                                  // traverse
+    NULL,                                  // clear
+    NULL                                   // free
+};
+#endif
+
+
+//-----------------------------------------------------------------------------
+// Module_Initialize()
+//   Initialization routine for the module.
+//-----------------------------------------------------------------------------
+static PyObject *Module_Initialize(void)
 {
     PyObject *module;
 
+#if PY_MAJOR_VERSION >= 3
+    module = PyModule_Create(&g_ModuleDef);
+#else
     module = Py_InitModule("cx_Freeze.util", g_ModuleMethods);
+#endif
     if (!module)
-        return;
+        return NULL;
 #ifdef WIN32
     g_BindErrorException = PyErr_NewException("cx_Freeze.util.BindError",
             NULL, NULL);
     if (!g_BindErrorException)
-        return;
+        return NULL;
     if (PyModule_AddObject(module, "BindError", g_BindErrorException) < 0)
-        return;
+        return NULL;
 #endif
+    return module;
 }
+
+
+//-----------------------------------------------------------------------------
+// Entry point for the module.
+//-----------------------------------------------------------------------------
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC PyInit_util(void)
+{
+    return Module_Initialize();
+}
+#else
+void initutil(void)
+{
+        Module_Initialize();
+}
+#endif
 
