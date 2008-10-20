@@ -347,7 +347,7 @@ static PyObject *ExtGetDependentFiles(
 
 //-----------------------------------------------------------------------------
 // ExtGetSystemDir()
-//   Return the Windows directory (C:\Windows for example).
+//   Return the Windows system directory (C:\Windows\system for example).
 //-----------------------------------------------------------------------------
 static PyObject *ExtGetSystemDir(
     PyObject *self,                     // passthrough argument
@@ -356,6 +356,23 @@ static PyObject *ExtGetSystemDir(
     char dir[MAX_PATH + 1];
 
     if (GetSystemDirectory(dir, sizeof(dir)))
+        return PyString_FromString(dir);
+    PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
+    return NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// ExtGetWindowsDir()
+//   Return the Windows directory (C:\Windows for example).
+//-----------------------------------------------------------------------------
+static PyObject *ExtGetWindowsDir(
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments (ignored)
+{
+    char dir[MAX_PATH + 1];
+
+    if (GetWindowsDirectory(dir, sizeof(dir)))
         return PyString_FromString(dir);
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
@@ -390,6 +407,7 @@ static PyMethodDef g_ModuleMethods[] = {
     { "AddIcon", ExtAddIcon, METH_VARARGS },
     { "GetDependentFiles", ExtGetDependentFiles, METH_VARARGS },
     { "GetSystemDir", ExtGetSystemDir, METH_NOARGS },
+    { "GetWindowsDir", ExtGetWindowsDir, METH_NOARGS },
 #endif
     { NULL }
 };

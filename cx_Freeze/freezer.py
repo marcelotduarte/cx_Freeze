@@ -22,7 +22,10 @@ __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
 if sys.platform == "win32":
     pythonDll = "python%s%s.dll" % sys.version_info[:2]
-    GLOBAL_BIN_PATH_EXCLUDES = [cx_Freeze.util.GetSystemDir()]
+    systemDir = cx_Freeze.util.GetSystemDir()
+    windowsDir = cx_Freeze.util.GetWindowsDir()
+    GLOBAL_BIN_PATH_EXCLUDES = \
+            [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
     GLOBAL_BIN_INCLUDES = [
             pythonDll,
             "gdiplus.dll",
