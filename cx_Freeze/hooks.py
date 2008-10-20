@@ -78,6 +78,10 @@ def load_cx_Oracle(finder, module):
     """the cx_Oracle module implicitly imports datetime; make sure this
        happens."""
     finder.IncludeModule("datetime")
+    try:
+        finder.IncludeModule("decimal")
+    except ImportError:
+        pass
 
 
 def load_docutils_frontend(finder, module):
