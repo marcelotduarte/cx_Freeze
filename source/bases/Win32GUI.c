@@ -106,11 +106,15 @@ static PyObject *ArgumentValue(
 //-----------------------------------------------------------------------------
 static void HandleSystemExitException()
 {
-    PyObject *type, *value, *traceback, *valueStr;
+    char *message, *caption = "cx_Freeze: Application Terminated";
+    PyObject *type, *value, *traceback, *valueStr, *captionObj;
     int exitCode = 0;
-    char *message;
 
     PyErr_Fetch(&type, &value, &traceback);
+
+    captionObj = PyObject_GetAttrString(value, "caption");
+    if (captionObj && PyString_Check(captionObj))
+        caption = PyString_AS_STRING(captionObj);
     if (PyInstance_Check(value)) {
         PyObject *code = PyObject_GetAttrString(value, "code");
         if (code) {
@@ -124,8 +128,7 @@ static void HandleSystemExitException()
         exitCode = PyInt_AsLong(value);
     else {
         message = StringifyObject(value, &valueStr);
-        MessageBox(NULL, message, "cx_Freeze: Application Terminated",
-                MB_ICONERROR);
+        MessageBox(NULL, message, caption, MB_ICONERROR);
         Py_XDECREF(valueStr);
         exitCode = 1;
     }
