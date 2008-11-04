@@ -143,8 +143,9 @@ static void HandleSystemExitException()
 static int FatalScriptError()
 {
     PyObject *type, *value, *traceback, *argsTuple, *module, *method, *result;
+    char *tracebackStr, *caption = "cx_Freeze: Python error in main script";
     int tracebackLength, i;
-    char *tracebackStr;
+    PyObject *captionObj;
 
     // if a system exception, handle it specially
     if (PyErr_ExceptionMatches(PyExc_SystemExit))
@@ -202,8 +203,10 @@ static int FatalScriptError()
     Py_DECREF(result);
 
     // bring up the error
-    MessageBox(NULL, tracebackStr, "cx_Freeze: Python error in main script",
-            MB_ICONERROR);
+    captionObj = PyObject_GetAttrString(value, "caption");
+    if (captionObj && PyString_Check(captionObj))
+        caption = PyString_AS_STRING(captionObj);
+    MessageBox(NULL, tracebackStr, caption, MB_ICONERROR);
     Py_Finalize();
     return 1;
 }
