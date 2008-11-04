@@ -144,8 +144,8 @@ static int FatalScriptError()
 {
     PyObject *type, *value, *traceback, *argsTuple, *module, *method, *result;
     char *tracebackStr, *caption = "cx_Freeze: Python error in main script";
+    PyObject *captionObj, *hook, *origHook;
     int tracebackLength, i;
-    PyObject *captionObj;
 
     // if a system exception, handle it specially
     if (PyErr_ExceptionMatches(PyExc_SystemExit))
@@ -153,6 +153,26 @@ static int FatalScriptError()
 
     // get the exception details
     PyErr_Fetch(&type, &value, &traceback);
+
+    // call the exception hook
+    hook = PySys_GetObject("excepthook");
+    origHook = PySys_GetObject("__excepthook__");
+    if (hook && hook != origHook) {
+        argsTuple = PyTuple_New(3);
+        if (!argsTuple)
+            return FatalPythonErrorNoTraceback(type, value,
+                    "cannot create hook args tuple");
+        PyTuple_SET_ITEM(argsTuple, 0, ArgumentValue(type));
+        PyTuple_SET_ITEM(argsTuple, 1, ArgumentValue(value));
+        PyTuple_SET_ITEM(argsTuple, 2, ArgumentValue(traceback));
+        result = PyObject_CallObject(hook, argsTuple);
+        Py_DECREF(argsTuple);
+        if (!result)
+            return FatalPythonErrorNoTraceback(type, value,
+                    "error in sys.excepthook");
+        Py_DECREF(result);
+        return 1;
+    }
 
     // import the traceback module
     module = PyImport_ImportModule("traceback");
