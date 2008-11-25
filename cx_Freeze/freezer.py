@@ -500,15 +500,15 @@ class Executable(object):
             freezer._VerifyCanAppendToLibrary()
         if self.icon is None:
             self.icon = freezer.icon
-        if self.script is not None:
-            name, ext = os.path.splitext(os.path.basename(self.script))
-            if self.appendScriptToLibrary:
-                self.moduleName = "%s__main__" % os.path.normcase(name)
-            else:
-                self.moduleName = "__main__"
         if self.targetName is None:
+            name, ext = os.path.splitext(os.path.basename(self.script))
             baseName, ext = os.path.splitext(self.base)
             self.targetName = name + ext
+        if self.appendScriptToLibrary:
+            name, ext = os.path.splitext(self.targetName)
+            self.moduleName = "%s__main__" % os.path.normcase(name)
+        else:
+            self.moduleName = "__main__"
         self.targetName = os.path.join(self.targetDir, self.targetName)
 
 
