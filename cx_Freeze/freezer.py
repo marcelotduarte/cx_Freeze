@@ -112,7 +112,7 @@ class Freezer(object):
         self.binPathExcludes = [os.path.normcase(n) \
                 for n in GLOBAL_BIN_PATH_EXCLUDES + binPathExcludes]
         self.icon = icon
-        self.includeFiles = includeFiles
+        self.includeFiles = list(includeFiles)
         self._VerifyConfiguration()
 
     def _CopyFile(self, source, target, copyDependentFiles,
@@ -243,7 +243,8 @@ class Freezer(object):
         if argsSource is None:
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
-                argsSource.path, argsSource.replacePaths)
+                argsSource.path, argsSource.replacePaths,
+                argsSource.copyDependentFiles)
         if argsSource.copyDependentFiles:
             finder.IncludeModule("imp")
             finder.IncludeModule("os")
@@ -386,6 +387,7 @@ class Freezer(object):
             if compress:
                 zinfo.compress_type = zipfile.ZIP_DEFLATED
             outFile.writestr(zinfo, data)
+        outFile.close()
         origPath = os.environ["PATH"]
         for module, target in filesToCopy:
             try:

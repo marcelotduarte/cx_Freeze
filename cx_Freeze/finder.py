@@ -26,10 +26,12 @@ __all__ = [ "Module", "ModuleFinder" ]
 
 class ModuleFinder(object):
 
-    def __init__(self, includeFiles, excludes, path, replacePaths):
+    def __init__(self, includeFiles, excludes, path, replacePaths,
+            copyDependentFiles):
         self.includeFiles = includeFiles
         self.excludes = dict.fromkeys(excludes)
         self.replacePaths = replacePaths
+        self.copyDependentFiles = copyDependentFiles
         self.path = path or sys.path
         self.modules = []
         self.aliases = {}
@@ -389,7 +391,8 @@ class ModuleFinder(object):
 
     def IncludeFiles(self, sourcePath, targetPath):
         """Include the files in the given directory in the target build."""
-        self.includeFiles.append((sourcePath, targetPath))
+        if self.copyDependentFiles:
+            self.includeFiles.append((sourcePath, targetPath))
 
     def IncludeModule(self, name):
         """Include the named module in the frozen executable."""
