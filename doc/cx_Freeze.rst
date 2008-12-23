@@ -69,6 +69,8 @@ Further customization can be done using the following options:
 +-----------------------+-----------------------------------------------------+
 | -c, --compress        | compress byte code in zip files                     |
 +-----------------------+-----------------------------------------------------+
+| -s, --silent          | suppress all output except warnings                 |
++-----------------------+-----------------------------------------------------+
 | --base-name           | file on which to base the executable; if the name   |
 |                       | of the file is not an absolute file name, the       |
 |                       | subdirectory bases inside the cx_Freeze package     |
@@ -246,6 +248,8 @@ It can be further customized:
 | bin-excludes          | list of names of files to exclude when determining  |
 |                       | dependencies of binary files that would normally be |
 |                       | included                                            |
++-----------------------+-----------------------------------------------------+
+| silent (-s)           | suppress all output except warnings                 |
 +-----------------------+-----------------------------------------------------+
 
 install

@@ -3,15 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
 <title>cx_Freeze</title>
 <style type="text/css">
 
 /*
-:Author: David Goodger
-:Contact: goodger@users.sourceforge.net
-:Date: $Date: 2005-12-18 01:56:14 +0100 (Sun, 18 Dec 2005) $
-:Revision: $Revision: 4224 $
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 5196 2007-06-03 20:25:28Z wiemann $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -117,7 +115,7 @@ div.line-block div.line-block {
   margin-left: 1.5em }
 
 div.sidebar {
-  margin-left: 1em ;
+  margin: 0 0 0.5em 1em ;
   border: medium outset ;
   padding: 1em ;
   background-color: #ffffee ;
@@ -223,8 +221,7 @@ pre.address {
 
 pre.literal-block, pre.doctest-block {
   margin-left: 2em ;
-  margin-right: 2em ;
-  background-color: #eeeeee }
+  margin-right: 2em }
 
 span.classifier {
   font-family: sans-serif ;
@@ -281,9 +278,6 @@ h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
 h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
   font-size: 100% }
 
-tt.docutils {
-  background-color: #eeeeee }
-
 ul.auto-toc {
   list-style-type: none }
 
@@ -292,19 +286,20 @@ ul.auto-toc {
 <body>
 <div class="document" id="cx-freeze">
 <h1 class="title">cx_Freeze</h1>
-<div class="section">
-<h1><a id="abstract" name="abstract">Abstract</a></h1>
+
+<div class="section" id="abstract">
+<h1>Abstract</h1>
 <p><strong>cx_Freeze</strong> is a set of scripts and modules for freezing Python scripts into
-executables in much the same way that <a class="reference" href="http://www.py2exe.org/">py2exe</a> and <a class="reference" href="http://svn.pythonmac.org/py2app/py2app/trunk/doc/index.html">py2app</a> do. It requires
-<a class="reference" href="http://www.python.org">Python</a> 2.3 or higher since it makes use of the zip import facility which was
+executables in much the same way that <a class="reference external" href="http://www.py2exe.org/">py2exe</a> and <a class="reference external" href="http://svn.pythonmac.org/py2app/py2app/trunk/doc/index.html">py2app</a> do. It requires
+<a class="reference external" href="http://www.python.org">Python</a> 2.3 or higher since it makes use of the zip import facility which was
 introduced in that version.</p>
-<p><strong>cx_Freeze</strong> is distributed under an open-source <a class="reference" href="LICENSE.txt">license</a>.</p>
+<p><strong>cx_Freeze</strong> is distributed under an open-source <a class="reference external" href="LICENSE.txt">license</a>.</p>
 </div>
-<div class="section">
-<h1><a id="using-cx-freeze" name="using-cx-freeze">Using cx_Freeze</a></h1>
+<div class="section" id="using-cx-freeze">
+<h1>Using cx_Freeze</h1>
 <p>There are three different ways to use cx_Freeze. The first is to use the
 included <tt class="docutils literal"><span class="pre">freeze</span></tt> script which works well for simple scripts. The second is
-to create a <a class="reference" href="http://docs.python.org/lib/module-distutils.html">distutils</a> setup script which can be used for more complicated
+to create a <a class="reference external" href="http://docs.python.org/lib/module-distutils.html">distutils</a> setup script which can be used for more complicated
 configuration or to retain the configuration for future use. The third method
 involves working directly with the classes and modules used internally by
 cx_Freeze and should be reserved for complicated scripts or extending or
@@ -318,8 +313,8 @@ called <tt class="docutils literal"><span class="pre">library.zip</span></tt> an
 options are necessary when creating an RPM since the RPM builder automatically
 strips executables. These options are described in greater detail below as
 well.</p>
-<div class="section">
-<h2><a id="freeze-script" name="freeze-script">freeze script</a></h2>
+<div class="section" id="freeze-script">
+<h2>freeze script</h2>
 <p>The <tt class="docutils literal"><span class="pre">freeze</span></tt> script is included with other Python scripts. On Windows and the
 Mac this is in the <tt class="docutils literal"><span class="pre">Scripts</span></tt> subdirectory of your Python installation whereas
 on Unix platforms this in the bin directory of the prefix where Python is
@@ -353,6 +348,9 @@ use -OO in order to remove doc strings</td>
 </tr>
 <tr><td>-c, --compress</td>
 <td>compress byte code in zip files</td>
+</tr>
+<tr><td>-s, --silent</td>
+<td>suppress all output except warnings</td>
 </tr>
 <tr><td>--base-name</td>
 <td>file on which to base the executable; if the name
@@ -427,8 +425,8 @@ will specify the archive name to use; multiple
 </tbody>
 </table>
 </div>
-<div class="section">
-<h2><a id="distutils-setup-script" name="distutils-setup-script">distutils setup script</a></h2>
+<div class="section" id="distutils-setup-script">
+<h2>distutils setup script</h2>
 <p>In order to make use of distutils a setup script must be created. This is
 called <tt class="docutils literal"><span class="pre">setup.py</span></tt> by convention although it need not be called that. A
 very simple script might use the following:</p>
@@ -453,10 +451,10 @@ platforms to be built without conflicts.</p>
 provide the ability to both build and install executables. In typical distutils
 fashion they can be provided in the setup script, on the command line or in
 a setup.cfg configuration file. They are described in further detail below.</p>
-<div class="section">
-<h3><a id="distutils-commands" name="distutils-commands">distutils commands</a></h3>
-<div class="section">
-<h4><a id="build" name="build">build</a></h4>
+<div class="section" id="distutils-commands">
+<h3>distutils commands</h3>
+<div class="section" id="build">
+<h4>build</h4>
 <p>This command is a standard command which has been modified by cx_Freeze to
 build any executables that are defined. The following options were added to
 the standard set of options for the command:</p>
@@ -477,8 +475,8 @@ the standard set of options for the command:</p>
 </tbody>
 </table>
 </div>
-<div class="section">
-<h4><a id="build-exe" name="build-exe">build_exe</a></h4>
+<div class="section" id="build-exe">
+<h4>build_exe</h4>
 <p>This command performs the work of building an executable or set of executables.
 It can be further customized:</p>
 <table border="1" class="docutils">
@@ -577,11 +575,14 @@ excluded</td>
 dependencies of binary files that would normally be
 included</td>
 </tr>
+<tr><td>silent (-s)</td>
+<td>suppress all output except warnings</td>
+</tr>
 </tbody>
 </table>
 </div>
-<div class="section">
-<h4><a id="install" name="install">install</a></h4>
+<div class="section" id="install">
+<h4>install</h4>
 <p>This command is a standard command which has been modified by cx_Freeze to
 install any executables that are defined. The following options were added to
 the standard set of options for the command:</p>
@@ -603,8 +604,8 @@ files</td>
 </tbody>
 </table>
 </div>
-<div class="section">
-<h4><a id="install-exe" name="install-exe">install_exe</a></h4>
+<div class="section" id="install-exe">
+<h4>install_exe</h4>
 <p>This command performs the work installing an executable or set of executables.
 It can be used directly but most often is used when building Windows installers
 or RPM packages. It can be further customized:</p>
@@ -640,8 +641,8 @@ defaults to the build_dir from the build command</td>
 </tbody>
 </table>
 </div>
-<div class="section">
-<h4><a id="bdist-msi" name="bdist-msi">bdist_msi</a></h4>
+<div class="section" id="bdist-msi">
+<h4>bdist_msi</h4>
 <p>This command is a standard command in Python 2.5 and higher which has been
 modified by cx_Freeze to handle installing executables and their dependencies.
 The following options were added to the standard set of options for the
@@ -671,16 +672,16 @@ to the installation of this one</td>
 </tbody>
 </table>
 </div>
-<div class="section">
-<h4><a id="bdist-rpm" name="bdist-rpm">bdist_rpm</a></h4>
+<div class="section" id="bdist-rpm">
+<h4>bdist_rpm</h4>
 <p>This command is a standard command which has been modified by cx_Freeze to
 ensure that packages are created with the proper architecture for the platform.
 The standard command assumes that the package should be architecture
 independent if it cannot find any extension modules.</p>
 </div>
 </div>
-<div class="section">
-<h3><a id="cx-freeze-executable" name="cx-freeze-executable">cx_Freeze.Executable</a></h3>
+<div class="section" id="cx-freeze-executable">
+<h3>cx_Freeze.Executable</h3>
 <p>The options for the <cite>build_exe</cite> command are the defaults for any executables
 that are created. The options for the <cite>Executable</cite> class allow specification of
 the values specific to a particular executable. The arguments to the
