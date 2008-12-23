@@ -37,6 +37,10 @@ def ParseCommandLine():
             action = "store_true",
             dest = "compress",
             help = "compress byte code in zip files")
+    parser.add_option("-s", "--silent",
+            action = "store_true",
+            dest = "silent",
+            help = "suppress all output except warnings and errors")
     parser.add_option("--base-name",
             dest = "baseName",
             metavar = "NAME",
@@ -166,6 +170,7 @@ def main():
             path = None,
             createLibraryZip = False,
             appendScriptToExe = True,
-            targetDir = options.targetDir)
+            targetDir = options.targetDir,
+            silent = options.silent)
     freezer.Freeze()
 

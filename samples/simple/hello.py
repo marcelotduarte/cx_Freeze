@@ -1,19 +1,17 @@
 import sys
 
-print "Hello from cx_Freeze"
-print
+sys.stdout.write("Hello from cx_Freeze\n\n")
 
-print "sys.executable", sys.executable
-print "sys.prefix", sys.prefix
-print
+sys.stdout.write("sys.executable %s\n" % sys.executable)
+sys.stdout.write("sys.prefix %s\n\n" % sys.prefix)
 
-print "ARGUMENTS:"
+sys.stdout.write("ARGUMENTS:\n")
 for a in sys.argv:
-    print a
-print
+    sys.stdout.write("%s\n" % a)
+sys.stdout.write("\n")
 
-print "PATH:"
+sys.stdout.write("PATH:\n")
 for p in sys.path:
-    print p
-print
+    sys.stdout.write("%s\n" % p)
+sys.stdout.write("\n")
 

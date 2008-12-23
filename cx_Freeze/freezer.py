@@ -87,7 +87,7 @@ class Freezer(object):
             appendScriptToExe = None, appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
-            includeFiles = []):
+            includeFiles = [], silent = False):
         self.executables = executables
         self.constantsModules = constantsModules
         self.includes = includes
@@ -113,6 +113,7 @@ class Freezer(object):
                 for n in GLOBAL_BIN_PATH_EXCLUDES + binPathExcludes]
         self.icon = icon
         self.includeFiles = list(includeFiles)
+        self.silent = silent
         self._VerifyConfiguration()
 
     def _CopyFile(self, source, target, copyDependentFiles,
@@ -126,7 +127,8 @@ class Freezer(object):
         self._RemoveFile(target)
         targetDir = os.path.dirname(target)
         self._CreateDirectory(targetDir)
-        print "copying", source, "->", target
+        if not self.silent:
+            sys.stdout.write("coyping %s -> %s\n" % (source, target))
         shutil.copyfile(source, target)
         if includeMode:
             shutil.copymode(source, target)
@@ -138,7 +140,8 @@ class Freezer(object):
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
-            print "creating directory", path
+            if not self.silent:
+                sys.stdout.write("creating directory %s\n" % path)
             os.makedirs(path)
 
     def _FreezeExecutable(self, exe):
@@ -205,7 +208,8 @@ class Freezer(object):
                         continue
                     dependentFile = parts[1]
                     if dependentFile == "not found":
-                        print "WARNING: cannot find", parts[0]
+                        message = "WARNING: cannot find %s\n" % parts[0]
+                        sys.stdout.write(message)
                         continue
                     pos = dependentFile.find(" (")
                     if pos >= 0:
@@ -258,17 +262,16 @@ class Freezer(object):
         return finder
 
     def _PrintReport(self, fileName, modules):
-        print "writing zip file", fileName
-        print
-        print "  %-25s %s" % ("Name", "File")
-        print "  %-25s %s" % ("----", "----")
+        sys.stdout.write("writing zip file %s\n\n" % fileName)
+        sys.stdout.write("  %-25s %s\n" % ("Name", "File"))
+        sys.stdout.write("  %-25s %s\n" % ("----", "----"))
         for module in modules:
             if module.path:
-                print "P",
+                sys.stdout.write("P")
             else:
-                print "m",
-            print "%-25s" % module.name, module.file or ""
-        print
+                sys.stdout.write("m")
+            sys.stdout.write(" %-25s %s\n" % (module.name, module.file or ""))
+        sys.stdout.write("\n")
 
     def _RemoveFile(self, path):
         if os.path.exists(path):
@@ -347,7 +350,8 @@ class Freezer(object):
         itemsToSort = [(m.name, m) for m in modules]
         itemsToSort.sort()
         modules = [m for n, m in itemsToSort]
-        self._PrintReport(fileName, modules)
+        if not self.silent:
+            self._PrintReport(fileName, modules)
         if scriptModule is None:
             finder.ReportMissingModules()
         targetDir = os.path.dirname(fileName)

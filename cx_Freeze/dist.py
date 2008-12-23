@@ -96,11 +96,13 @@ class build_exe(distutils.core.Command):
         ('bin-includes', None,
          'list of names of files to include when determining dependencies'),
         ('bin-excludes', None,
-         'list of names of files to exclude when determining dependencies')
+         'list of names of files to exclude when determining dependencies'),
+        ('silent', 's',
+         'suppress all output except warnings')
     ]
     boolean_options = ["compressed", "copy_dependent_files",
             "create_shared_zip", "append_script_to_exe",
-            "include_in_shared_zip"]
+            "include_in_shared_zip", "silent"]
 
     def _normalize(self, attrName):
         value = getattr(self, attrName)
@@ -132,10 +134,13 @@ class build_exe(distutils.core.Command):
         self.include_files = []
         self.bin_excludes = []
         self.bin_includes = []
+        self.silent = None
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_exe'))
         self.optimize = int(self.optimize)
+        if self.silent is None:
+            self.silent = False
         self._normalize("excludes")
         self._normalize("includes")
         self._normalize("packages")
@@ -161,7 +166,8 @@ class build_exe(distutils.core.Command):
                 self.include_in_shared_zip, self.build_exe, icon = self.icon,
                 includeFiles = self.include_files,
                 binIncludes = self.bin_includes,
-                binExcludes = self.bin_excludes)
+                binExcludes = self.bin_excludes,
+                silent = self.silent)
         freezer.Freeze()
 
 

@@ -413,14 +413,15 @@ class ModuleFinder(object):
 
     def ReportMissingModules(self):
         if self._badModules:
-            print "Missing modules:"
+            sys.stdout.write("Missing modules:\n")
             names = self._badModules.keys()
             names.sort()
             for name in names:
                 callers = self._badModules[name].keys()
                 callers.sort()
-                print "?", name, "imported from", ", ".join(callers)
-            print
+                sys.stdout.write("? %s imported from %s\n" % \
+                        (name, ", ".join(callers)))
+            sys.stdout.write("\n")
 
 
 class Module(object):
