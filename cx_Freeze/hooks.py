@@ -112,6 +112,91 @@ def load_ftplib(finder, module):
     module.IgnoreName("SOCKS")
 
 
+def load_glib(finder, module):
+    """Ignore globals that are imported."""
+    module.AddGlobalName("GError")
+    module.AddGlobalName("IOChannel")
+    module.AddGlobalName("IO_ERR")
+    module.AddGlobalName("IO_FLAG_APPEND")
+    module.AddGlobalName("IO_FLAG_GET_MASK")
+    module.AddGlobalName("IO_FLAG_IS_READABLE")
+    module.AddGlobalName("IO_FLAG_IS_SEEKABLE")
+    module.AddGlobalName("IO_FLAG_IS_WRITEABLE")
+    module.AddGlobalName("IO_FLAG_MASK")
+    module.AddGlobalName("IO_FLAG_NONBLOCK")
+    module.AddGlobalName("IO_FLAG_SET_MASK")
+    module.AddGlobalName("IO_HUP")
+    module.AddGlobalName("IO_IN")
+    module.AddGlobalName("IO_NVAL")
+    module.AddGlobalName("IO_OUT")
+    module.AddGlobalName("IO_PRI")
+    module.AddGlobalName("IO_STATUS_AGAIN")
+    module.AddGlobalName("IO_STATUS_EOF")
+    module.AddGlobalName("IO_STATUS_ERROR")
+    module.AddGlobalName("IO_STATUS_NORMAL")
+    module.AddGlobalName("Idle")
+    module.AddGlobalName("MainContext")
+    module.AddGlobalName("MainLoop")
+    module.AddGlobalName("OPTION_ERROR")
+    module.AddGlobalName("OPTION_ERROR_BAD_VALUE")
+    module.AddGlobalName("OPTION_ERROR_FAILED")
+    module.AddGlobalName("OPTION_ERROR_UNKNOWN_OPTION")
+    module.AddGlobalName("OPTION_FLAG_FILENAME")
+    module.AddGlobalName("OPTION_FLAG_HIDDEN")
+    module.AddGlobalName("OPTION_FLAG_IN_MAIN")
+    module.AddGlobalName("OPTION_FLAG_NOALIAS")
+    module.AddGlobalName("OPTION_FLAG_NO_ARG")
+    module.AddGlobalName("OPTION_FLAG_OPTIONAL_ARG")
+    module.AddGlobalName("OPTION_FLAG_REVERSE")
+    module.AddGlobalName("OPTION_REMAINING")
+    module.AddGlobalName("OptionContext")
+    module.AddGlobalName("OptionGroup")
+    module.AddGlobalName("PRIORITY_DEFAULT")
+    module.AddGlobalName("PRIORITY_DEFAULT_IDLE")
+    module.AddGlobalName("PRIORITY_HIGH")
+    module.AddGlobalName("PRIORITY_HIGH_IDLE")
+    module.AddGlobalName("PRIORITY_LOW")
+    module.AddGlobalName("Pid")
+    module.AddGlobalName("PollFD")
+    module.AddGlobalName("SPAWN_CHILD_INHERITS_STDIN")
+    module.AddGlobalName("SPAWN_DO_NOT_REAP_CHILD")
+    module.AddGlobalName("SPAWN_FILE_AND_ARGV_ZERO")
+    module.AddGlobalName("SPAWN_LEAVE_DESCRIPTORS_OPEN")
+    module.AddGlobalName("SPAWN_SEARCH_PATH")
+    module.AddGlobalName("SPAWN_STDERR_TO_DEV_NULL")
+    module.AddGlobalName("SPAWN_STDOUT_TO_DEV_NULL")
+    module.AddGlobalName("Source")
+    module.AddGlobalName("Timeout")
+    module.AddGlobalName("child_watch_add")
+    module.AddGlobalName("filename_display_basename")
+    module.AddGlobalName("filename_display_name")
+    module.AddGlobalName("filename_from_utf8")
+    module.AddGlobalName("get_application_name")
+    module.AddGlobalName("get_current_time")
+    module.AddGlobalName("get_prgname")
+    module.AddGlobalName("glib_version")
+    module.AddGlobalName("idle_add")
+    module.AddGlobalName("io_add_watch")
+    module.AddGlobalName("main_context_default")
+    module.AddGlobalName("main_depth")
+    module.AddGlobalName("markup_escape_text")
+    module.AddGlobalName("set_application_name")
+    module.AddGlobalName("set_prgname")
+    module.AddGlobalName("source_remove")
+    module.AddGlobalName("spawn_async")
+    module.AddGlobalName("timeout_add")
+    module.AddGlobalName("timeout_add_seconds")
+
+
+def load_gtk__gtk(finder, module):
+    """the gtk._gtk module has a number of implicit imports"""
+    finder.IncludeModule("atk")
+    finder.IncludeModule("cairo")
+    finder.IncludeModule("gio")
+    finder.IncludeModule("pango")
+    finder.IncludeModule("pangocairo")
+
+
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
@@ -252,6 +337,18 @@ def missing_EasyDialogs(finder, caller):
        found"""
     if sys.platform == "win32":
         caller.IgnoreName("EasyDialogs")
+
+
+def missing_gdk(finder, caller):
+    """the gdk module is buried inside gtk so there is no need to concern
+       ourselves with an error saying that it cannot be found"""
+    caller.IgnoreName("gdk")
+
+
+def missing_ltihooks(finder, caller):
+    """this module is not necessairly present so ignore it when it cannot be
+       found"""
+    caller.IgnoreName("ltihooks")
 
 
 def missing_readline(finder, caller):
