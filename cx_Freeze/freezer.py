@@ -203,7 +203,7 @@ class Freezer(object):
             else:
                 dependentFiles = []
                 for line in os.popen('ldd "%s"' % path):
-                    parts = line.strip().split(" => ")
+                    parts = line.expandtabs().strip().split(" => ")
                     if len(parts) != 2:
                         continue
                     dependentFile = parts[1]
