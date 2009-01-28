@@ -251,11 +251,10 @@ def load_PyQt4_Qt(finder, module):
        foolish way of doing things but perhaps there is some hidden advantage
        to this technique over pure Python; ignore the absence of some of
        the modules since not every installation includes all of them."""
-    finder.IncludeModule("PyQt4._qt")
     finder.IncludeModule("PyQt4.QtCore")
     finder.IncludeModule("PyQt4.QtGui")
     finder.IncludeModule("sip")
-    for name in ("PyQt4.QtSvg", "PyQt4.Qsci", "PyQt4.QtAssistant",
+    for name in ("PyQt4._qt", "PyQt4.QtSvg", "PyQt4.Qsci", "PyQt4.QtAssistant",
             "PyQt4.QtNetwork", "PyQt4.QtOpenGL", "PyQt4.QtScript",
             "PyQt4.QtSql", "PyQt4.QtSvg", "PyQt4.QtTest", "PyQt4.QtXml"):
         try:
