@@ -14,6 +14,8 @@ import sys
 from distutils.core import setup
 from distutils.extension import Extension
 
+CX_LOGGING_TAG = "trunk"
+
 class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 
     # rpm automatically byte compiles all Python files in a package but we
@@ -130,6 +132,26 @@ class install_packagedata(distutils.command.install_data.install_data):
                     self.outfiles.append(fullTargetName)
 
 
+def find_cx_Logging():
+    currentDir = os.getcwd()
+    dirName, baseName = os.path.split(currentDir)
+    parts = [dirName, ".."]
+    if baseName != "trunk":
+        parts.append("..")
+    parts.append("cx_Logging")
+    if CX_LOGGING_TAG != "trunk":
+        parts.append("tags")
+    parts.append(CX_LOGGING_TAG)
+    loggingDir = os.path.normpath(os.path.join(*parts))
+    if not os.path.exists(loggingDir):
+        return
+    subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
+    importLibraryDir = os.path.join(loggingDir, "build", subDir)
+    if not os.path.exists(loggingDir):
+        return
+    return loggingDir, importLibraryDir
+
+
 commandClasses = dict(
         build_ext = build_ext,
         build_scripts = build_scripts,
@@ -161,6 +183,14 @@ if sys.platform == "win32":
             ["source/bases/Win32GUI.c"] + extraSources,
             depends = depends, extra_link_args = ["-mwindows"])
     extensions.append(gui)
+    moduleInfo = find_cx_Logging()
+    if moduleInfo is not None:
+        includeDir, libraryDir = moduleInfo
+        service = Extension("cx_Freeze.bases.Win32Service",
+                ["source/bases/Win32Service.c"] + extraSources,
+                depends = depends, library_dirs = [libraryDir],
+                libraries = ["cx_Logging"], include_dirs = [includeDir])
+        extensions.append(service)
 
 docFiles = "LICENSE.txt README.txt HISTORY.txt doc/cx_Freeze.html"
 
@@ -181,7 +211,7 @@ classifiers = [
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "4.0.1",
+        version = "4.1",
         cmdclass = commandClasses,
         options = dict(bdist_rpm = dict(doc_files = docFiles),
                 install = dict(optimize = 1)),
