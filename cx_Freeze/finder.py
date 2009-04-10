@@ -241,11 +241,11 @@ class ModuleFinder(object):
             return module, returnError
         try:
             fp, path, info = self._FindModule(searchName, path)
+            module = self._LoadModule(name, fp, path, info, deferredImports,
+                    parentModule)
         except ImportError:
             self._modules[name] = None
             return None, True
-        module = self._LoadModule(name, fp, path, info, deferredImports,
-                parentModule)
         return module, False
 
     def _LoadModule(self, name, fp, path, info, deferredImports,
