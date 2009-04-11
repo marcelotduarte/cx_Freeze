@@ -1,12 +1,12 @@
-version = "4.0.1"
+version = "4.1"
 
 import sys
-from dist import *
+from cx_Freeze.dist import *
 if sys.platform == "win32" and sys.version_info[:2] >= (2, 5):
-    from windist import *
-from finder import *
-from freezer import *
-from main import *
+    from cx_Freeze.windist import *
+from cx_Freeze.finder import *
+from cx_Freeze.freezer import *
+from cx_Freeze.main import *
 
 del dist
 del finder

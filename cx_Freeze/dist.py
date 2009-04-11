@@ -113,7 +113,7 @@ class build_exe(distutils.core.Command):
         value = getattr(self, attrName)
         if value is None:
             normalizedValue = []
-        elif isinstance(value, basestring):
+        elif isinstance(value, str):
             normalizedValue = value.split()
         else:
             normalizedValue = list(value)
