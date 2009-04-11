@@ -9,7 +9,7 @@ __all__ = [ "bdist_msi" ]
 # different "products" very well
 sequence = msilib.sequence.InstallExecuteSequence
 for index, info in enumerate(sequence):
-    if info[0] == u'RemoveExistingProducts':
+    if info[0] == 'RemoveExistingProducts':
         sequence[index] = (info[0], info[1], 1450)
 
 

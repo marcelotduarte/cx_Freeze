@@ -239,6 +239,8 @@ class Freezer(object):
                 name = "Console"
             else:
                 name = "ConsoleKeepPath"
+            if sys.version_info[0] >= 3:
+                name += "3"
         argsSource.initScript = self._GetFileName("initscripts", name)
         if argsSource.initScript is None:
             raise ConfigError("no initscript named %s", name)
@@ -275,7 +277,7 @@ class Freezer(object):
 
     def _RemoveFile(self, path):
         if os.path.exists(path):
-            os.chmod(path, 0777)
+            os.chmod(path, stat.S_IWRITE)
             os.remove(path)
 
     def _ShouldCopyFile(self, path):
@@ -549,7 +551,7 @@ class ConstantsModule(object):
                 sourceTimestamp.strftime(self.timeFormat)
         module = finder._AddModule(self.moduleName)
         sourceParts = []
-        names = self.values.keys()
+        names = list(self.values.keys())
         names.sort()
         for name in names:
             value = self.values[name]

@@ -5,10 +5,10 @@ Base class for finding modules.
 import dis
 import imp
 import marshal
-import new
 import opcode
 import os
 import sys
+import types
 import zipfile
 
 import cx_Freeze.hooks
@@ -135,7 +135,7 @@ class ModuleFinder(object):
                         self._InternalImportModule(subModuleName,
                                 deferredImports)
                 if returnError and subModule is None:
-                    raise ImportError, "No module named %s" % subModuleName
+                    raise ImportError("No module named %s" % subModuleName)
                 module.globalNames[name] = None
                 if subModule.path and recursive:
                     self._ImportAllSubModules(subModule, deferredImports,
@@ -200,7 +200,7 @@ class ModuleFinder(object):
         # if module not found, track that fact
         if module is None:
             if caller is None:
-                raise ImportError, "No module named %s" % name
+                raise ImportError("No module named %s" % name)
             self._RunHook("missing", name, caller)
             if returnError and name not in caller.ignoreNames:
                 callers = self._badModules.setdefault(name, {})
@@ -265,7 +265,7 @@ class ModuleFinder(object):
             else:
                 magic = fp.read(4)
             if magic != imp.get_magic():
-                raise ImportError, "Bad magic number in %s" % path
+                raise ImportError("Bad magic number in %s" % path)
             if isinstance(fp, str):
                 module.code = marshal.loads(fp[8:])
                 module.inZipFile = True
@@ -310,7 +310,7 @@ class ModuleFinder(object):
         for i, value in enumerate(constants):
             if isinstance(value, type(co)):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
-        return new.code(co.co_argcount, co.co_nlocals, co.co_stacksize,
+        return types.CodeType(co.co_argcount, co.co_nlocals, co.co_stacksize,
                 co.co_flags, co.co_code, tuple(constants), co.co_names,
                 co.co_varnames, newFileName, co.co_name, co.co_firstlineno,
                 co.co_lnotab, co.co_freevars, co.co_cellvars)
@@ -330,11 +330,18 @@ class ModuleFinder(object):
         arguments = []
         code = co.co_code
         numOps = len(code)
+        is3 = sys.version_info[0] >= 3
         while opIndex < numOps:
-            op = ord(code[opIndex])
+            if is3:
+                op = code[opIndex]
+            else:
+                op = ord(code[opIndex])
             opIndex += 1
             if op >= dis.HAVE_ARGUMENT:
-                opArg = ord(code[opIndex]) + ord(code[opIndex + 1]) * 256
+                if is3:
+                    opArg = code[opIndex] + code[opIndex + 1] * 256
+                else:
+                    opArg = ord(code[opIndex]) + ord(code[opIndex + 1]) * 256
                 opIndex += 2
             if op == LOAD_CONST:
                 arguments.append(co.co_consts[opArg])
@@ -384,7 +391,7 @@ class ModuleFinder(object):
             moduleName = name
         info = (ext, "r", imp.PY_SOURCE)
         deferredImports = []
-        module = self._LoadModule(moduleName, file(path, "U"), path, info,
+        module = self._LoadModule(moduleName, open(path, "U"), path, info,
                 deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
@@ -414,10 +421,10 @@ class ModuleFinder(object):
     def ReportMissingModules(self):
         if self._badModules:
             sys.stdout.write("Missing modules:\n")
-            names = self._badModules.keys()
+            names = list(self._badModules.keys())
             names.sort()
             for name in names:
-                callers = self._badModules[name].keys()
+                callers = list(self._badModules[name].keys())
                 callers.sort()
                 sys.stdout.write("? %s imported from %s\n" % \
                         (name, ", ".join(callers)))
