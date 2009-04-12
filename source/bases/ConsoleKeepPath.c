@@ -42,13 +42,37 @@ static int FatalScriptError(void)
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
+#if PY_MAJOR_VERSION >= 3
+    char fileName[MAXPATHLEN + 1];
+    wchar_t **wargv, *wfileName;
+    int i, size;
+#else
     const char *fileName;
+#endif
 
     // initialize Python
+#if PY_MAJOR_VERSION >= 3
+    wargv = PyMem_Malloc(sizeof(wchar_t*) * argc);
+    if (!wargv)
+        return 2;
+    for (i = 0; i < argc; i++) {
+        size = strlen(argv[i]);
+        wargv[i] = PyMem_Malloc(sizeof(wchar_t) * (size + 1));
+        if (!wargv[i])
+            return 2;
+        mbstowcs(wargv[i], argv[i], size + 1);
+    }
+    Py_SetProgramName(wargv[0]);
+    wfileName = Py_GetProgramFullPath();
+    wcstombs(fileName, wfileName, MAXPATHLEN);
+    Py_Initialize();
+    PySys_SetArgv(argc, wargv);
+#else
     Py_SetProgramName(argv[0]);
     fileName = Py_GetProgramFullPath();
     Py_Initialize();
     PySys_SetArgv(argc, argv);
+#endif
 
     // do the work
     if (ExecuteScript(fileName) < 0)
