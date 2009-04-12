@@ -81,11 +81,12 @@ static int SetExecutableName(
 {
     char temp[MAXPATHLEN + 12], *ptr;
     const char *tempStr = NULL;
+    PyObject *encodedObj;
 #ifndef WIN32
-    PyObject *dirName, *encodedObj;
     char linkData[MAXPATHLEN + 1];
     struct stat statData;
     size_t linkSize, i;
+    PyObject *dirName;
 #endif
 
     // store file name

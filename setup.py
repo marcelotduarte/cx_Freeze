@@ -99,7 +99,7 @@ class build_scripts(distutils.command.build_scripts.build_scripts):
                         (os.path.dirname(sys.executable), script)
                 command = "%s %s %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9" % \
                         (sys.executable, fullScriptName)
-                file(batFileName, "w").write("@echo off\n\n%s" % command)
+                open(batFileName, "w").write("@echo off\n\n%s" % command)
 
 
 class install(distutils.command.install.install):
