@@ -7,12 +7,50 @@
 #include <eval.h>
 #include <osdefs.h>
 
+// define macro for converting a C string to a Python string (Unicode for 3.x)
+#if PY_MAJOR_VERSION >= 3
+    #define cxString_FromStringAndSize(str, size)  \
+            PyUnicode_Decode(str, size, Py_FileSystemDefaultEncoding, NULL)
+    #define cxString_FromString(str) \
+            PyUnicode_Decode(str, strlen(str), Py_FileSystemDefaultEncoding, \
+            NULL)
+#else
+    #define cxString_FromStringAndSize(str, size)  \
+            PyString_FromStringAndSize(str, size);
+    #define cxString_FromString(str) \
+            PyString_FromString(str)
+#endif
+
 // global variables (used for simplicity)
 static PyObject *g_FileName = NULL;
 static PyObject *g_DirName = NULL;
 static PyObject *g_ExclusiveZipFileName = NULL;
 static PyObject *g_SharedZipFileName = NULL;
 static PyObject *g_InitScriptZipFileName = NULL;
+
+//-----------------------------------------------------------------------------
+// cxString_ToString()
+//   Convert an object to a C string.
+//-----------------------------------------------------------------------------
+static int cxString_ToString(
+    PyObject *obj,                      // object to convert to C string
+    PyObject **encodedObj,              // encoded object
+    const char **str)                   // C string
+{
+#if PY_MAJOR_VERSION >= 3
+    *encodedObj = PyUnicode_AsEncodedString(obj, Py_FileSystemDefaultEncoding,
+            NULL);
+    if (!*encodedObj)
+        return FatalError("unable to encode string");
+    *str = PyBytes_AS_STRING(*encodedObj);
+#else
+    Py_INCREF(obj);
+    *encodedObj = obj;
+    *str = PyString_AS_STRING(obj);
+#endif
+    return 0;
+}
+
 
 //-----------------------------------------------------------------------------
 // GetDirName()
@@ -25,7 +63,7 @@ static int GetDirName(
     int i;
 
     for (i = strlen(path); i > 0 && path[i] != SEP; --i);
-    *dirName = PyString_FromStringAndSize(path, i);
+    *dirName = cxString_FromStringAndSize(path, i);
     if (!*dirName)
         return FatalError("cannot create string for directory name");
     return 0;
@@ -42,20 +80,23 @@ static int SetExecutableName(
     const char *fileName)               // script to execute
 {
     char temp[MAXPATHLEN + 12], *ptr;
+    const char *tempStr = NULL;
 #ifndef WIN32
+    PyObject *dirName, *encodedObj;
     char linkData[MAXPATHLEN + 1];
     struct stat statData;
     size_t linkSize, i;
-    PyObject *dirName;
 #endif
 
     // store file name
-    g_FileName = PyString_FromString(fileName);
+    g_FileName = cxString_FromString(fileName);
     if (!g_FileName)
         return FatalError("cannot create string for file name");
 
 #ifndef WIN32
     for (i = 0; i < 25; i++) {
+        if (cxString_ToString(g_FileName, &encodedObj, &fileName) < 0)
+            return -1;
         if (lstat(fileName, &statData) < 0) {
             PyErr_SetFromErrnoWithFilename(PyExc_OSError, (char*) fileName);
             return FatalError("unable to stat file");
@@ -67,25 +108,34 @@ static int SetExecutableName(
             PyErr_SetFromErrnoWithFilename(PyExc_OSError, (char*) fileName);
             return FatalError("unable to stat file");
         }
+        Py_DECREF(encodedObj);
         if (linkData[0] == '/') {
             Py_DECREF(g_FileName);
-            g_FileName = PyString_FromStringAndSize(linkData, linkSize);
+            g_FileName = cxString_FromStringAndSize(linkData, linkSize);
         } else {
-            if (GetDirName(PyString_AS_STRING(g_FileName), &dirName) < 0)
+            if (cxString_ToString(g_FileName, &encodedObj, &fileName) < 0)
                 return -1;
-            if (PyString_GET_SIZE(dirName) + linkSize + 1 > MAXPATHLEN) {
+            if (GetDirName(fileName, &dirName) < 0) {
+                Py_DECREF(encodedObj);
+                return -1;
+            }
+            Py_DECREF(encodedObj);
+            if (cxString_ToString(dirName, &encodedObj, &tempStr) < 0)
+                return -1;
+            if (strlen(tempStr) + linkSize + 1 > MAXPATHLEN) {
                 Py_DECREF(dirName);
+                Py_DECREF(encodedObj);
                 return FatalError("cannot dereference link, path too large");
             }
-            strcpy(temp, PyString_AS_STRING(dirName));
+            strcpy(temp, tempStr);
+            Py_DECREF(encodedObj);
             strcat(temp, "/");
             strcat(temp, linkData);
             Py_DECREF(g_FileName);
-            g_FileName = PyString_FromString(temp);
+            g_FileName = cxString_FromString(temp);
         }
         if (!g_FileName)
             return FatalError("cannot create string for linked file name");
-        fileName = PyString_AS_STRING(g_FileName);
     }
 #endif
 
@@ -101,16 +151,19 @@ static int SetExecutableName(
     if (*ptr == '.')
         *ptr = '\0';
     strcat(temp, ".zip");
-    g_ExclusiveZipFileName = PyString_FromString(temp);
+    g_ExclusiveZipFileName = cxString_FromString(temp);
     if (!g_ExclusiveZipFileName)
         return FatalError("cannot create string for exclusive zip file name");
 
     // calculate and store shared zip file name
-    strcpy(temp, PyString_AS_STRING(g_DirName));
+    if (cxString_ToString(g_DirName, &encodedObj, &tempStr) < 0)
+        return -1;
+    strcpy(temp, tempStr);
+    Py_DECREF(encodedObj);
     ptr = temp + strlen(temp);
     *ptr++ = SEP;
     strcpy(ptr, "library.zip");
-    g_SharedZipFileName = PyString_FromString(temp);
+    g_SharedZipFileName = cxString_FromString(temp);
     if (!g_SharedZipFileName)
         return FatalError("cannot create string for shared zip file name");
 
