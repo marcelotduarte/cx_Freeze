@@ -1,7 +1,6 @@
 import sys
 
-print "Hello from cx_Freeze Advanced #1"
-print
+sys.stdout.write("Hello from cx_Freeze Advanced #1\n\n")
 
 module = __import__("testfreeze_1")
 
