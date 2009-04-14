@@ -97,8 +97,7 @@ class build_scripts(distutils.command.build_scripts.build_scripts):
                 batFileName = os.path.join(self.build_dir, script + ".bat")
                 fullScriptName = r"%s\Scripts\%s" % \
                         (os.path.dirname(sys.executable), script)
-                command = "%s %s %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9" % \
-                        (sys.executable, fullScriptName)
+                command = "%s %s %%*" % (sys.executable, fullScriptName)
                 open(batFileName, "w").write("@echo off\n\n%s" % command)
 
 
