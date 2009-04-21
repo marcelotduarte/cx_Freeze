@@ -118,6 +118,9 @@ def ParseCommandLine():
             help = "name of file to add to the zip file or a specification of "
                    "the form name=arcname which will specify the archive name "
                    "to use; multiple --zip-include arguments can be used")
+    parser.add_option("--icon",
+            dest = "icon",
+            help = "name of the icon file for the application")
     options, args = parser.parse_args()
     if len(args) == 0:
         options.script = None
@@ -171,6 +174,7 @@ def main():
             createLibraryZip = False,
             appendScriptToExe = True,
             targetDir = options.targetDir,
+            icon = options.icon,
             silent = options.silent)
     freezer.Freeze()
 
