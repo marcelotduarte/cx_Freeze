@@ -246,6 +246,7 @@ int WINAPI WinMain(
     int showFlag)                       // show flag
 {
     const char *fileName;
+    int status;
 
     // initialize Python
     Py_NoSiteFlag = 1;
@@ -258,11 +259,12 @@ int WINAPI WinMain(
     PySys_SetArgv(__argc, __argv);
 
     // do the work
+    status = 0;
     if (ExecuteScript(fileName) < 0)
-        return 1;
+        status = 1;
 
     // terminate Python
     Py_Finalize();
-    return 0;
+    return status;
 }
 

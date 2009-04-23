@@ -82,6 +82,7 @@ int main(int argc, char **argv)
 #else
     const char *fileName;
 #endif
+    int status;
 
     // initialize Python
     Py_NoSiteFlag = 1;
@@ -114,10 +115,10 @@ int main(int argc, char **argv)
 #endif
 
     // do the work
+    status = 0;
     if (ExecuteScript(fileName) < 0)
-        return 1;
-
+        status = 1;
     Py_Finalize();
-    return 0;
+    return status;
 }
 
