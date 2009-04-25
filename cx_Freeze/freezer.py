@@ -428,10 +428,12 @@ class Freezer(object):
                         dirNames.remove(".svn")
                     if "CVS" in dirNames:
                         dirNames.remove("CVS")
+                    fullTargetDir = os.path.join(self.targetDir,
+                            targetFileName, shortPath)
+                    self._CreateDirectory(fullTargetDir)
                     for fileName in fileNames:
                         fullSourceName = os.path.join(path, fileName)
-                        fullTargetName = os.path.join(self.targetDir,
-                                targetFileName, shortPath, fileName)
+                        fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
                                 copyDependentFiles = False)
             else:
