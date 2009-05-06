@@ -82,7 +82,7 @@ static int SetExecutableName(
     char temp[MAXPATHLEN + 12], *ptr;
     const char *tempStr = NULL;
     PyObject *encodedObj;
-#ifndef WIN32
+#ifndef MS_WINDOWS
     char linkData[MAXPATHLEN + 1];
     struct stat statData;
     size_t linkSize, i;
@@ -94,7 +94,7 @@ static int SetExecutableName(
     if (!g_FileName)
         return FatalError("cannot create string for file name");
 
-#ifndef WIN32
+#ifndef MS_WINDOWS
     for (i = 0; i < 25; i++) {
         if (cxString_ToString(g_FileName, &encodedObj, &fileName) < 0)
             return -1;
