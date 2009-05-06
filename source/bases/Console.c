@@ -4,7 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Python.h>
-#ifdef __WIN32__
+#ifdef MS_WINDOWS
 #include <windows.h>
 #endif
 

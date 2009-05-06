@@ -5,7 +5,7 @@
 
 #include <Python.h>
 
-#ifdef WIN32
+#ifdef MS_WINDOWS
 #include <windows.h>
 #include <imagehlp.h>
 
@@ -51,7 +51,7 @@ typedef struct {
 //-----------------------------------------------------------------------------
 // Globals
 //-----------------------------------------------------------------------------
-#ifdef WIN32
+#ifdef MS_WINDOWS
 static PyObject *g_BindErrorException = NULL;
 static PyObject *g_ImageNames = NULL;
 #endif
@@ -63,7 +63,7 @@ static PyObject *g_ImageNames = NULL;
 #endif
 
 
-#ifdef WIN32
+#ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
 // BindStatusRoutine()
 //   Called by BindImageEx() at various points. This is used to determine the
@@ -418,7 +418,7 @@ static PyObject *ExtSetOptimizeFlag(
 //-----------------------------------------------------------------------------
 static PyMethodDef g_ModuleMethods[] = {
     { "SetOptimizeFlag", ExtSetOptimizeFlag, METH_VARARGS },
-#ifdef WIN32
+#ifdef MS_WINDOWS
     { "BeginUpdateResource", ExtBeginUpdateResource, METH_VARARGS },
     { "UpdateResource", ExtUpdateResource, METH_VARARGS },
     { "EndUpdateResource", ExtEndUpdateResource, METH_VARARGS },
@@ -464,7 +464,7 @@ static PyObject *Module_Initialize(void)
 #endif
     if (!module)
         return NULL;
-#ifdef WIN32
+#ifdef MS_WINDOWS
     g_BindErrorException = PyErr_NewException("cx_Freeze.util.BindError",
             NULL, NULL);
     if (!g_BindErrorException)
