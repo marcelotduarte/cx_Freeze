@@ -3,13 +3,14 @@ try:
 except ImportError:
     pass
 
-import distutils.log
 import distutils.command.bdist_rpm
 import distutils.command.build
 import distutils.command.install
 import distutils.core
 import distutils.dir_util
 import distutils.dist
+import distutils.errors
+import distutils.log
 import distutils.util
 import distutils.version
 import os
@@ -141,7 +142,8 @@ class build_exe(distutils.core.Command):
         distribution = distutils.core.run_setup("setup.py", scriptArgs)
         modules = [m for m in distribution.ext_modules if m.name == moduleName]
         if not modules:
-            raise DistutilsSetupError("no module named '%s' in '%s'" % \
+            messageFormat = "no module named '%s' in '%s'"
+            raise distutils.errors.DistutilsSetupError(messageFormat %
                     (moduleName, sourceDir))
         command = distribution.get_command_obj("build_ext")
         command.ensure_finalized()
@@ -213,24 +215,16 @@ class build_exe(distutils.core.Command):
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
-        envName = "%s_SOURCE" % name.upper()
+        envName = "%s_BASE" % name.upper()
         attrName = name.lower()
-        value = getattr(self, attrName)
-        if value is None:
-            value = os.environ.get(envName)
-            if value is not None:
-                setattr(self, attrName, value)
-            else:
-                dirName = os.getcwd()
-                while dirName:
-                    dirName, subDirName = os.path.split(dirName)
-                    if subDirName in ("trunk", "tags", "branches"):
-                        dirName = os.path.dirname(dirName)
-                        break
-                dirName = os.path.join(dirName, name, *pathParts)
-                if os.path.isdir(dirName):
-                    os.environ[envName] = dirName 
-                    setattr(self, attrName, dirName)
+        sourceDir = getattr(self, attrName)
+        if sourceDir is None:
+            baseDir = os.environ.get(envName)
+            if baseDir is None:
+                return
+            sourceDir = os.path.join(baseDir, *pathParts)
+            if os.path.isdir(sourceDir):
+                setattr(self, attrName, sourceDir)
 
 
 class install(distutils.command.install.install):
