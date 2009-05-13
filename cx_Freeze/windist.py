@@ -199,7 +199,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 ('ErrorDialog', 'ErrorDlg'),
                 ('Progress1', 'Install'),
                 ('Progress2', 'installs'),
-                ('MaintenanceForm_Action', 'Repair')
+                ('MaintenanceForm_Action', 'Repair'),
+                ('ALLUSERS', '1')
         ]
         email = metadata.author_email or metadata.maintainer_email
         if email:
