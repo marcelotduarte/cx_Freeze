@@ -22,7 +22,7 @@ class Frame(wx.Frame):
         self.Close(True)
 
     def OnPushMe(self, event):
-        1 / 0
+        wx.MessageBox("I was pushed!", "Informational message")
 
     def OnCloseWindow(self, event):
         self.Destroy()
