@@ -24,7 +24,7 @@ Using cx_Freeze
 ---------------
 
 There are three different ways to use cx_Freeze. The first is to use the
-included ``freeze`` script which works well for simple scripts. The second is
+included ``cxfreeze`` script which works well for simple scripts. The second is
 to create a distutils_ setup script which can be used for more complicated
 configuration or to retain the configuration for future use. The third method
 involves working directly with the classes and modules used internally by
@@ -43,18 +43,18 @@ well.
 
 .. _distutils: http://docs.python.org/lib/module-distutils.html
 
-freeze script
-=============
+cxfreeze script
+===============
 
-The ``freeze`` script is included with other Python scripts. On Windows and the
-Mac this is in the ``Scripts`` subdirectory of your Python installation whereas
-on Unix platforms this in the bin directory of the prefix where Python is
-installed.
+The ``cxfreeze`` script is included with other Python scripts. On Windows and
+the Mac this is in the ``Scripts`` subdirectory of your Python installation
+whereas on Unix platforms this in the bin directory of the prefix where Python
+is installed.
 
 Assuming you have a script called ``hello.py`` which you want to turn into an
 executable, this can be accomplished by this command::
 
-    freeze hello.py --target-dir dist
+    cxfreeze hello.py --target-dir dist
 
 Further customization can be done using the following options:
 
