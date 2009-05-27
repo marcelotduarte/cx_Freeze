@@ -1,3 +1,47 @@
+Changes from 4.0.1 to 4.1
+ 1) Added support for Python 3.x.
+ 2) Added support for services on Windows.
+ 3) Added command line option --silent (-s) as requested by Todd Templeton.
+    This option turns off all normal output including the report of the modules
+    that are included.
+ 4) Added command line option --icon as requested by Tom Brown.
+ 5) Ensure that Py_Finalize() is called even when exceptions take place so that
+    any finalization (such as __del__ calls) are made prior to the executable
+    terminating.
+ 6) Ensured that empty directories are created as needed in the target as
+    requested by Clemens Hermann.
+ 7) Ensured that if a target name is specified, that the module name in the zip
+    file is also changed. Thanks to Clemens Hermann for the initial patch.
+ 8) Enabled support for compiling on 64-bit Windows.
+ 9) If an import error occurs during the load phase, treat that as a bad module
+    as well. Thanks to Tony Meyer for pointing this out.
+10) As suggested by Todd Templeton, ensured that the include files list is
+    copied, not simply referenced so that further uses of the list do not
+    inadvertently cause side effects.
+11) As suggested by Todd Templeton, zip files are now closed properly in order
+    to avoid potential corruption.
+12) As suggested by Todd Templeton, data files are no longer copied when the
+    copy dependent files flag is cleared.
+13) Enabled better support of setup.py scripts that call other setup.py
+    scripts such as the ones used by cx_OracleTools and cx_OracleDBATools.
+14) On Solaris, ldd outputs tabs instead of spaces so expand them first before
+    looking for the separator. Thanks to Eric Brunel for reporting this and
+    providing the solution.
+15) On Windows, exclude the Windows directory and the side-by-side installation
+    directory when determining DLLs to copy since these are generally
+    considered part of the system.
+16) On Windows, use %* rather than the separated arguments in the generated
+    batch file in order to avoid problems with the very limited argument
+    processor used by the command processor.
+17) For the Win32GUI base executable, add support for specifying the caption to
+    use when displaying error messages.
+18) For the Win32GUI base executable, add support for calling the excepthook
+    for top level exceptions if one has been specified.
+19) On Windows, ensure that the MSI packages that are built are per-machine
+    by default as otherwise strange things can happen.
+20) Tweaked hooks for a number of modules based on feedback from others or
+    personal experience.
+
 Changes from 4.0 to 4.0.1
  1) Added support for Python 2.6. On Windows a manifest file is now required
     because of the switch to using the new Microsoft C runtime.
