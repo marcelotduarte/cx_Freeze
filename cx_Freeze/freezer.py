@@ -74,7 +74,7 @@ for p in sys.path:
     break
 if not found:
     del sys.modules[__name__]
-    raise ImportError, "No module named %%s" %% __name__
+    raise ImportError("No module named %%s" %% __name__)
 """
 
 
