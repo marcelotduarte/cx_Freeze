@@ -33,7 +33,8 @@ static int FatalScriptError(void)
 
 
 #include "Common.c"
-#if PY_MAJOR_VERSION >= 3
+#ifndef MS_WINDOWS
+    #if PY_MAJOR_VERSION >= 3
 #include "3.0/M__abcoll.c"
 #include "3.0/M__weakrefset.c"
 #include "3.0/M_abc.c"
@@ -66,6 +67,7 @@ static struct _frozen _PyImport_FrozenModules[] = {
         {"stat", M_stat, 2963},
         {0, 0, 0}
 };
+    #endif
 #endif
 
 
@@ -89,7 +91,9 @@ int main(int argc, char **argv)
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
 #if PY_MAJOR_VERSION >= 3
+#ifndef MS_WINDOWS
     PyImport_FrozenModules = _PyImport_FrozenModules;
+#endif
     Py_SetPythonHome(L"");
     wargv = PyMem_Malloc(sizeof(wchar_t*) * argc);
     if (!wargv)
