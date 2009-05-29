@@ -16,40 +16,8 @@ import time
 import zipfile
 
 import cx_Freeze
-import cx_Freeze.util
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
-
-if sys.platform == "win32":
-    pythonDll = "python%s%s.dll" % sys.version_info[:2]
-    systemDir = cx_Freeze.util.GetSystemDir()
-    windowsDir = cx_Freeze.util.GetWindowsDir()
-    GLOBAL_BIN_PATH_EXCLUDES = \
-            [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
-    GLOBAL_BIN_INCLUDES = [
-            pythonDll,
-            "gdiplus.dll",
-            "mfc71.dll",
-            "msvcp71.dll",
-            "msvcr71.dll"
-    ]
-    GLOBAL_BIN_EXCLUDES = [
-            "comctl32.dll",
-            "oci.dll",
-            "cx_Logging.pyd"
-    ]
-else:
-    extension = distutils.sysconfig.get_config_var("SO")
-    pythonSharedLib = "libpython%s.%s%s" % \
-            (sys.version_info[:2] + (extension,))
-    GLOBAL_BIN_INCLUDES = [pythonSharedLib]
-    GLOBAL_BIN_EXCLUDES = [
-            "libclntsh.so",
-            "libwtc9.so"
-    ]
-    GLOBAL_BIN_PATH_EXCLUDES = ["/lib", "/lib32", "/lib64", "/usr/lib",
-            "/usr/lib32", "/usr/lib64"]
-
 
 # NOTE: the try: except: block in this code is not necessary under Python 2.4
 # and higher and can be removed once support for Python 2.3 is no longer needed
@@ -105,12 +73,12 @@ class Freezer(object):
         self.appendScriptToLibrary = appendScriptToLibrary
         self.targetDir = targetDir
         self.binIncludes = [os.path.normcase(n) \
-                for n in GLOBAL_BIN_INCLUDES + binIncludes]
+                for n in self._GetDefaultBinIncludes() + binIncludes]
         self.binExcludes = [os.path.normcase(n) \
-                for n in GLOBAL_BIN_EXCLUDES + binExcludes]
+                for n in self._GetDefaultBinExcludes() + binExcludes]
         self.binPathIncludes = [os.path.normcase(n) for n in binPathIncludes]
         self.binPathExcludes = [os.path.normcase(n) \
-                for n in GLOBAL_BIN_PATH_EXCLUDES + binPathExcludes]
+                for n in self._GetDefaultBinPathExcludes() + binPathExcludes]
         self.icon = icon
         self.includeFiles = list(includeFiles)
         self.silent = silent
@@ -157,6 +125,7 @@ class Freezer(object):
                 includeMode = True)
         if exe.icon is not None:
             if sys.platform == "win32":
+                import cx_Freeze.util
                 cx_Freeze.util.AddIcon(exe.targetName, exe.icon)
             else:
                 targetName = os.path.join(os.path.dirname(exe.targetName),
@@ -191,6 +160,33 @@ class Freezer(object):
         if argsSource.base is None:
             raise ConfigError("no base named %s", name)
 
+    def _GetDefaultBinExcludes(self):
+        if sys.platform == "win32":
+            return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
+        else:
+            return ["libclntsh.so", "libwtc9.so"]
+
+    def _GetDefaultBinIncludes(self):
+        if sys.platform == "win32":
+            pythonDll = "python%s%s.dll" % sys.version_info[:2]
+            return [pythonDll, "gdiplus.dll", "mfc71.dll", "msvcp71.dll",
+                    "msvcr71.dll"]
+        else:
+            extension = distutils.sysconfig.get_config_var("SO")
+            pythonSharedLib = "libpython%s.%s%s" % \
+                    (sys.version_info[:2] + (extension,))
+            return [pythonSharedLib]
+
+    def _GetDefaultBinPathExcludes(self):
+        if sys.platform == "win32":
+            import cx_Freeze.util
+            systemDir = cx_Freeze.util.GetSystemDir()
+            windowsDir = cx_Freeze.util.GetWindowsDir()
+            return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
+        else:
+            return ["/lib", "/lib32", "/lib64", "/usr/lib", "/usr/lib32",
+                    "/usr/lib64"]
+
     def _GetDependentFiles(self, path):
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
@@ -198,6 +194,7 @@ class Freezer(object):
                 origPath = os.environ["PATH"]
                 os.environ["PATH"] = origPath + os.pathsep + \
                         os.pathsep.join(sys.path)
+                import cx_Freeze.util
                 dependentFiles = cx_Freeze.util.GetDependentFiles(path)
                 os.environ["PATH"] = origPath
             else:
@@ -409,6 +406,7 @@ class Freezer(object):
         self.excludeModules = {}
         self.dependentFiles = {}
         self.filesCopied = {}
+        import cx_Freeze.util
         cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
         if self.createLibraryZip:
             self.finder = self._GetModuleFinder()
