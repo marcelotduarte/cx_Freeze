@@ -2,8 +2,9 @@ import sys
 
 sys.stdout.write("Hello from cx_Freeze\n\n")
 
-sys.stdout.write("sys.executable %s\n" % sys.executable)
-sys.stdout.write("sys.prefix %s\n\n" % sys.prefix)
+sys.stdout.write("Executable: %r\n" % sys.executable)
+sys.stdout.write("Prefix: %r\n" % sys.prefix)
+sys.stdout.write("File system encoding: %r\n\n" % sys.getfilesystemencoding())
 
 sys.stdout.write("ARGUMENTS:\n")
 for a in sys.argv:
