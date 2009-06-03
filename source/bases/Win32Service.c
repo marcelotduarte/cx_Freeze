@@ -54,6 +54,7 @@ static int FatalScriptError(void)
 }
 
 #include "Common.c"
+#include "BaseModules.c"
 
 //-----------------------------------------------------------------------------
 // Service_SetStatus()
@@ -198,6 +199,7 @@ static int Service_SetupPython(
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
+    PyImport_FrozenModules = gFrozenModules;
     Py_SetPythonHome("");
     Py_SetProgramName(programName);
     fileName = Py_GetProgramFullPath();

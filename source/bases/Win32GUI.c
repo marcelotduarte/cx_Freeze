@@ -235,6 +235,7 @@ static int FatalScriptError()
 
 
 #include "Common.c"
+#include "BaseModules.c"
 
 
 //-----------------------------------------------------------------------------
@@ -260,6 +261,7 @@ int WINAPI WinMain(
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
+    PyImport_FrozenModules = gFrozenModules;
 #if PY_MAJOR_VERSION >= 3
     Py_SetPythonHome(L"");
     wargv = PyMem_Malloc(sizeof(wchar_t*) * __argc);
