@@ -8,7 +8,6 @@
 
 import os
 import sys
-import warnings
 import zipimport
 
 sys.frozen = True

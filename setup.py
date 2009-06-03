@@ -2,6 +2,7 @@
 Distutils script for cx_Freeze.
 """
 
+import cx_Freeze
 import distutils.command.bdist_rpm
 import distutils.command.build_ext
 import distutils.command.build_scripts
@@ -158,37 +159,51 @@ commandClasses = dict(
         install = install,
         install_packagedata = install_packagedata)
 
+# generate C source for base frozen modules
+subDir = "temp.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
+baseModulesDir = os.path.join("build", subDir)
+baseModulesFileName = os.path.join(baseModulesDir, "BaseModules.c")
+finder = cx_Freeze.ModuleFinder(bootstrap = True)
+finder.WriteSourceFile(baseModulesFileName)
+
+# build utility module
 if sys.platform == "win32":
     libraries = ["imagehlp"]
 else:
     libraries = []
 utilModule = Extension("cx_Freeze.util", ["source/util.c"],
         libraries = libraries)
+
+# build base executables
 depends = ["source/bases/Common.c"]
+fullDepends = depends + [baseModulesFileName]
+includeDirs = [baseModulesDir]
+extraSources = []
 if sys.platform == "win32":
     if sys.version_info[:2] >= (2, 6):
-        extraSources = ["source/bases/manifest.rc"]
+        extraSources.append("source/bases/manifest.rc")
     else:
-        extraSources = ["source/bases/dummy.rc"]
-else:
-    extraSources = []
+        extraSources.append("source/bases/dummy.rc")
 console = Extension("cx_Freeze.bases.Console",
-        ["source/bases/Console.c"] + extraSources, depends = depends)
+        ["source/bases/Console.c"] + extraSources, depends = fullDepends,
+        include_dirs = includeDirs)
 consoleKeepPath = Extension("cx_Freeze.bases.ConsoleKeepPath",
         ["source/bases/ConsoleKeepPath.c"] + extraSources, depends = depends)
 extensions = [utilModule, console, consoleKeepPath]
 if sys.platform == "win32":
     gui = Extension("cx_Freeze.bases.Win32GUI",
             ["source/bases/Win32GUI.c"] + extraSources,
-            depends = depends, extra_link_args = ["-mwindows"])
+            include_dirs = includeDirs, depends = fullDepends,
+            extra_link_args = ["-mwindows"])
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
+        includeDirs.append(includeDir)
         service = Extension("cx_Freeze.bases.Win32Service",
                 ["source/bases/Win32Service.c"] + extraSources,
-                depends = depends, library_dirs = [libraryDir],
-                libraries = ["cx_Logging"], include_dirs = [includeDir])
+                depends = fullDepends, library_dirs = [libraryDir],
+                libraries = ["cx_Logging"], include_dirs = includeDirs)
         extensions.append(service)
 
 docFiles = "LICENSE.txt README.txt HISTORY.txt doc/cx_Freeze.html"

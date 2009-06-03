@@ -26,11 +26,11 @@ __all__ = [ "Module", "ModuleFinder" ]
 
 class ModuleFinder(object):
 
-    def __init__(self, includeFiles, excludes, path, replacePaths,
-            copyDependentFiles):
-        self.includeFiles = includeFiles
+    def __init__(self, includeFiles = [], excludes = [], path = None,
+            replacePaths = [], copyDependentFiles = True, bootstrap = False):
+        self.includeFiles = list(includeFiles)
         self.excludes = dict.fromkeys(excludes)
-        self.replacePaths = replacePaths
+        self.replacePaths = list(replacePaths)
         self.copyDependentFiles = copyDependentFiles
         self.path = path or sys.path
         self.modules = []
@@ -41,6 +41,23 @@ class ModuleFinder(object):
         self._zipFileEntries = {}
         self._zipFiles = {}
         cx_Freeze.hooks.initialize(self)
+        self._AddBaseModules()
+        if not bootstrap:
+            for module in self._modules.values():
+                if module is None:
+                    continue
+                if module.code is not None:
+                    module.code = None
+                    module.file = None
+
+    def _AddBaseModules(self):
+        """Add the base modules to the finder. These are the modules that
+           Python imports itself during initialization and, if not found,
+           can result in behavior that differs from running from source."""
+        self.IncludeModule("warnings")
+        self.IncludePackage("encodings")
+        if sys.version_info[0] >= 3:
+            self.IncludeModule("io")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
@@ -53,6 +70,17 @@ class ModuleFinder(object):
             if name in self._badModules:
                 del self._badModules[name]
         return module
+
+    def _ClearBaseModuleCode(self):
+        """Clear the code for all of the base modules. This is done when not in
+           bootstrap mode so that the base modules are not included in the
+           zip file."""
+        for module in self._modules.itervalues():
+            if module is None:
+                continue
+            if module.code is not None:
+                module.code = None
+                module.file = None
 
     def _DetermineParent(self, caller):
         """Determine the parent to use when searching packages."""
@@ -429,6 +457,38 @@ class ModuleFinder(object):
                 sys.stdout.write("? %s imported from %s\n" % \
                         (name, ", ".join(callers)))
             sys.stdout.write("\n")
+
+    def WriteSourceFile(self, fileName):
+        dirName = os.path.dirname(fileName)
+        if not os.path.isdir(dirName):
+            os.makedirs(dirName)
+        outfp = open(fileName, "w")
+        names = list(self._modules.keys())
+        names.sort()
+        modulesWritten = []
+        for name in names:
+            module = self._modules[name]
+            if module is None or module.code is None:
+                continue
+            mangledName = "__".join(name.split("."))
+            sys.stdout.write("adding base module named %s\n" % name)
+            code = marshal.dumps(module.code)
+            size = len(code)
+            if module.path:
+                size = -size
+            modulesWritten.append((name, mangledName, size))
+            outfp.write("unsigned char M_%s[] = {" % mangledName)
+            for i in range(0, len(code), 16):
+                outfp.write("\n\t")
+                for op in code[i:i + 16]:
+                    if not isinstance(op, int):
+                        op = ord(op)
+                    outfp.write("%d," % op)
+            outfp.write("\n};\n\n");
+        outfp.write("static struct _frozen gFrozenModules[] = {\n")
+        for name, mangledName, size in modulesWritten:
+            outfp.write('    {"%s", M_%s, %d},\n' % (name, mangledName, size))
+        outfp.write("    {0, 0, 0}\n};\n")
 
 
 class Module(object):

@@ -6,10 +6,8 @@
 # the Win32 extensions behave as expected.
 #------------------------------------------------------------------------------
 
-import encodings
 import os
 import sys
-import warnings
 import zipimport
 
 sys.frozen = True
