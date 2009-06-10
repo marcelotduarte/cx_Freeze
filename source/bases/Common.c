@@ -131,7 +131,7 @@ static int SetExecutableName(
             strcpy(temp, tempStr);
             Py_DECREF(encodedObj);
             strcat(temp, "/");
-            strcat(temp, linkData);
+            strncat(temp, linkData, linkSize);
             Py_DECREF(g_FileName);
             g_FileName = cxString_FromString(temp);
         }
