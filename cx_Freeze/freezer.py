@@ -384,7 +384,7 @@ class Freezer(object):
             else:
                 mtime = time.time()
             zipTime = time.localtime(mtime)[:6]
-            data = imp.get_magic() + struct.pack("<i", mtime) + \
+            data = imp.get_magic() + struct.pack("<i", int(mtime)) + \
                     marshal.dumps(module.code)
             zinfo = zipfile.ZipInfo(fileName + ".pyc", zipTime)
             if compress:
