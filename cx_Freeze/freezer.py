@@ -562,4 +562,5 @@ class ConstantsModule(object):
             sourceParts.append("%s = %r" % (name, value))
         source = "\n".join(sourceParts)
         module.code = compile(source, "%s.py" % self.moduleName, "exec")
+        return module
 
