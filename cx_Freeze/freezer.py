@@ -205,8 +205,11 @@ class Freezer(object):
                         continue
                     dependentFile = parts[1]
                     if dependentFile == "not found":
-                        message = "WARNING: cannot find %s\n" % parts[0]
-                        sys.stdout.write(message)
+                        fileName = parts[0]
+                        if fileName not in self.lddWarnings:
+                            self.lddWarnings[fileName] = None
+                            message = "WARNING: cannot find %s\n" % fileName
+                            sys.stdout.write(message)
                         continue
                     pos = dependentFile.find(" (")
                     if pos >= 0:
@@ -406,6 +409,7 @@ class Freezer(object):
         self.excludeModules = {}
         self.dependentFiles = {}
         self.filesCopied = {}
+        self.lddWarnings = {}
         import cx_Freeze.util
         cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
         if self.createLibraryZip:
