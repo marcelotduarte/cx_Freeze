@@ -560,11 +560,17 @@ form &lt;name&gt;=&lt;value&gt;</td>
 <tr><td>include-files</td>
 <td>list containing files to be copied to the target
 directory; it is expected that this list will
-contain 2-tuples for the source and destination;
-the source can be a file or a directory (in which
-case the tree is copied except for .svn and CVS
-directories); the target must not be an absolute
-path</td>
+contain strings or 2-tuples for the source and
+destination; the source can be a file or a directory
+(in which case the tree is copied except for .svn
+and CVS directories); the target must not be an
+absolute path</td>
+</tr>
+<tr><td>zip-includes</td>
+<td>list containing files to be included in the zip file
+directory; it is expected that this list will
+contain strings or 2-tuples for the source and
+destination</td>
 </tr>
 <tr><td>bin-includes</td>
 <td>list of names of files to include when determining

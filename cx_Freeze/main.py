@@ -154,6 +154,14 @@ def ParseCommandLine():
         sys.path = paths + sys.path
     if options.script is not None:
         sys.path.insert(0, os.path.dirname(options.script))
+    zipIncludes = []
+    if options.zipIncludes:
+        for spec in options.zipIncludes:
+            if '=' in spec:
+                zipIncludes.append(spec.split('=', 1))
+            else:
+                zipIncludes.append(spec)
+    options.zipIncludes = zipIncludes
     return options
 
 
@@ -174,6 +182,7 @@ def main():
             createLibraryZip = False,
             appendScriptToExe = True,
             targetDir = options.targetDir,
+            zipIncludes = options.zipIncludes,
             icon = options.icon,
             silent = options.silent)
     freezer.Freeze()

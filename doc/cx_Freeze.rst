@@ -236,11 +236,16 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | include-files         | list containing files to be copied to the target    |
 |                       | directory; it is expected that this list will       |
-|                       | contain 2-tuples for the source and destination;    |
-|                       | the source can be a file or a directory (in which   |
-|                       | case the tree is copied except for .svn and CVS     |
-|                       | directories); the target must not be an absolute    |
-|                       | path                                                |
+|                       | contain strings or 2-tuples for the source and      |
+|                       | destination; the source can be a file or a directory|
+|                       | (in which case the tree is copied except for .svn   |
+|                       | and CVS directories); the target must not be an     |
+|                       | absolute path                                       |
++-----------------------+-----------------------------------------------------+
+| zip-includes          | list containing files to be included in the zip file|
+|                       | directory; it is expected that this list will       |
+|                       | contain strings or 2-tuples for the source and      |
+|                       | destination                                         |
 +-----------------------+-----------------------------------------------------+
 | bin-includes          | list of names of files to include when determining  |
 |                       | dependencies of binary files that would normally be |
