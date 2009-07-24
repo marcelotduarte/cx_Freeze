@@ -100,6 +100,8 @@ class build_exe(distutils.core.Command):
          'comma-separated list of constants to include'),
         ('include-files=', 'f',
          'list of tuples of additional files to include in distribution'),
+        ('zip-includes=', None,
+         'list of tuples of additional files to include in zip file'),
         ('bin-includes', None,
          'list of names of files to include when determining dependencies'),
         ('bin-excludes', None,
@@ -176,6 +178,7 @@ class build_exe(distutils.core.Command):
         self.icon = None
         self.constants = []
         self.include_files = []
+        self.zip_includes = []
         self.bin_excludes = []
         self.bin_includes = []
         self.silent = None
@@ -211,6 +214,7 @@ class build_exe(distutils.core.Command):
                 includeFiles = self.include_files,
                 binIncludes = self.bin_includes,
                 binExcludes = self.bin_excludes,
+                zipIncludes = self.zip_includes,
                 silent = self.silent)
         freezer.Freeze()
 

@@ -55,13 +55,13 @@ class Freezer(object):
             appendScriptToExe = None, appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
-            includeFiles = [], silent = False):
-        self.executables = executables
-        self.constantsModules = constantsModules
-        self.includes = includes
-        self.excludes = excludes
-        self.packages = packages
-        self.replacePaths = replacePaths
+            includeFiles = [], zipIncludes = [], silent = False):
+        self.executables = list(executables)
+        self.constantsModules = list(constantsModules)
+        self.includes = list(includes)
+        self.excludes = list(excludes)
+        self.packages = list(packages)
+        self.replacePaths = list(replacePaths)
         self.compress = compress
         self.optimizeFlag = optimizeFlag
         self.copyDependentFiles = copyDependentFiles
@@ -81,6 +81,8 @@ class Freezer(object):
                 for n in self._GetDefaultBinPathExcludes() + binPathExcludes]
         self.icon = icon
         self.includeFiles = list(includeFiles)
+        self.includeFiles = self._ProcessPathSpecs(includeFiles)
+        self.zipIncludes = self._ProcessPathSpecs(zipIncludes)
         self.silent = silent
         self._VerifyConfiguration()
 
@@ -275,6 +277,18 @@ class Freezer(object):
             sys.stdout.write(" %-25s %s\n" % (module.name, module.file or ""))
         sys.stdout.write("\n")
 
+    def _ProcessPathSpecs(self, specs):
+        processedSpecs = []
+        for spec in specs:
+            if not isinstance(spec, (list, tuple)):
+                processedSpecs.append((spec, spec))
+            elif len(spec) != 2:
+                raise ConfigError("path spec must be a list or tuple of "
+                        "length two")
+            else:
+                processedSpecs.append(spec)
+        return processedSpecs
+
     def _RemoveFile(self, path):
         if os.path.exists(path):
             os.chmod(path, stat.S_IWRITE)
@@ -328,7 +342,7 @@ class Freezer(object):
             self.path = sys.path
         if self.appendScriptToLibrary:
             self._VerifyCanAppendToLibrary()
-        for sourceFileName, targetFileName in self.includeFiles:
+        for sourceFileName, targetFileName in self.includeFiles + self.zipIncludes:
             if not os.path.exists(sourceFileName):
                 raise ConfigError("cannot find file/directory named %s",
                         sourceFileName)
@@ -393,7 +407,12 @@ class Freezer(object):
             if compress:
                 zinfo.compress_type = zipfile.ZIP_DEFLATED
             outFile.writestr(zinfo, data)
+
+        for sourceFileName, targetFileName in self.zipIncludes:
+            outFile.write(sourceFileName, targetFileName)
+
         outFile.close()
+
         origPath = os.environ["PATH"]
         for module, target in filesToCopy:
             try:
