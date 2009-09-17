@@ -205,8 +205,8 @@ class Freezer(object):
                     parts = line.expandtabs().strip().split(" => ")
                     if len(parts) != 2:
                         continue
-                    dependentFile = parts[1]
-                    if dependentFile == "not found":
+                    dependentFile = parts[1].strip()
+                    if dependentFile in ("not found", "(file not found)"):
                         fileName = parts[0]
                         if fileName not in self.lddWarnings:
                             self.lddWarnings[fileName] = None
