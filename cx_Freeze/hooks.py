@@ -245,6 +245,11 @@ def load_pywintypes(finder, module):
     module.code = None
 
 
+def load_PyQt4_QtCore(finder, module):
+    """the PyQt4.QtCore module implicitly imports the sip module."""
+    finder.IncludeModule("sip")
+
+
 def load_PyQt4_Qt(finder, module):
     """the PyQt4.Qt module is an extension module which imports a number of
        other modules and injects their namespace into its own. It seems a
@@ -253,7 +258,6 @@ def load_PyQt4_Qt(finder, module):
        the modules since not every installation includes all of them."""
     finder.IncludeModule("PyQt4.QtCore")
     finder.IncludeModule("PyQt4.QtGui")
-    finder.IncludeModule("sip")
     for name in ("PyQt4._qt", "PyQt4.QtSvg", "PyQt4.Qsci", "PyQt4.QtAssistant",
             "PyQt4.QtNetwork", "PyQt4.QtOpenGL", "PyQt4.QtScript",
             "PyQt4.QtSql", "PyQt4.QtSvg", "PyQt4.QtTest", "PyQt4.QtXml"):
