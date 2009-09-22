@@ -213,6 +213,8 @@ class Freezer(object):
                             message = "WARNING: cannot find %s\n" % fileName
                             sys.stdout.write(message)
                         continue
+                    if dependentFile.startswith("("):
+                        continue
                     pos = dependentFile.find(" (")
                     if pos >= 0:
                         dependentFile = dependentFile[:pos].strip()
