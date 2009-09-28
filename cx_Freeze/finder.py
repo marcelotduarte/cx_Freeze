@@ -54,6 +54,7 @@ class ModuleFinder(object):
         """Add the base modules to the finder. These are the modules that
            Python imports itself during initialization and, if not found,
            can result in behavior that differs from running from source."""
+        self.IncludeModule("traceback")
         self.IncludeModule("warnings")
         self.IncludePackage("encodings")
         if sys.version_info[0] >= 3:
