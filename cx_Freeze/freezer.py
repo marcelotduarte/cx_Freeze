@@ -37,6 +37,7 @@ for p in sys.path:
     except ImportError:
         del sys.modules[__name__]
         raise
+    import sys
     sys.modules[__name__] = m
     found = True
     break
