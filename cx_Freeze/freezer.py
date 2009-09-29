@@ -99,7 +99,7 @@ class Freezer(object):
         targetDir = os.path.dirname(target)
         self._CreateDirectory(targetDir)
         if not self.silent:
-            sys.stdout.write("coyping %s -> %s\n" % (source, target))
+            sys.stdout.write("copying %s -> %s\n" % (source, target))
         shutil.copyfile(source, target)
         if includeMode:
             shutil.copymode(source, target)
