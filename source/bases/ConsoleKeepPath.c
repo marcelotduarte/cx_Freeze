@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Python.h>
+#include <locale.h>
 #ifdef __WIN32__
 #include <windows.h>
 #endif
@@ -53,6 +54,7 @@ int main(int argc, char **argv)
 
     // initialize Python
 #if PY_MAJOR_VERSION >= 3
+    setlocale(LC_CTYPE, "");
     wargv = PyMem_Malloc(sizeof(wchar_t*) * argc);
     if (!wargv)
         return 2;
@@ -61,7 +63,9 @@ int main(int argc, char **argv)
         wargv[i] = PyMem_Malloc(sizeof(wchar_t) * (size + 1));
         if (!wargv[i])
             return 2;
-        mbstowcs(wargv[i], argv[i], size + 1);
+        status = mbstowcs(wargv[i], argv[i], size + 1);
+        if (status < 0)
+            return 3;
     }
     Py_SetProgramName(wargv[0]);
     wfileName = Py_GetProgramFullPath();
