@@ -381,6 +381,9 @@ class ModuleFinder(object):
                 else:
                     relativeImportIndex = -1
                     fromList, = arguments
+                if fromList:
+                    for fromName in fromList:
+                        module.globalNames[fromName] = None
                 if name not in module.excludeNames:
                     subModule = self._ImportModule(name, deferredImports,
                             module, relativeImportIndex)
