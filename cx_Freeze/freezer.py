@@ -255,13 +255,7 @@ class Freezer(object):
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
                 argsSource.path, argsSource.replacePaths,
-                argsSource.copyDependentFiles)
-        if argsSource.copyDependentFiles:
-            finder.IncludeModule("imp")
-            finder.IncludeModule("os")
-            finder.IncludeModule("sys")
-            if argsSource.compress:
-                finder.IncludeModule("zlib")
+                argsSource.copyDependentFiles, argsSource.compress)
         for name in argsSource.includes:
             finder.IncludeModule(name)
         for name in argsSource.packages:
@@ -345,7 +339,8 @@ class Freezer(object):
             self.path = sys.path
         if self.appendScriptToLibrary:
             self._VerifyCanAppendToLibrary()
-        for sourceFileName, targetFileName in self.includeFiles + self.zipIncludes:
+        for sourceFileName, targetFileName in \
+                self.includeFiles + self.zipIncludes:
             if not os.path.exists(sourceFileName):
                 raise ConfigError("cannot find file/directory named %s",
                         sourceFileName)

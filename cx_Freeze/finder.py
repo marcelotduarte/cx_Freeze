@@ -18,6 +18,7 @@ INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
 IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
+STORE_FAST = opcode.opmap["STORE_FAST"]
 STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
@@ -27,11 +28,13 @@ __all__ = [ "Module", "ModuleFinder" ]
 class ModuleFinder(object):
 
     def __init__(self, includeFiles = [], excludes = [], path = None,
-            replacePaths = [], copyDependentFiles = True, bootstrap = False):
+            replacePaths = [], copyDependentFiles = True, bootstrap = False,
+            compress = True):
         self.includeFiles = list(includeFiles)
         self.excludes = dict.fromkeys(excludes)
         self.replacePaths = list(replacePaths)
         self.copyDependentFiles = copyDependentFiles
+        self.compress = compress
         self.path = path or sys.path
         self.modules = []
         self.aliases = {}
@@ -53,12 +56,19 @@ class ModuleFinder(object):
     def _AddBaseModules(self):
         """Add the base modules to the finder. These are the modules that
            Python imports itself during initialization and, if not found,
-           can result in behavior that differs from running from source."""
+           can result in behavior that differs from running from source;
+           also include modules used within the bootstrap code"""
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
         self.IncludePackage("encodings")
         if sys.version_info[0] >= 3:
             self.IncludeModule("io")
+        if self.copyDependentFiles:
+            self.IncludeModule("imp")
+            self.IncludeModule("os")
+            self.IncludeModule("sys")
+            if self.compress:
+                self.IncludeModule("zlib")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
@@ -351,7 +361,7 @@ class ModuleFinder(object):
         if method is not None:
             method(self, *args)
 
-    def _ScanCode(self, co, module, deferredImports):
+    def _ScanCode(self, co, module, deferredImports, topLevel = True):
         """Scan code, looking for imported modules and keeping track of the
            constants that have been created in order to better tell which
            modules are truly missing."""
@@ -381,9 +391,6 @@ class ModuleFinder(object):
                 else:
                     relativeImportIndex = -1
                     fromList, = arguments
-                if fromList:
-                    for fromName in fromList:
-                        module.globalNames[fromName] = None
                 if name not in module.excludeNames:
                     subModule = self._ImportModule(name, deferredImports,
                             module, relativeImportIndex)
@@ -392,10 +399,22 @@ class ModuleFinder(object):
                         if fromList and subModule.path is not None:
                             self._EnsureFromList(module, subModule, fromList,
                                     deferredImports)
-            elif op == IMPORT_FROM:
+            elif op == IMPORT_FROM and topLevel:
+                if is3:
+                    op = code[opIndex]
+                    opArg = code[opIndex + 1] + code[opIndex + 2] * 256
+                else:
+                    op = ord(code[opIndex])
+                    opArg = ord(code[opIndex + 1]) + \
+                            ord(code[opIndex + 2]) * 256
                 opIndex += 3
+                if op == STORE_FAST:
+                    name = co.co_varnames[opArg]
+                else:
+                    name = co.co_names[opArg]
+                module.globalNames[name] = None
             elif op not in (BUILD_LIST, INPLACE_ADD):
-                if op in STORE_OPS:
+                if topLevel and op in STORE_OPS:
                     name = co.co_names[opArg]
                     if name == "__all__":
                         module.allNames.extend(arguments)
@@ -403,7 +422,8 @@ class ModuleFinder(object):
                 arguments = []
         for constant in co.co_consts:
             if isinstance(constant, type(co)):
-                self._ScanCode(constant, module, deferredImports)
+                self._ScanCode(constant, module, deferredImports,
+                        topLevel = False)
 
     def AddAlias(self, name, aliasFor):
         """Add an alias for a particular module; when an attempt is made to
