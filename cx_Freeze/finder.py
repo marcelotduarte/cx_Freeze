@@ -174,7 +174,7 @@ class ModuleFinder(object):
                         self._InternalImportModule(subModuleName,
                                 deferredImports)
                 if returnError and subModule is None:
-                    raise ImportError("No module named %s" % subModuleName)
+                    raise ImportError("No module named %r" % subModuleName)
                 module.globalNames[name] = None
                 if subModule.path and recursive:
                     self._ImportAllSubModules(subModule, deferredImports,
@@ -239,7 +239,7 @@ class ModuleFinder(object):
         # if module not found, track that fact
         if module is None:
             if caller is None:
-                raise ImportError("No module named %s" % name)
+                raise ImportError("No module named %r" % name)
             self._RunHook("missing", name, caller)
             if returnError and name not in caller.ignoreNames:
                 callers = self._badModules.setdefault(name, {})
