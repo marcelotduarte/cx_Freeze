@@ -12,9 +12,11 @@ def initialize(finder):
         finder.ExcludeModule("pwd")
         finder.ExcludeModule("termios")
     else:
+        finder.ExcludeModule("_subprocess")
         finder.ExcludeModule("_winreg")
         finder.ExcludeModule("msilib")
         finder.ExcludeModule("msvcrt")
+        finder.ExcludeModule("multiprocessing._multiprocessing")
         finder.ExcludeModule("nt")
         if os.name not in ("os2", "ce"):
             finder.ExcludeModule("ntpath")
@@ -26,6 +28,8 @@ def initialize(finder):
         finder.ExcludeModule("win32api")
         finder.ExcludeModule("win32con")
         finder.ExcludeModule("win32event")
+        finder.ExcludeModule("win32evtlog")
+        finder.ExcludeModule("win32evtlogutil")
         finder.ExcludeModule("win32file")
         finder.ExcludeModule("win32pdh")
         finder.ExcludeModule("win32pipe")
@@ -41,6 +45,7 @@ def initialize(finder):
         finder.ExcludeModule("ic")
         finder.ExcludeModule("mac")
         finder.ExcludeModule("MacOS")
+        finder.ExcludeModule("macostools")
         finder.ExcludeModule("macpath")
         finder.ExcludeModule("macurl2path")
         if os.name != "nt":
@@ -59,6 +64,8 @@ def initialize(finder):
     if sys.platform[:4] != "java":
         finder.ExcludeModule("java.lang")
         finder.ExcludeModule("org.python.core")
+    if sys.platform[:4] != "OpenVMS":
+        finder.ExcludeModule("vms_lib")
 
 
 def load_cElementTree(finder, module):
@@ -110,6 +117,11 @@ def load_ftplib(finder, module):
     """the ftplib module attempts to import the SOCKS module; ignore this
        module if it cannot be found"""
     module.IgnoreName("SOCKS")
+
+
+def load_GifImagePlugin(finder, module):
+    """The GifImagePlugin module optionally imports the _imaging_gif module"""
+    module.IgnoreName("_imaging_gif")
 
 
 def load_glib(finder, module):
@@ -210,15 +222,134 @@ def load_matplotlib_numerix(finder, module):
         finder.IncludeModule("%s.%s" % (module.name, name))
 
 
+def load_Numeric(finder, module):
+    """the Numeric module optionally loads the dotblas module; ignore the error
+       if this modules does not exist."""
+    module.IgnoreName("dotblas")
+
+
+def load_numpy_core_multiarray(finder, module):
+    """the numpy.core.multiarray module is an extension module and the numpy
+       module imports * from this module; define the list of global names
+       available to this module in order to avoid spurious errors about missing
+       modules"""
+    module.AddGlobalName("arange")
+
+
+def load_numpy_core_numerictypes(finder, module):
+    """the numpy.core.numerictypes module adds a number of items to itself
+       dynamically; define these to avoid spurious errors about missing
+       modules"""
+    module.AddGlobalName("bool_")
+    module.AddGlobalName("cdouble")
+    module.AddGlobalName("complexfloating")
+    module.AddGlobalName("csingle")
+    module.AddGlobalName("double")
+    module.AddGlobalName("float64")
+    module.AddGlobalName("float_")
+    module.AddGlobalName("inexact")
+    module.AddGlobalName("intc")
+    module.AddGlobalName("int32")
+    module.AddGlobalName("number")
+    module.AddGlobalName("single")
+
+
+def load_numpy_core_umath(finder, module):
+    """the numpy.core.umath module is an extension module and the numpy module
+       imports * from this module; define the list of global names available
+       to this module in order to avoid spurious errors about missing
+       modules"""
+    module.AddGlobalName("add")
+    module.AddGlobalName("absolute")
+    module.AddGlobalName("arccos")
+    module.AddGlobalName("arccosh")
+    module.AddGlobalName("arcsin")
+    module.AddGlobalName("arcsinh")
+    module.AddGlobalName("arctan")
+    module.AddGlobalName("arctanh")
+    module.AddGlobalName("bitwise_and")
+    module.AddGlobalName("bitwise_or")
+    module.AddGlobalName("bitwise_xor")
+    module.AddGlobalName("ceil")
+    module.AddGlobalName("conj")
+    module.AddGlobalName("conjugate")
+    module.AddGlobalName("cosh")
+    module.AddGlobalName("divide")
+    module.AddGlobalName("fabs")
+    module.AddGlobalName("floor")
+    module.AddGlobalName("floor_divide")
+    module.AddGlobalName("fmod")
+    module.AddGlobalName("greater")
+    module.AddGlobalName("hypot")
+    module.AddGlobalName("invert")
+    module.AddGlobalName("isfinite")
+    module.AddGlobalName("isinf")
+    module.AddGlobalName("isnan")
+    module.AddGlobalName("less")
+    module.AddGlobalName("left_shift")
+    module.AddGlobalName("log")
+    module.AddGlobalName("logical_and")
+    module.AddGlobalName("logical_not")
+    module.AddGlobalName("logical_or")
+    module.AddGlobalName("logical_xor")
+    module.AddGlobalName("maximum")
+    module.AddGlobalName("minimum")
+    module.AddGlobalName("multiply")
+    module.AddGlobalName("negative")
+    module.AddGlobalName("not_equal")
+    module.AddGlobalName("power")
+    module.AddGlobalName("remainder")
+    module.AddGlobalName("right_shift")
+    module.AddGlobalName("sign")
+    module.AddGlobalName("sinh")
+    module.AddGlobalName("sqrt")
+    module.AddGlobalName("tan")
+    module.AddGlobalName("tanh")
+    module.AddGlobalName("true_divide")
+
+
+def load_numpy_distutils_misc_util(finder, module):
+    """the numpy.distutils.misc_util module optionally imports the numscons
+       module; ignore the error if the module cannot be found."""
+    module.IgnoreName("numscons")
+
+
+def load_numpy_distutils_system_info(finder, module):
+    """the numpy.distutils.system_info module optionally imports the Numeric
+       module; ignore the error if the module cannot be found."""
+    module.IgnoreName("Numeric")
+
+
+def load_numpy_f2py___version__(finder, module):
+    """the numpy.f2py.__version__ module optionally imports the __svn_version__
+       module; ignore the error if the module cannot be found."""
+    module.IgnoreName("__svn_version__")
+
+
 def load_numpy_linalg(finder, module):
     """the numpy.linalg module implicitly loads the lapack_lite module; make
        sure this happens"""
     finder.IncludeModule("numpy.linalg.lapack_lite")
 
 
+def load_numpy_random_mtrand(finder, module):
+    """the numpy.random.mtrand module is an extension module and the numpy
+       module imports * from this module; define the list of global names
+       available to this module in order to avoid spurious errors about missing
+       modules"""
+    module.AddGlobalName("rand")
+    module.AddGlobalName("randn")
+
+
 def load_pty(finder, module):
     """The sgi module is not needed for this module to function."""
     module.IgnoreName("sgi")
+
+
+def load_pydoc(finder, module):
+    """The pydoc module will work without the Tkinter module so ignore the
+       error if that module cannot be found."""
+    module.IgnoreName("Tkinter")
 
 
 def load_pythoncom(finder, module):
@@ -265,6 +396,52 @@ def load_PyQt4_Qt(finder, module):
             finder.IncludeModule(name)
         except ImportError:
             pass
+
+
+def load_scipy(finder, module):
+    """the scipy module loads items within itself in a way that causes
+       problems without the entire package and a number of other subpackages
+       being present."""
+    finder.IncludePackage("scipy.lib")
+    finder.IncludePackage("scipy.misc")
+
+
+def load_scipy_linalg(finder, module):
+    """the scipy.linalg module loads items within itself in a way that causes
+       problems without the entire package being present."""
+    module.AddGlobalName("norm")
+    finder.IncludePackage("scipy.linalg")
+
+
+def load_scipy_linalg_interface_gen(finder, module):
+    """the scipy.linalg.interface_gen module optionally imports the pre module;
+       ignore the error if this module cannot be found"""
+    module.IgnoreName("pre")
+
+
+def load_scipy_sparse_linalg_dsolve_linsolve(finder, module):
+    """the scipy.linalg.dsolve.linsolve optionally loads scikits.umfpack"""
+    module.IgnoreName("scikits.umfpack")
+
+
+def load_scipy_special__cephes(finder, module):
+    """the scipy.special._cephes is an extension module and the scipy module
+       imports * from it in places; advertise the global names that are used
+       in order to avoid spurious errors about missing modules."""
+    module.AddGlobalName("gammaln")
+
+
+def load_setuptools_extension(finder, module):
+    """the setuptools.extension module optionally loads
+       Pyrex.Distutils.build_ext but its absence is not considered an error."""
+    module.IgnoreName("Pyrex.Distutils.build_ext")
+
+
+def load_site(finder, module):
+    """the site module optionally loads the sitecustomize and usercustomize
+       modules; ignore the error if these modules do not exist."""
+    module.IgnoreName("sitecustomize")
+    module.IgnoreName("usercustomize")
 
 
 def load_Tkinter(finder, module):
@@ -325,6 +502,13 @@ def load_xml_etree_cElementTree(finder, module):
     """the xml.etree.cElementTree module implicitly loads the
        xml.etree.ElementTree module; make sure this happens."""
     finder.IncludeModule("xml.etree.ElementTree")
+
+
+def load_xmlrpclib(finder, module):
+    """the xmlrpclib optionally imports the _xmlrpclib and sgmlop modules;
+       ignore the error if these modules cannot be found."""
+    module.IgnoreName("_xmlrpclib")
+    module.IgnoreName("sgmlop")
 
 
 def missing_cElementTree(finder, caller):
