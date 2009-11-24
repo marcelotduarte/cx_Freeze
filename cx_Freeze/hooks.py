@@ -308,6 +308,12 @@ def load_numpy_core_umath(finder, module):
     module.AddGlobalName("true_divide")
 
 
+def load_numpy_distutils_command_scons(finder, module):
+    """the numpy.distutils.command.scons module optionally imports the numscons
+       module; ignore the error if the module cannot be found."""
+    module.IgnoreName("numscons")
+
+
 def load_numpy_distutils_misc_util(finder, module):
     """the numpy.distutils.misc_util module optionally imports the numscons
        module; ignore the error if the module cannot be found."""
