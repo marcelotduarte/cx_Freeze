@@ -18,6 +18,7 @@ INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
 IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
+IMPORT_STAR = opcode.opmap["IMPORT_STAR"]
 STORE_FAST = opcode.opmap["STORE_FAST"]
 STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
@@ -103,15 +104,12 @@ class ModuleFinder(object):
     def _EnsureFromList(self, caller, packageModule, fromList,
             deferredImports):
         """Ensure that the from list is satisfied. This is only necessary for
-           package modules. If the caller is the package itself, actually
-           attempt to import right then since it must be a submodule; otherwise
-           defer until after all global names are defined in order to avoid
-           spurious complaints about missing modules."""
-        if caller is not packageModule:
-            deferredImports.append((packageModule, fromList))
+           package modules. If the package module has not been completely
+           imported yet, defer the import until it has been completely imported
+           in order to avoid spurious errors about missing modules."""
+        if packageModule.inImport:
+            deferredImports.append((caller, packageModule, fromList))
         else:
-            if fromList == ("*",):
-                fromList = packageModule.allNames
             for name in fromList:
                 if name in packageModule.globalNames:
                     continue
@@ -180,13 +178,15 @@ class ModuleFinder(object):
                     self._ImportAllSubModules(subModule, deferredImports,
                             recursive)
 
-    def _ImportDeferredImports(self, deferredImports):
+    def _ImportDeferredImports(self, deferredImports, skipInImport = False):
         """Import any sub modules that were deferred, if applicable."""
         while deferredImports:
             newDeferredImports = []
-            for packageModule, subModuleNames in deferredImports:
-                self._EnsureFromList(packageModule, packageModule,
-                        subModuleNames, newDeferredImports)
+            for caller, packageModule, subModuleNames in deferredImports:
+                if packageModule.inImport and skipInImport:
+                    continue
+                self._EnsureFromList(caller, packageModule, subModuleNames,
+                        newDeferredImports)
             deferredImports = newDeferredImports
 
     def _ImportModule(self, name, deferredImports, caller = None,
@@ -258,6 +258,7 @@ class ModuleFinder(object):
         if name in self._builtinModules:
             module = self._AddModule(name)
             self._RunHook("load", module.name, module)
+            module.inImport = False
             return module, False
         pos = name.rfind(".")
         if pos < 0:
@@ -320,6 +321,7 @@ class ModuleFinder(object):
                 module.code = self._ReplacePathsInCode(topLevelModule,
                         module.code)
             self._ScanCode(module.code, module, deferredImports)
+        module.inImport = False
         return module
 
     def _LoadPackage(self, name, path, parent, deferredImports):
@@ -392,13 +394,13 @@ class ModuleFinder(object):
                     relativeImportIndex = -1
                     fromList, = arguments
                 if name not in module.excludeNames:
-                    subModule = self._ImportModule(name, deferredImports,
+                    importedModule = self._ImportModule(name, deferredImports,
                             module, relativeImportIndex)
-                    if subModule is not None:
-                        module.globalNames.update(subModule.globalNames)
-                        if fromList and subModule.path is not None:
-                            self._EnsureFromList(module, subModule, fromList,
-                                    deferredImports)
+                    if importedModule is not None:
+                        if fromList and fromList != ("*",) \
+                                and importedModule.path is not None:
+                            self._EnsureFromList(module, importedModule,
+                                    fromList, deferredImports)
             elif op == IMPORT_FROM and topLevel:
                 if is3:
                     op = code[opIndex]
@@ -413,11 +415,12 @@ class ModuleFinder(object):
                 else:
                     name = co.co_names[opArg]
                 module.globalNames[name] = None
+            elif op == IMPORT_STAR and topLevel and importedModule is not None:
+                module.globalNames.update(importedModule.globalNames)
+                arguments = []
             elif op not in (BUILD_LIST, INPLACE_ADD):
                 if topLevel and op in STORE_OPS:
                     name = co.co_names[opArg]
-                    if name == "__all__":
-                        module.allNames.extend(arguments)
                     module.globalNames[name] = None
                 arguments = []
         for constant in co.co_consts:
@@ -457,7 +460,7 @@ class ModuleFinder(object):
         """Include the named module in the frozen executable."""
         deferredImports = []
         module = self._ImportModule(name, deferredImports)
-        self._ImportDeferredImports(deferredImports)
+        self._ImportDeferredImports(deferredImports, skipInImport = True)
         return module
 
     def IncludePackage(self, name):
@@ -467,7 +470,7 @@ class ModuleFinder(object):
         module = self._ImportModule(name, deferredImports)
         if module.path:
             self._ImportAllSubModules(module, deferredImports)
-        self._ImportDeferredImports(deferredImports)
+        self._ImportDeferredImports(deferredImports, skipInImport = True)
         return module
 
     def ReportMissingModules(self):
@@ -526,8 +529,8 @@ class Module(object):
         self.globalNames = {}
         self.excludeNames = {}
         self.ignoreNames = {}
-        self.allNames = []
         self.inZipFile = False
+        self.inImport = True
 
     def __repr__(self):
         parts = ["name=%s" % repr(self.name)]
