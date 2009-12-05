@@ -383,8 +383,13 @@ def load_pywintypes(finder, module):
 
 
 def load_PyQt4_QtCore(finder, module):
-    """the PyQt4.QtCore module implicitly imports the sip module."""
+    """the PyQt4.QtCore module implicitly imports the sip module and,
+       depending on configuration, the PyQt4._qt module."""
     finder.IncludeModule("sip")
+    try:
+        finder.IncludeModule("PyQt4._qt")
+    except ImportError:
+        pass
 
 
 def load_PyQt4_Qt(finder, module):
