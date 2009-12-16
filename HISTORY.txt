@@ -18,6 +18,8 @@ Changes from 4.1 to 4.1.1
     about missing modules for several additional commonly used packages and
     modules.
 10) Readded support for the zip include option.
+11) Avoid the error about digest mismatch when installing RPMs by modifying
+    the spec files built with cx_Freeze.
 
 Changes from 4.0.1 to 4.1
  1) Added support for Python 3.x.
