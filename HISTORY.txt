@@ -1,3 +1,24 @@
+Changes from 4.1 to 4.1.1
+ 1) Added support for Python 3.1.
+ 2) Added support for 64-bit Windows.
+ 3) Ensured that setlocale() is called prior to manipulating file names so
+    that names that are not encoded in ASCII can still be used.
+ 4) Fixed bug that caused the Python shared library to be ignored and the
+    static library to be required or a symbolic link to the shared library
+    created manually.
+ 5) Added support for renaming attributes upon import and other less
+    frequently used idioms in order to avoid as much as possible spurious
+    errors about modules not being found.
+ 6) Force inclusion of the traceback module in order to ensure that errors are
+    reported in a reasonable fashion.
+ 7) Improved support for the execution of ldd on the Solaris platform as
+    suggested by Eric Brunel.
+ 8) Added sample for the PyQt4 package and improved hooks for that package.
+ 9) Enhanced hooks further in order to perform hidden imports and avoid errors
+    about missing modules for several additional commonly used packages and
+    modules.
+10) Readded support for the zip include option.
+
 Changes from 4.0.1 to 4.1
  1) Added support for Python 3.x.
  2) Added support for services on Windows.
