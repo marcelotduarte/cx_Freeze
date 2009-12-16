@@ -36,6 +36,7 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 
     def _make_spec_file(self):
         contents = distutils.command.bdist_rpm.bdist_rpm._make_spec_file(self)
+        contents.append('%define __prelink_undo_cmd %{nil}')
         return [c for c in contents if c != 'BuildArch: noarch']
 
 
