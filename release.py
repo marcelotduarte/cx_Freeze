@@ -6,22 +6,15 @@ platform.
 import os
 import sys
 
-pythonVersions = [
-        (2, 4),
-        (2, 5),
-        (2, 6),
-        (3, 1)
-]
+pythonVersions = os.environ["CX_FREEZE_PYTHON_VERSIONS"].split(",")
+pythonFormat = os.environ["CX_FREEZE_PYTHON_FORMAT"]
 
-currentVersion = sys.version_info[:2]
-pythonVersions.remove(currentVersion)
-pythonVersions.append(currentVersion)
-
-for majorVersion, minorVersion in pythonVersions:
+for version in pythonVersions:
+    majorVersion, minorVersion = [int(s) for s in version.split(".")]
+    python = pythonFormat % (majorVersion, minorVersion)
     messageFragment = "for Python %s.%s" % (majorVersion, minorVersion)
     sys.stdout.write("Creating release %s.\n" % messageFragment)
     if sys.platform == "win32":
-        python = "c:/python%s%s/python" % (majorVersion, minorVersion)
         if majorVersion == 2 and minorVersion == 4:
             subCommand = "bdist_wininst"
         else:
@@ -31,7 +24,6 @@ for majorVersion, minorVersion in pythonVersions:
         if os.system(command) != 0:
             sys.exit("Stopping. Build %s failed.\n" % messageFragment)
     else:
-        python = "python%s.%s" % (majorVersion, minorVersion)
         command = "%s setup.py bdist_rpm --no-autoreq --python %s" % \
                 (python, python)
         sys.stdout.write("Running command %s\n" % command)
