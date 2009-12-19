@@ -10,6 +10,7 @@ import distutils.command.install
 import distutils.command.install_data
 import distutils.sysconfig
 import os
+import struct
 import sys
 
 from distutils.core import setup
@@ -195,10 +196,12 @@ if sys.platform == "win32":
     gui = Extension("cx_Freeze.bases.Win32GUI",
             ["source/bases/Win32GUI.c"] + extraSources,
             include_dirs = includeDirs, depends = fullDepends,
+            libraries = ["user32"],
             extra_link_args = ["-mwindows"])
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
-    if moduleInfo is not None and sys.version_info[:2] < (3, 0):
+    if moduleInfo is not None and sys.version_info[:2] < (3, 0) \
+            and struct.calcsize("P") == 4:
         includeDir, libraryDir = moduleInfo
         includeDirs.append(includeDir)
         service = Extension("cx_Freeze.bases.Win32Service",
