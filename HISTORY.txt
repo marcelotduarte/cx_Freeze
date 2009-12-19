@@ -20,6 +20,7 @@ Changes from 4.1 to 4.1.1
 10) Readded support for the zip include option.
 11) Avoid the error about digest mismatch when installing RPMs by modifying
     the spec files built with cx_Freeze.
+12) Ensure that manifest.txt is included in the source distribution.
 
 Changes from 4.0.1 to 4.1
  1) Added support for Python 3.x.
