@@ -85,7 +85,7 @@ class build_ext(distutils.command.build_ext.build_ext):
     def get_ext_filename(self, name):
         fileName = distutils.command.build_ext.build_ext.get_ext_filename(self,
                 name)
-        if name == "util":
+        if name.endswith("util"):
             return fileName
         ext = self.compiler.exe_extension or ""
         return os.path.splitext(fileName)[0] + ext
