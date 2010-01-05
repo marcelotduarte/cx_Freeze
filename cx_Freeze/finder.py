@@ -300,7 +300,14 @@ class ModuleFinder(object):
         module.file = path
         module.parent = parent
         if type == imp.PY_SOURCE:
-            module.code = compile(fp.read() + "\n", path, "exec")
+            if sys.version_info[0] >= 3:
+                import py_compile
+                encoding = py_compile.read_encoding(path, "utf-8")
+                fp = open(path, "U", encoding = encoding)
+            codeString = fp.read()
+            if codeString and codeString[-1] != "\n":
+                codeString = codeString + "\n"
+            module.code = compile(codeString, path, "exec")
         elif type == imp.PY_COMPILED:
             if isinstance(fp, str):
                 magic = fp[:4]
