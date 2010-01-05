@@ -255,7 +255,7 @@ class Freezer(object):
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
                 argsSource.path, argsSource.replacePaths,
-                argsSource.copyDependentFiles, argsSource.compress)
+                argsSource.copyDependentFiles, compress = argsSource.compress)
         for name in argsSource.includes:
             finder.IncludeModule(name)
         for name in argsSource.packages:
