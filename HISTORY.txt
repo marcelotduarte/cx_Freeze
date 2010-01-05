@@ -1,3 +1,13 @@
+Changes from 4.1.1 to 4.1.2
+ 1) Fix bug that caused the util extension to be named improperly.
+ 2) Fix bug that prevented freezing from taking place if a packaged submodule
+    was missing.
+ 3) Fix bug that prevented freezing from taking place in Python 3.x if the
+    encoding of the source file wasn't compatible with the encoding of the
+    terminal performing the freeze.
+ 4) Fix bug that caused the base modules to be included in the library.zip as
+    well as the base executables.
+
 Changes from 4.1 to 4.1.1
  1) Added support for Python 3.1.
  2) Added support for 64-bit Windows.
