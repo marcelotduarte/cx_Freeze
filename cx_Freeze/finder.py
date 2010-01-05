@@ -120,6 +120,8 @@ class ModuleFinder(object):
         try:
             return imp.find_module(name, path)
         except ImportError:
+            if path is None:
+                path = []
             for location in path:
                 if name in self._zipFileEntries:
                     break
