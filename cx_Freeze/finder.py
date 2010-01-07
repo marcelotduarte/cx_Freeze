@@ -28,12 +28,16 @@ __all__ = [ "Module", "ModuleFinder" ]
 
 class ModuleFinder(object):
 
-    def __init__(self, includeFiles = [], excludes = [], path = None,
-            replacePaths = [], copyDependentFiles = True, bootstrap = False,
+    def __init__(self, includeFiles = None, excludes = [], path = None,
+            replacePaths = None, copyDependentFiles = True, bootstrap = False,
             compress = True):
-        self.includeFiles = list(includeFiles)
+        self.includeFiles = includeFiles
+        if includeFiles is None:
+            self.includeFiles = []
         self.excludes = dict.fromkeys(excludes)
-        self.replacePaths = list(replacePaths)
+        self.replacePaths = replacePaths
+        if replacePaths is None:
+            self.replacePaths = []
         self.copyDependentFiles = copyDependentFiles
         self.compress = compress
         self.path = path or sys.path
