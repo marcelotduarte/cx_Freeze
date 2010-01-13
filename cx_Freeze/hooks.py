@@ -66,6 +66,8 @@ def initialize(finder):
         finder.ExcludeModule("org.python.core")
     if sys.platform[:4] != "OpenVMS":
         finder.ExcludeModule("vms_lib")
+    if sys.version_info[0] >= 3:
+        finder.ExcludeModule("new")
 
 
 def load_cElementTree(finder, module):
