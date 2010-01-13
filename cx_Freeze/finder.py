@@ -111,7 +111,7 @@ class ModuleFinder(object):
            package modules. If the package module has not been completely
            imported yet, defer the import until it has been completely imported
            in order to avoid spurious errors about missing modules."""
-        if packageModule.inImport:
+        if packageModule.inImport and caller is not packageModule:
             deferredImports.append((caller, packageModule, fromList))
         else:
             for name in fromList:
