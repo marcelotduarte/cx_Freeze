@@ -1,3 +1,9 @@
+Changes from 4.1.2 to 4.1.3
+ 1) Fix bug that prevented hooks from successfully including files in the build
+    (as is done for the matplotlib sample).
+ 2) Fix bug that prevented from submodules from being included in the build if
+    the format of the import statement was from . import <name>.
+
 Changes from 4.1.1 to 4.1.2
  1) Fix bug that caused the util extension to be named improperly.
  2) Fix bug that prevented freezing from taking place if a packaged submodule
