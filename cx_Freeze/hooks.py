@@ -349,6 +349,13 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_postgresql_lib(finder, module):
+    """the postgresql.lib module requires the libsys.sql file to be included
+       so make sure that file is included"""
+    fileName = os.path.join(module.path[0], "libsys.sql")
+    finder.IncludeFiles(fileName, os.path.basename(fileName))
+
+
 def load_pty(finder, module):
     """The sgi module is not needed for this module to function."""
     module.IgnoreName("sgi")
