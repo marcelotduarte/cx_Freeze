@@ -491,6 +491,12 @@ def load_time(finder, module):
     finder.IncludeModule("_strptime")
 
 
+def load_twisted_conch_ssh_transport(finder, module):
+    """the twisted.conch.ssh.transport module uses __import__ builtin to
+       dynamically load different ciphers at runtime."""
+    finder.IncludePackage("Crypto.Cipher")
+
+
 def load_win32api(finder, module):
     """the win32api module implicitly loads the pywintypes module; make sure
        this happens."""
