@@ -537,6 +537,19 @@ def load_xmlrpclib(finder, module):
     module.IgnoreName("sgmlop")
 
 
+def load_zope(finder, module):
+    """the zope package is distributed in multiple packages and they need to be
+       stitched back together again."""
+    import pkgutil
+    module.path = pkgutil.extend_path(module.path, module.name)
+
+
+def load_zope_component(finder, module):
+    """the zope.component package requires the presence of the pkg_resources
+       module but it uses a dynamic, not static import to do its work."""
+    finder.IncludeModule("pkg_resources")
+
+
 def missing_cElementTree(finder, caller):
     """the cElementTree has been incorporated into the standard library in
        Python 2.5 so ignore its absence if it cannot found."""
