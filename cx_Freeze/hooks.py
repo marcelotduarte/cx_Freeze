@@ -540,8 +540,7 @@ def load_xmlrpclib(finder, module):
 def load_zope(finder, module):
     """the zope package is distributed in multiple packages and they need to be
        stitched back together again."""
-    import pkgutil
-    module.path = pkgutil.extend_path(module.path, module.name)
+    module.ExtendPath()
 
 
 def load_zope_component(finder, module):

@@ -77,6 +77,8 @@ class build_exe(distutils.core.Command):
          'comma-separated list of modules to include'),
         ('packages=', 'p',
          'comma-separated list of packages to include'),
+        ('namespace-packages=',
+         'comma-separated list of namespace packages to include'),
         ('replace-paths=', None,
          'comma-separated list of paths to replace in included modules'),
         ('path=', None,
@@ -167,6 +169,7 @@ class build_exe(distutils.core.Command):
         self.excludes = []
         self.includes = []
         self.packages = []
+        self.namespace_packages = []
         self.replace_paths = []
         self.compressed = None
         self.copy_dependent_files = None
@@ -192,6 +195,7 @@ class build_exe(distutils.core.Command):
         self._normalize("excludes")
         self._normalize("includes")
         self._normalize("packages")
+        self._normalize("namespace_packages")
         self._normalize("constants")
 
     def run(self):
@@ -216,7 +220,8 @@ class build_exe(distutils.core.Command):
                 binIncludes = self.bin_includes,
                 binExcludes = self.bin_excludes,
                 zipIncludes = self.zip_includes,
-                silent = self.silent)
+                silent = self.silent,
+                namespacePackages = self.namespace_packages)
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
