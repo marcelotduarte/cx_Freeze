@@ -507,6 +507,10 @@ It can be further customized:</p>
 <td>comma separated list of packages to include, which
 includes all submodules in the package</td>
 </tr>
+<tr><td>namespace-packages</td>
+<td>comma separated list of packages to be treated as
+namespace packages (path is extended using pkgutil)</td>
+</tr>
 <tr><td>replace-paths</td>
 <td>comma separated list of paths to replace in modules
 in the form &lt;search&gt;=&lt;replace&gt;, using the value *
@@ -744,6 +748,10 @@ executable</td>
 <tr><td>packages</td>
 <td>list of names of packages to include, including all
 of the package's submodules</td>
+</tr>
+<tr><td>namespacePackages</td>
+<td>list of packages to be treated as namespace
+packages (path is extended using pkgutil)</td>
 </tr>
 <tr><td>replacePaths</td>
 <td>list of 2-tuples containing search values and

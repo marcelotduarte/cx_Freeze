@@ -56,12 +56,14 @@ class Freezer(object):
             appendScriptToExe = None, appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
-            includeFiles = [], zipIncludes = [], silent = False):
+            includeFiles = [], zipIncludes = [], silent = False,
+            namespacePackages = []):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
         self.excludes = list(excludes)
         self.packages = list(packages)
+        self.namespacePackages = list(namespacePackages)
         self.replacePaths = list(replacePaths)
         self.compress = compress
         self.optimizeFlag = optimizeFlag
@@ -260,6 +262,9 @@ class Freezer(object):
             finder.IncludeModule(name)
         for name in argsSource.packages:
             finder.IncludePackage(name)
+        for name in argsSource.namespacePackages:
+            package = finder.IncludeModule(name)
+            package.ExtendPath()
         return finder
 
     def _PrintReport(self, fileName, modules):
@@ -476,7 +481,7 @@ class Executable(object):
             excludes = None, packages = None, replacePaths = None,
             compress = None, copyDependentFiles = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
-            icon = None):
+            icon = None, namespacePackages = None):
         self.script = script
         self.initScript = initScript
         self.base = base
@@ -486,6 +491,7 @@ class Executable(object):
         self.includes = includes
         self.excludes = excludes
         self.packages = packages
+        self.namespacePackages = namespacePackages
         self.replacePaths = replacePaths
         self.compress = compress
         self.copyDependentFiles = copyDependentFiles
@@ -507,6 +513,8 @@ class Executable(object):
             self.excludes = freezer.excludes
         if self.packages is None:
             self.packages = freezer.packages
+        if self.namespacePackages is None:
+            self.namespacePackages = freezer.namespacePackages
         if self.replacePaths is None:
             self.replacePaths = freezer.replacePaths
         if self.compress is None:

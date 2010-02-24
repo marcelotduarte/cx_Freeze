@@ -195,6 +195,9 @@ It can be further customized:
 | packages (-p)         | comma separated list of packages to include, which  |
 |                       | includes all submodules in the package              |
 +-----------------------+-----------------------------------------------------+
+| namespace-packages    | comma separated list of packages to be treated as   |
+|                       | namespace packages (path is extended using pkgutil) |
++-----------------------+-----------------------------------------------------+
 | replace-paths         | comma separated list of paths to replace in modules |
 |                       | in the form <search>=<replace>, using the value *   |
 |                       | in the search portion of the directive will cause   |
@@ -368,6 +371,9 @@ constructor are as follows:
 +-----------------------+-----------------------------------------------------+
 | packages              | list of names of packages to include, including all |
 |                       | of the package's submodules                         |
++-----------------------+-----------------------------------------------------+
+| namespacePackages     | list of packages to be treated as namespace         |
+|                       | packages (path is extended using pkgutil)           |
 +-----------------------+-----------------------------------------------------+
 | replacePaths          | list of 2-tuples containing search values and       |
 |                       | replacement values for paths of modules that are    |

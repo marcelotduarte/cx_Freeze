@@ -7,6 +7,7 @@ import imp
 import marshal
 import opcode
 import os
+import pkgutil
 import sys
 import types
 import zipfile
@@ -558,6 +559,9 @@ class Module(object):
 
     def ExcludeName(self, name):
         self.excludeNames[name] = None
+
+    def ExtendPath(self):
+        self.path = pkgutil.extend_path(self.path, self.name)
 
     def IgnoreName(self, name):
         self.ignoreNames[name] = None
