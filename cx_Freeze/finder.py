@@ -197,7 +197,7 @@ class ModuleFinder(object):
             deferredImports = newDeferredImports
 
     def _ImportModule(self, name, deferredImports, caller = None,
-            relativeImportIndex = 0):
+            relativeImportIndex = 0, namespace = False):
         """Attempt to find the named module and return it or None if no module
            by that name could be found."""
 
@@ -205,7 +205,7 @@ class ModuleFinder(object):
         # the name given is the only name that will be searched
         if relativeImportIndex == 0:
             module, returnError = self._InternalImportModule(name,
-                    deferredImports)
+                    deferredImports, namespace = namespace)
 
         # old style relative import (only possibility in Python 2.4 and prior)
         # the name given is tried in all parents until a match is found and if
@@ -215,13 +215,13 @@ class ModuleFinder(object):
             while parent is not None:
                 fullName = "%s.%s" % (parent.name, name)
                 module, returnError = self._InternalImportModule(fullName,
-                        deferredImports)
+                        deferredImports, namespace = namespace)
                 if module is not None:
                     parent.globalNames[name] = None
                     return module
                 parent = self._GetParentByName(parent.name)
             module, returnError = self._InternalImportModule(name,
-                    deferredImports)
+                    deferredImports, namespace = namespace)
 
         # new style relative import (available in Python 2.5 and up)
         # the index indicates how many levels to traverse and only that level
@@ -241,7 +241,7 @@ class ModuleFinder(object):
             else:
                 name = "%s.%s" % (parent.name, name)
                 module, returnError = self._InternalImportModule(name,
-                        deferredImports)
+                        deferredImports, namespace = namespace)
 
         # if module not found, track that fact
         if module is None:
@@ -254,7 +254,7 @@ class ModuleFinder(object):
 
         return module
 
-    def _InternalImportModule(self, name, deferredImports):
+    def _InternalImportModule(self, name, deferredImports, namespace = False):
         """Internal method used for importing a module which assumes that the
            name given is an absolute name. None is returned if the module
            cannot be found."""
@@ -275,9 +275,12 @@ class ModuleFinder(object):
         else:
             parentName = name[:pos]
             parentModule, returnError = \
-                    self._InternalImportModule(parentName, deferredImports)
+                    self._InternalImportModule(parentName, deferredImports,
+                            namespace = namespace)
             if parentModule is None:
                 return None, returnError
+            if namespace:
+                parentModule.ExtendPath()
             path = parentModule.path
             searchName = name[pos + 1:]
         if name in self.aliases:
@@ -470,10 +473,11 @@ class ModuleFinder(object):
         if self.copyDependentFiles:
             self.includeFiles.append((sourcePath, targetPath))
 
-    def IncludeModule(self, name):
+    def IncludeModule(self, name, namespace = False):
         """Include the named module in the frozen executable."""
         deferredImports = []
-        module = self._ImportModule(name, deferredImports)
+        module = self._ImportModule(name, deferredImports,
+                namespace = namespace)
         self._ImportDeferredImports(deferredImports, skipInImport = True)
         return module
 
@@ -562,6 +566,8 @@ class Module(object):
 
     def ExtendPath(self):
         self.path = pkgutil.extend_path(self.path, self.name)
+        if self.parent is not None:
+            self.parent.ExtendPath()
 
     def IgnoreName(self, name):
         self.ignoreNames[name] = None

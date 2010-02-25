@@ -263,7 +263,7 @@ class Freezer(object):
         for name in argsSource.packages:
             finder.IncludePackage(name)
         for name in argsSource.namespacePackages:
-            package = finder.IncludeModule(name)
+            package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
         return finder
 
