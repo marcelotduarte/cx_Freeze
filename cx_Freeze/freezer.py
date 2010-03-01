@@ -258,13 +258,13 @@ class Freezer(object):
         finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
                 argsSource.path, argsSource.replacePaths,
                 argsSource.copyDependentFiles, compress = argsSource.compress)
+        for name in argsSource.namespacePackages:
+            package = finder.IncludeModule(name, namespace = True)
+            package.ExtendPath()
         for name in argsSource.includes:
             finder.IncludeModule(name)
         for name in argsSource.packages:
             finder.IncludePackage(name)
-        for name in argsSource.namespacePackages:
-            package = finder.IncludeModule(name, namespace = True)
-            package.ExtendPath()
         return finder
 
     def _PrintReport(self, fileName, modules):
