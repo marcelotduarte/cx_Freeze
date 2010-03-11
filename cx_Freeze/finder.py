@@ -52,12 +52,7 @@ class ModuleFinder(object):
         cx_Freeze.hooks.initialize(self)
         self._AddBaseModules()
         if not bootstrap:
-            for module in self._modules.values():
-                if module is None:
-                    continue
-                if module.code is not None:
-                    module.code = None
-                    module.file = None
+            self._ClearBaseModuleCode()
 
     def _AddBaseModules(self):
         """Add the base modules to the finder. These are the modules that
