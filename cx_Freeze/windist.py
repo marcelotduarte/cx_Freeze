@@ -16,7 +16,10 @@ for index, info in enumerate(sequence):
 class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     user_options = distutils.command.bdist_msi.bdist_msi.user_options + [
         ('add-to-path=', None, 'add target dir to PATH environment variable'),
-        ('upgrade-code=', None, 'upgrade code to use')
+        ('upgrade-code=', None, 'upgrade code to use'),
+        ('initial-target-dir=', None, 'initial target directory'),
+        ('target-name=', None, 'name of the file to create'),
+        ('directories=', None, 'list of 3-tuples of directories to create')
     ]
     x = y = 50
     width = 370
@@ -26,29 +29,33 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     modal = 3
 
     def add_config(self, fullname):
-        initialTargetDir = self.get_initial_target_dir(fullname)
-        if self.add_to_path is None:
-            self.add_to_path = False
-            for executable in self.distribution.executables:
-                if os.path.basename(executable.base).startswith("Console"):
-                    self.add_to_path = True
-                    break
         if self.add_to_path:
             msilib.add_data(self.db, 'Environment',
                     [("E_PATH", "Path", r"[~];[TARGETDIR]", "TARGETDIR")])
+        if self.directories:
+            msilib.add_data(self.db, "Directory", self.directories)
         msilib.add_data(self.db, 'CustomAction',
-                [("InitialTargetDir", 256 + 51, "TARGETDIR", initialTargetDir)
-                ])
+                [("A_SET_TARGET_DIR", 256 + 51, "TARGETDIR",
+                        self.initial_target_dir)])
         msilib.add_data(self.db, 'InstallExecuteSequence',
-                [("InitialTargetDir", 'TARGETDIR=""', 401)])
+                [("A_SET_TARGET_DIR", 'TARGETDIR=""', 401)])
         msilib.add_data(self.db, 'InstallUISequence',
                 [("PrepareDlg", None, 140),
-                 ("InitialTargetDir", 'TARGETDIR=""', 401),
+                 ("A_SET_TARGET_DIR", 'TARGETDIR=""', 401),
                  ("SelectDirectoryDlg", "not Installed", 1230),
                  ("MaintenanceTypeDlg",
                         "Installed and not Resume and not Preselected", 1250),
                  ("ProgressDlg", None, 1280)
                 ])
+        for index, executable in enumerate(self.distribution.executables):
+            if executable.shortcutName is not None \
+                    and executable.shortcutDir is not None:
+                baseName = os.path.basename(executable.targetName)
+                msilib.add_data(self.db, "Shortcut",
+                        [("S_APP_%s" % index, executable.shortcutDir,
+                                executable.shortcutName, "TARGETDIR",
+                                "[TARGETDIR]%s" % baseName, None, None, None,
+                                None, None, None, None)])
 
     def add_cancel_dialog(self):
         dialog = msilib.Dialog(self.db, "CancelDlg", 50, 10, 260, 85, 3,
@@ -291,16 +298,29 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 None)
         button.event("EndDialog", "Exit")
 
-    def get_initial_target_dir(self, fullname):
-        return r"[ProgramFilesFolder]\%s" % fullname
-
-    def get_installer_filename(self, fullname):
-        return os.path.join(self.dist_dir, "%s.msi" % fullname)
+    def finalize_options(self):
+        distutils.command.bdist_msi.bdist_msi.finalize_options(self)
+        fullname = self.distribution.get_fullname()
+        if self.initial_target_dir is None:
+            self.initial_target_dir = r"[ProgramFilesFolder]\%s" % fullname
+        if self.add_to_path is None:
+            self.add_to_path = False
+        if self.target_name is None:
+            self.target_name = fullname
+        if not self.target_name.lower().endswith(".msi"):
+            self.target_name += ".msi"
+        if not os.path.isabs(self.target_name):
+            self.target_name = os.path.join(self.dist_dir, self.target_name)
+        if self.directories is None:
+            self.directories = []
 
     def initialize_options(self):
         distutils.command.bdist_msi.bdist_msi.initialize_options(self)
         self.upgrade_code = None
         self.add_to_path = None
+        self.initial_target_dir = None
+        self.target_name = None
+        self.directories = None
 
     def run(self):
         if not self.skip_build:
@@ -314,15 +334,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         install.run()
         self.mkpath(self.dist_dir)
         fullname = self.distribution.get_fullname()
-        filename = os.path.abspath(self.get_installer_filename(fullname))
-        if os.path.exists(filename):
-            os.unlink(filename)
+        if os.path.exists(self.target_name):
+            os.unlink(self.target_name)
         metadata = self.distribution.metadata
         author = metadata.author or metadata.maintainer or "UNKNOWN"
         version = metadata.get_version()
         sversion = "%d.%d.%d" % \
                 distutils.version.StrictVersion(version).version
-        self.db = msilib.init_database(filename, msilib.schema,
+        self.db = msilib.init_database(self.target_name, msilib.schema,
                 self.distribution.metadata.name, msilib.gen_uuid(), sversion,
                 author)
         msilib.add_tables(self.db, msilib.sequence)
