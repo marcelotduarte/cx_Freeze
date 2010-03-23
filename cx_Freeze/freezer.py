@@ -481,7 +481,8 @@ class Executable(object):
             excludes = None, packages = None, replacePaths = None,
             compress = None, copyDependentFiles = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
-            icon = None, namespacePackages = None):
+            icon = None, namespacePackages = None, shortcutName = None,
+            shortcutDir = None):
         self.script = script
         self.initScript = initScript
         self.base = base
@@ -498,6 +499,8 @@ class Executable(object):
         self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.icon = icon
+        self.shortcutName = shortcutName
+        self.shortcutDir = shortcutDir
 
     def __repr__(self):
         return "<Executable script=%s>" % self.script
