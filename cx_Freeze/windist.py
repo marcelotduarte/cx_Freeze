@@ -19,7 +19,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('upgrade-code=', None, 'upgrade code to use'),
         ('initial-target-dir=', None, 'initial target directory'),
         ('target-name=', None, 'name of the file to create'),
-        ('directories=', None, 'list of 3-tuples of directories to create')
+        ('directories=', None, 'list of 3-tuples of directories to create'),
+        ('data=', None, 'dictionary of data indexed by table name')
     ]
     x = y = 50
     width = 370
@@ -56,6 +57,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                                 executable.shortcutName, "TARGETDIR",
                                 "[TARGETDIR]%s" % baseName, None, None, None,
                                 None, None, None, None)])
+        for tableName, data in self.data.items():
+            msilib.add_data(self.db, tableName, data)
 
     def add_cancel_dialog(self):
         dialog = msilib.Dialog(self.db, "CancelDlg", 50, 10, 260, 85, 3,
@@ -313,6 +316,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
         if self.directories is None:
             self.directories = []
+        if self.data is None:
+            self.data = {}
 
     def initialize_options(self):
         distutils.command.bdist_msi.bdist_msi.initialize_options(self)
@@ -321,6 +326,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.initial_target_dir = None
         self.target_name = None
         self.directories = None
+        self.data = None
 
     def run(self):
         if not self.skip_build:
