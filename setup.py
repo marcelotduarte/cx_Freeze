@@ -64,7 +64,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             if not vars.get("Py_ENABLE_SHARED", 0):
                 libraryDirs.append(vars["LIBPL"])
                 libraries.append("python%s.%s" % sys.version_info[:2])
-                if vars["LINKFORSHARED"]:
+                if vars["LINKFORSHARED"] and sys.platform != "darwin":
                     extraArgs.extend(vars["LINKFORSHARED"].split())
                 if vars["LIBS"]:
                     extraArgs.extend(vars["LIBS"].split())
