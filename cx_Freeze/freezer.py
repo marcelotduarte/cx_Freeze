@@ -188,6 +188,8 @@ class Freezer(object):
             systemDir = cx_Freeze.util.GetSystemDir()
             windowsDir = cx_Freeze.util.GetWindowsDir()
             return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
+        elif sys.platform == "darwin":
+            return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
         else:
             return ["/lib", "/lib32", "/lib64", "/usr/lib", "/usr/lib32",
                     "/usr/lib64"]
@@ -204,15 +206,23 @@ class Freezer(object):
                 os.environ["PATH"] = origPath
             else:
                 dependentFiles = []
-                for line in os.popen('ldd "%s"' % path):
-                    parts = line.expandtabs().strip().split(" => ")
+                if sys.platform == "darwin":
+                    command = 'otool -L "%s"' % path
+                    splitString = " (compatibility"
+                    dependentFileIndex = 0
+                else:
+                    command = 'ldd "%s"' % path
+                    splitString = " => "
+                    dependentFileIndex = 1
+                for line in os.popen(command):
+                    parts = line.expandtabs().strip().split(splitString)
                     if len(parts) != 2:
                         continue
-                    dependentFile = parts[1].strip()
+                    dependentFile = parts[dependentFileIndex].strip()
                     if dependentFile in ("not found", "(file not found)"):
                         fileName = parts[0]
-                        if fileName not in self.lddWarnings:
-                            self.lddWarnings[fileName] = None
+                        if fileName not in self.linkerWarnings:
+                            self.linkerWarnings[fileName] = None
                             message = "WARNING: cannot find %s\n" % fileName
                             sys.stdout.write(message)
                         continue
@@ -431,7 +441,7 @@ class Freezer(object):
         self.excludeModules = {}
         self.dependentFiles = {}
         self.filesCopied = {}
-        self.lddWarnings = {}
+        self.linkerWarnings = {}
         import cx_Freeze.util
         cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
         if self.createLibraryZip:
