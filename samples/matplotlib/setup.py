@@ -15,6 +15,9 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
+buildOptions = dict(
+        excludes = ["Tkinter"])
+
 executables = [
         cx_Freeze.Executable("test_matplotlib.py", base = base)
 ]
@@ -23,5 +26,6 @@ cx_Freeze.setup(
         name = "test_matplotlib",
         version = "0.1",
         description = "Sample matplotlib script",
-        executables = executables)
+        executables = executables,
+        options = dict(build_exe = buildOptions))
 
