@@ -87,7 +87,7 @@ class ModuleFinder(object):
         """Clear the code for all of the base modules. This is done when not in
            bootstrap mode so that the base modules are not included in the
            zip file."""
-        for module in self._modules.itervalues():
+        for module in self._modules.values():
             if module is None:
                 continue
             if module.code is not None:
