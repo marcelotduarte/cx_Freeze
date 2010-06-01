@@ -363,10 +363,17 @@ class ModuleFinder(object):
         for i, value in enumerate(constants):
             if isinstance(value, type(co)):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
-        return types.CodeType(co.co_argcount, co.co_nlocals, co.co_stacksize,
-                co.co_flags, co.co_code, tuple(constants), co.co_names,
-                co.co_varnames, newFileName, co.co_name, co.co_firstlineno,
-                co.co_lnotab, co.co_freevars, co.co_cellvars)
+        if sys.version_info[0] < 3:
+            return types.CodeType(co.co_argcount, co.co_nlocals,
+                    co.co_stacksize, co.co_flags, co.co_code, tuple(constants),
+                    co.co_names, co.co_varnames, newFileName, co.co_name,
+                    co.co_firstlineno, co.co_lnotab, co.co_freevars,
+                    co.co_cellvars)
+        return types.CodeType(co.co_argcount, co.co_kwonlyargcount,
+                co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
+                tuple(constants), co.co_names, co.co_varnames, newFileName,
+                co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
+                co.co_cellvars)
 
     def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
