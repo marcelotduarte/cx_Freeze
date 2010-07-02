@@ -10,6 +10,11 @@
 #include <windows.h>
 #endif
 
+// disable filename globbing on Windows
+#ifdef MS_WINDOWS
+int _CRT_glob = 0;
+#endif
+
 //-----------------------------------------------------------------------------
 // FatalError()
 //   Prints a fatal error.
