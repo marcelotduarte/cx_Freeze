@@ -11,7 +11,4 @@ m = __import__("__main__")
 importer = zipimport.zipimporter(INITSCRIPT_ZIP_FILE_NAME)
 code = importer.get_code(m.__name__)
 exec(code, m.__dict__)
-module = sys.modules.get("threading")
-if module is not None:
-    module._shutdown()
 
