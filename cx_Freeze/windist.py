@@ -1,4 +1,5 @@
 import distutils.command.bdist_msi
+import distutils.util
 import msilib
 import os
 
@@ -311,7 +312,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if self.target_name is None:
             self.target_name = fullname
         if not self.target_name.lower().endswith(".msi"):
-            self.target_name += ".msi"
+            platform = distutils.util.get_platform().replace("win-", "")
+            self.target_name = "%s-%s.msi" % (self.target_name, platform)
         if not os.path.isabs(self.target_name):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
         if self.directories is None:
