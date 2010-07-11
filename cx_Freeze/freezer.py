@@ -237,14 +237,16 @@ class Freezer(object):
                     [f for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
 
-    def _GetFileName(self, dir, name):
+    def _GetFileName(self, dir, name, ext = None):
         if os.path.isabs(name):
             return name
         name = os.path.normcase(name)
         fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dir)
         if os.path.isdir(fullDir):
             for fileName in os.listdir(fullDir):
-                if name == os.path.splitext(os.path.normcase(fileName))[0]:
+                checkName, checkExt = \
+                        os.path.splitext(os.path.normcase(fileName))
+                if name == checkName and (ext is None or ext == checkExt):
                     return os.path.join(fullDir, fileName)
 
     def _GetInitScriptFileName(self, argsSource = None):
@@ -258,7 +260,7 @@ class Freezer(object):
                 name = "ConsoleKeepPath"
             if sys.version_info[0] >= 3:
                 name += "3"
-        argsSource.initScript = self._GetFileName("initscripts", name)
+        argsSource.initScript = self._GetFileName("initscripts", name, ".py")
         if argsSource.initScript is None:
             raise ConfigError("no initscript named %s", name)
 
