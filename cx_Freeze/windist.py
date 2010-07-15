@@ -304,14 +304,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
 
     def finalize_options(self):
         distutils.command.bdist_msi.bdist_msi.finalize_options(self)
+        name = self.distribution.get_name()
         fullname = self.distribution.get_fullname()
         if self.initial_target_dir is None:
             if distutils.util.get_platform() == "win-amd64":
                 programFilesFolder = "ProgramFiles64Folder"
             else:
                 programFilesFolder = "ProgramFilesFolder"
-            self.initial_target_dir = \
-                    r"[%s]\%s" % (programFilesFolder, fullname)
+            self.initial_target_dir = r"[%s]\%s" % (programFilesFolder, name)
         if self.add_to_path is None:
             self.add_to_path = False
         if self.target_name is None:
