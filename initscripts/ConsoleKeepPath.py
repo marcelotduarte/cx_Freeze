@@ -12,7 +12,8 @@ importer = zipimport.zipimporter(INITSCRIPT_ZIP_FILE_NAME)
 code = importer.get_code(m.__name__)
 exec code in m.__dict__
 
-if sys.version_info[:2] == (2, 5):
+versionInfo = sys.version_info[:3]
+if versionInfo >= (2, 5, 0) and versionInfo <= (2, 6, 4):
     module = sys.modules.get("threading")
     if module is not None:
         module._shutdown()
