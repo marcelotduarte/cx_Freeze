@@ -391,6 +391,14 @@ def load_pywintypes(finder, module):
     module.code = None
 
 
+def load_PyQt4_phonon(finder, module):
+    """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
+       be present in the build directory inside a folder phonon_backend."""
+    if sys.platform == "win32":
+        dir = os.path.join(module.parent.path[0], "plugins", "phonon_backend")
+        finder.IncludeFiles(dir, "phonon_backend")
+
+
 def load_PyQt4_QtCore(finder, module):
     """the PyQt4.QtCore module implicitly imports the sip module and,
        depending on configuration, the PyQt4._qt module."""
