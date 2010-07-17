@@ -1,4 +1,4 @@
-version = "4.1.2"
+version = "4.2"
 
 import sys
 from cx_Freeze.dist import *

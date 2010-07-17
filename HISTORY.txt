@@ -1,9 +1,30 @@
-Changes from 4.1.2 to 4.1.3
- 1) Fix bug that prevented hooks from successfully including files in the build
-    (as is done for the matplotlib sample).
- 2) Fix bug that prevented from submodules from being included in the build if
-    the format of the import statement was from . import <name>.
- 3) Ignore the "new" module in Python 3 and up where it no longer exists.
+Changes from 4.1.2 to 4.2
+ 1) Added support for Python 2.7.
+ 2) Improved support for Python 3.x.
+ 3) Improved support for Mac OS X based on feedback from some Mac users.
+ 4) Improved hooks for the following modules: postgresql, matplotlib, twisted,
+    zope, PyQt4.
+ 5) Improved packaging of MSI files by enabling support for creating shortcuts
+    for the executables, for specifying the initial target directory and for
+    adding other arbitrary configuration to the MSI.
+ 6) Added support for namespace packages such as those distributed for zope.
+ 7) The name of the generated MSI packages now includes the architecture in
+    order to differentiate between 32-bit and 64-bit builds.
+ 8) Removed use of LINKFORSHARED on the Mac which is not necessary and for
+    Python 2.6 at least causes an error to be raised.
+ 9) Turn off filename globbing on Windows as requested by Craig McQueen.
+10) Fixed bug that prevented hooks from successfully including files in the
+    build (as is done for the matplotlib sample).
+11) Fixed bug that prevented submodules from being included in the build if the
+    format of the import statement was from . import <name>.
+12) Reverted bug fix for threading shutdown support which has been fixed
+    differently and is no longer required in Python 2.6.5 and up (in fact an
+    error is raised if the threading module is used in a frozen executable and
+    this code is retained).
+13) Fixed bug which resulted in attempts to compile .pyc and .pyo files from
+    the initscripts directory.
+14) Fixed selection of "Program Files" directory on Windows in 64-bit MSI
+    packages built by cx_Freeze.
 
 Changes from 4.1.1 to 4.1.2
  1) Fix bug that caused the util extension to be named improperly.
