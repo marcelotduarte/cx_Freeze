@@ -1,4 +1,5 @@
 import distutils.command.bdist_msi
+import distutils.errors
 import distutils.util
 import msilib
 import os
@@ -107,6 +108,28 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 "Click the Finish button to exit the installer.")
         button = dialog.next("Finish", "Cancel", name = "Finish")
         button.event("EndDialog", "Exit")
+
+    def add_files(self):
+        db = self.db
+        cab = msilib.CAB("distfiles")
+        f = msilib.Feature(db, "default", "Default Feature", "Everything", 1,
+                directory="TARGETDIR")
+        f.set_current()
+        rootdir = os.path.abspath(self.bdist_dir)
+        root = msilib.Directory(db, cab, None, rootdir, "TARGETDIR",
+                "SourceDir")
+        db.Commit()
+        todo = [root]
+        while todo:
+            dir = todo.pop()
+            for file in os.listdir(dir.absolute):
+                if os.path.isdir(os.path.join(dir.absolute, file)):
+                    newDir = msilib.Directory(db, cab, dir, file, file,
+                            "%s|%s" % (dir.make_short(file), file))
+                    todo.append(newDir)
+                else:
+                    dir.add_file(file)
+        cab.commit(db)
 
     def add_files_in_use_dialog(self):
         dialog = distutils.command.bdist_msi.PyDialog(self.db, "FilesInUse",
