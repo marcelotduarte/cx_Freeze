@@ -77,7 +77,7 @@ class build_exe(distutils.core.Command):
          'comma-separated list of modules to include'),
         ('packages=', 'p',
          'comma-separated list of packages to include'),
-        ('namespace-packages=',
+        ('namespace-packages=', None,
          'comma-separated list of namespace packages to include'),
         ('replace-paths=', None,
          'comma-separated list of paths to replace in included modules'),
