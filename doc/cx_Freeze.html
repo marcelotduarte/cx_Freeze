@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
 <title>cx_Freeze</title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 5196 2007-06-03 20:25:28Z wiemann $
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -157,11 +157,32 @@ h2.subtitle {
 hr.docutils {
   width: 75% }
 
-img.align-left {
-  clear: left }
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
 
-img.align-right {
-  clear: right }
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
 
 ol.simple, ul.simple {
   margin-bottom: 1em }
@@ -216,8 +237,7 @@ p.topic-title {
 pre.address {
   margin-bottom: 0 ;
   margin-top: 0 ;
-  font-family: serif ;
-  font-size: 100% }
+  font: inherit }
 
 pre.literal-block, pre.doctest-block {
   margin-left: 2em ;
@@ -299,7 +319,7 @@ zip import facility which was introduced in that version.</p>
 <div class="section" id="using-cx-freeze">
 <h1>Using cx_Freeze</h1>
 <p>There are three different ways to use cx_Freeze. The first is to use the
-included <tt class="docutils literal"><span class="pre">cxfreeze</span></tt> script which works well for simple scripts. The second is
+included <tt class="docutils literal">cxfreeze</tt> script which works well for simple scripts. The second is
 to create a <a class="reference external" href="http://docs.python.org/lib/module-distutils.html">distutils</a> setup script which can be used for more complicated
 configuration or to retain the configuration for future use. The third method
 involves working directly with the classes and modules used internally by
@@ -310,17 +330,17 @@ option is the only one that was available in earlier versions of cx_Freeze,
 that is appending the zip file to the executable itself. The second option is
 creating a private zip file with the same name as the executable but with the
 extension .zip. The final option is the default which is to create a zip file
-called <tt class="docutils literal"><span class="pre">library.zip</span></tt> and place all modules in this zip file. The final two
+called <tt class="docutils literal">library.zip</tt> and place all modules in this zip file. The final two
 options are necessary when creating an RPM since the RPM builder automatically
 strips executables. These options are described in greater detail below as
 well.</p>
 <div class="section" id="cxfreeze-script">
 <h2>cxfreeze script</h2>
-<p>The <tt class="docutils literal"><span class="pre">cxfreeze</span></tt> script is included with other Python scripts. On Windows and
-the Mac this is in the <tt class="docutils literal"><span class="pre">Scripts</span></tt> subdirectory of your Python installation
+<p>The <tt class="docutils literal">cxfreeze</tt> script is included with other Python scripts. On Windows and
+the Mac this is in the <tt class="docutils literal">Scripts</tt> subdirectory of your Python installation
 whereas on Unix platforms this in the bin directory of the prefix where Python
 is installed.</p>
-<p>Assuming you have a script called <tt class="docutils literal"><span class="pre">hello.py</span></tt> which you want to turn into an
+<p>Assuming you have a script called <tt class="docutils literal">hello.py</tt> which you want to turn into an
 executable, this can be accomplished by this command:</p>
 <pre class="literal-block">
 cxfreeze hello.py --target-dir dist
@@ -429,7 +449,7 @@ will specify the archive name to use; multiple
 <div class="section" id="distutils-setup-script">
 <h2>distutils setup script</h2>
 <p>In order to make use of distutils a setup script must be created. This is
-called <tt class="docutils literal"><span class="pre">setup.py</span></tt> by convention although it need not be called that. A
+called <tt class="docutils literal">setup.py</tt> by convention although it need not be called that. A
 very simple script might use the following:</p>
 <pre class="literal-block">
 from cx_Freeze import setup, Executable
@@ -444,8 +464,8 @@ setup(
 <pre class="literal-block">
 python setup.py build
 </pre>
-<p>This command will create a subdirectory called <tt class="docutils literal"><span class="pre">build</span></tt> with a further
-subdirectory starting with the letters <tt class="docutils literal"><span class="pre">exe.</span></tt> and ending with the typical
+<p>This command will create a subdirectory called <tt class="docutils literal">build</tt> with a further
+subdirectory starting with the letters <tt class="docutils literal">exe.</tt> and ending with the typical
 identifier for the platform that distutils uses. This allows for multiple
 platforms to be built without conflicts.</p>
 <p>cx_Freeze creates two new commands and subclasses four others in order to
@@ -579,12 +599,24 @@ destination</td>
 <tr><td>bin-includes</td>
 <td>list of names of files to include when determining
 dependencies of binary files that would normally be
-excluded</td>
+excluded; note that version numbers that normally
+follow the shared object extension are stripped
+prior to performing the comparison</td>
 </tr>
 <tr><td>bin-excludes</td>
 <td>list of names of files to exclude when determining
 dependencies of binary files that would normally be
-included</td>
+included; note that version numbers that normally
+follow the shared object extension are stripped
+prior to performing the comparison</td>
+</tr>
+<tr><td>bin-path-includes</td>
+<td>list of paths from which to include files when
+determining dependencies of binary files</td>
+</tr>
+<tr><td>bin-path-excludes</td>
+<td>list of paths from which to exclude files when
+determining dependencies of binary files</td>
 </tr>
 <tr><td>silent (-s)</td>
 <td>suppress all output except warnings</td>

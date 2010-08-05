@@ -109,6 +109,12 @@ class build_exe(distutils.core.Command):
          'list of names of files to include when determining dependencies'),
         ('bin-excludes', None,
          'list of names of files to exclude when determining dependencies'),
+        ('bin-path-includes', None,
+         'list of paths from which to include files when determining '
+         'dependencies'),
+        ('bin-path-excludes', None,
+         'list of paths from which to exclude files when determining '
+         'dependencies'),
         ('silent', 's',
          'suppress all output except warnings')
     ]
@@ -185,6 +191,8 @@ class build_exe(distutils.core.Command):
         self.zip_includes = []
         self.bin_excludes = []
         self.bin_includes = []
+        self.bin_path_includes = []
+        self.bin_path_excludes = []
         self.silent = None
 
     def finalize_options(self):
@@ -221,7 +229,9 @@ class build_exe(distutils.core.Command):
                 binExcludes = self.bin_excludes,
                 zipIncludes = self.zip_includes,
                 silent = self.silent,
-                namespacePackages = self.namespace_packages)
+                namespacePackages = self.namespace_packages,
+                binPathIncludes = self.bin_path_includes,
+                binPathExcludes = self.bin_path_excludes)
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
