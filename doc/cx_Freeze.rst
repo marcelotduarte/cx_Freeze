@@ -252,11 +252,21 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | bin-includes          | list of names of files to include when determining  |
 |                       | dependencies of binary files that would normally be |
-|                       | excluded                                            |
+|                       | excluded; note that version numbers that normally   |
+|                       | follow the shared object extension are stripped     |
+|                       | prior to performing the comparison                  |
 +-----------------------+-----------------------------------------------------+
 | bin-excludes          | list of names of files to exclude when determining  |
 |                       | dependencies of binary files that would normally be |
-|                       | included                                            |
+|                       | included; note that version numbers that normally   |
+|                       | follow the shared object extension are stripped     |
+|                       | prior to performing the comparison                  |
++-----------------------+-----------------------------------------------------+
+| bin-path-includes     | list of paths from which to include files when      |
+|                       | determining dependencies of binary files            |
++-----------------------+-----------------------------------------------------+
+| bin-path-excludes     | list of paths from which to exclude files when      |
+|                       | determining dependencies of binary files            |
 +-----------------------+-----------------------------------------------------+
 | silent (-s)           | suppress all output except warnings                 |
 +-----------------------+-----------------------------------------------------+
