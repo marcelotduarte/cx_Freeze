@@ -5,6 +5,7 @@
 
 #include <Python.h>
 #include <windows.h>
+#include <Winsvc.h>
 #include <cx_Logging.h>
 
 // define constants
@@ -18,6 +19,12 @@
 #define SERVICE_CLASS_NAME              "CLASS_NAME"
 #define SERVICE_NAME                    "NAME"
 #define SERVICE_DISPLAY_NAME            "DISPLAY_NAME"
+
+// the following was copied from cx_Interface.c, which is where this
+// declaration normally happens
+#ifndef PATH_MAX
+    #define PATH_MAX _MAX_PATH
+#endif
 
 //define structure for holding information about the service
 typedef struct {
@@ -460,6 +467,11 @@ int main(int argc, char **argv)
 {
     char *configFileName = NULL;
 
+    SERVICE_TABLE_ENTRY table[] = {
+        { "", (LPSERVICE_MAIN_FUNCTION) Service_Main },
+        { NULL, NULL }
+    };
+
     gIniFileName[0] = '\0';
     if (argc > 1) {
         if (stricmp(argv[1], "--install") == 0) {
@@ -494,10 +506,6 @@ int main(int argc, char **argv)
         strcpy(gIniFileName, argv[1]);
     }
 
-    SERVICE_TABLE_ENTRY table[] = {
-        { "", (LPSERVICE_MAIN_FUNCTION) Service_Main },
-        { NULL, NULL }
-    };
 
     return StartServiceCtrlDispatcher(table);
 }
