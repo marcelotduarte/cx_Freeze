@@ -207,7 +207,8 @@ if sys.platform == "win32":
         service = Extension("cx_Freeze.bases.Win32Service",
                 ["source/bases/Win32Service.c"] + extraSources,
                 depends = fullDepends, library_dirs = [libraryDir],
-                libraries = ["cx_Logging"], include_dirs = includeDirs)
+                libraries = ["advapi32", "cx_Logging"],
+                include_dirs = includeDirs)
         extensions.append(service)
 
 docFiles = "LICENSE.txt README.txt HISTORY.txt doc/cx_Freeze.html"
