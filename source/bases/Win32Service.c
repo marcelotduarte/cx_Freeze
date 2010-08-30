@@ -299,7 +299,7 @@ static int Service_Install(
         return LogPythonException("cannot create display name");
 
     // determine command to use for the service
-    command = PyString_FromFormat("\"%s\"", programName);
+    command = PyString_FromFormat("\"%s\"", Py_GetProgramFullPath());
     if (!command)
         return LogPythonException("cannot create command");
     if (configFileName) {
