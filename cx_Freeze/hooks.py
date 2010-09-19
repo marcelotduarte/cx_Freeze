@@ -48,6 +48,7 @@ def initialize(finder):
         finder.ExcludeModule("macostools")
         finder.ExcludeModule("macpath")
         finder.ExcludeModule("macurl2path")
+        finder.ExcludeModule("_scproxy")
         if os.name != "nt":
             finder.ExcludeModule("EasyDialogs")
     if os.name != "os2":
