@@ -526,6 +526,34 @@ def load_win32file(finder, module):
     finder.IncludeModule("pywintypes")
 
 
+def load_Xlib_display(finder, module):
+    """the Xlib.display module implicitly loads a number of extension modules;
+       make sure this happens."""
+    finder.IncludeModule("Xlib.ext.xtest")
+    finder.IncludeModule("Xlib.ext.shape")
+    finder.IncludeModule("Xlib.ext.xinerama")
+    finder.IncludeModule("Xlib.ext.record")
+    finder.IncludeModule("Xlib.ext.composite")
+    finder.IncludeModule("Xlib.ext.randr")
+
+
+def load_Xlib_support_connect(finder, module):
+    """the Xlib.support.connect module implicitly loads a platform specific
+       module; make sure this happens."""
+    if sys.platform.split("-")[0] == "OpenVMS":
+        moduleName = "vms_connect"
+    else:
+        moduleName = "unix_connect"
+    finder.IncludeModule("Xlib.support.%s" % moduleName)
+
+
+def load_Xlib_XK(finder, module):
+    """the Xlib.XK module implicitly loads some keysymdef modules; make sure
+       this happens."""
+    finder.IncludeModule("Xlib.keysymdef.miscellany")
+    finder.IncludeModule("Xlib.keysymdef.latin1")
+
+
 def load_xml(finder, module):
     """the builtin xml package attempts to load the _xmlplus module to see if
        that module should take its role instead; ignore the failure to find
