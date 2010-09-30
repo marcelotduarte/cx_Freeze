@@ -1,3 +1,16 @@
+Changes from 4.2 to 4.2.1
+ 1) Added support for specifying bin_path_includes and bin_path_excludes in
+    setup scripts.
+ 2) Added support for compiling Windows services with the Microsoft compiler
+    and building for 64-bit Windows.
+ 3) When installing Windows services, use the full path.
+ 4) Eliminate duplicate files for each possible version of Python when building
+    MSI packages for Python 2.7.
+ 5) Fix declaration of namespace packages.
+ 6) Fix check for cx_Logging import library directory.
+ 7) Added hooks for the python-Xlib package.
+ 8) Added hook to ignore the _scproxy module when not on the Mac platform.
+
 Changes from 4.1.2 to 4.2
  1) Added support for Python 2.7.
  2) Improved support for Python 3.x.
