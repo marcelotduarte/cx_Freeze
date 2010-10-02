@@ -9,7 +9,8 @@ Changes from 4.2 to 4.2.1
  5) Fix declaration of namespace packages.
  6) Fix check for cx_Logging import library directory.
  7) Added hooks for the python-Xlib package.
- 8) Added hook to ignore the _scproxy module when not on the Mac platform.
+ 8) Added hooks to ignore the _scproxy module when not on the Mac platform and
+    the win32gui and pyHook modules on platforms other than Windows.
 
 Changes from 4.1.2 to 4.2
  1) Added support for Python 2.7.
