@@ -103,6 +103,7 @@ class Freezer(object):
         if not self.silent:
             sys.stdout.write("copying %s -> %s\n" % (source, target))
         shutil.copyfile(source, target)
+        shutil.copystat(source, target)
         if includeMode:
             shutil.copymode(source, target)
         self.filesCopied[normalizedTarget] = None
