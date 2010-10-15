@@ -280,6 +280,7 @@ static int Service_Install(
     char *configFileName)               // name of configuration file or NULL
 {
     PyObject *fullName, *displayName, *formatArgs, *command, *commandArgs;
+    char fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
     udt_ServiceInfo info;
 
@@ -303,7 +304,11 @@ static int Service_Install(
     if (!command)
         return LogPythonException("cannot create command");
     if (configFileName) {
-        commandArgs = PyString_FromFormat(" \"%s\"", configFileName);
+        if (!_fullpath(fullPathConfigFileName, configFileName,
+                sizeof(fullPathConfigFileName)))
+            return LogWin32Error(GetLastError(),
+                    "cannot calculate absolute path of config file name");
+        commandArgs = PyString_FromFormat(" \"%s\"", fullPathConfigFileName);
         if (!commandArgs)
             return LogPythonException("cannot create command args");
         PyString_Concat(&command, commandArgs);
