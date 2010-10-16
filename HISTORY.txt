@@ -3,7 +3,8 @@ Changes from 4.2 to 4.2.1
     setup scripts.
  2) Added support for compiling Windows services with the Microsoft compiler
     and building for 64-bit Windows.
- 3) When installing Windows services, use the full path.
+ 3) When installing Windows services, use the full path for both the executable
+    and the configuration file if specified.
  4) Eliminate duplicate files for each possible version of Python when building
     MSI packages for Python 2.7.
  5) Fix declaration of namespace packages.
@@ -11,6 +12,10 @@ Changes from 4.2 to 4.2.1
  7) Added hooks for the python-Xlib package.
  8) Added hooks to ignore the _scproxy module when not on the Mac platform and
     the win32gui and pyHook modules on platforms other than Windows.
+ 9) When copying files, copy the stat() information as well as was done in
+    earlier versions of cx_Freeze.
+10) Added documentation for the shortcutName and shortcutDir parameters for
+    creating an executable.
 
 Changes from 4.1.2 to 4.2
  1) Added support for Python 2.7.
