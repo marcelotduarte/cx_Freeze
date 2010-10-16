@@ -382,9 +382,6 @@ constructor are as follows:
 | packages              | list of names of packages to include, including all |
 |                       | of the package's submodules                         |
 +-----------------------+-----------------------------------------------------+
-| namespacePackages     | list of packages to be treated as namespace         |
-|                       | packages (path is extended using pkgutil)           |
-+-----------------------+-----------------------------------------------------+
 | replacePaths          | list of 2-tuples containing search values and       |
 |                       | replacement values for paths of modules that are    |
 |                       | included; a search value of "*" will cause all      |
@@ -406,5 +403,16 @@ constructor are as follows:
 | icon                  | name of icon which should be included in the        |
 |                       | executable itself on Windows or placed in the       |
 |                       | target directory for other platforms                |
++-----------------------+-----------------------------------------------------+
+| namespacePackages     | list of packages to be treated as namespace         |
+|                       | packages (path is extended using pkgutil)           |
++-----------------------+-----------------------------------------------------+
+| shortcutName          | the name to give a shortcut for the executable when |
+|                       | included in an MSI package                          |
++-----------------------+-----------------------------------------------------+
+| shortcutDir           | the directory in which to place the shortcut when   |
+|                       | being installed by an MSI package; see the MSI      |
+|                       | Shortcut table documentation for more information   |
+|                       | on what values can be placed here.                  |
 +-----------------------+-----------------------------------------------------+
 
