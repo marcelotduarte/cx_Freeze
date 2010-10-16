@@ -781,10 +781,6 @@ executable</td>
 <td>list of names of packages to include, including all
 of the package's submodules</td>
 </tr>
-<tr><td>namespacePackages</td>
-<td>list of packages to be treated as namespace
-packages (path is extended using pkgutil)</td>
-</tr>
 <tr><td>replacePaths</td>
 <td>list of 2-tuples containing search values and
 replacement values for paths of modules that are
@@ -812,6 +808,20 @@ should be appended to the shared library zipfile</td>
 <td>name of icon which should be included in the
 executable itself on Windows or placed in the
 target directory for other platforms</td>
+</tr>
+<tr><td>namespacePackages</td>
+<td>list of packages to be treated as namespace
+packages (path is extended using pkgutil)</td>
+</tr>
+<tr><td>shortcutName</td>
+<td>the name to give a shortcut for the executable when
+included in an MSI package</td>
+</tr>
+<tr><td>shortcutDir</td>
+<td>the directory in which to place the shortcut when
+being installed by an MSI package; see the MSI
+Shortcut table documentation for more information
+on what values can be placed here.</td>
 </tr>
 </tbody>
 </table>
