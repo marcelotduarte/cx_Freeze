@@ -116,10 +116,14 @@ class ModuleFinder(object):
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
 
-    def _FindModule(self, name, path):
+    def _FindModule(self, name, path, namespace):
         try:
             return imp.find_module(name, path)
         except ImportError:
+            if namespace and name in sys.modules:
+                module = sys.modules[name]
+                info = ("", "", imp.PKG_DIRECTORY)
+                return None, module.__path__[0], info
             if path is None:
                 path = []
             for location in path:
@@ -285,20 +289,21 @@ class ModuleFinder(object):
             self._modules[name] = module
             return module, returnError
         try:
-            fp, path, info = self._FindModule(searchName, path)
+            fp, path, info = self._FindModule(searchName, path, namespace)
             module = self._LoadModule(name, fp, path, info, deferredImports,
-                    parentModule)
+                    parentModule, namespace)
         except ImportError:
             self._modules[name] = None
             return None, True
         return module, False
 
     def _LoadModule(self, name, fp, path, info, deferredImports,
-            parent = None):
+            parent = None, namespace = False):
         """Load the module, given the information acquired by the finder."""
         suffix, mode, type = info
         if type == imp.PKG_DIRECTORY:
-            return self._LoadPackage(name, path, parent, deferredImports)
+            return self._LoadPackage(name, path, parent, deferredImports,
+                    namespace)
         module = self._AddModule(name)
         module.file = path
         module.parent = parent
@@ -336,12 +341,18 @@ class ModuleFinder(object):
         module.inImport = False
         return module
 
-    def _LoadPackage(self, name, path, parent, deferredImports):
+    def _LoadPackage(self, name, path, parent, deferredImports, namespace):
         """Load the package, given its name and path."""
         module = self._AddModule(name)
         module.path = [path]
-        fp, path, info = imp.find_module("__init__", module.path)
-        self._LoadModule(name, fp, path, info, deferredImports, parent)
+        try:
+            fp, path, info = imp.find_module("__init__", module.path)
+            self._LoadModule(name, fp, path, info, deferredImports, parent)
+        except ImportError:
+            if not namespace:
+                raise
+            fileName = os.path.join(path, "__init__.py")
+            module.code = compile("", fileName, "exec")
         return module
 
     def _ReplacePathsInCode(self, topLevelModule, co):
