@@ -181,9 +181,7 @@ fullDepends = depends + [baseModulesFileName]
 includeDirs = [baseModulesDir]
 extraSources = []
 if sys.platform == "win32":
-    if sys.version_info[:2] >= (2, 6):
-        extraSources.append("source/bases/manifest.rc")
-    else:
+    if sys.version_info[:2] < (2, 6):
         extraSources.append("source/bases/dummy.rc")
 console = Extension("cx_Freeze.bases.Console",
         ["source/bases/Console.c"] + extraSources, depends = fullDepends,
