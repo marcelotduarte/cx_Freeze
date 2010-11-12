@@ -74,6 +74,9 @@ class build_ext(distutils.command.build_ext.build_ext):
                 if vars["LOCALMODLIBS"]:
                     extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
+        elif ext.name.find("Win32GUI") > 0 \
+                and self.compiler.compiler_type == "mingw32":
+            extraArgs.append("-mwindows")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
                 library_dirs = libraryDirs,
@@ -193,8 +196,7 @@ if sys.platform == "win32":
     gui = Extension("cx_Freeze.bases.Win32GUI",
             ["source/bases/Win32GUI.c"] + extraSources,
             include_dirs = includeDirs, depends = fullDepends,
-            libraries = ["user32"],
-            extra_link_args = ["-mwindows"])
+            libraries = ["user32"])
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None and sys.version_info[:2] < (3, 0):
