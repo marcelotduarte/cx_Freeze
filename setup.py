@@ -122,7 +122,7 @@ class install_packagedata(distutils.command.install_data.install_data):
             targetDir = os.path.join(installDir, "cx_Freeze", sourceDir)
             self.mkpath(targetDir)
             for name in os.listdir(sourceDir):
-                if name == "build" or name.startswith("."):
+                if name in ("build", "CVS") or name.startswith("."):
                     continue
                 fullSourceName = os.path.join(sourceDir, name)
                 if os.path.isdir(fullSourceName):
