@@ -1,3 +1,11 @@
+Changes from 4.2.1 to 4.2.2
+ 1) Added support for namespace packages which are loaded implicitly upon
+    startup by injection into sys.modules.
+ 2) Added support for a Zope sample which makes use of namespace packages.
+ 3) Use the Microsoft compiler on Windows for Python 2.6 and up as some
+    strange behaviors were identified with Python 2.7 when compiled using
+    mingw32.
+
 Changes from 4.2 to 4.2.1
  1) Added support for specifying bin_path_includes and bin_path_excludes in
     setup scripts.
