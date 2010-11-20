@@ -429,6 +429,13 @@ def load_PyQt4_Qt(finder, module):
             pass
 
 
+def load_PyQt4_uic(finder, module):
+    """The uic module makes use of "plugins" that need to be read directly and
+       cannot be frozen."""
+    dir = os.path.join(module.path[0], "widget-plugins")
+    finder.IncludeFiles(dir, "PyQt4.uic.widget-plugins")
+
+
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
        problems without the entire package and a number of other subpackages
