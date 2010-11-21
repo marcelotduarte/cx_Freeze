@@ -5,6 +5,10 @@ Changes from 4.2.1 to 4.2.2
  3) Use the Microsoft compiler on Windows for Python 2.6 and up as some
     strange behaviors were identified with Python 2.7 when compiled using
     mingw32.
+ 4) Eliminate warning about -mwindows when using the Microsoft compiler for
+    building the Win32GUI base executable.
+ 5) Added hook for using the widget plugins which are part of the PyQt4.uic
+    package.
 
 Changes from 4.2 to 4.2.1
  1) Added support for specifying bin_path_includes and bin_path_excludes in
