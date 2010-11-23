@@ -431,9 +431,12 @@ def load_PyQt4_Qt(finder, module):
 
 def load_PyQt4_uic(finder, module):
     """The uic module makes use of "plugins" that need to be read directly and
-       cannot be frozen."""
+       cannot be frozen; the PyQt4.QtWebKit and PyQt4.QtNetwork modules are
+       also implicity loaded."""
     dir = os.path.join(module.path[0], "widget-plugins")
     finder.IncludeFiles(dir, "PyQt4.uic.widget-plugins")
+    finder.IncludeModule("PyQt4.QtNetwork")
+    finder.IncludeModule("PyQt4.QtWebKit")
 
 
 def load_scipy(finder, module):
