@@ -518,6 +518,15 @@ def load_twisted_conch_ssh_transport(finder, module):
     finder.IncludePackage("Crypto.Cipher")
 
 
+def load_twitter(finder, module):
+    """the twitter module tries to load the simplejson, json and django.utils
+       module in an attempt to locate any module that will implement the
+       necessary protocol; ignore these modules if they cannot be found."""
+    module.IgnoreName("json")
+    module.IgnoreName("simplejson")
+    module.IgnoreName("django.utils")
+
+
 def load_win32api(finder, module):
     """the win32api module implicitly loads the pywintypes module; make sure
        this happens."""
