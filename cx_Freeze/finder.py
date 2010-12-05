@@ -50,15 +50,20 @@ class ModuleFinder(object):
         self._zipFileEntries = {}
         self._zipFiles = {}
         cx_Freeze.hooks.initialize(self)
+        initialExcludedModules = self.excludes.copy()
         self._AddBaseModules()
         if not bootstrap:
-            self._ClearBaseModuleCode()
+            self._ClearBaseModuleCode(initialExcludedModules)
 
     def _AddBaseModules(self):
         """Add the base modules to the finder. These are the modules that
            Python imports itself during initialization and, if not found,
            can result in behavior that differs from running from source;
            also include modules used within the bootstrap code"""
+        self.ExcludeModule("cStringIO")
+        self.ExcludeModule("getopt")
+        self.ExcludeModule("logging")
+        self.ExcludeModule("subprocess")
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
         self.IncludePackage("encodings")
@@ -83,10 +88,15 @@ class ModuleFinder(object):
                 del self._badModules[name]
         return module
 
-    def _ClearBaseModuleCode(self):
+    def _ClearBaseModuleCode(self, initialExcludedModules):
         """Clear the code for all of the base modules. This is done when not in
            bootstrap mode so that the base modules are not included in the
            zip file."""
+        for name in self.excludes:
+            if name in initialExcludedModules:
+                continue
+            del self._modules[name]
+        self.excludes = initialExcludedModules
         for module in self._modules.values():
             if module is None:
                 continue
