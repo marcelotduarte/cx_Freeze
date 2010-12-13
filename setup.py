@@ -47,6 +47,11 @@ class build_ext(distutils.command.build_ext.build_ext):
         if ext.name.find("bases") < 0:
             distutils.command.build_ext.build_ext.build_extension(self, ext)
             return
+        if sys.platform == "win32":
+            if sys.version_info[:2] < (2, 6):
+                ext.sources.append("source/bases/dummy.rc")
+            elif self.compiler.compiler_type == "mingw32":
+                ext.sources.append("source/bases/manifest.rc")
         os.environ["LD_RUN_PATH"] = "${ORIGIN}:${ORIGIN}/../lib"
         objects = self.compiler.compile(ext.sources,
                 output_dir = self.build_temp,
@@ -182,19 +187,13 @@ utilModule = Extension("cx_Freeze.util", ["source/util.c"],
 depends = ["source/bases/Common.c"]
 fullDepends = depends + [baseModulesFileName]
 includeDirs = [baseModulesDir]
-extraSources = []
-if sys.platform == "win32":
-    if sys.version_info[:2] < (2, 6):
-        extraSources.append("source/bases/dummy.rc")
-console = Extension("cx_Freeze.bases.Console",
-        ["source/bases/Console.c"] + extraSources, depends = fullDepends,
-        include_dirs = includeDirs)
+console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
+        depends = fullDepends, include_dirs = includeDirs)
 consoleKeepPath = Extension("cx_Freeze.bases.ConsoleKeepPath",
-        ["source/bases/ConsoleKeepPath.c"] + extraSources, depends = depends)
+        ["source/bases/ConsoleKeepPath.c"], depends = depends)
 extensions = [utilModule, console, consoleKeepPath]
 if sys.platform == "win32":
-    gui = Extension("cx_Freeze.bases.Win32GUI",
-            ["source/bases/Win32GUI.c"] + extraSources,
+    gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             include_dirs = includeDirs, depends = fullDepends,
             libraries = ["user32"])
     extensions.append(gui)
@@ -203,8 +202,8 @@ if sys.platform == "win32":
         includeDir, libraryDir = moduleInfo
         includeDirs.append(includeDir)
         service = Extension("cx_Freeze.bases.Win32Service",
-                ["source/bases/Win32Service.c"] + extraSources,
-                depends = fullDepends, library_dirs = [libraryDir],
+                ["source/bases/Win32Service.c"], depends = fullDepends,
+                library_dirs = [libraryDir],
                 libraries = ["advapi32", "cx_Logging"],
                 include_dirs = includeDirs)
         extensions.append(service)
