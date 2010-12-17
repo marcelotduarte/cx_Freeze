@@ -1,8 +1,3 @@
-try:
-    import setuptools
-except ImportError:
-    pass
-
 import distutils.command.bdist_rpm
 import distutils.command.build
 import distutils.command.install
