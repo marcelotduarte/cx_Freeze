@@ -267,7 +267,7 @@ class install(distutils.command.install.install):
         if self.prefix is None and sys.platform == "win32":
             try:
                 import winreg
-            except
+            except:
                 import _winreg as winreg
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                     r"Software\Microsoft\Windows\CurrentVersion")
