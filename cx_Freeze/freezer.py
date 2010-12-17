@@ -57,7 +57,7 @@ class Freezer(object):
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
-            namespacePackages = []):
+            namespacePackages = [], metadata = None):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
@@ -87,7 +87,21 @@ class Freezer(object):
         self.includeFiles = self._ProcessPathSpecs(includeFiles)
         self.zipIncludes = self._ProcessPathSpecs(zipIncludes)
         self.silent = silent
+        self.metadata = metadata
         self._VerifyConfiguration()
+
+    def _AddVersionResource(self, fileName):
+        try:
+            from win32verstamp import stamp
+        except:
+            print("*** WARNING *** unable to create version resource")
+            print("install pywin32 extensions first")
+            return
+        versionInfo = VersionInfo(self.metadata.version,
+                comments = self.metadata.long_description,
+                description = self.metadata.description,
+                product = self.metadata.name)
+        stamp(fileName, versionInfo)
 
     def _CopyFile(self, source, target, copyDependentFiles,
             includeMode = False):
@@ -141,6 +155,8 @@ class Freezer(object):
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
+        if self.metadata is not None and sys.platform == "win32":
+            self._AddVersionResource(exe.targetName)
         if not exe.appendScriptToLibrary:
             if exe.appendScriptToExe:
                 fileName = exe.targetName
@@ -604,4 +620,27 @@ class ConstantsModule(object):
         source = "\n".join(sourceParts)
         module.code = compile(source, "%s.py" % self.moduleName, "exec")
         return module
+
+
+class VersionInfo(object):
+
+    def __init__(self, version, internalName = None, originalFileName = None,
+            comments = None, company = None, description = None,
+            copyright = None, trademarks = None, product = None, dll = False,
+            debug = False, verbose = True):
+        parts = version.split(".")
+        while len(parts) < 4:
+            parts.append("0")
+        self.version = ".".join(parts)
+        self.internal_name = internalName
+        self.original_filename = originalFileName
+        self.comments = comments
+        self.company = company
+        self.description = description
+        self.copyright = copyright
+        self.trademarks = trademarks
+        self.product = product
+        self.dll = dll
+        self.debug = debug
+        self.verbose = verbose
 

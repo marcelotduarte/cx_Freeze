@@ -231,7 +231,8 @@ class build_exe(distutils.core.Command):
                 silent = self.silent,
                 namespacePackages = self.namespace_packages,
                 binPathIncludes = self.bin_path_includes,
-                binPathExcludes = self.bin_path_excludes)
+                binPathExcludes = self.bin_path_excludes,
+                metadata = metadata)
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
