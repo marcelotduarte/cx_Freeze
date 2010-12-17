@@ -265,10 +265,13 @@ class install(distutils.command.install.install):
 
     def finalize_options(self):
         if self.prefix is None and sys.platform == "win32":
-            import _winreg
-            key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+            try:
+                import winreg
+            except
+                import _winreg as winreg
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
                     r"Software\Microsoft\Windows\CurrentVersion")
-            prefix = str(_winreg.QueryValueEx(key, "ProgramFilesDir")[0])
+            prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
             metadata = self.distribution.metadata
             dirName = "%s-%s" % (metadata.name, metadata.version)
             self.prefix = "%s/%s" % (prefix, dirName)
