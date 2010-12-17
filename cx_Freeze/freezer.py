@@ -100,6 +100,7 @@ class Freezer(object):
         versionInfo = VersionInfo(self.metadata.version,
                 comments = self.metadata.long_description,
                 description = self.metadata.description,
+                company = self.metadata.author,
                 product = self.metadata.name)
         stamp(fileName, versionInfo)
 
