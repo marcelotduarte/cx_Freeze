@@ -19,6 +19,7 @@
 #define SERVICE_CLASS_NAME              "CLASS_NAME"
 #define SERVICE_NAME                    "NAME"
 #define SERVICE_DISPLAY_NAME            "DISPLAY_NAME"
+#define SERVICE_DESCRIPTION             "DESCRIPTION"
 
 // the following was copied from cx_Interface.c, which is where this
 // declaration normally happens
@@ -31,6 +32,7 @@ typedef struct {
     PyObject *cls;
     PyObject *nameFormat;
     PyObject *displayNameFormat;
+    PyObject *description;
 } udt_ServiceInfo;
 
 // define globals
@@ -248,6 +250,12 @@ static int Service_SetupPython(
     if (!info->displayNameFormat)
         return LogPythonException("cannot locate service display name");
 
+    // determine description to use for the service (optional)
+    info->description = PyObject_GetAttrString(module,
+            SERVICE_DESCRIPTION);
+    if (!info->description)
+        PyErr_Clear();
+
     // import the module which implements the service
     temp = PyObject_GetAttrString(module, SERVICE_MODULE_NAME);
     if (!temp)
@@ -282,6 +290,7 @@ static int Service_Install(
     PyObject *fullName, *displayName, *formatArgs, *command, *commandArgs;
     char fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
+    SERVICE_DESCRIPTIONA sd;
     udt_ServiceInfo info;
 
     // set up Python
@@ -329,6 +338,17 @@ static int Service_Install(
             NULL, NULL, NULL);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot create service");
+
+    // set the description of the service, if one was specified
+    if (info.description) {
+        sd.lpDescription = PyString_AS_STRING(info.description);
+        if (!ChangeServiceConfig2(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
+                    &sd))
+            return LogWin32Error(GetLastError(),
+                    "cannot set service description");
+    }
+
+    // close the service handles
     CloseServiceHandle(serviceHandle);
     CloseServiceHandle(managerHandle);
 
