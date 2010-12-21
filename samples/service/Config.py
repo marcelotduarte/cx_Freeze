@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # Config.py
-#   This file defines information about the service. The following four
+#   This file defines information about the service. The first four
 # attributes are expected to be defined and if they are not an exception will
 # be thrown when attempting to create the service:
 #
@@ -23,10 +23,14 @@
 #       with no parameters when the service is started. It should also have a
 #       method called "Stop" which will be called with no parameters when the
 #       service is stopped using the service control GUI.
+#
+#   DESCRIPTION
+#       the description of the service (optional)
 #------------------------------------------------------------------------------
 
 NAME = "cx_FreezeSampleService%s"
 DISPLAY_NAME = "cx_Freeze Sample Service - %s"
 MODULE_NAME = "ServiceHandler"
 CLASS_NAME = "Handler"
+DESCRIPTION = "Sample service description"
 
