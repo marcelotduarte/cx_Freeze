@@ -7,8 +7,24 @@ Changes from 4.2.1 to 4.2.2
     mingw32.
  4) Eliminate warning about -mwindows when using the Microsoft compiler for
     building the Win32GUI base executable.
- 5) Added hook for using the widget plugins which are part of the PyQt4.uic
+ 5) Added support for creating version resources on Windows.
+ 6) Ensure that modules that are not truly required for bootstrapping are not
+    included in the frozen modules compiled in to the executable; otherwise,
+    some packages and modules (such as the logging package) cannot be found at
+    runtime. This problem only seems to be present in Python 2.7.1 but it is a
+    good improvement for earlier releases of Python as well.
+ 7) Added support for setting the description for Windows services.
+ 8) Added hook for using the widget plugins which are part of the PyQt4.uic
     package.
+ 9) Added additional hooks to remove spurious errors about missing modules
+    and to force inclusion of implicitly imported modules (twitter module
+    and additional submodules of the PyQt4 package).
+10) Fixed support for installing frozen executables under Python 3.x on
+    Windows.
+11) Removed optional import of setuptools which is not a complete drop-in
+    replacement for distutils and if found, replaces distutils with itself,
+    resulting in some distutils features not being available; for those who
+    require or prefer the use of setuptools, import it in your setup.py.
 
 Changes from 4.2 to 4.2.1
  1) Added support for specifying bin_path_includes and bin_path_excludes in
