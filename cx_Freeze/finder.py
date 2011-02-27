@@ -319,8 +319,9 @@ class ModuleFinder(object):
         module.parent = parent
         if type == imp.PY_SOURCE:
             if sys.version_info[0] >= 3:
-                import py_compile
-                encoding = py_compile.read_encoding(path, "utf-8")
+                import tokenize
+                fp = open(path, "rb")
+                encoding, lines = tokenize.detect_encoding(fp.readline)
                 fp = open(path, "U", encoding = encoding)
             codeString = fp.read()
             if codeString and codeString[-1] != "\n":
