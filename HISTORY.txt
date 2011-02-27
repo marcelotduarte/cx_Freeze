@@ -1,3 +1,7 @@
+Changes from 4.2.2 to 4.2.3
+ 1) Added support for Python 3.2.
+ 2) Added hook for datetime module which implicitly imports the time module.
+
 Changes from 4.2.1 to 4.2.2
  1) Added support for namespace packages which are loaded implicitly upon
     startup by injection into sys.modules.
