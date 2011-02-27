@@ -96,6 +96,11 @@ def load_cx_Oracle(finder, module):
         pass
 
 
+def load_datetime(finder, module):
+    """the datetime module implicitly imports time; make sure this happens."""
+    finder.IncludeModule("time")
+
+
 def load_docutils_frontend(finder, module):
     """The optik module is the old name for the optparse module; ignore the
        module if it cannot be found."""
