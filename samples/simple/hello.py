@@ -1,6 +1,9 @@
+import datetime
 import sys
 
-sys.stdout.write("Hello from cx_Freeze\n\n")
+sys.stdout.write("Hello from cx_Freeze\n")
+sys.stdout.write("The current date is %s\n\n" % \
+        datetime.datetime.today().strftime("%B %d, %Y %H:%M:%S"))
 
 sys.stdout.write("Executable: %r\n" % sys.executable)
 sys.stdout.write("Prefix: %r\n" % sys.prefix)
