@@ -73,8 +73,7 @@ class ModuleFinder(object):
             self.IncludeModule("imp")
             self.IncludeModule("os")
             self.IncludeModule("sys")
-            if self.compress:
-                self.IncludeModule("zlib")
+            self.IncludeModule("zlib")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
