@@ -61,8 +61,10 @@ class ModuleFinder(object):
            can result in behavior that differs from running from source;
            also include modules used within the bootstrap code"""
         self.ExcludeModule("cStringIO")
+        self.ExcludeModule("doctest")
         self.ExcludeModule("getopt")
         self.ExcludeModule("logging")
+        self.ExcludeModule("re")
         self.ExcludeModule("subprocess")
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
