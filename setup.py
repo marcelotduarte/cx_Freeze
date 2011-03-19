@@ -94,8 +94,10 @@ class build_ext(distutils.command.build_ext.build_ext):
                 name)
         if name.endswith("util"):
             return fileName
+        vars = distutils.sysconfig.get_config_vars()
+        soExt = vars["SO"]
         ext = self.compiler.exe_extension or ""
-        return os.path.splitext(fileName)[0] + ext
+        return fileName[:-len(soExt)] + ext
 
 
 class build_scripts(distutils.command.build_scripts.build_scripts):
