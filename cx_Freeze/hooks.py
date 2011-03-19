@@ -500,9 +500,8 @@ def load_tkinter(finder, module):
     if sys.platform == "win32":
         import tkinter
         import _tkinter
-        tclDir = os.environ["TCL_LIBRARY"]
-        tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
-        tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
+        tclSourceDir = os.environ["TCL_LIBRARY"]
+        tkSourceDir = os.environ["TK_LIBRARY"]
         finder.IncludeFiles(tclSourceDir, "tcl")
         finder.IncludeFiles(tkSourceDir, "tk")
 
