@@ -71,6 +71,9 @@ def initialize(finder):
         finder.ExcludeModule("vms_lib")
     if sys.version_info[0] >= 3:
         finder.ExcludeModule("new")
+        finder.ExcludeModule("Tkinter")
+    else:
+        finder.ExcludeModule("tkinter")
 
 
 def load_cElementTree(finder, module):
@@ -488,6 +491,20 @@ def load_site(finder, module):
        modules; ignore the error if these modules do not exist."""
     module.IgnoreName("sitecustomize")
     module.IgnoreName("usercustomize")
+
+
+def load_tkinter(finder, module):
+    """the tkinter module has data files that are required to be loaded so
+       ensure that they are copied into the directory that is expected at
+       runtime."""
+    if sys.platform == "win32":
+        import tkinter
+        import _tkinter
+        tclDir = os.environ["TCL_LIBRARY"]
+        tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
+        tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
+        finder.IncludeFiles(tclSourceDir, "tcl")
+        finder.IncludeFiles(tkSourceDir, "tk")
 
 
 def load_Tkinter(finder, module):
