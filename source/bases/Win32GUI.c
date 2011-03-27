@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Python.h>
+#include <locale.h>
 #include <windows.h>
 
 // define PyInt_* macros for Python 3.x
@@ -263,6 +264,7 @@ int WINAPI WinMain(
     Py_IgnoreEnvironmentFlag = 1;
     PyImport_FrozenModules = gFrozenModules;
 #if PY_MAJOR_VERSION >= 3
+    setlocale(LC_CTYPE, "");
     Py_SetPythonHome(L"");
     wargv = PyMem_Malloc(sizeof(wchar_t*) * __argc);
     if (!wargv)
