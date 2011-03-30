@@ -603,7 +603,8 @@ class ConstantsModule(object):
             if module.inZipFile:
                 continue
             if not os.path.exists(module.file):
-                raise ConfigError("no file named %s", module.file)
+                raise ConfigError("no file named %s (for module %s)",
+                        module.file, module.name)
             timestamp = os.stat(module.file).st_mtime
             sourceTimestamp = max(sourceTimestamp, timestamp)
         sourceTimestamp = datetime.datetime.fromtimestamp(sourceTimestamp)
