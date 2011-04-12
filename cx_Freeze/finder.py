@@ -456,7 +456,13 @@ class ModuleFinder(object):
                     name = co.co_varnames[opArg]
                 else:
                     name = co.co_names[opArg]
-                module.globalNames[name] = None
+                storeName = True
+                if deferredImports:
+                    deferredCaller, deferredPackage, deferredFromList = \
+                            deferredImports[-1]
+                    storeName = deferredCaller is not module
+                if storeName:
+                    module.globalNames[name] = None
             elif op == IMPORT_STAR and topLevel and importedModule is not None:
                 module.globalNames.update(importedModule.globalNames)
                 arguments = []
