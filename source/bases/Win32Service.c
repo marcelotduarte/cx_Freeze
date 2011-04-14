@@ -159,8 +159,9 @@ static int Service_StartLogging(
     const char *fileName)		// name of file for defaults
 {
     char defaultLogFileName[PATH_MAX + 1], logFileName[PATH_MAX + 1];
-    unsigned size, logLevel, maxFiles, maxFileSize;
+    unsigned logLevel, maxFiles, maxFileSize;
     char *ptr, prefix[100];
+    size_t size;
 
     // determine the default log file name and ini file name
     ptr = strrchr(fileName, '.');
