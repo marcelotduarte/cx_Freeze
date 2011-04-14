@@ -60,7 +60,7 @@ static int GetDirName(
     const char *path,                   // path to calculate dir name for
     PyObject **dirName)                 // directory name (OUT)
 {
-    int i;
+    size_t i;
 
     for (i = strlen(path); i > 0 && path[i] != SEP; --i);
     *dirName = cxString_FromStringAndSize(path, i);
