@@ -9,8 +9,7 @@ Abstract
 **cx_Freeze** is a set of scripts and modules for freezing Python scripts into
 executables in much the same way that py2exe_ and py2app_ do. Unlike these two
 tools, cx_Freeze is cross platform and should work on any platform that Python
-itself works on. It requires Python_ 2.3 or higher since it makes use of the
-zip import facility which was introduced in that version.
+itself works on. It requires Python_ 2.4 or higher and does work with Python 3.
 
 **cx_Freeze** is distributed under an open-source license_.
 

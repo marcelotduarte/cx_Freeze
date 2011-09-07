@@ -19,8 +19,6 @@ import cx_Freeze
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
-# NOTE: the try: except: block in this code is not necessary under Python 2.4
-# and higher and can be removed once support for Python 2.3 is no longer needed
 EXTENSION_LOADER_SOURCE = \
 """
 import imp, os, sys
@@ -32,11 +30,8 @@ for p in sys.path:
     f = os.path.join(p, "%s")
     if not os.path.exists(f):
         continue
-    try:
-        m = imp.load_dynamic(__name__, f)
-    except ImportError:
-        del sys.modules[__name__]
-        raise
+    print "Extension loading name....", __name__, "from file", f
+    m = imp.load_dynamic(__name__, f)
     import sys
     sys.modules[__name__] = m
     found = True
