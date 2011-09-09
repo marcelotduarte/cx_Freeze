@@ -30,7 +30,6 @@ for p in sys.path:
     f = os.path.join(p, "%s")
     if not os.path.exists(f):
         continue
-    print "Extension loading name....", __name__, "from file", f
     m = imp.load_dynamic(__name__, f)
     import sys
     sys.modules[__name__] = m
