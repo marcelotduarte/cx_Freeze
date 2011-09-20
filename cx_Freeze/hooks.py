@@ -41,7 +41,7 @@ def initialize(finder):
         finder.ExcludeModule("wx.activex")
     if os.name != "posix":
         finder.ExcludeModule("posix")
-    if os.name != "mac":
+    if sys.platform != "darwin":
         finder.ExcludeModule("Carbon")
         finder.ExcludeModule("gestalt")
         finder.ExcludeModule("ic")
