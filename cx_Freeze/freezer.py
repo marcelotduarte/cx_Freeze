@@ -189,9 +189,10 @@ class Freezer(object):
             return [pythonDll, "gdiplus.dll", "mfc71.dll", "msvcp71.dll",
                     "msvcr71.dll"]
         else:
-            extension = distutils.sysconfig.get_config_var("SO")
-            pythonSharedLib = "libpython%s.%s%s" % \
-                    (sys.version_info[:2] + (extension,))
+            soName = distutils.sysconfig.get_config_var("INSTSONAME")
+            if soName is None:
+                return []
+            pythonSharedLib = self._RemoveVersionNumbers(soName)
             return [pythonSharedLib]
 
     def _GetDefaultBinPathExcludes(self):
@@ -320,26 +321,30 @@ class Freezer(object):
             os.chmod(path, stat.S_IWRITE)
             os.remove(path)
 
-    def _ShouldCopyFile(self, path):
-        dir, name = os.path.split(os.path.normcase(path))
-        parts = name.split(".")
+    def _RemoveVersionNumbers(self, libName):
         tweaked = False
-        while True:
+        parts = libName.split(".")
+        while parts:
             if not parts[-1].isdigit():
                 break
             parts.pop(-1)
             tweaked = True
         if tweaked:
-            name = ".".join(parts)
+            libName = ".".join(parts)
+        return libName
+
+    def _ShouldCopyFile(self, path):
+        dirName, fileName = os.path.split(os.path.normcase(path))
+        name = self._RemoveVersionNumbers(fileName)
         if name in self.binIncludes:
             return True
         if name in self.binExcludes:
             return False
         for path in self.binPathIncludes:
-            if dir.startswith(path):
+            if dirName.startswith(path):
                 return True
         for path in self.binPathExcludes:
-            if dir.startswith(path):
+            if dirName.startswith(path):
                 return False
         return True
 
