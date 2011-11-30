@@ -334,7 +334,16 @@ class Freezer(object):
         return libName
 
     def _ShouldCopyFile(self, path):
-        dirName, fileName = os.path.split(os.path.normcase(path))
+        path = os.path.normcase(path)
+        if path in self.binIncludes:
+            return True
+        if path in self.binExcludes:
+            return False
+        dirName, fileName = os.path.split(path)
+        if fileName in self.binIncludes:
+            return True
+        if fileName in self.binExcludes:
+            return False
         name = self._RemoveVersionNumbers(fileName)
         if name in self.binIncludes:
             return True
