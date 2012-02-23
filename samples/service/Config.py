@@ -26,11 +26,21 @@
 #
 #   DESCRIPTION
 #       the description of the service (optional)
+#
+#   AUTO_START
+#       whether the service should be started automatically (optional)
+#
+#   SESSION_CHANGES
+#       whether the service should monitor session changes (optional). If
+#       True, session changes will call the method "SessionChanged" with the
+#       parameters sessionId and eventTypeId.
 #------------------------------------------------------------------------------
 
-NAME = "cx_FreezeSampleService%s"
+NAM  = "cx_FreezeSampleService%s"
 DISPLAY_NAME = "cx_Freeze Sample Service - %s"
 MODULE_NAME = "ServiceHandler"
 CLASS_NAME = "Handler"
 DESCRIPTION = "Sample service description"
+AUTO_START = False
+SESSION_CHANGES = False
 
