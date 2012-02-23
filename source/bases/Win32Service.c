@@ -9,17 +9,18 @@
 #include <cx_Logging.h>
 
 // define constants
-#define LOGGING_SECTION_NAME            "Logging"
-#define LOGGING_FILE_NAME_KEY           "FileName"
-#define LOGGING_LEVEL_KEY               "Level"
-#define LOGGING_MAX_FILES_KEY           "MaxFiles"
-#define LOGGING_MAX_FILE_SIZE_KEY       "MaxFileSize"
-#define LOGGING_PREFIX_KEY              "Prefix"
-#define SERVICE_MODULE_NAME             "MODULE_NAME"
-#define SERVICE_CLASS_NAME              "CLASS_NAME"
-#define SERVICE_NAME                    "NAME"
-#define SERVICE_DISPLAY_NAME            "DISPLAY_NAME"
-#define SERVICE_DESCRIPTION             "DESCRIPTION"
+#define CX_LOGGING_SECTION_NAME         "Logging"
+#define CX_LOGGING_FILE_NAME_KEY        "FileName"
+#define CX_LOGGING_LEVEL_KEY            "Level"
+#define CX_LOGGING_MAX_FILES_KEY        "MaxFiles"
+#define CX_LOGGING_MAX_FILE_SIZE_KEY    "MaxFileSize"
+#define CX_LOGGING_PREFIX_KEY           "Prefix"
+#define CX_SERVICE_MODULE_NAME          "MODULE_NAME"
+#define CX_SERVICE_CLASS_NAME           "CLASS_NAME"
+#define CX_SERVICE_NAME                 "NAME"
+#define CX_SERVICE_DISPLAY_NAME         "DISPLAY_NAME"
+#define CX_SERVICE_DESCRIPTION          "DESCRIPTION"
+#define CX_SERVICE_AUTO_START           "AUTO_START"
 
 // the following was copied from cx_Interface.c, which is where this
 // declaration normally happens
@@ -33,6 +34,7 @@ typedef struct {
     PyObject *nameFormat;
     PyObject *displayNameFormat;
     PyObject *description;
+    DWORD startType;
 } udt_ServiceInfo;
 
 // define globals
@@ -176,16 +178,16 @@ static int Service_StartLogging(
     }
 
     // read the entries from the ini file
-    logLevel = GetPrivateProfileInt(LOGGING_SECTION_NAME, LOGGING_LEVEL_KEY,
-            LOG_LEVEL_ERROR, gIniFileName);
-    GetPrivateProfileString(LOGGING_SECTION_NAME, LOGGING_FILE_NAME_KEY,
+    logLevel = GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
+            CX_LOGGING_LEVEL_KEY, LOG_LEVEL_ERROR, gIniFileName);
+    GetPrivateProfileString(CX_LOGGING_SECTION_NAME, CX_LOGGING_FILE_NAME_KEY,
             defaultLogFileName, logFileName, sizeof(logFileName),
             gIniFileName);
-    maxFiles = GetPrivateProfileInt(LOGGING_SECTION_NAME,
-            LOGGING_MAX_FILES_KEY, 1, gIniFileName);
-    maxFileSize = GetPrivateProfileInt(LOGGING_SECTION_NAME,
-            LOGGING_MAX_FILE_SIZE_KEY, DEFAULT_MAX_FILE_SIZE, gIniFileName);
-    GetPrivateProfileString(LOGGING_SECTION_NAME, LOGGING_PREFIX_KEY,
+    maxFiles = GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
+            CX_LOGGING_MAX_FILES_KEY, 1, gIniFileName);
+    maxFileSize = GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
+            CX_LOGGING_MAX_FILE_SIZE_KEY, DEFAULT_MAX_FILE_SIZE, gIniFileName);
+    GetPrivateProfileString(CX_LOGGING_SECTION_NAME, CX_LOGGING_PREFIX_KEY,
             "[%i] %d %t", prefix, sizeof(prefix), gIniFileName);
 
     // start the logging process
@@ -241,24 +243,32 @@ static int Service_SetupPython(
         return LogPythonException("unable to import __main__");
 
     // determine name to use for the service
-    info->nameFormat = PyObject_GetAttrString(module, SERVICE_NAME);
+    info->nameFormat = PyObject_GetAttrString(module, CX_SERVICE_NAME);
     if (!info->nameFormat)
         return LogPythonException("cannot locate service name");
 
     // determine display name to use for the service
     info->displayNameFormat = PyObject_GetAttrString(module,
-            SERVICE_DISPLAY_NAME);
+            CX_SERVICE_DISPLAY_NAME);
     if (!info->displayNameFormat)
         return LogPythonException("cannot locate service display name");
 
     // determine description to use for the service (optional)
     info->description = PyObject_GetAttrString(module,
-            SERVICE_DESCRIPTION);
+            CX_SERVICE_DESCRIPTION);
     if (!info->description)
         PyErr_Clear();
 
+    // determine if service should be automatically started (optional)
+    info->startType = SERVICE_DEMAND_START;
+    temp = PyObject_GetAttrString(module, CX_SERVICE_AUTO_START);
+    if (!temp)
+        PyErr_Clear();
+    else if (temp == Py_True)
+        info->startType = SERVICE_AUTO_START;
+
     // import the module which implements the service
-    temp = PyObject_GetAttrString(module, SERVICE_MODULE_NAME);
+    temp = PyObject_GetAttrString(module, CX_SERVICE_MODULE_NAME);
     if (!temp)
         return LogPythonException("cannot locate service module name");
     serviceModule = PyImport_Import(temp);
@@ -267,7 +277,7 @@ static int Service_SetupPython(
         return LogPythonException("cannot import service module");
 
     // create an instance of the class which implements the service
-    temp = PyObject_GetAttrString(module, SERVICE_CLASS_NAME);
+    temp = PyObject_GetAttrString(module, CX_SERVICE_CLASS_NAME);
     if (!temp)
         return LogPythonException("cannot locate service class name");
     info->cls = PyObject_GetAttr(serviceModule, temp);
@@ -334,9 +344,8 @@ static int Service_Install(
     // create service
     serviceHandle = CreateService(managerHandle, PyString_AS_STRING(fullName),
             PyString_AS_STRING(displayName), SERVICE_ALL_ACCESS,
-            SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START,
-            SERVICE_ERROR_NORMAL, PyString_AS_STRING(command), NULL, NULL,
-            NULL, NULL, NULL);
+            SERVICE_WIN32_OWN_PROCESS, info.startType, SERVICE_ERROR_NORMAL,
+            PyString_AS_STRING(command), NULL, NULL, NULL, NULL, NULL);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot create service");
 
@@ -347,6 +356,12 @@ static int Service_Install(
                     &sd))
             return LogWin32Error(GetLastError(),
                     "cannot set service description");
+    }
+
+    // if the service is one that should be automatically started, start it
+    if (info.startType == SERVICE_AUTO_START) {
+        if (!StartService(serviceHandle, 0, NULL))
+            return LogWin32Error(GetLastError(), "cannot start service");
     }
 
     // close the service handles
