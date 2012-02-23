@@ -92,6 +92,7 @@ static int FatalPythonErrorNoTraceback(
 
     // create caption and message objects
     PyErr_Fetch(&type, &value, &traceback);
+    PyErr_NormalizeException(&type, &value, &traceback);
     contextMessageObj = cxString_FromAscii(contextMessage);
     if (!contextMessageObj)
         return FatalError("Cannot create context message string object.");
@@ -129,6 +130,7 @@ static int HandleSystemExitException()
     int exitCode = 0;
 
     PyErr_Fetch(&type, &value, &traceback);
+    PyErr_NormalizeException(&type, &value, &traceback);
     caption = PyObject_GetAttrString(value, "caption");
     if (!caption || !cxString_Check(caption)) {
         PyErr_Clear();
@@ -174,6 +176,7 @@ static int FatalScriptError()
 
     // get the exception details
     PyErr_Fetch(&type, &value, &traceback);
+    PyErr_NormalizeException(&type, &value, &traceback);
     argsTuple = PyTuple_New(3);
     if (!argsTuple)
         return FatalPythonErrorNoTraceback(value, "Cannot create args tuple.");
