@@ -1,0 +1,5 @@
+syntax: glob
+doc/_build
+build/
+__pycache__
+*.pyc
