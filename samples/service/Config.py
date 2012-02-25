@@ -36,7 +36,7 @@
 #       parameters sessionId and eventTypeId.
 #------------------------------------------------------------------------------
 
-NAM  = "cx_FreezeSampleService%s"
+NAME = "cx_FreezeSampleService%s"
 DISPLAY_NAME = "cx_Freeze Sample Service - %s"
 MODULE_NAME = "ServiceHandler"
 CLASS_NAME = "Handler"
