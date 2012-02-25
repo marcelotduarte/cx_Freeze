@@ -1,6 +1,11 @@
-Copyright © 2007-2012, Anthony Tuininga.
-Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta, Canada.
-All rights reserved.
+.. _license:
+
+Licensing
+=========
+
+* Copyright Â© 2007-2012, Anthony Tuininga.
+* Copyright Â© 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta, Canada.
+* All rights reserved.
 
 NOTE: this license is derived from the Python Software Foundation License
 which can be found at http://www.python.org/psf/license
@@ -49,5 +54,5 @@ License for cx_Freeze 4.2.3
 8. By copying, installing or otherwise using cx_Freeze, Licensee agrees to be
    bound by the terms and conditions of this License Agreement.
 
-Computronix® is a registered trademark of Computronix (Canada) Ltd.
+ComputronixÂ® is a registered trademark of Computronix (Canada) Ltd.
 
