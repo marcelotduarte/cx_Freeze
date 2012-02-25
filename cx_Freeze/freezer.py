@@ -178,12 +178,18 @@ class Freezer(object):
             raise ConfigError("no base named %s", name)
 
     def _GetDefaultBinExcludes(self):
+        """Return the file names of libraries that need not be included because
+           they would normally be expected to be found on the target system or
+           because they are part of a package which requires independent
+           installation anyway."""
         if sys.platform == "win32":
             return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
         else:
             return ["libclntsh.so", "libwtc9.so"]
 
     def _GetDefaultBinIncludes(self):
+        """Return the file names of libraries which must be included for the
+           frozen executable to work."""
         if sys.platform == "win32":
             pythonDll = "python%s%s.dll" % sys.version_info[:2]
             return [pythonDll, "gdiplus.dll", "mfc71.dll", "msvcp71.dll",
@@ -196,6 +202,9 @@ class Freezer(object):
             return [pythonSharedLib]
 
     def _GetDefaultBinPathExcludes(self):
+        """Return the paths of directories which contain files that should not
+           be included, generally because they contain standard system
+           libraries."""
         if sys.platform == "win32":
             import cx_Freeze.util
             systemDir = cx_Freeze.util.GetSystemDir()
@@ -208,6 +217,9 @@ class Freezer(object):
                     "/usr/lib64"]
 
     def _GetDependentFiles(self, path):
+        """Return the file's dependencies using platform-specific tools (the
+           imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
+           limit this list by the exclusion lists as needed"""
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
@@ -334,27 +346,44 @@ class Freezer(object):
         return libName
 
     def _ShouldCopyFile(self, path):
+        """Return true if the file should be copied to the target machine. This
+           is done by checking the binPathIncludes, binPathExcludes,
+           binIncludes and binExcludes configuration variables using first the
+           full file name, then just the base file name, then the file name
+           without any version numbers.
+           
+           Files are included unless specifically excluded but inclusions take
+           precedence over exclusions."""
+
+        # check the full path
         path = os.path.normcase(path)
         if path in self.binIncludes:
             return True
         if path in self.binExcludes:
             return False
+
+        # check the file name by itself (with any included version numbers)
         dirName, fileName = os.path.split(path)
         if fileName in self.binIncludes:
             return True
         if fileName in self.binExcludes:
             return False
+
+        # check the file name by itself (version numbers removed)
         name = self._RemoveVersionNumbers(fileName)
         if name in self.binIncludes:
             return True
         if name in self.binExcludes:
             return False
+
+        # check the path for inclusion/exclusion
         for path in self.binPathIncludes:
             if dirName.startswith(path):
                 return True
         for path in self.binPathExcludes:
             if dirName.startswith(path):
                 return False
+
         return True
 
     def _VerifyCanAppendToLibrary(self):
