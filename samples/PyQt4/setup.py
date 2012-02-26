@@ -21,5 +21,6 @@ setup(
         name = "simple_PyQt4",
         version = "0.1",
         description = "Sample cx_Freeze PyQt4 script",
+        options = {"build_exe" : {"includes" : "atexit" }},
         executables = [Executable("PyQt4app.py", base = base)])
 
