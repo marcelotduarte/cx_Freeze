@@ -1,0 +1,4 @@
+#!/usr/bin/python
+from cx_Freeze import setupwriter
+
+setupwriter.cli_quickstart()
