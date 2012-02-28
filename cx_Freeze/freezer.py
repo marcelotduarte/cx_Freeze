@@ -328,7 +328,10 @@ class Freezer(object):
                 source, target = spec
             source = os.path.normpath(source)
             if not target:
-                target = os.path.split(source)[1]
+                dirName, target = os.path.split(source)
+            elif os.path.isabs(target):
+                raise ConfigError("target path for include file may not be "
+                        "an absolute file")
             processedSpecs.append((source, target))
         return processedSpecs
 
