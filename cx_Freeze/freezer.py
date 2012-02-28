@@ -320,12 +320,19 @@ class Freezer(object):
         processedSpecs = []
         for spec in specs:
             if not isinstance(spec, (list, tuple)):
-                processedSpecs.append((spec, spec))
+                source = target = spec
             elif len(spec) != 2:
                 raise ConfigError("path spec must be a list or tuple of "
                         "length two")
             else:
-                processedSpecs.append(spec)
+                source, target = spec
+            source = os.path.normpath(source)
+            if not target:
+                dirName, target = os.path.split(source)
+            elif os.path.isabs(target):
+                raise ConfigError("target path for include file may not be "
+                        "an absolute file")
+            processedSpecs.append((source, target))
         return processedSpecs
 
     def _RemoveFile(self, path):
@@ -511,7 +518,6 @@ class Freezer(object):
             self._WriteModules(fileName, self.initScript, self.finder,
                     self.compress, self.copyDependentFiles)
         for sourceFileName, targetFileName in self.includeFiles:
-            fullName = os.path.join(self.targetDir, targetFileName)
             if os.path.isdir(sourceFileName):
                 for path, dirNames, fileNames in os.walk(sourceFileName):
                     shortPath = path[len(sourceFileName) + 1:]
@@ -528,6 +534,7 @@ class Freezer(object):
                         self._CopyFile(fullSourceName, fullTargetName,
                                 copyDependentFiles = False)
             else:
+                fullName = os.path.join(self.targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
                         copyDependentFiles = False)
 
