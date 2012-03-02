@@ -13,32 +13,20 @@ class SetupWriter(object):
     }
 
     @property
-    def needWin32Options(self):
-        return self.executableName or self.base.startswith("Win32")
+    def base(self):
+        return self.bases[self.baseCode]
+
+    @property
+    def defaultExecutableName(self):
+        name, ext = os.path.splitext(self.script)
+        return name
 
     def __init__(self):
-        self.name = self.GetValue("Project name")
-        self.version = self.GetValue("Version", "1.0")
-        self.description = self.GetValue("Description")
-        self.script = self.GetValue("Python file to make executable from")
-        defaultExecutableName, ext = os.path.splitext(self.script)
-        self.executableName = self.GetValue("Executable file name",
-                defaultExecutableName)
-        if self.executableName == defaultExecutableName:
-            self.executableName = None
-        basesPrompt = "(C)onsole application, (G)UI application, or (S)ervice"
-        while True:
-            baseCode = self.GetValue(basesPrompt, "C")
-            if baseCode in self.bases:
-                self.base = self.bases[baseCode]
-                break
-        while True:
-            self.setupFileName = self.GetValue("Save setup script to",
-                    "setup.py")
-            if not os.path.exists(self.setupFileName):
-                break
-            if self.GetBooleanValue("Overwrite %s" % self.setupFileName):
-                break
+        self.name = self.description = self.script = ""
+        self.executableName = self.defaultExecutableName
+        self.setupFileName = "setup.py"
+        self.version = "1.0"
+        self.baseCode = "C"
 
     def GetBooleanValue(self, label, default = False):
         defaultResponse = default and "y" or "n"
@@ -54,13 +42,32 @@ class SetupWriter(object):
             label += " [%s]" % default
         return input(label + separator).strip() or default
 
+    def PopulateFromCommandLine(self):
+        self.name = self.GetValue("Project name", self.name)
+        self.version = self.GetValue("Version", self.version)
+        self.description = self.GetValue("Description", self.description)
+        self.script = self.GetValue("Python file to make executable from",
+                self.script)
+        self.executableName = self.GetValue("Executable file name",
+                self.defaultExecutableName)
+        basesPrompt = "(C)onsole application, (G)UI application, or (S)ervice"
+        while True:
+            self.baseCode = self.GetValue(basesPrompt, "C")
+            if self.baseCode in self.bases:
+                break
+        while True:
+            self.setupFileName = self.GetValue("Save setup script to",
+                    self.setupFileName)
+            if not os.path.exists(self.setupFileName):
+                break
+            if self.GetBooleanValue("Overwrite %s" % self.setupFileName):
+                break
+
     def Write(self):
         output = open(self.setupFileName, "w")
         w = lambda s: output.write(s + "\n")
 
         w("from cx_Freeze import setup, Executable")
-        if self.needWin32Options:
-            w("import sys")
         w("")
         
         w("# Dependencies are automatically detected, but it might need")
@@ -69,7 +76,7 @@ class SetupWriter(object):
         w("")
 
         w("executables = [")
-        if self.executableName is not None:
+        if self.executableName != self.defaultExecutableName:
             w("    Executable(%r, %r, targetName = %r)" % \
                     (self.script, self.base, self.executableName))
         else:
@@ -86,6 +93,7 @@ class SetupWriter(object):
 
 def main():
     writer = SetupWriter()
+    writer.PopulateFromCommandLine()
     writer.Write()
     print("")
     print("Setup script written to %s; run it as:" % writer.setupFileName)
