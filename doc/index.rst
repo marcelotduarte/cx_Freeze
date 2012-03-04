@@ -17,7 +17,7 @@ Contents:
    overview.rst
    script.rst
    distutils.rst
-   Release Notes <releasenotes.rst>
+   releasenotes.rst
    development/index.rst
    license.rst
 
