@@ -220,6 +220,8 @@ classifiers = [
         "Operating System :: OS Independent",
         "Programming Language :: C",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Build Tools",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: System :: Software Distribution",
