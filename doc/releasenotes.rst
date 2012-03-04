@@ -5,6 +5,34 @@ Release notes
 4.x releases
 ############
 
+Development version
+-------------------
+
+.. note:: This version supports Python 2.4 and above. If you need Python 2.3
+   support, please use cx_Freeze 4.2.3.
+
+1) Added options to build Mac OS X application bundles and DMG packages using
+   ``bdist_mac`` and ``bdist_dmg`` distutils commands. Written by Rob Reilink.
+2) The documentation is now using Sphinx, and is `available on ReadTheDocs.org
+   <http://cx_freeze.readthedocs.org/en/latest/index.html>`_.
+3) Added support for Windows services which start automatically.
+4) Added support for Windows services to monitor changes in the session.
+5) New ``cxfreeze-quickstart`` wizard to create a basic ``setup.py`` file.
+   Initially written by Thomas Kluyver.
+6) Included files under their original name can now be passed to ``include_files``
+   as a tuple with an empty second element. Written by r_haritonov.
+7) File inclusions/exclusions can now be specified using a full path, or a
+   shared library name with a version number suffix.
+
+Bugs fixed:
+
+* Messagebox display of certain errors in Windows GUI applications with Python 3.
+  (`Issue <http://sourceforge.net/tracker/?func=detail&aid=3486872&group_id=84937&atid=574390>`_)
+* Running Windows GUI applications in a path containing non-ASCII characters.
+* Calculate the correct filename for the Python shared library in Python 3.2.
+  (`Issue <http://sourceforge.net/tracker/?func=detail&aid=3411270&group_id=84937&atid=574390>`_)
+
+
 Version 4.2.3
 -------------
 
