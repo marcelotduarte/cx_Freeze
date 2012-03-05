@@ -42,7 +42,9 @@ includes for your application, by running the setup script as::
 
     python setup.py bdist_msi
 
-cx_Freeze creates two new commands and subclasses four others in order to
+On Mac OS X, you can use ``bdist_dmg`` to build a Mac disk image.
+
+cx_Freeze creates four new commands and subclasses four others in order to
 provide the ability to both build and install executables. In typical distutils
 fashion they can be provided in the setup script, on the command line or in
 a ``setup.cfg`` configuration file. They are described in further detail below.
@@ -226,6 +228,36 @@ This command is a standard command which has been modified by cx_Freeze to
 ensure that packages are created with the proper architecture for the platform.
 The standard command assumes that the package should be architecture
 independent if it cannot find any extension modules.
+
+bdist_mac
+`````````
+
+This command is available on Mac OS X systems, to create a Mac application
+bundle (a .app directory).
+
++-----------------------+-----------------------------------------------------+
+| option name           | description                                         |
++=======================+=====================================================+
+| bundle-iconfile       | Name of the application bundle icon file as stored  |
+|                       | in the Info.plist file.                             |
++-----------------------+-----------------------------------------------------+
+
+ .. versionadded:: 4.3
+
+bdist_dmg
+`````````
+
+This command is available on Mac OS X systems; it creates an application bundle,
+then packages it into a DMG disk image suitable for distribution and
+installation.
+
++-----------------------+-----------------------------------------------------+
+| option name           | description                                         |
++=======================+=====================================================+
+| volume-label          | Volume label of the DMG disk image                  |
++-----------------------+-----------------------------------------------------+
+
+ .. versionadded:: 4.3
 
 cx_Freeze.Executable
 --------------------
