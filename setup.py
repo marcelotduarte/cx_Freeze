@@ -210,7 +210,7 @@ if sys.platform == "win32":
                 include_dirs = includeDirs)
         extensions.append(service)
 
-docFiles = "LICENSE.txt README.txt HISTORY.txt doc/cx_Freeze.html"
+docFiles = "README.txt"
 
 classifiers = [
         "Development Status :: 5 - Production/Stable",

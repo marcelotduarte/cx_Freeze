@@ -1,5 +1,7 @@
 syntax: glob
 doc/_build
 build/
+dist/
+MANIFEST
 __pycache__
 *.pyc
