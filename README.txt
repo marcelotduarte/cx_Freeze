@@ -1,4 +1,8 @@
-Please see cx_Freeze.html for documentation on how to use cx_Freeze.
+Please see
+
+http://cx_freeze.readthedocs.org
+
+for documentation on how to use cx_Freeze.
 
 To build:
 
