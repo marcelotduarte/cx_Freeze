@@ -27,10 +27,10 @@ Development version
 Bugs fixed:
 
 * Messagebox display of certain errors in Windows GUI applications with Python 3.
-  (`Issue <http://sourceforge.net/tracker/?func=detail&aid=3486872&group_id=84937&atid=574390>`_)
+  (`Issue 3486872 <http://sourceforge.net/tracker/?func=detail&aid=3486872&group_id=84937&atid=574390>`_)
 * Running Windows GUI applications in a path containing non-ASCII characters.
 * Calculate the correct filename for the Python shared library in Python 3.2.
-  (`Issue <http://sourceforge.net/tracker/?func=detail&aid=3411270&group_id=84937&atid=574390>`_)
+  (`Issue 3411270 <http://sourceforge.net/tracker/?func=detail&aid=3411270&group_id=84937&atid=574390>`_)
 
 
 Version 4.2.3
