@@ -172,15 +172,20 @@ class ModuleFinder(object):
 
     def _ImportAllSubModules(self, module, deferredImports, recursive = True):
         """Import all sub modules to the given package."""
-        suffixes = dict.fromkeys([s[0] for s in imp.get_suffixes()])
+        suffixes = [s[0] for s in imp.get_suffixes()]
         for dir in module.path:
             try:
                 fileNames = os.listdir(dir)
             except os.error:
                 continue
             for fileName in fileNames:
-                name, ext = os.path.splitext(fileName)
-                if ext not in suffixes:
+                # We need to run through these in order to correctly pick up
+                # PEP 3149 library names (e.g. .cpython-32mu.so).
+                for suffix in suffixes:
+                    if fileName.endswith(suffix):
+                        name = fileName[:-len(suffix)]
+                        break
+                else:
                     continue
                 if name == "__init__":
                     continue
