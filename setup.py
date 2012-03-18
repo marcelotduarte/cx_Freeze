@@ -179,7 +179,7 @@ finder.WriteSourceFile(baseModulesFileName)
 
 # build utility module
 if sys.platform == "win32":
-    libraries = ["imagehlp"]
+    libraries = ["imagehlp", "Shlwapi"]
 else:
     libraries = []
 utilModule = Extension("cx_Freeze.util", ["source/util.c"],

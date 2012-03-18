@@ -8,6 +8,7 @@
 #ifdef MS_WINDOWS
 #include <windows.h>
 #include <imagehlp.h>
+#include <Shlwapi.h>
 
 #pragma pack(2)
 
@@ -76,13 +77,19 @@ static BOOL __stdcall BindStatusRoutine(
     ULONG virtualAddress,               // computed virtual address
     ULONG parameter)                    // parameter (value depends on reason)
 {
+    char imagePath[MAX_PATH + 1];
     char fileName[MAX_PATH + 1];
 
     switch (reason) {
         case BindImportModule:
-            if (!SearchPath(NULL, dllName, NULL, sizeof(fileName), fileName,
-                    NULL))
-                return FALSE;
+            strcpy(imagePath, imageName);
+            PathRemoveFileSpec(imagePath);
+            if (!SearchPath(imagePath, dllName, NULL, sizeof(fileName),
+                    fileName, NULL)) {
+                if (!SearchPath(NULL, dllName, NULL, sizeof(fileName),
+                        fileName, NULL))
+                    return FALSE;
+            }
             Py_INCREF(Py_None);
             if (PyDict_SetItemString(g_ImageNames, fileName, Py_None) < 0)
                 return FALSE;
@@ -90,6 +97,7 @@ static BOOL __stdcall BindStatusRoutine(
         default:
             break;
     }
+
     return TRUE;
 }
 
