@@ -273,8 +273,7 @@ class install(distutils.command.install.install):
                     r"Software\Microsoft\Windows\CurrentVersion")
             prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
             metadata = self.distribution.metadata
-            dirName = "%s-%s" % (metadata.name, metadata.version)
-            self.prefix = "%s/%s" % (prefix, dirName)
+            self.prefix = "%s/%s" % (prefix, metadata.name)
         distutils.command.install.install.finalize_options(self)
         self.convert_paths('exe')
         if self.root is not None:
