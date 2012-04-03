@@ -64,11 +64,13 @@ class bdist_mac(Command):
 
     user_options = [
         ('bundle-iconfile=', None, 'Name of the application bundle icon file as stored in the '
-                'Info.plist file')
+                'Info.plist file'),
+        ('qt-app=', None, 'Make specific changes for a Qt application.'),
     ]
 
     def initialize_options(self):
         self.bundle_iconfile = 'icon.icns'
+        self.qt_app = False
 
     def finalize_options(self):
         pass
@@ -116,6 +118,13 @@ class bdist_mac(Command):
                     subprocess.call(('install_name_tool', '-change', referencedFile, newReference,
                             filepath))
 
+    def qt_tweaks(self):
+        self.copy_tree('/opt/local/lib/Resources/qt_menu.nib',\
+                       os.path.join(self.resourcesDir, 'qt_menu.nib'))
+        # This needs to exist, but needn't have any content
+        f = open(os.path.join(self.resourcesDir, 'qt.conf'), "w")
+        f.close()
+
     def run(self):
         self.run_command('build')
         build = self.get_finalized_command('build')
@@ -141,4 +150,8 @@ class bdist_mac(Command):
 
         # Make all references to libraries relative
         self.execute(self.setRelativeReferencePaths,())
+        
+        # For a Qt application, run some tweaks
+        if self.qt_app:
+            self.execute(self.qt_tweaks, ())
 
