@@ -15,8 +15,10 @@ Development version
    ``bdist_mac`` and ``bdist_dmg`` distutils commands. Written by Rob Reilink.
 2) The documentation is now using Sphinx, and is `available on ReadTheDocs.org
    <http://cx_freeze.readthedocs.org/en/latest/index.html>`_.
-3) Added support for Windows services which start automatically.
-4) Added support for Windows services to monitor changes in the session.
+3) Added support for Python 3.3 which uses a different compiled file format
+   than earlier versions of Python.
+4) Added support for Windows services which start automatically and which are
+   capable of monitoring changes in sessions such as lock and unlock.
 5) New ``cxfreeze-quickstart`` wizard to create a basic ``setup.py`` file.
    Initially written by Thomas Kluyver.
 6) Included files under their original name can now be passed to ``include_files``
