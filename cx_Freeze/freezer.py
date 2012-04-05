@@ -478,8 +478,14 @@ class Freezer(object):
             else:
                 mtime = time.time()
             zipTime = time.localtime(mtime)[:6]
-            data = imp.get_magic() + struct.pack("<i", int(mtime)) + \
-                    marshal.dumps(module.code)
+            # starting with Python 3.3 the pyc file format contains the source
+            # size; it is not actually used for anything except determining if
+            # the file is up to date so we can safely set this value to zero
+            if sys.version_info[:2] < (3, 3):
+                header = imp.get_magic() + struct.pack("<i", int(mtime))
+            else:
+                header = imp.get_magic() + struct.pack("<ii", int(mtime), 0)
+            data = header + marshal.dumps(module.code)
             zinfo = zipfile.ZipInfo(fileName + ".pyc", zipTime)
             if compress:
                 zinfo.compress_type = zipfile.ZIP_DEFLATED
