@@ -444,6 +444,7 @@ static int Service_Uninstall(
 {
     SC_HANDLE managerHandle, serviceHandle;
     PyObject *fullName, *formatArgs;
+    SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
 
     // set up Python
@@ -468,6 +469,7 @@ static int Service_Uninstall(
             SERVICE_ALL_ACCESS);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot open service");
+    ControlService(serviceHandle, SERVICE_CONTROL_STOP, &statusInfo);
     if (!DeleteService(serviceHandle))
         return LogWin32Error(GetLastError(), "cannot delete service");
     CloseServiceHandle(serviceHandle);
