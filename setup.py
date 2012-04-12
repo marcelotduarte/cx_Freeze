@@ -15,8 +15,6 @@ import sys
 from distutils.core import setup
 from distutils.extension import Extension
 
-CX_LOGGING_TAG = "trunk"
-
 class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 
     # rpm automatically byte compiles all Python files in a package but we
@@ -144,16 +142,8 @@ class install_packagedata(distutils.command.install_data.install_data):
 
 
 def find_cx_Logging():
-    currentDir = os.getcwd()
-    dirName, baseName = os.path.split(currentDir)
-    parts = [dirName, ".."]
-    if baseName != "trunk":
-        parts.append("..")
-    parts.append("cx_Logging")
-    if CX_LOGGING_TAG != "trunk":
-        parts.append("tags")
-    parts.append(CX_LOGGING_TAG)
-    loggingDir = os.path.normpath(os.path.join(*parts))
+    dirName = os.path.dirname(os.getcwd())
+    loggingDir = os.path.join(dirName, "cx_Logging")
     if not os.path.exists(loggingDir):
         return
     subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
