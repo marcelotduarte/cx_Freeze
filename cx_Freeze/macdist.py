@@ -65,12 +65,13 @@ class bdist_mac(Command):
     user_options = [
         ('bundle-iconfile=', None, 'Name of the application bundle icon file as stored in the '
                 'Info.plist file'),
-        ('qt-app=', None, 'Make specific changes for a Qt application.'),
+        ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt applications. '
+                'Will be auto-detected by default.'),
     ]
 
     def initialize_options(self):
         self.bundle_iconfile = 'icon.icns'
-        self.qt_app = False
+        self.qt_menu_nib = False
 
     def finalize_options(self):
         pass
@@ -118,10 +119,36 @@ class bdist_mac(Command):
                     subprocess.call(('install_name_tool', '-change', referencedFile, newReference,
                             filepath))
 
-    def qt_tweaks(self):
-        self.copy_tree('/opt/local/lib/Resources/qt_menu.nib',\
-                       os.path.join(self.resourcesDir, 'qt_menu.nib'))
-        # This needs to exist, but needn't have any content
+    def find_qt_menu_nib(self):
+        """Returns a list of locations to try for a qt_menu.nib folder, or None
+        if this is not a Qt application.
+        """
+        if self.qt_menu_nib:
+            return [self.qt_menu_nib]
+        elif any(n.startswith("PyQt4.QtCore" for n in os.listdir(self.binDir)):
+            from PyQt4 import QtCore
+        elif any(n.startswith("PySide.QtCore" for n in os.listdir(self.binDir)):
+            from PyQt4 import QtCore
+        else:
+            return None
+            
+        libpath = QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.LibrariesPath)
+        return [os.path.join(libpath, 'QtGui.framework/Resources/qt_menu.nib'),
+                os.path.join(libpath, 'Resources/qt_menu.nib'),
+               ]
+            
+    def prepare_qt_app(self):
+        """Add resource files for a Qt application. Should do nothing if the
+        application does not use QtCore.
+        """
+        nib_locn = self.find_qt_menu_nib()
+        if nib_locn is None:
+            return
+        
+        # Copy qt_menu.nib
+        self.copy_tree(nib_locn, os.path.join(self.resourcesDir, 'qt_menu.nib'))
+        
+        # qt.conf needs to exist, but needn't have any content
         f = open(os.path.join(self.resourcesDir, 'qt.conf'), "w")
         f.close()
 
@@ -152,6 +179,5 @@ class bdist_mac(Command):
         self.execute(self.setRelativeReferencePaths,())
         
         # For a Qt application, run some tweaks
-        if self.qt_app:
-            self.execute(self.qt_tweaks, ())
+        self.execute(self.prepare_qt_app, ())
 
