@@ -344,7 +344,7 @@ def _AddCommandClass(commandClasses, name, cls):
 
 
 def setup(**attrs):
-    attrs["distclass"] = Distribution
+    attrs.setdefault("distclass", Distribution)
     commandClasses = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
         if sys.version_info[:2] >= (2, 5):
