@@ -120,11 +120,10 @@ class bdist_mac(Command):
                             filepath))
 
     def find_qt_menu_nib(self):
-        """Returns a list of locations to try for a qt_menu.nib folder, or None
-        if this is not a Qt application.
+        """Returns a location of a qt_menu.nib folder, or None if this is not a Qt application.
         """
         if self.qt_menu_nib:
-            return [self.qt_menu_nib]
+            return self.qt_menu_nib
         elif any(n.startswith("PyQt4.QtCore") for n in os.listdir(self.binDir)):
             from PyQt4 import QtCore
         elif any(n.startswith("PySide.QtCore") for n in os.listdir(self.binDir)):
@@ -133,9 +132,12 @@ class bdist_mac(Command):
             return None
             
         libpath = QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.LibrariesPath)
-        return [os.path.join(libpath, 'QtGui.framework/Resources/qt_menu.nib'),
-                os.path.join(libpath, 'Resources/qt_menu.nib'),
-               ]
+        for subpath in ['QtGui.framework/Resources/qt_menu.nib', 'Resources/qt_menu.nib']:
+            path = os.path.join(libpath, subpath)
+            if os.path.exists(path):
+                return path
+        
+        raise IOError("Could not find qt_menu.nib")
             
     def prepare_qt_app(self):
         """Add resource files for a Qt application. Should do nothing if the
