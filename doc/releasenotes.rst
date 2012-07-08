@@ -33,6 +33,9 @@ Bugs fixed:
 * Running Windows GUI applications in a path containing non-ASCII characters.
 * Calculate the correct filename for the Python shared library in Python 3.2.
   (`Issue 3411270 <http://sourceforge.net/tracker/?func=detail&aid=3411270&group_id=84937&atid=574390>`_)
+* Including a package would not include the packages within that package, only
+  the modules within that package.
+  (`Issue #3 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/3/subpackages-on-windows>`_)
 
 
 Version 4.2.3
