@@ -514,8 +514,13 @@ def load_Tkinter(finder, module):
     import _tkinter
     tk = _tkinter.create()
     tclDir = os.path.dirname(tk.call("info", "library"))
-    tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
-    tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
+    # on OS X, Tcl and Tk are organized in frameworks, different layout
+    if sys.platform == 'darwin' and tk.call('tk', 'windowingsystem') == 'aqua':
+        tclSourceDir=os.path.join(os.path.split(tclDir)[0], 'Tcl')
+        tkSourceDir = tclSourceDir.replace('Tcl', 'Tk')
+    else:
+        tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
+        tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
     finder.IncludeFiles(tclSourceDir, "tcl")
     finder.IncludeFiles(tkSourceDir, "tk")
 

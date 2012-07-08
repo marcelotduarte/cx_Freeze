@@ -23,7 +23,8 @@ PLIST_TEMPLATE = \
 """
 
 class bdist_dmg(Command):
-    description = "create a Mac DMG disk image containing the Mac application bundle"
+    description = "create a Mac DMG disk image containing the Mac " \
+            "application bundle"
     user_options = [
         ('volume-label=', None, 'Volume label of the DMG disk image'),
     ]
@@ -54,7 +55,8 @@ class bdist_dmg(Command):
         self.buildDir = self.get_finalized_command('build').build_base
 
         # Set the file name of the DMG to be built
-        self.dmgName = os.path.join(self.buildDir, self.distribution.get_fullname() + '.dmg')
+        self.dmgName = os.path.join(self.buildDir,
+                self.distribution.get_fullname() + '.dmg')
 
         self.execute(self.buildDMG,())
 
@@ -63,10 +65,10 @@ class bdist_mac(Command):
     description = "create a Mac application bundle"
 
     user_options = [
-        ('bundle-iconfile=', None, 'Name of the application bundle icon file as stored in the '
-                'Info.plist file'),
-        ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt applications. '
-                'Will be auto-detected by default.'),
+        ('bundle-iconfile=', None, 'Name of the application bundle icon ' \
+                'file as stored in the Info.plist file'),
+        ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt ' \
+                'applications. Will be auto-detected by default.')
     ]
 
     def initialize_options(self):
@@ -84,72 +86,84 @@ class bdist_mac(Command):
 
     def setRelativeReferencePaths(self):
         """ For all files in Contents/MacOS, check if they are binaries
-            with references to other files in that dir. If so, make those references
-            relative. The appropriate commands are applied to all files; they will
-            just fail for files on which they do not apply."""
+            with references to other files in that dir. If so, make those
+            references relative. The appropriate commands are applied to all
+            files; they will just fail for files on which they do not apply."""
         files = os.listdir(self.binDir)
-        for file in files:
-            filepath = os.path.join(self.binDir, file)
+        for fileName in files:
 
-            #Ensure write permissions
-            mode = os.stat(filepath).st_mode
+            # install_name_tool can't handle zip files or directories
+            filePath = os.path.join(self.binDir, fileName)
+            if fileName.endswith('.zip') or os.path.isdir(filePath):
+                continue
+
+            # ensure write permissions
+            mode = os.stat(filePath).st_mode
             if not (mode & stat.S_IWUSR):
-                os.chmod(filepath, mode | stat.S_IWUSR)
+                os.chmod(filePath, mode | stat.S_IWUSR)
 
-            #Let the file itself know its place
-            subprocess.call(('install_name_tool','-id','@executable_path/'+file,filepath))
+            # let the file itself know its place
+            subprocess.call(('install_name_tool', '-id',
+                    '@executable_path/'+file,filePath))
 
-            #Find the references: call otool -L on the file and read lines [1:]
-            otool = subprocess.Popen(('otool','-L', filepath),stdout=subprocess.PIPE)
+            # find the references: call otool -L on the file
+            otool = subprocess.Popen(('otool', '-L', filePath),
+                    stdout = subprocess.PIPE)
             references = otool.stdout.readlines()[1:]
 
             for reference in references:
-                # Find the actual referenced file name
+
+                # find the actual referenced file name
                 referencedFile = reference.decode().strip().split()[0]
 
                 if referencedFile.startswith('@'):
-                    #The referencedFile is already a relative path
+                    # the referencedFile is already a relative path
                     continue
 
                 path, name = os.path.split(referencedFile)
 
-                # See if we provide the referenced file, if so, change the reference
+                # see if we provide the referenced file;
+                # if so, change the reference
                 if name in files:
-                    newReference='@executable_path/'+name
-                    subprocess.call(('install_name_tool', '-change', referencedFile, newReference,
-                            filepath))
+                    newReference = '@executable_path/' + name
+                    subprocess.call(('install_name_tool', '-change',
+                            referencedFile, newReference, filePath))
 
     def find_qt_menu_nib(self):
-        """Returns a location of a qt_menu.nib folder, or None if this is not a Qt application.
-        """
+        """Returns a location of a qt_menu.nib folder, or None if this is not
+           a Qt application."""
         if self.qt_menu_nib:
             return self.qt_menu_nib
-        elif any(n.startswith("PyQt4.QtCore") for n in os.listdir(self.binDir)):
+        elif any(n.startswith("PyQt4.QtCore") \
+                for n in os.listdir(self.binDir)):
             from PyQt4 import QtCore
-        elif any(n.startswith("PySide.QtCore") for n in os.listdir(self.binDir)):
+        elif any(n.startswith("PySide.QtCore") \
+                for n in os.listdir(self.binDir)):
             from PyQt4 import QtCore
         else:
             return None
-            
-        libpath = QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.LibrariesPath)
-        for subpath in ['QtGui.framework/Resources/qt_menu.nib', 'Resources/qt_menu.nib']:
+
+        libpath = QtCore.QLibraryInfo.location( \
+                QtCore.QLibraryInfo.LibrariesPath)
+        for subpath in ['QtGui.framework/Resources/qt_menu.nib',
+                'Resources/qt_menu.nib']:
             path = os.path.join(libpath, subpath)
             if os.path.exists(path):
                 return path
-        
+
         raise IOError("Could not find qt_menu.nib")
-            
+
     def prepare_qt_app(self):
         """Add resource files for a Qt application. Should do nothing if the
-        application does not use QtCore.
-        """
+           application does not use QtCore."""
         nib_locn = self.find_qt_menu_nib()
         if nib_locn is None:
             return
-        
+
         # Copy qt_menu.nib
-        self.copy_tree(nib_locn, os.path.join(self.resourcesDir, 'qt_menu.nib'))
-        
+        self.copy_tree(nib_locn, os.path.join(self.resourcesDir,
+                'qt_menu.nib'))
+
         # qt.conf needs to exist, but needn't have any content
         f = open(os.path.join(self.resourcesDir, 'qt.conf'), "w")
         f.close()
@@ -159,7 +173,8 @@ class bdist_mac(Command):
         build = self.get_finalized_command('build')
 
         # Define the paths within the application bundle
-        self.bundleDir = os.path.join(build.build_base, self.distribution.get_fullname()+".app")
+        self.bundleDir = os.path.join(build.build_base,
+                self.distribution.get_fullname() + ".app")
         self.contentsDir = os.path.join(self.bundleDir, 'Contents')
         self.resourcesDir = os.path.join(self.contentsDir, 'Resources')
         self.binDir = os.path.join(self.contentsDir, 'MacOS')
