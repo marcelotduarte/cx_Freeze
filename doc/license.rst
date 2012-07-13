@@ -10,8 +10,8 @@ Licensing
 NOTE: this license is derived from the Python Software Foundation License
 which can be found at http://www.python.org/psf/license
 
-License for cx_Freeze 4.2.3
----------------------------
+License for cx_Freeze 4.3
+-------------------------
 
 1. This LICENSE AGREEMENT is between the copyright holders and the Individual
    or Organization ("Licensee") accessing and otherwise using cx_Freeze

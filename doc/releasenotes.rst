@@ -8,6 +8,9 @@ Release notes
 Development version
 -------------------
 
+Version 4.3
+-----------
+
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
 
@@ -21,8 +24,9 @@ Development version
    capable of monitoring changes in sessions such as lock and unlock.
 5) New ``cxfreeze-quickstart`` wizard to create a basic ``setup.py`` file.
    Initially written by Thomas Kluyver.
-6) Included files under their original name can now be passed to ``include_files``
-   as a tuple with an empty second element. Written by r_haritonov.
+6) Included files under their original name can now be passed to
+   ``include_files`` as a tuple with an empty second element. Written by
+   r_haritonov.
 7) File inclusions/exclusions can now be specified using a full path, or a
    shared library name with a version number suffix.
 
