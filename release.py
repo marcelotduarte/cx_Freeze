@@ -24,8 +24,15 @@ for version in pythonVersions:
         if os.system(command) != 0:
             sys.exit("Stopping. Build %s failed.\n" % messageFragment)
     else:
-        command = "%s setup.py bdist_rpm --no-autoreq --python %s" % \
-                (python, python)
+        linkNames = ["python"]
+        if majorVersion == 3:
+            linkNames.append("python3")
+        for linkName in linkNames:
+            basePython = os.path.join(os.path.dirname(python), linkName)
+            if os.path.exists(basePython):
+                os.unlink(basePython)
+            os.link(python, basePython)
+        command = "%s setup.py bdist_rpm --no-autoreq" % python
         sys.stdout.write("Running command %s\n" % command)
         if os.system(command) != 0:
             sys.exit("Stopping. Build %s failed.\n" % messageFragment)
