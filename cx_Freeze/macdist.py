@@ -104,7 +104,7 @@ class bdist_mac(Command):
 
             # let the file itself know its place
             subprocess.call(('install_name_tool', '-id',
-                    '@executable_path/'+file,filePath))
+                    '@executable_path/' + fileName, filePath))
 
             # find the references: call otool -L on the file
             otool = subprocess.Popen(('otool', '-L', filePath),
