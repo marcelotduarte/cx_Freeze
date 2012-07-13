@@ -551,6 +551,8 @@ class ModuleFinder(object):
         if not os.path.isdir(dirName):
             os.makedirs(dirName)
         outfp = open(fileName, "w")
+        if sys.version_info[:2] >= (3, 3):
+            outfp.write('#include "importlib.h"\n\n')
         names = list(self._modules.keys())
         names.sort()
         modulesWritten = []
@@ -574,6 +576,9 @@ class ModuleFinder(object):
                     outfp.write("%d," % op)
             outfp.write("\n};\n\n");
         outfp.write("static struct _frozen gFrozenModules[] = {\n")
+        if sys.version_info[:2] >= (3, 3):
+            outfp.write('    {"_frozen_importlib", _Py_M__importlib, ' \
+                    '(int)sizeof(_Py_M__importlib)},\n')
         for name, mangledName, size in modulesWritten:
             outfp.write('    {"%s", M_%s, %d},\n' % (name, mangledName, size))
         outfp.write("    {0, 0, 0}\n};\n")
