@@ -139,12 +139,12 @@ class bdist_mac(Command):
             from PyQt4 import QtCore
         elif any(n.startswith("PySide.QtCore") \
                 for n in os.listdir(self.binDir)):
-            from PyQt4 import QtCore
+            from PySide import QtCore
         else:
             return None
 
-        libpath = QtCore.QLibraryInfo.location( \
-                QtCore.QLibraryInfo.LibrariesPath)
+        libpath = str(QtCore.QLibraryInfo.location( \
+                QtCore.QLibraryInfo.LibrariesPath))
         for subpath in ['QtGui.framework/Resources/qt_menu.nib',
                 'Resources/qt_menu.nib']:
             path = os.path.join(libpath, subpath)
