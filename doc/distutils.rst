@@ -88,11 +88,12 @@ It can be further customized:
 | namespace-packages    | comma separated list of packages to be treated as   |
 |                       | namespace packages (path is extended using pkgutil) |
 +-----------------------+-----------------------------------------------------+
-| replace-paths         | comma separated list of paths to replace in modules |
-|                       | in the form <search>=<replace>, using the value *   |
-|                       | in the search portion of the directive will cause   |
-|                       | all paths not mentioned by any other directive to   |
-|                       | be replaced with the replacement value              |
+| replace-paths         | Modify filenames attached to code objects, which    |
+|                       | appear in tracebacks. Pass a comma separated list of|
+|                       | paths in the form <search>=<replace>. The value *   |
+|                       | in the search portion will match the directory      |
+|                       | containing the entire package, leaving just the     |
+|                       | relative path to the module.                        |
 +-----------------------+-----------------------------------------------------+
 | path                  | comma separated list of paths to search; the        |
 |                       | default value is sys.path                           |
@@ -302,11 +303,12 @@ constructor are as follows:
 | packages              | list of names of packages to include, including all |
 |                       | of the package's submodules                         |
 +-----------------------+-----------------------------------------------------+
-| replacePaths          | list of 2-tuples containing search values and       |
-|                       | replacement values for paths of modules that are    |
-|                       | included; a search value of "*" will cause all      |
-|                       | paths not otherwise specified to be replaced with   |
-|                       | that directive's replacement value                  |
+| replacePaths          | Modify filenames attached to code objects, which    |
+|                       | appear in tracebacks. Pass a list of 2-tuples       |
+|                       | containing paths to search for and corresponding    |
+|                       | replacement values. A search for '*' will match the |
+|                       | directory containing the entire package, leaving    |
+|                       | just the relative path to the module.               |
 +-----------------------+-----------------------------------------------------+
 | compress              | boolean value indicating if the module bytecode     |
 |                       | should be compressed or not                         |
