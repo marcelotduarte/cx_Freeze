@@ -8,6 +8,19 @@ Release notes
 Development version
 -------------------
 
+.. note:: This version supports Python 2.4 and above. If you need Python 2.3
+   support, please use cx_Freeze 4.2.3.
+
+1) Added support for the final release of Python 3.3.
+2) Clarified the documentation on the --replace-paths option.
+
+Bugs fixed:
+* Producing a Mac distribution failed with a variable reference.
+* Freezing a script using PyQt on a Mac failed with a type error.
+* Version number reported was incorrect.
+(`Issue #7 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/7/bad-version-for-43>`_)
+
+
 Version 4.3
 -----------
 
