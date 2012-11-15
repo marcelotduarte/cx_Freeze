@@ -46,3 +46,10 @@ for version in pythonVersions:
         if os.system(command) != 0:
             sys.exit("Stopping. Build %s failed.\n" % messageFragment)
 
+if sys.platform == "linux2":
+    python = pythonFormat % (2, 4)
+    basePython = os.path.join(os.path.dirname(python), "python")
+    if os.path.exists(basePython):
+        os.unlink(basePython)
+    os.link(python, basePython)
+
