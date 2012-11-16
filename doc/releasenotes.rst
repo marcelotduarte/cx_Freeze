@@ -12,7 +12,12 @@ Development version
    support, please use cx_Freeze 4.2.3.
 
 1) Added support for the final release of Python 3.3.
-2) Clarified the documentation on the --replace-paths option.
+2) Added new base executable Win32GUIKeepPath which enables the use of a Python
+   installation in the Windows GUI subsystem in the same manner as
+   ConsoleKeepPath does for using a console. Thanks to Almar Klein for the
+   initial patch.
+3) Clarified the documentation on the --replace-paths option. Thanks to Thomas
+   Kluyver for the patch.
 
 Bugs fixed:
 * Producing a Mac distribution failed with a variable reference.
