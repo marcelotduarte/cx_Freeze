@@ -136,6 +136,11 @@ It can be further customized:
 |                       | and CVS directories); the target must not be an     |
 |                       | absolute path                                       |
 +-----------------------+-----------------------------------------------------+
+| include-msvcr         | include the Microsoft Visual C runtime DLLs and (if |
+|                       | necessary) the manifest file required to run the    |
+|                       | executable without needing the redistributable      |
+|                       | package installed                                   |
++-----------------------+-----------------------------------------------------+
 | zip-includes          | list containing files to be included in the zip file|
 |                       | directory; it is expected that this list will       |
 |                       | contain strings or 2-tuples for the source and      |

@@ -14,5 +14,6 @@ setup(
         name = "hello",
         version = "0.1",
         description = "Sample cx_Freeze script",
-        executables = [Executable("hello.py")])
+        executables = [Executable("hello.py")],
+        options = dict(build_exe = dict(include_msvcr = True)))
 
