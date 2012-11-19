@@ -188,11 +188,7 @@ if sys.platform == "win32":
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             include_dirs = includeDirs, depends = fullDepends,
             libraries = ["user32"])
-    guiKeepPath = Extension("cx_Freeze.bases.Win32GUIKeepPath",
-            ["source/bases/Win32GUIKeepPath.c"], include_dirs = includeDirs,
-            depends = depends, libraries = ["user32"])
     extensions.append(gui)
-    extensions.append(guiKeepPath)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None and sys.version_info[:2] < (3, 0):
         includeDir, libraryDir = moduleInfo

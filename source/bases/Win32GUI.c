@@ -239,9 +239,7 @@ static int FatalScriptError()
 
 
 #include "Common.c"
-#ifndef CX_FREEZE_KEEP_PATH
 #include "BaseModules.c"
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -264,17 +262,13 @@ int WINAPI WinMain(
     int status;
 
     // initialize Python
-#ifndef CX_FREEZE_KEEP_PATH
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
     PyImport_FrozenModules = gFrozenModules;
-#endif
 #if PY_MAJOR_VERSION >= 3
     setlocale(LC_CTYPE, "");
-#ifndef CX_FREEZE_KEEP_PATH
     Py_SetPythonHome(L"");
-#endif
     wargv = PyMem_Malloc(sizeof(wchar_t*) * __argc);
     if (!wargv)
         return 2;
@@ -291,9 +285,7 @@ int WINAPI WinMain(
     Py_Initialize();
     PySys_SetArgv(__argc, wargv);
 #else
-#ifndef CX_FREEZE_KEEP_PATH
     Py_SetPythonHome("");
-#endif
     Py_SetProgramName(__argv[0]);
     fileName = Py_GetProgramFullPath();
     Py_Initialize();
