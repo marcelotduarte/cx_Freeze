@@ -12,7 +12,10 @@ Development version
    support, please use cx_Freeze 4.2.3.
 
 1) Added support for the final release of Python 3.3.
-2) Clarified the documentation on the --replace-paths option. Thanks to Thomas
+2) Added support for copying the MSVC runtime DLLs and manifest if desired by
+   using the --include-msvcr switch. Thanks to Almar Klein for the initial
+   patch.
+3) Clarified the documentation on the --replace-paths option. Thanks to Thomas
    Kluyver for the patch.
 
 Bugs fixed:

@@ -98,6 +98,8 @@ class build_exe(distutils.core.Command):
          'comma-separated list of constants to include'),
         ('include-files=', 'f',
          'list of tuples of additional files to include in distribution'),
+        ('include-msvcr=', None,
+         'include the Microsoft Visual C runtime files'),
         ('zip-includes=', None,
          'list of tuples of additional files to include in zip file'),
         ('bin-includes', None,
@@ -115,7 +117,7 @@ class build_exe(distutils.core.Command):
     ]
     boolean_options = ["compressed", "copy_dependent_files",
             "create_shared_zip", "append_script_to_exe",
-            "include_in_shared_zip", "silent"]
+            "include_in_shared_zip", "include_msvcr", "silent"]
 
     def _normalize(self, attrName):
         value = getattr(self, attrName)
@@ -180,6 +182,7 @@ class build_exe(distutils.core.Command):
         self.create_shared_zip = None
         self.append_script_to_exe = None
         self.include_in_shared_zip = None
+        self.include_msvcr = None
         self.icon = None
         self.constants = []
         self.include_files = []
@@ -219,6 +222,7 @@ class build_exe(distutils.core.Command):
                 self.copy_dependent_files, self.init_script, self.base,
                 self.path, self.create_shared_zip, self.append_script_to_exe,
                 self.include_in_shared_zip, self.build_exe, icon = self.icon,
+                includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,
                 binIncludes = self.bin_includes,
                 binExcludes = self.bin_excludes,

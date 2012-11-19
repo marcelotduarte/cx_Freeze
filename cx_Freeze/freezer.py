@@ -41,6 +41,20 @@ if not found:
 """
 
 
+MSVCR_MANIFEST_TEMPLATE = """
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<noInheritable/>
+<assemblyIdentity
+    type="win32"
+    name="Microsoft.VC90.CRT"
+    version="9.0.21022.8"
+    processorArchitecture="{PROC_ARCH}"
+    publicKeyToken="1fc8b3b9a1e18e3b"/>
+</assembly>
+"""
+
+
 class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
@@ -51,7 +65,8 @@ class Freezer(object):
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
-            namespacePackages = [], metadata = None):
+            namespacePackages = [], metadata = None,
+            includeMSVCR = False):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
@@ -66,6 +81,7 @@ class Freezer(object):
         self.base = base
         self.path = path
         self.createLibraryZip = createLibraryZip
+        self.includeMSVCR = includeMSVCR
         self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.targetDir = targetDir
@@ -98,7 +114,7 @@ class Freezer(object):
                 product = self.metadata.name)
         stamp(fileName, versionInfo)
 
-    def _CopyFile(self, source, target, copyDependentFiles,
+    def _CopyFile(self, source, target, copyDependentFiles = False,
             includeMode = False):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
@@ -138,6 +154,8 @@ class Freezer(object):
             scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
         self._CopyFile(exe.base, exe.targetName, exe.copyDependentFiles,
                 includeMode = True)
+        if self.includeMSVCR:
+            self._IncludeMSVCR(exe)
         if exe.icon is not None:
             if sys.platform == "win32":
                 import cx_Freeze.util
@@ -304,6 +322,28 @@ class Freezer(object):
             finder.IncludePackage(name)
         return finder
 
+    def _IncludeMSVCR(self, exe):
+        msvcRuntimeDll = None
+        targetDir = os.path.dirname(exe.targetName)
+        for fullName in self.filesCopied:
+            path, name = os.path.split(os.path.normcase(fullName))
+            if name.startswith("msvcr") and name.endswith(".dll"):
+                msvcRuntimeDll = name
+                for otherName in [name.replace("r", c) for c in "mp"]:
+                    sourceName = os.path.join(self.msvcRuntimeDir, otherName)
+                    if not os.path.exists(sourceName):
+                        continue
+                    targetName = os.path.join(targetDir, otherName)
+                    self._CopyFile(sourceName, targetName)
+                break
+        if msvcRuntimeDll is not None and msvcRuntimeDll == "msvcr90.dll":
+            arch = "x86" if struct.calcsize("P") == 4 else "amd64"
+            manifest = MSVCR_MANIFEST_TEMPLATE.strip().replace("{PROC_ARCH}",
+                    arch)
+            fileName = os.path.join(targetDir, "Microsoft.VC90.CRT.manifest")
+            sys.stdout.write("creating %s\n" % fileName)
+            open(fileName, "w").write(manifest)
+
     def _PrintReport(self, fileName, modules):
         sys.stdout.write("writing zip file %s\n\n" % fileName)
         sys.stdout.write("  %-25s %s\n" % ("Name", "File"))
@@ -362,15 +402,20 @@ class Freezer(object):
            Files are included unless specifically excluded but inclusions take
            precedence over exclusions."""
 
-        # check the full path
+        # check for C runtime, if desired
         path = os.path.normcase(path)
+        dirName, fileName = os.path.split(path)
+        if fileName.startswith("msvcr") and fileName.endswith(".dll"):
+            self.msvcRuntimeDir = dirName
+            return self.includeMSVCR
+
+        # check the full path
         if path in self.binIncludes:
             return True
         if path in self.binExcludes:
             return False
 
         # check the file name by itself (with any included version numbers)
-        dirName, fileName = os.path.split(path)
         if fileName in self.binIncludes:
             return True
         if fileName in self.binExcludes:
@@ -512,6 +557,7 @@ class Freezer(object):
         self.dependentFiles = {}
         self.filesCopied = {}
         self.linkerWarnings = {}
+        self.msvcRuntimeDir = None
         import cx_Freeze.util
         cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
         if self.createLibraryZip:
