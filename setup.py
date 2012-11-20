@@ -5,15 +5,28 @@ Distutils script for cx_Freeze.
 import cx_Freeze
 import distutils.command.bdist_rpm
 import distutils.command.build_ext
-import distutils.command.build_scripts
 import distutils.command.install
 import distutils.command.install_data
 import distutils.sysconfig
 import os
 import sys
 
+
 from distutils.core import setup
 from distutils.extension import Extension
+
+if sys.platform == "win32":
+    import msilib
+    import distutils.command.bdist_msi
+
+    class bdist_msi(distutils.command.bdist_msi.bdist_msi):
+
+        def add_scripts(self):
+            distutils.command.bdist_msi.bdist_msi.add_scripts(self)
+            msilib.add_data(self.db, "RemoveFile",
+                    [("cxFreezeBatch", "cx_Freeze", "cxfreeze*.bat", "Scripts",
+                        2)])
+
 
 class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 
@@ -98,19 +111,6 @@ class build_ext(distutils.command.build_ext.build_ext):
         return fileName[:-len(soExt)] + ext
 
 
-class build_scripts(distutils.command.build_scripts.build_scripts):
-
-    def copy_scripts(self):
-        distutils.command.build_scripts.build_scripts.copy_scripts(self)
-        if sys.platform == "win32":
-            for script in self.scripts:
-                batFileName = os.path.join(self.build_dir, script + ".bat")
-                fullScriptName = r"%s\Scripts\%s" % \
-                        (os.path.dirname(sys.executable), script)
-                command = "%s %s %%*" % (sys.executable, fullScriptName)
-                open(batFileName, "w").write("@echo off\n\n%s" % command)
-
-
 class install(distutils.command.install.install):
 
     def get_sub_commands(self):
@@ -155,10 +155,11 @@ def find_cx_Logging():
 
 commandClasses = dict(
         build_ext = build_ext,
-        build_scripts = build_scripts,
         bdist_rpm = bdist_rpm,
         install = install,
         install_packagedata = install_packagedata)
+if sys.platform == "win32":
+    commandClasses["bdist_msi"] = bdist_msi
 
 # generate C source for base frozen modules
 subDir = "temp.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
@@ -176,6 +177,10 @@ utilModule = Extension("cx_Freeze.util", ["source/util.c"],
         libraries = libraries)
 
 # build base executables
+docFiles = "README.txt"
+scripts = ["cxfreeze", "cxfreeze-quickstart"]
+options = dict(bdist_rpm = dict(doc_files = docFiles),
+        install = dict(optimize = 1))
 depends = ["source/bases/Common.c"]
 fullDepends = depends + [baseModulesFileName]
 includeDirs = [baseModulesDir]
@@ -185,6 +190,8 @@ consoleKeepPath = Extension("cx_Freeze.bases.ConsoleKeepPath",
         ["source/bases/ConsoleKeepPath.c"], depends = depends)
 extensions = [utilModule, console, consoleKeepPath]
 if sys.platform == "win32":
+    scripts.append("cxfreeze-postinstall")
+    options["bdist_msi"] = dict(install_script = "cxfreeze-postinstall")
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             include_dirs = includeDirs, depends = fullDepends,
             libraries = ["user32"])
@@ -199,8 +206,6 @@ if sys.platform == "win32":
                 libraries = ["advapi32", "cx_Logging"],
                 include_dirs = includeDirs)
         extensions.append(service)
-
-docFiles = "README.txt"
 
 classifiers = [
         "Development Status :: 5 - Production/Stable",
@@ -223,14 +228,13 @@ setup(name = "cx_Freeze",
         long_description = "create standalone executables from Python scripts",
         version = "4.3.1",
         cmdclass = commandClasses,
-        options = dict(bdist_rpm = dict(doc_files = docFiles),
-                install = dict(optimize = 1)),
+        options = options,
         ext_modules = extensions,
         packages = ['cx_Freeze'],
         maintainer="Anthony Tuininga",
         maintainer_email="anthony.tuininga@gmail.com",
         url = "http://cx-freeze.sourceforge.net",
-        scripts = ["cxfreeze", "cxfreeze-quickstart"],
+        scripts = scripts,
         classifiers = classifiers,
         keywords = "freeze",
         license = "Python Software Foundation License")
