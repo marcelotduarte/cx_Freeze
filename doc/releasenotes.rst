@@ -23,6 +23,8 @@ Bugs fixed:
 * Freezing a script using PyQt on a Mac failed with a type error.
 * Version number reported was incorrect.
 (`Issue #7 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/7/bad-version-for-43>`_)
+* Correct paths during installation on Windows.
+(`Issue #11 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/11/incorrect-paths-in-installed-cxfreeze#comment-2425986>`_)
 
 
 Version 4.3
