@@ -340,7 +340,10 @@ class Freezer(object):
                     self._CopyFile(sourceName, targetName)
                 break
         if msvcRuntimeDll is not None and msvcRuntimeDll == "msvcr90.dll":
-            arch = "x86" if struct.calcsize("P") == 4 else "amd64"
+            if struct.calcsize("P") == 4:
+                arch = "x86"
+            else:
+                arch = "amd64"
             manifest = MSVCR_MANIFEST_TEMPLATE.strip().replace("{PROC_ARCH}",
                     arch)
             fileName = os.path.join(targetDir, "Microsoft.VC90.CRT.manifest")
