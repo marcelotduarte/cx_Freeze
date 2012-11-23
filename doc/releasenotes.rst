@@ -11,6 +11,13 @@ Development version
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
 
+
+Version 4.3.1
+-------------
+
+.. note:: This version supports Python 2.4 and above. If you need Python 2.3
+   support, please use cx_Freeze 4.2.3.
+
 1) Added support for the final release of Python 3.3.
 2) Added support for copying the MSVC runtime DLLs and manifest if desired by
    using the --include-msvcr switch. Thanks to Almar Klein for the initial
