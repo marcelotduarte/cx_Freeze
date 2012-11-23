@@ -23,7 +23,7 @@ for fileName in glob.glob(os.path.join(scriptDir, "cxfreeze*")):
     fullName = os.path.join(scriptDir, fileName)
     lines = open(fullName).readlines()
     outFile = open(fullName, "w")
-    print >> outFile, "#!" + python
+    outFile.write("#!%s\n" % python)
     outFile.writelines(lines[1:])
     outFile.close()
 
