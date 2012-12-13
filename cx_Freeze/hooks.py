@@ -446,6 +446,13 @@ def load_PyQt4_uic(finder, module):
     finder.IncludeModule("PyQt4.QtNetwork")
     finder.IncludeModule("PyQt4.QtWebKit")
 
+def load_PyQt4_QtGui(finder, module):
+    """There is a chance that GUI will use some image formats
+    add the image format plugins
+    """
+    dir0 = os.path.dirname(module.file)
+    dir = os.path.join(dir0, "plugins", "imageformats")
+    finder.IncludeFiles(dir, "imageformats")
 
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
