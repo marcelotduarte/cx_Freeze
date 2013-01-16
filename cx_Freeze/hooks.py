@@ -222,6 +222,15 @@ def load_gtk__gtk(finder, module):
     finder.IncludeModule("pangocairo")
 
 
+def load_hashlib(finder, module):
+    """hashlib's fallback modules don't exist if the equivalent OpenSSL
+    algorithms are loaded from _hashlib, so we can ignore the error."""
+    module.IgnoreName("_md5")
+    module.IgnoreName("_sha")
+    module.IgnoreName("_sha256")
+    module.IgnoreName("_sha512")
+
+
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
