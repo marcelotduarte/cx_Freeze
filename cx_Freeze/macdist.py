@@ -149,7 +149,13 @@ class bdist_mac(Command):
             path = os.path.join(libpath, subpath)
             if os.path.exists(path):
                 return path
-
+            
+        # Last resort: fixed paths (macports)
+        for path in ['/opt/local/Library/Frameworks/QtGui.framework/Versions/4/Resources/qt_menu.nib']:
+            if os.path.exists(path):
+                return path
+        
+        print ("Could not find qt_menu.nib")
         raise IOError("Could not find qt_menu.nib")
 
     def prepare_qt_app(self):
@@ -190,7 +196,7 @@ class bdist_mac(Command):
         
         # Copy the icon
         if self.iconfile:
-            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, 'icon.icns')
+            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, 'icon.icns'))
 
         # Create the Info.plist file
         self.execute(self.create_plist,())
