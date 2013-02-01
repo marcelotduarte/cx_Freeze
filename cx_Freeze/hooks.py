@@ -222,6 +222,14 @@ def load_gtk__gtk(finder, module):
     finder.IncludeModule("pangocairo")
 
 
+def load_h5py(finder, module):
+    """h5py module has a number of implicit imports"""
+    finder.IncludeModule('h5py.defs')
+    finder.IncludeModule('h5py.utils')
+    finder.IncludeModule('h5py._proxy')
+    finder.IncludeModule('h5py.api_gen')
+
+
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
