@@ -547,6 +547,8 @@ class ModuleFinder(object):
                 callers.sort()
                 sys.stdout.write("? %s imported from %s\n" % \
                         (name, ", ".join(callers)))
+            sys.stdout.write("This is not necessarily a problem - the modules "
+                             "may not be needed on this platform.\n")
             sys.stdout.write("\n")
 
     def WriteSourceFile(self, fileName):
