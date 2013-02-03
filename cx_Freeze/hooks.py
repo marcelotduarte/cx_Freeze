@@ -222,6 +222,15 @@ def load_gtk__gtk(finder, module):
     finder.IncludeModule("pangocairo")
 
 
+def load_hashlib(finder, module):
+    """hashlib's fallback modules don't exist if the equivalent OpenSSL
+    algorithms are loaded from _hashlib, so we can ignore the error."""
+    module.IgnoreName("_md5")
+    module.IgnoreName("_sha")
+    module.IgnoreName("_sha256")
+    module.IgnoreName("_sha512")
+
+
 def load_h5py(finder, module):
     """h5py module has a number of implicit imports"""
     finder.IncludeModule('h5py.defs')
@@ -454,6 +463,13 @@ def load_PyQt4_uic(finder, module):
     finder.IncludeModule("PyQt4.QtNetwork")
     finder.IncludeModule("PyQt4.QtWebKit")
 
+def load_PyQt4_QtGui(finder, module):
+    """There is a chance that GUI will use some image formats
+    add the image format plugins
+    """
+    dir0 = os.path.dirname(module.file)
+    dir = os.path.join(dir0, "plugins", "imageformats")
+    finder.IncludeFiles(dir, "imageformats")
 
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes

@@ -244,11 +244,17 @@ bundle (a .app directory).
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| bundle-iconfile       | Name of the application bundle icon file as stored  |
-|                       | in the Info.plist file.                             |
+| iconfile              | Path to an icns icon file for the application. This |
+|                       | will be copied into the bundle.                     |
++-----------------------+-----------------------------------------------------+
+| qt-menu-nib           | Path to the qt-menu.nib file for Qt applications.   |
+|                       | By default, it will be auto-detected.               |
 +-----------------------+-----------------------------------------------------+
 
  .. versionadded:: 4.3
+ 
+ .. versionchanged:: 4.3.2
+    Added the ``iconfile`` option.
 
 bdist_dmg
 `````````

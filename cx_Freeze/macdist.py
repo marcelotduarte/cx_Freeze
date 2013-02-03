@@ -13,7 +13,7 @@ PLIST_TEMPLATE = \
 <plist version="1.0">
 <dict>
 	<key>CFBundleIconFile</key>
-	<string>%(bundle_iconfile)s</string>
+	<string>icon.icns</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
@@ -65,14 +65,13 @@ class bdist_mac(Command):
     description = "create a Mac application bundle"
 
     user_options = [
-        ('bundle-iconfile=', None, 'Name of the application bundle icon ' \
-                'file as stored in the Info.plist file'),
+        ('iconfile=', None, 'Path to an icns icon file for the application.'),
         ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt ' \
                 'applications. Will be auto-detected by default.')
     ]
 
     def initialize_options(self):
-        self.bundle_iconfile = 'icon.icns'
+        self.iconfile = None
         self.qt_menu_nib = False
 
     def finalize_options(self):
@@ -150,7 +149,13 @@ class bdist_mac(Command):
             path = os.path.join(libpath, subpath)
             if os.path.exists(path):
                 return path
-
+            
+        # Last resort: fixed paths (macports)
+        for path in ['/opt/local/Library/Frameworks/QtGui.framework/Versions/4/Resources/qt_menu.nib']:
+            if os.path.exists(path):
+                return path
+        
+        print ("Could not find qt_menu.nib")
         raise IOError("Could not find qt_menu.nib")
 
     def prepare_qt_app(self):
@@ -188,6 +193,10 @@ class bdist_mac(Command):
         self.mkpath(self.binDir)
 
         self.copy_tree(build.build_exe, self.binDir)
+        
+        # Copy the icon
+        if self.iconfile:
+            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, 'icon.icns'))
 
         # Create the Info.plist file
         self.execute(self.create_plist,())
