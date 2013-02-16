@@ -80,6 +80,7 @@ class SetupWriter(object):
             w("base = %r if sys.platform=='win32' else None" % self.base)
         else:
             w("base = %r" % self.base)
+        w("")
 
         w("executables = [")
         if self.executableName != self.defaultExecutableName:
