@@ -469,8 +469,8 @@ class ModuleFinder(object):
             
             elif op == IMPORT_NAME:
                 name = co.co_names[opArg]
-                if len(arguments) == 2:
-                    relativeImportIndex, fromList = arguments
+                if len(arguments) >= 2:
+                    relativeImportIndex, fromList = arguments[-2:]
                 else:
                     relativeImportIndex = -1
                     fromList, = arguments

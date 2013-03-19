@@ -22,5 +22,6 @@ def test_ScanCode():
                                              mock.call('mode', *any3),
                                              mock.call('modf', *any3),
                                              mock.call('modg.submod', *any3),
+                                             mock.call('modh', *any3),
                                             ])
     
