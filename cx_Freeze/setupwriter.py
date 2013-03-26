@@ -74,13 +74,20 @@ class SetupWriter(object):
         w("# fine tuning.")
         w("buildOptions = dict(packages = [], excludes = [])")
         w("")
+        
+        if self.base.startswith('Win32'):
+            w("import sys")
+            w("base = %r if sys.platform=='win32' else None" % self.base)
+        else:
+            w("base = %r" % self.base)
+        w("")
 
         w("executables = [")
         if self.executableName != self.defaultExecutableName:
-            w("    Executable(%r, %r, targetName = %r)" % \
-                    (self.script, self.base, self.executableName))
+            w("    Executable(%r, base=base, targetName = %r)" % \
+                    (self.script, self.executableName))
         else:
-            w("    Executable(%r, %r)" % (self.script, self.base))
+            w("    Executable(%r, base=base)" % self.script)
         w("]")
         w("")
  
