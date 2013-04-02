@@ -15,8 +15,9 @@ Contents:
    :maxdepth: 2
    
    overview.rst
-   script.rst
    distutils.rst
+   script.rst
+   faq.rst
    releasenotes.rst
    development/index.rst
    license.rst
