@@ -44,13 +44,21 @@ includes for your application, by running the setup script as::
 
 On Mac OS X, you can use ``bdist_dmg`` to build a Mac disk image.
 
+
+
+distutils commands
+------------------
+
 cx_Freeze creates four new commands and subclasses four others in order to
 provide the ability to both build and install executables. In typical distutils
 fashion they can be provided in the setup script, on the command line or in
 a ``setup.cfg`` configuration file. They are described in further detail below.
 
-distutils commands
-------------------
+To specify options in the script, use underscores in the name instead of dashes.
+For example::
+
+    setup(...
+          options = {'build_exe': {'init_script':'Console'}} )
 
 build
 `````
@@ -62,7 +70,8 @@ the standard set of options for the command:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| build-exe (-b)        | directory for built executables and dependent files |
+| build-exe (-b)        | directory for built executables and dependent files,|
+|                       | defaults to ``build/``                              |
 +-----------------------+-----------------------------------------------------+
 
 build_exe
@@ -74,7 +83,8 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| build-exe (-b)        | directory for built executables and dependent files |
+| build-exe (-b)        | directory for built executables and dependent files,|
+|                       | defaults to ``build/``                              |
 +-----------------------+-----------------------------------------------------+
 | optimize (-o)         | optimization level, one of 0 (disabled), 1 or 2     |
 +-----------------------+-----------------------------------------------------+
