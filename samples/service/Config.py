@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #------------------------------------------------------------------------------
 # Config.py
 #   This file defines information about the service. The first four
@@ -18,10 +20,10 @@
 #   CLASS_NAME
 #       the name of the class within the module implementing the service. This
 #       class should accept no parameters in the constructor. It should have a
-#       method called "Initialize" which will accept the configuration file
-#       name. It should also have a method called "Run" which will be called
+#       method called 'Initialize' which will accept the configuration file
+#       name. It should also have a method called 'Run' which will be called
 #       with no parameters when the service is started. It should also have a
-#       method called "Stop" which will be called with no parameters when the
+#       method called 'Stop' which will be called with no parameters when the
 #       service is stopped using the service control GUI.
 #
 #   DESCRIPTION
@@ -32,15 +34,14 @@
 #
 #   SESSION_CHANGES
 #       whether the service should monitor session changes (optional). If
-#       True, session changes will call the method "SessionChanged" with the
+#       True, session changes will call the method 'SessionChanged' with the
 #       parameters sessionId and eventTypeId.
 #------------------------------------------------------------------------------
 
-NAME = "cx_FreezeSampleService%s"
-DISPLAY_NAME = "cx_Freeze Sample Service - %s"
-MODULE_NAME = "ServiceHandler"
-CLASS_NAME = "Handler"
-DESCRIPTION = "Sample service description"
+NAME = 'cx_FreezeSampleService%s'
+DISPLAY_NAME = 'cx_Freeze Sample Service - %s'
+MODULE_NAME = 'ServiceHandler'
+CLASS_NAME = 'Handler'
+DESCRIPTION = 'Sample service description'
 AUTO_START = False
 SESSION_CHANGES = False
-
