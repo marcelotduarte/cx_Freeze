@@ -44,8 +44,6 @@ includes for your application, by running the setup script as::
 
 On Mac OS X, you can use ``bdist_dmg`` to build a Mac disk image.
 
-
-
 distutils commands
 ------------------
 
@@ -73,6 +71,8 @@ the standard set of options for the command:
 | build-exe (-b)        | directory for built executables and dependent files,|
 |                       | defaults to ``build/``                              |
 +-----------------------+-----------------------------------------------------+
+
+.. _distutils_build_exe:
 
 build_exe
 `````````
