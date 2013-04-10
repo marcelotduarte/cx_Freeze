@@ -15,7 +15,7 @@ from cx_Freeze import setup, Executable
 
 options = {
     'build_exe': {
-        'includes': ['zope']
+        'namespace_packages': ['zope']
     }
 }
 
