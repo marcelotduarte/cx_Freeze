@@ -8,6 +8,7 @@ import marshal
 import opcode
 import os
 import pkgutil
+import re
 import sys
 import types
 import zipfile
@@ -26,6 +27,14 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = [ "Module", "ModuleFinder" ]
+
+try:
+    isidentifier = str.isidentifier  # Built in method in Python 3
+except AttributeError:
+    # Check with regex for Python 2
+    _identifier_re = re.compile(r'^[a-z_]\w*$', re.I)
+    def isidentifier(s):
+        return bool(_identifier_re.match(s))
 
 class ModuleFinder(object):
 
@@ -195,11 +204,14 @@ class ModuleFinder(object):
                     for suffix in suffixes:
                         if fileName.endswith(suffix):
                             name = fileName[:-len(suffix)]
-                            break
+                            # Only modules with valid Python names are importable
+                            if isidentifier(name):
+                                break
                     else:
                         continue
                     if name == "__init__":
                         continue
+                    
                 subModuleName = "%s.%s" % (module.name, name)
                 subModule = self._InternalImportModule(subModuleName,
                                 deferredImports)
