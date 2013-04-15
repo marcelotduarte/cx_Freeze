@@ -83,12 +83,36 @@ class bdist_mac(Command):
         plist.write(PLIST_TEMPLATE % self.__dict__)
         plist.close()
 
+    def add_to_file_list(self,my_current_dir,file_list):
+        """ get all of the files and directories that are present
+            and adds all of the file path names to a list called files"""
+
+        #decide whether we are in the root directory or a sub-directory    
+        if my_current_dir == self.binDir:    
+            new_walk = os.walk(my_current_dir)
+        else:
+            new_walk = os.walk(os.path.join(self.binDir,my_current_dir))
+
+        #get the root directory tuple containing root,directories,files
+        root_dir = next(new_walk)
+
+        #add each of the files to our list
+        for this_file in root_dir[2]:
+            if my_current_dir == self.binDir:
+                file_list.append(this_file)
+            else:
+                file_list.append(os.path.join(my_current_dir,this_file))
+        #add the files from each of the sub-directories to our list
+        for this_dir in root_dir[1]:
+            file_list = self.add_to_file_list(this_dir,file_list)
+        return file_list
+
     def setRelativeReferencePaths(self):
         """ For all files in Contents/MacOS, check if they are binaries
             with references to other files in that dir. If so, make those
             references relative. The appropriate commands are applied to all
             files; they will just fail for files on which they do not apply."""
-        files = os.listdir(self.binDir)
+        files = self.add_to_file_list(self.binDir,[])
         for fileName in files:
 
             # install_name_tool can't handle zip files or directories
