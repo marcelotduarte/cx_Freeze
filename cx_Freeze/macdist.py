@@ -198,7 +198,7 @@ class bdist_mac(Command):
         
         # Copy the icon
         if self.iconfile:
-            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, 'icon.icns'))
+            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, self.iconfile))
 
         # Create the Info.plist file
         self.execute(self.create_plist,())
