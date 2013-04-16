@@ -95,7 +95,7 @@ class bdist_mac(Command):
 
             # install_name_tool can't handle zip files or directories
             filePath = os.path.join(self.binDir, fileName)
-            if fileName.endswith('.zip') or os.path.isdir(filePath):
+            if fileName.endswith('.zip'):
                 continue
 
             # ensure write permissions
