@@ -125,7 +125,7 @@ class bdist_mac(Command):
 
                 # see if we provide the referenced file;
                 # if so, change the reference
-                if name in files:
+                if name in files or path.startswith("/opt"):
                     newReference = '@executable_path/' + name
                     subprocess.call(('install_name_tool', '-change',
                             referencedFile, newReference, filePath))
@@ -198,7 +198,7 @@ class bdist_mac(Command):
         
         # Copy the icon
         if self.iconfile:
-            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, self.iconfile))
+            self.copy_file(self.iconfile, os.path.join(self.resourcesDir, 'icon.icns'))
 
         # Create the Info.plist file
         self.execute(self.create_plist,())
