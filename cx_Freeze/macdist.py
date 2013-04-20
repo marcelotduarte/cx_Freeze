@@ -125,7 +125,7 @@ class bdist_mac(Command):
 
                 # see if we provide the referenced file;
                 # if so, change the reference
-                if name in files:
+                if name in files or path.startswith("/opt"):
                     newReference = '@executable_path/' + name
                     subprocess.call(('install_name_tool', '-change',
                             referencedFile, newReference, filePath))
