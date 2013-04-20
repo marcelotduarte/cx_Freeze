@@ -141,8 +141,21 @@ class Freezer(object):
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles:
             for source in self._GetDependentFiles(source):
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target, copyDependentFiles)
+                #decide whether we have already copied the dependency previous or if we are trying to copy a file without a source path
+                if source not in self.existingDependences and source != os.path.basename(source):
+                    #work out whether the copy path should is already build/buildname/
+                    #e.g. build/exe.macosx-10.8-x86_64-3.3/
+                    #or whether we need to remove to remove subdirectories for the path to get to it
+                    #e.g. build/exe.macosx-10.8-x86_64-3.3/imageformats -> build/exe.macosx-10.8-x86_64-3.3/
+                    test_path = os.path.split(targetDir)
+                    if test_path[0] == "build":
+                        #print("base name: {0}".format(os.path.basename(source)))
+                        target = os.path.join(targetDir, os.path.basename(source))
+                    else:
+                        target = os.path.join(test_path[0], os.path.basename(source))
+                    self._CopyFile(source, target, copyDependentFiles)
+                    #add the file to the existing dependences
+                    self.existingDependences.append(source)
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
@@ -159,6 +172,7 @@ class Freezer(object):
             scriptModule = None
         else:
             scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
+        self.existingDependences = []
         self._CopyFile(exe.base, exe.targetName, exe.copyDependentFiles,
                 includeMode = True)
         if self.includeMSVCR:
@@ -594,7 +608,7 @@ class Freezer(object):
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
-                                copyDependentFiles = False)
+                                copyDependentFiles = True)
             else:
                 fullName = os.path.join(self.targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
