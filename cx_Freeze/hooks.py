@@ -467,8 +467,11 @@ def load_PyQt4_QtGui(finder, module):
     """There is a chance that GUI will use some image formats
     add the image format plugins
     """
-    dir0 = os.path.dirname(module.file)
-    dir = os.path.join(dir0, "plugins", "imageformats")
+    from PyQt4.QtCore import QCoreApplication
+    dir_app = QCoreApplication(sys.argv)
+    dir_plugin = dir_app.libraryPaths()
+    #dir0 = os.path.dirname(module.file)
+    dir = os.path.join(dir_plugin[0], "imageformats")
     finder.IncludeFiles(dir, "imageformats")
 
 def load_scipy(finder, module):
