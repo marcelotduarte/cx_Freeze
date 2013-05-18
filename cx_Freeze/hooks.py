@@ -597,6 +597,16 @@ def load_win32file(finder, module):
     finder.IncludeModule("pywintypes")
 
 
+def load_wx_lib_pubsub_core(finder, module):
+    """the wx.lib.pubsub.core module modifies the search path which cannot
+       be done in a frozen application in the same way; modify the module
+       search path here instead so that the right modules are found; note
+       that this only works if the import of wx.lib.pubsub.setupkwargs
+       occurs first."""
+    dirName = os.path.dirname(module.file)
+    module.path.insert(0, os.path.join(dirName, "kwargs"))
+
+
 def load_Xlib_display(finder, module):
     """the Xlib.display module implicitly loads a number of extension modules;
        make sure this happens."""
