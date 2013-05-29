@@ -419,12 +419,20 @@ def load_pywintypes(finder, module):
     module.code = None
 
 
+def copy_qt_plugins(plugins, finder):
+    """Helper function to find and copy Qt plugins."""
+    from PyQt4 import QtCore
+    for libpath in QtCore.QCoreApplication.libraryPaths():
+        sourcepath = os.path.join(str(libpath), plugins)
+        if os.path.exists(sourcepath):
+            finder.IncludeFiles(sourcepath, plugins)
+
+
 def load_PyQt4_phonon(finder, module):
     """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
        be present in the build directory inside a folder phonon_backend."""
     if sys.platform == "win32":
-        dir = os.path.join(module.parent.path[0], "plugins", "phonon_backend")
-        finder.IncludeFiles(dir, "phonon_backend")
+        copy_qt_plugins("phonon_backend", finder)
 
 
 def load_PyQt4_QtCore(finder, module):
@@ -463,13 +471,18 @@ def load_PyQt4_uic(finder, module):
     finder.IncludeModule("PyQt4.QtNetwork")
     finder.IncludeModule("PyQt4.QtWebKit")
 
+
 def load_PyQt4_QtGui(finder, module):
     """There is a chance that GUI will use some image formats
     add the image format plugins
     """
-    dir0 = os.path.dirname(module.file)
-    dir = os.path.join(dir0, "plugins", "imageformats")
-    finder.IncludeFiles(dir, "imageformats")
+    copy_qt_plugins("imageformats", finder)
+    from PyQt4 import QtCore
+    if QtCore.QT_VERSION_STR >= '5':
+        # On Qt5, we need the platform plugins. For simplicity, we just copy any
+        # that are installed.
+        copy_qt_plugins("platforms", finder)
+
 
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
