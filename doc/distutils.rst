@@ -52,11 +52,16 @@ provide the ability to both build and install executables. In typical distutils
 fashion they can be provided in the setup script, on the command line or in
 a ``setup.cfg`` configuration file. They are described in further detail below.
 
-To specify options in the script, use underscores in the name instead of dashes.
-For example::
+To specify options in the script, use underscores in the name. For example::
 
     setup(...
           options = {'build_exe': {'init_script':'Console'}} )
+
+To specify the same options on the command line, use dashes, like this::
+
+    python setup.py build_exe --init-script Console
+
+Some options also have a short form to use on the command line. These are given in brackets below.
 
 build
 `````
@@ -68,7 +73,7 @@ the standard set of options for the command:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| build-exe (-b)        | directory for built executables and dependent files,|
+| build_exe (-b)        | directory for built executables and dependent files,|
 |                       | defaults to ``build/``                              |
 +-----------------------+-----------------------------------------------------+
 
@@ -83,7 +88,7 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| build-exe (-b)        | directory for built executables and dependent files,|
+| build_exe (-b)        | directory for built executables and dependent files,|
 |                       | defaults to ``build/``                              |
 +-----------------------+-----------------------------------------------------+
 | optimize (-o)         | optimization level, one of 0 (disabled), 1 or 2     |
@@ -95,10 +100,10 @@ It can be further customized:
 | packages (-p)         | comma separated list of packages to include, which  |
 |                       | includes all submodules in the package              |
 +-----------------------+-----------------------------------------------------+
-| namespace-packages    | comma separated list of packages to be treated as   |
+| namespace_packages    | comma separated list of packages to be treated as   |
 |                       | namespace packages (path is extended using pkgutil) |
 +-----------------------+-----------------------------------------------------+
-| replace-paths         | Modify filenames attached to code objects, which    |
+| replace_paths         | Modify filenames attached to code objects, which    |
 |                       | appear in tracebacks. Pass a comma separated list of|
 |                       | paths in the form <search>=<replace>. The value *   |
 |                       | in the search portion will match the directory      |
@@ -108,7 +113,7 @@ It can be further customized:
 | path                  | comma separated list of paths to search; the        |
 |                       | default value is sys.path                           |
 +-----------------------+-----------------------------------------------------+
-| init-script (-i)      | the name of the script to use during initialization |
+| init_script (-i)      | the name of the script to use during initialization |
 |                       | which, if given as a relative path, will be joined  |
 |                       | with the initscripts subdirectory of the cx_Freeze  |
 |                       | installation; the default value is "Console"        |
@@ -120,15 +125,15 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | compressed (-c)       | create a compressed zip file                        |
 +-----------------------+-----------------------------------------------------+
-| copy-dependent-files  | copy all dependent files                            |
+| copy_dependent_files  | copy all dependent files                            |
 +-----------------------+-----------------------------------------------------+
-| create-shared-zip     | create a shared zip file called library.zip which   |
+| create_shared_zip     | create a shared zip file called library.zip which   |
 |                       | will contain all modules shared by all executables  |
 |                       | which are built                                     |
 +-----------------------+-----------------------------------------------------+
-| append-script-to-exe  | append the script module to the executable          |
+| append_script_to_exe  | append the script module to the executable          |
 +-----------------------+-----------------------------------------------------+
-| include-in-shared-zip | include the script module in the shared zip file    |
+| include_in_shared_zip | include the script module in the shared zip file    |
 +-----------------------+-----------------------------------------------------+
 | icon                  | include the icon in the frozen executables on the   |
 |                       | Windows platform and alongside the frozen           |
@@ -138,7 +143,7 @@ It can be further customized:
 |                       | in the constants module called BUILD_CONSTANTS in   |
 |                       | form <name>=<value>                                 |
 +-----------------------+-----------------------------------------------------+
-| include-files         | list containing files to be copied to the target    |
+| include_files         | list containing files to be copied to the target    |
 |                       | directory; it is expected that this list will       |
 |                       | contain strings or 2-tuples for the source and      |
 |                       | destination; the source can be a file or a directory|
@@ -146,32 +151,32 @@ It can be further customized:
 |                       | and CVS directories); the target must not be an     |
 |                       | absolute path                                       |
 +-----------------------+-----------------------------------------------------+
-| include-msvcr         | include the Microsoft Visual C runtime DLLs and (if |
+| include_msvcr         | include the Microsoft Visual C runtime DLLs and (if |
 |                       | necessary) the manifest file required to run the    |
 |                       | executable without needing the redistributable      |
 |                       | package installed                                   |
 +-----------------------+-----------------------------------------------------+
-| zip-includes          | list containing files to be included in the zip file|
+| zip_includes          | list containing files to be included in the zip file|
 |                       | directory; it is expected that this list will       |
 |                       | contain strings or 2-tuples for the source and      |
 |                       | destination                                         |
 +-----------------------+-----------------------------------------------------+
-| bin-includes          | list of names of files to include when determining  |
+| bin_includes          | list of names of files to include when determining  |
 |                       | dependencies of binary files that would normally be |
 |                       | excluded; note that version numbers that normally   |
 |                       | follow the shared object extension are stripped     |
 |                       | prior to performing the comparison                  |
 +-----------------------+-----------------------------------------------------+
-| bin-excludes          | list of names of files to exclude when determining  |
+| bin_excludes          | list of names of files to exclude when determining  |
 |                       | dependencies of binary files that would normally be |
 |                       | included; note that version numbers that normally   |
 |                       | follow the shared object extension are stripped     |
 |                       | prior to performing the comparison                  |
 +-----------------------+-----------------------------------------------------+
-| bin-path-includes     | list of paths from which to include files when      |
+| bin_path_includes     | list of paths from which to include files when      |
 |                       | determining dependencies of binary files            |
 +-----------------------+-----------------------------------------------------+
-| bin-path-excludes     | list of paths from which to exclude files when      |
+| bin_path_excludes     | list of paths from which to exclude files when      |
 |                       | determining dependencies of binary files            |
 +-----------------------+-----------------------------------------------------+
 | silent (-s)           | suppress all output except warnings                 |
@@ -187,7 +192,7 @@ the standard set of options for the command:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| install-exe           | directory for installed executables and dependent   |
+| install_exe           | directory for installed executables and dependent   |
 |                       | files                                               |
 +-----------------------+-----------------------------------------------------+
 
@@ -201,19 +206,19 @@ or RPM packages. It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| install-dir (-d)      | directory to install executables to; this defaults  |
+| install_dir (-d)      | directory to install executables to; this defaults  |
 |                       | to a subdirectory called <name>-<version> in the    |
 |                       | "Program Files" directory on Windows and            |
 |                       | <prefix>/lib on other platforms; on platforms other |
 |                       | than Windows symbolic links are also created in     |
 |                       | <prefix>/bin for each executable.                   |
 +-----------------------+-----------------------------------------------------+
-| build-dir (-b)        | build directory (where to install from); this       |
+| build_dir (-b)        | build directory (where to install from); this       |
 |                       | defaults to the build_dir from the build command    |
 +-----------------------+-----------------------------------------------------+
 | force (-f)            | force installation, overwriting existing files      |
 +-----------------------+-----------------------------------------------------+
-| skip-build            | skip the build steps                                |
+| skip_build            | skip the build steps                                |
 +-----------------------+-----------------------------------------------------+
 
 bdist_msi
@@ -227,11 +232,11 @@ command:
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| add-to-path           | add the target directory to the PATH environment    |
+| add_to_path           | add the target directory to the PATH environment    |
 |                       | variable; the default value is True if there are    |
 |                       | any console based executables and False otherwise   |
 +-----------------------+-----------------------------------------------------+
-| upgrade-code          | define the upgrade code for the package that is     |
+| upgrade_code          | define the upgrade code for the package that is     |
 |                       | created; this is used to force removal of any       |
 |                       | packages created with the same upgrade code prior   |
 |                       | to the installation of this one                     |
@@ -257,7 +262,7 @@ bundle (a .app directory).
 | iconfile              | Path to an icns icon file for the application. This |
 |                       | will be copied into the bundle.                     |
 +-----------------------+-----------------------------------------------------+
-| qt-menu-nib           | Path to the qt-menu.nib file for Qt applications.   |
+| qt_menu_nib           | Path to the qt-menu.nib file for Qt applications.   |
 |                       | By default, it will be auto-detected.               |
 +-----------------------+-----------------------------------------------------+
 
@@ -276,7 +281,7 @@ installation.
 +-----------------------+-----------------------------------------------------+
 | option name           | description                                         |
 +=======================+=====================================================+
-| volume-label          | Volume label of the DMG disk image                  |
+| volume_label          | Volume label of the DMG disk image                  |
 +-----------------------+-----------------------------------------------------+
 
  .. versionadded:: 4.3

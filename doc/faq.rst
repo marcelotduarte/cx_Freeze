@@ -69,6 +69,7 @@ license conditions associated with the DLLs you have installed.
   it's not, as far as we know, part of a standard Windows installation. Note
   that the "SP1" version of this *does not* work -- it has to exactly match
   the version which Python itself is compiled with.
+
      * 2008 (Python 2.6-3.2) `for x86 (32 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=29>`_
        or `for x64 (64 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=15336>`_
      * 2010 (Python 3.3) `for x86 (32 bit) Windows <http://www.microsoft.com/en-gb/download/details.aspx?id=5555>`_
