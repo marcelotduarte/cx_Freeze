@@ -64,7 +64,10 @@ class ModuleFinder(object):
         self.ExcludeModule("doctest")
         self.ExcludeModule("getopt")
         self.ExcludeModule("logging")
-        self.ExcludeModule("re")
+        if sys.version_info[0] < 3:
+            # On Python 3, traceback -> linecache -> tokenize -> re, so
+            # we need to let it be loaded.
+            self.ExcludeModule("re")
         self.ExcludeModule("subprocess")
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
