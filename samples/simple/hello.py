@@ -1,21 +1,24 @@
-import datetime
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from datetime import datetime
 import sys
+from sys import stdout
 
-sys.stdout.write("Hello from cx_Freeze\n")
-sys.stdout.write("The current date is %s\n\n" % \
-        datetime.datetime.today().strftime("%B %d, %Y %H:%M:%S"))
+stdout.write('Hello from cx_Freeze\n')
+stdout.write('The current date is %s\n\n' %
+             datetime.today().strftime('%B %d, %Y %H:%M:%S'))
 
-sys.stdout.write("Executable: %r\n" % sys.executable)
-sys.stdout.write("Prefix: %r\n" % sys.prefix)
-sys.stdout.write("File system encoding: %r\n\n" % sys.getfilesystemencoding())
+stdout.write('Executable: %r\n' % sys.executable)
+stdout.write('Prefix: %r\n' % sys.prefix)
+stdout.write('File system encoding: %r\n\n' % sys.getfilesystemencoding())
 
-sys.stdout.write("ARGUMENTS:\n")
+stdout.write('ARGUMENTS:\n')
 for a in sys.argv:
-    sys.stdout.write("%s\n" % a)
-sys.stdout.write("\n")
+    stdout.write('%s\n' % a)
+stdout.write('\n')
 
-sys.stdout.write("PATH:\n")
+stdout.write('PATH:\n')
 for p in sys.path:
-    sys.stdout.write("%s\n" % p)
-sys.stdout.write("\n")
-
+    stdout.write('%s\n' % p)
+stdout.write('\n')
