@@ -422,7 +422,10 @@ def load_pywintypes(finder, module):
 def copy_qt_plugins(plugins, finder):
     """Helper function to find and copy Qt plugins."""
     from PyQt4 import QtCore
-    for libpath in QtCore.QCoreApplication.libraryPaths():
+    # Qt Plugins can either be in a plugins directory next to the Qt libraries,
+    # or in other locations listed by QCoreApplication.libraryPaths()
+    dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
+    for libpath in QtCore.QCoreApplication.libraryPaths() + [dir0]:
         sourcepath = os.path.join(str(libpath), plugins)
         if os.path.exists(sourcepath):
             finder.IncludeFiles(sourcepath, plugins)
