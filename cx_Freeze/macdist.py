@@ -27,10 +27,13 @@ class bdist_dmg(Command):
             "application bundle"
     user_options = [
         ('volume-label=', None, 'Volume label of the DMG disk image'),
+        ('applications-shortcut=', None, 'Boolean for whether to include ' \
+            'shortcut to Applications in the DMG disk image'),
     ]
 
     def initialize_options(self):
         self.volume_label = self.distribution.get_fullname()
+        self.applications_shortcut = False
 
     def finalize_options(self):
         pass
@@ -40,10 +43,27 @@ class bdist_dmg(Command):
         if os.path.exists(self.dmgName):
             os.unlink(self.dmgName)
 
+        createargs = [
+            'hdiutil', 'create', '-fs', 'HFSX', '-format', 'UDZO',
+            self.dmgName, '-imagekey', 'zlib-level=9', '-srcfolder',
+            self.bundleDir, '-volname', self.volume_label
+        ]
+
+        if self.applications_shortcut:
+            scriptargs = [
+                'osascript', '-e', 'tell application "Finder" to make alias \
+                file to POSIX file "/Applications" at POSIX file "%s"' %
+                os.path.realpath(self.buildDir)
+            ]
+
+            if os.spawnvp(os.P_WAIT, 'osascript', scriptargs) != 0:
+                raise OSError('creation of Applications shortcut failed')
+
+            createargs.append('-srcfolder')
+            createargs.append(self.buildDir + '/Applications')
+
         # Create the dmg
-        if os.spawnlp(os.P_WAIT,'hdiutil','hdiutil','create','-fs','HFSX',
-            '-format','UDZO',self.dmgName, '-imagekey', 'zlib-level=9',
-            '-srcfolder',self.bundleDir,'-volname',self.volume_label)!=0:
+        if os.spawnvp(os.P_WAIT, 'hdiutil', createargs) != 0:
             raise OSError('creation of the dmg failed')
 
     def run(self):
