@@ -447,6 +447,9 @@ def load_PyQt4_QtCore(finder, module):
     except ImportError:
         pass
 
+def load_PySide_QtCore(finder, module):
+    """PySide.QtCore dynamically loads the stdlib atexit module."""
+    finder.IncludeModule("atexit")
 
 def load_PyQt4_Qt(finder, module):
     """the PyQt4.Qt module is an extension module which imports a number of
