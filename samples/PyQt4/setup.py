@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # A simple setup script to create an executable using PyQt4. This also
 # demonstrates the method for creating a Windows executable that does not have
 # an associated console.
@@ -10,17 +12,25 @@
 # subdirectory that contains the files needed to run the application
 
 import sys
-
 from cx_Freeze import setup, Executable
 
 base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+if sys.platform == 'win32':
+    base = 'Win32GUI'
 
-setup(
-        name = "simple_PyQt4",
-        version = "0.1",
-        description = "Sample cx_Freeze PyQt4 script",
-        options = {"build_exe" : {"includes" : "atexit" }},
-        executables = [Executable("PyQt4app.py", base = base)])
+options = {
+    'build_exe': {
+        'includes': 'atexit'
+    }
+}
 
+executables = [
+    Executable('PyQt4app.py', base=base)
+]
+
+setup(name='simple_PyQt4',
+      version='0.1',
+      description='Sample cx_Freeze PyQt4 script',
+      options=options,
+      executables=executables
+      )
