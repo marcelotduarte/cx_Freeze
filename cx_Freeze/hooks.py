@@ -421,7 +421,10 @@ def load_pywintypes(finder, module):
 
 def copy_qt_plugins(plugins, finder):
     """Helper function to find and copy Qt plugins."""
-    from PyQt4 import QtCore
+    try:
+        from PyQt4 import QtCore
+    except ImportError:
+        from PySide import QtCore
     # Qt Plugins can either be in a plugins directory next to the Qt libraries,
     # or in other locations listed by QCoreApplication.libraryPaths()
     dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
@@ -436,6 +439,8 @@ def load_PyQt4_phonon(finder, module):
        be present in the build directory inside a folder phonon_backend."""
     if sys.platform == "win32":
         copy_qt_plugins("phonon_backend", finder)
+
+load_PySide_phonon = load_PyQt4_phonon
 
 
 def load_PyQt4_QtCore(finder, module):
@@ -483,11 +488,16 @@ def load_PyQt4_QtGui(finder, module):
     add the image format plugins
     """
     copy_qt_plugins("imageformats", finder)
-    from PyQt4 import QtCore
+    try:
+        from PyQt4 import QtCore
+    except ImportError:
+        from PySide import QtCore
     if QtCore.QT_VERSION_STR >= '5':
         # On Qt5, we need the platform plugins. For simplicity, we just copy any
         # that are installed.
         copy_qt_plugins("platforms", finder)
+
+load_PySide_QtGui = load_PyQt4_QtGui
 
 
 def load_scipy(finder, module):
