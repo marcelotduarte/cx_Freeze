@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # A simple setup script to create an executable using Zope which demonstrates
 # the use of namespace packages.
 #
@@ -9,16 +11,21 @@
 # subdirectory that contains the files needed to run the application
 
 import sys
-
 from cx_Freeze import setup, Executable
 
-buildOptions = dict(
-        namespace_packages = ['zope'])
+options = {
+    'build_exe': {
+        'namespace_packages': ['zope']
+    }
+}
 
-setup(
-        name = "QOTD sample",
-        version = "1.0",
-        description = "QOTD sample for demonstrating use of namespace packages",
-        options = dict(build_exe = buildOptions),
-        executables = [Executable("qotd.py")])
+executables = [
+    Executable('qotd.py')
+]
 
+setup(name='QOTD sample',
+      version='1.0',
+      description='QOTD sample for demonstrating use of namespace packages',
+      options=options,
+      executables=executables
+      )

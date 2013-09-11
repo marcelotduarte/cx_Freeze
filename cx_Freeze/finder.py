@@ -8,6 +8,7 @@ import marshal
 import opcode
 import os
 import pkgutil
+import re
 import sys
 import types
 import zipfile
@@ -26,6 +27,14 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = [ "Module", "ModuleFinder" ]
+
+try:
+    isidentifier = str.isidentifier  # Built in method in Python 3
+except AttributeError:
+    # Check with regex for Python 2
+    _identifier_re = re.compile(r'^[a-z_]\w*$', re.I)
+    def isidentifier(s):
+        return bool(_identifier_re.match(s))
 
 class ModuleFinder(object):
 
@@ -64,7 +73,10 @@ class ModuleFinder(object):
         self.ExcludeModule("doctest")
         self.ExcludeModule("getopt")
         self.ExcludeModule("logging")
-        self.ExcludeModule("re")
+        if sys.version_info[0] < 3:
+            # On Python 3, traceback -> linecache -> tokenize -> re, so
+            # we need to let it be loaded.
+            self.ExcludeModule("re")
         self.ExcludeModule("subprocess")
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
@@ -195,16 +207,18 @@ class ModuleFinder(object):
                     for suffix in suffixes:
                         if fileName.endswith(suffix):
                             name = fileName[:-len(suffix)]
-                            break
+                            # Only modules with valid Python names are importable
+                            if isidentifier(name):
+                                break
                     else:
                         continue
                     if name == "__init__":
                         continue
+                    
                 subModuleName = "%s.%s" % (module.name, name)
-                subModule, returnError = \
-                        self._InternalImportModule(subModuleName,
+                subModule = self._InternalImportModule(subModuleName,
                                 deferredImports)
-                if returnError and subModule is None:
+                if subModule is None:
                     raise ImportError("No module named %r" % subModuleName)
                 module.globalNames[name] = None
                 if subModule.path and recursive:
@@ -230,7 +244,7 @@ class ModuleFinder(object):
         # absolute import (available in Python 2.5 and up)
         # the name given is the only name that will be searched
         if relativeImportIndex == 0:
-            module, returnError = self._InternalImportModule(name,
+            module = self._InternalImportModule(name,
                     deferredImports, namespace = namespace)
 
         # old style relative import (only possibility in Python 2.4 and prior)
@@ -240,13 +254,13 @@ class ModuleFinder(object):
             parent = self._DetermineParent(caller)
             while parent is not None:
                 fullName = "%s.%s" % (parent.name, name)
-                module, returnError = self._InternalImportModule(fullName,
+                module = self._InternalImportModule(fullName,
                         deferredImports, namespace = namespace)
                 if module is not None:
                     parent.globalNames[name] = None
                     return module
                 parent = self._GetParentByName(parent.name)
-            module, returnError = self._InternalImportModule(name,
+            module = self._InternalImportModule(name,
                     deferredImports, namespace = namespace)
 
         # new style relative import (available in Python 2.5 and up)
@@ -261,12 +275,11 @@ class ModuleFinder(object):
                 relativeImportIndex -= 1
             if parent is None:
                 module = None
-                returnError = True
             elif not name:
                 module = parent
             else:
                 name = "%s.%s" % (parent.name, name)
-                module, returnError = self._InternalImportModule(name,
+                module = self._InternalImportModule(name,
                         deferredImports, namespace = namespace)
 
         # if module not found, track that fact
@@ -274,7 +287,7 @@ class ModuleFinder(object):
             if caller is None:
                 raise ImportError("No module named %r" % name)
             self._RunHook("missing", name, caller)
-            if returnError and name not in caller.ignoreNames:
+            if name not in caller.ignoreNames:
                 callers = self._badModules.setdefault(name, {})
                 callers[caller.name] = None
 
@@ -285,7 +298,8 @@ class ModuleFinder(object):
            name given is an absolute name. None is returned if the module
            cannot be found."""
         try:
-            return self._modules[name], False
+            # Check in module cache before trying to import it again.
+            return self._modules[name]
         except KeyError:
             pass
         
@@ -293,7 +307,7 @@ class ModuleFinder(object):
             module = self._AddModule(name)
             self._RunHook("load", module.name, module)
             module.inImport = False
-            return module, False
+            return module
         
         pos = name.rfind(".")
         if pos < 0:  # Top-level module
@@ -302,11 +316,11 @@ class ModuleFinder(object):
             parentModule = None
         else:        # Dotted module name - look up the parent module
             parentName = name[:pos]
-            parentModule, returnError = \
+            parentModule = \
                     self._InternalImportModule(parentName, deferredImports,
                             namespace = namespace)
             if parentModule is None:
-                return None, returnError
+                return None
             if namespace:
                 parentModule.ExtendPath()
             path = parentModule.path
@@ -314,10 +328,9 @@ class ModuleFinder(object):
         
         if name in self.aliases:
             actualName = self.aliases[name]
-            module, returnError = \
-                    self._InternalImportModule(actualName, deferredImports)
+            module = self._InternalImportModule(actualName, deferredImports)
             self._modules[name] = module
-            return module, returnError
+            return module
         
         try:
             fp, path, info = self._FindModule(searchName, path, namespace)
@@ -325,8 +338,8 @@ class ModuleFinder(object):
                     parentModule, namespace)
         except ImportError:
             self._modules[name] = None
-            return None, True
-        return module, False
+            return None
+        return module
 
     def _LoadModule(self, name, fp, path, info, deferredImports,
             parent = None, namespace = False):
