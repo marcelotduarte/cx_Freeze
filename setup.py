@@ -106,7 +106,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         if name.endswith("util"):
             return fileName
         vars = distutils.sysconfig.get_config_vars()
-        soExt = vars["SO"]
+        soExt = vars.get("EXT_SUFFIX", vars.get("SO"))
         ext = self.compiler.exe_extension or ""
         return fileName[:-len(soExt)] + ext
 
