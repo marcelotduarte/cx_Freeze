@@ -11,9 +11,13 @@ import distutils.sysconfig
 import os
 import sys
 
-
-from distutils.core import setup
-from distutils.extension import Extension
+try:
+    from setuptools import setup, Extension
+    from setuptools.command.install import install as install_cmd
+except ImportError:
+    from distutils.core import setup
+    from distutils.extension import Extension
+    from distutils.command.install import install as install_cmd
 
 if sys.platform == "win32":
     import msilib
@@ -111,7 +115,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         return fileName[:-len(soExt)] + ext
 
 
-class install(distutils.command.install.install):
+class install(install_cmd):
 
     def get_sub_commands(self):
         subCommands = distutils.command.install.install.get_sub_commands(self)
