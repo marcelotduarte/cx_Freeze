@@ -18,6 +18,8 @@ PLIST_TEMPLATE = \
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>%(bundle_executable)s</string>
+	<key>LSUIElement</key>
+	<string>%(agent_app)s</string>
 </dict>
 </plist>
 """
@@ -87,12 +89,16 @@ class bdist_mac(Command):
     user_options = [
         ('iconfile=', None, 'Path to an icns icon file for the application.'),
         ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt ' \
-                'applications. Will be auto-detected by default.')
+                'applications. Will be auto-detected by default.'),
+        ('agent-app', None, 'Specifies whether the app is an agent app, ' \
+                'that is, an app that should not appear in the Dock or ' \
+                'Force Quit window.'),
     ]
 
     def initialize_options(self):
         self.iconfile = None
         self.qt_menu_nib = False
+        self.agent_app = 0
 
     def finalize_options(self):
         pass
