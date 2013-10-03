@@ -93,12 +93,14 @@ class bdist_mac(Command):
         ('agent-app', None, 'Specifies whether the app is an agent app, ' \
                 'that is, an app that should not appear in the Dock or ' \
                 'Force Quit window.'),
+        ('bundle-name=', None, 'File name for the bundle application.')
     ]
 
     def initialize_options(self):
         self.iconfile = None
         self.qt_menu_nib = False
         self.agent_app = 0
+        self.bundle_name = self.distribution.get_fullname() + ".app"
 
     def finalize_options(self):
         pass
@@ -204,8 +206,7 @@ class bdist_mac(Command):
         build = self.get_finalized_command('build')
 
         # Define the paths within the application bundle
-        self.bundleDir = os.path.join(build.build_base,
-                self.distribution.get_fullname() + ".app")
+        self.bundleDir = os.path.join(build.build_base, self.bundle_name)
         self.contentsDir = os.path.join(self.bundleDir, 'Contents')
         self.resourcesDir = os.path.join(self.contentsDir, 'Resources')
         self.binDir = os.path.join(self.contentsDir, 'MacOS')
