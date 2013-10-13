@@ -18,8 +18,6 @@ PLIST_TEMPLATE = \
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>%(bundle_executable)s</string>
-	<key>LSUIElement</key>
-	<string>%(agent_app)s</string>
 </dict>
 </plist>
 """
@@ -90,16 +88,12 @@ class bdist_mac(Command):
         ('iconfile=', None, 'Path to an icns icon file for the application.'),
         ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt ' \
                 'applications. Will be auto-detected by default.'),
-        ('agent-app', None, 'Specifies whether the app is an agent app, ' \
-                'that is, an app that should not appear in the Dock or ' \
-                'Force Quit window.'),
         ('bundle-name=', None, 'File name for the bundle application.')
     ]
 
     def initialize_options(self):
         self.iconfile = None
         self.qt_menu_nib = False
-        self.agent_app = 0
         self.bundle_name = self.distribution.get_fullname() + ".app"
 
     def finalize_options(self):
@@ -177,12 +171,12 @@ class bdist_mac(Command):
             path = os.path.join(libpath, subpath)
             if os.path.exists(path):
                 return path
-            
+
         # Last resort: fixed paths (macports)
         for path in ['/opt/local/Library/Frameworks/QtGui.framework/Versions/4/Resources/qt_menu.nib']:
             if os.path.exists(path):
                 return path
-        
+
         print ("Could not find qt_menu.nib")
         raise IOError("Could not find qt_menu.nib")
 
@@ -220,7 +214,7 @@ class bdist_mac(Command):
         self.mkpath(self.binDir)
 
         self.copy_tree(build.build_exe, self.binDir)
-        
+
         # Copy the icon
         if self.iconfile:
             self.copy_file(self.iconfile, os.path.join(self.resourcesDir, 'icon.icns'))
@@ -230,7 +224,7 @@ class bdist_mac(Command):
 
         # Make all references to libraries relative
         self.execute(self.setRelativeReferencePaths,())
-        
+
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
 
