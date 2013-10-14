@@ -88,13 +88,14 @@ class bdist_mac(Command):
         ('iconfile=', None, 'Path to an icns icon file for the application.'),
         ('qt-menu-nib=', None, 'Location of qt_menu.nib folder for Qt ' \
                 'applications. Will be auto-detected by default.'),
-        ('bundle-name=', None, 'File name for the bundle application.')
+        ('bundle-name=', None, 'File name for the bundle application ' \
+                'without the .app extension.')
     ]
 
     def initialize_options(self):
         self.iconfile = None
         self.qt_menu_nib = False
-        self.bundle_name = self.distribution.get_fullname() + ".app"
+        self.bundle_name = self.distribution.get_fullname()
 
     def finalize_options(self):
         pass
@@ -200,7 +201,8 @@ class bdist_mac(Command):
         build = self.get_finalized_command('build')
 
         # Define the paths within the application bundle
-        self.bundleDir = os.path.join(build.build_base, self.bundle_name)
+        self.bundleDir = os.path.join(build.build_base,
+                                      self.bundle_name + ".app")
         self.contentsDir = os.path.join(self.bundleDir, 'Contents')
         self.resourcesDir = os.path.join(self.contentsDir, 'Resources')
         self.binDir = os.path.join(self.contentsDir, 'MacOS')
