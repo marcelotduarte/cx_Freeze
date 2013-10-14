@@ -265,11 +265,15 @@ bundle (a .app directory).
 | qt_menu_nib           | Path to the qt-menu.nib file for Qt applications.   |
 |                       | By default, it will be auto-detected.               |
 +-----------------------+-----------------------------------------------------+
+| bundle_name           | File name for the bundle application.               |
+|                       |                                                     |
++-----------------------+-----------------------------------------------------+
 
  .. versionadded:: 4.3
  
  .. versionchanged:: 4.3.2
     Added the ``iconfile`` option.
+    Added the ``bundle_name`` option.
 
 bdist_dmg
 `````````
