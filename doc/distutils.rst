@@ -265,8 +265,8 @@ bundle (a .app directory).
 | qt_menu_nib           | Path to the qt-menu.nib file for Qt applications.   |
 |                       | By default, it will be auto-detected.               |
 +-----------------------+-----------------------------------------------------+
-| bundle_name           | File name for the bundle application.               |
-|                       |                                                     |
+| bundle_name           | File name for the bundle application without the    |
+|                       | .app extension.                                     |
 +-----------------------+-----------------------------------------------------+
 
  .. versionadded:: 4.3
