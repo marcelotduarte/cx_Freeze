@@ -198,7 +198,7 @@ class Freezer(object):
                 name = "Console"
             else:
                 name = "ConsoleKeepPath"
-        exeName, ext = os.path.splitext(sys.executable)
+        ext = ".exe" if sys.platform == "win32" else ""
         argsSource.base = self._GetFileName("bases", name, ext)
         if argsSource.base is None:
             raise ConfigError("no base named %s", name)
