@@ -272,8 +272,7 @@ bundle (a .app directory).
  .. versionadded:: 4.3
  
  .. versionchanged:: 4.3.2
-    Added the ``iconfile`` option.
-    Added the ``bundle_name`` option.
+    Added the ``iconfile`` and ``bundle_name`` options.
 
 bdist_dmg
 `````````
@@ -287,8 +286,14 @@ installation.
 +=======================+=====================================================+
 | volume_label          | Volume label of the DMG disk image                  |
 +-----------------------+-----------------------------------------------------+
+| applications-shortcut | Boolean for whether to include shortcut to          |
+|                       | Applications in the DMG disk image                  |
++-----------------------+-----------------------------------------------------+
 
  .. versionadded:: 4.3
+
+ .. versionchanged:: 4.3.2
+    Added the ``applications-shortcut`` option.
 
 cx_Freeze.Executable
 --------------------
