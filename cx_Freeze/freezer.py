@@ -198,7 +198,8 @@ class Freezer(object):
                 name = "Console"
             else:
                 name = "ConsoleKeepPath"
-        argsSource.base = self._GetFileName("bases", name)
+        ext = ".exe" if sys.platform == "win32" else ""
+        argsSource.base = self._GetFileName("bases", name, ext)
         if argsSource.base is None:
             raise ConfigError("no base named %s", name)
 
@@ -287,16 +288,16 @@ class Freezer(object):
                     [f for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
 
-    def _GetFileName(self, dir, name, ext = None):
+    def _GetFileName(self, dirName, name, ext):
         if os.path.isabs(name):
             return name
         name = os.path.normcase(name)
-        fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dir)
+        fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dirName)
         if os.path.isdir(fullDir):
             for fileName in os.listdir(fullDir):
                 checkName, checkExt = \
                         os.path.splitext(os.path.normcase(fileName))
-                if name == checkName and (ext is None or ext == checkExt):
+                if name == checkName and ext == checkExt:
                     return os.path.join(fullDir, fileName)
 
     def _GetInitScriptFileName(self, argsSource = None):

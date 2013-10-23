@@ -13,11 +13,9 @@ import sys
 
 try:
     from setuptools import setup, Extension
-    from setuptools.command.install import install as install_cmd
 except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
-    from distutils.command.install import install as install_cmd
 
 if sys.platform == "win32":
     import msilib
@@ -115,36 +113,6 @@ class build_ext(distutils.command.build_ext.build_ext):
         return fileName[:-len(soExt)] + ext
 
 
-class install(install_cmd):
-
-    def get_sub_commands(self):
-        subCommands = distutils.command.install.install.get_sub_commands(self)
-        subCommands.append("install_packagedata")
-        return subCommands
-
-
-class install_packagedata(distutils.command.install_data.install_data):
-
-    def run(self):
-        installCommand = self.get_finalized_command("install")
-        installDir = getattr(installCommand, "install_lib")
-        sourceDirs = ["samples", "initscripts"]
-        while sourceDirs:
-            sourceDir = sourceDirs.pop(0)
-            targetDir = os.path.join(installDir, "cx_Freeze", sourceDir)
-            self.mkpath(targetDir)
-            for name in os.listdir(sourceDir):
-                if name in ("build", "CVS") or name.startswith("."):
-                    continue
-                fullSourceName = os.path.join(sourceDir, name)
-                if os.path.isdir(fullSourceName):
-                    sourceDirs.append(fullSourceName)
-                else:
-                    fullTargetName = os.path.join(targetDir, name)
-                    self.copy_file(fullSourceName, fullTargetName)
-                    self.outfiles.append(fullTargetName)
-
-
 def find_cx_Logging():
     dirName = os.path.dirname(os.getcwd())
     loggingDir = os.path.join(dirName, "cx_Logging")
@@ -159,9 +127,7 @@ def find_cx_Logging():
 
 commandClasses = dict(
         build_ext = build_ext,
-        bdist_rpm = bdist_rpm,
-        install = install,
-        install_packagedata = install_packagedata)
+        bdist_rpm = bdist_rpm)
 if sys.platform == "win32":
     commandClasses["bdist_msi"] = bdist_msi
 
@@ -211,6 +177,23 @@ if sys.platform == "win32":
                 include_dirs = includeDirs)
         extensions.append(service)
 
+# define package data
+packageData = []
+for fileName in os.listdir(os.path.join("cx_Freeze", "initscripts")):
+    name, ext = os.path.splitext(fileName)
+    if ext != ".py":
+        continue
+    if sys.version_info[0] == 3 and not name.endswith("3"):
+        continue
+    elif sys.version_info[0] == 2 and name.endswith("3"):
+        continue
+    packageData.append("initscripts/%s" % fileName)
+for fileName in os.listdir(os.path.join("cx_Freeze", "samples")):
+    dirName = os.path.join("cx_Freeze", "samples", fileName)
+    if not os.path.isdir(dirName):
+        continue
+    packageData.append("samples/%s/*.py" % fileName)
+
 classifiers = [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -230,7 +213,7 @@ classifiers = [
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "4.3.1",
+        version = "4.3.2",
         cmdclass = commandClasses,
         options = options,
         ext_modules = extensions,
@@ -241,5 +224,6 @@ setup(name = "cx_Freeze",
         scripts = scripts,
         classifiers = classifiers,
         keywords = "freeze",
-        license = "Python Software Foundation License")
+        license = "Python Software Foundation License",
+        package_data = {"cx_Freeze" : packageData })
 

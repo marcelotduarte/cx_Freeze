@@ -12,6 +12,37 @@ Development version
    support, please use cx_Freeze 4.2.3.
 
 
+Version 4.3.2
+-------------
+
+.. note:: This version supports Python 2.4 and above. If you need Python 2.3
+   support, please use cx_Freeze 4.2.3.
+
+1) Added support for Python 3.4.
+2) Added hooks for PyQt4, PyQt5 and PySide to handle their plugins.
+3) Added support for creating a shortcut/alias to the Applications directory
+   within distributed DMG files for OS X.
+4) Improve missing modules output.
+5) Avoid polluting the extension module namespace when using the bootstrap
+   module to load the extension.
+6) Added support for using setuptools and pip if such tools are available.
+7) Added first tests; nose and mock are required to run them.
+8) Remove --bundle-iconfile in favor of --iconfile as a more generic method
+   of including the icon for bdist_mac.
+9) Documentation improved and FAQ added.
+10) Converted samples to follow PEP 8.
+
+Bugs fixed:
+
+* cxfreeze-quickstart failed if the default base was not used
+* scripts frozen with Python 3 fail with an ImportError trying to import the
+  re module
+* fix bug where after a first attempt to find a module failed, the second
+  attempt would erroneously succeed
+* stop attempting to load a module by a name that is not a valid Python
+  identifier
+
+
 Version 4.3.1
 -------------
 
