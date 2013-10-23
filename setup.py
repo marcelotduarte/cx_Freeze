@@ -178,12 +178,21 @@ if sys.platform == "win32":
         extensions.append(service)
 
 # define package data
-packageData = ["initscripts/*.py"]
-for name in os.listdir(os.path.join("cx_Freeze", "samples")):
-    dirName = os.path.join("cx_Freeze", "samples", name)
+packageData = []
+for fileName in os.listdir(os.path.join("cx_Freeze", "initscripts")):
+    name, ext = os.path.splitext(fileName)
+    if ext != ".py":
+        continue
+    if sys.version_info[0] == 3 and not name.endswith("3"):
+        continue
+    elif sys.version_info[0] == 2 and name.endswith("3"):
+        continue
+    packageData.append("initscripts/%s" % fileName)
+for fileName in os.listdir(os.path.join("cx_Freeze", "samples")):
+    dirName = os.path.join("cx_Freeze", "samples", fileName)
     if not os.path.isdir(dirName):
         continue
-    packageData.append("samples/%s/*.py" % name)
+    packageData.append("samples/%s/*.py" % fileName)
 
 classifiers = [
         "Development Status :: 5 - Production/Stable",
