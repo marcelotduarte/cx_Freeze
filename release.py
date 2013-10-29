@@ -6,7 +6,7 @@ platform.
 import os
 import sys
 
-pythonVersions = os.environ["CX_FREEZE_PYTHON_VERSIONS"].split(",")
+pythonVersions = sys.argv[1].split(",")
 pythonFormat = os.environ["CX_FREEZE_PYTHON_FORMAT"]
 
 minVersion = maxVersion = None
@@ -47,7 +47,7 @@ for version in pythonVersions:
             sys.exit("Stopping. Build %s failed.\n" % messageFragment)
 
 if sys.platform == "linux2":
-    python = pythonFormat % (2, 4)
+    python = pythonFormat % (2, 6)
     basePython = os.path.join(os.path.dirname(python), "python")
     if os.path.exists(basePython):
         os.unlink(basePython)
