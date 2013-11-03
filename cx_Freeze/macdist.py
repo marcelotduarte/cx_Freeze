@@ -2,25 +2,12 @@ from distutils.core import Command
 import distutils.errors
 import distutils.util
 import os
+import plistlib
 import stat
 import subprocess
 
 __all__ = [ "bdist_dmg", "bdist_mac" ]
 
-PLIST_TEMPLATE = \
-"""<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleIconFile</key>
-	<string>icon.icns</string>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>%(bundle_executable)s</string>
-</dict>
-</plist>
-"""
 
 class bdist_dmg(Command):
     description = "create a Mac DMG disk image containing the Mac " \
@@ -118,13 +105,20 @@ class bdist_mac(Command):
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
+        # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
-            contents = open(self.custom_info_plist).read()
+            contents = plistlib.readPlist(self.custom_info_plist)
         else:
-            contents = PLIST_TEMPLATE % self.__dict__
+            contents = {
+                'CFBundleIconFile': 'icon.icns',
+                'CFBundleDevelopmentRegion': 'English',
+            }
 
-        plist = open(os.path.join(self.contentsDir, 'Info.plist'),'w')
-        plist.write(contents)
+        # Ensure CFBundleExecutable is set correctly
+        contents['CFBundleExecutable'] = self.bundle_executable
+
+        plist = open(os.path.join(self.contentsDir, 'Info.plist'), 'wb')
+        plistlib.writePlist(contents, plist)
         plist.close()
 
     def setRelativeReferencePaths(self):
