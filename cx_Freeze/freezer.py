@@ -140,9 +140,10 @@ class Freezer(object):
             shutil.copymode(source, target)
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles:
-            for source in self._GetDependentFiles(source):
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target, copyDependentFiles)
+            for source2 in self._GetDependentFiles(source):
+                source2 = source2.replace('@loader_path',os.path.dirname(source))
+                target = os.path.join(targetDir, os.path.basename(source2))
+                self._CopyFile(os.path.abspath(source2), target, copyDependentFiles)
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
