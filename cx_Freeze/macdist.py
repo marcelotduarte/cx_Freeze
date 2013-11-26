@@ -6,6 +6,8 @@ import plistlib
 import stat
 import subprocess
 
+from cx_Freeze.utils import normalize_to_list
+
 __all__ = [ "bdist_dmg", "bdist_mac" ]
 
 
@@ -83,16 +85,6 @@ class bdist_mac(Command):
                 'directories to include in the app bundle.')
     ]
 
-    def _normalize(self, attrName):
-        value = getattr(self, attrName)
-        if value is None:
-            normalizedValue = []
-        elif isinstance(value, str):
-            normalizedValue = value.split()
-        else:
-            normalizedValue = list(value)
-        setattr(self, attrName, normalizedValue)
-
     def initialize_options(self):
         self.iconfile = None
         self.qt_menu_nib = False
@@ -101,7 +93,7 @@ class bdist_mac(Command):
         self.include_frameworks = []
 
     def finalize_options(self):
-        self._normalize("include_frameworks")
+        self.include_frameworks = normalize_to_list(self.include_frameworks)
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
