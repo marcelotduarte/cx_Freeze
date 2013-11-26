@@ -5,8 +5,8 @@ This module contains utility functions shared between cx_Freeze modules.
 
 def normalize_to_list(value):
     """
-    Takes the different formats of options containing multiple values such
-    as comma separated strings and returns the value as a list object.
+    Takes the different formats of options containing multiple values and
+    returns the value as a list object.
     """
     if value is None:
         normalizedValue = []
