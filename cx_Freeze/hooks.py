@@ -418,24 +418,58 @@ def load_pywintypes(finder, module):
     module.file = pywintypes.__file__
     module.code = None
 
+# PyQt5 and PyQt4 can't both be loaded in the same process, so we cache the
+# QtCore module so we can still return something sensible if we try to load
+# both.
+_qtcore = None
+def _qt_implementation(module):
+    """Helper function to get name (PyQt4, PyQt5, PySide) and the QtCore module
+    """
+    global _qtcore
+    name = module.name.split('.')[0]
+    try:
+        _qtcore = __import__(name, fromlist=['QtCore']).QtCore
+    except RuntimeError:
+        print("WARNING: Tried to load multiple incompatible Qt wrappers. "
+              "Some incorrect files may be copied.")
+    return name, _qtcore
+
+def copy_qt_plugins(plugins, finder, QtCore):
+    """Helper function to find and copy Qt plugins."""
+    
+    # Qt Plugins can either be in a plugins directory next to the Qt libraries,
+    # or in other locations listed by QCoreApplication.libraryPaths()
+    dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
+    for libpath in QtCore.QCoreApplication.libraryPaths() + [dir0]:
+        sourcepath = os.path.join(str(libpath), plugins)
+        if os.path.exists(sourcepath):
+            finder.IncludeFiles(sourcepath, plugins)
+
 
 def load_PyQt4_phonon(finder, module):
     """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
        be present in the build directory inside a folder phonon_backend."""
+    name, QtCore = _qt_implementation(module)
     if sys.platform == "win32":
-        dir = os.path.join(module.parent.path[0], "plugins", "phonon_backend")
-        finder.IncludeFiles(dir, "phonon_backend")
+        copy_qt_plugins("phonon_backend", finder, QtCore)
 
+load_PySide_phonon = load_PyQt5_phonon = load_PyQt4_phonon
 
 def load_PyQt4_QtCore(finder, module):
     """the PyQt4.QtCore module implicitly imports the sip module and,
        depending on configuration, the PyQt4._qt module."""
+    name, QtCore = _qt_implementation(module)
     finder.IncludeModule("sip")
     try:
-        finder.IncludeModule("PyQt4._qt")
+        finder.IncludeModule("%s._qt" % name)
     except ImportError:
         pass
 
+load_PyQt5_QtCore = load_PyQt4_QtCore
+
+def load_PySide_QtCore(finder, module):
+    """PySide.QtCore dynamically loads the stdlib atexit module."""
+    finder.IncludeModule("atexit")
 
 def load_PyQt4_Qt(finder, module):
     """the PyQt4.Qt module is an extension module which imports a number of
@@ -443,36 +477,58 @@ def load_PyQt4_Qt(finder, module):
        foolish way of doing things but perhaps there is some hidden advantage
        to this technique over pure Python; ignore the absence of some of
        the modules since not every installation includes all of them."""
-    finder.IncludeModule("PyQt4.QtCore")
-    finder.IncludeModule("PyQt4.QtGui")
-    for name in ("PyQt4._qt", "PyQt4.QtSvg", "PyQt4.Qsci", "PyQt4.QtAssistant",
-            "PyQt4.QtNetwork", "PyQt4.QtOpenGL", "PyQt4.QtScript",
-            "PyQt4.QtSql", "PyQt4.QtSvg", "PyQt4.QtTest", "PyQt4.QtXml"):
+    name, QtCore = _qt_implementation(module)
+    finder.IncludeModule("%s.QtCore" % name)
+    finder.IncludeModule("%s.QtGui" % name)
+    for mod in ("_qt", "QtSvg", "Qsci", "QtAssistant", "QtNetwork", "QtOpenGL",
+                "QtScript", "QtSql", "QtSvg", "QtTest", "QtXml"):
         try:
-            finder.IncludeModule(name)
+            finder.IncludeModule(name + '.' + mod)
         except ImportError:
             pass
 
+load_PyQt5_Qt = load_PyQt4_Qt
 
 def load_PyQt4_uic(finder, module):
     """The uic module makes use of "plugins" that need to be read directly and
        cannot be frozen; the PyQt4.QtWebKit and PyQt4.QtNetwork modules are
        also implicity loaded."""
+    name, QtCore = _qt_implementation(module)
     dir = os.path.join(module.path[0], "widget-plugins")
-    finder.IncludeFiles(dir, "PyQt4.uic.widget-plugins")
-    finder.IncludeModule("PyQt4.QtNetwork")
-    finder.IncludeModule("PyQt4.QtWebKit")
+    finder.IncludeFiles(dir, "%s.uic.widget-plugins" % name)
+    finder.IncludeModule("%s.QtNetwork" % name)
+    finder.IncludeModule("%s.QtWebKit" % name)
+
+load_PyQt5_uic = load_PyQt4_uic
+
+def _QtGui(finder, module, version_str):
+    name, QtCore = _qt_implementation(module)
+    finder.IncludeModule("%s.QtCore" % name)
+    copy_qt_plugins("imageformats", finder, QtCore)
+    if version_str >= '5':
+        # On Qt5, we need the platform plugins. For simplicity, we just copy any
+        # that are installed.
+        copy_qt_plugins("platforms", finder, QtCore)
 
 def load_PyQt4_QtGui(finder, module):
     """There is a chance that GUI will use some image formats
     add the image format plugins
     """
-    from PyQt4.QtCore import QCoreApplication
-    dir_app = QCoreApplication(sys.argv)
-    dir_plugin = dir_app.libraryPaths()
-    #dir0 = os.path.dirname(module.file)
-    dir = os.path.join(dir_plugin[0], "imageformats")
-    finder.IncludeFiles(dir, "imageformats")
+    name, QtCore = _qt_implementation(module)
+    _QtGui(finder, module, QtCore.QT_VERSION_STR)
+
+load_PyQt5_QtGui = load_PyQt4_QtGui
+
+def load_PySide_QtGui(finder, module):
+    """There is a chance that GUI will use some image formats
+    add the image format plugins
+    """
+    from PySide import QtCore
+    # Pyside.__version* is PySide version, PySide.QtCore.__version* is Qt version
+    _QtGui(finder, module, QtCore.__version__)
+
+def load_PyQt5_QtWidgets(finder, module):
+    finder.IncludeModule('PyQt5.QtGui')
 
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
@@ -598,6 +654,16 @@ def load_win32file(finder, module):
     """the win32api module implicitly loads the pywintypes module; make sure
        this happens."""
     finder.IncludeModule("pywintypes")
+
+
+def load_wx_lib_pubsub_core(finder, module):
+    """the wx.lib.pubsub.core module modifies the search path which cannot
+       be done in a frozen application in the same way; modify the module
+       search path here instead so that the right modules are found; note
+       that this only works if the import of wx.lib.pubsub.setupkwargs
+       occurs first."""
+    dirName = os.path.dirname(module.file)
+    module.path.insert(0, os.path.join(dirName, "kwargs"))
 
 
 def load_Xlib_display(finder, module):
