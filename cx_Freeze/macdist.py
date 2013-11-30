@@ -146,9 +146,18 @@ class bdist_mac(Command):
 
                 path, name = os.path.split(referencedFile)
 
+                #some referenced files have not previously been copied to the
+                #executable directory - the assumption is that you don't need to copy
+                #anything fro /usr or /System, just from folders like /opt
+                #this fix should probably be elsewhere though
+                if name not in files and  not path.startswith('/usr') and not path.startswith('/System'):
+                    print(referencedFile)
+                    self.copy_file(referencedFile, os.path.join(self.binDir, name))
+                    files.append(name)
+
                 # see if we provide the referenced file;
                 # if so, change the reference
-                if name in files or path.startswith("/opt"):
+                if name in files:
                     newReference = '@executable_path/' + name
                     subprocess.call(('install_name_tool', '-change',
                             referencedFile, newReference, filePath))
