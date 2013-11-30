@@ -111,12 +111,14 @@ class bdist_mac(Command):
             with references to other files in that dir. If so, make those
             references relative. The appropriate commands are applied to all
             files; they will just fail for files on which they do not apply."""
-        files = os.listdir(self.binDir)
+        files = []
+        for root, dirs, dir_files in os.walk(self.binDir):
+            files.extend([os.path.join(root, f).replace(self.binDir+"/","") for f in dir_files])
         for fileName in files:
 
             # install_name_tool can't handle zip files or directories
             filePath = os.path.join(self.binDir, fileName)
-            if fileName.endswith('.zip') or os.path.isdir(filePath):
+            if fileName.endswith('.zip'):
                 continue
 
             # ensure write permissions
@@ -146,7 +148,7 @@ class bdist_mac(Command):
 
                 # see if we provide the referenced file;
                 # if so, change the reference
-                if name in files:
+                if name in files or path.startswith("/opt"):
                     newReference = '@executable_path/' + name
                     subprocess.call(('install_name_tool', '-change',
                             referencedFile, newReference, filePath))
