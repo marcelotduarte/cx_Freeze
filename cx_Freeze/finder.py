@@ -422,8 +422,8 @@ class ModuleFinder(object):
                 if topLevelModule.path:
                     searchValue = os.path.dirname(searchValue)
                 if searchValue:
-                    searchValue = searchValue + os.pathsep
-            elif not origFileName.startswith(searchValue):
+                    searchValue = searchValue + os.path.sep
+            if not origFileName.startswith(searchValue):
                 continue
             newFileName = replaceValue + origFileName[len(searchValue):]
             break
