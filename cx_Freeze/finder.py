@@ -29,6 +29,11 @@ STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 __all__ = [ "Module", "ModuleFinder" ]
 
 try:
+    bytes   # Python >= 2.6
+except NameError:
+    bytes = str
+
+try:
     isidentifier = str.isidentifier  # Built in method in Python 3
 except AttributeError:
     # Check with regex for Python 2
@@ -367,17 +372,18 @@ class ModuleFinder(object):
         
         elif type == imp.PY_COMPILED:
             # Load Python bytecode
-            if isinstance(fp, str):
+            if isinstance(fp, bytes):
                 magic = fp[:4]
             else:
                 magic = fp.read(4)
             if magic != imp.get_magic():
                 raise ImportError("Bad magic number in %s" % path)
-            if isinstance(fp, str):
-                module.code = marshal.loads(fp[8:])
+            skip_bytes = 8 if (sys.version_info[:2] >= (3,3)) else 4
+            if isinstance(fp, bytes):
+                module.code = marshal.loads(fp[skip_bytes+4:])
                 module.inZipFile = True
             else:
-                fp.read(4)
+                fp.read(skip_bytes)
                 module.code = marshal.load(fp)
         
         # If there's a custom hook for this module, run it.
