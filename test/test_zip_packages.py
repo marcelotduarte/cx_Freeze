@@ -34,5 +34,4 @@ def test_ZipModulesCache():
         assert submod is not None
         assert submod[2][2] == imp.PY_COMPILED
     finally:
-        pass
-#        os.unlink(egg)
+        os.unlink(egg)
