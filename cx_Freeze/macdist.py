@@ -6,7 +6,7 @@ import plistlib
 import stat
 import subprocess
 
-from cx_Freeze.utils import normalize_to_list
+from cx_Freeze.common import normalize_to_list
 
 __all__ = [ "bdist_dmg", "bdist_mac" ]
 
