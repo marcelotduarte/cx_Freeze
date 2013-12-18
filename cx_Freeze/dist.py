@@ -12,7 +12,7 @@ import os
 import sys
 
 import cx_Freeze
-from cx_Freeze.utils import normalize_to_list
+from cx_Freeze.common import normalize_to_list
 
 __all__ = [ "bdist_rpm", "build", "build_exe", "install", "install_exe",
             "setup" ]
