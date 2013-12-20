@@ -274,6 +274,9 @@ bundle (a .app directory).
  .. versionchanged:: 4.3.2
     Added the ``iconfile`` and ``bundle_name`` options.
 
+ .. versionchanged:: 4.3.3
+    Added the ``include_frameworks`` and ``custom_info_plist`` options.
+
 bdist_dmg
 `````````
 

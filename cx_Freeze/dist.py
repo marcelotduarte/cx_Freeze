@@ -12,6 +12,7 @@ import os
 import sys
 
 import cx_Freeze
+from cx_Freeze.common import normalize_to_list
 
 __all__ = [ "bdist_rpm", "build", "build_exe", "install", "install_exe",
             "setup" ]
@@ -119,16 +120,6 @@ class build_exe(distutils.core.Command):
             "create_shared_zip", "append_script_to_exe",
             "include_in_shared_zip", "include_msvcr", "silent"]
 
-    def _normalize(self, attrName):
-        value = getattr(self, attrName)
-        if value is None:
-            normalizedValue = []
-        elif isinstance(value, str):
-            normalizedValue = value.split()
-        else:
-            normalizedValue = list(value)
-        setattr(self, attrName, normalizedValue)
-
     def add_to_path(self, name):
         sourceDir = getattr(self, name.lower())
         if sourceDir is not None:
@@ -196,13 +187,14 @@ class build_exe(distutils.core.Command):
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_exe'))
         self.optimize = int(self.optimize)
+
         if self.silent is None:
             self.silent = False
-        self._normalize("excludes")
-        self._normalize("includes")
-        self._normalize("packages")
-        self._normalize("namespace_packages")
-        self._normalize("constants")
+
+        # Make sure all options of multiple values are lists
+        for option in ('excludes', 'includes', 'packages',
+                       'namespace_packages', 'constants'):
+            setattr(self, option, normalize_to_list(getattr(self, option)))
 
     def run(self):
         metadata = self.distribution.metadata
