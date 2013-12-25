@@ -11,7 +11,7 @@ def normalize_to_list(value):
     if value is None:
         normalizedValue = []
     elif isinstance(value, str):
-        normalizedValue = value.split()
+        normalizedValue = value.split(',')
     else:
         normalizedValue = list(value)
 

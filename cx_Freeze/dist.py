@@ -158,13 +158,26 @@ class build_exe(distutils.core.Command):
                 command.get_ext_filename(moduleName))
 
     def initialize_options(self):
+        self.list_options = [
+            'excludes',
+            'includes',
+            'packages',
+            'namespace_packages',
+            'replace_paths',
+            'constants',
+            'include_files',
+            'zip_includes',
+            'bin_excludes',
+            'bin_includes',
+            'bin_path_includes',
+            'bin_path_excludes',
+        ]
+
+        for option in self.list_options:
+            setattr(self, option, [])
+
         self.optimize = 0
         self.build_exe = None
-        self.excludes = []
-        self.includes = []
-        self.packages = []
-        self.namespace_packages = []
-        self.replace_paths = []
         self.compressed = None
         self.copy_dependent_files = None
         self.init_script = None
@@ -175,13 +188,6 @@ class build_exe(distutils.core.Command):
         self.include_in_shared_zip = None
         self.include_msvcr = None
         self.icon = None
-        self.constants = []
-        self.include_files = []
-        self.zip_includes = []
-        self.bin_excludes = []
-        self.bin_includes = []
-        self.bin_path_includes = []
-        self.bin_path_excludes = []
         self.silent = None
 
     def finalize_options(self):
@@ -192,8 +198,7 @@ class build_exe(distutils.core.Command):
             self.silent = False
 
         # Make sure all options of multiple values are lists
-        for option in ('excludes', 'includes', 'packages',
-                       'namespace_packages', 'constants'):
+        for option in self.list_options:
             setattr(self, option, normalize_to_list(getattr(self, option)))
 
     def run(self):
