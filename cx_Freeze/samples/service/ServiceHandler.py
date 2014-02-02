@@ -28,7 +28,7 @@ class Handler(object):
     # stop the service
     def Run(self):
         self.stopRequestedEvent.wait()
-        self.stopEvent.Set()
+        self.stopEvent.set()
 
     # called when the service is being stopped by the service manager GUI
     def Stop(self):
