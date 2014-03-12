@@ -284,6 +284,16 @@ class Freezer(object):
                         dependentFile = dependentFile[:pos].strip()
                     if dependentFile:
                         dependentFiles.append(dependentFile)
+                if sys.platform == "darwin":
+                    # Make library paths absolute. This is needed to use
+                    # cx_Freeze on OSX in e.g. a conda-based distribution.
+                    # Note that with @rpath we just assume Python's lib dir,
+                    # which should work in most cases.
+                    dirname = os.path.dirname(path)
+                    dependentFiles = [p.replace('@loader_path', dirname)
+                                      for p in dependentFiles]
+                    dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
+                                      for p in dependentFiles]
             dependentFiles = self.dependentFiles[path] = \
                     [f for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
@@ -752,4 +762,3 @@ class VersionInfo(object):
         self.dll = dll
         self.debug = debug
         self.verbose = verbose
-
