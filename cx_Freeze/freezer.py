@@ -326,8 +326,6 @@ class Freezer(object):
                 name = "Console"
             else:
                 name = "ConsoleKeepPath"
-            if sys.version_info[0] >= 3:
-                name += "3"
         argsSource.initScript = self._GetFileName("initscripts", name, ".py")
         if argsSource.initScript is None:
             raise ConfigError("no initscript named %s", name)
