@@ -514,9 +514,7 @@ class Freezer(object):
             modules = [initModule, scriptModule]
             self.excludeModules[initModule.name] = None
             self.excludeModules[scriptModule.name] = None
-        itemsToSort = [(m.name, m) for m in modules]
-        itemsToSort.sort()
-        modules = [m for n, m in itemsToSort]
+        modules.sort(key = lambda m: m.name)
         if not self.silent:
             self._PrintReport(fileName, modules)
         if scriptModule is None:
