@@ -12,6 +12,7 @@ import os
 import sys
 
 import cx_Freeze
+from cx_Freeze.common import normalize_to_list
 
 __all__ = [ "bdist_rpm", "build", "build_exe", "install", "install_exe",
             "setup" ]
@@ -119,16 +120,6 @@ class build_exe(distutils.core.Command):
             "create_shared_zip", "append_script_to_exe",
             "include_in_shared_zip", "include_msvcr", "silent"]
 
-    def _normalize(self, attrName):
-        value = getattr(self, attrName)
-        if value is None:
-            normalizedValue = []
-        elif isinstance(value, str):
-            normalizedValue = value.split()
-        else:
-            normalizedValue = list(value)
-        setattr(self, attrName, normalizedValue)
-
     def add_to_path(self, name):
         sourceDir = getattr(self, name.lower())
         if sourceDir is not None:
@@ -167,13 +158,26 @@ class build_exe(distutils.core.Command):
                 command.get_ext_filename(moduleName))
 
     def initialize_options(self):
+        self.list_options = [
+            'excludes',
+            'includes',
+            'packages',
+            'namespace_packages',
+            'replace_paths',
+            'constants',
+            'include_files',
+            'zip_includes',
+            'bin_excludes',
+            'bin_includes',
+            'bin_path_includes',
+            'bin_path_excludes',
+        ]
+
+        for option in self.list_options:
+            setattr(self, option, [])
+
         self.optimize = 0
         self.build_exe = None
-        self.excludes = []
-        self.includes = []
-        self.packages = []
-        self.namespace_packages = []
-        self.replace_paths = []
         self.compressed = None
         self.copy_dependent_files = None
         self.init_script = None
@@ -184,25 +188,18 @@ class build_exe(distutils.core.Command):
         self.include_in_shared_zip = None
         self.include_msvcr = None
         self.icon = None
-        self.constants = []
-        self.include_files = []
-        self.zip_includes = []
-        self.bin_excludes = []
-        self.bin_includes = []
-        self.bin_path_includes = []
-        self.bin_path_excludes = []
         self.silent = None
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_exe'))
         self.optimize = int(self.optimize)
+
         if self.silent is None:
             self.silent = False
-        self._normalize("excludes")
-        self._normalize("includes")
-        self._normalize("packages")
-        self._normalize("namespace_packages")
-        self._normalize("constants")
+
+        # Make sure all options of multiple values are lists
+        for option in self.list_options:
+            setattr(self, option, normalize_to_list(getattr(self, option)))
 
     def run(self):
         metadata = self.distribution.metadata
