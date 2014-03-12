@@ -68,7 +68,16 @@ class ModuleFinder(object):
         """Add the base modules to the finder. These are the modules that
            Python imports itself during initialization and, if not found,
            can result in behavior that differs from running from source;
-           also include modules used within the bootstrap code"""
+           also include modules used within the bootstrap code.
+           
+           When cx_Freeze is built, these modules (and modules they load) are
+           embedded into the base executables (see the WriteSourceFile method).
+           
+           When freezing applications, these modules are added, but their
+           Module objects are then cleared by _ClearBaseModules, so they are not
+           copied into a zip file. They will be accessible to the application as
+           frozen modules.
+           """
         self.ExcludeModule("cStringIO")
         self.ExcludeModule("doctest")
         self.ExcludeModule("getopt")
