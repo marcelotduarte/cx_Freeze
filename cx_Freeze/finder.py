@@ -86,8 +86,10 @@ class ModuleFinder(object):
         if sys.version_info[:2] >= (3, 3):
             self.AddAlias("_frozen_importlib", "importlib._bootstrap")
             self.IncludeModule("_frozen_importlib")
+            # importlib itself must not be frozen
+            del self._modules["importlib"]
+            del self._modules["importlib._bootstrap"]
         if self.copyDependentFiles:
-            self.IncludeModule("imp")
             self.IncludeModule("os")
             self.IncludeModule("sys")
             self.IncludeModule("zlib")
@@ -382,6 +384,11 @@ class ModuleFinder(object):
             else:
                 fp.read(4)
                 module.code = marshal.load(fp)
+        
+        elif type == imp.C_EXTENSION and parent is not None:
+            # Our extension loader (see the freezer module) uses imp to load
+            # compiled extensions.
+            self.IncludeModule("imp")
         
         # If there's a custom hook for this module, run it.
         self._RunHook("load", module.name, module)
