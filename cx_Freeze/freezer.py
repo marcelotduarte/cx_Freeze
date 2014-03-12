@@ -159,10 +159,13 @@ class Freezer(object):
             scriptModule = None
         else:
             scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
+
         self._CopyFile(exe.base, exe.targetName, exe.copyDependentFiles,
                 includeMode = True)
         if self.includeMSVCR:
             self._IncludeMSVCR(exe)
+
+        # Copy icon
         if exe.icon is not None:
             if sys.platform == "win32":
                 import cx_Freeze.util
@@ -172,11 +175,15 @@ class Freezer(object):
                         os.path.basename(exe.icon))
                 self._CopyFile(exe.icon, targetName,
                         copyDependentFiles = False)
+
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe.targetName)
+
+        # Write the zip file of Python modules. If we're using a shared
+        # library.zip this is done by the Freeze method instead.
         if not exe.appendScriptToLibrary:
             if exe.appendScriptToExe:
                 fileName = exe.targetName
@@ -284,6 +291,16 @@ class Freezer(object):
                         dependentFile = dependentFile[:pos].strip()
                     if dependentFile:
                         dependentFiles.append(dependentFile)
+                if sys.platform == "darwin":
+                    # Make library paths absolute. This is needed to use
+                    # cx_Freeze on OSX in e.g. a conda-based distribution.
+                    # Note that with @rpath we just assume Python's lib dir,
+                    # which should work in most cases.
+                    dirname = os.path.dirname(path)
+                    dependentFiles = [p.replace('@loader_path', dirname)
+                                      for p in dependentFiles]
+                    dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
+                                      for p in dependentFiles]
             dependentFiles = self.dependentFiles[path] = \
                     [f for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
@@ -344,6 +361,7 @@ class Freezer(object):
                     targetName = os.path.join(targetDir, otherName)
                     self._CopyFile(sourceName, targetName)
                 break
+
         if msvcRuntimeDll is not None and msvcRuntimeDll == "msvcr90.dll":
             if struct.calcsize("P") == 4:
                 arch = "x86"
@@ -474,6 +492,7 @@ class Freezer(object):
             self.path = sys.path
         if self.appendScriptToLibrary:
             self._VerifyCanAppendToLibrary()
+
         for sourceFileName, targetFileName in \
                 self.includeFiles + self.zipIncludes:
             if not os.path.exists(sourceFileName):
@@ -481,6 +500,7 @@ class Freezer(object):
                         sourceFileName)
             if os.path.isabs(targetFileName):
                 raise ConfigError("target file/directory cannot be absolute")
+
         for executable in self.executables:
             executable._VerifyConfiguration(self)
 
@@ -503,16 +523,24 @@ class Freezer(object):
             self._PrintReport(fileName, modules)
         if scriptModule is None:
             finder.ReportMissingModules()
+
         targetDir = os.path.dirname(fileName)
         self._CreateDirectory(targetDir)
-        filesToCopy = []
+
+        # Prepare zip file. This can be library.zip, or named after the
+        # executable, or even appended to the executable.
         if os.path.exists(fileName):
             mode = "a"
         else:
             mode = "w"
         outFile = zipfile.PyZipFile(fileName, mode, zipfile.ZIP_DEFLATED)
+
+        filesToCopy = []
         for module in modules:
             if module.code is None and module.file is not None:
+                # Extension module: save a Python loader in the zip file, and
+                # copy the actual file to the build directory, because pyd/so
+                # libraries can't be loaded from a zip file.
                 fileName = os.path.basename(module.file)
                 baseFileName, ext = os.path.splitext(fileName)
                 if baseFileName != module.name and module.name != "zlib":
@@ -524,8 +552,10 @@ class Freezer(object):
                             generatedFileName, "exec")
                 target = os.path.join(targetDir, fileName)
                 filesToCopy.append((module, target))
+
             if module.code is None:
                 continue
+
             fileName = "/".join(module.name.split("."))
             if module.path:
                 fileName += "/__init__"
@@ -552,6 +582,7 @@ class Freezer(object):
 
         outFile.close()
 
+        # Copy Python extension modules from the list built above.
         origPath = os.environ["PATH"]
         for module, target in filesToCopy:
             try:
@@ -571,6 +602,7 @@ class Freezer(object):
         self.msvcRuntimeDir = None
         import cx_Freeze.util
         cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
+
         if self.createLibraryZip:
             self.finder = self._GetModuleFinder()
         for executable in self.executables:
@@ -580,8 +612,11 @@ class Freezer(object):
             self._RemoveFile(fileName)
             self._WriteModules(fileName, self.initScript, self.finder,
                     self.compress, self.copyDependentFiles)
+
         for sourceFileName, targetFileName in self.includeFiles:
             if os.path.isdir(sourceFileName):
+                # Copy directories by recursing into them.
+                # TODO: Can we use shutil.copytree here?
                 for path, dirNames, fileNames in os.walk(sourceFileName):
                     shortPath = path[len(sourceFileName) + 1:]
                     if ".svn" in dirNames:
@@ -597,6 +632,7 @@ class Freezer(object):
                         self._CopyFile(fullSourceName, fullTargetName,
                                 copyDependentFiles = False)
             else:
+                # Copy regular files.
                 fullName = os.path.join(self.targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
                         copyDependentFiles = False)
@@ -752,4 +788,3 @@ class VersionInfo(object):
         self.dll = dll
         self.debug = debug
         self.verbose = verbose
-

@@ -530,6 +530,13 @@ def load_PySide_QtGui(finder, module):
 def load_PyQt5_QtWidgets(finder, module):
     finder.IncludeModule('PyQt5.QtGui')
 
+def load_PyQt4_QtWebKit(finder, module):
+    name, QtCore = _qt_implementation(module)
+    finder.IncludeModule("%s.QtNetwork" % name)
+    finder.IncludeModule("%s.QtGui" % name)
+
+load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
+
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
        problems without the entire package and a number of other subpackages
