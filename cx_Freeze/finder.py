@@ -363,7 +363,10 @@ class ModuleFinder(object):
             codeString = fp.read()
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
-            module.code = compile(codeString, path, "exec")
+            try:
+                module.code = compile(codeString, path, "exec")
+            except SyntaxError:
+                raise ImportError("Invalid syntax in %s" % path)
         
         elif type == imp.PY_COMPILED:
             # Load Python bytecode
