@@ -4,6 +4,7 @@ except ImportError:
     import mock
 
 import os.path
+import sys
 
 test_dir = os.path.dirname(__file__)
 
@@ -32,3 +33,12 @@ def test_not_import_invalid_module_name():
     mf.path.insert(0, os.path.join(test_dir, 'samples'))
     mf.IncludePackage('testpkg1')  # Threw ImportError before the bug was fixed
         
+def test_invalid_syntax():
+    """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
+    mf = ModuleFinder(path=[os.path.join(test_dir, 'samples')]+sys.path)
+    try:
+        mf.IncludeModule('invalid_syntax')  # Threw SyntaxError before the bug was fixed
+    except ImportError:
+        pass
+    else:
+        assert False, "Expected ImportError, but no error was raised"
