@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Python.h>
+#include <locale.h>
 #include <windows.h>
 #include <Winsvc.h>
 #include <cx_Logging.h>
@@ -28,6 +29,23 @@
 #ifndef PATH_MAX
     #define PATH_MAX _MAX_PATH
 #endif
+
+// define methods for manipulating strings
+#if PY_MAJOR_VERSION >= 3
+    #define cxString_Format             PyUnicode_Format
+    #define cxString_FromFormat         PyUnicode_FromFormat
+    void cxString_Concat(PyObject ** str, PyObject * newPart)
+    {
+        PyObject * result = PyUnicode_Concat(*str, newPart);
+        Py_DECREF(*str);
+        *str = result;
+    }
+#else
+    #define cxString_Format             PyString_Format
+    #define cxString_FromFormat         PyString_FromFormat
+    #define cxString_Concat             PyString_Concat
+#endif
+
 
 //define structure for holding information about the service
 typedef struct {
@@ -259,17 +277,36 @@ static int Service_SetupPython(
 {
     PyObject *module, *serviceModule, *temp;
     PyThreadState *threadState;
+#if PY_MAJOR_VERSION >= 3
+    char fileName[MAXPATHLEN + 1];
+    wchar_t *wfileName;
+    wchar_t *wProgramName;
+    int size;
+#else
     char *fileName;
+#endif
 
     // initialize Python
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
     PyImport_FrozenModules = gFrozenModules;
+#if PY_MAJOR_VERSION >= 3
+    setlocale(LC_CTYPE, "");
+    Py_SetPythonHome(L"");
+    size = strlen(programName);
+    wProgramName = PyMem_Malloc(sizeof(wchar_t) * (size + 1));
+    mbstowcs(wProgramName, programName, size + 1);
+    Py_SetProgramName(wProgramName);
+    Py_Initialize();
+    wfileName = Py_GetProgramFullPath();
+    wcstombs(fileName, wfileName, MAXPATHLEN);
+#else
     Py_SetPythonHome("");
     Py_SetProgramName(programName);
     fileName = Py_GetProgramFullPath();
     Py_Initialize();
+#endif
 
     // initialize logging
     if (Service_StartLogging(fileName) < 0)
@@ -363,7 +400,14 @@ static int Service_Install(
     PyObject *fullName, *displayName, *formatArgs, *command, *commandArgs;
     char fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
+#if PY_MAJOR_VERSION >= 3
+    SERVICE_DESCRIPTIONW sd;
+    wchar_t wbuffer[ MAX_PATH + 10 ];
+    wchar_t * wtmp;
+    size_t size;
+#else
     SERVICE_DESCRIPTIONA sd;
+#endif
     udt_ServiceInfo info;
 
     // set up Python
@@ -374,15 +418,24 @@ static int Service_Install(
     formatArgs = Py_BuildValue("(s)", name);
     if (!formatArgs)
         return LogPythonException("cannot create service name tuple");
-    fullName = PyString_Format(info.nameFormat, formatArgs);
+    fullName = cxString_Format(info.nameFormat, formatArgs);
     if (!fullName)
         return LogPythonException("cannot create service name");
-    displayName = PyString_Format(info.displayNameFormat, formatArgs);
+    displayName = cxString_Format(info.displayNameFormat, formatArgs);
     if (!displayName)
         return LogPythonException("cannot create display name");
 
     // determine command to use for the service
-    command = PyString_FromFormat("\"%s\"", Py_GetProgramFullPath());
+#if PY_MAJOR_VERSION >= 3
+        wbuffer[0] = L'"';
+        wtmp = Py_GetProgramFullPath();
+        size = wcslen(wtmp);
+        memcpy(wbuffer + 1, wtmp, size * sizeof(wchar_t));
+        wbuffer[size + 1] = L'"';
+        command = PyUnicode_FromWideChar(wbuffer, size + 2);
+#else
+        command = cxString_FromFormat("\"%s\"", Py_GetProgramFullPath());
+#endif        
     if (!command)
         return LogPythonException("cannot create command");
     if (configFileName) {
@@ -390,10 +443,20 @@ static int Service_Install(
                 sizeof(fullPathConfigFileName)))
             return LogWin32Error(GetLastError(),
                     "cannot calculate absolute path of config file name");
-        commandArgs = PyString_FromFormat(" \"%s\"", fullPathConfigFileName);
+#if PY_MAJOR_VERSION >= 3
+        wbuffer[0] = L' ';
+        wbuffer[1] = L'"';
+        wtmp = Py_GetProgramFullPath();
+        size = wcslen(wtmp);
+        memcpy(wbuffer + 2, wtmp, size * sizeof(wchar_t));
+        wbuffer[size + 2] = L'"';
+        commandArgs = PyUnicode_FromWideChar(wbuffer, size + 3);
+#else
+        commandArgs = cxString_FromFormat(" \"%s\"", fullPathConfigFileName);
+#endif        
         if (!commandArgs)
             return LogPythonException("cannot create command args");
-        PyString_Concat(&command, commandArgs);
+        cxString_Concat(&command, commandArgs);
         if (!command)
             return LogPythonException("cannot append args to command");
     }
@@ -404,21 +467,37 @@ static int Service_Install(
         return LogWin32Error(GetLastError(), "cannot open service manager");
 
     // create service
-    serviceHandle = CreateService(managerHandle, PyString_AS_STRING(fullName),
+#if PY_MAJOR_VERSION >= 3
+    serviceHandle = CreateServiceW(managerHandle, PyUnicode_AS_UNICODE(fullName),
+            PyUnicode_AS_UNICODE(displayName), SERVICE_ALL_ACCESS,
+            SERVICE_WIN32_OWN_PROCESS, info.startType, SERVICE_ERROR_NORMAL,
+            PyUnicode_AS_UNICODE(command), NULL, NULL, NULL, NULL, NULL);
+#else
+    serviceHandle = CreateServiceA(managerHandle, PyString_AS_STRING(fullName),
             PyString_AS_STRING(displayName), SERVICE_ALL_ACCESS,
             SERVICE_WIN32_OWN_PROCESS, info.startType, SERVICE_ERROR_NORMAL,
             PyString_AS_STRING(command), NULL, NULL, NULL, NULL, NULL);
+#endif
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot create service");
 
     // set the description of the service, if one was specified
     if (info.description) {
-        sd.lpDescription = PyString_AS_STRING(info.description);
-        if (!ChangeServiceConfig2(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
+#if PY_MAJOR_VERSION >= 3
+        sd.lpDescription = PyUnicode_AS_UNICODE(info.description);
+        if (!ChangeServiceConfig2W(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
                     &sd))
             return LogWin32Error(GetLastError(),
                     "cannot set service description");
     }
+#else
+        sd.lpDescription = PyString_AS_STRING(info.description);
+        if (!ChangeServiceConfig2A(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
+                    &sd))
+            return LogWin32Error(GetLastError(),
+                    "cannot set service description");
+    }
+#endif
 
     // if the service is one that should be automatically started, start it
     if (info.startType == SERVICE_AUTO_START) {
@@ -455,7 +534,7 @@ static int Service_Uninstall(
     formatArgs = Py_BuildValue("(s)", name);
     if (!formatArgs)
         return LogPythonException("cannot create service name tuple");
-    fullName = PyString_Format(info.nameFormat, formatArgs);
+    fullName = cxString_Format(info.nameFormat, formatArgs);
     if (!fullName)
         return LogPythonException("cannot create service name");
 
@@ -465,8 +544,15 @@ static int Service_Uninstall(
         return LogWin32Error(GetLastError(), "cannot open service manager");
 
     // create service
-    serviceHandle = OpenService(managerHandle, PyString_AS_STRING(fullName),
+
+#if PY_MAJOR_VERSION >= 3
+    serviceHandle = OpenServiceW(managerHandle, PyUnicode_AS_UNICODE(fullName),
             SERVICE_ALL_ACCESS);
+#else
+    serviceHandle = OpenServiceA(managerHandle, PyString_AS_STRING(fullName),
+            SERVICE_ALL_ACCESS);
+#endif
+
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot open service");
     ControlService(serviceHandle, SERVICE_CONTROL_STOP, &statusInfo);

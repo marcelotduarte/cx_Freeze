@@ -167,7 +167,7 @@ if sys.platform == "win32":
             libraries = ["user32"])
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
-    if moduleInfo is not None and sys.version_info[:2] < (3, 0):
+    if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
         includeDirs.append(includeDir)
         service = Extension("cx_Freeze.bases.Win32Service",
