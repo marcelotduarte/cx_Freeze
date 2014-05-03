@@ -12,11 +12,38 @@ Development version
    support, please use cx_Freeze 4.2.3.
 
 
-Version 4.3.2
+Version 4.3.3
 -------------
 
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
+
+1) Added support for release version of 3.4.
+2) Added support for code signing in bdist_mac (PR #40)
+3) Added custom Info.plist and Framework suport to bdist_mac (PR #33)
+4) Added support for resolving dependencies on OS X where paths are relative
+   (PR #35)
+5) Added hook for QtWebKit module (PR #36)
+6) Added support for finding packages inside zip files (PR #38)
+7) Ensure that syntax errors in code do not prevent freezing from taking place
+   but simply ignore those modules (PR #44, PR #45)
+8) Init scripts now use code that works in both Python 2 and 3 (PR #42)
+9) Simplify service sample (includes PR #41)
+10) Fix documentation for bdist_dmg (PR #34)
+11) All options that accept multiple values are split on commas as documented
+    (PR #39)
+
+Bugs fixed:
+
+* Truncated names in Python tracebacks
+  (`Issue #52 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/52/truncated-names-in-python-tracebacks-of>`_)
+* install_name_tool doesn't set relative paths for files added using
+  include_files option 
+  (`Issue #31 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/31/install_name_tool-doesnt-set-relative>`_)
+
+
+Version 4.3.2
+-------------
 
 1) Added support for Python 3.4.
 2) Added hooks for PyQt4, PyQt5 and PySide to handle their plugins.
