@@ -18,7 +18,10 @@ Version 4.3.3
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
 
-1)  Added support for release version of 3.4.
+1)  Added support for release version of 3.4
+    (`PR #47 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/47>`_)
+    (`PR #48 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/48>`_)
+
 2)  Added support for code signing in bdist_mac
     (`PR #40 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/40>`_)
 3)  Added custom Info.plist and Framework suport to bdist_mac
