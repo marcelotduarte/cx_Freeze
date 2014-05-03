@@ -199,6 +199,10 @@ class ModuleFinder(object):
             self.IncludeModule("os")
             self.IncludeModule("sys")
             self.IncludeModule("zlib")
+        if sys.version_info[:2] >= (3, 4):
+            # We need this, because collections gets loaded (via traceback),
+            # and a partially frozen package causes problems.
+            self.IncludeModule("collections.abc")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
