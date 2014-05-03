@@ -24,10 +24,10 @@ options = {
 }
 
 executables = [
-    Executable('test_matplotlib.py', base=base)
+    Executable('matplotlib_eg.py', base=base)
 ]
 
-setup(name='test_matplotlib',
+setup(name='matplotlib_eg',
       version='0.1',
       description='Sample matplotlib script',
       executables=executables,

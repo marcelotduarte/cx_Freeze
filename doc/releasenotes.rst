@@ -8,15 +8,51 @@ Release notes
 Development version
 -------------------
 
-.. note:: This version supports Python 2.4 and above. If you need Python 2.3
-   support, please use cx_Freeze 4.2.3.
+.. note:: This version supports Python 2.6 and above. If you need support for
+   an earlier version of Python, please use cx_Freeze 4.2.3.
 
 
-Version 4.3.2
+Version 4.3.3
 -------------
 
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
+
+1)  Added support for release version of 3.4.
+2)  Added support for code signing in bdist_mac
+    (`PR #40 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/40>`_)
+3)  Added custom Info.plist and Framework suport to bdist_mac
+    (`PR #33 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/33>`_)
+4)  Added support for resolving dependencies on OS X where paths are relative
+    (`PR #35 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/35>`_)
+5)  Added hook for QtWebKit module
+    (`PR #36 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/36>`_)
+6)  Added support for finding packages inside zip files
+    (`PR #38 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/38>`_)
+7)  Ensure that syntax errors in code do not prevent freezing from taking place
+    but simply ignore those modules
+    (`PR #44 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/44>`_)
+    (`PR #45 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/45>`_)
+8)  Init scripts now use code that works in both Python 2 and 3
+    (`PR #42 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/42>`_)
+9)  Simplify service sample
+    (`PR #41 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/41>`_)
+10) Fix documentation for bdist_dmg
+    (`PR #34 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/34>`_)
+11) All options that accept multiple values are split on commas as documented
+    (`PR #39 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/39>`_)
+
+Bugs fixed:
+
+* Truncated names in Python tracebacks
+  (`Issue #52 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/52/truncated-names-in-python-tracebacks-of>`_)
+* install_name_tool doesn't set relative paths for files added using
+  include_files option 
+  (`Issue #31 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/31/install_name_tool-doesnt-set-relative>`_)
+
+
+Version 4.3.2
+-------------
 
 1) Added support for Python 3.4.
 2) Added hooks for PyQt4, PyQt5 and PySide to handle their plugins.
