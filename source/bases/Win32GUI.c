@@ -255,7 +255,7 @@ int WINAPI WinMain(
 #if PY_MAJOR_VERSION >= 3
     char fileName[MAXPATHLEN + 1];
     wchar_t **wargv, *wfileName;
-    int i, size;
+    size_t i, size;
 #else
     const char *fileName;
 #endif
