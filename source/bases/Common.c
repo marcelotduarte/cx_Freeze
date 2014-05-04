@@ -21,6 +21,16 @@
             PyString_FromString(str)
 #endif
 
+// PyEval_EvalCode() takes different parameter types on Python 2 & 3.
+typedef
+#if PY_MAJOR_VERSION >= 3
+    PyObject
+#else
+    PyCodeObject
+#endif
+    EvalCodeType;
+
+
 // global variables (used for simplicity)
 static PyObject *g_FileName = NULL;
 static PyObject *g_DirName = NULL;
@@ -304,7 +314,7 @@ static int ExecuteScript(
     Py_DECREF(importer);
     if (!code)
         return FatalError("unable to locate initialization module");
-    temp = PyEval_EvalCode( (PyCodeObject*) code, dict, dict);
+    temp = PyEval_EvalCode( (EvalCodeType*) code, dict, dict);
     Py_DECREF(code);
     Py_DECREF(dict);
     if (!temp)
