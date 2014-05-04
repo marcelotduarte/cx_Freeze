@@ -53,11 +53,11 @@ int main(int argc, char **argv)
 #if PY_MAJOR_VERSION >= 3
     char fileName[MAXPATHLEN + 1];
     wchar_t **wargv, *wfileName;
-    int i, size;
+    size_t i, size;
 #else
     const char *fileName;
 #endif
-    int status;
+    size_t status;
 
     // initialize Python
 #ifndef CX_FREEZE_KEEP_PATH
