@@ -61,6 +61,35 @@ MSVCR_MANIFEST_TEMPLATE = """
 </assembly>
 """
 
+def process_path_specs(specs):
+    """Prepare paths specified as config.
+    
+    The input is a list of either strings, or 2-tuples (source, target).
+    Where single strings are supplied, the basenames are used as targets.
+    Where targets are given explicitly, they must not be absolute paths.
+    
+    Returns a list of 2-tuples, or throws ConfigError if something is wrong
+    in the input.
+    """
+    processedSpecs = []
+    for spec in specs:
+        if not isinstance(spec, (list, tuple)):
+            source = spec
+            target = None
+        elif len(spec) != 2:
+            raise ConfigError("path spec must be a list or tuple of "
+                    "length two")
+        else:
+            source, target = spec
+        source = os.path.normpath(source)
+        if not target:
+            target = os.path.basename(source)
+        elif os.path.isabs(target):
+            raise ConfigError("target path for include file may not be "
+                    "an absolute path")
+        processedSpecs.append((source, target))
+    return processedSpecs
+
 
 class Freezer(object):
 
@@ -100,9 +129,8 @@ class Freezer(object):
         self.binPathExcludes = [os.path.normcase(n) \
                 for n in self._GetDefaultBinPathExcludes() + binPathExcludes]
         self.icon = icon
-        self.includeFiles = list(includeFiles)
-        self.includeFiles = self._ProcessPathSpecs(includeFiles)
-        self.zipIncludes = self._ProcessPathSpecs(zipIncludes)
+        self.includeFiles = process_path_specs(includeFiles)
+        self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
         self.metadata = metadata
         self._VerifyConfiguration()
@@ -383,24 +411,7 @@ class Freezer(object):
             sys.stdout.write(" %-25s %s\n" % (module.name, module.file or ""))
         sys.stdout.write("\n")
 
-    def _ProcessPathSpecs(self, specs):
-        processedSpecs = []
-        for spec in specs:
-            if not isinstance(spec, (list, tuple)):
-                source = target = spec
-            elif len(spec) != 2:
-                raise ConfigError("path spec must be a list or tuple of "
-                        "length two")
-            else:
-                source, target = spec
-            source = os.path.normpath(source)
-            if not target:
-                dirName, target = os.path.split(source)
-            elif os.path.isabs(target):
-                raise ConfigError("target path for include file may not be "
-                        "an absolute path")
-            processedSpecs.append((source, target))
-        return processedSpecs
+    
 
     def _RemoveFile(self, path):
         if os.path.exists(path):
