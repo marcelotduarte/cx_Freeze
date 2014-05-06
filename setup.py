@@ -76,7 +76,13 @@ class build_ext(distutils.command.build_ext.build_ext):
         libraryDirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
-        if sys.platform != "win32":
+        if sys.platform == "win32":
+            compiler_type = self.compiler.compiler_type
+            if compiler_type == "msvc":
+                extraArgs.append("/MANIFEST")
+            elif compiler_type == "mingw32" and ext.name.find("Win32GUI") > 0:
+                extraArgs.append("-mwindows")
+        else:
             vars = distutils.sysconfig.get_config_vars()
             if not vars.get("Py_ENABLE_SHARED", 0):
                 libraryDirs.append(vars["LIBPL"])
@@ -92,9 +98,6 @@ class build_ext(distutils.command.build_ext.build_ext):
                 if vars["LOCALMODLIBS"]:
                     extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
-        elif ext.name.find("Win32GUI") > 0 \
-                and self.compiler.compiler_type == "mingw32":
-            extraArgs.append("-mwindows")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
                 library_dirs = libraryDirs,
