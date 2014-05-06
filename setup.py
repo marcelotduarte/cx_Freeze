@@ -92,9 +92,12 @@ class build_ext(distutils.command.build_ext.build_ext):
                 if vars["LOCALMODLIBS"]:
                     extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
-        elif ext.name.find("Win32GUI") > 0 \
-                and self.compiler.compiler_type == "mingw32":
-            extraArgs.append("-mwindows")
+        else:
+            if self.compiler.compiler_type == "msvc":
+                extraArgs.append("/MANIFEST")
+            elif ext.name.find("Win32GUI") > 0 \
+                    and self.compiler.compiler_type == "mingw32":
+                extraArgs.append("-mwindows")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
                 library_dirs = libraryDirs,
