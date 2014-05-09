@@ -60,11 +60,8 @@ class build_ext(distutils.command.build_ext.build_ext):
         if ext.name.find("bases") < 0:
             distutils.command.build_ext.build_ext.build_extension(self, ext)
             return
-        if sys.platform == "win32":
-            if sys.version_info[:2] < (2, 6):
-                ext.sources.append("source/bases/dummy.rc")
-            elif self.compiler.compiler_type == "mingw32":
-                ext.sources.append("source/bases/manifest.rc")
+        if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
+            ext.sources.append("source/bases/manifest.rc")
         os.environ["LD_RUN_PATH"] = "${ORIGIN}:${ORIGIN}/../lib"
         objects = self.compiler.compile(ext.sources,
                 output_dir = self.build_temp,
