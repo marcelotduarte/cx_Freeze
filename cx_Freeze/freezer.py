@@ -188,7 +188,7 @@ class Freezer(object):
         else:
             scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
 
-        self._CopyFile(exe.base, exe.targetName, exe.copyDependentFiles,
+        self._CopyFile(exe.base, exe.targetName, self.copyDependentFiles,
                 includeMode = True)
         if self.includeMSVCR:
             self._IncludeMSVCR(exe)
@@ -219,17 +219,17 @@ class Freezer(object):
                 baseFileName, ext = os.path.splitext(exe.targetName)
                 fileName = baseFileName + ".zip"
                 self._RemoveFile(fileName)
-            if not self.createLibraryZip and exe.copyDependentFiles:
+            if not self.createLibraryZip and self.copyDependentFiles:
                 scriptModule = None
             self._WriteModules(fileName, exe.initScript, finder, exe.compress,
-                    exe.copyDependentFiles, scriptModule)
+                    self.copyDependentFiles, scriptModule)
 
     def _GetBaseFileName(self, argsSource = None):
         if argsSource is None:
             argsSource = self
         name = argsSource.base
         if name is None:
-            if argsSource.copyDependentFiles:
+            if self.copyDependentFiles:
                 name = "Console"
             else:
                 name = "ConsoleKeepPath"
@@ -350,7 +350,7 @@ class Freezer(object):
             argsSource = self
         name = argsSource.initScript
         if name is None:
-            if argsSource.copyDependentFiles:
+            if self.copyDependentFiles:
                 name = "Console"
             else:
                 name = "ConsoleKeepPath"
@@ -363,7 +363,7 @@ class Freezer(object):
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
                 argsSource.path, argsSource.replacePaths,
-                argsSource.copyDependentFiles, compress = argsSource.compress)
+                self.copyDependentFiles, compress = argsSource.compress)
         for name in argsSource.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
@@ -659,7 +659,7 @@ class Executable(object):
     def __init__(self, script, initScript = None, base = None, path = None,
             targetDir = None, targetName = None, includes = None,
             excludes = None, packages = None, replacePaths = None,
-            compress = None, copyDependentFiles = None,
+            compress = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
             icon = None, namespacePackages = None, shortcutName = None,
             shortcutDir = None):
@@ -675,7 +675,6 @@ class Executable(object):
         self.namespacePackages = namespacePackages
         self.replacePaths = replacePaths
         self.compress = compress
-        self.copyDependentFiles = copyDependentFiles
         self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.icon = icon
@@ -702,8 +701,6 @@ class Executable(object):
             self.replacePaths = freezer.replacePaths
         if self.compress is None:
             self.compress = freezer.compress
-        if self.copyDependentFiles is None:
-            self.copyDependentFiles = freezer.copyDependentFiles
         if self.appendScriptToExe is None:
             self.appendScriptToExe = freezer.appendScriptToExe
         if self.appendScriptToLibrary is None:
