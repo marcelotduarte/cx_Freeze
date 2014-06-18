@@ -657,7 +657,7 @@ class ConfigError(Exception):
 class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
-            targetDir = None, targetName = None, includes = None,
+            targetName = None, includes = None,
             excludes = None, packages = None, replacePaths = None,
             compress = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
@@ -666,7 +666,6 @@ class Executable(object):
         self.script = script
         self.initScript = initScript
         self.base = base
-        self.targetDir = targetDir
         self.targetName = targetName
         self.includes = includes
         self.excludes = excludes
@@ -684,8 +683,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.targetDir is None:
-            self.targetDir = freezer.targetDir
         if self.includes is None:
             self.includes = freezer.includes
         if self.excludes is None:
@@ -723,7 +720,7 @@ class Executable(object):
             self.moduleName = "%s__main__" % os.path.normcase(name)
         else:
             self.moduleName = "__main__"
-        self.targetName = os.path.join(self.targetDir, self.targetName)
+        self.targetName = os.path.join(freezer.targetDir, self.targetName)
 
 
 class ConstantsModule(object):
