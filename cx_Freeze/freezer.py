@@ -97,7 +97,7 @@ class Freezer(object):
             excludes = [], packages = [], replacePaths = [], compress = None,
             optimizeFlag = 0, copyDependentFiles = None, initScript = None,
             base = None, path = None, createLibraryZip = None,
-            appendScriptToExe = None, appendScriptToLibrary = None,
+            appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
@@ -118,7 +118,6 @@ class Freezer(object):
         self.path = path
         self.createLibraryZip = createLibraryZip
         self.includeMSVCR = includeMSVCR
-        self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.targetDir = targetDir
         self.binIncludes = [os.path.normcase(n) \
@@ -213,12 +212,9 @@ class Freezer(object):
         # Write the zip file of Python modules. If we're using a shared
         # library.zip this is done by the Freeze method instead.
         if not exe.appendScriptToLibrary:
-            if exe.appendScriptToExe:
-                fileName = exe.targetName
-            else:
-                baseFileName, ext = os.path.splitext(exe.targetName)
-                fileName = baseFileName + ".zip"
-                self._RemoveFile(fileName)
+            baseFileName, ext = os.path.splitext(exe.targetName)
+            fileName = baseFileName + ".zip"
+            self._RemoveFile(fileName)
             if not self.createLibraryZip and self.copyDependentFiles:
                 scriptModule = None
             self._WriteModules(fileName, exe.initScript, finder, self.compress,
@@ -488,11 +484,8 @@ class Freezer(object):
             self.copyDependentFiles = True
         if self.createLibraryZip is None:
             self.createLibraryZip = True
-        if self.appendScriptToExe is None:
-            self.appendScriptToExe = False
         if self.appendScriptToLibrary is None:
-            self.appendScriptToLibrary = \
-                    self.createLibraryZip and not self.appendScriptToExe
+            self.appendScriptToLibrary = self.createLibraryZip
         if self.targetDir is None:
             self.targetDir = os.path.abspath("dist")
         self._GetInitScriptFileName()
@@ -658,14 +651,13 @@ class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
             targetName = None,
-            appendScriptToExe = None, appendScriptToLibrary = None,
+            appendScriptToLibrary = None,
             icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
         self.initScript = initScript
         self.base = base
         self.targetName = targetName
-        self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.icon = icon
         self.shortcutName = shortcutName
@@ -675,8 +667,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.appendScriptToExe is None:
-            self.appendScriptToExe = freezer.appendScriptToExe
         if self.appendScriptToLibrary is None:
             self.appendScriptToLibrary = freezer.appendScriptToLibrary
         if self.initScript is None:
