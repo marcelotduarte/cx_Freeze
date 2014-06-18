@@ -658,7 +658,6 @@ class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
             targetName = None,
-            compress = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
             icon = None, shortcutName = None,
             shortcutDir = None):
