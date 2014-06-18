@@ -221,7 +221,7 @@ class Freezer(object):
                 self._RemoveFile(fileName)
             if not self.createLibraryZip and self.copyDependentFiles:
                 scriptModule = None
-            self._WriteModules(fileName, exe.initScript, finder, exe.compress,
+            self._WriteModules(fileName, exe.initScript, finder, self.compress,
                     self.copyDependentFiles, scriptModule)
 
     def _GetBaseFileName(self, argsSource = None):
@@ -363,7 +363,7 @@ class Freezer(object):
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, self.excludes,
                 self.path, self.replacePaths,
-                self.copyDependentFiles, compress = argsSource.compress)
+                self.copyDependentFiles, compress = self.compress)
         for name in self.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
@@ -666,7 +666,6 @@ class Executable(object):
         self.initScript = initScript
         self.base = base
         self.targetName = targetName
-        self.compress = compress
         self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
         self.icon = icon
@@ -677,8 +676,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.compress is None:
-            self.compress = freezer.compress
         if self.appendScriptToExe is None:
             self.appendScriptToExe = freezer.appendScriptToExe
         if self.appendScriptToLibrary is None:
