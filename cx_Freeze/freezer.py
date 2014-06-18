@@ -361,15 +361,15 @@ class Freezer(object):
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
             argsSource = self
-        finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
+        finder = cx_Freeze.ModuleFinder(self.includeFiles, self.excludes,
                 self.path, argsSource.replacePaths,
                 self.copyDependentFiles, compress = argsSource.compress)
         for name in argsSource.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
-        for name in argsSource.includes:
+        for name in self.includes:
             finder.IncludeModule(name)
-        for name in argsSource.packages:
+        for name in self.packages:
             finder.IncludePackage(name)
         return finder
 
@@ -657,8 +657,8 @@ class ConfigError(Exception):
 class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
-            targetName = None, includes = None,
-            excludes = None, packages = None, replacePaths = None,
+            targetName = None,
+            replacePaths = None,
             compress = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
             icon = None, namespacePackages = None, shortcutName = None,
@@ -667,9 +667,6 @@ class Executable(object):
         self.initScript = initScript
         self.base = base
         self.targetName = targetName
-        self.includes = includes
-        self.excludes = excludes
-        self.packages = packages
         self.namespacePackages = namespacePackages
         self.replacePaths = replacePaths
         self.compress = compress
@@ -683,12 +680,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.includes is None:
-            self.includes = freezer.includes
-        if self.excludes is None:
-            self.excludes = freezer.excludes
-        if self.packages is None:
-            self.packages = freezer.packages
         if self.namespacePackages is None:
             self.namespacePackages = freezer.namespacePackages
         if self.replacePaths is None:
