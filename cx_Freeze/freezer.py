@@ -362,9 +362,9 @@ class Freezer(object):
         if argsSource is None:
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, self.excludes,
-                self.path, argsSource.replacePaths,
+                self.path, self.replacePaths,
                 self.copyDependentFiles, compress = argsSource.compress)
-        for name in argsSource.namespacePackages:
+        for name in self.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
         for name in self.includes:
@@ -658,17 +658,14 @@ class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
             targetName = None,
-            replacePaths = None,
             compress = None,
             appendScriptToExe = None, appendScriptToLibrary = None,
-            icon = None, namespacePackages = None, shortcutName = None,
+            icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
         self.initScript = initScript
         self.base = base
         self.targetName = targetName
-        self.namespacePackages = namespacePackages
-        self.replacePaths = replacePaths
         self.compress = compress
         self.appendScriptToExe = appendScriptToExe
         self.appendScriptToLibrary = appendScriptToLibrary
@@ -680,10 +677,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.namespacePackages is None:
-            self.namespacePackages = freezer.namespacePackages
-        if self.replacePaths is None:
-            self.replacePaths = freezer.replacePaths
         if self.compress is None:
             self.compress = freezer.compress
         if self.appendScriptToExe is None:
