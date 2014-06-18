@@ -362,7 +362,7 @@ class Freezer(object):
         if argsSource is None:
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, argsSource.excludes,
-                argsSource.path, argsSource.replacePaths,
+                self.path, argsSource.replacePaths,
                 self.copyDependentFiles, compress = argsSource.compress)
         for name in argsSource.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
@@ -656,7 +656,7 @@ class ConfigError(Exception):
 
 class Executable(object):
 
-    def __init__(self, script, initScript = None, base = None, path = None,
+    def __init__(self, script, initScript = None, base = None,
             targetDir = None, targetName = None, includes = None,
             excludes = None, packages = None, replacePaths = None,
             compress = None,
@@ -666,7 +666,6 @@ class Executable(object):
         self.script = script
         self.initScript = initScript
         self.base = base
-        self.path = path
         self.targetDir = targetDir
         self.targetName = targetName
         self.includes = includes
@@ -685,8 +684,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.path is None:
-            self.path = freezer.path
         if self.targetDir is None:
             self.targetDir = freezer.targetDir
         if self.includes is None:
