@@ -288,7 +288,12 @@ class Freezer(object):
                 os.environ["PATH"] = origPath + os.pathsep + \
                         os.pathsep.join(sys.path)
                 import cx_Freeze.util
-                dependentFiles = cx_Freeze.util.GetDependentFiles(path)
+                try:
+                    dependentFiles = cx_Freeze.util.GetDependentFiles(path)
+                except cx_Freeze.util.BindError:
+                    # Sometimes this gets called when path is not actually a library
+                    # See issue 88
+                    dependentFiles = []
                 os.environ["PATH"] = origPath
             else:
                 dependentFiles = []
