@@ -345,9 +345,9 @@ class ModuleFinder(object):
             module = self._InternalImportModule(name,
                     deferredImports, namespace = namespace)
 
-        # old style relative import (only possibility in Python 2.4 and prior)
-        # the name given is tried in all parents until a match is found and if
-        # no match is found, the global namespace is searched
+        # old style relative import (regular 'import foo' in Python 2)
+        # the name given is tried in the current package, and if
+        # no match is found, sys.path is searched for a top-level module/pockage
         elif relativeImportIndex < 0:
             parent = self._DetermineParent(caller)
             if parent is not None:
