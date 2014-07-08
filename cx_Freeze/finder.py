@@ -350,14 +350,14 @@ class ModuleFinder(object):
         # no match is found, the global namespace is searched
         elif relativeImportIndex < 0:
             parent = self._DetermineParent(caller)
-            while parent is not None:
+            if parent is not None:
                 fullName = "%s.%s" % (parent.name, name)
                 module = self._InternalImportModule(fullName,
                         deferredImports, namespace = namespace)
                 if module is not None:
                     parent.globalNames[name] = None
                     return module
-                parent = self._GetParentByName(parent.name)
+
             module = self._InternalImportModule(name,
                     deferredImports, namespace = namespace)
 
