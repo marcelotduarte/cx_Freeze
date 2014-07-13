@@ -81,3 +81,20 @@ Up to Python 2.5, and again from Python 3.3, the MSVCR DLLs are installed in a
 normal location, and cx_Freeze will copy them automatically. It's still up to
 you to ensure that the licenses of all the files you use allow you to distribute
 them as part of your application.
+
+Single-file executables
+-----------------------
+
+cx_Freeze does not support building a single file exe, where all of the
+libraries for your application are embedded in one executable file.
+
+You can use `IExpress <http://en.wikipedia.org/wiki/IExpress>`_ to compress the
+build directory from cx_Freeze into a self-extracting archive: an exe which
+unpacks your application into a temporary directory and runs it. IExpress is a
+utility that's included with Windows, intended for making installers, but it
+works equally well if you tell it to run the cx_Freeze-built exe after extraction.
+
+Alternatively, you can create a `self extracting archive using 7zip
+<http://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_. This is a bit more
+complex than using IExpress, but might provide more flexibility, and allows you
+to build your application using only open source tools.
