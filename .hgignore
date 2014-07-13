@@ -1,0 +1,9 @@
+syntax: glob
+doc/_build
+build/
+dist/
+cx_Freeze.egg-info/
+MANIFEST
+output.log
+__pycache__
+*.pyc
