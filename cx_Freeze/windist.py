@@ -353,9 +353,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     def initialize_options(self):
         distutils.command.bdist_msi.bdist_msi.initialize_options(self)
         self.upgrade_code = None
-        
         self.product_code = None
-        
         self.add_to_path = None
         self.initial_target_dir = None
         self.target_name = None
