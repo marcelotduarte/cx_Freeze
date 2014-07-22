@@ -379,10 +379,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         version = metadata.get_version()
         sversion = "%d.%d.%d" % \
                 distutils.version.StrictVersion(version).version
-        
         if self.product_code is None:
             self.product_code = msilib.gen_uuid()
-        
         self.db = msilib.init_database(self.target_name, msilib.schema,
                 self.distribution.metadata.name, self.product_code, sversion,
                 author)
