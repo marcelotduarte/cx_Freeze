@@ -72,10 +72,10 @@ static PyObject *g_ImageNames = NULL;
 //-----------------------------------------------------------------------------
 static BOOL __stdcall BindStatusRoutine(
     IMAGEHLP_STATUS_REASON reason,      // reason called
-    PSTR imageName,                     // name of image being examined
-    PSTR dllName,                       // name of DLL
-    ULONG virtualAddress,               // computed virtual address
-    ULONG parameter)                    // parameter (value depends on reason)
+    PCSTR imageName,                    // name of image being examined
+    PCSTR dllName,                      // name of DLL
+    ULONG_PTR virtualAddress,           // computed virtual address
+    ULONG_PTR parameter)                // parameter (value depends on reason)
 {
     char imagePath[MAX_PATH + 1];
     char fileName[MAX_PATH + 1];

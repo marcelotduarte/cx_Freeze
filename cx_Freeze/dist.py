@@ -89,8 +89,6 @@ class build_exe(distutils.core.Command):
          'copy all dependent files'),
         ('create-shared-zip', None,
          'create a shared zip file containing shared modules'),
-        ('append-script-to-exe', None,
-         'append the script module to the exe'),
         ('include-in-shared-zip', None,
          'include the script module in the shared zip file'),
         ('icon', None,
@@ -117,7 +115,7 @@ class build_exe(distutils.core.Command):
          'suppress all output except warnings')
     ]
     boolean_options = ["compressed", "copy_dependent_files",
-            "create_shared_zip", "append_script_to_exe",
+            "create_shared_zip",
             "include_in_shared_zip", "include_msvcr", "silent"]
 
     def add_to_path(self, name):
@@ -184,7 +182,6 @@ class build_exe(distutils.core.Command):
         self.base = None
         self.path = None
         self.create_shared_zip = None
-        self.append_script_to_exe = None
         self.include_in_shared_zip = None
         self.include_msvcr = None
         self.icon = None
@@ -217,7 +214,7 @@ class build_exe(distutils.core.Command):
                 [constantsModule], self.includes, self.excludes, self.packages,
                 self.replace_paths, self.compressed, self.optimize,
                 self.copy_dependent_files, self.init_script, self.base,
-                self.path, self.create_shared_zip, self.append_script_to_exe,
+                self.path, self.create_shared_zip,
                 self.include_in_shared_zip, self.build_exe, icon = self.icon,
                 includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,

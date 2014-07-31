@@ -60,11 +60,8 @@ class build_ext(distutils.command.build_ext.build_ext):
         if ext.name.find("bases") < 0:
             distutils.command.build_ext.build_ext.build_extension(self, ext)
             return
-        if sys.platform == "win32":
-            if sys.version_info[:2] < (2, 6):
-                ext.sources.append("source/bases/dummy.rc")
-            elif self.compiler.compiler_type == "mingw32":
-                ext.sources.append("source/bases/manifest.rc")
+        if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
+            ext.sources.append("source/bases/manifest.rc")
         os.environ["LD_RUN_PATH"] = "${ORIGIN}:${ORIGIN}/../lib"
         objects = self.compiler.compile(ext.sources,
                 output_dir = self.build_temp,
@@ -76,7 +73,13 @@ class build_ext(distutils.command.build_ext.build_ext):
         libraryDirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
-        if sys.platform != "win32":
+        if sys.platform == "win32":
+            compiler_type = self.compiler.compiler_type
+            if compiler_type == "msvc":
+                extraArgs.append("/MANIFEST")
+            elif compiler_type == "mingw32" and ext.name.find("Win32GUI") > 0:
+                extraArgs.append("-mwindows")
+        else:
             vars = distutils.sysconfig.get_config_vars()
             if not vars.get("Py_ENABLE_SHARED", 0):
                 libraryDirs.append(vars["LIBPL"])
@@ -92,9 +95,6 @@ class build_ext(distutils.command.build_ext.build_ext):
                 if vars["LOCALMODLIBS"]:
                     extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
-        elif ext.name.find("Win32GUI") > 0 \
-                and self.compiler.compiler_type == "mingw32":
-            extraArgs.append("-mwindows")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
                 library_dirs = libraryDirs,
@@ -183,10 +183,6 @@ for fileName in os.listdir(os.path.join("cx_Freeze", "initscripts")):
     name, ext = os.path.splitext(fileName)
     if ext != ".py":
         continue
-    if sys.version_info[0] == 3 and not name.endswith("3"):
-        continue
-    elif sys.version_info[0] == 2 and name.endswith("3"):
-        continue
     packageData.append("initscripts/%s" % fileName)
 for fileName in os.listdir(os.path.join("cx_Freeze", "samples")):
     dirName = os.path.join("cx_Freeze", "samples", fileName)
@@ -213,7 +209,7 @@ classifiers = [
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "4.3.2",
+        version = "4.3.3",
         cmdclass = commandClasses,
         options = options,
         ext_modules = extensions,

@@ -2,7 +2,7 @@
 
 # A simple setup script to create an executable using matplotlib.
 #
-# test_matplotlib.py is a very simple matplotlib application that demonstrates
+# matplotlib_eg.py is a very simple matplotlib application that demonstrates
 # its use.
 #
 # Run the build process by running the command 'python setup.py build'
@@ -24,10 +24,10 @@ options = {
 }
 
 executables = [
-    Executable('test_matplotlib.py', base=base)
+    Executable('matplotlib_eg.py', base=base)
 ]
 
-setup(name='test_matplotlib',
+setup(name='matplotlib_eg',
       version='0.1',
       description='Sample matplotlib script',
       executables=executables,

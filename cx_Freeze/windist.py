@@ -22,7 +22,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('initial-target-dir=', None, 'initial target directory'),
         ('target-name=', None, 'name of the file to create'),
         ('directories=', None, 'list of 3-tuples of directories to create'),
-        ('data=', None, 'dictionary of data indexed by table name')
+        ('data=', None, 'dictionary of data indexed by table name'),
+        ('product-code=', None, 'product code to use')
     ]
     x = y = 50
     width = 370
@@ -352,6 +353,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     def initialize_options(self):
         distutils.command.bdist_msi.bdist_msi.initialize_options(self)
         self.upgrade_code = None
+        self.product_code = None
         self.add_to_path = None
         self.initial_target_dir = None
         self.target_name = None
@@ -377,8 +379,10 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         version = metadata.get_version()
         sversion = "%d.%d.%d" % \
                 distutils.version.StrictVersion(version).version
+        if self.product_code is None:
+            self.product_code = msilib.gen_uuid()
         self.db = msilib.init_database(self.target_name, msilib.schema,
-                self.distribution.metadata.name, msilib.gen_uuid(), sversion,
+                self.distribution.metadata.name, self.product_code, sversion,
                 author)
         msilib.add_tables(self.db, msilib.sequence)
         self.add_properties()
@@ -390,4 +394,3 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if not self.keep_temp:
             distutils.dir_util.remove_tree(self.bdist_dir,
                     dry_run = self.dry_run)
-
