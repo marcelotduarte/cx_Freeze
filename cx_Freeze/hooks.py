@@ -537,6 +537,12 @@ def load_PyQt4_QtWebKit(finder, module):
 
 load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
 
+def load_reportlab(finder, module):
+    """the reportlab module loads a submodule rl_settings via exec so force
+       its inclusion here"""
+    finder.IncludeModule("reportlab.rl_settings")
+
+
 def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
        problems without the entire package and a number of other subpackages

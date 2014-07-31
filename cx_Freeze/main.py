@@ -180,7 +180,6 @@ def main():
             base = options.baseName,
             path = None,
             createLibraryZip = False,
-            appendScriptToExe = True,
             targetDir = options.targetDir,
             zipIncludes = options.zipIncludes,
             icon = options.icon,

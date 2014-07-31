@@ -84,7 +84,11 @@ class bdist_mac(Command):
         ('codesign-identity=', None, 'The identity of the key to be used to '
             'sign the app bundle.'),
         ('codesign-entitlements=', None, 'The path to an entitlements file '
-            'to use for your application\'s code signature.')
+            'to use for your application\'s code signature.'),
+        ('codesign-deep=', None, 'Boolean for whether to codesign using the ' \
+            '--deep option.'),
+        ('codesign-resource-rules', None, 'Plist file to be passed to ' \
+            'codesign\'s --resource-rules option.'),
     ]
 
     def initialize_options(self):
@@ -95,6 +99,8 @@ class bdist_mac(Command):
         self.include_frameworks = []
         self.codesign_identity = None
         self.codesign_entitlements = None
+        self.codesign_deep = None
+        self.codesign_resource_rules = None
 
     def finalize_options(self):
         self.include_frameworks = normalize_to_list(self.include_frameworks)
@@ -151,9 +157,9 @@ class bdist_mac(Command):
 
                 # find the actual referenced file name
                 referencedFile = reference.decode().strip().split()[0]
-
-                if referencedFile.startswith('@'):
-                    # the referencedFile is already a relative path
+                
+                if referencedFile.startswith('@executable_path'):
+                    # the referencedFile is already a relative path (to the executable)
                     continue
 
                 path, name = os.path.split(referencedFile)
@@ -273,6 +279,13 @@ class bdist_mac(Command):
             if self.codesign_entitlements:
                 signargs.append('--entitlements')
                 signargs.append(self.codesign_entitlements)
+
+            if self.codesign_deep:
+                signargs.insert(1, '--deep')
+
+            if self.codesign_resource_rules:
+                signargs.insert(1, '--resource-rules=' +
+                                self.codesign_resource_rules)
 
             signargs.append(self.bundleDir)
 
