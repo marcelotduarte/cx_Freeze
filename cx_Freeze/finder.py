@@ -137,8 +137,7 @@ class ZipModulesCache(object):
 class ModuleFinder(object):
 
     def __init__(self, includeFiles = None, excludes = [], path = None,
-            replacePaths = None, copyDependentFiles = True, bootstrap = False,
-            compress = True):
+            replacePaths = None, bootstrap = False, compress = True):
         self.includeFiles = includeFiles
         if includeFiles is None:
             self.includeFiles = []
@@ -146,7 +145,6 @@ class ModuleFinder(object):
         self.replacePaths = replacePaths
         if replacePaths is None:
             self.replacePaths = []
-        self.copyDependentFiles = copyDependentFiles
         self.compress = compress
         self.path = path or sys.path
         self.modules = []
@@ -195,10 +193,9 @@ class ModuleFinder(object):
             # importlib itself must not be frozen
             del self._modules["importlib"]
             del self._modules["importlib._bootstrap"]
-        if self.copyDependentFiles:
-            self.IncludeModule("os")
-            self.IncludeModule("sys")
-            self.IncludeModule("zlib")
+        self.IncludeModule("os")
+        self.IncludeModule("sys")
+        self.IncludeModule("zlib")
         if sys.version_info[:2] >= (3, 4):
             # We need this, because collections gets loaded (via traceback),
             # and a partially frozen package causes problems.
@@ -668,8 +665,7 @@ class ModuleFinder(object):
 
     def IncludeFiles(self, sourcePath, targetPath):
         """Include the files in the given directory in the target build."""
-        if self.copyDependentFiles:
-            self.includeFiles.append((sourcePath, targetPath))
+        self.includeFiles.append((sourcePath, targetPath))
 
     def IncludeModule(self, name, namespace = False):
         """Include the named module in the frozen executable."""

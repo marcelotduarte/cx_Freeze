@@ -373,9 +373,6 @@ constructor are as follows:
 | compress              | boolean value indicating if the module bytecode     |
 |                       | should be compressed or not                         |
 +-----------------------+-----------------------------------------------------+
-| copyDependentFiles    | boolean value indicating if dependent files should  |
-|                       | be copied to the target directory or not            |
-+-----------------------+-----------------------------------------------------+
 | appendScriptToExe     | boolean value indicating if the script module       |
 |                       | should be appended to the executable itself         |
 +-----------------------+-----------------------------------------------------+
