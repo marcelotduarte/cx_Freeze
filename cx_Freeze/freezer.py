@@ -95,9 +95,8 @@ class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = None,
-            optimizeFlag = 0, copyDependentFiles = None, initScript = None,
-            base = None, path = None, createLibraryZip = None,
-            appendScriptToLibrary = None,
+            optimizeFlag = 0, initScript = None, base = None, path = None,
+            createLibraryZip = None, appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
@@ -112,7 +111,6 @@ class Freezer(object):
         self.replacePaths = list(replacePaths)
         self.compress = compress
         self.optimizeFlag = optimizeFlag
-        self.copyDependentFiles = copyDependentFiles
         self.initScript = initScript
         self.base = base
         self.path = path
@@ -148,7 +146,7 @@ class Freezer(object):
                 product = self.metadata.name)
         stamp(fileName, versionInfo)
 
-    def _CopyFile(self, source, target, copyDependentFiles = False,
+    def _CopyFile(self, source, target, copyDependentFiles,
             includeMode = False):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
@@ -187,7 +185,7 @@ class Freezer(object):
         else:
             scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
 
-        self._CopyFile(exe.base, exe.targetName, self.copyDependentFiles,
+        self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
                 includeMode = True)
         if self.includeMSVCR:
             self._IncludeMSVCR(exe)
@@ -215,20 +213,15 @@ class Freezer(object):
             baseFileName, ext = os.path.splitext(exe.targetName)
             fileName = baseFileName + ".zip"
             self._RemoveFile(fileName)
-            if not self.createLibraryZip and self.copyDependentFiles:
+            if not self.createLibraryZip:
                 scriptModule = None
             self._WriteModules(fileName, exe.initScript, finder, self.compress,
-                    self.copyDependentFiles, scriptModule)
+                    scriptModule)
 
     def _GetBaseFileName(self, argsSource = None):
         if argsSource is None:
             argsSource = self
-        name = argsSource.base
-        if name is None:
-            if self.copyDependentFiles:
-                name = "Console"
-            else:
-                name = "ConsoleKeepPath"
+        name = argsSource.base or "Console"
         ext = ".exe" if sys.platform == "win32" else ""
         argsSource.base = self._GetFileName("bases", name, ext)
         if argsSource.base is None:
@@ -349,12 +342,7 @@ class Freezer(object):
     def _GetInitScriptFileName(self, argsSource = None):
         if argsSource is None:
             argsSource = self
-        name = argsSource.initScript
-        if name is None:
-            if self.copyDependentFiles:
-                name = "Console"
-            else:
-                name = "ConsoleKeepPath"
+        name = argsSource.initScript or "Console"
         argsSource.initScript = self._GetFileName("initscripts", name, ".py")
         if argsSource.initScript is None:
             raise ConfigError("no initscript named %s", name)
@@ -363,8 +351,7 @@ class Freezer(object):
         if argsSource is None:
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, self.excludes,
-                self.path, self.replacePaths,
-                self.copyDependentFiles, compress = self.compress)
+                self.path, self.replacePaths, compress = self.compress)
         for name in self.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
@@ -386,7 +373,8 @@ class Freezer(object):
                     if not os.path.exists(sourceName):
                         continue
                     targetName = os.path.join(targetDir, otherName)
-                    self._CopyFile(sourceName, targetName)
+                    self._CopyFile(sourceName, targetName,
+                            copyDependentFiles = False)
                 break
 
         if msvcRuntimeDll is not None and msvcRuntimeDll == "msvcr90.dll":
@@ -485,8 +473,6 @@ class Freezer(object):
     def _VerifyConfiguration(self):
         if self.compress is None:
             self.compress = True
-        if self.copyDependentFiles is None:
-            self.copyDependentFiles = True
         if self.createLibraryZip is None:
             self.createLibraryZip = True
         if self.appendScriptToLibrary is None:
@@ -512,7 +498,7 @@ class Freezer(object):
             executable._VerifyConfiguration(self)
 
     def _WriteModules(self, fileName, initScript, finder, compress,
-            copyDependentFiles, scriptModule = None):
+            scriptModule = None):
         initModule = finder.IncludeFile(initScript, "cx_Freeze__init__")
         if scriptModule is None:
             for module in self.constantsModules:
@@ -594,7 +580,7 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target, copyDependentFiles)
+                self._CopyFile(module.file, target, copyDependentFiles = True)
             finally:
                 os.environ["PATH"] = origPath
 
@@ -616,7 +602,7 @@ class Freezer(object):
             fileName = os.path.join(self.targetDir, "library.zip")
             self._RemoveFile(fileName)
             self._WriteModules(fileName, self.initScript, self.finder,
-                    self.compress, self.copyDependentFiles)
+                    self.compress)
 
         for sourceFileName, targetFileName in self.includeFiles:
             if os.path.isdir(sourceFileName):

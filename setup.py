@@ -158,9 +158,7 @@ fullDepends = depends + [baseModulesFileName]
 includeDirs = [baseModulesDir]
 console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
         depends = fullDepends, include_dirs = includeDirs)
-consoleKeepPath = Extension("cx_Freeze.bases.ConsoleKeepPath",
-        ["source/bases/ConsoleKeepPath.c"], depends = depends)
-extensions = [utilModule, console, consoleKeepPath]
+extensions = [utilModule, console]
 if sys.platform == "win32":
     scripts.append("cxfreeze-postinstall")
     options["bdist_msi"] = dict(install_script = "cxfreeze-postinstall")

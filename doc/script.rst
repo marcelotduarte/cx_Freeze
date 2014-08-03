@@ -62,14 +62,6 @@ Further customization can be done using the following options:
     the name of the file to create instead of the base
     name of the script and the extension of the base binary
 
-.. option:: --no-copy-deps
-
-    do not copy the dependent files (extensions, shared
-    libraries, etc.) to the target directory; this also
-    modifies the default init script to ConsoleKeepPath.py
-    and means that the target executable requires a Python
-    installation to execute properly
-
 .. option:: --default-path=DIRS
 
    list of paths separated by the standard path separator
