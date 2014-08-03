@@ -83,7 +83,9 @@ class build_ext(distutils.command.build_ext.build_ext):
             vars = distutils.sysconfig.get_config_vars()
             if not vars.get("Py_ENABLE_SHARED", 0):
                 libraryDirs.append(vars["LIBPL"])
-                libraries.append("python%s.%s" % sys.version_info[:2])
+                abiflags = getattr(sys, "abiflags", "")
+                libraries.append("python%s.%s%s" % \
+                        (sys.version_info[0], sys.version_info[1], abiflags))
                 if vars["LINKFORSHARED"] and sys.platform != "darwin":
                     extraArgs.extend(vars["LINKFORSHARED"].split())
                 if vars["LIBS"]:
