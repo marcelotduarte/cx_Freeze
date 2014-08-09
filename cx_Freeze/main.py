@@ -169,7 +169,6 @@ def main():
             initScript = options.initScript,
             base = options.baseName,
             path = None,
-            createLibraryZip = False,
             targetDir = options.targetDir,
             zipIncludes = options.zipIncludes,
             icon = options.icon,

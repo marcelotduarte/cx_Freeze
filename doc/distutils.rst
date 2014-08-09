@@ -125,14 +125,6 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | compressed (-c)       | create a compressed zip file                        |
 +-----------------------+-----------------------------------------------------+
-| copy_dependent_files  | copy all dependent files                            |
-+-----------------------+-----------------------------------------------------+
-| create_shared_zip     | create a shared zip file called library.zip which   |
-|                       | will contain all modules shared by all executables  |
-|                       | which are built                                     |
-+-----------------------+-----------------------------------------------------+
-| append_script_to_exe  | append the script module to the executable          |
-+-----------------------+-----------------------------------------------------+
 | include_in_shared_zip | include the script module in the shared zip file    |
 +-----------------------+-----------------------------------------------------+
 | icon                  | include the icon in the frozen executables on the   |
