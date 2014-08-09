@@ -85,10 +85,6 @@ class build_exe(distutils.core.Command):
          'name of base executable to use'),
         ('compressed', 'c',
          'create a compressed zipfile'),
-        ('copy-dependent-files', None,
-         'copy all dependent files'),
-        ('include-in-shared-zip', None,
-         'include the script module in the shared zip file'),
         ('icon', None,
          'include the icon along with the frozen executable(s)'),
         ('constants=', None,
@@ -112,8 +108,7 @@ class build_exe(distutils.core.Command):
         ('silent', 's',
          'suppress all output except warnings')
     ]
-    boolean_options = ["compressed", "include_in_shared_zip", "include_msvcr",
-            "silent"]
+    boolean_options = ["compressed", "include_msvcr", "silent"]
 
     def add_to_path(self, name):
         sourceDir = getattr(self, name.lower())
@@ -177,7 +172,6 @@ class build_exe(distutils.core.Command):
         self.init_script = None
         self.base = None
         self.path = None
-        self.include_in_shared_zip = None
         self.include_msvcr = None
         self.icon = None
         self.silent = None
@@ -208,8 +202,8 @@ class build_exe(distutils.core.Command):
         freezer = cx_Freeze.Freezer(self.distribution.executables,
                 [constantsModule], self.includes, self.excludes, self.packages,
                 self.replace_paths, self.compressed, self.optimize,
-                self.init_script, self.base, self.path,
-                self.include_in_shared_zip, self.build_exe, icon = self.icon,
+                self.init_script, self.base, self.path, self.build_exe,
+                icon = self.icon,
                 includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,
                 binIncludes = self.bin_includes,

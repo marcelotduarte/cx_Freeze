@@ -96,7 +96,6 @@ class Freezer(object):
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = None,
             optimizeFlag = 0, initScript = None, base = None, path = None,
-            appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
@@ -115,7 +114,6 @@ class Freezer(object):
         self.base = base
         self.path = path
         self.includeMSVCR = includeMSVCR
-        self.appendScriptToLibrary = appendScriptToLibrary
         self.targetDir = targetDir
         self.binIncludes = [os.path.normcase(n) \
                 for n in self._GetDefaultBinIncludes() + binIncludes]
@@ -202,15 +200,6 @@ class Freezer(object):
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe.targetName)
-
-        # Write the zip file of Python modules. If we're using a shared
-        # library.zip this is done by the Freeze method instead.
-        if not exe.appendScriptToLibrary:
-            baseFileName, ext = os.path.splitext(exe.targetName)
-            fileName = baseFileName + ".zip"
-            self._RemoveFile(fileName)
-            self._WriteModules(fileName, exe.initScript, finder, self.compress,
-                    scriptModule)
 
     def _GetBaseFileName(self, argsSource = None):
         if argsSource is None:
@@ -462,8 +451,6 @@ class Freezer(object):
     def _VerifyConfiguration(self):
         if self.compress is None:
             self.compress = True
-        if self.appendScriptToLibrary is None:
-            self.appendScriptToLibrary = True
         if self.targetDir is None:
             self.targetDir = os.path.abspath("dist")
         self._GetInitScriptFileName()
@@ -624,15 +611,12 @@ class ConfigError(Exception):
 class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
-            targetName = None,
-            appendScriptToLibrary = None,
-            icon = None, shortcutName = None,
+            targetName = None, icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
         self.initScript = initScript
         self.base = base
         self.targetName = targetName
-        self.appendScriptToLibrary = appendScriptToLibrary
         self.icon = icon
         self.shortcutName = shortcutName
         self.shortcutDir = shortcutDir
@@ -641,8 +625,6 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.appendScriptToLibrary is None:
-            self.appendScriptToLibrary = freezer.appendScriptToLibrary
         if self.initScript is None:
             self.initScript = freezer.initScript
         else:
@@ -657,11 +639,8 @@ class Executable(object):
             name, ext = os.path.splitext(os.path.basename(self.script))
             baseName, ext = os.path.splitext(self.base)
             self.targetName = name + ext
-        if self.appendScriptToLibrary:
-            name, ext = os.path.splitext(self.targetName)
-            self.moduleName = "%s__main__" % os.path.normcase(name)
-        else:
-            self.moduleName = "__main__"
+        name, ext = os.path.splitext(self.targetName)
+        self.moduleName = "%s__main__" % os.path.normcase(name)
         self.targetName = os.path.join(freezer.targetDir, self.targetName)
 
 
