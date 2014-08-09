@@ -87,8 +87,6 @@ class build_exe(distutils.core.Command):
          'create a compressed zipfile'),
         ('copy-dependent-files', None,
          'copy all dependent files'),
-        ('create-shared-zip', None,
-         'create a shared zip file containing shared modules'),
         ('include-in-shared-zip', None,
          'include the script module in the shared zip file'),
         ('icon', None,
@@ -114,8 +112,8 @@ class build_exe(distutils.core.Command):
         ('silent', 's',
          'suppress all output except warnings')
     ]
-    boolean_options = ["compressed", "create_shared_zip",
-            "include_in_shared_zip", "include_msvcr", "silent"]
+    boolean_options = ["compressed", "include_in_shared_zip", "include_msvcr",
+            "silent"]
 
     def add_to_path(self, name):
         sourceDir = getattr(self, name.lower())
@@ -179,7 +177,6 @@ class build_exe(distutils.core.Command):
         self.init_script = None
         self.base = None
         self.path = None
-        self.create_shared_zip = None
         self.include_in_shared_zip = None
         self.include_msvcr = None
         self.icon = None
@@ -211,7 +208,7 @@ class build_exe(distutils.core.Command):
         freezer = cx_Freeze.Freezer(self.distribution.executables,
                 [constantsModule], self.includes, self.excludes, self.packages,
                 self.replace_paths, self.compressed, self.optimize,
-                self.init_script, self.base, self.path, self.create_shared_zip,
+                self.init_script, self.base, self.path,
                 self.include_in_shared_zip, self.build_exe, icon = self.icon,
                 includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,

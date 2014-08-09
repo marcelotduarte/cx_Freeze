@@ -96,7 +96,7 @@ class Freezer(object):
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = None,
             optimizeFlag = 0, initScript = None, base = None, path = None,
-            createLibraryZip = None, appendScriptToLibrary = None,
+            appendScriptToLibrary = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
@@ -114,7 +114,6 @@ class Freezer(object):
         self.initScript = initScript
         self.base = base
         self.path = path
-        self.createLibraryZip = createLibraryZip
         self.includeMSVCR = includeMSVCR
         self.appendScriptToLibrary = appendScriptToLibrary
         self.targetDir = targetDir
@@ -176,10 +175,7 @@ class Freezer(object):
             os.makedirs(path)
 
     def _FreezeExecutable(self, exe):
-        if self.createLibraryZip:
-            finder = self.finder
-        else:
-            finder = self._GetModuleFinder(exe)
+        finder = self.finder
         if exe.script is None:
             scriptModule = None
         else:
@@ -213,8 +209,6 @@ class Freezer(object):
             baseFileName, ext = os.path.splitext(exe.targetName)
             fileName = baseFileName + ".zip"
             self._RemoveFile(fileName)
-            if not self.createLibraryZip:
-                scriptModule = None
             self._WriteModules(fileName, exe.initScript, finder, self.compress,
                     scriptModule)
 
@@ -465,26 +459,17 @@ class Freezer(object):
 
         return True
 
-    def _VerifyCanAppendToLibrary(self):
-        if not self.createLibraryZip:
-            raise ConfigError("script cannot be appended to library zip if "
-                    "one is not being created")
-
     def _VerifyConfiguration(self):
         if self.compress is None:
             self.compress = True
-        if self.createLibraryZip is None:
-            self.createLibraryZip = True
         if self.appendScriptToLibrary is None:
-            self.appendScriptToLibrary = self.createLibraryZip
+            self.appendScriptToLibrary = True
         if self.targetDir is None:
             self.targetDir = os.path.abspath("dist")
         self._GetInitScriptFileName()
         self._GetBaseFileName()
         if self.path is None:
             self.path = sys.path
-        if self.appendScriptToLibrary:
-            self._VerifyCanAppendToLibrary()
 
         for sourceFileName, targetFileName in \
                 self.includeFiles + self.zipIncludes:
@@ -594,15 +579,13 @@ class Freezer(object):
         import cx_Freeze.util
         cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
 
-        if self.createLibraryZip:
-            self.finder = self._GetModuleFinder()
+        self.finder = self._GetModuleFinder()
         for executable in self.executables:
             self._FreezeExecutable(executable)
-        if self.createLibraryZip:
-            fileName = os.path.join(self.targetDir, "library.zip")
-            self._RemoveFile(fileName)
-            self._WriteModules(fileName, self.initScript, self.finder,
-                    self.compress)
+        fileName = os.path.join(self.targetDir, "library.zip")
+        self._RemoveFile(fileName)
+        self._WriteModules(fileName, self.initScript, self.finder,
+                self.compress)
 
         for sourceFileName, targetFileName in self.includeFiles:
             if os.path.isdir(sourceFileName):
@@ -668,8 +651,6 @@ class Executable(object):
             self.base = freezer.base
         else:
             freezer._GetBaseFileName(self)
-        if self.appendScriptToLibrary:
-            freezer._VerifyCanAppendToLibrary()
         if self.icon is None:
             self.icon = freezer.icon
         if self.targetName is None:
