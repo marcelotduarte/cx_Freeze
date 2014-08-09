@@ -365,12 +365,6 @@ constructor are as follows:
 | compress              | boolean value indicating if the module bytecode     |
 |                       | should be compressed or not                         |
 +-----------------------+-----------------------------------------------------+
-| appendScriptToExe     | boolean value indicating if the script module       |
-|                       | should be appended to the executable itself         |
-+-----------------------+-----------------------------------------------------+
-| appendScriptToLibrary | boolean value indicating if the script module       |
-|                       | should be appended to the shared library zipfile    |
-+-----------------------+-----------------------------------------------------+
 | icon                  | name of icon which should be included in the        |
 |                       | executable itself on Windows or placed in the       |
 |                       | target directory for other platforms                |
