@@ -2,7 +2,7 @@
 Release notes
 =============
 
-4.x releases
+5.x releases
 ############
 
 Development version
