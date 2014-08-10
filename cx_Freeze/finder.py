@@ -171,9 +171,6 @@ class ModuleFinder(object):
         self.IncludePackage("encodings")
         if sys.version_info[0] >= 3:
             self.IncludeModule("io")
-#        if sys.version_info[:2] >= (3, 3):
-#            self.AddAlias("_frozen_importlib", "importlib._bootstrap")
-#            self.IncludeModule("_frozen_importlib")
         self.IncludeModule("os")
         self.IncludeModule("sys")
         self.IncludeModule("zlib")
