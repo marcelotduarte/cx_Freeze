@@ -1,8 +1,8 @@
-version = "4.3.3"
+version = "5.0"
 
 import sys
 from cx_Freeze.dist import *
-if sys.platform == "win32" and sys.version_info[:2] >= (2, 5):
+if sys.platform == "win32":
     from cx_Freeze.windist import *
 elif sys.platform == "darwin":
     from cx_Freeze.macdist import *
