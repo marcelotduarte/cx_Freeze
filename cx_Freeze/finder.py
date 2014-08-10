@@ -137,7 +137,7 @@ class ZipModulesCache(object):
 class ModuleFinder(object):
 
     def __init__(self, includeFiles = None, excludes = [], path = None,
-            replacePaths = None, bootstrap = False, compress = True):
+            replacePaths = None, compress = True):
         self.includeFiles = includeFiles
         if includeFiles is None:
             self.includeFiles = []
@@ -156,43 +156,24 @@ class ModuleFinder(object):
         cx_Freeze.hooks.initialize(self)
         initialExcludedModules = self.excludes.copy()
         self._AddBaseModules()
-        if not bootstrap:
-            self._ClearBaseModuleCode(initialExcludedModules)
 
     def _AddBaseModules(self):
         """Add the base modules to the finder. These are the modules that
            Python imports itself during initialization and, if not found,
            can result in behavior that differs from running from source;
            also include modules used within the bootstrap code.
-           
+
            When cx_Freeze is built, these modules (and modules they load) are
-           embedded into the base executables (see the WriteSourceFile method).
-           
-           When freezing applications, these modules are added, but their
-           Module objects are then cleared by _ClearBaseModules, so they are not
-           copied into a zip file. They will be accessible to the application as
-           frozen modules.
+           included in the startup zip file.
            """
-        self.ExcludeModule("cStringIO")
-        self.ExcludeModule("doctest")
-        self.ExcludeModule("getopt")
-        self.ExcludeModule("logging")
-        if sys.version_info[0] < 3:
-            # On Python 3, traceback -> linecache -> tokenize -> re, so
-            # we need to let it be loaded.
-            self.ExcludeModule("re")
-        self.ExcludeModule("subprocess")
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
         self.IncludePackage("encodings")
         if sys.version_info[0] >= 3:
             self.IncludeModule("io")
-        if sys.version_info[:2] >= (3, 3):
-            self.AddAlias("_frozen_importlib", "importlib._bootstrap")
-            self.IncludeModule("_frozen_importlib")
-            # importlib itself must not be frozen
-            del self._modules["importlib"]
-            del self._modules["importlib._bootstrap"]
+#        if sys.version_info[:2] >= (3, 3):
+#            self.AddAlias("_frozen_importlib", "importlib._bootstrap")
+#            self.IncludeModule("_frozen_importlib")
         self.IncludeModule("os")
         self.IncludeModule("sys")
         self.IncludeModule("zlib")
@@ -212,22 +193,6 @@ class ModuleFinder(object):
             if name in self._badModules:
                 del self._badModules[name]
         return module
-
-    def _ClearBaseModuleCode(self, initialExcludedModules):
-        """Clear the code for all of the base modules. This is done when not in
-           bootstrap mode so that the base modules are not included in the
-           zip file."""
-        for name in self.excludes:
-            if name in initialExcludedModules:
-                continue
-            del self._modules[name]
-        self.excludes = initialExcludedModules
-        for module in self._modules.values():
-            if module is None:
-                continue
-            if module.code is not None:
-                module.code = None
-                module.file = None
 
     def _DetermineParent(self, caller):
         """Determine the parent to use when searching packages."""
@@ -699,38 +664,6 @@ class ModuleFinder(object):
             sys.stdout.write("This is not necessarily a problem - the modules "
                              "may not be needed on this platform.\n")
             sys.stdout.write("\n")
-
-    def WriteSourceFile(self, fileName):
-        dirName = os.path.dirname(fileName)
-        if not os.path.isdir(dirName):
-            os.makedirs(dirName)
-        outfp = open(fileName, "w")
-        names = list(self._modules.keys())
-        names.sort()
-        modulesWritten = []
-        for name in names:
-            module = self._modules[name]
-            if module is None or module.code is None:
-                continue
-            mangledName = "__".join(name.split("."))
-            sys.stdout.write("adding base module named %s\n" % name)
-            code = marshal.dumps(module.code)
-            size = len(code)
-            if module.path:
-                size = -size
-            modulesWritten.append((name, mangledName, size))
-            outfp.write("unsigned char M_%s[] = {" % mangledName)
-            for i in range(0, len(code), 16):
-                outfp.write("\n\t")
-                for op in code[i:i + 16]:
-                    if not isinstance(op, int):
-                        op = ord(op)
-                    outfp.write("%d," % op)
-            outfp.write("\n};\n\n");
-        outfp.write("static struct _frozen gFrozenModules[] = {\n")
-        for name, mangledName, size in modulesWritten:
-            outfp.write('    {"%s", M_%s, %d},\n' % (name, mangledName, size))
-        outfp.write("    {0, 0, 0}\n};\n")
 
 
 class Module(object):

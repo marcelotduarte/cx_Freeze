@@ -487,16 +487,12 @@ class Freezer(object):
         if scriptModule is None:
             finder.ReportMissingModules()
 
-        targetDir = os.path.dirname(fileName)
+        targetDir = os.path.join(os.path.dirname(fileName),
+                "python%s.%s" % sys.version_info[:2])
         self._CreateDirectory(targetDir)
 
-        # Prepare zip file. This can be library.zip, or named after the
-        # executable, or even appended to the executable.
-        if os.path.exists(fileName):
-            mode = "a"
-        else:
-            mode = "w"
-        outFile = zipfile.PyZipFile(fileName, mode, zipfile.ZIP_DEFLATED)
+        # Prepare zip file
+        outFile = zipfile.PyZipFile(fileName, "w", zipfile.ZIP_DEFLATED)
 
         filesToCopy = []
         for module in modules:
@@ -569,7 +565,9 @@ class Freezer(object):
         self.finder = self._GetModuleFinder()
         for executable in self.executables:
             self._FreezeExecutable(executable)
-        fileName = os.path.join(self.targetDir, "library.zip")
+        libDir = os.path.basename(distutils.sysconfig.get_config_var("LIBDIR"))
+        fileName = os.path.join(self.targetDir, libDir,
+                "python%s%s.zip" % sys.version_info[:2])
         self._RemoveFile(fileName)
         self._WriteModules(fileName, self.initScript, self.finder,
                 self.compress)
