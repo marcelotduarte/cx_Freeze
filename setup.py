@@ -62,11 +62,13 @@ class build_ext(distutils.command.build_ext.build_ext):
             return
         if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
+        libDir = os.path.basename(distutils.sysconfig.get_config_var("LIBDIR"))
         os.environ["LD_RUN_PATH"] = "${ORIGIN}:${ORIGIN}/../lib"
         objects = self.compiler.compile(ext.sources,
                 output_dir = self.build_temp,
                 include_dirs = ext.include_dirs,
                 debug = self.debug,
+                macros = [("LIBDIR", '"%s"' % libDir)],
                 depends = ext.depends)
         fileName = os.path.splitext(self.get_ext_filename(ext.name))[0]
         fullName = os.path.join(self.build_lib, fileName)
@@ -133,13 +135,6 @@ commandClasses = dict(
 if sys.platform == "win32":
     commandClasses["bdist_msi"] = bdist_msi
 
-# generate C source for base frozen modules
-subDir = "temp.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
-baseModulesDir = os.path.join("build", subDir)
-baseModulesFileName = os.path.join(baseModulesDir, "BaseModules.c")
-finder = cx_Freeze.ModuleFinder(bootstrap = True)
-finder.WriteSourceFile(baseModulesFileName)
-
 # build utility module
 if sys.platform == "win32":
     libraries = ["imagehlp", "Shlwapi"]
@@ -154,27 +149,23 @@ scripts = ["cxfreeze", "cxfreeze-quickstart"]
 options = dict(bdist_rpm = dict(doc_files = docFiles),
         install = dict(optimize = 1))
 depends = ["source/bases/Common.c"]
-fullDepends = depends + [baseModulesFileName]
-includeDirs = [baseModulesDir]
 console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
-        depends = fullDepends, include_dirs = includeDirs)
+        depends = depends)
 extensions = [utilModule, console]
 if sys.platform == "win32":
     scripts.append("cxfreeze-postinstall")
     options["bdist_msi"] = dict(install_script = "cxfreeze-postinstall")
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
-            include_dirs = includeDirs, depends = fullDepends,
-            libraries = ["user32"])
+            depends = depends, libraries = ["user32"])
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
-        includeDirs.append(includeDir)
         service = Extension("cx_Freeze.bases.Win32Service",
-                ["source/bases/Win32Service.c"], depends = fullDepends,
+                ["source/bases/Win32Service.c"], depends = depends,
                 library_dirs = [libraryDir],
                 libraries = ["advapi32", "cx_Logging"],
-                include_dirs = includeDirs)
+                include_dirs = [includeDir])
         extensions.append(service)
 
 # define package data
