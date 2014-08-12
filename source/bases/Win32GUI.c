@@ -239,7 +239,6 @@ static int FatalScriptError()
 
 
 #include "Common.c"
-#include "BaseModules.c"
 
 
 //-----------------------------------------------------------------------------
@@ -252,52 +251,15 @@ int WINAPI WinMain(
     LPSTR commandLine,                  // command line
     int showFlag)                       // show flag
 {
-#if PY_MAJOR_VERSION >= 3
-    char fileName[MAXPATHLEN + 1];
-    wchar_t **wargv, *wfileName;
-    size_t i, size;
-#else
-    const char *fileName;
-#endif
-    int status;
+    int status = 0;
 
     // initialize Python
-    Py_NoSiteFlag = 1;
-    Py_FrozenFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    PyImport_FrozenModules = gFrozenModules;
-#if PY_MAJOR_VERSION >= 3
-    setlocale(LC_CTYPE, "");
-    Py_SetPythonHome(L"");
-    wargv = PyMem_Malloc(sizeof(wchar_t*) * __argc);
-    if (!wargv)
-        return 2;
-    for (i = 0; i < __argc; i++) {
-        size = strlen(__argv[i]);
-        wargv[i] = PyMem_Malloc(sizeof(wchar_t) * (size + 1));
-        if (!wargv[i])
-            return 2;
-        mbstowcs(wargv[i], __argv[i], size + 1);
-    }
-    Py_SetProgramName(wargv[0]);
-    wfileName = Py_GetProgramFullPath();
-    wcstombs(fileName, wfileName, MAXPATHLEN);
-    Py_Initialize();
-    PySys_SetArgv(__argc, wargv);
-#else
-    Py_SetPythonHome("");
-    Py_SetProgramName(__argv[0]);
-    fileName = Py_GetProgramFullPath();
-    Py_Initialize();
-    PySys_SetArgv(__argc, __argv);
-#endif
-
-    // do the work
-    status = 0;
-    if (ExecuteScript(fileName) < 0)
+    if (InitializePython(__argc, __argv) < 0)
         status = 1;
 
-    // terminate Python
+    // do the work
+    if (status == 0 && ExecuteScript() < 0)
+        status = 1;
     Py_Finalize();
     return status;
 }

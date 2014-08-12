@@ -487,8 +487,10 @@ class Freezer(object):
         if scriptModule is None:
             finder.ReportMissingModules()
 
-        targetDir = os.path.join(os.path.dirname(fileName),
-                "python%s.%s" % sys.version_info[:2])
+        targetDir = os.path.dirname(fileName)
+        if sys.platform != "win32":
+            targetDir = os.path.join(targetDir,
+                    "python%s.%s" % sys.version_info[:2])
         self._CreateDirectory(targetDir)
 
         # Prepare zip file
@@ -565,8 +567,11 @@ class Freezer(object):
         self.finder = self._GetModuleFinder()
         for executable in self.executables:
             self._FreezeExecutable(executable)
-        libDir = os.path.basename(distutils.sysconfig.get_config_var("LIBDIR"))
-        fileName = os.path.join(self.targetDir, libDir,
+        targetDir = self.targetDir
+        rawLibDir = distutils.sysconfig.get_config_var("LIBDIR")
+        if rawLibDir:
+            targetDir = os.path.join(targetDir, os.path.basename(rawLibDir))
+        fileName = os.path.join(targetDir,
                 "python%s%s.zip" % sys.version_info[:2])
         self._RemoveFile(fileName)
         self._WriteModules(fileName, self.initScript, self.finder,
@@ -582,7 +587,7 @@ class Freezer(object):
                         dirNames.remove(".svn")
                     if "CVS" in dirNames:
                         dirNames.remove("CVS")
-                    fullTargetDir = os.path.join(self.targetDir,
+                    fullTargetDir = os.path.join(targetDir,
                             targetFileName, shortPath)
                     self._CreateDirectory(fullTargetDir)
                     for fileName in fileNames:
@@ -592,7 +597,7 @@ class Freezer(object):
                                 copyDependentFiles = False)
             else:
                 # Copy regular files.
-                fullName = os.path.join(self.targetDir, targetFileName)
+                fullName = os.path.join(targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
                         copyDependentFiles = False)
 
