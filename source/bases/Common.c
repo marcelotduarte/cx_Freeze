@@ -127,7 +127,11 @@ static int SetExecutableName(
     *ptr = '\0';
 
     // get library directory
+#ifdef LIBDIR
     sprintf(g_LibDirName, "%s%c%s", g_ExecutableDirName, SEP, LIBDIR);
+#else
+    strcpy(g_LibDirName, g_ExecutableDirName);
+#endif
 
     // calculate zip file name
     sprintf(g_ZipFileName, "%s%cpython%d%d.zip", g_LibDirName, SEP,
@@ -146,7 +150,8 @@ static int InitializePython(int argc, char **argv)
 {
     wchar_t **wargv, *wExecutableName, *wExecutableDirName;
     char *origLocale;
-    size_t i, size;
+    size_t size;
+    int i;
 
     // determine executable name
     if (SetExecutableName(argv[0]) < 0)

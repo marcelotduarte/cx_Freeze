@@ -34,16 +34,9 @@
 #if PY_MAJOR_VERSION >= 3
     #define cxString_Format             PyUnicode_Format
     #define cxString_FromFormat         PyUnicode_FromFormat
-    void cxString_Concat(PyObject ** str, PyObject * newPart)
-    {
-        PyObject * result = PyUnicode_Concat(*str, newPart);
-        Py_DECREF(*str);
-        *str = result;
-    }
 #else
     #define cxString_Format             PyString_Format
     #define cxString_FromFormat         PyString_FromFormat
-    #define cxString_Concat             PyString_Concat
 #endif
 
 
@@ -85,7 +78,6 @@ static int FatalScriptError(void)
 }
 
 #include "Common.c"
-#include "BaseModules.c"
 
 //-----------------------------------------------------------------------------
 // Service_SetStatus()
@@ -229,8 +221,7 @@ static DWORD WINAPI Service_Control(
 // Service_StartLogging()
 //   Initialize logging for the service.
 //-----------------------------------------------------------------------------
-static int Service_StartLogging(
-    const char *fileName)		        // name of file for defaults
+static int Service_StartLogging(void)
 {
     char defaultLogFileName[PATH_MAX + 1], logFileName[PATH_MAX + 1];
     unsigned logLevel, maxFiles, maxFileSize;
@@ -238,14 +229,14 @@ static int Service_StartLogging(
     size_t size;
 
     // determine the default log file name and ini file name
-    ptr = strrchr(fileName, '.');
+    ptr = strrchr(g_ExecutableName, '.');
     if (ptr)
-       size = ptr - fileName;
-    else size = strlen(fileName);
-    strcpy(defaultLogFileName, fileName);
+       size = ptr - g_ExecutableName;
+    else size = strlen(g_ExecutableName);
+    strcpy(defaultLogFileName, g_ExecutableName);
     strcpy(&defaultLogFileName[size], ".log");
     if (strlen(gIniFileName) == 0) {
-        strcpy(gIniFileName, fileName);
+        strcpy(gIniFileName, g_ExecutableName);
         strcpy(&gIniFileName[size], ".ini");
     }
 
@@ -272,44 +263,13 @@ static int Service_StartLogging(
 //   Setup Python usage for the service.
 //-----------------------------------------------------------------------------
 static int Service_SetupPython(
-    char *programName,                  // name of the program (argv[0])
     udt_ServiceInfo *info)              // info about service (OUT)
 {
     PyObject *module, *serviceModule, *temp;
     PyThreadState *threadState;
-#if PY_MAJOR_VERSION >= 3
-    char fileName[MAXPATHLEN + 1];
-    wchar_t *wfileName;
-    wchar_t *wProgramName;
-    int size;
-#else
-    char *fileName;
-#endif
-
-    // initialize Python
-    Py_NoSiteFlag = 1;
-    Py_FrozenFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    PyImport_FrozenModules = gFrozenModules;
-#if PY_MAJOR_VERSION >= 3
-    setlocale(LC_CTYPE, "");
-    Py_SetPythonHome(L"");
-    size = strlen(programName);
-    wProgramName = PyMem_Malloc(sizeof(wchar_t) * (size + 1));
-    mbstowcs(wProgramName, programName, size + 1);
-    Py_SetProgramName(wProgramName);
-    Py_Initialize();
-    wfileName = Py_GetProgramFullPath();
-    wcstombs(fileName, wfileName, MAXPATHLEN);
-#else
-    Py_SetPythonHome("");
-    Py_SetProgramName(programName);
-    fileName = Py_GetProgramFullPath();
-    Py_Initialize();
-#endif
 
     // initialize logging
-    if (Service_StartLogging(fileName) < 0)
+    if (Service_StartLogging() < 0)
         return -1;
 
     // ensure threading is initialized and interpreter state saved
@@ -325,7 +285,7 @@ static int Service_SetupPython(
 
     // running base script
     LogMessage(LOG_LEVEL_DEBUG, "running base Python script");
-    if (ExecuteScript(fileName) < 0)
+    if (ExecuteScript() < 0)
         return -1;
 
     // acquire the __main__ module
@@ -345,8 +305,7 @@ static int Service_SetupPython(
         return LogPythonException("cannot locate service display name");
 
     // determine description to use for the service (optional)
-    info->description = PyObject_GetAttrString(module,
-            CX_SERVICE_DESCRIPTION);
+    info->description = PyObject_GetAttrString(module, CX_SERVICE_DESCRIPTION);
     if (!info->description)
         PyErr_Clear();
 
@@ -393,25 +352,21 @@ static int Service_SetupPython(
 //   Install the service with the given name.
 //-----------------------------------------------------------------------------
 static int Service_Install(
-    char *programName,                  // name of program being run
     char *name,                         // name of service
     char *configFileName)               // name of configuration file or NULL
 {
-    PyObject *fullName, *displayName, *formatArgs, *command, *commandArgs;
+    PyObject *fullName, *displayName, *formatArgs, *command;
     char fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
 #if PY_MAJOR_VERSION >= 3
     SERVICE_DESCRIPTIONW sd;
-    wchar_t wbuffer[ MAX_PATH + 10 ];
-    wchar_t * wtmp;
-    size_t size;
 #else
-    SERVICE_DESCRIPTIONA sd;
+    SERVICE_DESCRIPTION sd;
 #endif
     udt_ServiceInfo info;
 
     // set up Python
-    if (Service_SetupPython(programName, &info) < 0)
+    if (Service_SetupPython(&info) < 0)
         return -1;
 
     // determine name and display name to use for the service
@@ -426,40 +381,18 @@ static int Service_Install(
         return LogPythonException("cannot create display name");
 
     // determine command to use for the service
-#if PY_MAJOR_VERSION >= 3
-        wbuffer[0] = L'"';
-        wtmp = Py_GetProgramFullPath();
-        size = wcslen(wtmp);
-        memcpy(wbuffer + 1, wtmp, size * sizeof(wchar_t));
-        wbuffer[size + 1] = L'"';
-        command = PyUnicode_FromWideChar(wbuffer, size + 2);
-#else
-        command = cxString_FromFormat("\"%s\"", Py_GetProgramFullPath());
-#endif        
-    if (!command)
-        return LogPythonException("cannot create command");
-    if (configFileName) {
+    if (!configFileName) {
+        command = cxString_FromFormat("\"%s\"", g_ExecutableName);
+    } else {
         if (!_fullpath(fullPathConfigFileName, configFileName,
                 sizeof(fullPathConfigFileName)))
             return LogWin32Error(GetLastError(),
                     "cannot calculate absolute path of config file name");
-#if PY_MAJOR_VERSION >= 3
-        wbuffer[0] = L' ';
-        wbuffer[1] = L'"';
-        wtmp = Py_GetProgramFullPath();
-        size = wcslen(wtmp);
-        memcpy(wbuffer + 2, wtmp, size * sizeof(wchar_t));
-        wbuffer[size + 2] = L'"';
-        commandArgs = PyUnicode_FromWideChar(wbuffer, size + 3);
-#else
-        commandArgs = cxString_FromFormat(" \"%s\"", fullPathConfigFileName);
-#endif        
-        if (!commandArgs)
-            return LogPythonException("cannot create command args");
-        cxString_Concat(&command, commandArgs);
-        if (!command)
-            return LogPythonException("cannot append args to command");
+        command = cxString_FromFormat("\"%s\" \"%s\"", g_ExecutableName,
+                fullPathConfigFileName);
     }
+    if (!command)
+        return LogPythonException("cannot create command");
 
     // open up service control manager
     managerHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -468,10 +401,11 @@ static int Service_Install(
 
     // create service
 #if PY_MAJOR_VERSION >= 3
-    serviceHandle = CreateServiceW(managerHandle, PyUnicode_AS_UNICODE(fullName),
-            PyUnicode_AS_UNICODE(displayName), SERVICE_ALL_ACCESS,
-            SERVICE_WIN32_OWN_PROCESS, info.startType, SERVICE_ERROR_NORMAL,
-            PyUnicode_AS_UNICODE(command), NULL, NULL, NULL, NULL, NULL);
+    serviceHandle = CreateServiceW(managerHandle,
+            PyUnicode_AS_UNICODE(fullName), PyUnicode_AS_UNICODE(displayName),
+            SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, info.startType,
+            SERVICE_ERROR_NORMAL, PyUnicode_AS_UNICODE(command), NULL, NULL,
+            NULL, NULL, NULL);
 #else
     serviceHandle = CreateServiceA(managerHandle, PyString_AS_STRING(fullName),
             PyString_AS_STRING(displayName), SERVICE_ALL_ACCESS,
@@ -487,17 +421,14 @@ static int Service_Install(
         sd.lpDescription = PyUnicode_AS_UNICODE(info.description);
         if (!ChangeServiceConfig2W(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
                     &sd))
-            return LogWin32Error(GetLastError(),
-                    "cannot set service description");
-    }
 #else
         sd.lpDescription = PyString_AS_STRING(info.description);
         if (!ChangeServiceConfig2A(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
                     &sd))
+#endif
             return LogWin32Error(GetLastError(),
                     "cannot set service description");
     }
-#endif
 
     // if the service is one that should be automatically started, start it
     if (info.startType == SERVICE_AUTO_START) {
@@ -518,7 +449,6 @@ static int Service_Install(
 //   Uninstall the service with the given name.
 //-----------------------------------------------------------------------------
 static int Service_Uninstall(
-    char *programName,                  // name of program being run
     char *name)                         // name of service
 {
     SC_HANDLE managerHandle, serviceHandle;
@@ -527,7 +457,7 @@ static int Service_Uninstall(
     udt_ServiceInfo info;
 
     // set up Python
-    if (Service_SetupPython(programName, &info) < 0)
+    if (Service_SetupPython(&info) < 0)
         return -1;
 
     // determine name of the service
@@ -616,7 +546,7 @@ static void WINAPI Service_Main(
 {
     udt_ServiceInfo info;
 
-    if (Service_SetupPython(argv[0], &info) < 0)
+    if (Service_SetupPython(&info) < 0)
         return;
 
     // register the control function
@@ -663,6 +593,11 @@ int main(int argc, char **argv)
         { NULL, NULL }
     };
 
+    // initialize Python
+    if (InitializePython(argc, argv) < 0)
+        return 1;
+
+    // check for arguments and perform install/uninstall as requested
     gIniFileName[0] = '\0';
     if (argc > 1) {
         if (stricmp(argv[1], "--install") == 0) {
@@ -673,7 +608,7 @@ int main(int argc, char **argv)
             }
             if (argc > 3)
                 configFileName = argv[3];
-            if (Service_Install(argv[0], argv[2], configFileName) < 0) {
+            if (Service_Install(argv[2], configFileName) < 0) {
                 fprintf(stderr, "Service not installed. ");
                 fprintf(stderr, "See log file for details.");
                 return 1;
@@ -686,7 +621,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "%s --uninstall <NAME>", argv[0]);
                 return 1;
             }
-            if (Service_Uninstall(argv[0], argv[2]) < 0) {
+            if (Service_Uninstall(argv[2]) < 0) {
                 fprintf(stderr, "Service not installed. ");
                 fprintf(stderr, "See log file for details.");
                 return 1;
@@ -697,7 +632,7 @@ int main(int argc, char **argv)
         strcpy(gIniFileName, argv[1]);
     }
 
-
+    // run the service normally
     return StartServiceCtrlDispatcher(table);
 }
 
