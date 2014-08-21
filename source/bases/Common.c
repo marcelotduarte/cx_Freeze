@@ -78,6 +78,11 @@ static int SetExecutableName(
     struct stat statData;
     int found = 0;
 
+#ifdef MS_WINDOWS
+    if (!GetModuleFileName(NULL, g_ExecutableName, MAXPATHLEN + 1))
+        return FatalError("Unable to get executable name!");
+#else
+
     // check to see if path contains a separator
     if (strchr(argv0, SEP)) {
         strcpy(g_ExecutableName, argv0);
@@ -114,7 +119,6 @@ static int SetExecutableName(
             return FatalError("Unable to locate executable on PATH!");
     }
 
-#ifndef MS_WINDOWS
     if (FollowLinks() < 0)
         return -1;
 #endif
