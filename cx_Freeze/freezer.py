@@ -580,7 +580,7 @@ class Freezer(object):
         for sourceFileName, targetFileName in self.includeFiles:
             if os.path.isdir(sourceFileName):
                 # Copy directories by recursing into them.
-                # TODO: Can we use shutil.copytree here?
+                # Can't use shutil.copytree because we may need dependencies
                 for path, dirNames, fileNames in os.walk(sourceFileName):
                     shortPath = path[len(sourceFileName) + 1:]
                     if ".svn" in dirNames:
@@ -594,12 +594,12 @@ class Freezer(object):
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
-                                copyDependentFiles = False)
+                                copyDependentFiles = True)
             else:
                 # Copy regular files.
                 fullName = os.path.join(targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
-                        copyDependentFiles = False)
+                        copyDependentFiles = True)
 
 
 class ConfigError(Exception):
