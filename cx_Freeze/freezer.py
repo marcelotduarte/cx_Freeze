@@ -178,6 +178,8 @@ class Freezer(object):
             scriptModule = None
         else:
             scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
+        
+        finder.IncludeFile(exe.initScript, exe.initModuleName)
 
         self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
                 includeMode = True)
@@ -471,7 +473,6 @@ class Freezer(object):
 
     def _WriteModules(self, fileName, initScript, finder, compress,
             scriptModule = None):
-        initModule = finder.IncludeFile(initScript, "cx_Freeze__init__")
         if scriptModule is None:
             for module in self.constantsModules:
                 module.Create(finder)
@@ -644,6 +645,7 @@ class Executable(object):
             self.targetName = name + ext
         name, ext = os.path.splitext(self.targetName)
         self.moduleName = "%s__main__" % os.path.normcase(name)
+        self.initModuleName = "%s__init__" % os.path.normcase(name)
         self.targetName = os.path.join(freezer.targetDir, self.targetName)
 
 
