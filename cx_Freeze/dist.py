@@ -79,8 +79,6 @@ class build_exe(distutils.core.Command):
          'comma-separated list of paths to replace in included modules'),
         ('path=', None,
          'comma-separated list of paths to search'),
-        ('init-script=', 'i',
-         'name of script to use during initialization'),
         ('base=', None,
          'name of base executable to use'),
         ('compressed', 'c',
@@ -169,7 +167,6 @@ class build_exe(distutils.core.Command):
         self.optimize = 0
         self.build_exe = None
         self.compressed = None
-        self.init_script = None
         self.base = None
         self.path = None
         self.include_msvcr = None
@@ -202,7 +199,7 @@ class build_exe(distutils.core.Command):
         freezer = cx_Freeze.Freezer(self.distribution.executables,
                 [constantsModule], self.includes, self.excludes, self.packages,
                 self.replace_paths, self.compressed, self.optimize,
-                self.init_script, self.base, self.path, self.build_exe,
+                self.base, self.path, self.build_exe,
                 icon = self.icon,
                 includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,

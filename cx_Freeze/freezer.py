@@ -95,7 +95,7 @@ class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = None,
-            optimizeFlag = 0, initScript = None, base = None, path = None,
+            optimizeFlag = 0, base = None, path = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
@@ -110,7 +110,6 @@ class Freezer(object):
         self.replacePaths = list(replacePaths)
         self.compress = compress
         self.optimizeFlag = optimizeFlag
-        self.initScript = initScript
         self.base = base
         self.path = path
         self.includeMSVCR = includeMSVCR
@@ -324,12 +323,10 @@ class Freezer(object):
                 if name == checkName and ext == checkExt:
                     return os.path.join(fullDir, fileName)
 
-    def _GetInitScriptFileName(self, argsSource = None):
-        if argsSource is None:
-            argsSource = self
-        name = argsSource.initScript or "Console"
-        argsSource.initScript = self._GetFileName("initscripts", name, ".py")
-        if argsSource.initScript is None:
+    def _GetInitScriptFileName(self, executable):
+        name = executable.initScript or "Console"
+        executable.initScript = self._GetFileName("initscripts", name, ".py")
+        if executable.initScript is None:
             raise ConfigError("no initscript named %s", name)
 
     def _GetModuleFinder(self, argsSource = None):
@@ -455,7 +452,6 @@ class Freezer(object):
             self.compress = True
         if self.targetDir is None:
             self.targetDir = os.path.abspath("dist")
-        self._GetInitScriptFileName()
         self._GetBaseFileName()
         if self.path is None:
             self.path = sys.path
@@ -471,7 +467,7 @@ class Freezer(object):
         for executable in self.executables:
             executable._VerifyConfiguration(self)
 
-    def _WriteModules(self, fileName, initScript, finder, compress,
+    def _WriteModules(self, fileName, finder, compress,
             scriptModule = None):
         if scriptModule is None:
             for module in self.constantsModules:
@@ -575,8 +571,7 @@ class Freezer(object):
         fileName = os.path.join(targetDir,
                 "python%s%s.zip" % sys.version_info[:2])
         self._RemoveFile(fileName)
-        self._WriteModules(fileName, self.initScript, self.finder,
-                self.compress)
+        self._WriteModules(fileName, self.finder, self.compress)
 
         for sourceFileName, targetFileName in self.includeFiles:
             if os.path.isdir(sourceFileName):
@@ -614,7 +609,7 @@ class ConfigError(Exception):
 
 class Executable(object):
 
-    def __init__(self, script, initScript = None, base = None,
+    def __init__(self, script, initScript = 'Console', base = None,
             targetName = None, icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
@@ -629,10 +624,7 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        if self.initScript is None:
-            self.initScript = freezer.initScript
-        else:
-            freezer._GetInitScriptFileName(self)
+        freezer._GetInitScriptFileName(self)
         if self.base is None:
             self.base = freezer.base
         else:
