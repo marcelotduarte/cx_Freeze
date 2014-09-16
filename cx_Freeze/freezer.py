@@ -90,6 +90,23 @@ def process_path_specs(specs):
         processedSpecs.append((source, target))
     return processedSpecs
 
+def get_resource_file_path(dirName, name, ext):
+    """Return the path to a resource file shipped with cx_Freeze.
+    
+    This is used to find our base executables and initscripts when they are
+    just specified by name.
+    """
+    if os.path.isabs(name):
+        return name
+    name = os.path.normcase(name)
+    fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dirName)
+    if os.path.isdir(fullDir):
+        for fileName in os.listdir(fullDir):
+            checkName, checkExt = \
+                    os.path.splitext(os.path.normcase(fileName))
+            if name == checkName and ext == checkExt:
+                return os.path.join(fullDir, fileName)
+
 
 class Freezer(object):
 
@@ -201,12 +218,7 @@ class Freezer(object):
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe.targetName)
 
-    def _GetBaseFileName(self, executable):
-        name = executable.base or "Console"
-        ext = ".exe" if sys.platform == "win32" else ""
-        executable.base = self._GetFileName("bases", name, ext)
-        if executable.base is None:
-            raise ConfigError("no base named %s", name)
+    
 
     def _GetDefaultBinExcludes(self):
         """Return the file names of libraries that need not be included because
@@ -307,24 +319,6 @@ class Freezer(object):
             dependentFiles = self.dependentFiles[path] = \
                     [f for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
-
-    def _GetFileName(self, dirName, name, ext):
-        if os.path.isabs(name):
-            return name
-        name = os.path.normcase(name)
-        fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dirName)
-        if os.path.isdir(fullDir):
-            for fileName in os.listdir(fullDir):
-                checkName, checkExt = \
-                        os.path.splitext(os.path.normcase(fileName))
-                if name == checkName and ext == checkExt:
-                    return os.path.join(fullDir, fileName)
-
-    def _GetInitScriptFileName(self, executable):
-        name = executable.initScript or "Console"
-        executable.initScript = self._GetFileName("initscripts", name, ".py")
-        if executable.initScript is None:
-            raise ConfigError("no initscript named %s", name)
 
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
@@ -620,8 +614,8 @@ class Executable(object):
         return "<Executable script=%s>" % self.script
 
     def _VerifyConfiguration(self, freezer):
-        freezer._GetInitScriptFileName(self)
-        freezer._GetBaseFileName(self)
+        self._GetInitScriptFileName()
+        self._GetBaseFileName()
         if self.icon is None:
             self.icon = freezer.icon
         if self.targetName is None:
@@ -632,6 +626,19 @@ class Executable(object):
         self.moduleName = "%s__main__" % os.path.normcase(name)
         self.initModuleName = "%s__init__" % os.path.normcase(name)
         self.targetName = os.path.join(freezer.targetDir, self.targetName)
+
+    def _GetBaseFileName(self):
+        name = self.base
+        ext = ".exe" if sys.platform == "win32" else ""
+        self.base = get_resource_file_path("bases", name, ext)
+        if self.base is None:
+            raise ConfigError("no base named %s", name)
+
+    def _GetInitScriptFileName(self):
+        name = self.initScript
+        self.initScript = get_resource_file_path("initscripts", name, ".py")
+        if self.initScript is None:
+            raise ConfigError("no initscript named %s", name)
 
 
 class ConstantsModule(object):
