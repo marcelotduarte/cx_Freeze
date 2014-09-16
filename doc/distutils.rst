@@ -113,11 +113,6 @@ It can be further customized:
 | path                  | comma separated list of paths to search; the        |
 |                       | default value is sys.path                           |
 +-----------------------+-----------------------------------------------------+
-| init_script (-i)      | the name of the script to use during initialization |
-|                       | which, if given as a relative path, will be joined  |
-|                       | with the initscripts subdirectory of the cx_Freeze  |
-|                       | installation; the default value is "Console"        |
-+-----------------------+-----------------------------------------------------+
 | base                  | the name of the base executable to use which, if    |
 |                       | given as a relative path, will be joined with the   |
 |                       | bases subdirectory of the cx_Freeze installation;   |
