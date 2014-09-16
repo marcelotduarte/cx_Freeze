@@ -113,14 +113,7 @@ It can be further customized:
 | path                  | comma separated list of paths to search; the        |
 |                       | default value is sys.path                           |
 +-----------------------+-----------------------------------------------------+
-| base                  | the name of the base executable to use which, if    |
-|                       | given as a relative path, will be joined with the   |
-|                       | bases subdirectory of the cx_Freeze installation;   |
-|                       | the default value is "Console"                      |
-+-----------------------+-----------------------------------------------------+
 | compressed (-c)       | create a compressed zip file                        |
-+-----------------------+-----------------------------------------------------+
-| include_in_shared_zip | include the script module in the shared zip file    |
 +-----------------------+-----------------------------------------------------+
 | icon                  | include the icon in the frozen executables on the   |
 |                       | Windows platform and alongside the frozen           |
