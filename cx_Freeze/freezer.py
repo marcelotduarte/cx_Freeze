@@ -95,7 +95,7 @@ class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = None,
-            optimizeFlag = 0, base = None, path = None,
+            optimizeFlag = 0, path = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [], icon = None,
             includeFiles = [], zipIncludes = [], silent = False,
@@ -110,7 +110,6 @@ class Freezer(object):
         self.replacePaths = list(replacePaths)
         self.compress = compress
         self.optimizeFlag = optimizeFlag
-        self.base = base
         self.path = path
         self.includeMSVCR = includeMSVCR
         self.targetDir = targetDir
@@ -202,13 +201,11 @@ class Freezer(object):
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe.targetName)
 
-    def _GetBaseFileName(self, argsSource = None):
-        if argsSource is None:
-            argsSource = self
-        name = argsSource.base or "Console"
+    def _GetBaseFileName(self, executable):
+        name = executable.base or "Console"
         ext = ".exe" if sys.platform == "win32" else ""
-        argsSource.base = self._GetFileName("bases", name, ext)
-        if argsSource.base is None:
+        executable.base = self._GetFileName("bases", name, ext)
+        if executable.base is None:
             raise ConfigError("no base named %s", name)
 
     def _GetDefaultBinExcludes(self):
@@ -452,7 +449,6 @@ class Freezer(object):
             self.compress = True
         if self.targetDir is None:
             self.targetDir = os.path.abspath("dist")
-        self._GetBaseFileName()
         if self.path is None:
             self.path = sys.path
 
@@ -609,7 +605,7 @@ class ConfigError(Exception):
 
 class Executable(object):
 
-    def __init__(self, script, initScript = 'Console', base = None,
+    def __init__(self, script, initScript = 'Console', base = 'Console',
             targetName = None, icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
@@ -625,10 +621,7 @@ class Executable(object):
 
     def _VerifyConfiguration(self, freezer):
         freezer._GetInitScriptFileName(self)
-        if self.base is None:
-            self.base = freezer.base
-        else:
-            freezer._GetBaseFileName(self)
+        freezer._GetBaseFileName(self)
         if self.icon is None:
             self.icon = freezer.icon
         if self.targetName is None:

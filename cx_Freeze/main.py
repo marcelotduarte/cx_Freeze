@@ -160,6 +160,7 @@ def main():
     options = ParseCommandLine()
     executables = [cx_Freeze.Executable(options.script,
                                         initScript = options.initScript,
+                                        base = options.baseName,
                                         targetName = options.targetName)
                   ]
     freezer = cx_Freeze.Freezer(executables,
@@ -168,7 +169,6 @@ def main():
             replacePaths = options.replacePaths,
             compress = options.compress,
             optimizeFlag = options.optimized,
-            base = options.baseName,
             path = None,
             targetDir = options.targetDir,
             zipIncludes = options.zipIncludes,
