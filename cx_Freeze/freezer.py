@@ -114,7 +114,7 @@ class Freezer(object):
             excludes = [], packages = [], replacePaths = [], compress = None,
             optimizeFlag = 0, path = None,
             targetDir = None, binIncludes = [], binExcludes = [],
-            binPathIncludes = [], binPathExcludes = [], icon = None,
+            binPathIncludes = [], binPathExcludes = [],
             includeFiles = [], zipIncludes = [], silent = False,
             namespacePackages = [], metadata = None,
             includeMSVCR = False):
@@ -137,7 +137,6 @@ class Freezer(object):
         self.binPathIncludes = [os.path.normcase(n) for n in binPathIncludes]
         self.binPathExcludes = [os.path.normcase(n) \
                 for n in self._GetDefaultBinPathExcludes() + binPathExcludes]
-        self.icon = icon
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
@@ -616,8 +615,6 @@ class Executable(object):
     def _VerifyConfiguration(self, freezer):
         self._GetInitScriptFileName()
         self._GetBaseFileName()
-        if self.icon is None:
-            self.icon = freezer.icon
         if self.targetName is None:
             name, ext = os.path.splitext(os.path.basename(self.script))
             baseName, ext = os.path.splitext(self.base)

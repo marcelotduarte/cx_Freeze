@@ -115,10 +115,6 @@ It can be further customized:
 +-----------------------+-----------------------------------------------------+
 | compressed (-c)       | create a compressed zip file                        |
 +-----------------------+-----------------------------------------------------+
-| icon                  | include the icon in the frozen executables on the   |
-|                       | Windows platform and alongside the frozen           |
-|                       | executable on other platforms                       |
-+-----------------------+-----------------------------------------------------+
 | constants             | comma separated list of constant values to include  |
 |                       | in the constants module called BUILD_CONSTANTS in   |
 |                       | form <name>=<value>                                 |

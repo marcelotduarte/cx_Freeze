@@ -81,8 +81,6 @@ class build_exe(distutils.core.Command):
          'comma-separated list of paths to search'),
         ('compressed', 'c',
          'create a compressed zipfile'),
-        ('icon', None,
-         'include the icon along with the frozen executable(s)'),
         ('constants=', None,
          'comma-separated list of constants to include'),
         ('include-files=', 'f',
@@ -167,7 +165,6 @@ class build_exe(distutils.core.Command):
         self.compressed = None
         self.path = None
         self.include_msvcr = None
-        self.icon = None
         self.silent = None
 
     def finalize_options(self):
@@ -197,7 +194,6 @@ class build_exe(distutils.core.Command):
                 [constantsModule], self.includes, self.excludes, self.packages,
                 self.replace_paths, self.compressed, self.optimize,
                 self.path, self.build_exe,
-                icon = self.icon,
                 includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,
                 binIncludes = self.bin_includes,
