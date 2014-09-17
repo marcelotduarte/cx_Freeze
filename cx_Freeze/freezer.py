@@ -111,7 +111,7 @@ def get_resource_file_path(dirName, name, ext):
 class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
-            excludes = [], packages = [], replacePaths = [], compress = None,
+            excludes = [], packages = [], replacePaths = [], compress = True,
             optimizeFlag = 0, path = None,
             targetDir = None, binIncludes = [], binExcludes = [],
             binPathIncludes = [], binPathExcludes = [],
@@ -321,7 +321,7 @@ class Freezer(object):
         if argsSource is None:
             argsSource = self
         finder = cx_Freeze.ModuleFinder(self.includeFiles, self.excludes,
-                self.path, self.replacePaths, compress = self.compress)
+                self.path, self.replacePaths)
         for name in self.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
@@ -454,8 +454,7 @@ class Freezer(object):
         for executable in self.executables:
             executable._VerifyConfiguration(self)
 
-    def _WriteModules(self, fileName, finder, compress,
-            scriptModule = None):
+    def _WriteModules(self, fileName, finder, scriptModule = None):
         if scriptModule is None:
             for module in self.constantsModules:
                 module.Create(finder)
@@ -518,7 +517,7 @@ class Freezer(object):
                 header = imp.get_magic() + struct.pack("<ii", int(mtime), 0)
             data = header + marshal.dumps(module.code)
             zinfo = zipfile.ZipInfo(fileName + ".pyc", zipTime)
-            if compress:
+            if self.compress:
                 zinfo.compress_type = zipfile.ZIP_DEFLATED
             outFile.writestr(zinfo, data)
 
@@ -558,7 +557,7 @@ class Freezer(object):
         fileName = os.path.join(targetDir,
                 "python%s%s.zip" % sys.version_info[:2])
         self._RemoveFile(fileName)
-        self._WriteModules(fileName, self.finder, self.compress)
+        self._WriteModules(fileName, self.finder)
 
         for sourceFileName, targetFileName in self.includeFiles:
             if os.path.isdir(sourceFileName):

@@ -162,7 +162,7 @@ class build_exe(distutils.core.Command):
 
         self.optimize = 0
         self.build_exe = None
-        self.compressed = None
+        self.compressed = True
         self.path = None
         self.include_msvcr = None
         self.silent = None
