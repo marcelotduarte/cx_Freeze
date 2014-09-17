@@ -217,8 +217,6 @@ class Freezer(object):
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe.targetName)
 
-    
-
     def _GetDefaultBinExcludes(self):
         """Return the file names of libraries that need not be included because
            they would normally be expected to be found on the target system or
