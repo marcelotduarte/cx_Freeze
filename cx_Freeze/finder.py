@@ -137,7 +137,7 @@ class ZipModulesCache(object):
 class ModuleFinder(object):
 
     def __init__(self, includeFiles = None, excludes = [], path = None,
-            replacePaths = None, compress = True):
+            replacePaths = None):
         self.includeFiles = includeFiles
         if includeFiles is None:
             self.includeFiles = []
@@ -145,7 +145,6 @@ class ModuleFinder(object):
         self.replacePaths = replacePaths
         if replacePaths is None:
             self.replacePaths = []
-        self.compress = compress
         self.path = path or sys.path
         self.modules = []
         self.aliases = {}
