@@ -161,6 +161,7 @@ def main():
     executables = [cx_Freeze.Executable(options.script,
                                         initScript = options.initScript,
                                         base = options.baseName,
+                                        icon = options.icon,
                                         targetName = options.targetName)
                   ]
     freezer = cx_Freeze.Freezer(executables,
@@ -172,7 +173,6 @@ def main():
             path = None,
             targetDir = options.targetDir,
             zipIncludes = options.zipIncludes,
-            icon = options.icon,
             silent = options.silent)
     freezer.Freeze()
 
