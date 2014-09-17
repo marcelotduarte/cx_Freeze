@@ -188,11 +188,7 @@ class Freezer(object):
 
     def _FreezeExecutable(self, exe):
         finder = self.finder
-        if exe.script is None:
-            scriptModule = None
-        else:
-            scriptModule = finder.IncludeFile(exe.script, exe.moduleName)
-        
+        finder.IncludeFile(exe.script, exe.moduleName)
         finder.IncludeFile(exe.initScript, exe.initModuleName)
 
         self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
@@ -454,21 +450,16 @@ class Freezer(object):
         for executable in self.executables:
             executable._VerifyConfiguration(self)
 
-    def _WriteModules(self, fileName, finder, scriptModule = None):
-        if scriptModule is None:
-            for module in self.constantsModules:
-                module.Create(finder)
-            modules = [m for m in finder.modules \
-                    if m.name not in self.excludeModules]
-        else:
-            modules = [initModule, scriptModule]
-            self.excludeModules[initModule.name] = None
-            self.excludeModules[scriptModule.name] = None
+    def _WriteModules(self, fileName, finder):
+        for module in self.constantsModules:
+            module.Create(finder)
+        modules = [m for m in finder.modules \
+                if m.name not in self.excludeModules]
         modules.sort(key = lambda m: m.name)
+
         if not self.silent:
             self._PrintReport(fileName, modules)
-        if scriptModule is None:
-            finder.ReportMissingModules()
+        finder.ReportMissingModules()
 
         targetDir = os.path.dirname(fileName)
         if sys.platform != "win32":
