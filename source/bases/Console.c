@@ -21,8 +21,10 @@ int _CRT_glob = 0;
 static int FatalError(
     const char *message)                // message to print
 {
-    PyErr_Print();
-    Py_FatalError(message);
+    if (Py_IsInitialized()) {
+        PyErr_Print();
+        Py_FatalError(message);
+    } else fprintf(stderr, "Fatal error: %s\n", message);
     return -1;
 }
 
