@@ -79,8 +79,8 @@ class build_exe(distutils.core.Command):
          'comma-separated list of paths to replace in included modules'),
         ('path=', None,
          'comma-separated list of paths to search'),
-        ('compressed', 'c',
-         'create a compressed zipfile'),
+        ('no-compress', None,
+         'create a zipfile with no compression'),
         ('constants=', None,
          'comma-separated list of constants to include'),
         ('include-files=', 'f',
@@ -102,7 +102,7 @@ class build_exe(distutils.core.Command):
         ('silent', 's',
          'suppress all output except warnings')
     ]
-    boolean_options = ["compressed", "include_msvcr", "silent"]
+    boolean_options = ["no-compress", "include_msvcr", "silent"]
 
     def add_to_path(self, name):
         sourceDir = getattr(self, name.lower())
@@ -162,7 +162,7 @@ class build_exe(distutils.core.Command):
 
         self.optimize = 0
         self.build_exe = None
-        self.compressed = True
+        self.no_compress = False
         self.path = None
         self.include_msvcr = None
         self.silent = None
@@ -192,7 +192,7 @@ class build_exe(distutils.core.Command):
             constantsModule.values[name] = value
         freezer = cx_Freeze.Freezer(self.distribution.executables,
                 [constantsModule], self.includes, self.excludes, self.packages,
-                self.replace_paths, self.compressed, self.optimize,
+                self.replace_paths, (not self.no_compress), self.optimize,
                 self.path, self.build_exe,
                 includeMSVCR = self.include_msvcr,
                 includeFiles = self.include_files,
