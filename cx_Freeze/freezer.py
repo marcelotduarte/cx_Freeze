@@ -163,7 +163,7 @@ class Freezer(object):
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles:
             for source in self._GetDependentFiles(source):
-                target = os.path.join(targetDir, os.path.basename(source))
+                target = os.path.join(self.targetDir, os.path.basename(source))
                 self._CopyFile(source, target, copyDependentFiles)
 
     def _CreateDirectory(self, path):
