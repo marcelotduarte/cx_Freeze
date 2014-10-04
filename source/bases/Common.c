@@ -319,7 +319,11 @@ static int PopulateInitScriptDict(
 static int ExecuteScript(void)
 {
     PyObject *importer, *dict, *code, *temp;
+#ifdef MS_WINDOWS
+    char exebasename[_MAX_FNAME + 1];
+#else
     char *exenamec, *exebasename;
+#endif
     char initscriptname[MAXPATHLEN + 1];
 
     // get zip importer object
@@ -336,8 +340,13 @@ static int ExecuteScript(void)
     }
 
     // Calculate the name of the init script
+#ifdef MS_WINDOWS
+    // _splitpath(path, drive, dir, fname, ext)
+    _splitpath(g_ExecutableName, NULL, NULL, exebasename, NULL);
+#else
     exenamec = strdup(g_ExecutableName);
     exebasename = basename(exenamec);
+#endif
     sprintf(initscriptname, "%s__init__", exebasename);
 
     // locate and execute script
