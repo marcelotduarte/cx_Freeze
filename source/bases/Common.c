@@ -319,12 +319,6 @@ static int PopulateInitScriptDict(
 static int ExecuteScript(void)
 {
     PyObject *importer, *dict, *code, *temp;
-#ifdef MS_WINDOWS
-    char exebasename[_MAX_FNAME + 1];
-#else
-    char *exenamec, *exebasename;
-#endif
-    char initscriptname[MAXPATHLEN + 1];
 
     // get zip importer object
     importer = NULL;
@@ -339,18 +333,8 @@ static int ExecuteScript(void)
         return -1;
     }
 
-    // Calculate the name of the init script
-#ifdef MS_WINDOWS
-    // _splitpath(path, drive, dir, fname, ext)
-    _splitpath(g_ExecutableName, NULL, NULL, exebasename, NULL);
-#else
-    exenamec = strdup(g_ExecutableName);
-    exebasename = basename(exenamec);
-#endif
-    sprintf(initscriptname, "%s__init__", exebasename);
-
     // locate and execute script
-    code = PyObject_CallMethod(importer, "get_code", "s", initscriptname);
+    code = PyObject_CallMethod(importer, "get_code", "s", "cx_Freeze__init__");
     Py_DECREF(importer);
     if (!code)
         return FatalError("unable to locate initialization module");
