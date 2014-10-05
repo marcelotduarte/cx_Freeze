@@ -19,6 +19,7 @@ static char g_ExecutableName[MAXPATHLEN + 1];
 static char g_ExecutableDirName[MAXPATHLEN + 1];
 static char g_LibDirName[MAXPATHLEN + 1];
 static char g_ZipFileName[MAXPATHLEN + 1];
+static char g_InitscriptName[MAXPATHLEN + 1];
 static PyObject *g_ExecutableNameObj;
 static PyObject *g_ExecutableDirNameObj;
 static PyObject *g_LibDirNameObj;
@@ -140,6 +141,18 @@ static int SetExecutableName(
     // calculate zip file name
     sprintf(g_ZipFileName, "%s%cpython%d%d.zip", g_LibDirName, SEP,
             PY_MAJOR_VERSION, PY_MINOR_VERSION);
+
+    // calculate initscript name
+    ptr = strrchr(g_ExecutableName, SEP);
+    strcpy(g_InitscriptName, ptr + 1);
+#ifdef MS_WINDOWS
+    ptr = strrchr(g_InitscriptName, ".");
+    if (ptr)
+        *ptr = '\0';
+    for (ptr = g_InitscriptName; *ptr; ptr++)
+        *ptr = tolower(*ptr);
+#endif
+    strcat(g_InitscriptName, "__init__");
 
     return 0;
 }
@@ -334,7 +347,7 @@ static int ExecuteScript(void)
     }
 
     // locate and execute script
-    code = PyObject_CallMethod(importer, "get_code", "s", "cx_Freeze__init__");
+    code = PyObject_CallMethod(importer, "get_code", "s", g_InitscriptName);
     Py_DECREF(importer);
     if (!code)
         return FatalError("unable to locate initialization module");
