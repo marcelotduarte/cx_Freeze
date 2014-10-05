@@ -1,4 +1,5 @@
 version = "5.0"
+__version__ = version
 
 import sys
 from cx_Freeze.dist import *
