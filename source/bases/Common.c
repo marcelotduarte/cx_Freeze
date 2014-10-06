@@ -146,7 +146,7 @@ static int SetExecutableName(
     ptr = strrchr(g_ExecutableName, SEP);
     strcpy(g_InitscriptName, ptr + 1);
 #ifdef MS_WINDOWS
-    ptr = strrchr(g_InitscriptName, ".");
+    ptr = strrchr(g_InitscriptName, '.');
     if (ptr)
         *ptr = '\0';
     for (ptr = g_InitscriptName; *ptr; ptr++)
