@@ -537,6 +537,13 @@ def load_PyQt4_QtWebKit(finder, module):
 
 load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
 
+def load_PyQt5_QtMultimedia(finder, module):
+    name, QtCore = _qt_implementation(module)
+    finder.IncludeModule("%s.QtCore" % name)
+    finder.IncludeModule("%s.QtMultimediaWidgets" % name)
+    copy_qt_plugins("mediaservice", finder, QtCore)
+
+
 def load_reportlab(finder, module):
     """the reportlab module loads a submodule rl_settings via exec so force
        its inclusion here"""
