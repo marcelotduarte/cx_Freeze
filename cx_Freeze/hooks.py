@@ -236,7 +236,11 @@ def load_h5py(finder, module):
     finder.IncludeModule('h5py.defs')
     finder.IncludeModule('h5py.utils')
     finder.IncludeModule('h5py._proxy')
-    finder.IncludeModule('h5py.api_gen')
+    try:
+        import h5py.api_gen
+        finder.IncludeModule('h5py.api_gen')
+    except ImportError:
+        pass
 
 
 def load_matplotlib(finder, module):
