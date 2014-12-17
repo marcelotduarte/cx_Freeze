@@ -18,8 +18,6 @@ def initialize(finder):
         finder.ExcludeModule("msvcrt")
         finder.ExcludeModule("multiprocessing._multiprocessing")
         finder.ExcludeModule("nt")
-        if os.name not in ("os2", "ce"):
-            finder.ExcludeModule("ntpath")
         finder.ExcludeModule("nturl2path")
         finder.ExcludeModule("pyHook")
         finder.ExcludeModule("pythoncom")
