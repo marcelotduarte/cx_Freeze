@@ -12,6 +12,40 @@ Development version
    an earlier version of Python, please use cx_Freeze 4.2.3.
 
 
+Version 4.3.4
+-------------
+
+.. note:: This version supports Python 2.6 and above. If you need support for
+   an earlier version of Python, please use cx_Freeze 4.2.3.
+
+1)  Rebuilt for Python 3.4.2. Dropped support for Python versions less than 2.6.
+
+2)  Correct stale comment.
+    (`PR #50 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/50>`_)
+
+3)  Fix processing path specs from config when targets are not explicit.
+    (`PR #53 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/53>`_)
+
+4)  Tweaks to improve compiling with MSVC 10 (2010) on Windows.
+    (`PR #54 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/54>`_)
+
+5)  Added support for using the --deep and --resource-rules options when code
+    signing through cx_Freeze on OS X.
+    (`PR #55 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/55>`_)
+
+6)  Catch error if GetDependentFiles() is called on a non-library
+    (`PR #56 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/56>`_)
+
+7)  Added FAQ entry on single file executables
+    (`PR #58 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/58>`_)
+
+8)  Only look one level deep for implicit relative imports
+    (`PR #59 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/59>`_)
+
+9)  Removed statement that was filtering out the ntpath module.
+    (`PR #74 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/74>`_)
+
+
 Version 4.3.3
 -------------
 
