@@ -10,7 +10,7 @@ dynamically loaded - e.g. by a plugin system - you have to tell cx_Freeze about
 them. This is easy using a :doc:`setup script <distutils>`:
 
 * For Python code, specify the module names in the ``packages`` option.
-* List compiled libraries (.dll or .so files) in the ``include-files`` option.
+* List compiled libraries (.dll or .so files) in the ``include_files`` option.
 * Data files are a bit more complex - see :ref:`data_files`.
 
 Freezing for other platforms
