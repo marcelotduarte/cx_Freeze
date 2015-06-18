@@ -34,14 +34,6 @@ except NameError:
     bytes = str
 
 try:
-    isidentifier = str.isidentifier  # Built in method in Python 3
-except AttributeError:
-    # Check with regex for Python 2
-    _identifier_re = re.compile(r'^[a-z_]\w*$', re.I)
-    def isidentifier(s):
-        return bool(_identifier_re.match(s))
-
-try:
     source_from_cache = imp.source_from_cache  # Python 3.2 and above
 except AttributeError:
     def source_from_cache(path):  # Pre PEP 3147 - cache is just .pyc/.pyo
@@ -244,6 +236,10 @@ class ModuleFinder(object):
     def _ImportAllSubModules(self, module, deferredImports, recursive = True):
         """Import all sub modules to the given package."""
         suffixes = [s[0] for s in imp.get_suffixes()]
+        
+        # make sure e.g. .cpython-32mu.so is checked before .so (issue #22)
+        suffixes.sort(key=lambda s: s[0][::-1], reverse=True)
+
         for path in module.path:
             try:
                 fileNames = os.listdir(path)
@@ -263,9 +259,14 @@ class ModuleFinder(object):
                     for suffix in suffixes:
                         if fileName.endswith(suffix):
                             name = fileName[:-len(suffix)]
-                            # Only modules with valid Python names are importable
-                            if isidentifier(name):
+
+                            # "." is the submodule path separator, and __import__ will
+                            # not find a module whose name actually contains it.  We don't
+                            # check isidentifier() here though, because module names need
+                            # not be valid python identifiers (Issue #44)
+                            if "." not in name:
                                 break
+
                     else:
                         continue
                     if name == "__init__":
