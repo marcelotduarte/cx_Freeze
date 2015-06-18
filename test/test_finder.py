@@ -31,7 +31,14 @@ def test_not_import_invalid_module_name():
     """testpkg1 contains not.importable.py, which shouldn't be included."""
     mf = ModuleFinder()
     mf.path.insert(0, os.path.join(test_dir, 'samples'))
-    mf.IncludePackage('testpkg1')  # Threw ImportError before the bug was fixed
+
+    try:
+        module = mf.IncludePackage('testpkg1')  # Threw ImportError before the bug was fixed
+    except ImportError:
+        assert False, "submodules with names containing '.' should not be included"
+
+    assert 'invalid-identifier' in module.globalNames, \
+            "submodules that contain invalid identifiers should still be imported"
         
 def test_invalid_syntax():
     """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
