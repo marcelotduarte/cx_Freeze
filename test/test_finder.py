@@ -38,7 +38,7 @@ def test_not_import_invalid_module_name():
         assert False, "submodules with names containing '.' should not be included"
 
     assert 'invalid-identifier' in module.globalNames, \
-            'submodules that contain invalid identifiers should still be imported'
+            'submodules whose names contain invalid identifiers should still be imported'
 
 def test_invalid_syntax():
     """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
