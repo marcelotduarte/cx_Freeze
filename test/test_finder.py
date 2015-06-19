@@ -3,7 +3,6 @@ try:
 except ImportError:
     import mock
 
-import imp
 import os.path
 import sys
 
