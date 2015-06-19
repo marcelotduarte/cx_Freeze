@@ -40,29 +40,6 @@ def test_not_import_invalid_module_name():
 
     assert 'invalid-identifier' in module.globalNames, \
             'submodules that contain invalid identifiers should still be imported'
-        
-def test_suffixes_attempted_in_correct_order():
-    with mock.patch('imp.get_suffixes') as get_suffixes:
-        get_suffixes.return_value = [('.so', 'r', imp.C_EXTENSION),
-                                     ('.platform.so', 'r', imp.C_EXTENSION)]
-
-        mf = ModuleFinder()
-
-        real_iim = mf._InternalImportModule
-        def iim(name, *args, **kwargs):
-            if name == 'testpkg2.some_module':
-                return mock.MagicMock()
-            else:
-                return real_iim(name, *args, **kwargs)
-
-        with mock.patch.object(mf, "_InternalImportModule") as _InternalImportModule:
-            _InternalImportModule.side_effect = iim
-
-            mf.path.insert(0, os.path.join(test_dir, 'samples'))
-
-            module = mf.IncludePackage('testpkg2')  # Threw ImportError before the bug was fixed
-            assert 'some_module' in module.globalNames, \
-                    "some_module.platform.so should be imported as 'some_module'"
 
 def test_invalid_syntax():
     """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
