@@ -238,7 +238,7 @@ class ModuleFinder(object):
         suffixes = [s[0] for s in imp.get_suffixes()]
         
         # make sure e.g. .cpython-32mu.so is checked before .so (issue #22)
-        suffixes.sort(key=lambda s: s[0][::-1], reverse=True)
+        suffixes.sort(key=lambda s: s[::-1], reverse=True)
 
         for path in module.path:
             try:
