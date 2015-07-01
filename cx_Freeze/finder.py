@@ -236,9 +236,6 @@ class ModuleFinder(object):
     def _ImportAllSubModules(self, module, deferredImports, recursive = True):
         """Import all sub modules to the given package."""
         suffixes = [s[0] for s in imp.get_suffixes()]
-        
-        # make sure e.g. .cpython-32mu.so is checked before .so (issue #22)
-        suffixes.sort(key=lambda s: s[::-1], reverse=True)
 
         for path in module.path:
             try:
