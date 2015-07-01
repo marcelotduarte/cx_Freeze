@@ -40,17 +40,6 @@ except AttributeError:
         assert path.endswith(('.pyc', '.pyo'))
         return path[:-1]
 
-def is_valid_module_name(name):
-    """Returns True if 'name' is a valid module name.
-
-    For now, exclude only names containing a ".". "." is the submodule path
-    separator, and __import__ will not find a module whose name actually
-    contains it.  We don't check isidentifier() here though, because module
-    names need not be valid python identifiers (Issue #44)
-    """
-
-    return "." not in name
-
 class ZipModulesCache(object):
     """A cache of module and package locations within zip files."""
     def __init__(self):
@@ -271,7 +260,11 @@ class ModuleFinder(object):
                         if fileName.endswith(suffix):
                             name = fileName[:-len(suffix)]
 
-                            if is_valid_module_name(name):
+                            # Skip modules whose names appear to contain '.',
+                            # as we may be using the wrong suffix, and even if
+                            # we're not, such module names will break the import
+                            # code.
+                            if "." not in name:
                                 break
 
                     else:
