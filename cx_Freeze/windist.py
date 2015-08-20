@@ -193,7 +193,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 self.x, self.y, self.width, self.height, self.modeless,
                 self.title, "Cancel", "Cancel", "Cancel")
         dialog.text("Description", 15, 70, 320, 40, 0x30003,
-                "Please wait while the installer prepares to guide you through"
+                "Please wait while the installer prepares to guide you through "
                 "the installation.")
         dialog.title("Welcome to the [ProductName] installer")
         text = dialog.text("ActionText", 15, 110, 320, 20, 0x30003,
