@@ -57,7 +57,7 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 class build_ext(distutils.command.build_ext.build_ext):
 
     def build_extension(self, ext):
-        if ext.name.find("bases") < 0:
+        if "bases" not in ext.name:
             distutils.command.build_ext.build_ext.build_extension(self, ext)
             return
         if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
@@ -82,7 +82,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
-            elif compiler_type == "mingw32" and ext.name.find("Win32GUI") > 0:
+            elif compiler_type == "mingw32" and "Win32GUI" in ext.name:
                 extraArgs.append("-mwindows")
         else:
             vars = distutils.sysconfig.get_config_vars()
