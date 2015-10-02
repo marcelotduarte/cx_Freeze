@@ -169,6 +169,8 @@ class ModuleFinder(object):
             # We need this, because collections gets loaded (via traceback),
             # and a partially frozen package causes problems.
             self.IncludeModule("collections.abc")
+        if sys.version_info[:2] >= (3,5):
+            self.IncludeModule("importlib.abc")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
