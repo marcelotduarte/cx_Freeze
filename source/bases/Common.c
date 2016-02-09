@@ -163,6 +163,18 @@ static int SetExecutableName(
 // InitializePython()
 //   Initialize Python for Python 3 and higher.
 //-----------------------------------------------------------------------------
+#ifdef MS_WINDOWS
+static int InitializePython(int argc, wchar_t **argv)
+{
+    wchar_t **wargv, *wExecutableName, *wExecutableDirName;
+    char *origLocale;
+    size_t size;
+    int i;
+
+    // determine executable name
+    if (SetExecutableName(NULL) < 0)
+        return -1;
+#else
 static int InitializePython(int argc, char **argv)
 {
     wchar_t **wargv, *wExecutableName, *wExecutableDirName;
@@ -173,7 +185,7 @@ static int InitializePython(int argc, char **argv)
     // determine executable name
     if (SetExecutableName(argv[0]) < 0)
         return -1;
-
+#endif	
     // ensure locale is set consistently
     origLocale = setlocale(LC_ALL, NULL);
     setlocale(LC_ALL, "");
@@ -196,6 +208,9 @@ static int InitializePython(int argc, char **argv)
         return FatalError("Out of memory converting executable dir name!");
     mbstowcs(wExecutableDirName, g_ExecutableDirName, size + 1);
 
+#ifdef MS_WINDOWS
+	wargv = argv;
+#else
     // convert arguments to wide characters
     wargv = PyMem_Malloc(sizeof(wchar_t*) * argc);
     if (!wargv)
@@ -209,7 +224,7 @@ static int InitializePython(int argc, char **argv)
             return FatalError("Out of memory converting argument!");
         mbstowcs(wargv[i], argv[i], size + 1);
     }
-
+#endif
     // reset locale
     setlocale(LC_ALL, origLocale);
 

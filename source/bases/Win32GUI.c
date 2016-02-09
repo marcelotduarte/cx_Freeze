@@ -254,7 +254,11 @@ int WINAPI WinMain(
     int status = 0;
 
     // initialize Python
+#if defined(MS_WINDOWS) && PY_MAJOR_VERSION >= 3
+    if (InitializePython(__argc, __wargv) < 0)
+#else
     if (InitializePython(__argc, __argv) < 0)
+#endif		
         status = 1;
 
     // do the work
