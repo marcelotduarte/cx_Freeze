@@ -57,6 +57,18 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 class build_ext(distutils.command.build_ext.build_ext):
 
     def build_extension(self, ext):
+
+        if sys.platform == "win32" and self.compiler.compiler_type == "msvc":
+            # make sure we have statick linkage
+            if not self.compiler.initialized:
+                self.compiler.initialize()
+            if '/MD' in self.compiler.compile_options:
+                self.compiler.compile_options.remove('/MD')
+                self.compiler.compile_options.append('/MT')
+            if '/MDd' in self.compiler.compile_options:
+                self.compiler.compile_options.remove('/MDd')
+                self.compiler.compile_options.append('/MTd')
+
         if "bases" not in ext.name:
             distutils.command.build_ext.build_ext.build_extension(self, ext)
             return
