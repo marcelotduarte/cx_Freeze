@@ -86,21 +86,20 @@ class build_ext(distutils.command.build_ext.build_ext):
                 extraArgs.append("-mwindows")
         else:
             vars = distutils.sysconfig.get_config_vars()
-            if not vars.get("Py_ENABLE_SHARED", 0):
-                libraryDirs.append(vars["LIBPL"])
-                abiflags = getattr(sys, "abiflags", "")
-                libraries.append("python%s.%s%s" % \
-                        (sys.version_info[0], sys.version_info[1], abiflags))
-                if vars["LINKFORSHARED"] and sys.platform != "darwin":
-                    extraArgs.extend(vars["LINKFORSHARED"].split())
-                if vars["LIBS"]:
-                    extraArgs.extend(vars["LIBS"].split())
-                if vars["LIBM"]:
-                    extraArgs.append(vars["LIBM"])
-                if vars["BASEMODLIBS"]:
-                    extraArgs.extend(vars["BASEMODLIBS"].split())
-                if vars["LOCALMODLIBS"]:
-                    extraArgs.extend(vars["LOCALMODLIBS"].split())
+            libraryDirs.append(vars["LIBPL"])
+            abiflags = getattr(sys, "abiflags", "")
+            libraries.append("python%s.%s%s" % \
+                    (sys.version_info[0], sys.version_info[1], abiflags))
+            if vars["LINKFORSHARED"] and sys.platform != "darwin":
+                extraArgs.extend(vars["LINKFORSHARED"].split())
+            if vars["LIBS"]:
+                extraArgs.extend(vars["LIBS"].split())
+            if vars["LIBM"]:
+                extraArgs.append(vars["LIBM"])
+            if vars["BASEMODLIBS"]:
+                extraArgs.extend(vars["BASEMODLIBS"].split())
+            if vars["LOCALMODLIBS"]:
+                extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
