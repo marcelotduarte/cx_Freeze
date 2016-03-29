@@ -587,12 +587,12 @@ class ConfigError(Exception):
 
 class Executable(object):
 
-    def __init__(self, script, initScript = 'Console', base = 'Console',
+    def __init__(self, script, initScript = None, base = None,
             targetName = None, icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
-        self.initScript = initScript
-        self.base = base
+        self.initScript = initScript or "Console"
+        self.base = base or "Console"
         self.targetName = targetName
         self.icon = icon
         self.shortcutName = shortcutName
