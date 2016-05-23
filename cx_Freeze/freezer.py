@@ -472,15 +472,16 @@ class Freezer(object):
 
         filesToCopy = []
         for module in modules:
+
             if module.code is None and module.file is not None:
-                # Extension module: save a Python loader in the zip file, and
-                # copy the actual file to the build directory, because pyd/so
-                # libraries can't be loaded from a zip file.
+                # Extension module: if found in a package, save a Python loader
+                # in the zip file, and copy the actual file to the build
+                # directory, because shared libraries can't be loaded from a
+                # zip file.
                 fileName = os.path.basename(module.file)
-                baseFileName, ext = os.path.splitext(fileName)
-                if baseFileName != module.name and module.name != "zlib":
-                    if "." in module.name:
-                        fileName = module.name + ext
+                if "." in module.name:
+                    baseFileName, ext = os.path.splitext(fileName)
+                    fileName = module.name + ext
                     generatedFileName = "ExtensionLoader_%s.py" % \
                             module.name.replace(".", "_")
                     module.code = compile(EXTENSION_LOADER_SOURCE % fileName,
@@ -586,12 +587,12 @@ class ConfigError(Exception):
 
 class Executable(object):
 
-    def __init__(self, script, initScript = 'Console', base = 'Console',
+    def __init__(self, script, initScript = None, base = None,
             targetName = None, icon = None, shortcutName = None,
             shortcutDir = None):
         self.script = script
-        self.initScript = initScript
-        self.base = base
+        self.initScript = initScript or "Console"
+        self.base = base or "Console"
         self.targetName = targetName
         self.icon = icon
         self.shortcutName = shortcutName

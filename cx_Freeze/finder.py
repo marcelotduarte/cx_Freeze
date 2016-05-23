@@ -34,14 +34,6 @@ except NameError:
     bytes = str
 
 try:
-    isidentifier = str.isidentifier  # Built in method in Python 3
-except AttributeError:
-    # Check with regex for Python 2
-    _identifier_re = re.compile(r'^[a-z_]\w*$', re.I)
-    def isidentifier(s):
-        return bool(_identifier_re.match(s))
-
-try:
     source_from_cache = imp.source_from_cache  # Python 3.2 and above
 except AttributeError:
     def source_from_cache(path):  # Pre PEP 3147 - cache is just .pyc/.pyo
@@ -177,6 +169,8 @@ class ModuleFinder(object):
             # We need this, because collections gets loaded (via traceback),
             # and a partially frozen package causes problems.
             self.IncludeModule("collections.abc")
+        if sys.version_info[:2] >= (3,5):
+            self.IncludeModule("importlib.abc")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
@@ -244,6 +238,7 @@ class ModuleFinder(object):
     def _ImportAllSubModules(self, module, deferredImports, recursive = True):
         """Import all sub modules to the given package."""
         suffixes = [s[0] for s in imp.get_suffixes()]
+
         for path in module.path:
             try:
                 fileNames = os.listdir(path)
@@ -263,9 +258,14 @@ class ModuleFinder(object):
                     for suffix in suffixes:
                         if fileName.endswith(suffix):
                             name = fileName[:-len(suffix)]
-                            # Only modules with valid Python names are importable
-                            if isidentifier(name):
+
+                            # Skip modules whose names appear to contain '.',
+                            # as we may be using the wrong suffix, and even if
+                            # we're not, such module names will break the import
+                            # code.
+                            if "." not in name:
                                 break
+
                     else:
                         continue
                     if name == "__init__":

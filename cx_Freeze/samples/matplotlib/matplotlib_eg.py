@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+print("Here we go!")
+import matplotlib._png
+print("matplotlib._png =", matplotlib._png)
+
 from numpy import arange, sin, pi
 import matplotlib
 matplotlib.use('WXAgg')

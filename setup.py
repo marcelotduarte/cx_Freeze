@@ -57,7 +57,7 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 class build_ext(distutils.command.build_ext.build_ext):
 
     def build_extension(self, ext):
-        if ext.name.find("bases") < 0:
+        if "bases" not in ext.name:
             distutils.command.build_ext.build_ext.build_extension(self, ext)
             return
         if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
@@ -82,25 +82,24 @@ class build_ext(distutils.command.build_ext.build_ext):
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
-            elif compiler_type == "mingw32" and ext.name.find("Win32GUI") > 0:
+            elif compiler_type == "mingw32" and "Win32GUI" in ext.name:
                 extraArgs.append("-mwindows")
         else:
             vars = distutils.sysconfig.get_config_vars()
-            if not vars.get("Py_ENABLE_SHARED", 0):
-                libraryDirs.append(vars["LIBPL"])
-                abiflags = getattr(sys, "abiflags", "")
-                libraries.append("python%s.%s%s" % \
-                        (sys.version_info[0], sys.version_info[1], abiflags))
-                if vars["LINKFORSHARED"] and sys.platform != "darwin":
-                    extraArgs.extend(vars["LINKFORSHARED"].split())
-                if vars["LIBS"]:
-                    extraArgs.extend(vars["LIBS"].split())
-                if vars["LIBM"]:
-                    extraArgs.append(vars["LIBM"])
-                if vars["BASEMODLIBS"]:
-                    extraArgs.extend(vars["BASEMODLIBS"].split())
-                if vars["LOCALMODLIBS"]:
-                    extraArgs.extend(vars["LOCALMODLIBS"].split())
+            libraryDirs.append(vars["LIBPL"])
+            abiflags = getattr(sys, "abiflags", "")
+            libraries.append("python%s.%s%s" % \
+                    (sys.version_info[0], sys.version_info[1], abiflags))
+            if vars["LINKFORSHARED"] and sys.platform != "darwin":
+                extraArgs.extend(vars["LINKFORSHARED"].split())
+            if vars["LIBS"]:
+                extraArgs.extend(vars["LIBS"].split())
+            if vars["LIBM"]:
+                extraArgs.append(vars["LIBM"])
+            if vars["BASEMODLIBS"]:
+                extraArgs.extend(vars["BASEMODLIBS"].split())
+            if vars["LOCALMODLIBS"]:
+                extraArgs.extend(vars["LOCALMODLIBS"].split())
             extraArgs.append("-s")
         self.compiler.link_executable(objects, fullName,
                 libraries = libraries,
