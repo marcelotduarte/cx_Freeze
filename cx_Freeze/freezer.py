@@ -542,11 +542,11 @@ class Freezer(object):
         self.finder = self._GetModuleFinder()
         for executable in self.executables:
             self._FreezeExecutable(executable)
-        targetDir = self.targetDir
+        targetDir = zipTargetDir = self.targetDir
         rawLibDir = distutils.sysconfig.get_config_var("LIBDIR")
         if rawLibDir:
-            targetDir = os.path.join(targetDir, os.path.basename(rawLibDir))
-        fileName = os.path.join(targetDir,
+            zipTargetDir = os.path.join(targetDir, os.path.basename(rawLibDir))
+        fileName = os.path.join(zipTargetDir,
                 "python%s%s.zip" % sys.version_info[:2])
         self._RemoveFile(fileName)
         self._WriteModules(fileName, self.finder)
