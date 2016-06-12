@@ -4,6 +4,7 @@ Base class for finding modules.
 
 import dis
 import imp
+import logging
 import marshal
 import opcode
 import os
@@ -181,6 +182,8 @@ class ModuleFinder(object):
             module = self._modules[name] = Module(name)
             self.modules.append(module)
             if name in self._badModules:
+                logging.debug("Removing module [%s] from list of bad modules",
+                        name)
                 del self._badModules[name]
         return module
 
@@ -358,13 +361,14 @@ class ModuleFinder(object):
             return self._modules[name]
         except KeyError:
             pass
-        
+
         if name in self._builtinModules:
             module = self._AddModule(name)
+            logging.debug("Adding module [%s] [C_BUILTIN]", name)
             self._RunHook("load", module.name, module)
             module.inImport = False
             return module
-        
+
         pos = name.rfind(".")
         if pos < 0:  # Top-level module
             path = self.path
@@ -381,18 +385,21 @@ class ModuleFinder(object):
                 parentModule.ExtendPath()
             path = parentModule.path
             searchName = name[pos + 1:]
-        
+
         if name in self.aliases:
             actualName = self.aliases[name]
             module = self._InternalImportModule(actualName, deferredImports)
             self._modules[name] = module
             return module
-        
+
         try:
             fp, path, info = self._FindModule(searchName, path, namespace)
+            if info[-1] == imp.C_BUILTIN and parentModule is not None:
+                return None
             module = self._LoadModule(name, fp, path, info, deferredImports,
                     parentModule, namespace)
         except ImportError:
+            logging.debug("Module [%s] cannot be imported", name)
             self._modules[name] = None
             return None
         return module
@@ -407,8 +414,9 @@ class ModuleFinder(object):
         module = self._AddModule(name)
         module.file = path
         module.parent = parent
-        
+
         if type == imp.PY_SOURCE:
+            logging.debug("Adding module [%s] [PY_SOURCE]", name)
             # Load & compile Python source code
             if sys.version_info[0] >= 3:
                 # For Python 3, read the file with the correct encoding
@@ -425,6 +433,7 @@ class ModuleFinder(object):
                 raise ImportError("Invalid syntax in %s" % path)
         
         elif type == imp.PY_COMPILED:
+            logging.debug("Adding module [%s] [PY_COMPILED]", name)
             # Load Python bytecode
             if isinstance(fp, bytes):
                 magic = fp[:4]
@@ -440,11 +449,13 @@ class ModuleFinder(object):
                 fp.read(skip_bytes)
                 module.code = marshal.load(fp)
         
-        elif type == imp.C_EXTENSION and parent is not None:
-            # Our extension loader (see the freezer module) uses imp to load
-            # compiled extensions.
-            self.IncludeModule("imp")
-        
+        elif type == imp.C_EXTENSION:
+            logging.debug("Adding module [%s] [C_EXTENSION]", name)
+            if parent is None:
+                # Our extension loader (see the freezer module) uses imp to
+                # load compiled extensions.
+                self.IncludeModule("imp")
+
         # If there's a custom hook for this module, run it.
         self._RunHook("load", module.name, module)
         
@@ -469,11 +480,13 @@ class ModuleFinder(object):
         try:
             fp, path, info = self._FindModule("__init__", module.path, False)
             self._LoadModule(name, fp, path, info, deferredImports, parent)
+            logging.debug("Adding module [%s] [PKG_DIRECTORY]", name)
         except ImportError:
             if not namespace:
                 raise
             fileName = os.path.join(path, "__init__.py")
             module.code = compile("", fileName, "exec")
+            logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
         return module
 
     def _ReplacePathsInCode(self, topLevelModule, co):
