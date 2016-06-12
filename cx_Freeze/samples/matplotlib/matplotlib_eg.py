@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-print("Here we go!")
-import matplotlib._png
-print("matplotlib._png =", matplotlib._png)
-
 from numpy import arange, sin, pi
 import matplotlib
 matplotlib.use('WXAgg')
@@ -17,7 +13,7 @@ import wx
 class CanvasFrame(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self, None, -1, 'CanvasFrame', size=(550, 350))
-        self.SetBackgroundColour(wx.NamedColor('WHITE'))
+        self.SetBackgroundColour(wx.NamedColour('WHITE'))
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
         t = arange(0.0, 3.0, 0.01)

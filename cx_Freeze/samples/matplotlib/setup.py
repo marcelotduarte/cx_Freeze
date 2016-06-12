@@ -19,7 +19,10 @@ if sys.platform == 'win32':
 
 options = {
     'build_exe': {
-        'excludes': ['Tkinter']  # Sometimes a little finetuning is needed
+
+        # Sometimes a little fine-tuning is needed
+        # exclude all backends except wx
+        'excludes': ['gtk', 'PyQt4', 'PyQt5', 'Tkinter']
     }
 }
 
