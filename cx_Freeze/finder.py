@@ -247,7 +247,7 @@ class ModuleFinder(object):
                 fileNames = os.listdir(path)
             except os.error:
                 continue
-            
+
             for fileName in fileNames:
                 fullName = os.path.join(path, fileName)
                 if os.path.isdir(fullName):
@@ -273,16 +273,18 @@ class ModuleFinder(object):
                         continue
                     if name == "__init__":
                         continue
-                    
+
                 subModuleName = "%s.%s" % (module.name, name)
                 subModule = self._InternalImportModule(subModuleName,
                                 deferredImports)
                 if subModule is None:
-                    raise ImportError("No module named %r" % subModuleName)
-                module.globalNames[name] = None
-                if subModule.path and recursive:
-                    self._ImportAllSubModules(subModule, deferredImports,
-                            recursive)
+                    if subModule not in self.excludes:
+                        raise ImportError("No module named %r" % subModuleName)
+                else:
+                    module.globalNames[name] = None
+                    if subModule.path and recursive:
+                        self._ImportAllSubModules(subModule, deferredImports,
+                                recursive)
 
     def _ImportDeferredImports(self, deferredImports, skipInImport = False):
         """Import any sub modules that were deferred, if applicable."""
