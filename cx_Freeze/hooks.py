@@ -501,7 +501,10 @@ def load_PyQt4_uic(finder, module):
     dir = os.path.join(module.path[0], "widget-plugins")
     finder.IncludeFiles(dir, "%s.uic.widget-plugins" % name)
     finder.IncludeModule("%s.QtNetwork" % name)
-    finder.IncludeModule("%s.QtWebKit" % name)
+    try:
+        finder.IncludeModule("%s.QtWebKit" % name)
+    except ImportError:
+        pass
 
 load_PyQt5_uic = load_PyQt4_uic
 
