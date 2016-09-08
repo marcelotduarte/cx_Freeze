@@ -284,9 +284,9 @@ class Freezer(object):
                     parts = line.expandtabs().strip().split(splitString)
                     if len(parts) != 2:
                         continue
+                    dependentFile = parts[dependentFileIndex].strip()
                     if dependentFile == os.path.basename(path):
                         continue
-                    dependentFile = parts[dependentFileIndex].strip()
                     if dependentFile in ("not found", "(file not found)"):
                         fileName = parts[0]
                         if fileName not in self.linkerWarnings:
