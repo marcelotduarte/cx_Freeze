@@ -47,7 +47,11 @@ static int FatalScriptError(void)
 // main()
 //   Main routine for frozen programs.
 //-----------------------------------------------------------------------------
+#if defined(MS_WINDOWS) && PY_MAJOR_VERSION >= 3
+int wmain(int argc, wchar_t **argv)
+#else
 int main(int argc, char **argv)
+#endif
 {
     size_t status = 0;
 
