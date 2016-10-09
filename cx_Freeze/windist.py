@@ -391,6 +391,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.add_ui()
         self.add_files()
         self.db.Commit()
+        self.distribution.dist_files.append(('bdist_msi', sversion or 'any', self.target_name))
+        
         if not self.keep_temp:
             distutils.dir_util.remove_tree(self.bdist_dir,
                     dry_run = self.dry_run)
