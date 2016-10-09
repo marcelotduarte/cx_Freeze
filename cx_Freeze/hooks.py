@@ -796,3 +796,14 @@ def missing_xml_etree(finder, caller):
     if sys.version_info[:2] < (2, 5):
         caller.IgnoreName("xml.etree")
 
+
+def load_zmq(finder, module):
+    """the zmq package loads zmq.backend.cython dynamically and links 
+    dynamically to zmq.libzmq."""
+    finder.IncludePackage("zmq.backend.cython")
+    if sys.platform == "win32":
+        # Not sure yet if this is cross platform
+        import zmq.libzmq
+        srcFileName = os.path.basename(zmq.libzmq.__file__)
+        finder.IncludeFiles(
+            os.path.join(module.path[0], srcFileName), srcFileName)
