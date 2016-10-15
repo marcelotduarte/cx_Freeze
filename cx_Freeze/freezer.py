@@ -143,18 +143,21 @@ class Freezer(object):
         self.metadata = metadata
         self._VerifyConfiguration()
 
-    def _AddVersionResource(self, fileName):
+    def _AddVersionResource(self, exe):
         try:
             from win32verstamp import stamp
         except:
             print("*** WARNING *** unable to create version resource")
             print("install pywin32 extensions first")
             return
+        fileName = exe.targetName
         versionInfo = VersionInfo(self.metadata.version,
                 comments = self.metadata.long_description,
                 description = self.metadata.description,
                 company = self.metadata.author,
-                product = self.metadata.name)
+                product = self.metadata.name,
+                copyright = exe.copyright,
+                trademarks = exe.trademarks)
         stamp(fileName, versionInfo)
 
     def _CopyFile(self, source, target, copyDependentFiles,
@@ -211,7 +214,7 @@ class Freezer(object):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
         if self.metadata is not None and sys.platform == "win32":
-            self._AddVersionResource(exe.targetName)
+            self._AddVersionResource(exe)
 
     def _GetDefaultBinExcludes(self):
         """Return the file names of libraries that need not be included because
@@ -590,8 +593,8 @@ class ConfigError(Exception):
 class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
-            targetName = None, icon = None, shortcutName = None,
-            shortcutDir = None):
+            targetName = None, icon = None, shortcutName = None, 
+            shortcutDir = None, copyright = None, trademarks = None):
         self.script = script
         self.initScript = initScript or "Console"
         self.base = base or "Console"
@@ -599,6 +602,8 @@ class Executable(object):
         self.icon = icon
         self.shortcutName = shortcutName
         self.shortcutDir = shortcutDir
+        self.copyright = copyright
+        self.trademarks = trademarks
 
     def __repr__(self):
         return "<Executable script=%s>" % self.script
