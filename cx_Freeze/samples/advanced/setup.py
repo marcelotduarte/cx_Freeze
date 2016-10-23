@@ -16,7 +16,6 @@ from cx_Freeze import setup, Executable
 
 options = {
     'build_exe': {
-        'compressed': True,
         'includes': [
             'testfreeze_1',
             'testfreeze_2'

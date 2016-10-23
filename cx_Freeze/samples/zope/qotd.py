@@ -11,7 +11,7 @@ from twisted.internet import reactor
 
 class QOTD(Protocol):
     def connectionMade(self):
-        self.transport.write('An apple a day keeps the doctor away\r\n')
+        self.transport.write(b'An apple a day keeps the doctor away\r\n')
         self.transport.loseConnection()
 
 # Next lines are magic:

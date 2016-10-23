@@ -9,10 +9,12 @@ class Frame(wx.Frame):
         wx.Frame.__init__(self, parent=None, title='Hello from cx_Freeze')
         panel = wx.Panel(self)
         closeMeButton = wx.Button(panel, -1, 'Close Me')
-        wx.EVT_BUTTON(self, closeMeButton.GetId(), self.OnCloseMe)
-        wx.EVT_CLOSE(self, self.OnCloseWindow)
+        self.Connect(closeMeButton.GetId(), -1, wx.EVT_BUTTON.typeId,
+                self.OnCloseMe)
+        self.Connect(self.GetId(), -1, wx.EVT_CLOSE.typeId, self.OnCloseWindow)
         pushMeButton = wx.Button(panel, -1, 'Push Me')
-        wx.EVT_BUTTON(self, pushMeButton.GetId(), self.OnPushMe)
+        self.Connect(pushMeButton.GetId(), -1, wx.EVT_BUTTON.typeId,
+                self.OnPushMe)
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(closeMeButton, flag=wx.ALL, border=20)
         sizer.Add(pushMeButton, flag=wx.ALL, border=20)
