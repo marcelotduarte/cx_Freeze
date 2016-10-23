@@ -371,8 +371,6 @@ class Freezer(object):
             sys.stdout.write(" %-25s %s\n" % (module.name, module.file or ""))
         sys.stdout.write("\n")
 
-    
-
     def _RemoveFile(self, path):
         if os.path.exists(path):
             os.chmod(path, stat.S_IWRITE)
@@ -468,6 +466,10 @@ class Freezer(object):
 
         targetDir = os.path.dirname(fileName)
         if sys.platform != "win32":
+            if os.path.basename(targetDir) == "lib64":
+                linkName = os.path.join(os.path.dirname(targetDir), "lib")
+                if not os.path.exists(linkName):
+                    os.symlink("lib64", linkName)
             targetDir = os.path.join(targetDir,
                     "python%s.%s" % sys.version_info[:2])
         self._CreateDirectory(targetDir)
