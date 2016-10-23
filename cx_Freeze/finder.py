@@ -296,6 +296,7 @@ class ModuleFinder(object):
                 self._EnsureFromList(caller, packageModule, subModuleNames,
                         newDeferredImports)
             deferredImports = newDeferredImports
+            skipInImport = True
 
     def _ImportModule(self, name, deferredImports, caller = None,
             relativeImportIndex = 0, namespace = False):
