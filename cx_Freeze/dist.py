@@ -99,6 +99,13 @@ class build_exe(distutils.core.Command):
         ('bin-path-excludes', None,
          'list of paths from which to exclude files when determining '
          'dependencies'),
+        ('zip-include-packages=', None,
+         'comma-separated list of packages to include in the zip file ' \
+                '(or * for all) [default: none]'),
+        ('zip-exclude-packages=', None,
+         'comma-separated list of packages to exclude from the zip file ' \
+                'and place in the file system instead (or * for all) ' \
+                '[default: *]'),
         ('silent', 's',
          'suppress all output except warnings')
     ]
@@ -155,11 +162,14 @@ class build_exe(distutils.core.Command):
             'bin_includes',
             'bin_path_includes',
             'bin_path_excludes',
+            'zip_include_packages',
+            'zip_exclude_packages',
         ]
 
         for option in self.list_options:
             setattr(self, option, [])
 
+        self.zip_exclude_packages = "*"
         self.optimize = 0
         self.build_exe = None
         self.no_compress = False
@@ -203,7 +213,9 @@ class build_exe(distutils.core.Command):
                 namespacePackages = self.namespace_packages,
                 binPathIncludes = self.bin_path_includes,
                 binPathExcludes = self.bin_path_excludes,
-                metadata = metadata)
+                metadata = metadata,
+                zipIncludePackages = self.zip_include_packages,
+                zipExcludePackages = self.zip_exclude_packages)
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):

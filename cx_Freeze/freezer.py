@@ -117,7 +117,8 @@ class Freezer(object):
             binPathIncludes = [], binPathExcludes = [],
             includeFiles = [], zipIncludes = [], silent = False,
             namespacePackages = [], metadata = None,
-            includeMSVCR = False):
+            includeMSVCR = False, zipIncludePackages = [],
+            zipExcludePackages = ["*"]):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
@@ -141,6 +142,8 @@ class Freezer(object):
         self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
         self.metadata = metadata
+        self.zipIncludePackages = list(zipIncludePackages)
+        self.zipExcludePackages = list(zipExcludePackages)
         self._VerifyConfiguration()
 
     def _AddVersionResource(self, exe):
@@ -434,6 +437,17 @@ class Freezer(object):
 
         return True
 
+    def _ShouldIncludeInFileSystem(self, module):
+        if module.parent is not None:
+            return self._ShouldIncludeInFileSystem(module.parent)
+        if module.path is None or module.file is None:
+            return False
+        if self.zipIncludeAllPackages \
+                and module.name not in self.zipExcludePackages:
+            return True
+        return self.zipExcludeAllPackages \
+                and module.name not in self.zipIncludePackages
+
     def _VerifyConfiguration(self):
         if self.compress is None:
             self.compress = True
@@ -449,6 +463,16 @@ class Freezer(object):
                         sourceFileName)
             if os.path.isabs(targetFileName):
                 raise ConfigError("target file/directory cannot be absolute")
+
+        self.zipExcludeAllPackages = "*" in self.zipExcludePackages
+        self.zipIncludeAllPackages = "*" in self.zipIncludePackages
+        if self.zipExcludeAllPackages and self.zipIncludeAllPackages:
+            raise ConfigError("all packages cannot be included and excluded " \
+                    "from the zip file at the same time")
+        for name in self.zipIncludePackages:
+            if name in self.zipExcludePackages:
+                raise ConfigError("package %s cannot be both included and " \
+                        "excluded from zip file", name)
 
         for executable in self.executables:
             executable._VerifyConfiguration(self)
@@ -478,13 +502,38 @@ class Freezer(object):
         outFile = zipfile.PyZipFile(fileName, "w", zipfile.ZIP_DEFLATED)
 
         filesToCopy = []
+        magic = imp.get_magic()
+        ignorePatterns = shutil.ignore_patterns("*.py", "*.pyc", "*.pyo",
+                "__pycache__")
         for module in modules:
 
-            if module.code is None and module.file is not None:
-                # Extension module: if found in a package, save a Python loader
-                # in the zip file, and copy the actual file to the build
-                # directory, because shared libraries can't be loaded from a
-                # zip file.
+            # determine if the module should be written to the file system;
+            # a number of packages make the assumption that files that they
+            # require will be found in a location relative to where
+            # they are located on disk; these packages will fail with strange
+            # errors when they are written to a zip file instead
+            includeInFileSystem = self._ShouldIncludeInFileSystem(module)
+
+            # if the module refers to a package, check to see if this package
+            # should be included in the zip file or should be written to the
+            # file system; if the package should be written to the file system,
+            # any non-Python files are copied at this point if the target
+            # directory does not already exist
+            if module.path is not None and includeInFileSystem:
+                parts = module.name.split(".")
+                targetPackageDir = os.path.join(targetDir, *parts)
+                sourcePackageDir = os.path.dirname(module.file)
+                if not os.path.exists(targetPackageDir):
+                    print("Copying data from package", module.name + "...")
+                    shutil.copytree(sourcePackageDir, targetPackageDir,
+                            ignore = ignorePatterns)
+
+            # if an extension module is found in a package that is to be
+            # included in a zip file, save a Python loader in the zip file and
+            # copy the actual file to the build directory because shared
+            # libraries cannot be loaded from a zip file
+            if module.code is None and module.file is not None \
+                    and not includeInFileSystem:
                 fileName = os.path.basename(module.file)
                 if "." in module.name:
                     baseFileName, ext = os.path.splitext(fileName)
@@ -496,30 +545,48 @@ class Freezer(object):
                 target = os.path.join(targetDir, fileName)
                 filesToCopy.append((module, target))
 
-            if module.code is None:
-                continue
-
-            fileName = "/".join(module.name.split("."))
-            if module.path:
-                fileName += "/__init__"
-            if module.file is not None and os.path.exists(module.file):
-                mtime = os.stat(module.file).st_mtime
-            else:
-                mtime = time.time()
-            zipTime = time.localtime(mtime)[:6]
             # starting with Python 3.3 the pyc file format contains the source
             # size; it is not actually used for anything except determining if
             # the file is up to date so we can safely set this value to zero
-            if sys.version_info[:2] < (3, 3):
-                header = imp.get_magic() + struct.pack("<i", int(mtime))
-            else:
-                header = imp.get_magic() + struct.pack("<ii", int(mtime), 0)
-            data = header + marshal.dumps(module.code)
-            zinfo = zipfile.ZipInfo(fileName + ".pyc", zipTime)
-            if self.compress:
-                zinfo.compress_type = zipfile.ZIP_DEFLATED
-            outFile.writestr(zinfo, data)
+            if module.code is not None:
+                if module.file is not None and os.path.exists(module.file):
+                    mtime = os.stat(module.file).st_mtime
+                else:
+                    mtime = time.time()
+                if sys.version_info[:2] < (3, 3):
+                    header = magic + struct.pack("<i", int(mtime))
+                else:
+                    header = magic + struct.pack("<ii", int(mtime), 0)
+                data = header + marshal.dumps(module.code)
 
+            # if the module should be written to the file system, do so
+            if includeInFileSystem:
+                parts = module.name.split(".")
+                if module.code is None:
+                    parts.pop()
+                    parts.append(os.path.basename(module.file))
+                    targetName = os.path.join(targetDir, *parts)
+                    self._CopyFile(module.file, targetName,
+                            copyDependentFiles = True)
+                else:
+                    if module.path is not None:
+                        parts.append("__init__")
+                    targetName = os.path.join(targetDir, *parts) + ".pyc"
+                    open(targetName, "wb").write(data)
+
+
+            # otherwise, write to the zip file
+            elif module.code is not None:
+                zipTime = time.localtime(mtime)[:6]
+                fileName = "/".join(module.name.split("."))
+                if module.path:
+                    fileName += "/__init__"
+                zinfo = zipfile.ZipInfo(fileName + ".pyc", zipTime)
+                if self.compress:
+                    zinfo.compress_type = zipfile.ZIP_DEFLATED
+                outFile.writestr(zinfo, data)
+
+        # write any files to the zip file that were requested specially
         for sourceFileName, targetFileName in self.zipIncludes:
             outFile.write(sourceFileName, targetFileName)
 
