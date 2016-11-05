@@ -2,6 +2,8 @@
 Base class for freezing scripts into executables.
 """
 
+from __future__ import print_function
+
 import datetime
 import distutils.sysconfig
 import imp
@@ -196,6 +198,9 @@ class Freezer(object):
         finder = self.finder
         finder.IncludeFile(exe.script, exe.moduleName)
         finder.IncludeFile(exe.initScript, exe.initModuleName)
+        startupModule = get_resource_file_path("initscripts", "__startup__",
+                ".py")
+        finder.IncludeFile(startupModule)
 
         self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
                 includeMode = True)

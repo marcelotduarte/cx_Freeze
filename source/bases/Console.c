@@ -7,6 +7,7 @@
 #include <locale.h>
 #ifdef MS_WINDOWS
 #include <windows.h>
+#include <shlwapi.h>
 #endif
 
 // disable filename globbing on Windows

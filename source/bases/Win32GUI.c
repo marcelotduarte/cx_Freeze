@@ -6,6 +6,8 @@
 #include <Python.h>
 #include <locale.h>
 #include <windows.h>
+#include <shlwapi.h>
+#include <tchar.h>
 
 // define PyInt_* macros for Python 3.x
 #ifndef PyInt_Check
@@ -36,7 +38,7 @@
 static int FatalError(
     char *a_Message)                    // message to display
 {
-    MessageBox(NULL, a_Message, "cx_Freeze Fatal Error", MB_ICONERROR);
+    MessageBoxA(NULL, a_Message, "cx_Freeze Fatal Error", MB_ICONERROR);
     Py_Finalize();
     return -1;
 }
@@ -245,7 +247,11 @@ static int FatalScriptError()
 // WinMain()
 //   Main routine for the executable in Windows.
 //-----------------------------------------------------------------------------
+#if PY_MAJOR_VERSION >= 3
+int WINAPI wWinMain(
+#else
 int WINAPI WinMain(
+#endif
     HINSTANCE instance,                 // handle to application
     HINSTANCE prevInstance,             // previous handle to application
     LPSTR commandLine,                  // command line
@@ -254,11 +260,7 @@ int WINAPI WinMain(
     int status = 0;
 
     // initialize Python
-#if defined(MS_WINDOWS) && PY_MAJOR_VERSION >= 3
-    if (InitializePython(__argc, __wargv) < 0)
-#else
-    if (InitializePython(__argc, __argv) < 0)
-#endif		
+    if (InitializePython(__argc, __targv) < 0)
         status = 1;
 
     // do the work
