@@ -19,7 +19,7 @@ installation."""
 VERSION = \
 """
 %%prog %s
-Copyright (c) 2007-2014 Anthony Tuininga. All rights reserved.
+Copyright (c) 2007-2016 Anthony Tuininga. All rights reserved.
 Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.""" % \
         cx_Freeze.version
 
