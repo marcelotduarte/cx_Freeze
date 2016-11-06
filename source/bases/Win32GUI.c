@@ -7,7 +7,6 @@
 #include <locale.h>
 #include <windows.h>
 #include <shlwapi.h>
-#include <tchar.h>
 
 // define PyInt_* macros for Python 3.x
 #ifndef PyInt_Check
@@ -23,11 +22,17 @@
     #define cxString_FromAscii(str) \
         PyUnicode_DecodeASCII(str, strlen(str), NULL)
     #define cxString_Join               PyUnicode_Join
+    #define cxSTR                       wchar_t
+    #define cx__argv                    __wargv
+    #define cxMain                      wWinMain
 #else
     #define cxString_Check              PyString_Check
     #define cxString_Format             PyString_Format
     #define cxString_FromAscii(str)     PyString_FromString(str)
     #define cxString_Join               _PyString_Join
+    #define cxSTR                       char
+    #define cx__argv                    __argv
+    #define cxMain                      WinMain
 #endif
 
 
@@ -247,20 +252,16 @@ static int FatalScriptError()
 // WinMain()
 //   Main routine for the executable in Windows.
 //-----------------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 3
-int WINAPI wWinMain(
-#else
-int WINAPI WinMain(
-#endif
+int WINAPI cxMain(
     HINSTANCE instance,                 // handle to application
     HINSTANCE prevInstance,             // previous handle to application
-    LPSTR commandLine,                  // command line
+    cxSTR *commandLine,                 // command line
     int showFlag)                       // show flag
 {
     int status = 0;
 
     // initialize Python
-    if (InitializePython(__argc, __targv) < 0)
+    if (InitializePython(__argc, cx__argv) < 0)
         status = 1;
 
     // do the work
