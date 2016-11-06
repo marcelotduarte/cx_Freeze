@@ -62,16 +62,11 @@ class build_ext(distutils.command.build_ext.build_ext):
             return
         if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
-        macros = []
-        if sys.platform == "win32" and sys.version[0] >= "3":
-            macros.append(("UNICODE", None))
-            macros.append(("_UNICODE", None))
         os.environ["LD_RUN_PATH"] = "${ORIGIN}:${ORIGIN}/../lib"
         objects = self.compiler.compile(ext.sources,
                 output_dir = self.build_temp,
                 include_dirs = ext.include_dirs,
                 debug = self.debug,
-                macros = macros,
                 depends = ext.depends)
         fileName = os.path.splitext(self.get_ext_filename(ext.name))[0]
         fullName = os.path.join(self.build_lib, fileName)
