@@ -8,15 +8,116 @@ Release notes
 Development version
 -------------------
 
-.. note:: This version supports Python 2.6 and above. If you need support for
-   an earlier version of Python, please use cx_Freeze 4.2.3.
+.. note:: This version supports Python 2.7 and above.
 
 
-Version 4.3.4
--------------
+Version 5.0 (November 2016)
+---------------------------
 
-.. note:: This version supports Python 2.6 and above. If you need support for
-   an earlier version of Python, please use cx_Freeze 4.2.3.
+.. note:: This version supports Python 2.7 and above.
+
+1)  Added support for Python 3.5.
+
+2)  Switched from using C compiled frozen modules which embed part of the
+    standard library to using the default named zip file and library file
+    locations. This eliminates the need to recompile cx_Freeze for each new
+    Python version as no parts of the standard library are included in the
+    installation now. This also implies that appending a zip file to the
+    executable is no longer supported since the standard name and location are
+    used.
+
+3)  Removed unnecessary options and parameters from cx_Freeze.
+    (`PR #60 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/60>`_)
+    (`PR #67 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/67>`_)
+
+4)  Added support for Win32Service base with Python 3.x.
+    (`PR #49 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/49>`_)
+
+5)  Add __version__ as an alias to version.
+    (`PR #65 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/65>`_)
+
+6)  Updated hooks for PyQt, h5py.
+    (`PR #68 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/68>`_)
+    (`PR #64 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/64>`_)
+    (`PR #70 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/70>`_)
+
+7)  Set copyDependentFiles = True for include files.
+    (`PR #66 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/66>`_)
+
+8)  Reallow including modules with non-identifier names.
+    (`PR #79 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/79>`_)
+
+9)  Fix missing space in Windows installer.
+    (`PR #81 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/81>`_)
+
+10) Use pattern "not in string" isntead of "string.find(pattern)"
+    (`PR #76 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/76>`_)
+
+11) Fix --add-to-path writing to the per-user instead of system environment
+    (`PR #86 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/86>`_)
+
+12) Fix documentation
+    (`PR #77 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/77>`_)
+    (`PR #78 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/78>`_)
+
+13) Do not import excluded submodules.
+    (`PR #89 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/89>`_)
+
+14) Correct distribution files for bdist_msi
+    (`PR #95 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/95>`_)
+
+15) Allow proper handling of Unicode command line parameters under Windows
+    (`PR #87 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/87>`_)
+
+16) Add pyzmq hook
+    (`PR #63 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/63>`_)
+
+17) Add copyright and trademarks to version information
+    (`PR #94 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/94>`_)
+
+18) Fix compilation on Ubuntu
+    (`Issue #52 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/32>`_)
+
+19) Set defaults in class directly, rather than as defaults in the function
+    signature.
+    (`Issue #185 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/185>`_)
+
+20) Correct relative import of builtin module (cx_Freeze was incorrectly
+    considering it an extension found within a package).
+    (`Issue #127 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/127>`_)
+
+21) Ensure that included files are added relative to the executable, not to the
+    location of the zip file.
+    (`Issue #183 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/183>`_)
+
+22) Prevent infinite loop while using cx_Freeze installed in a prefix.
+    (`Issue #204 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/204>`_)
+
+23) Added support for storing packages in the file system instead of in the zip
+    file. There are a number of packages that assume that they are found in the
+    file system and if found in a zip file instead produce strange errors. The
+    default is now to store packages in the file system but a method is
+    available to place packages in the zip file if they are known to behave
+    properly when placed there.
+    (`Issue #73 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/73>`_)
+
+24) Added support for untranslatable characters on Windows in the path where a
+    frozen executable is located.
+    (`Issue #29 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/29>`_)
+
+25) Significantly simplified startup code.
+
+26) Added logging statements for improved debugging.
+
+27) Updated samples to handle recent updates to packages.
+
+28) Avoid infinite loop for deferred imports which are cycles of one another.
+
+
+Version 4.3.4 (December 2014)
+-----------------------------
+
+.. note:: This version supports Python 2.6 and above.
 
 1)  Rebuilt for Python 3.4.2. Dropped support for Python versions less than 2.6.
 
@@ -46,11 +147,10 @@ Version 4.3.4
     (`PR #74 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/74>`_)
 
 
-Version 4.3.3
--------------
+Version 4.3.3 (May 2014)
+------------------------
 
-.. note:: This version supports Python 2.4 and above. If you need Python 2.3
-   support, please use cx_Freeze 4.2.3.
+.. note:: This version supports Python 2.4 and above.
 
 1)  Added support for release version of 3.4
     (`PR #47 <https://bitbucket.org/anthony_tuininga/cx_freeze/pull-request/47>`_)
@@ -88,8 +188,8 @@ Bugs fixed:
   (`Issue #31 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/31/install_name_tool-doesnt-set-relative>`_)
 
 
-Version 4.3.2
--------------
+Version 4.3.2 (October 2013)
+----------------------------
 
 1) Added support for Python 3.4.
 2) Added hooks for PyQt4, PyQt5 and PySide to handle their plugins.
@@ -116,8 +216,8 @@ Bugs fixed:
   identifier
 
 
-Version 4.3.1
--------------
+Version 4.3.1 (November 2012)
+-----------------------------
 
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
@@ -139,8 +239,8 @@ Bugs fixed:
   (`Issue #11 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/11/incorrect-paths-in-installed-cxfreeze#comment-2425986>`_)
 
 
-Version 4.3
------------
+Version 4.3 (July 2012)
+-----------------------
 
 .. note:: This version supports Python 2.4 and above. If you need Python 2.3
    support, please use cx_Freeze 4.2.3.
@@ -173,8 +273,8 @@ Bugs fixed:
   (`Issue #3 <https://bitbucket.org/anthony_tuininga/cx_freeze/issue/3/subpackages-on-windows>`_)
 
 
-Version 4.2.3
--------------
+Version 4.2.3 (March 2011)
+--------------------------
 
 1) Added support for Python 3.2.
 2) Added hook for datetime module which implicitly imports the time module.
@@ -183,8 +283,9 @@ Version 4.2.3
    even when compression is not taking place.
 5) Added sample for a tkinter application.
 
-Version 4.2.2
--------------
+
+Version 4.2.2 (December 2010)
+-----------------------------
 
 1) Added support for namespace packages which are loaded implicitly upon
    startup by injection into sys.modules.
@@ -213,8 +314,9 @@ Version 4.2.2
     resulting in some distutils features not being available; for those who
     require or prefer the use of setuptools, import it in your setup.py.
 
-Version 4.2.1
--------------
+
+Version 4.2.1 (October 2010)
+----------------------------
 
 1) Added support for specifying bin_path_includes and bin_path_excludes in
    setup scripts.
@@ -234,8 +336,9 @@ Version 4.2.1
 10) Added documentation for the shortcutName and shortcutDir parameters for
     creating an executable.
 
-Version 4.2
------------
+
+Version 4.2 (July 2010)
+-----------------------
 
 1) Added support for Python 2.7.
 2) Improved support for Python 3.x.
@@ -264,8 +367,9 @@ Version 4.2
 14) Fixed selection of "Program Files" directory on Windows in 64-bit MSI
     packages built by cx_Freeze.
 
-Version 4.1.2
--------------
+
+Version 4.1.2 (January 2010)
+----------------------------
 
 1) Fix bug that caused the util extension to be named improperly.
 2) Fix bug that prevented freezing from taking place if a packaged submodule
@@ -276,8 +380,9 @@ Version 4.1.2
 4) Fix bug that caused the base modules to be included in the library.zip as
    well as the base executables.
 
-Version 4.1.1
--------------
+
+Version 4.1.1 (December 2009)
+-----------------------------
 
 1) Added support for Python 3.1.
 2) Added support for 64-bit Windows.
@@ -302,8 +407,9 @@ Version 4.1.1
     the spec files built with cx_Freeze.
 12) Ensure that manifest.txt is included in the source distribution.
 
-Version 4.1
------------
+
+Version 4.1 (July 2009)
+-----------------------
 
 1) Added support for Python 3.x.
 2) Added support for services on Windows.
@@ -353,15 +459,17 @@ Version 4.1
 23) Tweaked hooks for a number of modules based on feedback from others or
     personal experience.
 
-Version 4.0.1
--------------
+
+Version 4.0.1 (October 2008)
+----------------------------
 
 1) Added support for Python 2.6. On Windows a manifest file is now required
    because of the switch to using the new Microsoft C runtime.
 2) Ensure that hooks are run for builtin modules.
 
-Version 4.0
------------
+
+Version 4.0 (September 2008)
+----------------------------
 
 1) Added support for copying files to the target directory.
 2) Added support for a hook that runs when a module is missing.
@@ -397,8 +505,9 @@ Version 4.0
 17) Renamed freeze to cxfreeze to avoid conflict with another package that uses
     that executable as requested by Siegfried Gevatter.
 
-Version 4.0b1
--------------
+
+Version 4.0b1 (September 2007)
+------------------------------
 
 1) Added support for placing modules in library.zip or in a separate zip file
    for each executable that is produced.
@@ -421,11 +530,13 @@ Version 4.0b1
 13) On Linux and other platforms that support it set LD_RUN_PATH to include
     the directory in which the executable is located
 
+
 Older versions
 ##############
 
-Version 3.0.3
--------------
+
+Version 3.0.3 (July 2006)
+-------------------------
 
 1) In Common.c, used MAXPATHLEN defined in the Python OS independent include
    file rather than the PATH_MAX define which is OS dependent and is not
@@ -442,8 +553,9 @@ Version 3.0.3
 5) In MakeFrozenBases.py, use distutils to figure out a few more
    platform-dependent linker flags as suggested by Ralf Schmitt.
 
-Version 3.0.2
--------------
+
+Version 3.0.2 (December 2005)
+-----------------------------
 
 1) Add support for compressing the byte code in the zip files that are
    produced.
@@ -456,8 +568,9 @@ Version 3.0.2
    suggestion from Gregg Lind.
 6) Fix typo in help string.
 
-Version 3.0.1
--------------
+
+Version 3.0.1 (December 2004)
+-----------------------------
 
 1) Added option --default-path which is used to specify the path used when
    finding modules. This is particularly useful when performing cross
@@ -485,8 +598,9 @@ Version 3.0.1
    during the execution of the code in that module. Thanks to Roger Binns
    for pointing this out.
 
-Version 3.0
------------
+
+Version 3.0 (September 2004)
+----------------------------
 
 1) Ensure that ldd is only run on extension modules.
 2) Allow for using a compiler other than gcc for building the frozen base
@@ -498,8 +612,9 @@ Version 3.0
    else (so that for example the path of the machine on which the freezing
    was done is not displayed in tracebacks)
 
-Version 3.0 beta3
------------------
+
+Version 3.0 beta3 (September 2004)
+----------------------------------
 
 1) Explicitly include the warnings module so that at runtime warnings are
    suppressed as when running Python normally.
@@ -513,8 +628,9 @@ Version 3.0 beta3
 5) Fixed the dependency checking for wxPython to be a little more
    intelligent.
 
-Version 3.0 beta2
------------------
+
+Version 3.0 beta2 (July 2004)
+-----------------------------
 
 1) Fix issues with locating the initscripts and bases relative to the
    directory in which the executable was started.
@@ -527,8 +643,9 @@ Version 3.0 beta2
 5) Added option -O (or -OO) to FreezePython to set the optimization used when
    generating bytecode.
 
-Version 3.0 beta1
------------------
+
+Version 3.0 beta1 (June 2004)
+-----------------------------
 
 1) cx_Freeze now requires Python 2.3 or higher since it takes advantage of
    the ability of Python 2.3 and higher to import modules from zip files.
@@ -560,8 +677,8 @@ Version 3.0 beta1
     requested by Michael Partridge.
 
 
-Version 2.2
------------
+Version 2.2 (August 2003)
+-------------------------
 
 1) Add option (--ext-list-file) to FreezePython to write the list of
    extensions copied to the installation directory to a file. This option is
@@ -579,8 +696,9 @@ Version 2.2
    boxes, rather than printing errors to stderr, since on Windows the
    standard file IO handles are all closed.
 
-Version 2.1
------------
+
+Version 2.1 (July 2003)
+-----------------------
 
 1) Remove dependency on Python 2.2. Thanks to Paul Moore for not only
    pointing it out but providing patches.
@@ -603,6 +721,7 @@ Version 2.1
 7) Provide meaningful error message when the wxPython library cannot be
    found during the freezing process.
 
+
 Version 2.0
 -----------
 
@@ -617,6 +736,7 @@ Version 2.0
 5) Added a sample for building a Win32 service.
 6) Make use of improved modules from Python 2.3 (which function under 2.2)
 
+
 Version 1.1
 -----------
 
@@ -627,3 +747,4 @@ Version 1.1
    exclusion of modules which will be found by the module finder but should
    not be included (--exclude-modules).
 3) Fixed typo in README.txt.
+
