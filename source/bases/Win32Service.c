@@ -7,15 +7,62 @@
 #include <locale.h>
 #include <windows.h>
 #include <Winsvc.h>
+#include <shlwapi.h>
 #include <cx_Logging.h>
 
+// Python 3 uses wide chars; Python 2 uses multi-byte chars
+#if PY_MAJOR_VERSION >= 3
+    #define cxString_Format                 PyUnicode_Format
+    #define cxString_FromFormat             PyUnicode_FromFormat
+    #define cxString_FromAscii(str) \
+            PyUnicode_DecodeASCII(str, strlen(str), NULL)
+    #define cxString_FromSTR(str)           PyUnicode_FromWideChar(str, -1)
+    #define cxSTR                           wchar_t
+    #define cxSTRC                          L
+    #define cxSTR_null                      L'\0'
+    #define cxSTR_len                       wcslen
+    #define cxSTR_copy                      wcscpy
+    #define cxSTR_icmp                      wcsicmp
+    #define cxSTR_rchr                      wcsrchr
+    #define cxLogging_Start                 StartLoggingW
+    #define cxWin_GetPrivateProfileString   GetPrivateProfileStringW
+    #define cxWin_GetPrivateProfileInt      GetPrivateProfileIntW
+    #define cxWin_fullpath                  _wfullpath
+    #define CX_SERVICE_INSTALL_USAGE        \
+            "%ls --install <NAME> [<CONFIGFILE>]"
+    #define CX_SERVICE_UNINSTALL_USAGE      "%ls --uninstall <NAME>"
+    #define CX_SERVICE_INIT_MESSAGE         "initializing with config file %ls"
+#else
+    #define cxString_Format                 PyString_Format
+    #define cxString_FromFormat             PyString_FromFormat
+    #define cxString_FromAscii(str)         PyString_FromString(str)
+    #define cxString_FromSTR(str)           PyString_FromString(str)
+    #define cxSTR                           char
+    #define cxSTRC
+    #define cxSTR_null                      '\0'
+    #define cxSTR_len                       strlen
+    #define cxSTR_copy                      strcpy
+    #define cxSTR_icmp                      stricmp
+    #define cxSTR_rchr                      strrchr
+    #define cxLogging_Start                 StartLogging
+    #define cxWin_GetPrivateProfileString   GetPrivateProfileStringA
+    #define cxWin_GetPrivateProfileInt      GetPrivateProfileIntA
+    #define cxWin_fullpath                  _fullpath
+    #define CX_SERVICE_INSTALL_USAGE        \
+            "%s --install <NAME> [<CONFIGFILE>]"
+    #define CX_SERVICE_UNINSTALL_USAGE      "%s --uninstall <NAME>"
+    #define CX_SERVICE_INIT_MESSAGE         "initializing with config file %s"
+#endif
+
 // define constants
-#define CX_LOGGING_SECTION_NAME         "Logging"
-#define CX_LOGGING_FILE_NAME_KEY        "FileName"
-#define CX_LOGGING_LEVEL_KEY            "Level"
-#define CX_LOGGING_MAX_FILES_KEY        "MaxFiles"
-#define CX_LOGGING_MAX_FILE_SIZE_KEY    "MaxFileSize"
-#define CX_LOGGING_PREFIX_KEY           "Prefix"
+#define CX_LOGGING_SECTION_NAME         cxSTRC"Logging"
+#define CX_LOGGING_FILE_NAME_KEY        cxSTRC"FileName"
+#define CX_LOGGING_LEVEL_KEY            cxSTRC"Level"
+#define CX_LOGGING_MAX_FILES_KEY        cxSTRC"MaxFiles"
+#define CX_LOGGING_MAX_FILE_SIZE_KEY    cxSTRC"MaxFileSize"
+#define CX_LOGGING_PREFIX_KEY           cxSTRC"Prefix"
+#define CX_LOGGING_PREFIX_SIZE          100
+#define CX_LOGGING_PREFIX_DEFAULT       cxSTRC"[%i] %d %t"
 #define CX_SERVICE_MODULE_NAME          "MODULE_NAME"
 #define CX_SERVICE_CLASS_NAME           "CLASS_NAME"
 #define CX_SERVICE_NAME                 "NAME"
@@ -23,20 +70,15 @@
 #define CX_SERVICE_DESCRIPTION          "DESCRIPTION"
 #define CX_SERVICE_AUTO_START           "AUTO_START"
 #define CX_SERVICE_SESSION_CHANGES      "SESSION_CHANGES"
+#define CX_SERVICE_LOGGING_EXTENSION    cxSTRC".log"
+#define CX_SERVICE_INI_EXTENSION        cxSTRC".ini"
+#define CX_SERVICE_INSTALL_OPTION       cxSTRC"--install"
+#define CX_SERVICE_UNINSTALL_OPTION     cxSTRC"--uninstall"
 
 // the following was copied from cx_Interface.c, which is where this
 // declaration normally happens
 #ifndef PATH_MAX
     #define PATH_MAX _MAX_PATH
-#endif
-
-// define methods for manipulating strings
-#if PY_MAJOR_VERSION >= 3
-    #define cxString_Format             PyUnicode_Format
-    #define cxString_FromFormat         PyUnicode_FromFormat
-#else
-    #define cxString_Format             PyString_Format
-    #define cxString_FromFormat         PyString_FromFormat
 #endif
 
 
@@ -55,7 +97,7 @@ static HANDLE gControlEvent = NULL;
 static SERVICE_STATUS_HANDLE gServiceHandle;
 static PyInterpreterState *gInterpreterState = NULL;
 static PyObject *gInstance = NULL;
-static char gIniFileName[PATH_MAX + 1];
+static cxSTR gIniFileName[PATH_MAX + 1];
 
 //-----------------------------------------------------------------------------
 // FatalError()
@@ -223,38 +265,40 @@ static DWORD WINAPI Service_Control(
 //-----------------------------------------------------------------------------
 static int Service_StartLogging(void)
 {
-    char defaultLogFileName[PATH_MAX + 1], logFileName[PATH_MAX + 1];
+    cxSTR defaultLogFileName[PATH_MAX + 1], logFileName[PATH_MAX + 1];
     unsigned logLevel, maxFiles, maxFileSize;
-    char *ptr, prefix[100];
+    cxSTR *ptr, prefix[CX_LOGGING_PREFIX_SIZE];
     size_t size;
 
     // determine the default log file name and ini file name
-    ptr = strrchr(g_ExecutableName, '.');
+    ptr = cxSTR_rchr(g_ExecutableName, '.');
     if (ptr)
        size = ptr - g_ExecutableName;
-    else size = strlen(g_ExecutableName);
-    strcpy(defaultLogFileName, g_ExecutableName);
-    strcpy(&defaultLogFileName[size], ".log");
-    if (strlen(gIniFileName) == 0) {
-        strcpy(gIniFileName, g_ExecutableName);
-        strcpy(&gIniFileName[size], ".ini");
+    else size = cxSTR_len(g_ExecutableName);
+    cxSTR_copy(defaultLogFileName, g_ExecutableName);
+    cxSTR_copy(&defaultLogFileName[size], CX_SERVICE_LOGGING_EXTENSION);
+    if (cxSTR_len(gIniFileName) == 0) {
+        cxSTR_copy(gIniFileName, g_ExecutableName);
+        cxSTR_copy(&gIniFileName[size], CX_SERVICE_INI_EXTENSION);
     }
 
     // read the entries from the ini file
-    logLevel = GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
+    logLevel = cxWin_GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
             CX_LOGGING_LEVEL_KEY, LOG_LEVEL_ERROR, gIniFileName);
-    GetPrivateProfileString(CX_LOGGING_SECTION_NAME, CX_LOGGING_FILE_NAME_KEY,
-            defaultLogFileName, logFileName, sizeof(logFileName),
-            gIniFileName);
-    maxFiles = GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
+    cxWin_GetPrivateProfileString(CX_LOGGING_SECTION_NAME,
+            CX_LOGGING_FILE_NAME_KEY, defaultLogFileName, logFileName,
+            sizeof(logFileName), gIniFileName);
+    maxFiles = cxWin_GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
             CX_LOGGING_MAX_FILES_KEY, 1, gIniFileName);
-    maxFileSize = GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
+    maxFileSize = cxWin_GetPrivateProfileInt(CX_LOGGING_SECTION_NAME,
             CX_LOGGING_MAX_FILE_SIZE_KEY, DEFAULT_MAX_FILE_SIZE, gIniFileName);
-    GetPrivateProfileString(CX_LOGGING_SECTION_NAME, CX_LOGGING_PREFIX_KEY,
-            "[%i] %d %t", prefix, sizeof(prefix), gIniFileName);
+    cxWin_GetPrivateProfileString(CX_LOGGING_SECTION_NAME,
+            CX_LOGGING_PREFIX_KEY, CX_LOGGING_PREFIX_DEFAULT, prefix,
+            CX_LOGGING_PREFIX_SIZE, gIniFileName);
 
     // start the logging process
-    return StartLogging(logFileName, logLevel, maxFiles, maxFileSize, prefix);
+    return cxLogging_Start(logFileName, logLevel, maxFiles, maxFileSize,
+            prefix);
 }
 
 
@@ -352,11 +396,12 @@ static int Service_SetupPython(
 //   Install the service with the given name.
 //-----------------------------------------------------------------------------
 static int Service_Install(
-    char *name,                         // name of service
-    char *configFileName)               // name of configuration file or NULL
+    cxSTR *name,                        // name of service
+    cxSTR *configFileName)              // name of configuration file or NULL
 {
+    PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
-    char fullPathConfigFileName[PATH_MAX + 1];
+    cxSTR fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
 #if PY_MAJOR_VERSION >= 3
     SERVICE_DESCRIPTIONW sd;
@@ -370,7 +415,10 @@ static int Service_Install(
         return -1;
 
     // determine name and display name to use for the service
-    formatArgs = Py_BuildValue("(s)", name);
+    nameObj = cxString_FromSTR(name);
+    if (!nameObj)
+        return LogPythonException("cannot create service name obj");
+    formatArgs = PyTuple_Pack(1, nameObj);
     if (!formatArgs)
         return LogPythonException("cannot create service name tuple");
     fullName = cxString_Format(info.nameFormat, formatArgs);
@@ -379,20 +427,43 @@ static int Service_Install(
     displayName = cxString_Format(info.displayNameFormat, formatArgs);
     if (!displayName)
         return LogPythonException("cannot create display name");
+    Py_CLEAR(formatArgs);
+    Py_CLEAR(nameObj);
 
     // determine command to use for the service
+    executableNameObj = cxString_FromSTR(g_ExecutableName);
+    if (!executableNameObj)
+        return LogPythonException("cannot create executable name obj");
     if (!configFileName) {
-        command = cxString_FromFormat("\"%s\"", g_ExecutableName);
+        formatObj = cxString_FromAscii("\"%s\"");
+        if (!formatObj)
+            return LogPythonException("cannot create format string");
+        formatArgs = PyTuple_Pack(1, executableNameObj);
+        if (!formatArgs)
+            return LogPythonException("cannot create short command tuple");
     } else {
-        if (!_fullpath(fullPathConfigFileName, configFileName,
-                sizeof(fullPathConfigFileName)))
+        Py_CLEAR(formatArgs);
+        if (!cxWin_fullpath(fullPathConfigFileName, configFileName,
+                PATH_MAX + 1))
             return LogWin32Error(GetLastError(),
                     "cannot calculate absolute path of config file name");
-        command = cxString_FromFormat("\"%s\" \"%s\"", g_ExecutableName,
-                fullPathConfigFileName);
+        formatObj = cxString_FromAscii("\"%s\" \"%s\"");
+        if (!formatObj)
+            return LogPythonException("cannot create format string");
+        configFileNameObj = cxString_FromSTR(fullPathConfigFileName);
+        if (!configFileNameObj)
+            return LogPythonException("cannot create config file name string");
+        formatArgs = PyTuple_Pack(2, executableNameObj, configFileNameObj);
+        if (!formatArgs)
+            return LogPythonException("cannot create long command tuple");
+        Py_CLEAR(configFileNameObj);
     }
+    Py_CLEAR(executableNameObj);
+    command = cxString_Format(formatObj, formatArgs);
     if (!command)
         return LogPythonException("cannot create command");
+    Py_CLEAR(formatObj);
+    Py_CLEAR(formatArgs);
 
     // open up service control manager
     managerHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -449,10 +520,10 @@ static int Service_Install(
 //   Uninstall the service with the given name.
 //-----------------------------------------------------------------------------
 static int Service_Uninstall(
-    char *name)                         // name of service
+    cxSTR *name)                        // name of service
 {
+    PyObject *fullName, *formatArgs, *nameObj;
     SC_HANDLE managerHandle, serviceHandle;
-    PyObject *fullName, *formatArgs;
     SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
 
@@ -461,9 +532,13 @@ static int Service_Uninstall(
         return -1;
 
     // determine name of the service
-    formatArgs = Py_BuildValue("(s)", name);
+    nameObj = cxString_FromSTR(name);
+    if (!nameObj)
+        return LogPythonException("cannot create service name obj");
+    formatArgs = PyTuple_Pack(1, nameObj);
     if (!formatArgs)
         return LogPythonException("cannot create service name tuple");
+    Py_CLEAR(nameObj);
     fullName = cxString_Format(info.nameFormat, formatArgs);
     if (!fullName)
         return LogPythonException("cannot create service name");
@@ -502,7 +577,7 @@ static int Service_Uninstall(
 static int Service_Run(
     udt_ServiceInfo *info)              // information about the service
 {
-    PyObject *temp;
+    PyObject *temp, *iniFileNameObj;
 
     // create an instance of the class which implements the service
     gInstance = PyObject_CallFunctionObjArgs(info->cls, NULL);
@@ -510,12 +585,15 @@ static int Service_Run(
         return LogPythonException("cannot create instance of service class");
 
     // initialize the instance implementing the service
-    LogMessageV(LOG_LEVEL_DEBUG, "initializing with config file %s",
-            gIniFileName);
-    temp = PyObject_CallMethod(gInstance, "Initialize", "s", gIniFileName);
+    LogMessageV(LOG_LEVEL_DEBUG, CX_SERVICE_INIT_MESSAGE, gIniFileName);
+    iniFileNameObj = cxString_FromSTR(gIniFileName);
+    if (!iniFileNameObj)
+        return LogPythonException("failed to create ini file as string");
+    temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
     if (!temp)
         return LogPythonException("failed to initialize instance properly");
-    Py_DECREF(temp);
+    Py_CLEAR(iniFileNameObj);
+    Py_CLEAR(temp);
 
     // run the service
     LogMessage(LOG_LEVEL_INFO, "starting up service");
@@ -584,9 +662,13 @@ static void WINAPI Service_Main(
 // main()
 //   Main routine for the service.
 //-----------------------------------------------------------------------------
+#if PY_MAJOR_VERSION >= 3
+int wmain(int argc, wchar_t **argv)
+#else
 int main(int argc, char **argv)
+#endif
 {
-    char *configFileName = NULL;
+    cxSTR *configFileName = NULL;
 
     SERVICE_TABLE_ENTRY table[] = {
         { "", (LPSERVICE_MAIN_FUNCTION) Service_Main },
@@ -598,12 +680,12 @@ int main(int argc, char **argv)
         return 1;
 
     // check for arguments and perform install/uninstall as requested
-    gIniFileName[0] = '\0';
+    gIniFileName[0] = cxSTR_null;
     if (argc > 1) {
-        if (stricmp(argv[1], "--install") == 0) {
+        if (cxSTR_icmp(argv[1], CX_SERVICE_INSTALL_OPTION) == 0) {
             if (argc == 2) {
                 fprintf(stderr, "Incorrect number of parameters.\n");
-                fprintf(stderr, "%s --install <NAME> [<CONFIGFILE>]", argv[0]);
+                fprintf(stderr, CX_SERVICE_INSTALL_USAGE, argv[0]);
                 return 1;
             }
             if (argc > 3)
@@ -615,10 +697,10 @@ int main(int argc, char **argv)
             }
             fprintf(stderr, "Service installed.");
             return 0;
-        } else if (stricmp(argv[1], "--uninstall") == 0) {
+        } else if (cxSTR_icmp(argv[1], CX_SERVICE_UNINSTALL_OPTION) == 0) {
             if (argc == 2) {
                 fprintf(stderr, "Incorrect number of parameters.\n");
-                fprintf(stderr, "%s --uninstall <NAME>", argv[0]);
+                fprintf(stderr, CX_SERVICE_UNINSTALL_USAGE, argv[0]);
                 return 1;
             }
             if (Service_Uninstall(argv[2]) < 0) {
@@ -629,7 +711,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "Service uninstalled.");
             return 0;
         }
-        strcpy(gIniFileName, argv[1]);
+        cxSTR_copy(gIniFileName, argv[1]);
     }
 
     // run the service normally

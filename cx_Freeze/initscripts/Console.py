@@ -18,7 +18,8 @@ os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
 m = __import__("__main__")
 name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
 moduleName = "%s__main__" % name
-__import__(moduleName)
+scriptModule = __import__(moduleName)
+m.__dict__.update(scriptModule.__dict__)
 
 versionInfo = sys.version_info[:3]
 if versionInfo >= (2, 5, 0) and versionInfo <= (2, 6, 4):
