@@ -9,16 +9,18 @@ needs to be copied. Modules that your code imports are detected, but if they're
 dynamically loaded - e.g. by a plugin system - you have to tell cx_Freeze about
 them. This is easy using a :doc:`setup script <distutils>`:
 
-* For Python code, specify the module names in the ``packages`` option.
+* For Python code, specify the module names in the ``includes`` or ``packages``
+  options.
 * List compiled libraries (.dll or .so files) in the ``include_files`` option.
 * Data files are a bit more complex - see :ref:`data_files`.
 
 Freezing for other platforms
 ----------------------------
 
-cx_Freeze works on Windows, Mac and Linux, but on each platform it only makes an
-executable that runs on that platform. So if you want to freeze your program for
-Windows, freeze it on Windows; if you want to run it on Macs, freeze it on a Mac.
+cx_Freeze works on Windows, Mac and Linux, but on each platform it only makes
+an executable that runs on that platform. So if you want to freeze your program
+for Windows, freeze it on Windows; if you want to run it on Macs, freeze it on
+a Mac.
 
 At a pinch, you can try to make a Windows executable using
 `Wine <http://www.winehq.org/>`_. Our experience is that you need to copy some
@@ -65,8 +67,8 @@ have installed.
   ``include_msvcr`` option to :ref:`distutils_build_exe` to have them
   distributed automatically.
 
-* If not, your users or your installer will need to install the Microsoft Visual
-  C++ Redistributable Package (a free download from Microsoft).
+* If not, your users or your installer will need to install the Microsoft
+  Visual C++ Redistributable Package (a free download from Microsoft).
   It's not uncommon for this to already be present on modern computers, but
   it's not, as far as we know, part of a standard Windows installation. Note
   that the "SP1" version of this *does not* work -- it has to exactly match
@@ -79,8 +81,8 @@ have installed.
 
 Up to Python 2.5, and again from Python 3.3, the MSVCR DLLs are installed in a
 normal location, and cx_Freeze will copy them automatically. It's still up to
-you to ensure that the licenses of all the files you use allow you to distribute
-them as part of your application.
+you to ensure that the licenses of all the files you use allow you to
+distribute them as part of your application.
 
 Single-file executables
 -----------------------
@@ -92,7 +94,8 @@ You can use `IExpress <http://en.wikipedia.org/wiki/IExpress>`_ to compress the
 build directory from cx_Freeze into a self-extracting archive: an exe which
 unpacks your application into a temporary directory and runs it. IExpress is a
 utility that's included with Windows, intended for making installers, but it
-works equally well if you tell it to run the cx_Freeze-built exe after extraction.
+works equally well if you tell it to run the cx_Freeze-built exe after
+extraction.
 
 Alternatively, you can create a `self extracting archive using 7zip
 <http://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_. This is a bit more

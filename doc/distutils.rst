@@ -155,6 +155,23 @@ It can be further customized:
 | bin_path_excludes     | list of paths from which to exclude files when      |
 |                       | determining dependencies of binary files            |
 +-----------------------+-----------------------------------------------------+
+| zip_include_packages  | list of packages which should be included in the    |
+|                       | zip file; the default is for all packages to be     |
+|                       | placed in the file system, not the zip file; those  |
+|                       | packages which are known to work well inside a zip  |
+|                       | file can be included if desired; use * to specify   |
+|                       | that all packages should be included in the zip     |
+|                       | file                                                |
++-----------------------+-----------------------------------------------------+
+| zip_exclude_packages  | list of packages which should be excluded from the  |
+|                       | zip file and placed in the file system instead; the |
+|                       | default is for all packages to be placed in the     |
+|                       | file system since a number of packages assume that  |
+|                       | is where they are found and will fail when placed   |
+|                       | in a zip file; use * to specify that all packages   |
+|                       | should be placed in the file system and excluded    |
+|                       | from the zip file (the default)                     |
++-----------------------+-----------------------------------------------------+
 | silent (-s)           | suppress all output except warnings                 |
 +-----------------------+-----------------------------------------------------+
 
@@ -322,45 +339,27 @@ constructor are as follows:
 |                       | bases subdirectory of the cx_Freeze package is      |
 |                       | searched                                            |
 +-----------------------+-----------------------------------------------------+
-| path                  | list of paths to search for modules                 |
-+-----------------------+-----------------------------------------------------+
-| targetDir             | the directory in which to place the target          |
-|                       | executable and any dependent files                  |
-+-----------------------+-----------------------------------------------------+
 | targetName            | the name of the target executable; the default      |
 |                       | value is the name of the script with the extension  |
 |                       | exchanged with the extension for the base           |
 |                       | executable                                          |
 +-----------------------+-----------------------------------------------------+
-| includes              | list of names of modules to include                 |
-+-----------------------+-----------------------------------------------------+
-| excludes              | list of names of modules to exclude                 |
-+-----------------------+-----------------------------------------------------+
-| packages              | list of names of packages to include, including all |
-|                       | of the package's submodules                         |
-+-----------------------+-----------------------------------------------------+
-| replacePaths          | Modify filenames attached to code objects, which    |
-|                       | appear in tracebacks. Pass a list of 2-tuples       |
-|                       | containing paths to search for and corresponding    |
-|                       | replacement values. A search for '*' will match the |
-|                       | directory containing the entire package, leaving    |
-|                       | just the relative path to the module.               |
-+-----------------------+-----------------------------------------------------+
-| compress              | boolean value indicating if the module bytecode     |
-|                       | should be compressed or not                         |
-+-----------------------+-----------------------------------------------------+
 | icon                  | name of icon which should be included in the        |
 |                       | executable itself on Windows or placed in the       |
 |                       | target directory for other platforms                |
 +-----------------------+-----------------------------------------------------+
-| namespacePackages     | list of packages to be treated as namespace         |
-|                       | packages (path is extended using pkgutil)           |
-+-----------------------+-----------------------------------------------------+
 | shortcutName          | the name to give a shortcut for the executable when |
-|                       | included in an MSI package                          |
+|                       | included in an MSI package (Windows only).          |
 +-----------------------+-----------------------------------------------------+
 | shortcutDir           | the directory in which to place the shortcut when   |
 |                       | being installed by an MSI package; see the MSI      |
 |                       | Shortcut table documentation for more information   |
-|                       | on what values can be placed here.                  |
+|                       | on what values can be placed here (Windows only).   |
 +-----------------------+-----------------------------------------------------+
+| copyright             | the copyright value to include in the version       |
+|                       | resource associated with executable (Windows only). |
++-----------------------+-----------------------------------------------------+
+| trademarks            | the trademarks value to include in the version      |
+|                       | resource associated with executable (Windows only). |
++-----------------------+-----------------------------------------------------+
+

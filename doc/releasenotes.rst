@@ -105,13 +105,16 @@ Version 5.0 (November 2016)
     frozen executable is located.
     (`Issue #29 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/29>`_)
 
-25) Significantly simplified startup code.
+25) Use volume label to name the DMG file
+    (`Issue #97 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/97>`_)
 
-26) Added logging statements for improved debugging.
+26) Significantly simplified startup code.
 
-27) Updated samples to handle recent updates to packages.
+27) Added logging statements for improved debugging.
 
-28) Avoid infinite loop for deferred imports which are cycles of one another.
+28) Updated samples to handle recent updates to packages.
+
+29) Avoid infinite loop for deferred imports which are cycles of one another.
 
 
 Version 4.3.4 (December 2014)
