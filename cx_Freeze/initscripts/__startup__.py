@@ -9,5 +9,5 @@ import sys
 
 baseName = os.path.normcase(os.path.basename(sys.executable))
 name, ext = os.path.splitext(baseName)
-__import__(name.lower() + "__init__")
+__import__(name + "__init__")
 
