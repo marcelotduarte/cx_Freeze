@@ -63,7 +63,7 @@ class bdist_dmg(Command):
 
         # Set the file name of the DMG to be built
         self.dmgName = os.path.join(self.buildDir,
-                                    self.distribution.get_fullname() + '.dmg')
+                                    self.volume_label + '.dmg')
 
         self.execute(self.buildDMG, ())
 
@@ -157,7 +157,7 @@ class bdist_mac(Command):
 
                 # find the actual referenced file name
                 referencedFile = reference.decode().strip().split()[0]
-                
+
                 if referencedFile.startswith('@executable_path'):
                     # the referencedFile is already a relative path (to the executable)
                     continue
