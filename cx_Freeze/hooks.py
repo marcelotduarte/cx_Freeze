@@ -403,24 +403,23 @@ def load_pythoncom(finder, module):
     """the pythoncom module is actually contained in a DLL but since those
        cannot be loaded directly in Python 2.5 and higher a special module is
        used to perform that task; simply use that technique directly to
-       determine the name of the DLL and ensure it is included as a normal
-       extension; also load the pywintypes module which is implicitly
-       loaded."""
+       determine the name of the DLL and ensure it is included as a file in
+       the target directory."""
     import pythoncom
-    module.file = pythoncom.__file__
-    module.code = None
-    finder.IncludeModule("pywintypes")
+    finder.IncludeFiles(pythoncom.__file__,
+            os.path.basename(pythoncom.__file__))
 
 
 def load_pywintypes(finder, module):
     """the pywintypes module is actually contained in a DLL but since those
        cannot be loaded directly in Python 2.5 and higher a special module is
        used to perform that task; simply use that technique directly to
-       determine the name of the DLL and ensure it is included as a normal
-       extension."""
+       determine the name of the DLL and ensure it is included as a file in the
+       target directory."""
     import pywintypes
-    module.file = pywintypes.__file__
-    module.code = None
+    finder.IncludeFiles(pywintypes.__file__,
+            os.path.basename(pywintypes.__file__))
+
 
 # PyQt5 and PyQt4 can't both be loaded in the same process, so we cache the
 # QtCore module so we can still return something sensible if we try to load
