@@ -27,43 +27,6 @@
     static char g_ExecutableDirName[MAXPATHLEN + 1];
 #endif
 
-#ifndef MS_WINDOWS
-//-----------------------------------------------------------------------------
-// FollowLinks()
-//   Follow links in order to get the final executable name.
-//-----------------------------------------------------------------------------
-static int FollowLinks(void)
-{
-    char linkData[MAXPATHLEN + 1], *ptr;
-    size_t linkSize, size, i;
-    struct stat statData;
-
-    for (i = 0; i < 25; i++) {
-        if (lstat(g_ExecutableName, &statData) < 0)
-            return FatalError("unable to stat executable");
-        if (!S_ISLNK(statData.st_mode))
-            break;
-        linkSize = readlink(g_ExecutableName, linkData, sizeof(linkData));
-        if (linkSize < 0)
-            return FatalError("unable to read link");
-        if (linkData[0] == SEP)
-            strcpy(g_ExecutableName, linkData);
-        else {
-            ptr = strrchr(g_ExecutableName, SEP);
-            if (!ptr)
-                return FatalError("no directory in executable name!");
-            size = strlen(g_ExecutableName) - strlen(ptr);
-            if (size + linkSize + 1 > MAXPATHLEN)
-                return FatalError("cannot dereference link, path too large!");
-            strncpy(ptr + 1, linkData, linkSize);
-            *(ptr + linkSize + 1) = '\0';
-        }
-    }
-
-    return 0;
-}
-#endif
-
 
 //-----------------------------------------------------------------------------
 // SetExecutableName()
@@ -85,14 +48,14 @@ static int SetExecutableName(
 
 #else
 
-    char *path, *ptr, *tempPtr;
+    char executableName[PATH_MAX + 1], *path, *ptr, *tempPtr;
     size_t size, argv0Size;
     struct stat statData;
     int found = 0;
 
     // check to see if path contains a separator
     if (strchr(argv0, SEP)) {
-        strcpy(g_ExecutableName, argv0);
+        strcpy(executableName, argv0);
 
     // if not, check the PATH environment variable
     } else {
@@ -107,11 +70,11 @@ static int SetExecutableName(
                 size = tempPtr - ptr;
             else size = strlen(ptr);
             if (size + argv0Size + 1 <= MAXPATHLEN) {
-                strncpy(g_ExecutableName, ptr, size);
-                g_ExecutableName[size] = SEP;
-                g_ExecutableName[size + 1] = '\0';
-                strcat(g_ExecutableName, argv0);
-                if (stat(g_ExecutableName, &statData) == 0 &&
+                strncpy(executableName, ptr, size);
+                executableName[size] = SEP;
+                executableName[size + 1] = '\0';
+                strcat(executableName, argv0);
+                if (stat(executableName, &statData) == 0 &&
                         S_ISREG(statData.st_mode) &&
                         (statData.st_mode & 0111)) {
                     found = 1;
@@ -126,8 +89,9 @@ static int SetExecutableName(
             return FatalError("Unable to locate executable on PATH!");
     }
 
-    if (FollowLinks() < 0)
-        return -1;
+    // get absolute path for executable name
+    if (!realpath(executableName, g_ExecutableName))
+        return FatalError("Unable to determine absolute path for executable!");
 
     // get directory from executable name
     strcpy(g_ExecutableDirName, g_ExecutableName);
