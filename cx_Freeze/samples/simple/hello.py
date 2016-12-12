@@ -11,6 +11,7 @@ stdout.write('The current date is %s\n\n' %
 
 stdout.write('Executable: %r\n' % sys.executable)
 stdout.write('Prefix: %r\n' % sys.prefix)
+stdout.write('Default encoding: %r\n' % sys.getdefaultencoding())
 stdout.write('File system encoding: %r\n\n' % sys.getfilesystemencoding())
 
 stdout.write('ARGUMENTS:\n')
