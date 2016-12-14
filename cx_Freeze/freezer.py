@@ -448,10 +448,10 @@ class Freezer(object):
         if module.path is None or module.file is None:
             return False
         if self.zipIncludeAllPackages \
-                and module.name not in self.zipExcludePackages:
-            return True
-        return self.zipExcludeAllPackages \
-                and module.name not in self.zipIncludePackages
+                and module.name not in self.zipExcludePackages \
+                or module.name in self.zipIncludePackages:
+            return False
+        return True
 
     def _VerifyConfiguration(self):
         if self.compress is None:
