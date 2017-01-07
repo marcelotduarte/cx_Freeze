@@ -278,7 +278,7 @@ class ModuleFinder(object):
                 subModule = self._InternalImportModule(subModuleName,
                                 deferredImports)
                 if subModule is None:
-                    if subModule not in self.excludes:
+                    if subModuleName not in self.excludes:
                         raise ImportError("No module named %r" % subModuleName)
                 else:
                     module.globalNames[name] = None
