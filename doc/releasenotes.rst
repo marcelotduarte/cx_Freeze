@@ -11,6 +11,27 @@ Development version
 .. note:: This version supports Python 2.7 and above.
 
 
+Version 5.0.1 (January 2017)
+----------------------------
+
+1)  Added support for Python 3.6.
+
+2)  Corrected hooks for the pythoncom and pywintypes modules.
+
+3)  Use realpath() to get the absolute path of the executable; this resolves
+    symbolic links and ensures that changing the path before all imports are
+    complete does not result in the executable being unable to find modules.
+
+4)  Correct issue with usage of 'if __main__ == "__main__"'.
+    (`Issue #211 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/211>`_)
+
+5)  Correct handling of the zip_include_packages option.
+    (`Issue #208 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/208>`_)
+
+6)  Correct logic regarding importing of submodules.
+    (`Issue #219 <https://bitbucket.org/anthony_tuininga/cx_freeze/issues/219>`_)
+
+
 Version 5.0 (November 2016)
 ---------------------------
 
