@@ -541,7 +541,8 @@ class ModuleFinder(object):
            modules are truly missing."""
         arguments = []
         importedModule = None
-        method = dis._unpack_opargs if sys.version_info[:2] >= (3, 5) \
+        # https://bitbucket.org/anthony_tuininga/cx_freeze/issues/225
+        method = dis._unpack_opargs if sys.version_info[:3] >= (3, 5, 2) \
                 else self._UnpackOpArgs
         for opIndex, op, opArg in method(co.co_code):
 
