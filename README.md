@@ -11,7 +11,7 @@ platform and should work on any platform that Python itself works on. It support
 Install by issuing the command
 
 ```
-pip install cx_Freeze
+python -m pip install cx_Freeze --upgrade
 ```
 
 or download directly from [PyPI](https://pypi.python.org/pypi/cx_Freeze).
@@ -35,4 +35,6 @@ set VS100COMNTOOLS=%VS140COMNTOOLS%
 
 The official documentation is available at https://cx-freeze.readthedocs.io/
 
-If you need help you can also ask on the official mailing list: https://lists.sourceforge.net/lists/listinfo/cx-freeze-users
+If you need help you can also ask on the official mailing list:
+https://lists.sourceforge.net/lists/listinfo/cx-freeze-users
+
