@@ -38,3 +38,8 @@ The official documentation is available at https://cx-freeze.readthedocs.io/
 If you need help you can also ask on the official mailing list:
 https://lists.sourceforge.net/lists/listinfo/cx-freeze-users
 
+# License
+
+cx_Freeze uses a license derived from the [Python Software Foundation License](https://www.python.org/psf/license).
+You can read the cx_Freeze license online at https://cx-freeze.readthedocs.io/en/latest/license.html
+or in the file [`doc/license.rst`](doc/license.rst) in the source repository.
