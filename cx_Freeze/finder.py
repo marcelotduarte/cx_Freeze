@@ -209,6 +209,21 @@ class ModuleFinder(object):
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
 
+    def realName(self, path):
+        the_dir, the_name = os.path.split(path)
+        if the_name is None:
+            return path
+        dir_scan = os.scandir(the_dir)
+        for item in dir_scan:
+            if the_name == item.name:
+                # print('{} exists in {}'.format(the_name, the_dir))
+                return path
+        dir_scan = os.scandir(the_dir)
+        for item in dir_scan:
+            if the_name.lower() == item.name.lower():
+                sys.stdout.write("{} corrected in {}\n".format(item.name, the_dir))
+                return os.path.join(the_dir, item.name)
+
     def _FindModule(self, name, path, namespace):
         try:
             # imp loads normal modules from the filesystem
@@ -397,6 +412,7 @@ class ModuleFinder(object):
 
         try:
             fp, path, info = self._FindModule(searchName, path, namespace)
+            path = self.realName(path)
             if info[-1] == imp.C_BUILTIN and parentModule is not None:
                 return None
             module = self._LoadModule(name, fp, path, info, deferredImports,
@@ -482,6 +498,7 @@ class ModuleFinder(object):
         module.path = [path]
         try:
             fp, path, info = self._FindModule("__init__", module.path, False)
+            path = self.realName(path)
             self._LoadModule(name, fp, path, info, deferredImports, parent)
             logging.debug("Adding module [%s] [PKG_DIRECTORY]", name)
         except ImportError:
@@ -541,7 +558,7 @@ class ModuleFinder(object):
            modules are truly missing."""
         arguments = []
         importedModule = None
-        method = dis._unpack_opargs if sys.version_info[:3] >= (3, 5, 2) \
+        method = dis._unpack_opargs if sys.version_info[:2] >= (3, 5) \
                 else self._UnpackOpArgs
         for opIndex, op, opArg in method(co.co_code):
 

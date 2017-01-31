@@ -576,6 +576,12 @@ class Freezer(object):
                 else:
                     if module.path is not None:
                         parts.append("__init__")
+                    else:
+                        no_ext, ext = os.path.splitext(os.path.basename(module.file))
+                        if no_ext.lower() == parts[-1].lower() and no_ext != parts[-1]:
+                            parts.pop()
+                            parts.append(no_ext)
+                            sys.stdout.write("Corrected {} when writing module\n".format(no_ext))
                     targetName = os.path.join(targetDir, *parts) + ".pyc"
                     open(targetName, "wb").write(data)
 
