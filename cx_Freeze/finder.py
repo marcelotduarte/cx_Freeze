@@ -210,6 +210,11 @@ class ModuleFinder(object):
                 self._ImportModule(subModuleName, deferredImports, caller)
 
     def realName(self, path):
+        """Having problems on Windows with cx_Freeze 5 with:
+         from multiprocessing import process
+         when the module file name is Process.pyc.
+         This is an attempt to sort that out by checking the real module
+         file name against expected path name."""
         the_dir, the_name = os.path.split(path)
         if the_name is None:
             return path
@@ -412,6 +417,8 @@ class ModuleFinder(object):
 
         try:
             fp, path, info = self._FindModule(searchName, path, namespace)
+            # Use the function to get the real module pathname in case
+            # it has different case
             path = self.realName(path)
             if info[-1] == imp.C_BUILTIN and parentModule is not None:
                 return None
@@ -498,6 +505,8 @@ class ModuleFinder(object):
         module.path = [path]
         try:
             fp, path, info = self._FindModule("__init__", module.path, False)
+            # Use the function to get the real module pathname in case
+            # it has different case
             path = self.realName(path)
             self._LoadModule(name, fp, path, info, deferredImports, parent)
             logging.debug("Adding module [%s] [PKG_DIRECTORY]", name)

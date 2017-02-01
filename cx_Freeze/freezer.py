@@ -577,6 +577,7 @@ class Freezer(object):
                     if module.path is not None:
                         parts.append("__init__")
                     else:
+                        # Trying to solve Windows import problem with case of module name
                         no_ext, ext = os.path.splitext(os.path.basename(module.file))
                         if no_ext.lower() == parts[-1].lower() and no_ext != parts[-1]:
                             parts.pop()
