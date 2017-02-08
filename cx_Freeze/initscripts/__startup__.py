@@ -7,7 +7,8 @@
 import os
 import sys
 
-baseName = os.path.normcase(os.path.basename(sys.executable))
-name, ext = os.path.splitext(baseName)
-__import__(name + "__init__")
-
+def run():
+    baseName = os.path.normcase(os.path.basename(sys.executable))
+    name, ext = os.path.splitext(baseName)
+    module = __import__(name + "__init__")
+    module.run()

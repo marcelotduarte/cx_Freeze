@@ -18,3 +18,6 @@ if not hasattr(sys, "frozen"):
 os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
 os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
 
+
+def run():
+    pass

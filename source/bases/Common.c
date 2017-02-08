@@ -233,14 +233,23 @@ static int InitializePython(int argc, char **argv)
 //-----------------------------------------------------------------------------
 static int ExecuteScript(void)
 {
-    PyObject *name, *module;
+    PyObject *name, *module, *function;
 
     name = cxString_FromString("__startup__");
     if (!name)
         return FatalError("Cannot create string for startup module name!");
+
     module = PyImport_Import(name);
     if (!module)
         return FatalScriptError();
+
+    function = PyObject_GetAttrString(module,(char *)"run");
+    if (!function)
+        return FatalScriptError();
+
+    PyObject_CallObject(function, NULL);
+
+    Py_DECREF(function);
     Py_DECREF(module);
     Py_DECREF(name);
 
