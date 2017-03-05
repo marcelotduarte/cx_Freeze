@@ -9,10 +9,24 @@
 
 // define names that will work for both Python 2 and 3
 #if PY_MAJOR_VERSION >= 3
+    #define STR(s)  L##s
+    #define cx_char                     wchar_t
+    #define cx_strlen                   wcslen
+    #define cx_strstr                   wcsstr
+    #define cx_strncat                  wcsncat
+    #define cx_strncpy                  wcsncpy
+    #define cx_sprintf                  swprintf
     #define cxString_FromString         PyUnicode_FromString
     #define cxWin_GetModuleFileName     GetModuleFileNameW
     #define cxWin_PathRemoveFileSpec    PathRemoveFileSpecW
 #else
+    #define STR(s)  s
+    #define cx_char                     char
+    #define cx_strlen                   strlen
+    #define cx_strstr                   strstr
+    #define cx_strncat                  strncat
+    #define cx_strncpy                  strncpy
+    #define cx_sprintf                  snprintf
     #define cxString_FromString         PyString_FromString
     #define cxWin_GetModuleFileName     GetModuleFileNameA
     #define cxWin_PathRemoveFileSpec    PathRemoveFileSpecA
@@ -27,6 +41,9 @@
     static char g_ExecutableDirName[MAXPATHLEN + 1];
 #endif
 
+// max length of python path string
+#define MAX_PATH_VAR_LEN 4096
+#define PYZIP_PATH_LEN 20
 
 //-----------------------------------------------------------------------------
 // SetExecutableName()
@@ -104,6 +121,43 @@ static int SetExecutableName(
     return 0;
 }
 
+//-----------------------------------------------------------------------------
+// DeterminePath()
+//   Return the correct PYTHONPATH that should be used. Some python builds 
+// do not include 'pythonXY.zip' in their path, but cx_Freeze depends on this
+// feature. DeterminePath will amend the path if necessary, or simply return
+// the current path if not.
+//----------------------------------------------------------------------------- 
+static cx_char* DeterminePath(void)
+{
+    cx_char* curr_path = Py_GetPath();
+
+    cx_char pyzip_path[PYZIP_PATH_LEN];
+    cx_sprintf(pyzip_path, PYZIP_PATH_LEN, STR(":lib/python%d%d.zip"), PY_MAJOR_VERSION, PY_MINOR_VERSION);
+
+    if (cx_strstr(curr_path, pyzip_path))
+        return curr_path;
+    
+    int path_len = cx_strlen(curr_path);
+    if (path_len >= MAX_PATH_VAR_LEN) 
+    {
+        FatalError("Python sys.path is too long");
+        return NULL;
+    }
+
+    // NOTE: This never gets freed
+    cx_char* path = malloc(sizeof(cx_char) * MAX_PATH_VAR_LEN);
+    if (!path)
+    {
+        FatalError("Out of memory allocating path!");
+        return NULL;
+    }
+
+    cx_strncpy(path, curr_path, path_len);
+    cx_strncat(path, pyzip_path, MAX_PATH_VAR_LEN - path_len);
+
+    return path;
+}
 
 #if PY_MAJOR_VERSION >= 3
 
@@ -192,6 +246,12 @@ static int InitializePython(int argc, char **argv)
     Py_IgnoreEnvironmentFlag = 1;
     Py_SetPythonHome(wExecutableDirName);
     Py_SetProgramName(wExecutableName);
+
+    cx_char* path = DeterminePath();
+    if (!path)
+        return -1;
+    Py_SetPath(path);
+
     Py_Initialize();
     PySys_SetArgv(argc, wargv);
 
@@ -218,8 +278,14 @@ static int InitializePython(int argc, char **argv)
     Py_IgnoreEnvironmentFlag = 1;
     Py_SetPythonHome(g_ExecutableDirName);
     Py_SetProgramName(g_ExecutableName);
+    
     Py_Initialize();
     PySys_SetArgv(argc, argv);
+
+    cx_char* path = DeterminePath();
+    if (!path)
+        return -1;
+    PySys_SetPath(path);
 
     return 0;
 }
