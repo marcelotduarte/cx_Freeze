@@ -806,3 +806,11 @@ def load_zmq(finder, module):
         srcFileName = os.path.basename(zmq.libzmq.__file__)
         finder.IncludeFiles(
             os.path.join(module.path[0], srcFileName), srcFileName)
+
+
+def load_clr(finder, module):
+    """the pythonnet package (imported as 'clr') needs Python.Runtime.dll
+    in runtime"""
+    module_dir = os.path.dirname(module.file)
+    dllname = 'Python.Runtime.dll'
+    finder.IncludeFiles(os.path.join(module_dir, dllname), dllname)
