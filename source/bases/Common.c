@@ -243,7 +243,7 @@ static int ExecuteScript(void)
     if (!module)
         return FatalScriptError();
 
-    function = PyObject_GetAttrString(module,(char *)"run");
+    function = PyObject_GetAttrString(module, "run");
     if (!function)
         return FatalScriptError();
 
@@ -255,4 +255,3 @@ static int ExecuteScript(void)
 
     return 0;
 }
-
