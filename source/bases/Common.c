@@ -233,7 +233,7 @@ static int InitializePython(int argc, char **argv)
 //-----------------------------------------------------------------------------
 static int ExecuteScript(void)
 {
-    PyObject *name, *module, *function;
+    PyObject *name, *module, *function, *result;
 
     name = cxString_FromString("__startup__");
     if (!name)
@@ -247,8 +247,11 @@ static int ExecuteScript(void)
     if (!function)
         return FatalScriptError();
 
-    PyObject_CallObject(function, NULL);
+    result = PyObject_CallObject(function, NULL);
+    if (!result)
+        return FatalScriptError();
 
+    Py_DECREF(result);
     Py_DECREF(function);
     Py_DECREF(module);
     Py_DECREF(name);
