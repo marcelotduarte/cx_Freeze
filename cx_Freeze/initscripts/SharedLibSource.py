@@ -21,3 +21,6 @@ pathFileName = baseName + ".pth"
 sys.path = [s.strip() for s in file(pathFileName).read().splitlines()] + \
         sys.path
 
+
+def run():
+    pass

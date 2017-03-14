@@ -1,4 +1,3 @@
-syntax: glob
 doc/_build
 build/
 dist/
