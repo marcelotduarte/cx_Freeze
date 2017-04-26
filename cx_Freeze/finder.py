@@ -558,7 +558,7 @@ class ModuleFinder(object):
                     relativeImportIndex, fromList = arguments[-2:]
                 else:
                     relativeImportIndex = -1
-                    fromList, = arguments
+                    fromList = arguments[0] if arguments else []
                 if name not in module.excludeNames:
                     importedModule = self._ImportModule(name, deferredImports,
                             module, relativeImportIndex)
