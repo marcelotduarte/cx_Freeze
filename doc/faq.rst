@@ -14,6 +14,23 @@ them. This is easy using a :doc:`setup script <distutils>`:
 * List compiled libraries (.dll or .so files) in the ``include_files`` option.
 * Data files are a bit more complex - see :ref:`data_files`.
 
+Windows command prompt appears briefly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If there's a problem with your frozen application, you may see a command prompt
+window appear briefly when you try to run it, and then disappear again. This
+happens when a console-mode executable exits quickly, usually if there's an
+error as soon as it starts.
+
+There are two ways to debug what's going on:
+
+1. Freeze your application with the ``Win32GUI`` base (see :doc:`distutils` or
+   :doc:`script`). This doesn't use a console window, and reports errors in a
+   dialog box.
+2. Alternatively, start a command prompt yourself and launch the frozen
+   executable from the command line. This will let you see any error messages in
+   the console.
+
 Freezing for other platforms
 ----------------------------
 
