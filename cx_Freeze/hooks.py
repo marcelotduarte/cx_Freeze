@@ -6,6 +6,7 @@ def initialize(finder):
        automatic exclusions for various platforms."""
     finder.ExcludeModule("FCNTL")
     finder.ExcludeModule("os.path")
+    finder.ExcludeModule("multiprocessing.Process")
     if os.name == "nt":
         finder.ExcludeModule("fcntl")
         finder.ExcludeModule("grp")
