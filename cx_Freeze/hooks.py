@@ -678,9 +678,10 @@ def load_win32com(finder, module):
 
 
 def load_win32file(finder, module):
-    """the win32api module implicitly loads the pywintypes module; make sure
-       this happens."""
+    """the win32api module implicitly loads the pywintypes and win32timezone
+       module; make sure this happens."""
     finder.IncludeModule("pywintypes")
+    finder.IncludeModule("win32timezone")
 
 
 def load_wx_lib_pubsub_core(finder, module):
@@ -815,3 +816,12 @@ def load_clr(finder, module):
     module_dir = os.path.dirname(module.file)
     dllname = 'Python.Runtime.dll'
     finder.IncludeFiles(os.path.join(module_dir, dllname), dllname)
+    
+    
+def load_sqlite3(finder, module):
+    """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
+       be present in the build directory."""
+    if sys.platform == "win32":
+        dll_name = "sqlite3.dll"
+        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+        finder.IncludeFiles(dll_path, dll_name)
