@@ -1,10 +1,10 @@
-# About cx_Freeze
+# About cx\_Freeze
 
-**cx_Freeze** is a set of scripts and modules for freezing Python scripts into executables,
-in much the same way that [py2exe](http://www.py2exe.org/) and
-[py2app](https://pythonhosted.org/py2app/) do. Unlike these two tools, cx_Freeze is cross
-platform and should work on any platform that Python itself works on. It supports
-[Python](https://www.python.org/) 2.7 or higher (including Python 3).
+**cx\_Freeze** is a set of scripts and modules for freezing Python scripts into
+executables, in much the same way that [py2exe](http://www.py2exe.org/) and
+[py2app](https://pythonhosted.org/py2app/) do. Unlike these two tools,
+cx\_Freeze is cross platform and should work on any platform that Python itself works on. It supports [Python](https://www.python.org/) 2.7 or higher
+(including Python 3).
 
 # Download/Install
 
@@ -33,13 +33,17 @@ set VS100COMNTOOLS=%VS140COMNTOOLS%
 
 # Documentation
 
-The official documentation is available at https://cx-freeze.readthedocs.io/
+The official documentation is available
+[here](https://cx-freeze.readthedocs.io).
 
 If you need help you can also ask on the official mailing list:
 https://lists.sourceforge.net/lists/listinfo/cx-freeze-users
 
 # License
 
-cx_Freeze uses a license derived from the [Python Software Foundation License](https://www.python.org/psf/license).
-You can read the cx_Freeze license online at https://cx-freeze.readthedocs.io/en/latest/license.html
-or in the file [`doc/license.rst`](doc/license.rst) in the source repository.
+cx\_Freeze uses a license derived from the
+[Python Software Foundation License](https://www.python.org/psf/license).
+You can read the cx\_Freeze license in the
+[documentation](https://cx-freeze.readthedocs.io/en/latest/license.html)
+or in the [source repository](doc/license.rst).
+
