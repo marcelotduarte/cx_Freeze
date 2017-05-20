@@ -91,10 +91,10 @@ have installed.
   that the "SP1" version of this *does not* work -- it has to exactly match
   the version which Python itself is compiled with.
 
-     * 2008 (Python 2.6-3.2) `for x86 (32 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=29>`_
-       or `for x64 (64 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=15336>`_
-     * 2010 (Python 3.3) `for x86 (32 bit) Windows <http://www.microsoft.com/en-gb/download/details.aspx?id=5555>`_
-       or `for x64 (64 bit) Windows <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`_
+     * 2008 (Python 2.6-3.2) `for x86 (32 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=29>`__
+       or `for x64 (64 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
+     * 2010 (Python 3.3) `for x86 (32 bit) Windows <http://www.microsoft.com/en-gb/download/details.aspx?id=5555>`__
+       or `for x64 (64 bit) Windows <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 
 Up to Python 2.5, and again from Python 3.3, the MSVCR DLLs are installed in a
 normal location, and cx_Freeze will copy them automatically. It's still up to
