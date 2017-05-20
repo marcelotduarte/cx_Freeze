@@ -10,6 +10,28 @@ Development version
 
 .. note:: This version supports Python 2.7 and above.
 
+Version 5.0.2 (May 2017)
+------------------------
+
+#) Correct handling of import in child thread (`PR #245`_)
+#) Correct handling of "dis" module with Python 3.5.1 (`Issue #225`_)
+#) Correct handling of "multiprocess.process" module (`Issue #230`_)
+#) Correct attempt to assign variable to an empty list (`PR #260`_)
+#) Improved README (`PR #235`_, `PR #236`_)
+#) Add hook for pythonnet package (`PR #251`_)
+#) Add hook for sqlite3 and improve win32file hook (`PR #261`_)
+#) Add FAQ entry (`PR #267`_)
+
+.. _Issue #225: https://github.com/anthony-tuininga/cx_Freeze/issues/225
+.. _Issue #230: https://github.com/anthony-tuininga/cx_Freeze/issues/230
+.. _PR #235: https://github.com/anthony-tuininga/cx_Freeze/pull/235
+.. _PR #236: https://github.com/anthony-tuininga/cx_Freeze/pull/236
+.. _PR #245: https://github.com/anthony-tuininga/cx_Freeze/pull/245
+.. _PR #251: https://github.com/anthony-tuininga/cx_Freeze/pull/251
+.. _PR #260: https://github.com/anthony-tuininga/cx_Freeze/pull/260
+.. _PR #261: https://github.com/anthony-tuininga/cx_Freeze/pull/261
+.. _PR #267: https://github.com/anthony-tuininga/cx_Freeze/pull/267
+
 
 Version 5.0.1 (January 2017)
 ----------------------------
