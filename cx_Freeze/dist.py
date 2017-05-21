@@ -335,8 +335,7 @@ def setup(**attrs):
     attrs.setdefault("distclass", Distribution)
     commandClasses = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        if sys.version_info[:2] >= (2, 5):
-            _AddCommandClass(commandClasses, "bdist_msi", cx_Freeze.bdist_msi)
+        _AddCommandClass(commandClasses, "bdist_msi", cx_Freeze.bdist_msi)
     elif sys.platform == "darwin":
         _AddCommandClass(commandClasses, "bdist_dmg", cx_Freeze.bdist_dmg)
         _AddCommandClass(commandClasses, "bdist_mac", cx_Freeze.bdist_mac)

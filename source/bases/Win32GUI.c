@@ -8,32 +8,9 @@
 #include <windows.h>
 #include <shlwapi.h>
 
-// define PyInt_* macros for Python 3.x
-#ifndef PyInt_Check
-#define PyInt_Check             PyLong_Check
-#define PyInt_AsLong            PyLong_AsLong
-#endif
-
-
-// define methods for manipulating strings
-#if PY_MAJOR_VERSION >= 3
-    #define cxString_Check              PyUnicode_Check
-    #define cxString_Format             PyUnicode_Format
-    #define cxString_FromAscii(str) \
-        PyUnicode_DecodeASCII(str, strlen(str), NULL)
-    #define cxString_Join               PyUnicode_Join
-    #define cxSTR                       wchar_t
-    #define cx__argv                    __wargv
-    #define cxMain                      wWinMain
-#else
-    #define cxString_Check              PyString_Check
-    #define cxString_Format             PyString_Format
-    #define cxString_FromAscii(str)     PyString_FromString(str)
-    #define cxString_Join               _PyString_Join
-    #define cxSTR                       char
-    #define cx__argv                    __argv
-    #define cxMain                      WinMain
-#endif
+// define macro for convenience
+#define cxString_FromAscii(str) \
+    PyUnicode_DecodeASCII(str, strlen(str), NULL)
 
 
 //-----------------------------------------------------------------------------
@@ -59,13 +36,8 @@ static int DisplayMessageFromPythonObjects(
     PyObject *caption,                  // caption
     PyObject *message)                  // message
 {
-#if PY_MAJOR_VERSION >= 3
     MessageBoxW(NULL, PyUnicode_AS_UNICODE(message),
             PyUnicode_AS_UNICODE(caption), MB_ICONERROR);
-#else
-    MessageBox(NULL, PyString_AS_STRING(message), PyString_AS_STRING(caption),
-            MB_ICONERROR);
-#endif
     return -1;
 }
 
@@ -112,7 +84,7 @@ static int FatalPythonErrorNoTraceback(
     PyTuple_SET_ITEM(formatArgs, 0, ArgumentValue(contextMessageObj));
     PyTuple_SET_ITEM(formatArgs, 1, ArgumentValue(value));
     PyTuple_SET_ITEM(formatArgs, 2, ArgumentValue(origValue));
-    message = cxString_Format(format, formatArgs);
+    message = PyUnicode_Format(format, formatArgs);
     if (!message)
         return FatalError("Cannot format exception values.");
     caption = cxString_FromAscii("cx_Freeze: Python error in main script "
@@ -139,7 +111,7 @@ static int HandleSystemExitException()
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
     caption = PyObject_GetAttrString(value, "caption");
-    if (!caption || !cxString_Check(caption)) {
+    if (!caption || !PyUnicode_Check(caption)) {
         PyErr_Clear();
         caption = cxString_FromAscii("cx_Freeze: Application Terminated");
         if (!caption)
@@ -154,8 +126,8 @@ static int HandleSystemExitException()
         if (value == Py_None)
             Py_Exit(0);
     }
-    if (PyInt_Check(value))
-        exitCode = PyInt_AsLong(value);
+    if (PyLong_Check(value))
+        exitCode = PyLong_AsLong(value);
     else {
         message = PyObject_Str(value);
         if (!message)
@@ -225,14 +197,14 @@ static int FatalScriptError()
     if (!emptyString)
         return FatalPythonErrorNoTraceback(value,
                 "Cannot create empty string object.");
-    message = cxString_Join(emptyString, result);
+    message = PyUnicode_Join(emptyString, result);
     if (!message)
         return FatalPythonErrorNoTraceback(value,
                 "Cannot join exception strings.");
 
     // acquire caption
     caption = PyObject_GetAttrString(value, "caption");
-    if (!caption || !cxString_Check(caption)) {
+    if (!caption || !PyUnicode_Check(caption)) {
         PyErr_Clear();
         caption = cxString_FromAscii("cx_Freeze: Python error in main script");
         if (!caption)
@@ -252,16 +224,16 @@ static int FatalScriptError()
 // WinMain()
 //   Main routine for the executable in Windows.
 //-----------------------------------------------------------------------------
-int WINAPI cxMain(
+int WINAPI wWinMain(
     HINSTANCE instance,                 // handle to application
     HINSTANCE prevInstance,             // previous handle to application
-    cxSTR *commandLine,                 // command line
+    wchar_t *commandLine,               // command line
     int showFlag)                       // show flag
 {
     int status = 0;
 
     // initialize Python
-    if (InitializePython(__argc, cx__argv) < 0)
+    if (InitializePython(__argc, __wargv) < 0)
         status = 1;
 
     // do the work

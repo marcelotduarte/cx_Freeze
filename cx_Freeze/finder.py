@@ -11,6 +11,7 @@ import os
 import pkgutil
 import re
 import sys
+import tokenize
 import types
 import zipfile
 
@@ -28,18 +29,6 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = [ "Module", "ModuleFinder" ]
-
-try:
-    bytes   # Python >= 2.6
-except NameError:
-    bytes = str
-
-try:
-    source_from_cache = imp.source_from_cache  # Python 3.2 and above
-except AttributeError:
-    def source_from_cache(path):  # Pre PEP 3147 - cache is just .pyc/.pyo
-        assert path.endswith(('.pyc', '.pyo'))
-        return path[:-1]
 
 class ZipModulesCache(object):
     """A cache of module and package locations within zip files."""
@@ -107,10 +96,10 @@ class ZipModulesCache(object):
             if ext not in ('.pyc', '.pyo'):
                 continue
             if '__pycache__' in baseName:
-                if sys.version_info[:2] < (3, 2) \
-                        or not baseName.endswith(imp.get_tag()):
+                if not baseName.endswith(imp.get_tag()):
                     continue
-                baseName = os.path.splitext(source_from_cache(archiveName))[0]
+                baseName = \
+                        os.path.splitext(imp.source_from_cache(archiveName))[0]
             nameparts = baseName.split("/")
             
             if len(nameparts) > 1 and nameparts[-1] == '__init__':
@@ -161,17 +150,12 @@ class ModuleFinder(object):
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
         self.IncludePackage("encodings")
-        if sys.version_info[0] >= 3:
-            self.IncludeModule("io")
+        self.IncludeModule("io")
         self.IncludeModule("os")
         self.IncludeModule("sys")
         self.IncludeModule("zlib")
-        if sys.version_info[:2] >= (3, 4):
-            # We need this, because collections gets loaded (via traceback),
-            # and a partially frozen package causes problems.
-            self.IncludeModule("collections.abc")
-        if sys.version_info[:2] >= (3,5):
-            self.IncludeModule("importlib.abc")
+        self.IncludeModule("collections.abc")
+        self.IncludeModule("importlib.abc")
 
     def _AddModule(self, name):
         """Add a module to the list of modules but if one is already found,
@@ -421,12 +405,9 @@ class ModuleFinder(object):
         if type == imp.PY_SOURCE:
             logging.debug("Adding module [%s] [PY_SOURCE]", name)
             # Load & compile Python source code
-            if sys.version_info[0] >= 3:
-                # For Python 3, read the file with the correct encoding
-                import tokenize
-                fp = open(path, "rb")
-                encoding, lines = tokenize.detect_encoding(fp.readline)
-                fp = open(path, "U", encoding = encoding)
+            fp = open(path, "rb")
+            encoding, lines = tokenize.detect_encoding(fp.readline)
+            fp = open(path, "U", encoding = encoding)
             codeString = fp.read()
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
@@ -444,7 +425,7 @@ class ModuleFinder(object):
                 magic = fp.read(4)
             if magic != imp.get_magic():
                 raise ImportError("Bad magic number in %s" % path)
-            skip_bytes = 8 if (sys.version_info[:2] >= (3,3)) else 4
+            skip_bytes = 8
             if isinstance(fp, bytes):
                 module.code = marshal.loads(fp[skip_bytes+4:])
                 module.inZipFile = True
@@ -516,12 +497,6 @@ class ModuleFinder(object):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
         
         # Build the new code object.
-        if sys.version_info[0] < 3:
-            return types.CodeType(co.co_argcount, co.co_nlocals,
-                    co.co_stacksize, co.co_flags, co.co_code, tuple(constants),
-                    co.co_names, co.co_varnames, newFileName, co.co_name,
-                    co.co_firstlineno, co.co_lnotab, co.co_freevars,
-                    co.co_cellvars)
         return types.CodeType(co.co_argcount, co.co_kwonlyargcount,
                 co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
                 tuple(constants), co.co_names, co.co_varnames, newFileName,
@@ -594,20 +569,13 @@ class ModuleFinder(object):
            method."""
         opIndex = 0
         numOps = len(code)
-        is3 = sys.version_info[0] >= 3
         while opIndex < numOps:
             offset = opIndex
-            if is3:
-                op = code[opIndex]
-            else:
-                op = ord(code[opIndex])
+            op = code[opIndex]
             opIndex += 1
             arg = None
             if op >= dis.HAVE_ARGUMENT:
-                if is3:
-                    arg = code[opIndex] + code[opIndex + 1] * 256
-                else:
-                    arg = ord(code[opIndex]) + ord(code[opIndex + 1]) * 256
+                arg = code[opIndex] + code[opIndex + 1] * 256
                 opIndex += 2
             yield (offset, op, arg)
 

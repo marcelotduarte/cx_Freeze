@@ -367,16 +367,9 @@ static PyObject *ExtGetSystemDir(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments (ignored)
 {
-#if PY_MAJOR_VERSION >= 3
     OLECHAR dir[MAX_PATH + 1];
     if (GetSystemDirectoryW(dir, sizeof(dir)))
         return PyUnicode_FromUnicode(dir, wcslen(dir));
-#else
-    char dir[MAX_PATH + 1];
-    if (GetSystemDirectory(dir, sizeof(dir)))
-        return PyString_FromString(dir);
-#endif
-
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
@@ -390,16 +383,9 @@ static PyObject *ExtGetWindowsDir(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments (ignored)
 {
-#if PY_MAJOR_VERSION >= 3
     OLECHAR dir[MAX_PATH + 1];
     if (GetWindowsDirectoryW(dir, sizeof(dir)))
         return PyUnicode_FromUnicode(dir, wcslen(dir));
-#else
-    char dir[MAX_PATH + 1];
-    if (GetWindowsDirectory(dir, sizeof(dir)))
-        return PyString_FromString(dir);
-#endif
-
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
@@ -439,7 +425,6 @@ static PyMethodDef g_ModuleMethods[] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
 //-----------------------------------------------------------------------------
 //   Declaration of module definition for Python 3.x.
 //-----------------------------------------------------------------------------
@@ -454,22 +439,16 @@ static struct PyModuleDef g_ModuleDef = {
     NULL,                                  // clear
     NULL                                   // free
 };
-#endif
 
 
 //-----------------------------------------------------------------------------
-// Module_Initialize()
-//   Initialization routine for the module.
+// Entry point for the module.
 //-----------------------------------------------------------------------------
-static PyObject *Module_Initialize(void)
+PyMODINIT_FUNC PyInit_util(void)
 {
     PyObject *module;
 
-#if PY_MAJOR_VERSION >= 3
     module = PyModule_Create(&g_ModuleDef);
-#else
-    module = Py_InitModule("cx_Freeze.util", g_ModuleMethods);
-#endif
     if (!module)
         return NULL;
 #ifdef MS_WINDOWS
@@ -482,20 +461,4 @@ static PyObject *Module_Initialize(void)
 #endif
     return module;
 }
-
-
-//-----------------------------------------------------------------------------
-// Entry point for the module.
-//-----------------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC PyInit_util(void)
-{
-    return Module_Initialize();
-}
-#else
-void initutil(void)
-{
-        Module_Initialize();
-}
-#endif
 

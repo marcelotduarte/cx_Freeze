@@ -2,9 +2,6 @@ import os
 import sys
 import subprocess
 
-if sys.version_info[0] < 3:
-    input = raw_input
-
 class SetupWriter(object):
     bases = {
         "C" : "Console",

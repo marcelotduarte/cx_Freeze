@@ -1,14 +1,20 @@
-
 Release notes
 =============
 
-5.x releases
+6.x releases
 ############
 
 Development version
 -------------------
 
-.. note:: This version supports Python 2.7 and above.
+#) Dropped support for Python 2.x. Use cx_Freeze 5 for Python 2.x support.
+
+.. note:: This version supports Python 3.5 and above.
+
+
+5.x releases
+############
+
 
 Version 5.0.2 (May 2017)
 ------------------------

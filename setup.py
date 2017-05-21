@@ -11,6 +11,10 @@ import distutils.sysconfig
 import os
 import sys
 
+if sys.version_info < (3, 5):
+    sys.exit("Sorry, Python < 3.5 is not supported. Use cx_Freeze 5 for "
+            "support of earlier Python versions.")
+
 try:
     from setuptools import setup, Extension
 except ImportError:
@@ -197,7 +201,7 @@ classifiers = [
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "5.0.2",
+        version = "6.0b1",
         cmdclass = commandClasses,
         options = options,
         ext_modules = extensions,

@@ -7,19 +7,8 @@
 #include <eval.h>
 #include <osdefs.h>
 
-// define names that will work for both Python 2 and 3
-#if PY_MAJOR_VERSION >= 3
-    #define cxString_FromString         PyUnicode_FromString
-    #define cxWin_GetModuleFileName     GetModuleFileNameW
-    #define cxWin_PathRemoveFileSpec    PathRemoveFileSpecW
-#else
-    #define cxString_FromString         PyString_FromString
-    #define cxWin_GetModuleFileName     GetModuleFileNameA
-    #define cxWin_PathRemoveFileSpec    PathRemoveFileSpecA
-#endif
-
 // global variables (used for simplicity)
-#if defined(MS_WINDOWS) && PY_MAJOR_VERSION >= 3
+#if defined(MS_WINDOWS)
     static wchar_t g_ExecutableName[MAXPATHLEN + 1];
     static wchar_t g_ExecutableDirName[MAXPATHLEN + 1];
 #else
@@ -40,11 +29,11 @@ static int SetExecutableName(
     const char *argv0)                  // script to execute
 {
 #ifdef MS_WINDOWS
-    if (!cxWin_GetModuleFileName(NULL, g_ExecutableName, MAXPATHLEN + 1))
+    if (!GetModuleFileNameW(NULL, g_ExecutableName, MAXPATHLEN + 1))
         return FatalError("Unable to get executable name!");
     memcpy(g_ExecutableDirName, g_ExecutableName,
             (MAXPATHLEN + 1) * sizeof(wchar_t));
-    cxWin_PathRemoveFileSpec(g_ExecutableDirName);
+    PathRemoveFileSpecW(g_ExecutableDirName);
 
 #else
 
@@ -104,8 +93,6 @@ static int SetExecutableName(
     return 0;
 }
 
-
-#if PY_MAJOR_VERSION >= 3
 
 #ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
@@ -200,32 +187,6 @@ static int InitializePython(int argc, char **argv)
 
 #endif
 
-#else
-
-//-----------------------------------------------------------------------------
-// InitializePython()
-//   Initialize Python for Python 2.x.
-//-----------------------------------------------------------------------------
-static int InitializePython(int argc, char **argv)
-{
-    // determine executable name
-    if (SetExecutableName(argv[0]) < 0)
-        return -1;
-
-    // initialize Python
-    Py_NoSiteFlag = 1;
-    Py_FrozenFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    Py_SetPythonHome(g_ExecutableDirName);
-    Py_SetProgramName(g_ExecutableName);
-    Py_Initialize();
-    PySys_SetArgv(argc, argv);
-
-    return 0;
-}
-
-#endif
-
 
 //-----------------------------------------------------------------------------
 // ExecuteScript()
@@ -235,7 +196,7 @@ static int ExecuteScript(void)
 {
     PyObject *name, *module, *function, *result;
 
-    name = cxString_FromString("__startup__");
+    name = PyUnicode_FromString("__startup__");
     if (!name)
         return FatalError("Cannot create string for startup module name!");
 

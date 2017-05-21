@@ -68,11 +68,8 @@ def initialize(finder):
         finder.ExcludeModule("org.python.core")
     if sys.platform[:4] != "OpenVMS":
         finder.ExcludeModule("vms_lib")
-    if sys.version_info[0] >= 3:
-        finder.ExcludeModule("new")
-        finder.ExcludeModule("Tkinter")
-    else:
-        finder.ExcludeModule("tkinter")
+    finder.ExcludeModule("new")
+    finder.ExcludeModule("Tkinter")
 
 
 def load_cElementTree(finder, module):
@@ -118,11 +115,10 @@ def load_dummy_threading(finder, module):
 def load_email(finder, module):
     """the email package has a bunch of aliases as the submodule names were
        all changed to lowercase in Python 2.5; mimic that here."""
-    if sys.version_info[:2] >= (2, 5):
-        for name in ("Charset", "Encoders", "Errors", "FeedParser",
-                "Generator", "Header", "Iterators", "Message", "Parser",
-                "Utils", "base64MIME", "quopriMIME"):
-            finder.AddAlias("email.%s" % name, "email.%s" % name.lower())
+    for name in ("Charset", "Encoders", "Errors", "FeedParser",
+            "Generator", "Header", "Iterators", "Message", "Parser",
+            "Utils", "base64MIME", "quopriMIME"):
+        finder.AddAlias("email.%s" % name, "email.%s" % name.lower())
 
 
 def load_ftplib(finder, module):
@@ -754,13 +750,6 @@ def load_zope_component(finder, module):
     finder.IncludeModule("pkg_resources")
 
 
-def missing_cElementTree(finder, caller):
-    """the cElementTree has been incorporated into the standard library in
-       Python 2.5 so ignore its absence if it cannot found."""
-    if sys.version_info[:2] >= (2, 5):
-        caller.IgnoreName("cElementTree")
-
-
 def missing_EasyDialogs(finder, caller):
     """the EasyDialogs module is not normally present on Windows but it also
        may be so instead of excluding it completely, ignore it if it can't be
@@ -787,15 +776,6 @@ def missing_readline(finder, caller):
        found"""
     if sys.platform == "win32":
         caller.IgnoreName("readline")
-
-
-def missing_xml_etree(finder, caller):
-    """the xml.etree package is new for Python 2.5 but it is common practice
-       to use a try..except.. block in order to support versions earlier than
-       Python 2.5 transparently; ignore the absence of the package in this
-       situation."""
-    if sys.version_info[:2] < (2, 5):
-        caller.IgnoreName("xml.etree")
 
 
 def load_zmq(finder, module):
