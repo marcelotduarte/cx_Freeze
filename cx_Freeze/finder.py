@@ -193,6 +193,26 @@ class ModuleFinder(object):
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
 
+    def realName(self, path):
+        """Having problems on Windows with cx_Freeze 5 with:
+         from multiprocessing import process
+         when the module file name is Process.pyc.
+         This is an attempt to sort that out by checking the real module
+         file name against expected path name."""
+        the_dir, the_name = os.path.split(path)
+        if the_name is None:
+            return path
+        dir_scan = os.scandir(the_dir)
+        for item in dir_scan:
+            if the_name == item.name:
+                # print('{} exists in {}'.format(the_name, the_dir))
+                return path
+        dir_scan = os.scandir(the_dir)
+        for item in dir_scan:
+            if the_name.lower() == item.name.lower():
+                sys.stdout.write("{} corrected in {}\n".format(item.name, the_dir))
+                return os.path.join(the_dir, item.name)
+
     def _FindModule(self, name, path, namespace):
         try:
             # imp loads normal modules from the filesystem
@@ -381,6 +401,9 @@ class ModuleFinder(object):
 
         try:
             fp, path, info = self._FindModule(searchName, path, namespace)
+            # Use the function to get the real module pathname in case
+            # it has different case
+            path = self.realName(path)
             if info[-1] == imp.C_BUILTIN and parentModule is not None:
                 return None
             module = self._LoadModule(name, fp, path, info, deferredImports,
@@ -463,6 +486,9 @@ class ModuleFinder(object):
         module.path = [path]
         try:
             fp, path, info = self._FindModule("__init__", module.path, False)
+            # Use the function to get the real module pathname in case
+            # it has different case
+            path = self.realName(path)
             self._LoadModule(name, fp, path, info, deferredImports, parent)
             logging.debug("Adding module [%s] [PKG_DIRECTORY]", name)
         except ImportError:
