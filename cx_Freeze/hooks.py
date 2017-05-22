@@ -816,12 +816,23 @@ def load_clr(finder, module):
     module_dir = os.path.dirname(module.file)
     dllname = 'Python.Runtime.dll'
     finder.IncludeFiles(os.path.join(module_dir, dllname), dllname)
-    
-    
+
+
+def _get_base_prefix():
+    """Get prefix to site-specific directory prefix where the platform
+    independent Python files are installed."""
+    try:
+        return sys.base_prefix  # Python 3.3+
+    except AttributeError:
+        # For Python 2, use sys.real_prefix set by virtualenv if set,
+        # otherwise fall back to sys.prefix
+        return getattr(sys, "real_prefix", "prefix")
+
+
 def load_sqlite3(finder, module):
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
        be present in the build directory."""
     if sys.platform == "win32":
         dll_name = "sqlite3.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+        dll_path = os.path.join(_get_base_prefix(), "DLLs", dll_name)
         finder.IncludeFiles(dll_path, dll_name)
