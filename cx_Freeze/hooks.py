@@ -826,7 +826,7 @@ def _get_base_prefix():
     except AttributeError:
         # For Python 2, use sys.real_prefix set by virtualenv if set,
         # otherwise fall back to sys.prefix
-        return getattr(sys, "real_prefix", "prefix")
+        return getattr(sys, "real_prefix", sys.prefix)
 
 
 def load_sqlite3(finder, module):
