@@ -149,11 +149,16 @@ class Freezer(object):
         self._VerifyConfiguration()
 
     def _AddVersionResource(self, exe):
+        warning_msg = "*** WARNING *** unable to create version resource"
         try:
             from win32verstamp import stamp
         except:
-            print("*** WARNING *** unable to create version resource")
+            print(warning_msg)
             print("install pywin32 extensions first")
+            return
+        if not self.metadata.version:
+            print(warning_msg)
+            print("version must be specified")
             return
         fileName = exe.targetName
         versionInfo = VersionInfo(self.metadata.version,
@@ -743,14 +748,10 @@ class VersionInfo(object):
             comments = None, company = None, description = None,
             copyright = None, trademarks = None, product = None, dll = False,
             debug = False, verbose = True):
-        if version:
-            parts = version.split(".")
-            while len(parts) < 4:
-                parts.append("0")
-            self.version = ".".join(parts)
-        else:
-            print("No version specified, using a default version of 0.0.0.0")
-            self.version = "0.0.0.0"
+        parts = version.split(".")
+        while len(parts) < 4:
+            parts.append("0")
+        self.version = ".".join(parts)
         self.internal_name = internalName
         self.original_filename = originalFileName
         self.comments = comments
