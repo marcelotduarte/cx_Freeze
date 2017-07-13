@@ -494,13 +494,6 @@ class Freezer(object):
         finder.ReportMissingModules()
 
         targetDir = os.path.dirname(fileName)
-        if sys.platform != "win32":
-            if os.path.basename(targetDir) == "lib64":
-                linkName = os.path.join(os.path.dirname(targetDir), "lib")
-                if not os.path.exists(linkName):
-                    os.symlink("lib64", linkName)
-            targetDir = os.path.join(targetDir,
-                    "python%s.%s" % sys.version_info[:2])
         self._CreateDirectory(targetDir)
 
         # Prepare zip file
@@ -621,12 +614,9 @@ class Freezer(object):
         self.finder = self._GetModuleFinder()
         for executable in self.executables:
             self._FreezeExecutable(executable)
-        targetDir = zipTargetDir = self.targetDir
-        rawLibDir = distutils.sysconfig.get_config_var("LIBDIR")
-        if rawLibDir:
-            zipTargetDir = os.path.join(targetDir, os.path.basename(rawLibDir))
-        fileName = os.path.join(zipTargetDir,
-                "python%s%s.zip" % sys.version_info[:2])
+        targetDir = self.targetDir
+        zipTargetDir = os.path.join(self.targetDir, "lib")
+        fileName = os.path.join(zipTargetDir, "library.zip")
         self._RemoveFile(fileName)
         self._WriteModules(fileName, self.finder)
 

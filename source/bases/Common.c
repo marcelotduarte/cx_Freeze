@@ -235,6 +235,9 @@ static int ExecuteScript(void)
 {
     PyObject *name, *module, *function, *result;
 
+    // can't use os.path, due to only `sys` module loaded at this point
+    PyRun_SimpleString("import sys; freeze_dir = sys.path[0]; lib = freeze_dir + '/lib'; sys.path=[lib, lib + '/library.zip']");
+
     name = cxString_FromString("__startup__");
     if (!name)
         return FatalError("Cannot create string for startup module name!");
