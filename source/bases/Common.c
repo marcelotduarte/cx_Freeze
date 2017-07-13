@@ -43,7 +43,7 @@ static int SetExecutableName(
     if (!cxWin_GetModuleFileName(NULL, g_ExecutableName, MAXPATHLEN + 1))
         return FatalError("Unable to get executable name!");
     memcpy(g_ExecutableDirName, g_ExecutableName,
-            (MAXPATHLEN + 1) * sizeof(wchar_t));
+            (MAXPATHLEN + 1) * (sizeof(char) ? PY_MAJOR_VERSION == 2: sizeof(wchar_t)));
     cxWin_PathRemoveFileSpec(g_ExecutableDirName);
 
 #else
