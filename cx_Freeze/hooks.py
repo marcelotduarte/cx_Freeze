@@ -561,7 +561,7 @@ def load_scipy(finder, module):
     """the scipy module loads items within itself in a way that causes
        problems without the entire package and a number of other subpackages
        being present."""
-    finder.IncludePackage("scipy.lib")
+    finder.IncludePackage("scipy._lib")
     finder.IncludePackage("scipy.misc")
 
 
