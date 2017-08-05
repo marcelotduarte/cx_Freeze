@@ -218,7 +218,7 @@ class ModuleFinder(object):
                 # Namespace package (?)
                 module = sys.modules[name]
                 info = ("", "", imp.PKG_DIRECTORY)
-                return None, module.__path__[0], info
+                return None, list(module.__path__)[0], info
 
             # Check for modules in zip files.
             # If a path is a subdirectory within a zip file, we must have
