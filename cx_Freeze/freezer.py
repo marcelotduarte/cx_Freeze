@@ -65,11 +65,11 @@ MSVCR_MANIFEST_TEMPLATE = """
 
 def process_path_specs(specs):
     """Prepare paths specified as config.
-    
+
     The input is a list of either strings, or 2-tuples (source, target).
     Where single strings are supplied, the basenames are used as targets.
     Where targets are given explicitly, they must not be absolute paths.
-    
+
     Returns a list of 2-tuples, or throws ConfigError if something is wrong
     in the input.
     """
@@ -94,7 +94,7 @@ def process_path_specs(specs):
 
 def get_resource_file_path(dirName, name, ext):
     """Return the path to a resource file shipped with cx_Freeze.
-    
+
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
@@ -149,11 +149,16 @@ class Freezer(object):
         self._VerifyConfiguration()
 
     def _AddVersionResource(self, exe):
+        warning_msg = "*** WARNING *** unable to create version resource"
         try:
             from win32verstamp import stamp
         except:
-            print("*** WARNING *** unable to create version resource")
+            print(warning_msg)
             print("install pywin32 extensions first")
+            return
+        if not self.metadata.version:
+            print(warning_msg)
+            print("version must be specified")
             return
         fileName = exe.targetName
         versionInfo = VersionInfo(self.metadata.version,
@@ -402,7 +407,7 @@ class Freezer(object):
            binIncludes and binExcludes configuration variables using first the
            full file name, then just the base file name, then the file name
            without any version numbers.
-           
+
            Files are included unless specifically excluded but inclusions take
            precedence over exclusions."""
 
@@ -654,7 +659,7 @@ class ConfigError(Exception):
 class Executable(object):
 
     def __init__(self, script, initScript = None, base = None,
-            targetName = None, icon = None, shortcutName = None, 
+            targetName = None, icon = None, shortcutName = None,
             shortcutDir = None, copyright = None, trademarks = None):
         self.script = script
         self.initScript = initScript or "Console"
