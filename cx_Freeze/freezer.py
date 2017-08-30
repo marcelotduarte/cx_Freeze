@@ -24,7 +24,8 @@ __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 EXTENSION_LOADER_SOURCE = \
 """
 def __bootstrap__():
-    import imp, os, sys
+    import imp, sys
+    os = sys.modules['os']
     global __bootstrap__, __loader__
     __loader__ = None; del __bootstrap__, __loader__
 
