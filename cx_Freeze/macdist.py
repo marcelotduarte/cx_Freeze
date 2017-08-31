@@ -133,7 +133,6 @@ class bdist_mac(Command):
             files.extend([os.path.join(root, f).replace(self.binDir + "/", "")
                           for f in dir_files])
         for fileName in files:
-
             # install_name_tool can't handle zip files or directories
             filePath = os.path.join(self.binDir, fileName)
             if fileName.endswith('.zip'):
@@ -154,9 +153,18 @@ class bdist_mac(Command):
             references = otool.stdout.readlines()[1:]
 
             for reference in references:
-
                 # find the actual referenced file name
                 referencedFile = reference.decode().strip().split()[0]
+
+                # sometimes otool seems to have strange output for  referenced
+                # files, like
+                # ".../Contents/MacOS/lib/numpy/core/lib/libnpymath.a(npy_math.o):"
+                # and the file can not be located (in this case the
+                # libnpymath.a references itself)
+                if not os.path.exists(referencedFile):
+                    print("ERROR: file {} does not exist. Skipping it".format(
+                        referencedFile))
+                    continue
 
                 if referencedFile.startswith('@executable_path'):
                     # the referencedFile is already a relative path (to the executable)
