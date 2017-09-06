@@ -1,4 +1,4 @@
-from distutils.core import Command
+from distutils.core import Command, DistutilsFileError
 import os
 import plistlib
 import stat
@@ -89,6 +89,7 @@ class bdist_mac(Command):
             '--deep option.'),
         ('codesign-resource-rules', None, 'Plist file to be passed to ' \
             'codesign\'s --resource-rules option.'),
+        ('rpath-lib-folder', None, 'replace @rpath with given folder for any files')
     ]
 
     def initialize_options(self):
@@ -101,6 +102,7 @@ class bdist_mac(Command):
         self.codesign_entitlements = None
         self.codesign_deep = None
         self.codesign_resource_rules = None
+        self.rpath_lib_folder = None
 
     def finalize_options(self):
         self.include_frameworks = normalize_to_list(self.include_frameworks)
@@ -162,6 +164,9 @@ class bdist_mac(Command):
                     # the referencedFile is already a relative path (to the executable)
                     continue
 
+                if self.rpath_lib_folder is not None:
+                    referencedFile = str(referencedFile).replace("@rpath", self.rpath_lib_folder)
+
                 path, name = os.path.split(referencedFile)
 
                 #some referenced files have not previously been copied to the
@@ -171,9 +176,12 @@ class bdist_mac(Command):
                 if (name not in files and not path.startswith('/usr') and not
                         path.startswith('/System')):
                     print(referencedFile)
-                    self.copy_file(referencedFile,
-                                   os.path.join(self.binDir, name))
-                    files.append(name)
+                    try:
+                        self.copy_file(referencedFile, os.path.join(self.binDir, name))
+                    except DistutilsFileError as e:
+                        print(f"issue copying {referencedFile} to {os.path.join(self.binDir, name)} error {e} skipping")
+                    else:
+                        files.append(name)
 
                 # see if we provide the referenced file;
                 # if so, change the reference
