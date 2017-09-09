@@ -43,7 +43,7 @@ static int SetExecutableName(
     if (!cxWin_GetModuleFileName(NULL, g_ExecutableName, MAXPATHLEN + 1))
         return FatalError("Unable to get executable name!");
     memcpy(g_ExecutableDirName, g_ExecutableName,
-            (MAXPATHLEN + 1) * sizeof(wchar_t));
+            (MAXPATHLEN + 1) * (PY_MAJOR_VERSION == 2 ? sizeof(char) : sizeof(wchar_t)));
     cxWin_PathRemoveFileSpec(g_ExecutableDirName);
 
 #else
@@ -234,6 +234,9 @@ static int InitializePython(int argc, char **argv)
 static int ExecuteScript(void)
 {
     PyObject *name, *module, *function, *result;
+
+    // can't use os.path, due to only `sys` module loaded at this point
+    PyRun_SimpleString("import sys; freeze_dir = sys.path[0]; lib = freeze_dir + '/lib'; sys.path=[lib, lib + '/library.zip']");
 
     name = cxString_FromString("__startup__");
     if (!name)
