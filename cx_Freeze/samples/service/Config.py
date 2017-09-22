@@ -34,7 +34,7 @@
 #
 #   SESSION_CHANGES
 #       whether the service should monitor session changes (optional). If
-#       True, session changes will call the method 'SessionChanged' with the
+#       True, session changes will call the method 'session_changed' with the
 #       parameters sessionId and eventTypeId.
 #------------------------------------------------------------------------------
 
