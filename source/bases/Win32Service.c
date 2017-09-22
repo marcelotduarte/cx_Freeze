@@ -138,9 +138,9 @@ static int Service_Stop(
     PyEval_AcquireThread(threadState);
 
     // call the "Stop" method
-    result = PyObject_CallMethod(gInstance, "Stop", NULL);
+    result = PyObject_CallMethod(gInstance, "stop", NULL);
     if (!result)
-        return LogPythonException("exception calling Stop method");
+        return LogPythonException("exception calling stop method");
     Py_DECREF(result);
 
     // destroy the Python thread and release the global interpreter lock
@@ -178,10 +178,10 @@ static int Service_SessionChange(
     PyEval_AcquireThread(threadState);
 
     // call Python method
-    result = PyObject_CallMethod(gInstance, "SessionChanged", "ii",
+    result = PyObject_CallMethod(gInstance, "session_changed", "ii",
             sessionId, eventType);
     if (!result)
-        return LogPythonException("exception calling SessionChanged method");
+        return LogPythonException("exception calling session_changed method");
     Py_DECREF(result);
 
     // destroy the Python thread and release the global interpreter lock
@@ -527,7 +527,7 @@ static int Service_Run(
     iniFileNameObj = PyUnicode_FromWideChar(gIniFileName, -1);
     if (!iniFileNameObj)
         return LogPythonException("failed to create ini file as string");
-    temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
+    temp = PyObject_CallMethod(gInstance, "initialize", "O", iniFileNameObj);
     if (!temp)
         return LogPythonException("failed to initialize instance properly");
     Py_CLEAR(iniFileNameObj);
@@ -537,7 +537,7 @@ static int Service_Run(
     LogMessage(LOG_LEVEL_INFO, "starting up service");
     if (Service_SetStatus(info, SERVICE_RUNNING) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as started");
-    temp = PyObject_CallMethod(gInstance, "Run", NULL);
+    temp = PyObject_CallMethod(gInstance, "run", NULL);
     if (!temp)
         return LogPythonException("exception running service");
     Py_DECREF(temp);
