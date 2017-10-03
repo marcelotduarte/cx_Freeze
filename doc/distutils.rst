@@ -234,6 +234,21 @@ command:
 |                       | packages created with the same upgrade code prior   |
 |                       | to the installation of this one                     |
 +-----------------------+-----------------------------------------------------+
+| environment-variable  | add any environment variables to MSI package;       |
+|                       | those variables will added to system environment    |
+|                       | variables at installation time                      |
+|                       |                                                     |
+|                       | example:                                            |
+|                       |                                                     |
+|                       | 'bdist_msi': {                                      |
+|                       |     'upgrade_code': upgrade_code,                   |
+|                       |     'add_to_path': True,                            |
+|                       |     'environment_variables': [                      |
+|                       |          ("E_MYAPP_VAR",                            |
+|                       |           "=-*MYAPP_VAR", f"1",                     |
+|                       |           "TARGETDIR"),                             |
+|                       |      ],                                             |
++-----------------------+-----------------------------------------------------+
 
 bdist_rpm
 `````````
