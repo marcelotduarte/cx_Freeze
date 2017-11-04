@@ -10,6 +10,24 @@ Development version
 
 .. note:: This version supports Python 2.7 and above.
 
+Version 5.1 (November 2017)
+---------------------------
+
+#) Use fixed library location on all platforms; should correct the error
+   "no module named __startup__" (`PR #286`_).
+#) Correct sqlite3 hook for use in Python 2.7 (`PR #272`_).
+#) Correct usage of scipy.lib (`PR #281`_).
+#) Correct handling of __path__ attribute in module (`PR #295`_).
+#) Fix gevent bug #42 (`PR #301`_).
+
+
+.. _PR #272: https://github.com/anthony-tuininga/cx_Freeze/pull/272
+.. _PR #281: https://github.com/anthony-tuininga/cx_Freeze/pull/281
+.. _PR #286: https://github.com/anthony-tuininga/cx_Freeze/pull/286
+.. _PR #295: https://github.com/anthony-tuininga/cx_Freeze/pull/295
+.. _PR #301: https://github.com/anthony-tuininga/cx_Freeze/pull/301
+
+
 Version 5.0.2 (May 2017)
 ------------------------
 
