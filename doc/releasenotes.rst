@@ -12,8 +12,41 @@ Development version
 .. note:: This version supports Python 3.5 and above.
 
 
+6.0b1 (November 2017)
+---------------------
+
+#) Dropped support for Python 2.x. Use cx_Freeze 5 for Python 2.x support.
+#) Instead of depending on the built-in functionality of searching for a zip
+   file that looks like pythonxx.zip (which is disabled on some platforms like
+   Ubuntu), set the Python path to include a subdirectory called "lib" and a
+   zip file "lib/library.zip" on all platforms.
+#) Do not create version resource when version is omitted (`PR #279`_).
+#) Ensure the sqlite3 DLL is loaded in the same directory as the module which
+   depends on it (`Issue #296`_).
+
+.. _PR #279: https://github.com/anthony-tuininga/cx_Freeze/pull/279
+.. _Issue #296: https://github.com/anthony-tuininga/cx_Freeze/issues/296
+
+
 5.x releases
 ############
+
+
+Version 5.1 (November 2017)
+---------------------------
+
+#) Use fixed library location on all platforms; should correct the error
+   "no module named __startup__" (`PR #286`_).
+#) Correct sqlite3 hook for use in Python 2.7 (`PR #272`_).
+#) Correct usage of scipy.lib (`PR #281`_).
+#) Correct handling of __path__ attribute in module (`PR #295`_).
+#) Fix gevent bug #42 (`PR #301`_).
+
+.. _PR #272: https://github.com/anthony-tuininga/cx_Freeze/pull/272
+.. _PR #281: https://github.com/anthony-tuininga/cx_Freeze/pull/281
+.. _PR #286: https://github.com/anthony-tuininga/cx_Freeze/pull/286
+.. _PR #295: https://github.com/anthony-tuininga/cx_Freeze/pull/295
+.. _PR #301: https://github.com/anthony-tuininga/cx_Freeze/pull/301
 
 
 Version 5.0.2 (May 2017)
