@@ -12,8 +12,8 @@ Development version
 .. note:: This version supports Python 3.5 and above.
 
 
-6.0b1 (November 2017)
----------------------
+Version 6.0b1 (November 2017)
+-----------------------------
 
 #) Dropped support for Python 2.x. Use cx_Freeze 5 for Python 2.x support.
 #) Instead of depending on the built-in functionality of searching for a zip
