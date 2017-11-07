@@ -179,7 +179,7 @@ class bdist_mac(Command):
                     try:
                         self.copy_file(referencedFile, os.path.join(self.binDir, name))
                     except DistutilsFileError as e:
-                        print(f"issue copying {referencedFile} to {os.path.join(self.binDir, name)} error {e} skipping")
+                        print("issue copying {} to {} error {} skipping".format(referencedFile, os.path.join(self.binDir, name), e))
                     else:
                         files.append(name)
 
