@@ -279,6 +279,9 @@ bundle (a .app directory).
 | codesign_resource_rules  | Plist file to be passed to codesign's            |
 |                          | --resource-rules option.                         |
 +--------------------------+--------------------------------------------------+
+| rpath_lib_folder         | replace @rpath with given folder for any files   |
+|                          |                                                  |
++--------------------------+--------------------------------------------------+
 
  .. versionadded:: 4.3
 
