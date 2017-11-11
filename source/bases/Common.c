@@ -7,6 +7,15 @@
 #include <eval.h>
 #include <osdefs.h>
 
+// define format for sys.path
+// this consists of <dir>/lib/library.zip and <dir>/lib
+// where <dir> refers to the directory in which the executable is found
+#if defined(MS_WINDOWS)
+    #define CX_PATH_FORMAT              L"%ls\\lib\\library.zip;%ls\\lib"
+#else
+    #define CX_PATH_FORMAT              L"%ls/lib/library.zip:%ls/lib"
+#endif
+
 // define names that will work for both Python 2 and 3
 #if PY_MAJOR_VERSION >= 3
     #define cxString_FromString         PyUnicode_FromString
@@ -114,16 +123,27 @@ static int SetExecutableName(
 //-----------------------------------------------------------------------------
 static int InitializePython(int argc, wchar_t **argv)
 {
+    wchar_t *wPath;
+    size_t size;
+
     // determine executable name
     if (SetExecutableName(NULL) < 0)
         return -1;
+
+    // create sys.path
+    size = wcslen(g_ExecutableDirName) * 2 + wcslen(CX_PATH_FORMAT) + 1;
+    wPath = PyMem_Malloc(sizeof(wchar_t) * size);
+    if (!wPath)
+        return FatalError("Out of memory creating sys.path!");
+    swprintf(wPath, size, CX_PATH_FORMAT, g_ExecutableDirName,
+            g_ExecutableDirName);
 
     // initialize Python
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
-    Py_SetPythonHome(g_ExecutableDirName);
     Py_SetProgramName(g_ExecutableName);
+    Py_SetPath(wPath);
     Py_Initialize();
     PySys_SetArgv(argc, argv);
 
@@ -138,8 +158,7 @@ static int InitializePython(int argc, wchar_t **argv)
 //-----------------------------------------------------------------------------
 static int InitializePython(int argc, char **argv)
 {
-    wchar_t **wargv, *wExecutableName, *wExecutableDirName;
-    char *origLocale;
+    wchar_t **wargv, *wExecutableName, *wExecutableDirName, *wPath;
     size_t size;
     int i;
 
@@ -147,51 +166,40 @@ static int InitializePython(int argc, char **argv)
     if (SetExecutableName(argv[0]) < 0)
         return -1;
 
-    // ensure locale is set consistently
-    origLocale = setlocale(LC_ALL, NULL);
-    setlocale(LC_ALL, "");
-
     // convert executable name to wide characters
-    size = mbstowcs(NULL, g_ExecutableName, 0);
-    if (size < 0)
-        return FatalError("Unable to convert executable name to Unicode!");
-    wExecutableName = PyMem_Malloc((size + 1) * sizeof(wchar_t));
+    wExecutableName = Py_DecodeLocale(g_ExecutableName, NULL);
     if (!wExecutableName)
-        return FatalError("Out of memory converting executable name!");
-    mbstowcs(wExecutableName, g_ExecutableName, size + 1);
+        return FatalError("Unable to convert executable name to string!");
 
     // convert executable dir name to wide characters
-    size = mbstowcs(NULL, g_ExecutableDirName, 0);
-    if (size < 0)
-        return FatalError("Unable to convert executable dir name to Unicode!");
-    wExecutableDirName = PyMem_Malloc((size + 1) * sizeof(wchar_t));
+    wExecutableDirName = Py_DecodeLocale(g_ExecutableDirName, NULL);
     if (!wExecutableDirName)
-        return FatalError("Out of memory converting executable dir name!");
-    mbstowcs(wExecutableDirName, g_ExecutableDirName, size + 1);
+        return FatalError("Unable to convert executable dir name to string!");
 
     // convert arguments to wide characters
     wargv = PyMem_Malloc(sizeof(wchar_t*) * argc);
     if (!wargv)
         return FatalError("Out of memory converting arguments!");
     for (i = 0; i < argc; i++) {
-        size = mbstowcs(NULL, argv[i], 0);
-        if (size < 0)
-            return FatalError("Unable to convert argument to Unicode!");
-        wargv[i] = PyMem_Malloc((size + 1) * sizeof(wchar_t));
+        wargv[i] = Py_DecodeLocale(argv[i], NULL);
         if (!wargv[i])
-            return FatalError("Out of memory converting argument!");
-        mbstowcs(wargv[i], argv[i], size + 1);
+            return FatalError("Unable to convert argument to string!");
     }
 
-    // reset locale
-    setlocale(LC_ALL, origLocale);
+    // create sys.path
+    size = wcslen(wExecutableDirName) * 2 + wcslen(CX_PATH_FORMAT) + 1;
+    wPath = PyMem_Malloc(sizeof(wchar_t) * size);
+    if (!wPath)
+        return FatalError("Out of memory creating sys.path!");
+    swprintf(wPath, size, CX_PATH_FORMAT, wExecutableDirName,
+            wExecutableDirName);
 
     // initialize Python
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
-    Py_SetPythonHome(wExecutableDirName);
     Py_SetProgramName(wExecutableName);
+    Py_SetPath(wPath);
     Py_Initialize();
     PySys_SetArgv(argc, wargv);
 
