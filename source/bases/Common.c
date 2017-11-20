@@ -243,8 +243,11 @@ static int ExecuteScript(void)
 {
     PyObject *name, *module, *function, *result;
 
+#if PY_MAJOR_VERSION < 3
     // can't use os.path, due to only `sys` module loaded at this point
+    // only for Python 2.7 since path already set using C API for Python 3
     PyRun_SimpleString("import sys; freeze_dir = sys.path[0]; lib = freeze_dir + '/lib'; sys.path=[lib, lib + '/library.zip']");
+#endif
 
     name = cxString_FromString("__startup__");
     if (!name)
