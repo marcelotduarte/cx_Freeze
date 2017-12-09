@@ -187,7 +187,7 @@ class Freezer(object):
         if copyDependentFiles \
                 and source not in self.finder.excludeDependentFiles:
             for source in self._GetDependentFiles(source):
-                target = os.path.join(self.targetDir, os.path.basename(source))
+                target = os.path.join(targetDir, os.path.basename(source))
                 self._CopyFile(source, target, copyDependentFiles)
 
     def _CreateDirectory(self, path):
