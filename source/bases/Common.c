@@ -16,6 +16,13 @@
     #define CX_PATH_FORMAT              L"%ls/lib/library.zip:%ls/lib"
 #endif
 
+// define code for Python 2.x to set sys.path
+// can't use os.path, due to only `sys` module loaded at this point
+#define CX_SET_PATH_CODE \
+    "import sys\n" \
+    "lib = sys.exec_prefix + '/lib'\n" \
+    "sys.path = [lib, lib + '/library.zip']\n"
+
 // define names that will work for both Python 2 and 3
 #if PY_MAJOR_VERSION >= 3
     #define cxString_FromString         PyUnicode_FromString
@@ -244,9 +251,8 @@ static int ExecuteScript(void)
     PyObject *name, *module, *function, *result;
 
 #if PY_MAJOR_VERSION < 3
-    // can't use os.path, due to only `sys` module loaded at this point
     // only for Python 2.7 since path already set using C API for Python 3
-    PyRun_SimpleString("import sys; freeze_dir = sys.path[0]; lib = freeze_dir + '/lib'; sys.path=[lib, lib + '/library.zip']");
+    PyRun_SimpleString(CX_SET_PATH_CODE);
 #endif
 
     name = cxString_FromString("__startup__");
