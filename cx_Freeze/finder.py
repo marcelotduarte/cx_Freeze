@@ -123,6 +123,7 @@ class ModuleFinder(object):
         self.includeFiles = includeFiles
         if includeFiles is None:
             self.includeFiles = []
+        self.excludeDependentFiles = {}
         self.excludes = dict.fromkeys(excludes)
         self.replacePaths = replacePaths
         if replacePaths is None:
@@ -585,6 +586,9 @@ class ModuleFinder(object):
            instead."""
         self.aliases[name] = aliasFor
 
+    def ExcludeDependentFiles(self, fileName):
+        self.excludeDependentFiles[fileName] = None
+
     def ExcludeModule(self, name):
         """Exclude the named module from the resulting frozen executable."""
         self.excludes[name] = None
@@ -602,9 +606,11 @@ class ModuleFinder(object):
         self._ImportDeferredImports(deferredImports)
         return module
 
-    def IncludeFiles(self, sourcePath, targetPath):
+    def IncludeFiles(self, sourcePath, targetPath, copyDependentFiles = True):
         """Include the files in the given directory in the target build."""
         self.includeFiles.append((sourcePath, targetPath))
+        if not copyDependentFiles:
+            self.ExcludeDependentFiles(sourcePath)
 
     def IncludeModule(self, name, namespace = False):
         """Include the named module in the frozen executable."""
