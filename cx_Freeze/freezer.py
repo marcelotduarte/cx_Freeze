@@ -184,7 +184,8 @@ class Freezer(object):
         if includeMode:
             shutil.copymode(source, target)
         self.filesCopied[normalizedTarget] = None
-        if copyDependentFiles:
+        if copyDependentFiles \
+                and source not in self.finder.excludeDependentFiles:
             for source in self._GetDependentFiles(source):
                 target = os.path.join(self.targetDir, os.path.basename(source))
                 self._CopyFile(source, target, copyDependentFiles)

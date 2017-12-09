@@ -408,7 +408,8 @@ def load_pythoncom(finder, module):
        the target directory."""
     import pythoncom
     finder.IncludeFiles(pythoncom.__file__,
-            os.path.basename(pythoncom.__file__))
+            os.path.join("lib", os.path.basename(pythoncom.__file__)),
+            copyDependentFiles = False)
 
 
 def load_pywintypes(finder, module):
@@ -419,7 +420,8 @@ def load_pywintypes(finder, module):
        target directory."""
     import pywintypes
     finder.IncludeFiles(pywintypes.__file__,
-            os.path.basename(pywintypes.__file__))
+            os.path.join("lib", os.path.basename(pywintypes.__file__)),
+            copyDependentFiles = False)
 
 
 # PyQt5 and PyQt4 can't both be loaded in the same process, so we cache the
@@ -666,6 +668,7 @@ def load_twitter(finder, module):
 def load_win32api(finder, module):
     """the win32api module implicitly loads the pywintypes module; make sure
        this happens."""
+    finder.ExcludeDependentFiles(module.file)
     finder.IncludeModule("pywintypes")
 
 
@@ -678,7 +681,7 @@ def load_win32com(finder, module):
 
 
 def load_win32file(finder, module):
-    """the win32api module implicitly loads the pywintypes and win32timezone
+    """the win32file module implicitly loads the pywintypes and win32timezone
        module; make sure this happens."""
     finder.IncludeModule("pywintypes")
     finder.IncludeModule("win32timezone")
