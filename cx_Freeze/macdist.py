@@ -126,20 +126,20 @@ class bdist_mac(Command):
         plist.close()
 
     def setRelativeReferencePaths(self):
-        """ For all files in Contents/MacOS, check if they are binaries
-            with references to other files in that dir. If so, make those
-            references relative. The appropriate commands are applied to all
-            files; they will just fail for files on which they do not apply."""
+        """ Create a list of all the Mach-O binaries in Contents/MacOS.
+            Then, check if they contain references to other files in
+            that dir. If so, make those references relative. """
+
         files = []
         for root, dirs, dir_files in os.walk(self.binDir):
-            files.extend([os.path.join(root, f).replace(self.binDir + "/", "")
-                          for f in dir_files])
+            for f in dir_files:
+                p = subprocess.Popen(("file", os.path.join(root, f)), stdout=subprocess.PIPE)
+                if "Mach-O" in p.stdout.readline().decode():
+                    files.append(os.path.join(root, f).replace(self.binDir + "/", ""))
+
         for fileName in files:
 
-            # install_name_tool can't handle zip files or directories
             filePath = os.path.join(self.binDir, fileName)
-            if fileName.endswith('.zip'):
-                continue
 
             # ensure write permissions
             mode = os.stat(filePath).st_mode
