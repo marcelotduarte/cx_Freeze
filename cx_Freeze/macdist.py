@@ -129,7 +129,6 @@ class bdist_mac(Command):
         """ Create a list of all the Mach-O binaries in Contents/MacOS.
             Then, check if they contain references to other files in
             that dir. If so, make those references relative. """
-
         files = []
         for root, dirs, dir_files in os.walk(self.binDir):
             for f in dir_files:
