@@ -19,10 +19,10 @@ for argNum, argValue in enumerate(sys.argv[1:]):
 for version in pythonVersions:
     majorVersion, minorVersion = [int(s) for s in version.split(".")]
     if minVersion is not None and (majorVersion, minorVersion) < minVersion:
-        print "Skipping version (less than min)", version
+        print("Skipping version (less than min)", version)
         continue
     elif maxVersion is not None and (majorVersion, minorVersion) > maxVersion:
-        print "Skipping version (greater than max)", version
+        print("Skipping version (greater than max)", version)
         continue
     python = pythonFormat % (majorVersion, minorVersion)
     messageFragment = "for Python %s.%s" % (majorVersion, minorVersion)
