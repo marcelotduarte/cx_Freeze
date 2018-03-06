@@ -167,6 +167,12 @@ class bdist_mac(Command):
                 if self.rpath_lib_folder is not None:
                     referencedFile = str(referencedFile).replace("@rpath", self.rpath_lib_folder)
 
+                # the output of otool on archive contain self referencing
+                # content inside parantheses.
+                if not os.path.exists(referencedFile):
+                    print("skip unknown file {} ".format(referencedFile))
+                    continue
+
                 path, name = os.path.split(referencedFile)
 
                 #some referenced files have not previously been copied to the
