@@ -548,6 +548,9 @@ def load_PyQt5_QtMultimedia(finder, module):
     finder.IncludeModule("%s.QtMultimediaWidgets" % name)
     copy_qt_plugins("mediaservice", finder, QtCore)
 
+def load_PyQt5_QtPrintSupport(finder, module):
+    name, QtCore = _qt_implementation(module)
+    copy_qt_plugins("printsupport", finder, QtCore)
 
 def load_reportlab(finder, module):
     """the reportlab module loads a submodule rl_settings via exec so force
