@@ -106,6 +106,10 @@ class build_exe(distutils.core.Command):
          'comma-separated list of packages to exclude from the zip file ' \
                 'and place in the file system instead (or * for all) ' \
                 '[default: *]'),
+        ('small-app', None,
+         'includes dependencies only one time each in application, rather' \
+         'than in each directory containing a file they are a dependency of' \
+         '(may cause problems for some applications)'),
         ('silent', 's',
          'suppress all output except warnings')
     ]
@@ -176,6 +180,7 @@ class build_exe(distutils.core.Command):
         self.path = None
         self.include_msvcr = None
         self.silent = None
+        self.small_app = None
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_exe'))
@@ -183,6 +188,11 @@ class build_exe(distutils.core.Command):
 
         if self.silent is None:
             self.silent = False
+
+        if self.small_app is None:
+            self.small_app = False
+        else:
+            self.small_app = True
 
         # Make sure all options of multiple values are lists
         for option in self.list_options:
@@ -200,6 +210,7 @@ class build_exe(distutils.core.Command):
                 name, stringValue = parts
                 value = eval(stringValue)
             constantsModule.values[name] = value
+
         freezer = cx_Freeze.Freezer(self.distribution.executables,
                 [constantsModule], self.includes, self.excludes, self.packages,
                 self.replace_paths, (not self.no_compress), self.optimize,
@@ -215,7 +226,8 @@ class build_exe(distutils.core.Command):
                 binPathExcludes = self.bin_path_excludes,
                 metadata = metadata,
                 zipIncludePackages = self.zip_include_packages,
-                zipExcludePackages = self.zip_exclude_packages)
+                zipExcludePackages = self.zip_exclude_packages,
+                smallApp=self.small_app)
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):

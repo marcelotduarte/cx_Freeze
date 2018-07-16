@@ -121,7 +121,8 @@ class Freezer(object):
             includeFiles = [], zipIncludes = [], silent = False,
             namespacePackages = [], metadata = None,
             includeMSVCR = False, zipIncludePackages = [],
-            zipExcludePackages = ["*"]):
+            zipExcludePackages = ["*"],
+            smallApp = False):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
@@ -147,6 +148,7 @@ class Freezer(object):
         self.metadata = metadata
         self.zipIncludePackages = list(zipIncludePackages)
         self.zipExcludePackages = list(zipExcludePackages)
+        self.smallApp = smallApp
         self._VerifyConfiguration()
 
     def _AddVersionResource(self, exe):
@@ -192,7 +194,10 @@ class Freezer(object):
         if copyDependentFiles \
                 and source not in self.finder.excludeDependentFiles:
             for source in self._GetDependentFiles(source):
-                target = os.path.join(targetDir, os.path.basename(source))
+                if self.smallApp:
+                    target = os.path.join(self.targetDir, os.path.basename(source))  # copy the dependency to the base directory of the application
+                else:
+                    target = os.path.join(targetDir, os.path.basename(source))  # copy depencency to the same directory as the file it is a dependency of
                 self._CopyFile(source, target, copyDependentFiles)
 
     def _CreateDirectory(self, path):
@@ -208,6 +213,7 @@ class Freezer(object):
         startupModule = get_resource_file_path("initscripts", "__startup__",
                 ".py")
         finder.IncludeFile(startupModule)
+
 
         self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
                 includeMode = True)
@@ -487,7 +493,7 @@ class Freezer(object):
                         "excluded from zip file", name)
 
         for executable in self.executables:
-            executable._VerifyConfiguration(self)
+            executable._VerifyConfiguration(self, smallApp=self.smallApp)
 
     def _WriteModules(self, fileName, finder):
         for module in self.constantsModules:
@@ -676,8 +682,8 @@ class Executable(object):
     def __repr__(self):
         return "<Executable script=%s>" % self.script
 
-    def _VerifyConfiguration(self, freezer):
-        self._GetInitScriptFileName()
+    def _VerifyConfiguration(self, freezer, smallApp=False):
+        self._GetInitScriptFileName(smallApp=smallApp)
         self._GetBaseFileName()
         if self.targetName is None:
             name, ext = os.path.splitext(os.path.basename(self.script))
@@ -695,8 +701,12 @@ class Executable(object):
         if self.base is None:
             raise ConfigError("no base named %s", name)
 
-    def _GetInitScriptFileName(self):
+    def _GetInitScriptFileName(self, smallApp=False):
         name = self.initScript
+        if name == "Console" and smallApp:  # if the smallApplication options has been set, and init script would otherwise be Console.py,
+                                            # substitute the new console that sets the path.
+            name = "ConsoleSmallApp"
+            pass
         self.initScript = get_resource_file_path("initscripts", name, ".py")
         if self.initScript is None:
             raise ConfigError("no initscript named %s", name)
