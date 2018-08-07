@@ -81,6 +81,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
+                if "AsAdministrator" in ext.name:
+                    extraArgs.append("/MANIFESTUAC:level='requireAdministrator' uiAccess='false'")
             elif compiler_type == "mingw32" and "Win32GUI" in ext.name:
                 extraArgs.append("-mwindows")
         else:
@@ -156,9 +158,15 @@ extensions = [utilModule, console]
 if sys.platform == "win32":
     scripts.append("cxfreeze-postinstall")
     options["bdist_msi"] = dict(install_script = "cxfreeze-postinstall")
+    consoleAsAdministrator = Extension("cx_Freeze.bases.ConsoleAsAdministrator", ["source/bases/Console.c"],
+            depends = depends, libraries = libraries)
+    extensions.append(consoleAsAdministrator)
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             depends = depends, libraries = libraries + ["user32"])
     extensions.append(gui)
+    guiAsAdministrator = Extension("cx_Freeze.bases.Win32GUIAsAdministrator", ["source/bases/Win32GUI.c"],
+            depends = depends, libraries = libraries + ["user32"])
+    extensions.append(guiAsAdministrator)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
