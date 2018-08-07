@@ -252,16 +252,6 @@ class install(distutils.command.install.install):
         self.install_exe = None
 
     def finalize_options(self):
-        if self.prefix is None and sys.platform == "win32":
-            try:
-                import winreg
-            except:
-                import _winreg as winreg
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                    r"Software\Microsoft\Windows\CurrentVersion")
-            prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
-            metadata = self.distribution.metadata
-            self.prefix = "%s/%s" % (prefix, metadata.name)
         distutils.command.install.install.finalize_options(self)
         self.convert_paths('exe')
         if self.root is not None:
