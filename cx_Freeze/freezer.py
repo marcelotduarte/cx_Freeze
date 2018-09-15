@@ -334,30 +334,23 @@ class Freezer(object):
                     dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
                                       for p in dependentFiles]
             dependentFiles = self.dependentFiles[path] = \
-                    [self._CheckupDependentFile(f, dirname)\
-                     for f in dependentFiles if self._ShouldCopyFile(f)]
+                    [self._CheckDependentFile(f, dirname) \
+                            for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
 
-    def _CheckupDependentFile(self, dependentFile, dirname):
-        """Check that the file exists. If not, try to add the dirname of the
-        file that depends of it to see if the file exists in the same directory.
-        If it finds a file that exists, returns it. Else, raise an error.
-
-        This is a patch to a bug stated in Issue #292:
-        https://github.com/anthony-tuininga/cx_Freeze/issues/292
-        """
+    def _CheckDependentFile(self, dependentFile, dirname):
+        """If the file does not exist, try to locate it in the directory of the
+           parent file (this is to workaround an issue in how otool returns
+           dependencies. See issue #292.
+           https://github.com/anthony-tuininga/cx_Freeze/issues/292"""
         if os.path.isfile(dependentFile):
             return dependentFile
-        # file does not exists. Try to append the dirname of the parent file
-        # This is just a patch that tries to get the file returned by otool
-        # in a possible likely spot it could be found.
         basename = os.path.basename(dependentFile)
         joined = os.path.join(dirname, basename)
         if os.path.isfile(joined):
             return joined
-        # if we are here, file was not found neither in the parent file dir.
-        raise FileNotFoundError("otool returned a dependent file that"
-                                " could not be found: %s" % dependentFile)
+        raise FileNotFoundError("otool returned a dependent file that "
+                "could not be found: " + dependentFile)
 
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
