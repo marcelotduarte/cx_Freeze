@@ -555,10 +555,16 @@ class Freezer(object):
             # the file is up to date so we can safely set this value to zero
             if module.code is not None:
                 if module.file is not None and os.path.exists(module.file):
-                    mtime = os.stat(module.file).st_mtime
+                    stat = os.stat(module.file)
+                    mtime = stat.st_mtime
+                    size = stat.st_size & 0xFFFFFFFF
                 else:
                     mtime = time.time()
-                header = magic + struct.pack("<ii", int(mtime), 0)
+                    size = 0
+                if sys.version_info[:2] == (3, 7):
+                    header = magic + struct.pack("<iii", 0, int(mtime), size)
+                else:
+                    header = magic + struct.pack("<ii", int(mtime), size)
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
