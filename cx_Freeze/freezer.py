@@ -561,10 +561,10 @@ class Freezer(object):
                 else:
                     mtime = time.time()
                     size = 0
-                if sys.version_info[:2] == (3, 7):
-                    header = magic + struct.pack("<iii", 0, int(mtime), size)
-                else:
+                if sys.version_info[:2] < (3, 7):
                     header = magic + struct.pack("<ii", int(mtime), size)
+                else:
+                    header = magic + struct.pack("<iii", 0, int(mtime), size)
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
