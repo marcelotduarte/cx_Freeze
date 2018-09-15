@@ -234,8 +234,8 @@ command:
 |                       | packages created with the same upgrade code prior   |
 |                       | to the installation of this one                     |
 +-----------------------+-----------------------------------------------------+
-| environment-variable  | add any environment variables to MSI package;       |
-|                       | those variables will added to system environment    |
+| environment_variables | add any environment variables to MSI package;       |
+|                       | those variables will be added to system environment |
 |                       | variables at installation time                      |
 |                       |                                                     |
 |                       | example:                                            |
@@ -247,7 +247,8 @@ command:
 |                       |          ("E_MYAPP_VAR",                            |
 |                       |           "=-*MYAPP_VAR", f"1",                     |
 |                       |           "TARGETDIR"),                             |
-|                       |      ],                                             |
+|                       |      ]                                              |
+|                       | }                                                   |
 +-----------------------+-----------------------------------------------------+
 
 bdist_rpm
