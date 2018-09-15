@@ -528,7 +528,7 @@ class ModuleFinder(object):
                 continue
 
             # import statement: attempt to import module
-            elif op == IMPORT_NAME:
+            elif op == IMPORT_NAME or op == IMPORT_FROM:
                 name = co.co_names[opArg]
                 if len(arguments) >= 2:
                     relativeImportIndex, fromList = arguments[-2:]
