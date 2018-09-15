@@ -113,7 +113,7 @@ It can be further customized:
 | path                  | comma separated list of paths to search; the        |
 |                       | default value is sys.path                           |
 +-----------------------+-----------------------------------------------------+
-| compressed (-c)       | create a compressed zip file                        |
+| no_compress           | create a zipfile with no compression                |
 +-----------------------+-----------------------------------------------------+
 | constants             | comma separated list of constant values to include  |
 |                       | in the constants module called BUILD_CONSTANTS in   |
