@@ -798,7 +798,7 @@ def load_clr(finder, module):
     in runtime"""
     module_dir = os.path.dirname(module.file)
     dllname = 'Python.Runtime.dll'
-    finder.IncludeFiles(os.path.join(module_dir, dllname), dllname)
+    finder.IncludeFiles(os.path.join(module_dir, dllname), os.path.join("lib", dll_name))
     
     
 def load_sqlite3(finder, module):
