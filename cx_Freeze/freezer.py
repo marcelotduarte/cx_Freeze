@@ -191,6 +191,10 @@ class Freezer(object):
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles \
                 and source not in self.finder.excludeDependentFiles:
+            # Always copy dependent files on root directory
+            # to allow to set relative reference
+            if sys.platform == 'darwin':
+                targetDir = self.targetDir
             for source in self._GetDependentFiles(source):
                 target = os.path.join(targetDir, os.path.basename(source))
                 self._CopyFile(source, target, copyDependentFiles)
