@@ -278,6 +278,7 @@ class Freezer(object):
         """Return the file's dependencies using platform-specific tools (the
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
+        dirname = os.path.dirname(path)
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
@@ -328,14 +329,35 @@ class Freezer(object):
                     # cx_Freeze on OSX in e.g. a conda-based distribution.
                     # Note that with @rpath we just assume Python's lib dir,
                     # which should work in most cases.
-                    dirname = os.path.dirname(path)
                     dependentFiles = [p.replace('@loader_path', dirname)
                                       for p in dependentFiles]
                     dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
                                       for p in dependentFiles]
             dependentFiles = self.dependentFiles[path] = \
-                    [f for f in dependentFiles if self._ShouldCopyFile(f)]
+                    [self._CheckupDependentFile(f, dirname)\
+                     for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
+
+    def _CheckupDependentFile(self, dependentFile, dirname):
+        """Check that the file exists. If not, try to add the dirname of the
+        file that depends of it to see if the file exists in the same directory.
+        If it finds a file that exists, returns it. Else, raise an error.
+
+        This is a patch to a bug stated in Issue #292:
+        https://github.com/anthony-tuininga/cx_Freeze/issues/292
+        """
+        if os.path.isfile(dependentFile):
+            return dependentFile
+        # file does not exists. Try to append the dirname of the parent file
+        # This is just a patch that tries to get the file returned by otool
+        # in a possible likely spot it could be found.
+        basename = os.path.basename(dependentFile)
+        joined = os.path.join(dirname, basename)
+        if os.path.isfile(joined):
+            return joined
+        # if we are here, file was not found neither in the parent file dir.
+        raise FileNotFoundError("otool returned a dependent file that"
+                                " could not be found: %s" % dependentFile)
 
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
