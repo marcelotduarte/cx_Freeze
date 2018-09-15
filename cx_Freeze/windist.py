@@ -2,6 +2,8 @@ import distutils.command.bdist_msi
 import distutils.errors
 import distutils.util
 import msilib
+import importlib
+
 import os
 
 __all__ = [ "bdist_msi" ]
@@ -378,6 +380,12 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         author = metadata.author or metadata.maintainer or "UNKNOWN"
         version = metadata.get_version()
         sversion = '.'.join([str(x) for x in distutils.version.LooseVersion(version).version])
+
+        importlib.reload(msilib)    # msilib is reloaded in order to reset the "_directories" global member in that module.  That member is
+                                    # used by msilib to prevent any two directories from having the same logical name.  _directories might
+                                    # already have contents due to msilib having been previously used in the current instance of the python
+                                    # interpreter -- if so, it could prevent the root from getting the logical name TARGETDIR, breaking
+                                    # the MSI.
         if self.product_code is None:
             self.product_code = msilib.gen_uuid()
         self.db = msilib.init_database(self.target_name, msilib.schema,
