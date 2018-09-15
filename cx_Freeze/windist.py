@@ -25,7 +25,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('target-name=', None, 'name of the file to create'),
         ('directories=', None, 'list of 3-tuples of directories to create'),
         ('data=', None, 'dictionary of data indexed by table name'),
-        ('product-code=', None, 'product code to use')
+        ('product-code=', None, 'product code to use'),
+        ('install-icon=', None, 'icon path to add/remove programs ')
     ]
     x = y = 50
     width = 370
@@ -246,7 +247,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             props.append(("ARPURLINFOABOUT", metadata.url))
         if self.upgrade_code is not None:
             props.append(("UpgradeCode", self.upgrade_code))
+        if self.install_icon:
+            props.append(('ARPPRODUCTICON', 'InstallIcon'))
         msilib.add_data(self.db, 'Property', props)
+        if self.install_icon:
+            msilib.add_data(self.db, "Icon", [("InstallIcon", msilib.Binary(self.install_icon))])
 
     def add_select_directory_dialog(self):
         dialog = distutils.command.bdist_msi.PyDialog(self.db,
@@ -361,6 +366,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.target_name = None
         self.directories = None
         self.data = None
+        self.install_icon = None
 
     def run(self):
         if not self.skip_build:
