@@ -24,6 +24,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('initial-target-dir=', None, 'initial target directory'),
         ('target-name=', None, 'name of the file to create'),
         ('directories=', None, 'list of 3-tuples of directories to create'),
+        ('environment-variables=', None, 'list of environment variables'),
         ('data=', None, 'dictionary of data indexed by table name'),
         ('product-code=', None, 'product code to use'),
         ('install-icon=', None, 'icon path to add/remove programs ')
@@ -41,6 +42,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                     [("E_PATH", "=-*Path", r"[~];[TARGETDIR]", "TARGETDIR")])
         if self.directories:
             msilib.add_data(self.db, "Directory", self.directories)
+        if self.environment_variables:
+            msilib.add_data(self.db, "Environment", self.environment_variables)
         msilib.add_data(self.db, 'CustomAction',
                 [("A_SET_TARGET_DIR", 256 + 51, "TARGETDIR",
                         self.initial_target_dir)])
@@ -354,6 +357,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
         if self.directories is None:
             self.directories = []
+        if self.environment_variables is None:
+            self.environment_variables = []
         if self.data is None:
             self.data = {}
 
@@ -365,6 +370,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.initial_target_dir = None
         self.target_name = None
         self.directories = None
+        self.environment_variables = None
         self.data = None
         self.install_icon = None
 
