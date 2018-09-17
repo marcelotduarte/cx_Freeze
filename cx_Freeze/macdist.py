@@ -89,6 +89,8 @@ class bdist_mac(Command):
             '--deep option.'),
         ('codesign-resource-rules', None, 'Plist file to be passed to ' \
             'codesign\'s --resource-rules option.'),
+        ('absolute-reference-path=', None, 'Path to use for all referenced ' \
+            'libraries instead of @executable_path.'),
         ('rpath-lib-folder', None, 'replace @rpath with given folder for any files')
     ]
 
@@ -102,6 +104,7 @@ class bdist_mac(Command):
         self.codesign_entitlements = None
         self.codesign_deep = None
         self.codesign_resource_rules = None
+        self.absolute_reference_path = None
         self.rpath_lib_folder = None
 
     def finalize_options(self):
@@ -124,6 +127,41 @@ class bdist_mac(Command):
         plist = open(os.path.join(self.contentsDir, 'Info.plist'), 'wb')
         plistlib.writePlist(contents, plist)
         plist.close()
+
+    def setAbsoluteReferencePaths(self, path=None):
+        """
+        For all files in Contents/MacOS, set their linked library paths to be
+        absolute paths using the given path instead of @executable_path.
+        """
+        if not path:
+            path = self.absolute_reference_path
+
+        files = os.listdir(self.binDir)
+
+        for filename in files:
+            filename = os.path.join(self.binDir, filename)
+
+            # Skip some file types
+            if filename[-1:] in ('txt', 'zip') or os.path.isdir(filename):
+                continue
+
+            otool = subprocess.Popen(('otool',  '-L', filename),
+                                     stdout=subprocess.PIPE)
+
+            for line in otool.stdout.readlines()[1:]:
+                lib = line.decode('utf-8').lstrip('\t').split(' (compat')[0]
+
+                if lib.startswith('@executable_path'):
+                    replacement = lib.replace('@executable_path', path)
+
+                    path, name = os.path.split(replacement)
+
+                    # see if we provide the referenced file;
+                    # if so, change the reference
+                    if name in files:
+                        subprocess.call((
+                            'install_name_tool', '-change', lib, replacement,
+                            filename))
 
     def setRelativeReferencePaths(self):
         """ For all files in Contents/MacOS, check if they are binaries
@@ -280,6 +318,10 @@ class bdist_mac(Command):
 
         # Make all references to libraries relative
         self.execute(self.setRelativeReferencePaths, ())
+
+        # Make library references absolute if enabled
+        if self.absolute_reference_path:
+            self.execute(self.setAbsoluteReferencePaths, ())
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
