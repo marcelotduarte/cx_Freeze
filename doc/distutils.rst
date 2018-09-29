@@ -279,9 +279,6 @@ bundle (a .app directory).
 | codesign_resource_rules  | Plist file to be passed to codesign's            |
 |                          | --resource-rules option.                         |
 +--------------------------+--------------------------------------------------+
-| absolute_reference_path  | Path to use for all referenced libraries instead |
-|                          | of @executable_path.                             |
-+--------------------------+--------------------------------------------------+
 | rpath_lib_folder         | replace @rpath with given folder for any files   |
 |                          |                                                  |
 +--------------------------+--------------------------------------------------+
@@ -298,8 +295,6 @@ bundle (a .app directory).
  .. versionchanged:: 4.3.4
     Added the ``codesign_deep`` and ``codesign_resource_rules`` options.
 
- .. versionchanged:: 5.1.2
-    Added the ``absolute_reference_path`` option.
 
 bdist_dmg
 `````````
