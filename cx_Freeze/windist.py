@@ -2,6 +2,8 @@ import distutils.command.bdist_msi
 import distutils.errors
 import distutils.util
 import msilib
+import importlib
+
 import os
 
 __all__ = [ "bdist_msi" ]
@@ -22,8 +24,10 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('initial-target-dir=', None, 'initial target directory'),
         ('target-name=', None, 'name of the file to create'),
         ('directories=', None, 'list of 3-tuples of directories to create'),
+        ('environment-variables=', None, 'list of environment variables'),
         ('data=', None, 'dictionary of data indexed by table name'),
-        ('product-code=', None, 'product code to use')
+        ('product-code=', None, 'product code to use'),
+        ('install-icon=', None, 'icon path to add/remove programs ')
     ]
     x = y = 50
     width = 370
@@ -38,6 +42,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                     [("E_PATH", "=-*Path", r"[~];[TARGETDIR]", "TARGETDIR")])
         if self.directories:
             msilib.add_data(self.db, "Directory", self.directories)
+        if self.environment_variables:
+            msilib.add_data(self.db, "Environment", self.environment_variables)
         msilib.add_data(self.db, 'CustomAction',
                 [("A_SET_TARGET_DIR", 256 + 51, "TARGETDIR",
                         self.initial_target_dir)])
@@ -244,7 +250,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             props.append(("ARPURLINFOABOUT", metadata.url))
         if self.upgrade_code is not None:
             props.append(("UpgradeCode", self.upgrade_code))
+        if self.install_icon:
+            props.append(('ARPPRODUCTICON', 'InstallIcon'))
         msilib.add_data(self.db, 'Property', props)
+        if self.install_icon:
+            msilib.add_data(self.db, "Icon", [("InstallIcon", msilib.Binary(self.install_icon))])
 
     def add_select_directory_dialog(self):
         dialog = distutils.command.bdist_msi.PyDialog(self.db,
@@ -347,6 +357,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
         if self.directories is None:
             self.directories = []
+        if self.environment_variables is None:
+            self.environment_variables = []
         if self.data is None:
             self.data = {}
 
@@ -358,7 +370,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.initial_target_dir = None
         self.target_name = None
         self.directories = None
+        self.environment_variables = None
         self.data = None
+        self.install_icon = None
 
     def run(self):
         if not self.skip_build:
@@ -377,7 +391,18 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         metadata = self.distribution.metadata
         author = metadata.author or metadata.maintainer or "UNKNOWN"
         version = metadata.get_version()
-        sversion = '.'.join([str(x) for x in distutils.version.LooseVersion(version).version])
+        sversion = '.'.join([str(x) \
+                for x in distutils.version.LooseVersion(version).version])
+
+        # msilib is reloaded in order to reset the "_directories" global member
+        # in that module.  That member is used by msilib to prevent any two
+        # directories from having the same logical name.  _directories might
+        # already have contents due to msilib having been previously used in
+        # the current instance of the python interpreter -- if so, it could
+        # prevent the root from getting the logical name TARGETDIR, breaking
+        # the MSI.
+        importlib.reload(msilib)
+
         if self.product_code is None:
             self.product_code = msilib.gen_uuid()
         self.db = msilib.init_database(self.target_name, msilib.schema,
