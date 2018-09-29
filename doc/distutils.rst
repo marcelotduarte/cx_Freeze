@@ -283,6 +283,11 @@ bundle (a .app directory).
 | include_frameworks       | A list of Framework directories to include in    |
 |                          | the app bundle.                                  |
 +--------------------------+--------------------------------------------------+
+| include_resources        | A list of tuples of additional files to include  |
+|                          | in the app bundle's resources directory, with the|
+|                          | first element being the source, and second the   |
+|                          | destination file or directory name.              |
++--------------------------+--------------------------------------------------+
 | codesign_identity        | The identity of the key to be used to sign the   |
 |                          | app bundle.                                      |
 +--------------------------+--------------------------------------------------+
@@ -310,6 +315,9 @@ bundle (a .app directory).
 
  .. versionchanged:: 4.3.4
     Added the ``codesign_deep`` and ``codesign_resource_rules`` options.
+
+ .. versionchanged:: 5.1.2
+    Added the ``include_resources`` option.
 
 bdist_dmg
 `````````
