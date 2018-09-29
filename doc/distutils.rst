@@ -293,6 +293,8 @@ bundle (a .app directory).
      - Boolean for whether to codesign using the --deep option.
    * - codesign_resource_rules
      - Plist file to be passed to codesign's --resource-rules option.
+   * - absolute_reference_path
+     - Path to use for all referenced libraries instead of @executable_path
    * - rpath_lib_folder
      - replace @rpath with given folder for any files
 
@@ -309,9 +311,9 @@ bundle (a .app directory).
     Added the ``codesign_deep`` and ``codesign_resource_rules`` options.
 
 .. versionchanged:: 6.0
-    Added the ``environment_variables``, ``include_resources`` and
-    ``rpath_lib_folder`` options. Replaced the ``compressed`` option with
-    the ``no_compress`` option.
+    Added the ``environment_variables``, ``include_resources``,
+    ``absolute_reference_path`` and ``rpath_lib_folder`` options. Replaced the
+    ``compressed`` option with the ``no_compress`` option.
 
 
 bdist_dmg
