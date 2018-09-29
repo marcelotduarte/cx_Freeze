@@ -124,6 +124,7 @@ class bdist_mac(Command):
             contents = {
                 'CFBundleIconFile': 'icon.icns',
                 'CFBundleDevelopmentRegion': 'English',
+                'CFBundleIdentifier': self.bundle_name,
             }
 
         # Ensure CFBundleExecutable is set correctly
