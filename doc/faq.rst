@@ -62,7 +62,6 @@ directory alongside the executable. Then to find them, use code like this::
             # The application is not frozen
             # Change this bit to match where you store your data files:
             datadir = os.path.dirname(__file__)
-            
         return os.path.join(datadir, filename)
 
 An alternative is to embed data in code, for example by using `Qt's resource
