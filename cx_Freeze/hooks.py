@@ -548,6 +548,9 @@ def load_PyQt5_QtMultimedia(finder, module):
     finder.IncludeModule("%s.QtMultimediaWidgets" % name)
     copy_qt_plugins("mediaservice", finder, QtCore)
 
+def load_PyQt5_QtPrintSupport(finder, module):
+    name, QtCore = _qt_implementation(module)
+    copy_qt_plugins("printsupport", finder, QtCore)
 
 def load_reportlab(finder, module):
     """the reportlab module loads a submodule rl_settings via exec so force
@@ -798,7 +801,7 @@ def load_clr(finder, module):
     in runtime"""
     module_dir = os.path.dirname(module.file)
     dllname = 'Python.Runtime.dll'
-    finder.IncludeFiles(os.path.join(module_dir, dllname), dllname)
+    finder.IncludeFiles(os.path.join(module_dir, dllname), os.path.join("lib", dll_name))
     
     
 def load_sqlite3(finder, module):

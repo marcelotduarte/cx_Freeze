@@ -193,6 +193,10 @@ class Freezer(object):
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles \
                 and source not in self.finder.excludeDependentFiles:
+            # Always copy dependent files on root directory
+            # to allow to set relative reference
+            if sys.platform == 'darwin':
+                targetDir = self.targetDir
             for source in self._GetDependentFiles(source):
                 if self.smallApp:
                     target = os.path.join(self.targetDir, os.path.basename(source))  # copy the dependency to the base directory of the application
@@ -280,6 +284,7 @@ class Freezer(object):
         """Return the file's dependencies using platform-specific tools (the
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
+        dirname = os.path.dirname(path)
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
@@ -330,14 +335,28 @@ class Freezer(object):
                     # cx_Freeze on OSX in e.g. a conda-based distribution.
                     # Note that with @rpath we just assume Python's lib dir,
                     # which should work in most cases.
-                    dirname = os.path.dirname(path)
                     dependentFiles = [p.replace('@loader_path', dirname)
                                       for p in dependentFiles]
                     dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
                                       for p in dependentFiles]
             dependentFiles = self.dependentFiles[path] = \
-                    [f for f in dependentFiles if self._ShouldCopyFile(f)]
+                    [self._CheckDependentFile(f, dirname) \
+                            for f in dependentFiles if self._ShouldCopyFile(f)]
         return dependentFiles
+
+    def _CheckDependentFile(self, dependentFile, dirname):
+        """If the file does not exist, try to locate it in the directory of the
+           parent file (this is to workaround an issue in how otool returns
+           dependencies. See issue #292.
+           https://github.com/anthony-tuininga/cx_Freeze/issues/292"""
+        if os.path.isfile(dependentFile):
+            return dependentFile
+        basename = os.path.basename(dependentFile)
+        joined = os.path.join(dirname, basename)
+        if os.path.isfile(joined):
+            return joined
+        raise FileNotFoundError("otool returned a dependent file that "
+                "could not be found: " + dependentFile)
 
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
@@ -561,10 +580,16 @@ class Freezer(object):
             # the file is up to date so we can safely set this value to zero
             if module.code is not None:
                 if module.file is not None and os.path.exists(module.file):
-                    mtime = os.stat(module.file).st_mtime
+                    stat = os.stat(module.file)
+                    mtime = stat.st_mtime
+                    size = stat.st_size & 0xFFFFFFFF
                 else:
                     mtime = time.time()
-                header = magic + struct.pack("<ii", int(mtime), 0)
+                    size = 0
+                if sys.version_info[:2] < (3, 7):
+                    header = magic + struct.pack("<ii", int(mtime), size)
+                else:
+                    header = magic + struct.pack("<iii", 0, int(mtime), size)
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
