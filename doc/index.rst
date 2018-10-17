@@ -13,7 +13,7 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   
+
    overview.rst
    distutils.rst
    script.rst
