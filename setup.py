@@ -77,6 +77,9 @@ class build_ext(distutils.command.build_ext.build_ext):
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
+                if ext.name == "cx_Freeze.bases.Win32GUI_GPU":
+                    implib = os.path.join(self.build_temp, ext.name)
+                    extraArgs.append("/IMPLIB:{}".format(implib))
             elif compiler_type == "mingw32" and "Win32GUI" in ext.name:
                 extraArgs.append("-mwindows")
         else:
@@ -155,6 +158,10 @@ if sys.platform == "win32":
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             depends = depends, libraries = libraries + ["user32"])
     extensions.append(gui)
+    gpu = Extension("cx_Freeze.bases.Win32GUI_GPU",
+            ["source/bases/Win32GUI_GPU.c"], depends = depends,
+            libraries = libraries + ["user32"])
+    extensions.append(gpu)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
