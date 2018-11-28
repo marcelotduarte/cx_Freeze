@@ -1,4 +1,4 @@
-from distutils.core import Command
+from distutils.core import Command, DistutilsFileError
 import os
 import plistlib
 import stat
@@ -171,9 +171,12 @@ class bdist_mac(Command):
                 if (name not in files and not path.startswith('/usr') and not
                         path.startswith('/System')):
                     print(referencedFile)
-                    self.copy_file(referencedFile,
-                                   os.path.join(self.binDir, name))
-                    files.append(name)
+                    try:
+                        self.copy_file(referencedFile, os.path.join(self.binDir, name))
+                    except DistutilsFileError as e:
+                        print("issue copying {} to {} error {} skipping".format(referencedFile, os.path.join(self.binDir, name), e))
+                    else:
+                        files.append(name)
 
                 # see if we provide the referenced file;
                 # if so, change the reference
