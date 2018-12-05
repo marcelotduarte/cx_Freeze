@@ -395,6 +395,14 @@ def load_pydoc(finder, module):
        error if that module cannot be found."""
     module.IgnoreName("Tkinter")
 
+def load_pymunk(finder, module):
+    """The chipmunk.dll or .dylib or .so is included in the package.
+       But it is not found by cx_Freeze, so we include it.
+    """
+    import pymunk
+    finder.IncludeFiles(pymunk.chipmunk_path,
+            os.path.join(os.path.basename(pymunk.chipmunk_path)),
+            copyDependentFiles = False)
 
 def load_pythoncom(finder, module):
     """the pythoncom module is actually contained in a DLL but since those
@@ -438,7 +446,7 @@ def _qt_implementation(module):
 
 def copy_qt_plugins(plugins, finder, QtCore):
     """Helper function to find and copy Qt plugins."""
-    
+
     # Qt Plugins can either be in a plugins directory next to the Qt libraries,
     # or in other locations listed by QCoreApplication.libraryPaths()
     dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
@@ -785,7 +793,7 @@ def missing_readline(finder, caller):
 
 
 def load_zmq(finder, module):
-    """the zmq package loads zmq.backend.cython dynamically and links 
+    """the zmq package loads zmq.backend.cython dynamically and links
     dynamically to zmq.libzmq."""
     finder.IncludePackage("zmq.backend.cython")
     if sys.platform == "win32":
@@ -802,8 +810,8 @@ def load_clr(finder, module):
     module_dir = os.path.dirname(module.file)
     dllname = 'Python.Runtime.dll'
     finder.IncludeFiles(os.path.join(module_dir, dllname), os.path.join("lib", dll_name))
-    
-    
+
+
 def load_sqlite3(finder, module):
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
        be present in the build directory."""
