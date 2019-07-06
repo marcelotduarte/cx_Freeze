@@ -390,6 +390,12 @@ def load_pty(finder, module):
     """The sgi module is not needed for this module to function."""
     module.IgnoreName("sgi")
 
+def load_pycparser(finder, module):
+    """ These files are missing which causes
+        permission denied issues on windows when they are regenerated.
+    """
+    finder.IncludeModule("pycparser.lextab")
+    finder.IncludeModule("pycparser.yacctab")
 
 def load_pydoc(finder, module):
     """The pydoc module will work without the Tkinter module so ignore the
@@ -439,7 +445,7 @@ def _qt_implementation(module):
 
 def copy_qt_plugins(plugins, finder, QtCore):
     """Helper function to find and copy Qt plugins."""
-    
+
     # Qt Plugins can either be in a plugins directory next to the Qt libraries,
     # or in other locations listed by QCoreApplication.libraryPaths()
     dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
@@ -796,7 +802,7 @@ def missing_readline(finder, caller):
 
 
 def load_zmq(finder, module):
-    """the zmq package loads zmq.backend.cython dynamically and links 
+    """the zmq package loads zmq.backend.cython dynamically and links
     dynamically to zmq.libzmq."""
     finder.IncludePackage("zmq.backend.cython")
     if sys.platform == "win32":
@@ -813,8 +819,8 @@ def load_clr(finder, module):
     module_dir = os.path.dirname(module.file)
     dllname = 'Python.Runtime.dll'
     finder.IncludeFiles(os.path.join(module_dir, dllname), os.path.join("lib", dll_name))
-    
-    
+
+
 def load_sqlite3(finder, module):
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
        be present in the build directory."""
