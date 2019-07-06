@@ -215,6 +215,10 @@ class Freezer(object):
 
         self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
                 includeMode = True)
+        if not os.access(exe.targetName, os.W_OK):
+            mode = os.stat(exe.targetName).st_mode
+            os.chmod(exe.targetName, mode | stat.S_IWUSR)
+
         if self.includeMSVCR:
             self._IncludeMSVCR(exe)
 
@@ -229,9 +233,6 @@ class Freezer(object):
                 self._CopyFile(exe.icon, targetName,
                         copyDependentFiles = False)
 
-        if not os.access(exe.targetName, os.W_OK):
-            mode = os.stat(exe.targetName).st_mode
-            os.chmod(exe.targetName, mode | stat.S_IWUSR)
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe)
 
