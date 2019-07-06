@@ -81,8 +81,11 @@ class build_ext(distutils.command.build_ext.build_ext):
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
-            elif compiler_type == "mingw32" and "Win32GUI" in ext.name:
-                extraArgs.append("-mwindows")
+            elif compiler_type == "mingw32":
+                if "Win32GUI" in ext.name:
+                    extraArgs.append("-mwindows")
+                if sys.version_info[0] == 3:
+                    extraArgs.append("-municode")
         else:
             vars = distutils.sysconfig.get_config_vars()
             libraryDirs.append(vars["LIBPL"])
