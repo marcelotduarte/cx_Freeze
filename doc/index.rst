@@ -21,6 +21,8 @@ Contents:
    releasenotes.rst
    development/index.rst
    license.rst
+   api.rst
+
 
 Indices and tables
 ==================
