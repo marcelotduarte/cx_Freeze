@@ -289,13 +289,11 @@ class Freezer(object):
                 try:
                     dependentFiles = cx_Freeze.util.GetDependentFiles(path)
                 except cx_Freeze.util.BindError as exc:
-                    # Sometimes this gets called when path is not actually a library
-                    # See issue 88
+                    # Sometimes this gets called when path is not actually a
+                    # library See issue 88
                     dependentFiles = []
-                    sys.stderr.write(
-                        "error during GetDependentFiles of \"%s\": %s"
-                        % path, str(exc)
-                    )
+                    fmt = "error during GetDependentFiles() of \"%s\": %s\n"
+                    sys.stderr.write(fmt % (path, str(exc)))
                 os.environ["PATH"] = origPath
             else:
                 dependentFiles = []
