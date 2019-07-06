@@ -16,7 +16,7 @@ import warnings
 __import__("site")
 
 # now locate the pth file to modify the path appropriately
-baseName, ext = os.path.splitext(FILE_NAME)
+baseName, ext = os.path.splitext(FILE_NAME)     # noqa: F821
 pathFileName = baseName + ".pth"
 with open(pathFileName) as in_file:
     sys.path = [s.strip() for s in in_file.read().splitlines()] + sys.path

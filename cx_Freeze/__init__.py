@@ -11,7 +11,7 @@ from cx_Freeze.finder import *
 from cx_Freeze.freezer import *
 from cx_Freeze.main import *
 
-del dist
-del finder
-del freezer
+del dist            # noqa: F821
+del finder          # noqa: F821
+del freezer         # noqa: F821
 
