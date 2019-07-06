@@ -352,7 +352,7 @@ class Freezer(object):
         joined = os.path.join(dirname, basename)
         if os.path.isfile(joined):
             return joined
-        raise EnvironmentError("otool returned a dependent file that "
+        raise FileNotFoundError("otool returned a dependent file that "
                 "could not be found: " + dependentFile)
 
     def _GetModuleFinder(self, argsSource = None):
