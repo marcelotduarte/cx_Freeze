@@ -3,7 +3,6 @@ Distutils script for cx_Freeze.
 """
 
 import cx_Freeze
-import distutils.command.bdist_rpm
 import distutils.command.build_ext
 import distutils.command.install
 import distutils.command.install_data
@@ -20,43 +19,6 @@ try:
 except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
-
-if sys.platform == "win32":
-    import msilib
-    import distutils.command.bdist_msi
-
-    class bdist_msi(distutils.command.bdist_msi.bdist_msi):
-
-        def add_scripts(self):
-            distutils.command.bdist_msi.bdist_msi.add_scripts(self)
-            msilib.add_data(self.db, "RemoveFile",
-                    [("cxFreezeBatch", "cx_Freeze", "cxfreeze*.bat", "Scripts",
-                        2)])
-
-
-class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
-
-    # rpm automatically byte compiles all Python files in a package but we
-    # don't want that to happen for initscripts and samples so we tell it to
-    # ignore those files
-    def _make_spec_file(self):
-        specFile = distutils.command.bdist_rpm.bdist_rpm._make_spec_file(self)
-        specFile.insert(0, "%define _unpackaged_files_terminate_build 0%{nil}")
-        return specFile
-
-    def run(self):
-        distutils.command.bdist_rpm.bdist_rpm.run(self)
-        specFile = os.path.join(self.rpm_base, "SPECS",
-                "%s.spec" % self.distribution.get_name())
-        queryFormat = "%{name}-%{version}-%{release}.%{arch}.rpm"
-        command = "rpm -q --qf '%s' --specfile %s" % (queryFormat, specFile)
-        origFileName = os.popen(command).read()
-        parts = origFileName.split("-")
-        parts.insert(2, "py%s%s" % sys.version_info[:2])
-        newFileName = "-".join(parts)
-        self.move_file(os.path.join("dist", origFileName),
-                os.path.join("dist", newFileName))
-
 
 class build_ext(distutils.command.build_ext.build_ext):
 
@@ -133,11 +95,7 @@ def find_cx_Logging():
     return loggingDir, importLibraryDir
 
 
-commandClasses = dict(
-        build_ext = build_ext,
-        bdist_rpm = bdist_rpm)
-if sys.platform == "win32":
-    commandClasses["bdist_msi"] = bdist_msi
+commandClasses = dict(build_ext=build_ext)
 
 # build utility module
 if sys.platform == "win32":
@@ -150,15 +108,13 @@ utilModule = Extension("cx_Freeze.util", ["source/util.c"],
 # build base executables
 docFiles = "README.txt"
 scripts = ["cxfreeze", "cxfreeze-quickstart"]
-options = dict(bdist_rpm = dict(doc_files = docFiles),
-        install = dict(optimize = 1))
+options = dict(install=dict(optimize=1))
 depends = ["source/bases/Common.c"]
 console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
         depends = depends, libraries = libraries)
 extensions = [utilModule, console]
 if sys.platform == "win32":
     scripts.append("cxfreeze-postinstall")
-    options["bdist_msi"] = dict(install_script = "cxfreeze-postinstall")
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             depends = depends, libraries = libraries + ["user32"])
     extensions.append(gui)
