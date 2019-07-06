@@ -64,11 +64,9 @@ static int SetExecutableName(
         argv0Size = strlen(argv0);
         while (1) {
             tempPtr = strchr(ptr, DELIM);
-            if (tempPtr)
-                size = tempPtr - ptr;
-            else size = strlen(ptr);
+            size = (tempPtr) ? (size_t) (tempPtr - ptr) : strlen(ptr);
             if (size + argv0Size + 1 <= MAXPATHLEN) {
-                strncpy(executableName, ptr, size);
+                strncpy(executableName, ptr, PATH_MAX + 1);
                 executableName[size] = SEP;
                 executableName[size + 1] = '\0';
                 strcat(executableName, argv0);
