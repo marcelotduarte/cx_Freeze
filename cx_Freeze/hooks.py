@@ -807,10 +807,14 @@ def load_zmq(finder, module):
     finder.IncludePackage("zmq.backend.cython")
     if sys.platform == "win32":
         # Not sure yet if this is cross platform
-        import zmq.libzmq
-        srcFileName = os.path.basename(zmq.libzmq.__file__)
-        finder.IncludeFiles(
-            os.path.join(module.path[0], srcFileName), srcFileName)
+        # Include the bundled libzmq library, if it exists
+        try:
+            import zmq.libzmq
+            srcFileName = os.path.basename(zmq.libzmq.__file__)
+            finder.IncludeFiles(
+                os.path.join(module.path[0], srcFileName), srcFileName)
+        except ImportError:
+            pass  # No bundled libzmq library
 
 
 def load_clr(finder, module):
