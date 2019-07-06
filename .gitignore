@@ -1,4 +1,3 @@
-doc/_build
 build/
 dist/
 cx_Freeze.egg-info/
