@@ -86,6 +86,19 @@ def load_ceODBC(finder, module):
     finder.IncludeModule("decimal")
 
 
+def load__cffi_backend(finder, module):
+    """_cffi_backend module requires libffi on a specific directory"""
+    if os.name == 'posix':
+        module_dir = os.path.dirname(module.file)
+        skip_count = len(module_dir)
+        for dirpath, _, filenames in os.walk(os.path.join(module_dir, ".libs_cffi_backend")):
+            for name in filenames:
+                source_path = os.path.join(dirpath, name)
+                target_path = os.path.join("lib", source_path[skip_count + 1:])
+                finder.IncludeFiles(source_path, target_path)
+        finder.ExcludeDependentFiles(module.file)
+
+
 def load_cx_Oracle(finder, module):
     """the cx_Oracle module implicitly imports datetime; make sure this
        happens."""
