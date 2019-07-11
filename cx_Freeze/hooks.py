@@ -379,6 +379,26 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_PIL(finder, module):
+    """Pillow package requires libraries on a specific directory"""
+    if os.name == 'posix':
+        module_dir = os.path.dirname(module.file)
+        #put dependent files of extensions in correct directory
+        skip_count = len(module_dir)
+        for dirpath, _, filenames in os.walk(os.path.join(module_dir, ".libs")):
+            for name in filenames:
+                source_path = os.path.join(dirpath, name)
+                target_path = os.path.join("lib", source_path[skip_count + 1:])
+                finder.IncludeFiles(source_path, target_path)
+        #ignore the dependent files of extensions, included above
+        for dirpath, _, filenames in os.walk(module_dir):
+            for name in filenames:
+                if name.endswith('.so'):
+                    finder.ExcludeDependentFiles(os.path.join(dirpath, name))
+    #load as a package - force inclusion of extensions - windows and linux
+    finder.IncludePackage('PIL')
+
+
 def load_postgresql_lib(finder, module):
     """the postgresql.lib module requires the libsys.sql file to be included
        so make sure that file is included"""
