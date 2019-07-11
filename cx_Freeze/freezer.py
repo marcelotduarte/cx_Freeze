@@ -619,6 +619,8 @@ class Freezer(object):
         # write any files to the zip file that were requested specially
         for sourceFileName, targetFileName in self.zipIncludes:
             outFile.write(sourceFileName, targetFileName)
+        for sourceFileName, targetFileName in self.finder.zipIncludes:
+            outFile.write(sourceFileName, targetFileName)
 
         outFile.close()
 

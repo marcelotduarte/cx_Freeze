@@ -135,6 +135,7 @@ class ModuleFinder(object):
         self._builtinModules = dict.fromkeys(sys.builtin_module_names)
         self._badModules = {}
         self._zip_modules_cache = ZipModulesCache()
+        self.zipIncludes = []
         cx_Freeze.hooks.initialize(self)
         initialExcludedModules = self.excludes.copy()
         self._AddBaseModules()
@@ -644,6 +645,10 @@ class ModuleFinder(object):
             sys.stdout.write("This is not necessarily a problem - the modules "
                              "may not be needed on this platform.\n")
             sys.stdout.write("\n")
+
+    def ZipIncludeFiles(self, sourcePath, targetPath):
+        """Include the files in the given library.zip in the target build."""
+        self.zipIncludes.append((sourcePath, targetPath))
 
 
 class Module(object):

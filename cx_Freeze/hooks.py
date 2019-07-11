@@ -559,6 +559,18 @@ def load_PyQt5_QtPrintSupport(finder, module):
     name, QtCore = _qt_implementation(module)
     copy_qt_plugins("printsupport", finder, QtCore)
 
+
+def load_pytz(finder, module):
+    """pytz module requires zoneinfo data included in library.zip."""
+    module_dir = os.path.dirname(module.file)
+    skip_count = len(os.path.dirname(module_dir))
+    for dirpath, _, filenames in os.walk(os.path.join(module_dir, "zoneinfo")):
+        for name in filenames:
+            source_path = os.path.join(dirpath, name)
+            target_path = source_path[skip_count + 1:].replace('\\', '/')
+            finder.ZipIncludeFiles(source_path, target_path)
+
+
 def load_reportlab(finder, module):
     """the reportlab module loads a submodule rl_settings via exec so force
        its inclusion here"""
