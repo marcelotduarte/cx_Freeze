@@ -150,6 +150,7 @@ class ModuleFinder(object):
            """
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
+        self.IncludeModule("unicodedata")
         self.IncludePackage("encodings")
         self.IncludeModule("io")
         self.IncludeModule("os")
