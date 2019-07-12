@@ -436,10 +436,6 @@ class ModuleFinder(object):
         
         elif type == imp.C_EXTENSION:
             logging.debug("Adding module [%s] [C_EXTENSION]", name)
-            if parent is None:
-                # Our extension loader (see the freezer module) uses imp to
-                # load compiled extensions.
-                self.IncludeModule("imp")
 
         # If there's a custom hook for this module, run it.
         self._RunHook("load", module.name, module)
