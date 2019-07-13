@@ -73,6 +73,11 @@ def initialize(finder):
     finder.ExcludeModule("Tkinter")
 
 
+def load_asyncio(finder, module):
+    """the asyncio must be loaded as a package."""
+    finder.IncludePackage('asyncio')
+
+
 def load_cElementTree(finder, module):
     """the cElementTree module implicitly loads the elementtree.ElementTree
        module; make sure this happens."""
