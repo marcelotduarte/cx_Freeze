@@ -246,6 +246,10 @@ def load_h5py(finder, module):
     finder.IncludeModule('h5py.h5ac')
 
 
+def load_idna(finder, module):
+    """the idna module implicitly loads data; make sure this happens."""
+    finder.IncludeModule("idna.idnadata")
+
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
