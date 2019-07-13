@@ -14,16 +14,13 @@ class ExtensionFinder(PathFinder):
 
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):
-        print('ExtensionFinder.find_spec', fullname, path, target)
         for path in sys.path:
             for ext in EXTENSION_SUFFIXES:
                 location = os.path.join(path, fullname + ext)
                 if os.path.isfile(location):
                     loader = ExtensionFileLoader(fullname, location)
-                    spec = spec_from_file_location(fullname, location,
+                    return spec_from_file_location(fullname, location,
                                                    loader=loader)
-                    if spec:
-                        return spec
 
 sys.meta_path.append(ExtensionFinder)
 
