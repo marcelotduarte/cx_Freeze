@@ -4,6 +4,7 @@ Base class for finding modules.
 
 import dis
 import imp
+import importlib.util
 import logging
 import marshal
 import opcode
@@ -11,7 +12,6 @@ import os
 import pkgutil
 import re
 import sys
-import tokenize
 import types
 import zipfile
 
@@ -406,12 +406,8 @@ class ModuleFinder(object):
         if type == imp.PY_SOURCE:
             logging.debug("Adding module [%s] [PY_SOURCE]", name)
             # Load & compile Python source code
-            fp = open(path, "rb")
-            encoding, lines = tokenize.detect_encoding(fp.readline)
-            fp = open(path, "U", encoding = encoding)
-            codeString = fp.read()
-            if codeString and codeString[-1] != "\n":
-                codeString = codeString + "\n"
+            with open(path, "rb") as fp:
+                codeString = importlib.util.decode_source(fp.read())
             try:
                 module.code = compile(codeString, path, "exec")
             except SyntaxError:
