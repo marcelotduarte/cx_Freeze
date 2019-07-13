@@ -5,7 +5,7 @@ Base class for finding modules.
 import dis
 import imp
 import importlib.machinery
-from importlib.util import source_from_cache
+import importlib.util
 import logging
 import marshal
 import opcode
@@ -99,8 +99,8 @@ class ZipModulesCache(object):
             if '__pycache__' in baseName:
                 if not baseName.endswith(sys.implementation.cache_tag):
                     continue
-                baseName = \
-                        os.path.splitext(source_from_cache(archiveName))[0]
+                baseName = os.path.splitext(
+                        importlib.util.source_from_cache(archiveName))[0]
             nameparts = baseName.split("/")
             
             if len(nameparts) > 1 and nameparts[-1] == '__init__':
