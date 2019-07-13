@@ -46,6 +46,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             elif compiler_type == "mingw32":
                 if "Win32GUI" in ext.name:
                     extraArgs.append("-mwindows")
+                else:
+                    extraArgs.append("-mconsole")
                 if sys.version_info[0] == 3:
                     extraArgs.append("-municode")
         else:
