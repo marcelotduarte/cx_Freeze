@@ -388,6 +388,11 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_pkg_resources(finder, module):
+    """pkg_resources dynamic load modules in a subpackage."""
+    finder.IncludePackage("pkg_resources._vendor")
+
+
 def load_postgresql_lib(finder, module):
     """the postgresql.lib module requires the libsys.sql file to be included
        so make sure that file is included"""
