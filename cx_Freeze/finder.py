@@ -4,8 +4,8 @@ Base class for finding modules.
 
 import dis
 import imp
+import io
 import logging
-import marshal
 import opcode
 import os
 import pkgutil
@@ -421,18 +421,11 @@ class ModuleFinder(object):
             logging.debug("Adding module [%s] [PY_COMPILED]", name)
             # Load Python bytecode
             if isinstance(fp, bytes):
-                magic = fp[:4]
-            else:
-                magic = fp.read(4)
-            if magic != imp.get_magic():
-                raise ImportError("Bad magic number in %s" % path)
-            skip_bytes = 8
-            if isinstance(fp, bytes):
-                module.code = marshal.loads(fp[skip_bytes+4:])
                 module.inZipFile = True
-            else:
-                fp.read(skip_bytes)
-                module.code = marshal.load(fp)
+                fp = io.BytesIO(fp)
+            module.code = pkgutil.read_code(fp)
+            if module.code is None:
+                raise ImportError("Bad magic number in %s" % path)
         
         elif type == imp.C_EXTENSION:
             logging.debug("Adding module [%s] [C_EXTENSION]", name)
