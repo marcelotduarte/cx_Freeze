@@ -708,10 +708,12 @@ class Executable(object):
         self._GetInitScriptFileName()
         self._GetBaseFileName()
         if self.targetName is None:
-            name, ext = os.path.splitext(os.path.basename(self.script))
+            name, _ = os.path.splitext(os.path.basename(self.script))
             baseName, ext = os.path.splitext(self.base)
             self.targetName = name + ext
         name, ext = os.path.splitext(self.targetName)
+        if ext == "" and sys.platform == "win32":
+            self.targetName += ".exe"
         self.moduleName = "%s__main__" % os.path.normcase(name)
         self.initModuleName = "%s__init__" % os.path.normcase(name)
         self.targetName = os.path.join(freezer.targetDir, self.targetName)
