@@ -4,12 +4,13 @@ Base class for finding modules.
 
 import dis
 import imp
+import importlib.machinery
+import importlib.util
 import logging
 import marshal
 import opcode
 import os
 import pkgutil
-import re
 import sys
 import tokenize
 import types
@@ -96,10 +97,10 @@ class ZipModulesCache(object):
             if ext not in ('.pyc', '.pyo'):
                 continue
             if '__pycache__' in baseName:
-                if not baseName.endswith(imp.get_tag()):
+                if not baseName.endswith(sys.implementation.cache_tag):
                     continue
-                baseName = \
-                        os.path.splitext(imp.source_from_cache(archiveName))[0]
+                baseName = os.path.splitext(
+                        importlib.util.source_from_cache(archiveName))[0]
             nameparts = baseName.split("/")
             
             if len(nameparts) > 1 and nameparts[-1] == '__init__':
@@ -150,6 +151,7 @@ class ModuleFinder(object):
            """
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
+        self.IncludeModule("unicodedata")
         self.IncludePackage("encodings")
         self.IncludeModule("io")
         self.IncludeModule("os")
@@ -225,7 +227,7 @@ class ModuleFinder(object):
 
     def _ImportAllSubModules(self, module, deferredImports, recursive = True):
         """Import all sub modules to the given package."""
-        suffixes = [s[0] for s in imp.get_suffixes()]
+        suffixes = importlib.machinery.all_suffixes()
 
         for path in module.path:
             try:

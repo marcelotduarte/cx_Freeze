@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import datetime
 import distutils.sysconfig
-import imp
+from importlib.util import MAGIC_NUMBER
 import marshal
 import os
 import shutil
@@ -529,7 +529,6 @@ class Freezer(object):
         outFile = zipfile.PyZipFile(fileName, "w", zipfile.ZIP_DEFLATED)
 
         filesToCopy = []
-        magic = imp.get_magic()
         ignorePatterns = shutil.ignore_patterns("*.py", "*.pyc", "*.pyo",
                 "__pycache__")
         for module in modules:
@@ -584,9 +583,9 @@ class Freezer(object):
                     mtime = time.time()
                     size = 0
                 if sys.version_info[:2] < (3, 7):
-                    header = magic + struct.pack("<ii", int(mtime), size)
+                    header = MAGIC_NUMBER + struct.pack("<ii", int(mtime), size)
                 else:
-                    header = magic + struct.pack("<iii", 0, int(mtime), size)
+                    header = MAGIC_NUMBER + struct.pack("<iii", 0, int(mtime), size)
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so

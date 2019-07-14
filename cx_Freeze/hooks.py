@@ -73,6 +73,11 @@ def initialize(finder):
     finder.ExcludeModule("Tkinter")
 
 
+def load_asyncio(finder, module):
+    """the asyncio must be loaded as a package."""
+    finder.IncludePackage('asyncio')
+
+
 def load_cElementTree(finder, module):
     """the cElementTree module implicitly loads the elementtree.ElementTree
        module; make sure this happens."""
@@ -241,6 +246,10 @@ def load_h5py(finder, module):
     finder.IncludeModule('h5py.h5ac')
 
 
+def load_idna(finder, module):
+    """the idna module implicitly loads data; make sure this happens."""
+    finder.IncludeModule("idna.idnadata")
+
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
@@ -378,7 +387,6 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("rand")
     module.AddGlobalName("randn")
 
-
 def load_PIL(finder, module):
     """Pillow package requires libraries on a specific directory"""
     if os.name == 'posix':
@@ -397,6 +405,11 @@ def load_PIL(finder, module):
                     finder.ExcludeDependentFiles(os.path.join(dirpath, name))
     #load as a package - force inclusion of extensions - windows and linux
     finder.IncludePackage('PIL')
+
+
+def load_pkg_resources(finder, module):
+    """pkg_resources dynamic load modules in a subpackage."""
+    finder.IncludePackage("pkg_resources._vendor")
 
 
 def load_postgresql_lib(finder, module):
