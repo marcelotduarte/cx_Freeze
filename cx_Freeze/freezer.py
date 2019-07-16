@@ -283,19 +283,21 @@ class Freezer(object):
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
-                origPath = os.environ["PATH"]
-                os.environ["PATH"] = origPath + os.pathsep + \
-                        os.pathsep.join(sys.path)
-                import cx_Freeze.util
-                try:
-                    dependentFiles = cx_Freeze.util.GetDependentFiles(path)
-                except cx_Freeze.util.BindError as exc:
-                    # Sometimes this gets called when path is not actually a
-                    # library See issue 88
+                if path.endswith(('.exe', '.dll')):
+                    origPath = os.environ["PATH"]
+                    os.environ["PATH"] = origPath + os.pathsep + \
+                            os.pathsep.join(sys.path)
+                    try:
+                        dependentFiles = cx_Freeze.util.GetDependentFiles(path)
+                    except cx_Freeze.util.BindError as exc:
+                        # Sometimes this gets called when path is not actually a
+                        # library See issue 88
+                        dependentFiles = []
+                        fmt = "error during GetDependentFiles() of \"%s\": %s\n"
+                        sys.stderr.write(fmt % (path, str(exc)))
+                    os.environ["PATH"] = origPath
+                else:
                     dependentFiles = []
-                    fmt = "error during GetDependentFiles() of \"%s\": %s\n"
-                    sys.stderr.write(fmt % (path, str(exc)))
-                os.environ["PATH"] = origPath
             else:
                 dependentFiles = []
                 if sys.platform == "darwin":
