@@ -6,7 +6,6 @@
 
 import os
 import sys
-import zipimport
 
 sys.frozen = True
 
@@ -18,10 +17,7 @@ os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
 
 
 def run():
-    m = __import__("__main__")
-    importer = zipimport.zipimporter(os.path.dirname(os.__file__))
     name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
     moduleName = "%s__main__" % name
-    code = importer.get_code(moduleName)
-    exec(code, m.__dict__)
-
+    code = __loader__.get_code(moduleName)
+    exec(code, {'__name__': '__main__'})
