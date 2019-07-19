@@ -7,20 +7,27 @@
 import os
 import sys
 from importlib.machinery import ExtensionFileLoader, EXTENSION_SUFFIXES, PathFinder
-from importlib.util import spec_from_file_location
+from importlib.util import spec_from_loader
 
 
 class ExtensionFinder(PathFinder):
 
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):
-        for path in sys.path:
+        """this finder is only for modules that are being searched in the
+        library.zip, however they are in the lib directory."""
+        if path is None:
+            return
+        #ignore the path (library.zip/PKG/_module) and search sys.path
+        path = sys.path
+        for entry in sys.path:
+            if '.zip' in entry:
+                continue
             for ext in EXTENSION_SUFFIXES:
-                location = os.path.join(path, fullname + ext)
+                location = os.path.join(entry, fullname + ext)
                 if os.path.isfile(location):
                     loader = ExtensionFileLoader(fullname, location)
-                    return spec_from_file_location(fullname, location,
-                                                   loader=loader)
+                    return spec_from_loader(fullname, loader)
 
 sys.meta_path.append(ExtensionFinder)
 
