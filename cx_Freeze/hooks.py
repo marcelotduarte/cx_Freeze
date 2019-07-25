@@ -133,6 +133,11 @@ def load_ftplib(finder, module):
     module.IgnoreName("SOCKS")
 
 
+def load_gevent(finder, module):
+    """gevent must be loaded as a package."""
+    finder.IncludePackage("gevent")
+
+
 def load_GifImagePlugin(finder, module):
     """The GifImagePlugin module optionally imports the _imaging_gif module"""
     module.IgnoreName("_imaging_gif")
