@@ -371,6 +371,7 @@ constructor are as follows:
      - the name of the target executable; the default value is the name of the
        script with the extension exchanged with the extension for the base
        executable
+     - if specified without extension, one will be added (Windows only).
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms

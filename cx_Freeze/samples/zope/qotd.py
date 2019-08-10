@@ -19,5 +19,7 @@ factory = Factory()
 factory.protocol = QOTD
 
 # 8007 is the port you want to run under. Choose something >1024
-reactor.listenTCP(8007, factory)
+portNum = 8007
+reactor.listenTCP(portNum, factory)
+print("Listening on port", portNum)
 reactor.run()
