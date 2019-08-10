@@ -655,9 +655,8 @@ def load_tkinter(finder, module):
             try:
                 lib_texts = os.environ[env_name]
             except KeyError:
-                lib_texts = os.path.join(sys.base_prefix,
-                                         "tcl",
-                                         mod_name + str(ver_var))
+                lib_texts = os.path.join(sys.base_prefix, "tcl",
+                        mod_name + str(ver_var))
             finder.IncludeFiles(lib_texts, mod_name)
         for ver_var, mod_name in zip(version_vars, root_names):
             dll_name = mod_name + str(ver_var).replace(".", "") + "t.dll"
