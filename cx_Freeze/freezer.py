@@ -21,33 +21,6 @@ import cx_Freeze
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
-EXTENSION_LOADER_SOURCE = \
-"""
-def __bootstrap__():
-    import imp, sys
-    os = sys.modules['os']
-    global __bootstrap__, __loader__
-    __loader__ = None; del __bootstrap__, __loader__
-
-    found = False
-    for p in sys.path:
-        if not os.path.isdir(p):
-            continue
-        f = os.path.join(p, "%s")
-        if not os.path.exists(f):
-            continue
-        m = imp.load_dynamic(__name__, f)
-        import sys
-        sys.modules[__name__] = m
-        found = True
-        break
-    if not found:
-        del sys.modules[__name__]
-        raise ImportError("No module named %%s" %% __name__)
-__bootstrap__()
-"""
-
-
 MSVCR_MANIFEST_TEMPLATE = """
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
@@ -562,15 +535,9 @@ class Freezer(object):
             # libraries cannot be loaded from a zip file
             if module.code is None and module.file is not None \
                     and not includeInFileSystem:
-                fileName = os.path.basename(module.file)
-                if "." in module.name:
-                    baseFileName, ext = os.path.splitext(fileName)
-                    fileName = module.name + ext
-                    generatedFileName = "ExtensionLoader_%s.py" % \
-                            module.name.replace(".", "_")
-                    module.code = compile(EXTENSION_LOADER_SOURCE % fileName,
-                            generatedFileName, "exec")
-                target = os.path.join(targetDir, fileName)
+                parts = module.name.split(".")[:-1]
+                parts.append(os.path.basename(module.file))
+                target = os.path.join(targetDir, ".".join(parts))
                 filesToCopy.append((module, target))
 
             # starting with Python 3.3 the pyc file format contains the source
