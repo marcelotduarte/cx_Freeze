@@ -88,13 +88,11 @@ class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = True,
-            optimizeFlag = 0, path = None,
-            targetDir = None, binIncludes = [], binExcludes = [],
-            binPathIncludes = [], binPathExcludes = [],
+            optimizeFlag = 0, path = None, targetDir = None, binIncludes = [],
+            binExcludes = [], binPathIncludes = [], binPathExcludes = [],
             includeFiles = [], zipIncludes = [], silent = False,
-            namespacePackages = [], metadata = None,
-            includeMSVCR = False, zipIncludePackages = [],
-            zipExcludePackages = ["*"]):
+            namespacePackages = [], metadata = None, includeMSVCR = False,
+            zipIncludePackages = [], zipExcludePackages = ["*"]):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
@@ -272,6 +270,9 @@ class Freezer(object):
                 else:
                     dependentFiles = []
             else:
+                if not os.access(path, os.X_OK):
+                    self.dependentFiles[path] = []
+                    return []
                 dependentFiles = []
                 if sys.platform == "darwin":
                     command = 'otool -L "%s"' % path
