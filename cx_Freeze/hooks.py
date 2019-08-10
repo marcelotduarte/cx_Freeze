@@ -393,6 +393,11 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_PIL(finder, module):
+    """Pillow must be loaded as a package."""
+    finder.IncludePackage("PIL")
+
+
 def load_pkg_resources(finder, module):
     """pkg_resources dynamic load modules in a subpackage."""
     finder.IncludePackage("pkg_resources._vendor")
