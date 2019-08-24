@@ -14,7 +14,7 @@ DIR_NAME = os.path.dirname(sys.executable)
 
 os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
 os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
-
+os.environ["MATPLOTLIBDATA"] = os.path.join(DIR_NAME, "mpl-data")
 
 def run():
     name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))

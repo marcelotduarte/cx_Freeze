@@ -258,9 +258,13 @@ def load_idna(finder, module):
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
-    dir = os.path.join(module.path[0], "mpl-data")
-    finder.IncludeFiles(dir, "mpl-data")
+    import matplotlib
+    dataPath = matplotlib.get_data_path()
+    finder.IncludeFiles(dataPath, "mpl-data", copyDependentFiles=False)
 
+
+def load_numpy(finder, module):
+    finder.IncludePackage("numpy")
 
 def load_matplotlib_numerix(finder, module):
     """the numpy.numerix module loads a number of modules dynamically"""
