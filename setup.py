@@ -92,9 +92,10 @@ def find_cx_Logging():
         return
     subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
     importLibraryDir = os.path.join(loggingDir, "build", subDir)
+    includeDir = os.path.join(loggingDir, "src")
     if not os.path.exists(importLibraryDir):
         return
-    return loggingDir, importLibraryDir
+    return includeDir, importLibraryDir
 
 
 commandClasses = dict(build_ext=build_ext)
