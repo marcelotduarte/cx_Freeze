@@ -2,7 +2,6 @@
 Distutils script for cx_Freeze.
 """
 
-import cx_Freeze
 import distutils.command.build_ext
 import distutils.command.install
 import distutils.command.install_data
@@ -35,7 +34,10 @@ class build_ext(distutils.command.build_ext.build_ext):
                 debug = self.debug,
                 depends = ext.depends)
         fileName = os.path.splitext(self.get_ext_filename(ext.name))[0]
-        fullName = os.path.join(self.build_lib, fileName)
+        if self.inplace:
+            fullName = os.path.join(os.path.dirname(__file__), fileName)
+        else:
+            fullName = os.path.join(self.build_lib, fileName)
         libraryDirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
@@ -155,6 +157,7 @@ classifiers = [
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Software Development :: Build Tools",
         "Topic :: Software Development :: Libraries :: Python Modules",
