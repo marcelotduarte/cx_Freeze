@@ -138,6 +138,11 @@ def load_ftplib(finder, module):
     module.IgnoreName("SOCKS")
 
 
+def load_gevent(finder, module):
+    """gevent must be loaded as a package."""
+    finder.IncludePackage("gevent")
+
+
 def load_GifImagePlugin(finder, module):
     """The GifImagePlugin module optionally imports the _imaging_gif module"""
     module.IgnoreName("_imaging_gif")
@@ -258,9 +263,13 @@ def load_idna(finder, module):
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
-    dir = os.path.join(module.path[0], "mpl-data")
-    finder.IncludeFiles(dir, "mpl-data")
+    import matplotlib
+    dataPath = matplotlib.get_data_path()
+    finder.IncludeFiles(dataPath, "mpl-data", copyDependentFiles=False)
 
+
+def load_numpy(finder, module):
+    finder.IncludePackage("numpy")
 
 def load_matplotlib_numerix(finder, module):
     """the numpy.numerix module loads a number of modules dynamically"""
@@ -391,6 +400,11 @@ def load_numpy_random_mtrand(finder, module):
        modules"""
     module.AddGlobalName("rand")
     module.AddGlobalName("randn")
+
+
+def load_PIL(finder, module):
+    """Pillow must be loaded as a package."""
+    finder.IncludePackage("PIL")
 
 
 def load_pkg_resources(finder, module):
@@ -647,10 +661,21 @@ def load_tkinter(finder, module):
     if sys.platform == "win32":
         import tkinter
         import _tkinter
-        tclSourceDir = os.environ["TCL_LIBRARY"]
-        tkSourceDir = os.environ["TK_LIBRARY"]
-        finder.IncludeFiles(tclSourceDir, "tcl")
-        finder.IncludeFiles(tkSourceDir, "tk")
+        root_names = "tcl", "tk"
+        environ_names = "TCL_LIBRARY", "TK_LIBRARY"
+        version_vars = tkinter.TclVersion, tkinter.TkVersion
+        zipped = zip(environ_names, version_vars, root_names)
+        for env_name, ver_var, mod_name in zipped:
+            try:
+                lib_texts = os.environ[env_name]
+            except KeyError:
+                lib_texts = os.path.join(sys.base_prefix, "tcl",
+                        mod_name + str(ver_var))
+            finder.IncludeFiles(lib_texts, mod_name)
+        for ver_var, mod_name in zip(version_vars, root_names):
+            dll_name = mod_name + str(ver_var).replace(".", "") + "t.dll"
+            dll_path = os.path.join(sys.base_prefix, "Dlls", dll_name)
+            finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
 def load_Tkinter(finder, module):

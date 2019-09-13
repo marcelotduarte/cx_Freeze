@@ -10,7 +10,6 @@
 
 import os
 import sys
-import zipimport
 
 FILE_NAME = sys.executable
 DIR_NAME = os.path.dirname(sys.executable)
@@ -27,13 +26,10 @@ sys.path = sys.path[:4]
 
 os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
 os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
-
+os.environ["MATPLOTLIBDATA"] = os.path.join(DIR_NAME, "mpl-data")
 
 def run():
-    m = __import__("__main__")
-    importer = zipimport.zipimporter(os.path.dirname(os.__file__))
     name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
     moduleName = "%s__main__" % name
-    code = importer.get_code(moduleName)
-    exec(code, m.__dict__)
-
+    code = __loader__.get_code(moduleName)
+    exec(code, {'__name__': '__main__'})

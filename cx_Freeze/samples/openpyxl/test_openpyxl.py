@@ -21,5 +21,6 @@ import datetime
 ws['A2'] = datetime.datetime.now()
 
 # Save the file
-wb.save("sample.xlsx")
-
+fileName = "sample.xlsx"
+wb.save(fileName)
+print("Wrote file", fileName)

@@ -230,22 +230,38 @@ command:
      - add the target directory to the PATH environment variable; the default
        value is True if there are any console based executables and False
        otherwise
+   * - data
+     - dictionary of arbitrary MSI data indexed by table name
+   * - directories
+     - list of directories that should be created during installation
+   * - environment_variables
+     - list of environment variables that should be added to the system during
+       installation
+   * - initial_target_dir
+     - defines the initial target directory supplied to the user during
+       installation
+   * - install_icon
+     - path of icon to use for the add/remove programs window that pops up
+       during installation
+   * - product_code
+     - define the product code for the package that is created
+   * - target_name
+     - specifies the name of the file that is to be created
    * - upgrade_code
      - define the upgrade code for the package that is created; this is used to
        force removal of any packages created with the same upgrade code prior
        to the installation of this one
-   * - environment_variables
-     - add any environment variables to MSI package; those variables will be
-       added to system environment variables at installation time
-       ::
 
-          'bdist_msi': {
-              'upgrade_code': upgrade_code,
-              'add_to_path': True,
-                  'environment_variables': [
-                      ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
-                  ]
-          }
+For example::
+
+    'bdist_msi': {
+        'upgrade_code': upgrade_code,
+        'add_to_path': True,
+        'environment_variables': [
+            ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
+        ]
+    }
+
 
 bdist_rpm
 `````````
@@ -370,7 +386,8 @@ constructor are as follows:
    * - targetName
      - the name of the target executable; the default value is the name of the
        script with the extension exchanged with the extension for the base
-       executable
+       executable; if specified without extension, one will be added (Windows
+       only).
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms

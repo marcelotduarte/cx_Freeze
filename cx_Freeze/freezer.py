@@ -21,33 +21,6 @@ import cx_Freeze
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
-EXTENSION_LOADER_SOURCE = \
-"""
-def __bootstrap__():
-    import imp, sys
-    os = sys.modules['os']
-    global __bootstrap__, __loader__
-    __loader__ = None; del __bootstrap__, __loader__
-
-    found = False
-    for p in sys.path:
-        if not os.path.isdir(p):
-            continue
-        f = os.path.join(p, "%s")
-        if not os.path.exists(f):
-            continue
-        m = imp.load_dynamic(__name__, f)
-        import sys
-        sys.modules[__name__] = m
-        found = True
-        break
-    if not found:
-        del sys.modules[__name__]
-        raise ImportError("No module named %%s" %% __name__)
-__bootstrap__()
-"""
-
-
 MSVCR_MANIFEST_TEMPLATE = """
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
@@ -115,13 +88,11 @@ class Freezer(object):
 
     def __init__(self, executables, constantsModules = [], includes = [],
             excludes = [], packages = [], replacePaths = [], compress = True,
-            optimizeFlag = 0, path = None,
-            targetDir = None, binIncludes = [], binExcludes = [],
-            binPathIncludes = [], binPathExcludes = [],
+            optimizeFlag = 0, path = None, targetDir = None, binIncludes = [],
+            binExcludes = [], binPathIncludes = [], binPathExcludes = [],
             includeFiles = [], zipIncludes = [], silent = False,
-            namespacePackages = [], metadata = None,
-            includeMSVCR = False, zipIncludePackages = [],
-            zipExcludePackages = ["*"]):
+            namespacePackages = [], metadata = None, includeMSVCR = False,
+            zipIncludePackages = [], zipExcludePackages = ["*"]):
         self.executables = list(executables)
         self.constantsModules = list(constantsModules)
         self.includes = list(includes)
@@ -283,20 +254,25 @@ class Freezer(object):
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
-                origPath = os.environ["PATH"]
-                os.environ["PATH"] = origPath + os.pathsep + \
-                        os.pathsep.join(sys.path)
-                import cx_Freeze.util
-                try:
-                    dependentFiles = cx_Freeze.util.GetDependentFiles(path)
-                except cx_Freeze.util.BindError as exc:
-                    # Sometimes this gets called when path is not actually a
-                    # library See issue 88
+                if path.endswith(('.exe', '.dll')):
+                    origPath = os.environ["PATH"]
+                    os.environ["PATH"] = origPath + os.pathsep + \
+                            os.pathsep.join(sys.path)
+                    try:
+                        dependentFiles = cx_Freeze.util.GetDependentFiles(path)
+                    except cx_Freeze.util.BindError as exc:
+                        # Sometimes this gets called when path is not actually a
+                        # library See issue 88
+                        dependentFiles = []
+                        fmt = "error during GetDependentFiles() of \"%s\": %s\n"
+                        sys.stderr.write(fmt % (path, str(exc)))
+                    os.environ["PATH"] = origPath
+                else:
                     dependentFiles = []
-                    fmt = "error during GetDependentFiles() of \"%s\": %s\n"
-                    sys.stderr.write(fmt % (path, str(exc)))
-                os.environ["PATH"] = origPath
             else:
+                if not os.access(path, os.X_OK):
+                    self.dependentFiles[path] = []
+                    return []
                 dependentFiles = []
                 if sys.platform == "darwin":
                     command = 'otool -L "%s"' % path
@@ -560,15 +536,9 @@ class Freezer(object):
             # libraries cannot be loaded from a zip file
             if module.code is None and module.file is not None \
                     and not includeInFileSystem:
-                fileName = os.path.basename(module.file)
-                if "." in module.name:
-                    baseFileName, ext = os.path.splitext(fileName)
-                    fileName = module.name + ext
-                    generatedFileName = "ExtensionLoader_%s.py" % \
-                            module.name.replace(".", "_")
-                    module.code = compile(EXTENSION_LOADER_SOURCE % fileName,
-                            generatedFileName, "exec")
-                target = os.path.join(targetDir, fileName)
+                parts = module.name.split(".")[:-1]
+                parts.append(os.path.basename(module.file))
+                target = os.path.join(targetDir, ".".join(parts))
                 filesToCopy.append((module, target))
 
             # starting with Python 3.3 the pyc file format contains the source
@@ -707,10 +677,12 @@ class Executable(object):
         self._GetInitScriptFileName()
         self._GetBaseFileName()
         if self.targetName is None:
-            name, ext = os.path.splitext(os.path.basename(self.script))
+            name, _ = os.path.splitext(os.path.basename(self.script))
             baseName, ext = os.path.splitext(self.base)
             self.targetName = name + ext
         name, ext = os.path.splitext(self.targetName)
+        if ext == "" and sys.platform == "win32":
+            self.targetName += ".exe"
         self.moduleName = "%s__main__" % os.path.normcase(name)
         self.initModuleName = "%s__init__" % os.path.normcase(name)
         self.targetName = os.path.join(freezer.targetDir, self.targetName)
