@@ -872,4 +872,4 @@ def load_sqlite3(finder, module):
         dll_name = "sqlite3.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-
+    finder.IncludePackage('sqlite3')
