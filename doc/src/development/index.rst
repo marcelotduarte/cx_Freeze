@@ -2,9 +2,9 @@
 Developing cx_Freeze
 ====================
 
-The source code can be found `on Github <https://github.com/anthony-tuininga/cx_freeze>`_.
+The source code can be found `on Github <https://github.com/anthony-tuininga/cx_Freeze>`_.
 
-Issue tracking `on Github <https://github.com/anthony-tuininga/cx_freeze/issues>`_.
+Issue tracking `on Github <https://github.com/anthony-tuininga/cx_Freeze/issues>`_.
 
 Install by issuing the command::
 
