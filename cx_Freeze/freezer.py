@@ -254,7 +254,7 @@ class Freezer(object):
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
-                if path.endswith(('.exe', '.dll')):
+                if path.endswith(('.exe', '.dll', '.pyd')):
                     origPath = os.environ["PATH"]
                     os.environ["PATH"] = origPath + os.pathsep + \
                             os.pathsep.join(sys.path)
