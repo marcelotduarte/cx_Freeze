@@ -215,7 +215,7 @@ class Freezer(object):
         if sys.platform == "win32":
             return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
         else:
-            return ["libclntsh.so", "libwtc9.so"]
+            return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _GetDefaultBinIncludes(self):
         """Return the file names of libraries which must be included for the
