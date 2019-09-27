@@ -605,8 +605,8 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target, copyDependentFiles = True,
-                               relativeSource = True)
+                self._CopyFile(module.file, target, copyDependentFiles=True,
+                               relativeSource=(sys.platform == "linux"))
             finally:
                 os.environ["PATH"] = origPath
 
