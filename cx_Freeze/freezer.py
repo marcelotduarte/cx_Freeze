@@ -207,14 +207,6 @@ class Freezer(object):
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe)
 
-        #always copy python3.dll
-        if sys.platform == "win32":
-            name = "python%s.dll" % sys.version_info[:1]
-            sourcePath = os.path.join(os.path.dirname(
-                    self._GetDependentFiles(exe.base)[0]), name)
-            targetPath = os.path.join(os.path.dirname(exe.targetName), name)
-            self._CopyFile(sourcePath, targetPath, False, True)
-
     def _GetDefaultBinExcludes(self):
         """Return the file names of libraries that need not be included because
            they would normally be expected to be found on the target system or
@@ -229,7 +221,8 @@ class Freezer(object):
         """Return the file names of libraries which must be included for the
            frozen executable to work."""
         if sys.platform == "win32":
-            pythonDlls = ["python%s%s.dll" % sys.version_info[:2],
+            pythonDlls = ["python%s.dll" % sys.version_info[0],
+                          "python%s%s.dll" % sys.version_info[:2],
                           "vcruntime140.dll"]
             return pythonDlls
         else:
