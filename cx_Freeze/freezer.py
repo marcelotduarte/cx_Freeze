@@ -250,11 +250,12 @@ class Freezer(object):
         """Return the file's dependencies using platform-specific tools (the
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
+        path = os.path.normcase(path)
         dirname = os.path.dirname(path)
         dependentFiles = self.dependentFiles.get(path)
         if dependentFiles is None:
             if sys.platform == "win32":
-                if path.endswith(('.exe', '.dll')):
+                if path.endswith(('.exe', '.dll', '.pyd')):
                     origPath = os.environ["PATH"]
                     os.environ["PATH"] = origPath + os.pathsep + \
                             os.pathsep.join(sys.path)
