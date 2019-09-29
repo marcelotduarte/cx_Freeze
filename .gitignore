@@ -1,5 +1,8 @@
 build/
 dist/
+cx_Freeze/bases
+cx_Freeze/util*.so
+cx_Freeze/util*.pyd
 cx_Freeze.egg-info/
 MANIFEST
 output.log

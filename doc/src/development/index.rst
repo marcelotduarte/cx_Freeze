@@ -2,9 +2,15 @@
 Developing cx_Freeze
 ====================
 
-The source code can be found `on Bitbucket <https://bitbucket.org/anthony_tuininga/cx_freeze/src>`_.
+The source code can be found `on Github <https://github.com/anthony-tuininga/cx_Freeze>`_.
 
-Downloads and issue tracking are `on Sourceforge <http://sourceforge.net/projects/cx-freeze/>`_.
+Issue tracking `on Github <https://github.com/anthony-tuininga/cx_Freeze/issues>`_.
+
+Install by issuing the command::
+
+    python -m pip install cx_Freeze --upgrade
+
+or download directly from `PyPI <https://pypi.python.org/pypi/cx_Freeze>`_.
 
 Contents:
 
