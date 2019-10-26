@@ -112,14 +112,12 @@ utilModule = Extension("cx_Freeze.util", ["source/util.c"],
 
 # build base executables
 docFiles = "README.txt"
-scripts = ["cxfreeze", "cxfreeze-quickstart"]
 options = dict(install=dict(optimize=1))
 depends = ["source/bases/Common.c"]
 console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
         depends = depends, libraries = libraries)
 extensions = [utilModule, console]
 if sys.platform == "win32":
-    scripts.append("cxfreeze-postinstall")
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             depends = depends, libraries = libraries + ["user32"])
     extensions.append(gui)
@@ -176,9 +174,15 @@ setup(name = "cx_Freeze",
         maintainer="Anthony Tuininga",
         maintainer_email="anthony.tuininga@gmail.com",
         url = "https://anthony-tuininga.github.io/cx_Freeze",
-        scripts = scripts,
         classifiers = classifiers,
         keywords = "freeze",
         license = "Python Software Foundation License",
-        package_data = {"cx_Freeze" : packageData })
-
+        package_data = {"cx_Freeze" : packageData },
+        entry_points = {
+                'console_scripts': [
+                        'cxfreeze = cx_Freeze.main:main',
+                        'cxfreeze-quickstart = cx_Freeze.setupwriter:main',
+                ],
+        },
+        zip_safe=False,
+)
