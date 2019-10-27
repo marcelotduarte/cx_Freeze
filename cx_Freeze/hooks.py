@@ -43,7 +43,6 @@ def initialize(finder):
         finder.ExcludeModule("posix")
     if sys.platform != "darwin":
         finder.ExcludeModule("Carbon")
-        finder.ExcludeModule("gestalt")
         finder.ExcludeModule("ic")
         finder.ExcludeModule("mac")
         finder.ExcludeModule("MacOS")
