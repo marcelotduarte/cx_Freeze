@@ -90,6 +90,11 @@ def load_ceODBC(finder, module):
     finder.IncludeModule("decimal")
 
 
+def load_cryptography_hazmat_bindings__padding(finder, module):
+    """the cryptography module requires the cffi package (loaded implicitly)"""
+    finder.IncludePackage('cffi')
+
+
 def load_cx_Oracle(finder, module):
     """the cx_Oracle module implicitly imports datetime; make sure this
        happens."""
