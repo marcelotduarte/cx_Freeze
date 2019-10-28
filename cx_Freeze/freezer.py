@@ -325,9 +325,13 @@ class Freezer(object):
                                       for p in dependentFiles]
                     dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
                                       for p in dependentFiles]
-            dependentFiles = self.dependentFiles[path] = \
-                    [self._CheckDependentFile(f, dirname) \
-                            for f in dependentFiles if self._ShouldCopyFile(f)]
+            if sys.platform == "darwin":
+                dependentFiles = [self._CheckDependentFile(f, dirname)
+                    for f in dependentFiles if self._ShouldCopyFile(f)]
+            else:
+                dependentFiles = [f
+                    for f in dependentFiles if self._ShouldCopyFile(f)]
+            self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
     def _CheckDependentFile(self, dependentFile, dirname):

@@ -43,7 +43,6 @@ def initialize(finder):
         finder.ExcludeModule("posix")
     if sys.platform != "darwin":
         finder.ExcludeModule("Carbon")
-        finder.ExcludeModule("gestalt")
         finder.ExcludeModule("ic")
         finder.ExcludeModule("mac")
         finder.ExcludeModule("MacOS")
@@ -89,6 +88,11 @@ def load_ceODBC(finder, module):
        sure this happens."""
     finder.IncludeModule("datetime")
     finder.IncludeModule("decimal")
+
+
+def load_cryptography_hazmat_bindings__padding(finder, module):
+    """the cryptography module requires the cffi package (loaded implicitly)"""
+    finder.IncludePackage('cffi')
 
 
 def load_cx_Oracle(finder, module):
@@ -872,4 +876,4 @@ def load_sqlite3(finder, module):
         dll_name = "sqlite3.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-
+    finder.IncludePackage('sqlite3')
