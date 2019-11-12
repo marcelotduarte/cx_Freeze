@@ -244,7 +244,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 ('MaintenanceForm_Action', 'Repair'),
                 ('ALLUSERS', '2')]
 
-        if not self.all_users.upper() == 'TRUE':
+        if not self.all_users:
                 props.append(('MSIINSTALLPERUSER', '1'))
         email = metadata.author_email or metadata.maintainer_email
         if email:
@@ -376,7 +376,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.environment_variables = None
         self.data = None
         self.install_icon = None
-        self.all_users = 'False'
+        self.all_users = False
 
     def run(self):
         if not self.skip_build:
