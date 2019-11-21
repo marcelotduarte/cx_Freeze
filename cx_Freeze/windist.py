@@ -44,6 +44,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             msilib.add_data(self.db, "Directory", self.directories)
         if self.environment_variables:
             msilib.add_data(self.db, "Environment", self.environment_variables)
+        # This is needed in case the AlwaysInstallElevated policy is set.
+        # Otherwise installation will not end up in TARGETDIR.
+        msilib.add_data(self.db, "Property", [("SecureCustomProperties", "TARGETDIR")])
         msilib.add_data(self.db, 'CustomAction',
                 [("A_SET_TARGET_DIR", 256 + 51, "TARGETDIR",
                         self.initial_target_dir)])
