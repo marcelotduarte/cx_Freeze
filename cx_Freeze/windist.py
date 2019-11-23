@@ -27,7 +27,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('environment-variables=', None, 'list of environment variables'),
         ('data=', None, 'dictionary of data indexed by table name'),
         ('product-code=', None, 'product code to use'),
-        ('install-icon=', None, 'icon path to add/remove programs ')
+        ('install-icon=', None, 'icon path to add/remove programs '),
+        ('all-users=', None, 'installation for all users (or just me)')
     ]
     x = y = 50
     width = 370
@@ -241,8 +242,10 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 ('Progress1', 'Install'),
                 ('Progress2', 'installs'),
                 ('MaintenanceForm_Action', 'Repair'),
-                ('ALLUSERS', '1')
-        ]
+                ('ALLUSERS', '2')]
+
+        if not self.all_users:
+                props.append(('MSIINSTALLPERUSER', '1'))
         email = metadata.author_email or metadata.maintainer_email
         if email:
             props.append(("ARPCONTACT", email))
@@ -373,6 +376,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.environment_variables = None
         self.data = None
         self.install_icon = None
+        self.all_users = False
 
     def run(self):
         if not self.skip_build:
