@@ -221,9 +221,10 @@ class Freezer(object):
         """Return the file names of libraries which must be included for the
            frozen executable to work."""
         if sys.platform == "win32":
-            pythonDll = "python%s%s.dll" % sys.version_info[:2]
-            return [pythonDll, "gdiplus.dll", "mfc71.dll", "msvcp71.dll",
-                    "msvcr71.dll"]
+            pythonDlls = ["python%s.dll" % sys.version_info[0],
+                          "python%s%s.dll" % sys.version_info[:2],
+                          "vcruntime140.dll"]
+            return pythonDlls
         else:
             soName = distutils.sysconfig.get_config_var("INSTSONAME")
             if soName is None:
