@@ -230,6 +230,9 @@ command:
      - add the target directory to the PATH environment variable; the default
        value is True if there are any console based executables and False
        otherwise
+   * - all_users
+     - perform installation for all users; the default value is False and
+       results in an installation for just the installing user
    * - data
      - dictionary of arbitrary MSI data indexed by table name
    * - directories

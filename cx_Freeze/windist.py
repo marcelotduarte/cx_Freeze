@@ -245,7 +245,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 ('ALLUSERS', '2')]
 
         if not self.all_users:
-                props.append(('MSIINSTALLPERUSER', '1'))
+            props.append(('MSIINSTALLPERUSER', '1'))
         email = metadata.author_email or metadata.maintainer_email
         if email:
             props.append(("ARPCONTACT", email))
