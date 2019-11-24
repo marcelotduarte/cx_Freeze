@@ -184,8 +184,20 @@ class Freezer(object):
                 ".py")
         finder.IncludeFile(startupModule)
 
-        self._CopyFile(exe.base, exe.targetName, copyDependentFiles = True,
-                includeMode = True)
+        # Always copy the python dynamic libraries into lib folder
+        if sys.platform == "linux":
+            self._CopyFile(exe.base, exe.targetName,
+                           copyDependentFiles=False, includeMode=True)
+            targetDir = os.path.join(os.path.dirname(exe.targetName), 'lib')
+            dependentFiles = self._GetDependentFiles(exe.base) or\
+                             self._GetDependentFiles(sys.executable)
+            for source in dependentFiles:
+                target = os.path.join(targetDir, os.path.basename(source))
+                self._CopyFile(source, target,
+                               copyDependentFiles=True, includeMode=True)
+        else:
+            self._CopyFile(exe.base, exe.targetName,
+                           copyDependentFiles=True, includeMode=True)
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
@@ -200,9 +212,9 @@ class Freezer(object):
                 cx_Freeze.util.AddIcon(exe.targetName, exe.icon)
             else:
                 targetName = os.path.join(os.path.dirname(exe.targetName),
-                        os.path.basename(exe.icon))
+                                          os.path.basename(exe.icon))
                 self._CopyFile(exe.icon, targetName,
-                        copyDependentFiles = False)
+                               copyDependentFiles=False)
 
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe)
@@ -215,7 +227,7 @@ class Freezer(object):
         if sys.platform == "win32":
             return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
         else:
-            return ["libclntsh.so", "libwtc9.so"]
+            return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _GetDefaultBinIncludes(self):
         """Return the file names of libraries which must be included for the
