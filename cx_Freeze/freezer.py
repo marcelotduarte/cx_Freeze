@@ -189,7 +189,7 @@ class Freezer(object):
             self._CopyFile(exe.base, exe.targetName,
                            copyDependentFiles=False, includeMode=True)
             targetDir = os.path.join(os.path.dirname(exe.targetName), 'lib')
-            dependentFiles = self._GetDependentFiles(exe.base) or\
+            dependentFiles = self._GetDependentFiles(exe.base) or \
                              self._GetDependentFiles(sys.executable)
             for source in dependentFiles:
                 target = os.path.join(targetDir, os.path.basename(source))
