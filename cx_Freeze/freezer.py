@@ -143,7 +143,7 @@ class Freezer(object):
         stamp(fileName, versionInfo)
 
     def _CopyFile(self, source, target, copyDependentFiles,
-            includeMode = False):
+            includeMode = False, relativeSource = False):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
         if normalizedTarget in self.filesCopied:
@@ -166,9 +166,16 @@ class Freezer(object):
             # to allow to set relative reference
             if sys.platform == 'darwin':
                 targetDir = self.targetDir
+            sourceDir = os.path.dirname(source)
             for source in self._GetDependentFiles(source):
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target, copyDependentFiles)
+                if relativeSource and os.path.isabs(source) and\
+                        os.path.commonpath((source, sourceDir)) == sourceDir:
+                    relative = os.path.relpath(source, sourceDir)
+                    target = os.path.join(targetDir, relative)
+                else:
+                    target = os.path.join(targetDir, os.path.basename(source))
+                self._CopyFile(source, target, copyDependentFiles,
+                               relativeSource=relativeSource)
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
@@ -616,7 +623,8 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target, copyDependentFiles = True)
+                self._CopyFile(module.file, target, copyDependentFiles=True,
+                               relativeSource=(sys.platform == "linux"))
             finally:
                 os.environ["PATH"] = origPath
 
