@@ -1,4 +1,4 @@
-# A setup script to demonstrate the use of sqlite3
+# A setup script to demonstrate the use of distutils
 #
 # Run the build process by running the command 'python setup.py build'
 #
