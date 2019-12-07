@@ -168,7 +168,7 @@ class Freezer(object):
                 targetDir = self.targetDir
             sourceDir = os.path.dirname(source)
             for source in self._GetDependentFiles(source):
-                if relativeSource and os.path.isabs(source) and\
+                if relativeSource and os.path.isabs(source) and \
                         os.path.commonpath((source, sourceDir)) == sourceDir:
                     relative = os.path.relpath(source, sourceDir)
                     target = os.path.join(targetDir, relative)
