@@ -1,4 +1,4 @@
-# A setup script to demonstrate the use of sqlite3
+# A setup script to demonstrate build using cffi (inside a cryptography pkg)
 #
 # Run the build process by running the command 'python setup.py build'
 #
@@ -7,7 +7,7 @@
 
 from cx_Freeze import setup, Executable
 
-buildOptions = dict(zip_include_packages=["*"], zip_exclude_packages=[], includes='_cffi_backend')
+buildOptions = dict(zip_include_packages=["*"], zip_exclude_packages=[])
 executables = [Executable("test_crypt.py")]
 
 setup(name='test_crypt',

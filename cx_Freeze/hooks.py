@@ -92,7 +92,7 @@ def load_ceODBC(finder, module):
 
 def load_cryptography_hazmat_bindings__padding(finder, module):
     """the cryptography module requires the cffi package (loaded implicitly)"""
-    finder.IncludePackage('cffi')
+    finder.IncludePackage('_cffi_backend')
 
 
 def load_cx_Oracle(finder, module):
