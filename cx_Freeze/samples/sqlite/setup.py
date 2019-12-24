@@ -7,11 +7,11 @@
 
 from cx_Freeze import setup, Executable
 
-buildOptions = {}#dict(zip_include_packages=["*"], zip_exclude_packages=[])
+buildOptions = {"replace_paths": [("*", "")]}
 executables = [Executable("test_sqlite3.py")]
 
 setup(name='test_sqlite3',
-      version='0.1',
+      version='0.2',
       description='cx_Freeze script to test sqlite3',
       executables=executables,
       options=dict(build_exe=buildOptions))

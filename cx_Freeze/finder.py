@@ -496,11 +496,15 @@ class ModuleFinder(object):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
         
         # Build the new code object.
-        return types.CodeType(co.co_argcount, co.co_kwonlyargcount,
-                co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
-                tuple(constants), co.co_names, co.co_varnames, newFileName,
-                co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
-                co.co_cellvars)
+        params = [co.co_argcount, co.co_kwonlyargcount,
+                  co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
+                  tuple(constants), co.co_names, co.co_varnames, newFileName,
+                  co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
+                  co.co_cellvars]
+        if hasattr(co, "co_posonlyargcount"):
+            #PEP570 added "positional only arguments" in Python 3.8
+            params.insert(1, co.co_posonlyargcount)
+        return types.CodeType(*params)
 
     def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
