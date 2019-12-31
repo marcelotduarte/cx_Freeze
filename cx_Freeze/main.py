@@ -1,7 +1,5 @@
 import optparse
 import os
-import shutil
-import stat
 import sys
 
 import cx_Freeze

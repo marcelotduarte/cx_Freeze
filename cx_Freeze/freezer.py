@@ -21,22 +21,6 @@ import cx_Freeze
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
-MSVCR_MANIFEST_TEMPLATE = """
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-<noInheritable/>
-<assemblyIdentity
-    type="win32"
-    name="Microsoft.VC90.CRT"
-    version="9.0.21022.8"
-    processorArchitecture="{PROC_ARCH}"
-    publicKeyToken="1fc8b3b9a1e18e3b"/>
-<file name="MSVCR90.DLL"/>
-<file name="MSVCM90.DLL"/>
-<file name="MSVCP90.DLL"/>
-</assembly>
-"""
-
 def process_path_specs(specs):
     """Prepare paths specified as config.
 
@@ -371,12 +355,10 @@ class Freezer(object):
         return finder
 
     def _IncludeMSVCR(self, exe):
-        msvcRuntimeDll = None
         targetDir = os.path.dirname(exe.targetName)
         for fullName in self.filesCopied:
             path, name = os.path.split(os.path.normcase(fullName))
             if name.startswith("msvcr") and name.endswith(".dll"):
-                msvcRuntimeDll = name
                 for otherName in [name.replace("r", c) for c in "mp"]:
                     sourceName = os.path.join(self.msvcRuntimeDir, otherName)
                     if not os.path.exists(sourceName):
@@ -385,17 +367,6 @@ class Freezer(object):
                     self._CopyFile(sourceName, targetName,
                             copyDependentFiles = False)
                 break
-
-        if msvcRuntimeDll is not None and msvcRuntimeDll == "msvcr90.dll":
-            if struct.calcsize("P") == 4:
-                arch = "x86"
-            else:
-                arch = "amd64"
-            manifest = MSVCR_MANIFEST_TEMPLATE.strip().replace("{PROC_ARCH}",
-                    arch)
-            fileName = os.path.join(targetDir, "Microsoft.VC90.CRT.manifest")
-            sys.stdout.write("creating %s\n" % fileName)
-            open(fileName, "w").write(manifest)
 
     def _PrintReport(self, fileName, modules):
         sys.stdout.write("writing zip file %s\n\n" % fileName)
