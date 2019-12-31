@@ -449,14 +449,6 @@ def load_pythoncom(finder, module):
             copyDependentFiles = False)
 
 
-def load_pytz(finder, module):
-    """the pytz module requires timezoned data to be found in a known directory
-       pointed to by an environment variable"""
-    import pytz
-    dataPath = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
-    finder.IncludeFiles(dataPath, "pytz-data", copyDependentFiles=False)
-
-
 def load_pywintypes(finder, module):
     """the pywintypes module is actually contained in a DLL but since those
        cannot be loaded directly in Python 2.5 and higher a special module is
