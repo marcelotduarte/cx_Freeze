@@ -163,10 +163,16 @@ classifiers = [
         "Topic :: Utilities"
 ]
 
+with open("cx_Freeze/__init__.py") as fp:
+    for line in fp:
+        if line.startswith('__version__'):
+            version = line.replace('__version__ = "', '').replace('"\n', '')
+            break
+
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "6.1",
+        version = version,
         cmdclass = commandClasses,
         options = options,
         ext_modules = extensions,
