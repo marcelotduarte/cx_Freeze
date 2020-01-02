@@ -128,8 +128,7 @@ It can be further customized:
        the tree is copied except for .svn and CVS directories); the target must
        not be an absolute path
    * - include_msvcr
-     - include the Microsoft Visual C runtime DLLs and (if necessary) the
-       manifest file required to run the executable without needing the
+     - include the Microsoft Visual C runtime DLLs without needing the
        redistributable package installed
    * - zip_includes
      - list containing files to be included in the zip file directory; it is

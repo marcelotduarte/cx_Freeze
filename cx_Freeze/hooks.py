@@ -259,9 +259,11 @@ def load_idna(finder, module):
     """the idna module implicitly loads data; make sure this happens."""
     finder.IncludeModule("idna.idnadata")
 
+
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
+    finder.AddConstant("HAS_MATPLOTLIB", 1)
     import matplotlib
     dataPath = matplotlib.get_data_path()
     finder.IncludeFiles(dataPath, "mpl-data", copyDependentFiles=False)
@@ -269,6 +271,7 @@ def load_matplotlib(finder, module):
 
 def load_numpy(finder, module):
     finder.IncludePackage("numpy")
+
 
 def load_matplotlib_numerix(finder, module):
     """the numpy.numerix module loads a number of modules dynamically"""
@@ -445,6 +448,26 @@ def load_pythoncom(finder, module):
     finder.IncludeFiles(pythoncom.__file__,
             os.path.join("lib", os.path.basename(pythoncom.__file__)),
             copyDependentFiles = False)
+
+
+def load_pytz(finder, module):
+    """the pytz module requires timezone data to be found in a known directory
+       pointed to by an environment variable if the package is not being
+       written to the file system"""
+    import pytz
+    includeFiles = False
+    dataPath = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
+    if os.path.isdir(dataPath):
+        includeFiles = not module.WillBeStoredInFileSystem()
+    else:
+        # Fedora (and possibly other systems) use a separate location to
+        # store timezone data so look for that here as well
+        dataPath = "/usr/share/zoneinfo"
+        if os.path.isdir(dataPath):
+            includeFiles = True
+    if includeFiles:
+        finder.AddConstant("HAS_PYTZ", 1)
+        finder.IncludeFiles(dataPath, "pytz-data", copyDependentFiles=False)
 
 
 def load_pywintypes(finder, module):
@@ -692,6 +715,7 @@ def load_Tkinter(finder, module):
     else:
         tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
         tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
+    finder.AddConstant("HAS_TKINTER", 1)
     finder.IncludeFiles(tclSourceDir, "tcl")
     finder.IncludeFiles(tkSourceDir, "tk")
 
