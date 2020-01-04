@@ -7,7 +7,7 @@ Release notes
 Version 6.1 (January 2020)
 --------------------------
 
-#)  Added support for Python 3.8 (`PR #545`_).
+#)  Added support for Python 3.8 (`PR #545`_, `PR #556`_).
 #)  Added support for ``python setup.py develop`` (`PR #502`_).
 #)  Use ``console_scripts`` in ``entry_points`` so that the commands
     ``cxfreeze`` and ``cxfreeze-quickstart`` run on Windows without the need
@@ -25,7 +25,7 @@ Version 6.1 (January 2020)
     location in the source (`PR #494`_).
 #)  Added tests for commonly used packages like ``cryptography``, ``pillow``,
     ``sqlite``, ``pytz``, ``ctypes`` and ``distutils``
-    (`PR #508`_, `PR #537`_, `PR #546`_).
+    (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_).
 #)  Fix regression with DLL dependencies introduced in 6.0 by `PR #492`_
     due to case differences (`PR #512`_).
 #)  Fix regression with dependent files introduced in 6.0 by `PR #297`_
@@ -34,7 +34,7 @@ Version 6.1 (January 2020)
 #)  Eliminate exclusion of ``gestalt`` module on platforms other than macOS
     since it exists outside of macOS.
 #)  Improved hooks for ``sqlite3`` (`PR #509`_) and ``cryptography``.
-#)  Added hook for ``pytz``.
+#)  Added hook for ``pytz`` (`PR #554`_).
 #)  Improved hook infrastructure, permitting hooks to add constants that can
     be examined at runtime, determine whether a module is going to be stored in
     the file system and include files in the zip file.
@@ -59,6 +59,9 @@ Version 6.1 (January 2020)
 .. _PR #546: https://github.com/anthony-tuininga/cx_Freeze/pull/546
 .. _PR #549: https://github.com/anthony-tuininga/cx_Freeze/pull/549
 .. _PR #552: https://github.com/anthony-tuininga/cx_Freeze/pull/552
+.. _PR #554: https://github.com/anthony-tuininga/cx_Freeze/pull/554
+.. _PR #555: https://github.com/anthony-tuininga/cx_Freeze/pull/555
+.. _PR #556: https://github.com/anthony-tuininga/cx_Freeze/pull/556
 
 
 Version 6.0 (August 2019)
