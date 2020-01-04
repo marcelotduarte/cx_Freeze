@@ -473,13 +473,13 @@ def load_pytz(finder, module):
             dataPath = os.getenv('PYTZ_TZDATADIR') or "/usr/share/zoneinfo"
         if dataPath.endswith(os.sep):
             dataPath = dataPath[:-1]
-        if os.path.isdir(dataPath):
+    if os.path.isdir(dataPath):
+        if module.WillBeStoredInFileSystem():
             targetPath = os.path.join("lib", "pytz", "zoneinfo")
             finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
             finder.AddConstant("PYTZ_TZDATADIR", targetPath)
-            return
-    if os.path.isdir(dataPath) and not module.WillBeStoredInFileSystem():
-        finder.ZipIncludeFiles(dataPath, "pytz/zoneinfo")
+        else:
+            finder.ZipIncludeFiles(dataPath, "pytz/zoneinfo")
 
 
 def load_pywintypes(finder, module):
