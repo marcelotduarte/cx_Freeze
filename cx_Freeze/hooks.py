@@ -452,22 +452,25 @@ def load_pythoncom(finder, module):
 
 def load_pytz(finder, module):
     """the pytz module requires timezone data to be found in a known directory
-       pointed to by an environment variable if the package is not being
-       written to the file system"""
+       or in the zip file where the package is written"""
     import pytz
-    includeFiles = False
     dataPath = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
-    if os.path.isdir(dataPath):
-        includeFiles = not module.WillBeStoredInFileSystem()
-    else:
+    if not os.path.isdir(dataPath):
         # Fedora (and possibly other systems) use a separate location to
         # store timezone data so look for that here as well
-        dataPath = "/usr/share/zoneinfo"
+        if hasattr(pytz, '_tzinfo_dir'):
+            dataPath = pytz._tzinfo_dir
+        else:
+            dataPath = os.getenv('PYTZ_TZDATADIR') or "/usr/share/zoneinfo"
+        if dataPath.endswith(os.sep):
+            dataPath = dataPath[:-1]
         if os.path.isdir(dataPath):
-            includeFiles = True
-    if includeFiles:
-        finder.AddConstant("HAS_PYTZ", 1)
-        finder.IncludeFiles(dataPath, "pytz-data", copyDependentFiles=False)
+            targetPath = os.path.join("lib", "pytz", "zoneinfo")
+            finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
+            finder.AddConstant("PYTZ_TZDATADIR", targetPath)
+            return
+    if os.path.isdir(dataPath) and not module.WillBeStoredInFileSystem():
+        finder.ZipIncludeFiles(dataPath, "pytz/zoneinfo")
 
 
 def load_pywintypes(finder, module):

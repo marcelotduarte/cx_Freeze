@@ -33,9 +33,9 @@ if hasattr(BUILD_CONSTANTS, "HAS_TKINTER"):
 if hasattr(BUILD_CONSTANTS, "HAS_MATPLOTLIB"):
     os.environ["MATPLOTLIBDATA"] = os.path.join(DIR_NAME, "mpl-data")
 
-if hasattr(BUILD_CONSTANTS, "HAS_PYTZ"):
-    os.environ["PYTZ_TZDATADIR"] = os.path.join(DIR_NAME, "pytz-data")
-
+if hasattr(BUILD_CONSTANTS, "PYTZ_TZDATADIR"):
+    os.environ["PYTZ_TZDATADIR"] = os.path.join(DIR_NAME,
+                                                BUILD_CONSTANTS.PYTZ_TZDATADIR)
 def run():
     name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
     moduleName = "%s__main__" % name
