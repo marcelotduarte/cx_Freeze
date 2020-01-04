@@ -69,7 +69,6 @@ def initialize(finder):
     if sys.platform[:4] != "OpenVMS":
         finder.ExcludeModule("vms_lib")
     finder.ExcludeModule("new")
-    finder.ExcludeModule("Tkinter")
 
 
 def load_asyncio(finder, module):
@@ -108,10 +107,7 @@ def load_cx_Oracle(finder, module):
     """the cx_Oracle module implicitly imports datetime; make sure this
        happens."""
     finder.IncludeModule("datetime")
-    try:
-        finder.IncludeModule("decimal")
-    except ImportError:
-        pass
+    finder.IncludeModule("decimal")
 
 
 def load_datetime(finder, module):
@@ -434,12 +430,14 @@ def load_pty(finder, module):
     """The sgi module is not needed for this module to function."""
     module.IgnoreName("sgi")
 
+
 def load_pycparser(finder, module):
     """ These files are missing which causes
         permission denied issues on windows when they are regenerated.
     """
     finder.IncludeModule("pycparser.lextab")
     finder.IncludeModule("pycparser.yacctab")
+
 
 def load_pydoc(finder, module):
     """The pydoc module will work without the Tkinter module so ignore the
@@ -694,7 +692,6 @@ def load_tkinter(finder, module):
        runtime."""
     if sys.platform == "win32":
         import tkinter
-        import _tkinter
         root_names = "tcl", "tk"
         environ_names = "TCL_LIBRARY", "TK_LIBRARY"
         version_vars = tkinter.TclVersion, tkinter.TkVersion
@@ -706,30 +703,10 @@ def load_tkinter(finder, module):
                 lib_texts = os.path.join(sys.base_prefix, "tcl",
                         mod_name + str(ver_var))
             finder.IncludeFiles(lib_texts, mod_name)
-        for ver_var, mod_name in zip(version_vars, root_names):
             dll_name = mod_name + str(ver_var).replace(".", "") + "t.dll"
-            dll_path = os.path.join(sys.base_prefix, "Dlls", dll_name)
+            dll_path = os.path.join(sys.base_prefix, "DLLS", dll_name)
             finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-
-
-def load_Tkinter(finder, module):
-    """the Tkinter module has data files that are required to be loaded so
-       ensure that they are copied into the directory that is expected at
-       runtime."""
-    import Tkinter
-    import _tkinter
-    tk = _tkinter.create()
-    tclDir = os.path.dirname(tk.call("info", "library"))
-    # on OS X, Tcl and Tk are organized in frameworks, different layout
-    if sys.platform == 'darwin' and tk.call('tk', 'windowingsystem') == 'aqua':
-        tclSourceDir=os.path.join(os.path.split(tclDir)[0], 'Tcl')
-        tkSourceDir = tclSourceDir.replace('Tcl', 'Tk')
-    else:
-        tclSourceDir = os.path.join(tclDir, "tcl%s" % _tkinter.TCL_VERSION)
-        tkSourceDir = os.path.join(tclDir, "tk%s" % _tkinter.TK_VERSION)
-    finder.AddConstant("HAS_TKINTER", 1)
-    finder.IncludeFiles(tclSourceDir, "tcl")
-    finder.IncludeFiles(tkSourceDir, "tk")
+        finder.AddConstant("HAS_TKINTER", 1)
 
 
 def load_tempfile(finder, module):
