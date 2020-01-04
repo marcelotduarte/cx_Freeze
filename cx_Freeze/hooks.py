@@ -268,10 +268,11 @@ def load_idna(finder, module):
 def load_matplotlib(finder, module):
     """the matplotlib module requires data to be found in mpl-data in the
        same directory as the frozen executable so oblige it"""
-    finder.AddConstant("HAS_MATPLOTLIB", 1)
     import matplotlib
     dataPath = matplotlib.get_data_path()
-    finder.IncludeFiles(dataPath, "mpl-data", copyDependentFiles=False)
+    targetPath = os.path.join("lib", "matplotlib", "mpl-data")
+    finder.AddConstant("MATPLOTLIBDATA", targetPath)
+    finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
 
 
 def load_numpy(finder, module):
@@ -702,11 +703,12 @@ def load_tkinter(finder, module):
             except KeyError:
                 lib_texts = os.path.join(sys.base_prefix, "tcl",
                         mod_name + str(ver_var))
-            finder.IncludeFiles(lib_texts, mod_name)
+            targetPath = os.path.join("lib", "tkinter", mod_name)
+            finder.AddConstant(env_name, targetPath)
+            finder.IncludeFiles(lib_texts, targetPath)
             dll_name = mod_name + str(ver_var).replace(".", "") + "t.dll"
-            dll_path = os.path.join(sys.base_prefix, "DLLS", dll_name)
+            dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
             finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-        finder.AddConstant("HAS_TKINTER", 1)
 
 
 def load_tempfile(finder, module):
