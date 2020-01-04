@@ -16,13 +16,13 @@ Version 6.1 (January 2020)
     Windows (`PR #507`_).
 #)  Fix installation if ``AlwaysInstallElevated`` policy is set on Windows
     (`PR #533`_).
-#)  Updated default dependencies for Python 3 (`PR #505`_).
+#)  Updated default dependencies for Python 3 on Windows (`PR #505`_).
 #)  Removed unused code (`PR #549`_).
 #)  The default dependencies are now always copied into the lib folder instead
-    of into the directory where the executable resides on all platforms
+    of into the directory where the executable resides on Linux
     (`PR #518`_).
 #)  Dependent files are now copied to the same relative directory as their
-    location in the source (`PR #494`_).
+    location in the source on Linux (`PR #494`_).
 #)  Added tests for commonly used packages like ``cryptography``, ``pillow``,
     ``sqlite``, ``pytz``, ``ctypes`` and ``distutils``
     (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_).
