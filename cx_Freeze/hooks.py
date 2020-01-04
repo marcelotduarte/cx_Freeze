@@ -458,7 +458,7 @@ def load_pytz(finder, module):
     if not os.path.isdir(dataPath):
         # Fedora (and possibly other systems) use a separate location to
         # store timezone data so look for that here as well
-        dataPath = "/usr/share/zoneinfo"
+        dataPath = os.getenv('PYTZ_TZDATADIR') or "/usr/share/zoneinfo"
         if os.path.isdir(dataPath) and module.WillBeStoredInFileSystem():
             targetPath = os.path.join("lib", "pytz", "zoneinfo")
             finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
