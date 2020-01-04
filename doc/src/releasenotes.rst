@@ -25,7 +25,7 @@ Version 6.1 (January 2020)
     location in the source on Linux (`PR #494`_).
 #)  Added tests for commonly used packages like ``cryptography``, ``pillow``,
     ``sqlite``, ``pytz``, ``ctypes`` and ``distutils``
-    (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_).
+    (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_, `PR #557`_).
 #)  Fix regression with DLL dependencies introduced in 6.0 by `PR #492`_
     due to case differences (`PR #512`_).
 #)  Fix regression with dependent files introduced in 6.0 by `PR #297`_
@@ -33,7 +33,8 @@ Version 6.1 (January 2020)
 #)  The version of cx_Freeze is now defined in one place (`PR #552`_).
 #)  Eliminate exclusion of ``gestalt`` module on platforms other than macOS
     since it exists outside of macOS.
-#)  Improved hooks for ``sqlite3`` (`PR #509`_) and ``cryptography``.
+#)  Improved hooks for ``sqlite3`` (`PR #509`_), ``cryptography``, and
+    ``tkinter`` (`PR #559`_).
 #)  Added hook for ``pytz`` (`PR #554`_).
 #)  Improved hook infrastructure, permitting hooks to add constants that can
     be examined at runtime, determine whether a module is going to be stored in
@@ -62,6 +63,8 @@ Version 6.1 (January 2020)
 .. _PR #554: https://github.com/anthony-tuininga/cx_Freeze/pull/554
 .. _PR #555: https://github.com/anthony-tuininga/cx_Freeze/pull/555
 .. _PR #556: https://github.com/anthony-tuininga/cx_Freeze/pull/556
+.. _PR #557: https://github.com/anthony-tuininga/cx_Freeze/pull/557
+.. _PR #559: https://github.com/anthony-tuininga/cx_Freeze/pull/559
 
 
 Version 6.0 (August 2019)
