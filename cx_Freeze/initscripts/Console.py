@@ -14,9 +14,11 @@ sys.frozen = True
 FILE_NAME = sys.executable
 DIR_NAME = os.path.dirname(sys.executable)
 
-if hasattr(BUILD_CONSTANTS, "TK_LIBRARY"):
+if hasattr(BUILD_CONSTANTS, "TCL_LIBRARY"):
     os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME,
                                              BUILD_CONSTANTS.TCL_LIBRARY)
+
+if hasattr(BUILD_CONSTANTS, "TK_LIBRARY"):
     os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME,
                                              BUILD_CONSTANTS.TK_LIBRARY)
 
