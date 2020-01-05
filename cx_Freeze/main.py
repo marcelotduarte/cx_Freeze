@@ -157,12 +157,13 @@ def ParseCommandLine():
 def main():
     options = ParseCommandLine()
     executables = [cx_Freeze.Executable(options.script,
-                                        initScript = options.initScript,
-                                        base = options.baseName,
-                                        icon = options.icon,
-                                        targetName = options.targetName)
+                                        options.initScript,
+                                        options.baseName,
+                                        options.targetName,
+                                        options.icon)
                   ]
-    freezer = cx_Freeze.Freezer(executables,
+    constants_module = cx_Freeze.ConstantsModule()
+    freezer = cx_Freeze.Freezer(executables, constants_module,
             includes = options.includeModules,
             excludes = options.excludeModules,
             replacePaths = options.replacePaths,
@@ -173,4 +174,3 @@ def main():
             zipIncludes = options.zipIncludes,
             silent = options.silent)
     freezer.Freeze()
-
