@@ -4,6 +4,14 @@ Release notes
 6.x releases
 ############
 
+Version 6.2 (TBD)
+-----------------
+
+#)  Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
+
+.. _Issue #560: https://github.com/anthony-tuininga/cx_Freeze/issues/560
+
+
 Version 6.1 (January 2020)
 --------------------------
 
