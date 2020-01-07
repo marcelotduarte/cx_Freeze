@@ -72,12 +72,12 @@ system <http://developer.qt.nokia.com/doc/qt-4.8/resources.html>`_.
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------
 
-Python on Windows requires the Microsoft Visual C++ Redistributable Package.
-Python 2.6-3.2 uses the 2008 version, and because of how this is installed,
-cx_Freeze doesn't automatically copy it for your application. It's also not
-clear whether everyone has the right to redistribute the DLLs. You're
-responsible for checking the license conditions associated with the DLLs you
-have installed.
+Python 3.5-3.8 on Windows requires the Visual C++ Redistributable for Visual
+Studio 2015 or 2017 (the redistributables are shared), and because of how this
+is installed, cx_Freeze doesn't automatically copy it for your application.
+It's also not clear whether everyone has the right to redistribute the DLLs.
+You're responsible for checking the license conditions associated with the DLLs
+you have installed.
 
 * If your license allows you to distribute these files, specify the
   ``include_msvcr`` option to :ref:`distutils_build_exe` to have them
@@ -86,19 +86,12 @@ have installed.
 * If not, your users or your installer will need to install the Microsoft
   Visual C++ Redistributable Package (a free download from Microsoft).
   It's not uncommon for this to already be present on modern computers, but
-  it's not, as far as we know, part of a standard Windows installation. Note
-  that the "SP1" version of this *does not* work -- it has to exactly match
-  the version which Python itself is compiled with.
+  it's not, as far as we know, part of a standard Windows installation.
+  
+  Download:
 
-     * 2008 (Python 2.6-3.2) `for x86 (32 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=29>`__
-       or `for x64 (64 bit) Windows <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
-     * 2010 (Python 3.3) `for x86 (32 bit) Windows <http://www.microsoft.com/en-gb/download/details.aspx?id=5555>`__
-       or `for x64 (64 bit) Windows <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
-
-Up to Python 2.5, and again from Python 3.3, the MSVCR DLLs are installed in a
-normal location, and cx_Freeze will copy them automatically. It's still up to
-you to ensure that the licenses of all the files you use allow you to
-distribute them as part of your application.
+     * `for x86 (32 bit) Windows <https://aka.ms/vs/16/release/vc_redist.x86.exe>`__
+     * `for x64 (64 bit) Windows <https://aka.ms/vs/16/release/vc_redist.x64.exe>`__
 
 Single-file executables
 -----------------------
