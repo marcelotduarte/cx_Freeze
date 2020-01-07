@@ -1,10 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-try:
-    from tkinter import Tk, Label, Button, BOTTOM
-except ImportError:
-    from Tkinter import Tk, Label, Button, BOTTOM
+from tkinter import Tk, Label, Button, BOTTOM
 
 root = Tk()
 root.title('Button')

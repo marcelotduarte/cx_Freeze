@@ -3,7 +3,7 @@
 Licensing
 =========
 
-* Copyright © 2007-2019, Anthony Tuininga.
+* Copyright © 2007-2020, Anthony Tuininga.
 * Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta, Canada.
 * All rights reserved.
 

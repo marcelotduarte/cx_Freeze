@@ -4,6 +4,77 @@ Release notes
 6.x releases
 ############
 
+Version 6.2 (TBD)
+-----------------
+
+#)  Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
+
+.. _Issue #560: https://github.com/anthony-tuininga/cx_Freeze/issues/560
+
+
+Version 6.1 (January 2020)
+--------------------------
+
+#)  Added support for Python 3.8 (`PR #545`_, `PR #556`_).
+#)  Added support for ``python setup.py develop`` (`PR #502`_).
+#)  Use ``console_scripts`` in ``entry_points`` so that the commands
+    ``cxfreeze`` and ``cxfreeze-quickstart`` run on Windows without the need
+    for running a postinstall script (`PR #511`_).
+#)  Added support for switching from per-user to per-machine installations on
+    Windows (`PR #507`_).
+#)  Fix installation if ``AlwaysInstallElevated`` policy is set on Windows
+    (`PR #533`_).
+#)  Updated default dependencies for Python 3 on Windows (`PR #505`_).
+#)  Removed unused code (`PR #549`_).
+#)  The default dependencies are now always copied into the lib folder instead
+    of into the directory where the executable resides on Linux
+    (`PR #518`_).
+#)  Dependent files are now copied to the same relative directory as their
+    location in the source on Linux (`PR #494`_).
+#)  Added tests for commonly used packages like ``cryptography``, ``pillow``,
+    ``sqlite``, ``pytz``, ``ctypes`` and ``distutils``
+    (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_, `PR #557`_).
+#)  Fix regression with DLL dependencies introduced in 6.0 by `PR #492`_
+    due to case differences (`PR #512`_).
+#)  Fix regression with dependent files introduced in 6.0 by `PR #297`_
+    for platforms other than macOS (`PR #516`_).
+#)  The version of cx_Freeze is now defined in one place (`PR #552`_).
+#)  Eliminate exclusion of ``gestalt`` module on platforms other than macOS
+    since it exists outside of macOS.
+#)  Improved hooks for ``sqlite3`` (`PR #509`_), ``cryptography``, and
+    ``tkinter`` (`PR #559`_).
+#)  Added hook for ``pytz`` (`PR #554`_).
+#)  Improved hook infrastructure, permitting hooks to add constants that can
+    be examined at runtime, determine whether a module is going to be stored in
+    the file system and include files in the zip file.
+#)  Improved documentation (`PR #510`_).
+
+.. _PR #297: https://github.com/anthony-tuininga/cx_Freeze/pull/297
+.. _PR #492: https://github.com/anthony-tuininga/cx_Freeze/pull/492
+.. _PR #494: https://github.com/anthony-tuininga/cx_Freeze/pull/494
+.. _PR #502: https://github.com/anthony-tuininga/cx_Freeze/pull/502
+.. _PR #505: https://github.com/anthony-tuininga/cx_Freeze/pull/505
+.. _PR #507: https://github.com/anthony-tuininga/cx_Freeze/pull/507
+.. _PR #508: https://github.com/anthony-tuininga/cx_Freeze/pull/508
+.. _PR #509: https://github.com/anthony-tuininga/cx_Freeze/pull/509
+.. _PR #510: https://github.com/anthony-tuininga/cx_Freeze/pull/510
+.. _PR #511: https://github.com/anthony-tuininga/cx_Freeze/pull/511
+.. _PR #512: https://github.com/anthony-tuininga/cx_Freeze/pull/512
+.. _PR #516: https://github.com/anthony-tuininga/cx_Freeze/pull/516
+.. _PR #518: https://github.com/anthony-tuininga/cx_Freeze/pull/518
+.. _PR #533: https://github.com/anthony-tuininga/cx_Freeze/pull/533
+.. _PR #537: https://github.com/anthony-tuininga/cx_Freeze/pull/537
+.. _PR #545: https://github.com/anthony-tuininga/cx_Freeze/pull/545
+.. _PR #546: https://github.com/anthony-tuininga/cx_Freeze/pull/546
+.. _PR #549: https://github.com/anthony-tuininga/cx_Freeze/pull/549
+.. _PR #552: https://github.com/anthony-tuininga/cx_Freeze/pull/552
+.. _PR #554: https://github.com/anthony-tuininga/cx_Freeze/pull/554
+.. _PR #555: https://github.com/anthony-tuininga/cx_Freeze/pull/555
+.. _PR #556: https://github.com/anthony-tuininga/cx_Freeze/pull/556
+.. _PR #557: https://github.com/anthony-tuininga/cx_Freeze/pull/557
+.. _PR #559: https://github.com/anthony-tuininga/cx_Freeze/pull/559
+
+
 Version 6.0 (August 2019)
 -------------------------
 

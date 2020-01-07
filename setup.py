@@ -156,6 +156,7 @@ classifiers = [
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Software Development :: Build Tools",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -163,10 +164,16 @@ classifiers = [
         "Topic :: Utilities"
 ]
 
+with open("cx_Freeze/__init__.py") as fp:
+    for line in fp:
+        if line.startswith('__version__'):
+            version = line.replace('__version__ = "', '').replace('"\n', '')
+            break
+
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "6.1",
+        version = version,
         cmdclass = commandClasses,
         options = options,
         ext_modules = extensions,

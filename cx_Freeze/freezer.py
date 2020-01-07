@@ -70,7 +70,7 @@ def get_resource_file_path(dirName, name, ext):
 
 class Freezer(object):
 
-    def __init__(self, executables, constantsModule, includes = [],
+    def __init__(self, executables, constantsModule = None, includes = [],
             excludes = [], packages = [], replacePaths = [], compress = True,
             optimizeFlag = 0, path = None, targetDir = None, binIncludes = [],
             binExcludes = [], binPathIncludes = [], binPathExcludes = [],
@@ -78,6 +78,8 @@ class Freezer(object):
             namespacePackages = [], metadata = None, includeMSVCR = False,
             zipIncludePackages = [], zipExcludePackages = ["*"]):
         self.executables = list(executables)
+        if constantsModule is None:
+            constantsModule = ConstantsModule()
         self.constantsModule = constantsModule
         self.includes = list(includes)
         self.excludes = list(excludes)

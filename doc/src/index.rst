@@ -32,6 +32,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _py2exe: http://www.py2exe.org/
-.. _py2app: http://svn.pythonmac.org/py2app/py2app/trunk/doc/index.html
-.. _Python: http://www.python.org
+.. _py2exe: https://pypi.org/project/py2exe/
+.. _py2app: https://pypi.org/project/py2app/
+.. _Python: https://www.python.org/
