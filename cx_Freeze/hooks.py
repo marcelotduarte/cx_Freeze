@@ -531,11 +531,22 @@ def load_PyQt4_phonon(finder, module):
 
 load_PySide_phonon = load_PyQt5_phonon = load_PyQt4_phonon
 
+def sip_module_name(QtCore) -> str:
+    """Returns the name of the sip module to import.  (As of 5.11, the distributed wheels no longer provided for the
+    sip module outside of the PyQt5 namespace)."""
+    versionString = QtCore.PYQT_VERSION_STR
+    try:
+        intParts = [int(c) for c in versionString.split(".")]
+        if len(intParts) >= 2 and intParts[0] >= 5 and intParts[1] >= 11: return "PyQt5.sip"
+    except Exception:
+        pass
+    return "sip"
+
 def load_PyQt4_QtCore(finder, module):
     """the PyQt4.QtCore module implicitly imports the sip module and,
        depending on configuration, the PyQt4._qt module."""
     name, QtCore = _qt_implementation(module)
-    finder.IncludeModule("sip")
+    finder.IncludeModule(sip_module_name(QtCore=QtCore))
     try:
         finder.IncludeModule("%s._qt" % name)
     except ImportError:
