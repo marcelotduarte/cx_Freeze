@@ -4,12 +4,13 @@ Base class for finding modules.
 
 import dis
 import imp
+import importlib.machinery
+import importlib.util
 import logging
 import marshal
 import opcode
 import os
 import pkgutil
-import re
 import sys
 import tokenize
 import types
@@ -96,10 +97,10 @@ class ZipModulesCache(object):
             if ext not in ('.pyc', '.pyo'):
                 continue
             if '__pycache__' in baseName:
-                if not baseName.endswith(imp.get_tag()):
+                if not baseName.endswith(sys.implementation.cache_tag):
                     continue
-                baseName = \
-                        os.path.splitext(imp.source_from_cache(archiveName))[0]
+                baseName = os.path.splitext(
+                        importlib.util.source_from_cache(archiveName))[0]
             nameparts = baseName.split("/")
             
             if len(nameparts) > 1 and nameparts[-1] == '__init__':
@@ -118,25 +119,27 @@ class ZipModulesCache(object):
 
 class ModuleFinder(object):
 
-    def __init__(self, includeFiles = None, excludes = [], path = None,
-            replacePaths = None):
-        self.includeFiles = includeFiles
-        if includeFiles is None:
-            self.includeFiles = []
-        self.excludeDependentFiles = {}
-        self.excludes = dict.fromkeys(excludes)
-        self.replacePaths = replacePaths
-        if replacePaths is None:
-            self.replacePaths = []
+    def __init__(self, include_files=None, excludes=None, path=None,
+            replace_paths=None, zip_include_all_packages=False,
+            zip_exclude_packages=None, zip_include_packages=None,
+            constants_module=None, zip_includes=None):
+        self.include_files = include_files or []
+        self.excludes = dict.fromkeys(excludes or [])
         self.path = path or sys.path
+        self.replace_paths = replace_paths or []
+        self.zip_include_all_packages = zip_include_all_packages
+        self.zip_exclude_packages = zip_exclude_packages or []
+        self.zip_include_packages = zip_include_packages or []
+        self.constants_module = constants_module
+        self.zip_includes = zip_includes or []
         self.modules = []
         self.aliases = {}
+        self.exclude_dependent_files = {}
         self._modules = dict.fromkeys(excludes)
-        self._builtinModules = dict.fromkeys(sys.builtin_module_names)
-        self._badModules = {}
+        self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
+        self._bad_modules = {}
         self._zip_modules_cache = ZipModulesCache()
         cx_Freeze.hooks.initialize(self)
-        initialExcludedModules = self.excludes.copy()
         self._AddBaseModules()
 
     def _AddBaseModules(self):
@@ -150,6 +153,7 @@ class ModuleFinder(object):
            """
         self.IncludeModule("traceback")
         self.IncludeModule("warnings")
+        self.IncludeModule("unicodedata")
         self.IncludePackage("encodings")
         self.IncludeModule("io")
         self.IncludeModule("os")
@@ -158,18 +162,27 @@ class ModuleFinder(object):
         self.IncludeModule("collections.abc")
         self.IncludeModule("importlib.abc")
 
-    def _AddModule(self, name):
+    def _AddModule(self, name, path=None, file_name=None, parent=None):
         """Add a module to the list of modules but if one is already found,
            then return it instead; this is done so that packages can be
            handled properly."""
         module = self._modules.get(name)
         if module is None:
-            module = self._modules[name] = Module(name)
+            module = self._modules[name] = Module(name, path, file_name,
+                    parent)
             self.modules.append(module)
-            if name in self._badModules:
+            if name in self._bad_modules:
                 logging.debug("Removing module [%s] from list of bad modules",
                         name)
-                del self._badModules[name]
+                del self._bad_modules[name]
+            if self.zip_include_all_packages \
+                    and module.name not in self.zip_exclude_packages \
+                    or module.name in self.zip_include_packages:
+                module.store_in_file_system = False
+        if module.path is None and path is not None:
+            module.path = path
+        if module.file is None and file_name is not None:
+            module.file = file_name
         return module
 
     def _DetermineParent(self, caller):
@@ -185,11 +198,11 @@ class ModuleFinder(object):
            package modules. If the package module has not been completely
            imported yet, defer the import until it has been completely imported
            in order to avoid spurious errors about missing modules."""
-        if packageModule.inImport and caller is not packageModule:
+        if packageModule.in_import and caller is not packageModule:
             deferredImports.append((caller, packageModule, fromList))
         else:
             for name in fromList:
-                if name in packageModule.globalNames:
+                if name in packageModule.global_names:
                     continue
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
@@ -225,7 +238,7 @@ class ModuleFinder(object):
 
     def _ImportAllSubModules(self, module, deferredImports, recursive = True):
         """Import all sub modules to the given package."""
-        suffixes = [s[0] for s in imp.get_suffixes()]
+        suffixes = importlib.machinery.all_suffixes()
 
         for path in module.path:
             try:
@@ -266,7 +279,7 @@ class ModuleFinder(object):
                     if subModuleName not in self.excludes:
                         raise ImportError("No module named %r" % subModuleName)
                 else:
-                    module.globalNames[name] = None
+                    module.global_names[name] = None
                     if subModule.path and recursive:
                         self._ImportAllSubModules(subModule, deferredImports,
                                 recursive)
@@ -276,7 +289,7 @@ class ModuleFinder(object):
         while deferredImports:
             newDeferredImports = []
             for caller, packageModule, subModuleNames in deferredImports:
-                if packageModule.inImport and skipInImport:
+                if packageModule.in_import and skipInImport:
                     continue
                 self._EnsureFromList(caller, packageModule, subModuleNames,
                         newDeferredImports)
@@ -304,7 +317,7 @@ class ModuleFinder(object):
                 module = self._InternalImportModule(fullName,
                         deferredImports, namespace = namespace)
                 if module is not None:
-                    parent.globalNames[name] = None
+                    parent.global_names[name] = None
                     return module
 
             module = self._InternalImportModule(name,
@@ -334,8 +347,8 @@ class ModuleFinder(object):
             if caller is None:
                 raise ImportError("No module named %r" % name)
             self._RunHook("missing", name, caller)
-            if name not in caller.ignoreNames:
-                callers = self._badModules.setdefault(name, {})
+            if name not in caller.ignore_names:
+                callers = self._bad_modules.setdefault(name, {})
                 callers[caller.name] = None
 
         return module
@@ -350,11 +363,11 @@ class ModuleFinder(object):
         except KeyError:
             pass
 
-        if name in self._builtinModules:
+        if name in self._builtin_modules:
             module = self._AddModule(name)
             logging.debug("Adding module [%s] [C_BUILTIN]", name)
             self._RunHook("load", module.name, module)
-            module.inImport = False
+            module.in_import = False
             return module
 
         pos = name.rfind(".")
@@ -399,9 +412,7 @@ class ModuleFinder(object):
         if type == imp.PKG_DIRECTORY:
             return self._LoadPackage(name, path, parent, deferredImports,
                     namespace)
-        module = self._AddModule(name)
-        module.file = path
-        module.parent = parent
+        module = self._AddModule(name, file_name=path, parent=parent)
 
         if type == imp.PY_SOURCE:
             logging.debug("Adding module [%s] [PY_SOURCE]", name)
@@ -429,23 +440,19 @@ class ModuleFinder(object):
             skip_bytes = 8
             if isinstance(fp, bytes):
                 module.code = marshal.loads(fp[skip_bytes+4:])
-                module.inZipFile = True
+                module.source_is_zip_file = True
             else:
                 fp.read(skip_bytes)
                 module.code = marshal.load(fp)
         
         elif type == imp.C_EXTENSION:
             logging.debug("Adding module [%s] [C_EXTENSION]", name)
-            if parent is None:
-                # Our extension loader (see the freezer module) uses imp to
-                # load compiled extensions.
-                self.IncludeModule("imp")
 
         # If there's a custom hook for this module, run it.
         self._RunHook("load", module.name, module)
         
         if module.code is not None:
-            if self.replacePaths:
+            if self.replace_paths:
                 topLevelModule = module
                 while topLevelModule.parent is not None:
                     topLevelModule = topLevelModule.parent
@@ -455,13 +462,12 @@ class ModuleFinder(object):
             # Scan the module code for import statements
             self._ScanCode(module.code, module, deferredImports)
         
-        module.inImport = False
+        module.in_import = False
         return module
 
     def _LoadPackage(self, name, path, parent, deferredImports, namespace):
         """Load the package, given its name and path."""
-        module = self._AddModule(name)
-        module.path = [path]
+        module = self._AddModule(name, path=[path], parent=parent)
         try:
             fp, path, info = self._FindModule("__init__", module.path, False)
             self._LoadModule(name, fp, path, info, deferredImports, parent)
@@ -479,7 +485,7 @@ class ModuleFinder(object):
            with the modified paths in place."""
         # Prepare the new filename.
         origFileName = newFileName = os.path.normpath(co.co_filename)
-        for searchValue, replaceValue in self.replacePaths:
+        for searchValue, replaceValue in self.replace_paths:
             if searchValue == "*":
                 searchValue = os.path.dirname(topLevelModule.file)
                 if topLevelModule.path:
@@ -498,11 +504,15 @@ class ModuleFinder(object):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
         
         # Build the new code object.
-        return types.CodeType(co.co_argcount, co.co_kwonlyargcount,
-                co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
-                tuple(constants), co.co_names, co.co_varnames, newFileName,
-                co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
-                co.co_cellvars)
+        params = [co.co_argcount, co.co_kwonlyargcount,
+                  co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
+                  tuple(constants), co.co_names, co.co_varnames, newFileName,
+                  co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
+                  co.co_cellvars]
+        if hasattr(co, "co_posonlyargcount"):
+            #PEP570 added "positional only arguments" in Python 3.8
+            params.insert(1, co.co_posonlyargcount)
+        return types.CodeType(*params)
 
     def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
@@ -535,7 +545,7 @@ class ModuleFinder(object):
                 else:
                     relativeImportIndex = -1
                     fromList = arguments[0] if arguments else []
-                if name not in module.excludeNames:
+                if name not in module.exclude_names:
                     importedModule = self._ImportModule(name, deferredImports,
                             module, relativeImportIndex)
                     if importedModule is not None:
@@ -546,12 +556,12 @@ class ModuleFinder(object):
 
             # import * statement: copy all global names
             elif op == IMPORT_STAR and topLevel and importedModule is not None:
-                module.globalNames.update(importedModule.globalNames)
+                module.global_names.update(importedModule.global_names)
 
             # store operation: track only top level
             elif topLevel and op in STORE_OPS:
                 name = co.co_names[opArg]
-                module.globalNames[name] = None
+                module.global_names[name] = None
 
             # reset arguments; these are only needed for import statements so
             # ignore them in all other cases!
@@ -586,8 +596,11 @@ class ModuleFinder(object):
            instead."""
         self.aliases[name] = aliasFor
 
+    def AddConstant(self, name, value):
+        self.constants_module.values[name] = value
+
     def ExcludeDependentFiles(self, fileName):
-        self.excludeDependentFiles[fileName] = None
+        self.exclude_dependent_files[fileName] = None
 
     def ExcludeModule(self, name):
         """Exclude the named module from the resulting frozen executable."""
@@ -608,7 +621,7 @@ class ModuleFinder(object):
 
     def IncludeFiles(self, sourcePath, targetPath, copyDependentFiles = True):
         """Include the files in the given directory in the target build."""
-        self.includeFiles.append((sourcePath, targetPath))
+        self.include_files.append((sourcePath, targetPath))
         if not copyDependentFiles:
             self.ExcludeDependentFiles(sourcePath)
 
@@ -632,12 +645,12 @@ class ModuleFinder(object):
 
     def ReportMissingModules(self):
         """Display a list of modules that weren't found."""
-        if self._badModules:
+        if self._bad_modules:
             sys.stdout.write("Missing modules:\n")
-            names = list(self._badModules.keys())
+            names = list(self._bad_modules.keys())
             names.sort()
             for name in names:
-                callers = list(self._badModules[name].keys())
+                callers = list(self._bad_modules[name].keys())
                 callers.sort()
                 sys.stdout.write("? %s imported from %s\n" % \
                         (name, ", ".join(callers)))
@@ -645,20 +658,25 @@ class ModuleFinder(object):
                              "may not be needed on this platform.\n")
             sys.stdout.write("\n")
 
+    def ZipIncludeFiles(self, sourcePath, targetPath):
+        """Include the file(s) in the library.zip"""
+        self.zip_includes.append((sourcePath, targetPath))
+
 
 class Module(object):
 
-    def __init__(self, name):
+    def __init__(self, name, path=None, file_name=None, parent=None):
         self.name = name
-        self.file = None
-        self.path = None
+        self.file = file_name
+        self.path = path
         self.code = None
-        self.parent = None
-        self.globalNames = {}
-        self.excludeNames = {}
-        self.ignoreNames = {}
-        self.inZipFile = False
-        self.inImport = True
+        self.parent = parent
+        self.global_names = {}
+        self.exclude_names = {}
+        self.ignore_names = {}
+        self.source_is_zip_file = False
+        self.in_import = True
+        self.store_in_file_system = True
 
     def __repr__(self):
         parts = ["name=%s" % repr(self.name)]
@@ -669,10 +687,10 @@ class Module(object):
         return "<Module %s>" % ", ".join(parts)
 
     def AddGlobalName(self, name):
-        self.globalNames[name] = None
+        self.global_names[name] = None
 
     def ExcludeName(self, name):
-        self.excludeNames[name] = None
+        self.exclude_names[name] = None
 
     def ExtendPath(self):
         self.path = pkgutil.extend_path(self.path, self.name)
@@ -680,5 +698,11 @@ class Module(object):
             self.parent.ExtendPath()
 
     def IgnoreName(self, name):
-        self.ignoreNames[name] = None
+        self.ignore_names[name] = None
 
+    def WillBeStoredInFileSystem(self):
+        if self.parent is not None:
+            return self.parent.WillBeStoredInFileSystem()
+        if self.path is None or self.file is None:
+            return False
+        return self.store_in_file_system

@@ -4,25 +4,196 @@ Release notes
 6.x releases
 ############
 
-Development version
--------------------
+Version 6.2 (TBD)
+-----------------
 
-#) Dropped support for Python 2.x. Use cx_Freeze 5 for Python 2.x support.
+#)  Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
 
-.. note:: This version supports Python 3.5 and above.
+.. _Issue #560: https://github.com/anthony-tuininga/cx_Freeze/issues/560
+
+
+Version 6.1 (January 2020)
+--------------------------
+
+#)  Added support for Python 3.8 (`PR #545`_, `PR #556`_).
+#)  Added support for ``python setup.py develop`` (`PR #502`_).
+#)  Use ``console_scripts`` in ``entry_points`` so that the commands
+    ``cxfreeze`` and ``cxfreeze-quickstart`` run on Windows without the need
+    for running a postinstall script (`PR #511`_).
+#)  Added support for switching from per-user to per-machine installations on
+    Windows (`PR #507`_).
+#)  Fix installation if ``AlwaysInstallElevated`` policy is set on Windows
+    (`PR #533`_).
+#)  Updated default dependencies for Python 3 on Windows (`PR #505`_).
+#)  Removed unused code (`PR #549`_).
+#)  The default dependencies are now always copied into the lib folder instead
+    of into the directory where the executable resides on Linux
+    (`PR #518`_).
+#)  Dependent files are now copied to the same relative directory as their
+    location in the source on Linux (`PR #494`_).
+#)  Added tests for commonly used packages like ``cryptography``, ``pillow``,
+    ``sqlite``, ``pytz``, ``ctypes`` and ``distutils``
+    (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_, `PR #557`_).
+#)  Fix regression with DLL dependencies introduced in 6.0 by `PR #492`_
+    due to case differences (`PR #512`_).
+#)  Fix regression with dependent files introduced in 6.0 by `PR #297`_
+    for platforms other than macOS (`PR #516`_).
+#)  The version of cx_Freeze is now defined in one place (`PR #552`_).
+#)  Eliminate exclusion of ``gestalt`` module on platforms other than macOS
+    since it exists outside of macOS.
+#)  Improved hooks for ``sqlite3`` (`PR #509`_), ``cryptography``, and
+    ``tkinter`` (`PR #559`_).
+#)  Added hook for ``pytz`` (`PR #554`_).
+#)  Improved hook infrastructure, permitting hooks to add constants that can
+    be examined at runtime, determine whether a module is going to be stored in
+    the file system and include files in the zip file.
+#)  Improved documentation (`PR #510`_).
+
+.. _PR #297: https://github.com/anthony-tuininga/cx_Freeze/pull/297
+.. _PR #492: https://github.com/anthony-tuininga/cx_Freeze/pull/492
+.. _PR #494: https://github.com/anthony-tuininga/cx_Freeze/pull/494
+.. _PR #502: https://github.com/anthony-tuininga/cx_Freeze/pull/502
+.. _PR #505: https://github.com/anthony-tuininga/cx_Freeze/pull/505
+.. _PR #507: https://github.com/anthony-tuininga/cx_Freeze/pull/507
+.. _PR #508: https://github.com/anthony-tuininga/cx_Freeze/pull/508
+.. _PR #509: https://github.com/anthony-tuininga/cx_Freeze/pull/509
+.. _PR #510: https://github.com/anthony-tuininga/cx_Freeze/pull/510
+.. _PR #511: https://github.com/anthony-tuininga/cx_Freeze/pull/511
+.. _PR #512: https://github.com/anthony-tuininga/cx_Freeze/pull/512
+.. _PR #516: https://github.com/anthony-tuininga/cx_Freeze/pull/516
+.. _PR #518: https://github.com/anthony-tuininga/cx_Freeze/pull/518
+.. _PR #533: https://github.com/anthony-tuininga/cx_Freeze/pull/533
+.. _PR #537: https://github.com/anthony-tuininga/cx_Freeze/pull/537
+.. _PR #545: https://github.com/anthony-tuininga/cx_Freeze/pull/545
+.. _PR #546: https://github.com/anthony-tuininga/cx_Freeze/pull/546
+.. _PR #549: https://github.com/anthony-tuininga/cx_Freeze/pull/549
+.. _PR #552: https://github.com/anthony-tuininga/cx_Freeze/pull/552
+.. _PR #554: https://github.com/anthony-tuininga/cx_Freeze/pull/554
+.. _PR #555: https://github.com/anthony-tuininga/cx_Freeze/pull/555
+.. _PR #556: https://github.com/anthony-tuininga/cx_Freeze/pull/556
+.. _PR #557: https://github.com/anthony-tuininga/cx_Freeze/pull/557
+.. _PR #559: https://github.com/anthony-tuininga/cx_Freeze/pull/559
+
+
+Version 6.0 (August 2019)
+-------------------------
+
+#)  Corrected support for Python 3.7 (`PR #395`_).
+#)  Use importlib and other Python 3 improvements
+    (`PR #484`_, `PR #485`_, `PR #486`_, `PR #490`_).
+#)  Fixed issue with @rpath causing file copy errors on macOS (`PR #307`_).
+#)  Replaced file() with open() and use context manager to ensure the file
+    handle is closed and deleted (`PR #348`_).
+#)  Corrected invalid version handling in bdist_msi (`PR #349`_, `Issue #340`_).
+#)  Corrected hook for clr module (`PR #397`_, `PR #444`_).
+#)  Corrected documentation for compress option (`PR #358`_).
+#)  Ensure that the pythoncom and pywintypes DLLs are found in the lib
+    directory and not in the base directory (`Issue #332`_).
+#)  Always copy dependent files to root directory on macOS (`PR #365`_).
+#)  Skip self referencing archive on macOS (`PR #364`_, `Issue #304`_).
+#)  Include doc directory in source distribution (`PR #394`_, `Issue #376`_).
+#)  Force msilib module to be reloaded in order to allow for the generation of
+    multiple MSI packages in a single session (`PR #419`_).
+#)  Added hook for PyQt5.QtPrintSupport module (`PR #401`_).
+#)  Added ability to include an icon on the add/remove program window that pops
+    up during installation (`PR #387`_).
+#)  Prevent spurious errors from being printed during building on macOS by
+    checking to see that a file is a Mach-O binary before adding it to the list
+    of files it is checking the reference of (`PR #342`_, `Issue #268`_).
+#)  Avoid otool bug on macOS Yosemite (`PR #297`_, `Issue #292`_).
+#)  Added ability to specify environment variables that should be created when
+    an MSI package is installed (`PR #266`_).
+#)  Added support for including resources in an app bundle for macOS
+    (`PR #423`_).
+#)  Added absolute reference path option for macOS packages (`PR #424`_).
+#)  Added CFBundle identifier for macOS packages (`PR #427`_, `Issue #426`_).
+#)  Added hook for copying SSL DLLs for Python 3.7+ on Windows (`PR #470`_).
+#)  Added -municode flag when building on Windows with mingw32 (`PR #468`_).
+#)  Added hook for pycparser (`PR #446`_).
+#)  Fixed hook for zmq so it doesn't fail when there is no bundled libzmq
+    library in the installed pyzmq package (`PR #442`_).
+#)  Print error when fetching dependent files fails (`PR #435`_).
+#)  Make executable writable before adding the icon
+    (`PR #430`_, `Issue #368`_).
+#)  Dropped support for RPM and MSI packages for cx_Freeze itself since these
+    are no longer supported by PyPI.
+#)  Fix building console app with mingw32 (`PR #475`_).
+#)  Force inclusion of the unicodedata module which is used by the socket
+    module, and possibly others (`PR #476`_).
+#)  Added hook for asyncio package (`PR #477`_).
+#)  Added hook for idna package (`PR #478`_).
+#)  Added hook for pkg_resources package (`PR #481`_).
+#)  Added hook for gevent (`PR #495`_).
+#)  Force .exe extension to be included on Windows, so that the same setup code
+    can be used on both Linux and Windows (`PR #489`_).
+#)  Added hook for Pillow (`PR #491`_).
+#)  Improved hook for tkinter (`PR #493`_).
+#)  Avoid attempting to check for dependent files on Windows when the file is
+    not an executable or DLL (`PR #492`_).
+#)  Ensure that only executable files are checked for dependencies in order to
+    avoid spurious errors when checking for dependent files.
+#)  Improved hook for matplotlib.
+
+.. _Issue #268: https://github.com/anthony-tuininga/cx_Freeze/issues/268
+.. _Issue #292: https://github.com/anthony-tuininga/cx_Freeze/issues/292
+.. _Issue #304: https://github.com/anthony-tuininga/cx_Freeze/issues/304
+.. _Issue #368: https://github.com/anthony-tuininga/cx_Freeze/issues/368
+.. _Issue #332: https://github.com/anthony-tuininga/cx_Freeze/issues/332
+.. _Issue #340: https://github.com/anthony-tuininga/cx_Freeze/issues/340
+.. _Issue #376: https://github.com/anthony-tuininga/cx_Freeze/issues/376
+.. _Issue #426: https://github.com/anthony-tuininga/cx_Freeze/issues/426
+.. _PR #266: https://github.com/anthony-tuininga/cx_Freeze/pull/266
+.. _PR #297: https://github.com/anthony-tuininga/cx_Freeze/pull/297
+.. _PR #307: https://github.com/anthony-tuininga/cx_Freeze/pull/307
+.. _PR #342: https://github.com/anthony-tuininga/cx_Freeze/pull/342
+.. _PR #348: https://github.com/anthony-tuininga/cx_Freeze/pull/348
+.. _PR #349: https://github.com/anthony-tuininga/cx_Freeze/pull/349
+.. _PR #358: https://github.com/anthony-tuininga/cx_Freeze/pull/358
+.. _PR #364: https://github.com/anthony-tuininga/cx_Freeze/pull/364
+.. _PR #365: https://github.com/anthony-tuininga/cx_Freeze/pull/365
+.. _PR #387: https://github.com/anthony-tuininga/cx_Freeze/pull/387
+.. _PR #394: https://github.com/anthony-tuininga/cx_Freeze/pull/394
+.. _PR #395: https://github.com/anthony-tuininga/cx_Freeze/pull/395
+.. _PR #397: https://github.com/anthony-tuininga/cx_Freeze/pull/397
+.. _PR #401: https://github.com/anthony-tuininga/cx_Freeze/pull/401
+.. _PR #419: https://github.com/anthony-tuininga/cx_Freeze/pull/419
+.. _PR #423: https://github.com/anthony-tuininga/cx_Freeze/pull/423
+.. _PR #424: https://github.com/anthony-tuininga/cx_Freeze/pull/424
+.. _PR #427: https://github.com/anthony-tuininga/cx_Freeze/pull/427
+.. _PR #430: https://github.com/anthony-tuininga/cx_Freeze/pull/430
+.. _PR #435: https://github.com/anthony-tuininga/cx_Freeze/pull/435
+.. _PR #442: https://github.com/anthony-tuininga/cx_Freeze/pull/442
+.. _PR #444: https://github.com/anthony-tuininga/cx_Freeze/pull/444
+.. _PR #446: https://github.com/anthony-tuininga/cx_Freeze/pull/446
+.. _PR #468: https://github.com/anthony-tuininga/cx_Freeze/pull/468
+.. _PR #470: https://github.com/anthony-tuininga/cx_Freeze/pull/470
+.. _PR #475: https://github.com/anthony-tuininga/cx_Freeze/pull/475
+.. _PR #476: https://github.com/anthony-tuininga/cx_Freeze/pull/476
+.. _PR #477: https://github.com/anthony-tuininga/cx_Freeze/pull/477
+.. _PR #478: https://github.com/anthony-tuininga/cx_Freeze/pull/478
+.. _PR #481: https://github.com/anthony-tuininga/cx_Freeze/pull/481
+.. _PR #484: https://github.com/anthony-tuininga/cx_Freeze/pull/484
+.. _PR #485: https://github.com/anthony-tuininga/cx_Freeze/pull/485
+.. _PR #486: https://github.com/anthony-tuininga/cx_Freeze/pull/486
+.. _PR #489: https://github.com/anthony-tuininga/cx_Freeze/pull/489
+.. _PR #490: https://github.com/anthony-tuininga/cx_Freeze/pull/490
+.. _PR #491: https://github.com/anthony-tuininga/cx_Freeze/pull/491
+.. _PR #492: https://github.com/anthony-tuininga/cx_Freeze/pull/492
+.. _PR #493: https://github.com/anthony-tuininga/cx_Freeze/pull/493
+.. _PR #495: https://github.com/anthony-tuininga/cx_Freeze/pull/495
 
 
 Version 6.0b1 (November 2017)
 -----------------------------
 
-#) Dropped support for Python 2.x. Use cx_Freeze 5 for Python 2.x support.
-#) Instead of depending on the built-in functionality of searching for a zip
-   file that looks like pythonxx.zip (which is disabled on some platforms like
-   Ubuntu), set the Python path to include a subdirectory called "lib" and a
-   zip file "lib/library.zip" on all platforms.
-#) Do not create version resource when version is omitted (`PR #279`_).
-#) Ensure the sqlite3 DLL is loaded in the same directory as the module which
-   depends on it (`Issue #296`_).
+#)  Dropped support for Python 2.x. Use cx_Freeze 5 for Python 2.x support.
+#)  Instead of depending on the built-in functionality of searching for a zip
+    file that looks like pythonxx.zip (which is disabled on some platforms like
+    Ubuntu), set the Python path to include a subdirectory called "lib" and a
+    zip file "lib/library.zip" on all platforms.
+#)  Do not create version resource when version is omitted (`PR #279`_).
+#)  Ensure the sqlite3 DLL is loaded in the same directory as the module which
+    depends on it (`Issue #296`_).
 
 .. _PR #279: https://github.com/anthony-tuininga/cx_Freeze/pull/279
 .. _Issue #296: https://github.com/anthony-tuininga/cx_Freeze/issues/296

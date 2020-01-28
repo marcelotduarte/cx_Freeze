@@ -10,7 +10,8 @@
 
 import os
 import sys
-import zipimport
+
+import BUILD_CONSTANTS
 
 FILE_NAME = sys.executable
 DIR_NAME = os.path.dirname(sys.executable)
@@ -25,15 +26,24 @@ if DIR_NAME not in paths:
 sys.frozen = True
 sys.path = sys.path[:4]
 
-os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")
-os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")
+if hasattr(BUILD_CONSTANTS, "TCL_LIBRARY"):
+    os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME,
+                                             BUILD_CONSTANTS.TCL_LIBRARY)
 
+if hasattr(BUILD_CONSTANTS, "TK_LIBRARY"):
+    os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME,
+                                             BUILD_CONSTANTS.TK_LIBRARY)
+
+if hasattr(BUILD_CONSTANTS, "MATPLOTLIBDATA"):
+    os.environ["MATPLOTLIBDATA"] = os.path.join(DIR_NAME,
+                                             BUILD_CONSTANTS.MATPLOTLIBDATA)
+
+if hasattr(BUILD_CONSTANTS, "PYTZ_TZDATADIR"):
+    os.environ["PYTZ_TZDATADIR"] = os.path.join(DIR_NAME,
+                                                BUILD_CONSTANTS.PYTZ_TZDATADIR)
 
 def run():
-    m = __import__("__main__")
-    importer = zipimport.zipimporter(os.path.dirname(os.__file__))
     name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
     moduleName = "%s__main__" % name
-    code = importer.get_code(moduleName)
-    exec(code, m.__dict__)
-
+    code = __loader__.get_code(moduleName)
+    exec(code, {'__name__': '__main__'})

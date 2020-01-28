@@ -3,15 +3,15 @@
 Licensing
 =========
 
-* Copyright © 2007-2018, Anthony Tuininga.
+* Copyright © 2007-2020, Anthony Tuininga.
 * Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta, Canada.
 * All rights reserved.
 
 NOTE: this license is derived from the Python Software Foundation License
 which can be found at http://www.python.org/psf/license
 
-License for cx_Freeze 6.0b1
----------------------------
+License for cx_Freeze
+---------------------
 
 1. This LICENSE AGREEMENT is between the copyright holders and the Individual
    or Organization ("Licensee") accessing and otherwise using cx_Freeze

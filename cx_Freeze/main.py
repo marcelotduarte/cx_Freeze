@@ -1,7 +1,5 @@
 import optparse
 import os
-import shutil
-import stat
 import sys
 
 import cx_Freeze
@@ -19,9 +17,9 @@ installation."""
 VERSION = \
 """
 %%prog %s
-Copyright (c) 2007-2017 Anthony Tuininga. All rights reserved.
+Copyright (c) 2007-2020 Anthony Tuininga. All rights reserved.
 Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.""" % \
-        cx_Freeze.version
+        cx_Freeze.__version__
 
 
 def ParseCommandLine():

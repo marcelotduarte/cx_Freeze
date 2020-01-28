@@ -2,8 +2,6 @@
 Distutils script for cx_Freeze.
 """
 
-import cx_Freeze
-import distutils.command.bdist_rpm
 import distutils.command.build_ext
 import distutils.command.install
 import distutils.command.install_data
@@ -21,43 +19,6 @@ except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
 
-if sys.platform == "win32":
-    import msilib
-    import distutils.command.bdist_msi
-
-    class bdist_msi(distutils.command.bdist_msi.bdist_msi):
-
-        def add_scripts(self):
-            distutils.command.bdist_msi.bdist_msi.add_scripts(self)
-            msilib.add_data(self.db, "RemoveFile",
-                    [("cxFreezeBatch", "cx_Freeze", "cxfreeze*.bat", "Scripts",
-                        2)])
-
-
-class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
-
-    # rpm automatically byte compiles all Python files in a package but we
-    # don't want that to happen for initscripts and samples so we tell it to
-    # ignore those files
-    def _make_spec_file(self):
-        specFile = distutils.command.bdist_rpm.bdist_rpm._make_spec_file(self)
-        specFile.insert(0, "%define _unpackaged_files_terminate_build 0%{nil}")
-        return specFile
-
-    def run(self):
-        distutils.command.bdist_rpm.bdist_rpm.run(self)
-        specFile = os.path.join(self.rpm_base, "SPECS",
-                "%s.spec" % self.distribution.get_name())
-        queryFormat = "%{name}-%{version}-%{release}.%{arch}.rpm"
-        command = "rpm -q --qf '%s' --specfile %s" % (queryFormat, specFile)
-        origFileName = os.popen(command).read()
-        parts = origFileName.split("-")
-        parts.insert(2, "py%s%s" % sys.version_info[:2])
-        newFileName = "-".join(parts)
-        self.move_file(os.path.join("dist", origFileName),
-                os.path.join("dist", newFileName))
-
-
 class build_ext(distutils.command.build_ext.build_ext):
 
     def build_extension(self, ext):
@@ -66,14 +27,17 @@ class build_ext(distutils.command.build_ext.build_ext):
             return
         if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
-        os.environ["LD_RUN_PATH"] = "${ORIGIN}:${ORIGIN}/../lib"
+        os.environ["LD_RUN_PATH"] = "${ORIGIN}/../lib:${ORIGIN}/lib"
         objects = self.compiler.compile(ext.sources,
                 output_dir = self.build_temp,
                 include_dirs = ext.include_dirs,
                 debug = self.debug,
                 depends = ext.depends)
         fileName = os.path.splitext(self.get_ext_filename(ext.name))[0]
-        fullName = os.path.join(self.build_lib, fileName)
+        if self.inplace:
+            fullName = os.path.join(os.path.dirname(__file__), fileName)
+        else:
+            fullName = os.path.join(self.build_lib, fileName)
         libraryDirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
@@ -81,8 +45,13 @@ class build_ext(distutils.command.build_ext.build_ext):
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
-            elif compiler_type == "mingw32" and "Win32GUI" in ext.name:
-                extraArgs.append("-mwindows")
+            elif compiler_type == "mingw32":
+                if "Win32GUI" in ext.name:
+                    extraArgs.append("-mwindows")
+                else:
+                    extraArgs.append("-mconsole")
+                if sys.version_info[0] == 3:
+                    extraArgs.append("-municode")
         else:
             vars = distutils.sysconfig.get_config_vars()
             libraryDirs.append(vars["LIBPL"])
@@ -125,16 +94,13 @@ def find_cx_Logging():
         return
     subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
     importLibraryDir = os.path.join(loggingDir, "build", subDir)
+    includeDir = os.path.join(loggingDir, "src")
     if not os.path.exists(importLibraryDir):
         return
-    return loggingDir, importLibraryDir
+    return includeDir, importLibraryDir
 
 
-commandClasses = dict(
-        build_ext = build_ext,
-        bdist_rpm = bdist_rpm)
-if sys.platform == "win32":
-    commandClasses["bdist_msi"] = bdist_msi
+commandClasses = dict(build_ext=build_ext)
 
 # build utility module
 if sys.platform == "win32":
@@ -146,16 +112,12 @@ utilModule = Extension("cx_Freeze.util", ["source/util.c"],
 
 # build base executables
 docFiles = "README.txt"
-scripts = ["cxfreeze", "cxfreeze-quickstart"]
-options = dict(bdist_rpm = dict(doc_files = docFiles),
-        install = dict(optimize = 1))
+options = dict(install=dict(optimize=1))
 depends = ["source/bases/Common.c"]
 console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
         depends = depends, libraries = libraries)
 extensions = [utilModule, console]
 if sys.platform == "win32":
-    scripts.append("cxfreeze-postinstall")
-    options["bdist_msi"] = dict(install_script = "cxfreeze-postinstall")
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
             depends = depends, libraries = libraries + ["user32"])
     extensions.append(gui)
@@ -193,6 +155,8 @@ classifiers = [
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Software Development :: Build Tools",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -200,10 +164,16 @@ classifiers = [
         "Topic :: Utilities"
 ]
 
+with open("cx_Freeze/__init__.py") as fp:
+    for line in fp:
+        if line.startswith('__version__'):
+            version = line.replace('__version__ = "', '').replace('"\n', '')
+            break
+
 setup(name = "cx_Freeze",
         description = "create standalone executables from Python scripts",
         long_description = "create standalone executables from Python scripts",
-        version = "6.0b1",
+        version = version,
         cmdclass = commandClasses,
         options = options,
         ext_modules = extensions,
@@ -211,9 +181,15 @@ setup(name = "cx_Freeze",
         maintainer="Anthony Tuininga",
         maintainer_email="anthony.tuininga@gmail.com",
         url = "https://anthony-tuininga.github.io/cx_Freeze",
-        scripts = scripts,
         classifiers = classifiers,
         keywords = "freeze",
         license = "Python Software Foundation License",
-        package_data = {"cx_Freeze" : packageData })
-
+        package_data = {"cx_Freeze" : packageData },
+        entry_points = {
+                'console_scripts': [
+                        'cxfreeze = cx_Freeze.main:main',
+                        'cxfreeze-quickstart = cx_Freeze.setupwriter:main',
+                ],
+        },
+        zip_safe=False,
+)

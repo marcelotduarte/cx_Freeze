@@ -190,18 +190,10 @@ class build_exe(distutils.core.Command):
 
     def run(self):
         metadata = self.distribution.metadata
-        constantsModule = cx_Freeze.ConstantsModule(metadata.version)
-        for constant in self.constants:
-            parts = constant.split("=")
-            if len(parts) == 1:
-                name = constant
-                value = None
-            else:
-                name, stringValue = parts
-                value = eval(stringValue)
-            constantsModule.values[name] = value
+        constants_module = cx_Freeze.ConstantsModule(metadata.version,
+                constants=self.constants)
         freezer = cx_Freeze.Freezer(self.distribution.executables,
-                [constantsModule], self.includes, self.excludes, self.packages,
+                constants_module, self.includes, self.excludes, self.packages,
                 self.replace_paths, (not self.no_compress), self.optimize,
                 self.path, self.build_exe,
                 includeMSVCR = self.include_msvcr,
