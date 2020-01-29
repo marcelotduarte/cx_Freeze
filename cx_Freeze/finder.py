@@ -502,18 +502,10 @@ class ModuleFinder(object):
         for i, value in enumerate(constants):
             if isinstance(value, type(co)):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
-        
-        # Build the new code object.
-        params = [co.co_argcount, co.co_kwonlyargcount,
-                  co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
-                  tuple(constants), co.co_names, co.co_varnames, newFileName,
-                  co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
-                  co.co_cellvars]
-        if hasattr(co, "co_posonlyargcount"):
-            #PEP570 added "positional only arguments" in Python 3.8
-            params.insert(1, co.co_posonlyargcount)
-        return types.CodeType(*params)
 
+        return self.BuildNewCodeObject(co, constants=constants,
+                                        filename=newFileName)
+    
     def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
         name = "%s_%s" % (hookName, moduleName.replace(".", "_"))
@@ -598,6 +590,21 @@ class ModuleFinder(object):
 
     def AddConstant(self, name, value):
         self.constants_module.values[name] = value
+
+    def BuildNewCodeObject(self, co, code=None, constants=None, filename=None):
+        """Build the new code object."""
+        code = code or co.co_code
+        constants = tuple(constants or co.co_consts)
+        filename = filename or co.co_filename
+        params = [co.co_argcount, co.co_kwonlyargcount,
+                  co.co_nlocals, co.co_stacksize, co.co_flags, code,
+                  constants, co.co_names, co.co_varnames, filename,
+                  co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
+                  co.co_cellvars]
+        if hasattr(co, "co_posonlyargcount"):
+            # PEP570 added "positional only arguments" in Python 3.8
+            params.insert(1, co.co_posonlyargcount)
+        return types.CodeType(*params)
 
     def ExcludeDependentFiles(self, fileName):
         self.exclude_dependent_files[fileName] = None
