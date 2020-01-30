@@ -5,7 +5,7 @@
 #
 # Usage:
 #   python getdependentfiles.py FILE
-# Where FILE is a .pyd or .dll file
+# Where FILE is a .exe, .pyd or .dll file
 #
 # See also: test_1.py - a batch of tests
 
