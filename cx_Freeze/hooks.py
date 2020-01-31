@@ -76,6 +76,12 @@ def load_asyncio(finder, module):
     finder.IncludePackage('asyncio')
 
 
+def load_babel(finder, module):
+    """babel must be loaded as a package, and has pickeable data."""
+    finder.IncludePackage('babel')
+    module.store_in_file_system = True
+
+
 def load_cElementTree(finder, module):
     """the cElementTree module implicitly loads the elementtree.ElementTree
        module; make sure this happens."""
