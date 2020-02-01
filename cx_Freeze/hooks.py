@@ -6,6 +6,7 @@ def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
     finder.ExcludeModule("FCNTL")
+    finder.ExcludeModule("Tkinter")
     finder.ExcludeModule("os.path")
     finder.ExcludeModule("multiprocessing.Process")
     if os.name == "nt":
