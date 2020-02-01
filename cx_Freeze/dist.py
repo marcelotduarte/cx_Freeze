@@ -14,8 +14,8 @@ import sys
 import cx_Freeze
 from cx_Freeze.common import normalize_to_list
 
-__all__ = [ "bdist_rpm", "build", "build_exe", "install", "install_exe",
-            "setup" ]
+__all__ = ["bdist_rpm", "build", "build_exe", "install", "install_exe",
+           "setup"]
 
 class Distribution(distutils.dist.Distribution):
 
@@ -42,10 +42,10 @@ class build(distutils.command.build.build):
     ]
 
     def get_sub_commands(self):
-        subCommands = distutils.command.build.build.get_sub_commands(self)
+        sub_commands = distutils.command.build.build.get_sub_commands(self)
         if self.distribution.executables:
-            subCommands.append("build_exe")
-        return subCommands
+            sub_commands.append("build_exe")
+        return sub_commands
 
     def initialize_options(self):
         distutils.command.build.build.initialize_options(self)
@@ -54,9 +54,9 @@ class build(distutils.command.build.build):
     def finalize_options(self):
         distutils.command.build.build.finalize_options(self)
         if self.build_exe is None:
-            dirName = "exe.%s-%s" % \
+            dir_name = "exe.%s-%s" % \
                     (distutils.util.get_platform(), sys.version[0:3])
-            self.build_exe = os.path.join(self.build_base, dirName)
+            self.build_exe = os.path.join(self.build_base, dir_name)
 
 
 class build_exe(distutils.core.Command):
@@ -112,41 +112,41 @@ class build_exe(distutils.core.Command):
     boolean_options = ["no-compress", "include_msvcr", "silent"]
 
     def add_to_path(self, name):
-        sourceDir = getattr(self, name.lower())
-        if sourceDir is not None:
-            sys.path.insert(0, sourceDir)
+        source_dir = getattr(self, name.lower())
+        if source_dir is not None:
+            sys.path.insert(0, source_dir)
 
-    def build_extension(self, name, moduleName = None):
+    def build_extension(self, name, moduleName=None):
         if moduleName is None:
             moduleName = name
-        sourceDir = getattr(self, name.lower())
-        if sourceDir is None:
+        source_dir = getattr(self, name.lower())
+        if source_dir is None:
             return
-        origDir = os.getcwd()
-        scriptArgs = ["build"]
+        orig_dir = os.getcwd()
+        script_args = ["build"]
         command = self.distribution.get_command_obj("build")
         if command.compiler is not None:
-            scriptArgs.append("--compiler=%s" % command.compiler)
-        os.chdir(sourceDir)
-        distutils.log.info("building '%s' extension in '%s'", name, sourceDir)
-        distribution = distutils.core.run_setup("setup.py", scriptArgs)
+            script_args.append("--compiler=%s" % command.compiler)
+        os.chdir(source_dir)
+        distutils.log.info("building '%s' extension in '%s'", name, source_dir)
+        distribution = distutils.core.run_setup("setup.py", script_args)
         modules = [m for m in distribution.ext_modules if m.name == moduleName]
         if not modules:
-            messageFormat = "no module named '%s' in '%s'"
-            raise distutils.errors.DistutilsSetupError(messageFormat %
-                    (moduleName, sourceDir))
+            message_format = "no module named '%s' in '%s'"
+            raise distutils.errors.DistutilsSetupError(message_format %
+                                                       (moduleName, source_dir))
         command = distribution.get_command_obj("build_ext")
         command.ensure_finalized()
         if command.compiler is None:
             command.run()
         else:
             command.build_extensions()
-        dirName = os.path.join(sourceDir, command.build_lib)
-        os.chdir(origDir)
-        if dirName not in sys.path:
-            sys.path.insert(0, dirName)
-        return os.path.join(sourceDir, command.build_lib,
-                command.get_ext_filename(moduleName))
+        dir_name = os.path.join(source_dir, command.build_lib)
+        os.chdir(orig_dir)
+        if dir_name not in sys.path:
+            sys.path.insert(0, dir_name)
+        return os.path.join(source_dir, command.build_lib,
+                            command.get_ext_filename(moduleName))
 
     def initialize_options(self):
         self.list_options = [
@@ -191,42 +191,47 @@ class build_exe(distutils.core.Command):
     def run(self):
         metadata = self.distribution.metadata
         constants_module = cx_Freeze.ConstantsModule(metadata.version,
-                constants=self.constants)
+                                                     constants=self.constants)
         freezer = cx_Freeze.Freezer(self.distribution.executables,
-                constants_module, self.includes, self.excludes, self.packages,
-                self.replace_paths, (not self.no_compress), self.optimize,
-                self.path, self.build_exe,
-                includeMSVCR = self.include_msvcr,
-                includeFiles = self.include_files,
-                binIncludes = self.bin_includes,
-                binExcludes = self.bin_excludes,
-                zipIncludes = self.zip_includes,
-                silent = self.silent,
-                namespacePackages = self.namespace_packages,
-                binPathIncludes = self.bin_path_includes,
-                binPathExcludes = self.bin_path_excludes,
-                metadata = metadata,
-                zipIncludePackages = self.zip_include_packages,
-                zipExcludePackages = self.zip_exclude_packages)
+                                    constants_module,
+                                    self.includes,
+                                    self.excludes,
+                                    self.packages,
+                                    self.replace_paths,
+                                    (not self.no_compress),
+                                    self.optimize,
+                                    self.path,
+                                    self.build_exe,
+                                    includeMSVCR=self.include_msvcr,
+                                    includeFiles=self.include_files,
+                                    binIncludes=self.bin_includes,
+                                    binExcludes=self.bin_excludes,
+                                    zipIncludes=self.zip_includes,
+                                    silent=self.silent,
+                                    namespacePackages=self.namespace_packages,
+                                    binPathIncludes=self.bin_path_includes,
+                                    binPathExcludes=self.bin_path_excludes,
+                                    metadata=metadata,
+                                    zipIncludePackages=self.zip_include_packages,
+                                    zipExcludePackages=self.zip_exclude_packages)
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
-        envName = "%s_BASE" % name.upper()
-        attrName = name.lower()
-        sourceDir = getattr(self, attrName)
-        if sourceDir is None:
-            baseDir = os.environ.get(envName)
-            if baseDir is None:
+        env_name = "%s_BASE" % name.upper()
+        attr_name = name.lower()
+        source_dir = getattr(self, attr_name)
+        if source_dir is None:
+            base_dir = os.environ.get(env_name)
+            if base_dir is None:
                 return
-            sourceDir = os.path.join(baseDir, *pathParts)
-            if os.path.isdir(sourceDir):
-                setattr(self, attrName, sourceDir)
+            source_dir = os.path.join(base_dir, *pathParts)
+            if os.path.isdir(source_dir):
+                setattr(self, attr_name, source_dir)
 
 
 class install(distutils.command.install.install):
     user_options = distutils.command.install.install.user_options + [
-            ('install-exe=', None,
-             'installation directory for executables')
+        ('install-exe=', None, 'installation directory for executables')
     ]
 
     def expand_dirs(self):
@@ -234,10 +239,10 @@ class install(distutils.command.install.install):
         self._expand_attrs(['install_exe'])
 
     def get_sub_commands(self):
-        subCommands = distutils.command.install.install.get_sub_commands(self)
+        sub_commands = distutils.command.install.install.get_sub_commands(self)
         if self.distribution.executables:
-            subCommands.append("install_exe")
-        return [s for s in subCommands if s != "install_egg_info"]
+            sub_commands.append("install_exe")
+        return [s for s in sub_commands if s != "install_egg_info"]
 
     def initialize_options(self):
         distutils.command.install.install.initialize_options(self)
@@ -245,12 +250,9 @@ class install(distutils.command.install.install):
 
     def finalize_options(self):
         if self.prefix is None and sys.platform == "win32":
-            try:
-                import winreg
-            except:
-                import _winreg as winreg
+            import winreg
             key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                    r"Software\Microsoft\Windows\CurrentVersion")
+                                 r"Software\Microsoft\Windows\CurrentVersion")
             prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
             metadata = self.distribution.metadata
             self.prefix = "%s/%s" % (prefix, metadata.name)
@@ -266,8 +268,8 @@ class install(distutils.command.install.install):
                 self.install_exe = '$base'
             else:
                 metadata = self.distribution.metadata
-                dirName = "%s-%s" % (metadata.name, metadata.version)
-                self.install_exe = '$base/lib/%s' % dirName
+                dir_name = "%s-%s" % (metadata.name, metadata.version)
+                self.install_exe = '$base/lib/%s' % dir_name
 
 
 class install_exe(distutils.core.Command):
@@ -288,24 +290,24 @@ class install_exe(distutils.core.Command):
     def finalize_options(self):
         self.set_undefined_options('build', ('build_exe', 'build_dir'))
         self.set_undefined_options('install',
-                ('install_exe', 'install_dir'),
-                ('force', 'force'),
-                ('skip_build', 'skip_build'))
+                                   ('install_exe', 'install_dir'),
+                                   ('force', 'force'),
+                                   ('skip_build', 'skip_build'))
 
     def run(self):
         if not self.skip_build:
             self.run_command('build_exe')
         self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
         if sys.platform != "win32":
-            baseDir = os.path.dirname(os.path.dirname(self.install_dir))
-            binDir = os.path.join(baseDir, "bin")
-            if not os.path.exists(binDir):
-                os.makedirs(binDir)
-            sourceDir = os.path.join("..", self.install_dir[len(baseDir) + 1:])
+            base_dir = os.path.dirname(os.path.dirname(self.install_dir))
+            bin_dir = os.path.join(base_dir, "bin")
+            if not os.path.exists(bin_dir):
+                os.makedirs(bin_dir)
+            source_dir = os.path.join("..", self.install_dir[len(base_dir) + 1:])
             for executable in self.distribution.executables:
                 name = os.path.basename(executable.targetName)
-                source = os.path.join(sourceDir, name)
-                target = os.path.join(binDir, name)
+                source = os.path.join(source_dir, name)
+                target = os.path.join(bin_dir, name)
                 if os.path.exists(target):
                     os.unlink(target)
                 os.symlink(source, target)
@@ -318,24 +320,23 @@ class install_exe(distutils.core.Command):
         return self.outfiles or []
 
 
-def _AddCommandClass(commandClasses, name, cls):
-    if name not in commandClasses:
-        commandClasses[name] = cls
+def _AddCommandClass(command_classes, name, cls):
+    if name not in command_classes:
+        command_classes[name] = cls
 
 
 def setup(**attrs):
     attrs.setdefault("distclass", Distribution)
-    commandClasses = attrs.setdefault("cmdclass", {})
+    command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _AddCommandClass(commandClasses, "bdist_msi", cx_Freeze.bdist_msi)
+        _AddCommandClass(command_classes, "bdist_msi", cx_Freeze.bdist_msi)
     elif sys.platform == "darwin":
-        _AddCommandClass(commandClasses, "bdist_dmg", cx_Freeze.bdist_dmg)
-        _AddCommandClass(commandClasses, "bdist_mac", cx_Freeze.bdist_mac)
+        _AddCommandClass(command_classes, "bdist_dmg", cx_Freeze.bdist_dmg)
+        _AddCommandClass(command_classes, "bdist_mac", cx_Freeze.bdist_mac)
     else:
-        _AddCommandClass(commandClasses, "bdist_rpm", cx_Freeze.bdist_rpm)
-    _AddCommandClass(commandClasses, "build", build)
-    _AddCommandClass(commandClasses, "build_exe", build_exe)
-    _AddCommandClass(commandClasses, "install", install)
-    _AddCommandClass(commandClasses, "install_exe", install_exe)
+        _AddCommandClass(command_classes, "bdist_rpm", cx_Freeze.bdist_rpm)
+    _AddCommandClass(command_classes, "build", build)
+    _AddCommandClass(command_classes, "build_exe", build_exe)
+    _AddCommandClass(command_classes, "install", install)
+    _AddCommandClass(command_classes, "install_exe", install_exe)
     distutils.core.setup(**attrs)
-
