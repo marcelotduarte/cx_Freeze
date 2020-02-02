@@ -510,6 +510,9 @@ def _qt_implementation(module):
               "Some incorrect files may be copied.")
     return name, _qtcore
 
+def _qt_in_file_system(module):
+    return module.WillBeStoredInFileSystem()
+
 def copy_qt_plugins(plugins, finder, QtCore):
     """Helper function to find and copy Qt plugins."""
 
@@ -525,6 +528,7 @@ def copy_qt_plugins(plugins, finder, QtCore):
 def load_PyQt4_phonon(finder, module):
     """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
        be present in the build directory inside a folder phonon_backend."""
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     if sys.platform == "win32":
         copy_qt_plugins("phonon_backend", finder, QtCore)
@@ -545,6 +549,7 @@ def sip_module_name(QtCore) -> str:
 def load_PyQt4_QtCore(finder, module):
     """the PyQt4.QtCore module implicitly imports the sip module and,
        depending on configuration, the PyQt4._qt module."""
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule(sip_module_name(QtCore=QtCore))
     try:
@@ -564,6 +569,7 @@ def load_PyQt4_Qt(finder, module):
        foolish way of doing things but perhaps there is some hidden advantage
        to this technique over pure Python; ignore the absence of some of
        the modules since not every installation includes all of them."""
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtCore" % name)
     finder.IncludeModule("%s.QtGui" % name)
@@ -580,6 +586,7 @@ def load_PyQt4_uic(finder, module):
     """The uic module makes use of "plugins" that need to be read directly and
        cannot be frozen; the PyQt4.QtWebKit and PyQt4.QtNetwork modules are
        also implicity loaded."""
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     dir = os.path.join(module.path[0], "widget-plugins")
     finder.IncludeFiles(dir, "%s.uic.widget-plugins" % name)
@@ -604,6 +611,7 @@ def load_PyQt4_QtGui(finder, module):
     """There is a chance that GUI will use some image formats
     add the image format plugins
     """
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     _QtGui(finder, module, QtCore.QT_VERSION_STR)
 
@@ -618,9 +626,11 @@ def load_PySide_QtGui(finder, module):
     _QtGui(finder, module, QtCore.__version__)
 
 def load_PyQt5_QtWidgets(finder, module):
+    if _qt_in_file_system(module): return
     finder.IncludeModule('PyQt5.QtGui')
 
 def load_PyQt4_QtWebKit(finder, module):
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtNetwork" % name)
     finder.IncludeModule("%s.QtGui" % name)
@@ -628,12 +638,14 @@ def load_PyQt4_QtWebKit(finder, module):
 load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
 
 def load_PyQt5_QtMultimedia(finder, module):
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtCore" % name)
     finder.IncludeModule("%s.QtMultimediaWidgets" % name)
     copy_qt_plugins("mediaservice", finder, QtCore)
 
 def load_PyQt5_QtPrintSupport(finder, module):
+    if _qt_in_file_system(module): return
     name, QtCore = _qt_implementation(module)
     copy_qt_plugins("printsupport", finder, QtCore)
 
