@@ -423,8 +423,13 @@ def load_PIL(finder, module):
 
 
 def load_pkg_resources(finder, module):
-    """pkg_resources dynamic load modules in a subpackage."""
+    """pkg_resources dynamic load modules in a subpackage
+       and, since setuptools 45.0.0, imports a warning-emitting module using __import__('pkg_resources.py2_warn')."""
     finder.IncludePackage("pkg_resources._vendor")
+    try:
+        finder.IncludeModule("pkg_resources.py2_warn")
+    except ImportError:
+       pass
 
 
 def load_postgresql_lib(finder, module):
