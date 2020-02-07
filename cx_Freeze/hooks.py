@@ -6,6 +6,7 @@ def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
     finder.ExcludeModule("FCNTL")
+    finder.ExcludeModule("Tkinter")
     finder.ExcludeModule("os.path")
     finder.ExcludeModule("multiprocessing.Process")
     if os.name == "nt":
@@ -74,6 +75,12 @@ def initialize(finder):
 def load_asyncio(finder, module):
     """the asyncio must be loaded as a package."""
     finder.IncludePackage('asyncio')
+
+
+def load_babel(finder, module):
+    """babel must be loaded as a package, and has pickeable data."""
+    finder.IncludePackage('babel')
+    module.store_in_file_system = True
 
 
 def load_bcrypt(finder, module):
