@@ -428,8 +428,9 @@ def load_PIL(finder, module):
 
 
 def load_pkg_resources(finder, module):
-    """pkg_resources dynamic load modules in a subpackage."""
-    finder.IncludePackage("pkg_resources._vendor")
+    """the pkg_resources must be loaded as a package;
+       dynamically loaded modules in subpackages is growing."""
+    finder.IncludePackage("pkg_resources")
 
 
 def load_postgresql_lib(finder, module):
