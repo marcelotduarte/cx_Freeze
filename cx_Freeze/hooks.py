@@ -83,6 +83,11 @@ def load_babel(finder, module):
     module.store_in_file_system = True
 
 
+def load_bcrypt(finder, module):
+    """the bcrypt package requires the _cffi_backend module (loaded implicitly)"""
+    finder.IncludeModule('_cffi_backend')
+
+
 def load_cElementTree(finder, module):
     """the cElementTree module implicitly loads the elementtree.ElementTree
        module; make sure this happens."""
