@@ -519,9 +519,10 @@ class Freezer(object):
                             ignore = ignorePatterns)
 
             # if an extension module is found in a package that is to be
-            # included in a zip file, save a Python loader in the zip file and
-            # copy the actual file to the build directory because shared
-            # libraries cannot be loaded from a zip file
+            # included in a zip file, copy the actual file to the build
+            # directory because shared libraries cannot be loaded from a
+            # zip file. The module will be loaded by ExtensionFinder based on
+            # importlib.machinery at __startup__ script
             if module.code is None and module.file is not None \
                     and not includeInFileSystem:
                 parts = module.name.split(".")[:-1]
