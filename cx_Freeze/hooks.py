@@ -72,6 +72,11 @@ def initialize(finder):
     finder.ExcludeModule("new")
 
 
+def load_aiofiles(finder, module):
+    """the aiofiles must be loaded as a package."""
+    finder.IncludePackage('aiofiles')
+
+
 def load_asyncio(finder, module):
     """the asyncio must be loaded as a package."""
     finder.IncludePackage('asyncio')
