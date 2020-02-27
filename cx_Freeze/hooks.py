@@ -265,14 +265,13 @@ def load_idna(finder, module):
     finder.IncludeModule("idna.idnadata")
 
 
-MATPLOTLIB_CODE_STR = """
-def _get_data_path():
-    return os.path.join(os.path.dirname(sys.executable), '{}')
-"""
-
 def load_matplotlib(finder, module):
     """the matplotlib package requires mpl-data in a subdirectory of the
     package."""
+    MATPLOTLIB_CODE_STR = """
+def _get_data_path():
+    return os.path.join(os.path.dirname(sys.executable), '{}')
+"""
     import matplotlib
     data_path = matplotlib.get_data_path()
     target_path = os.path.join("lib", module.name, "mpl-data")
