@@ -88,6 +88,11 @@ def load_bcrypt(finder, module):
     finder.IncludeModule('_cffi_backend')
 
 
+def load_boto(finder, module):
+    """the boto package - ignore the fake package."""
+    finder.ExcludePackage("boto.vendored.six.moves")
+
+
 def load_cElementTree(finder, module):
     """the cElementTree module implicitly loads the elementtree.ElementTree
        module; make sure this happens."""
@@ -429,8 +434,9 @@ def load_PIL(finder, module):
 
 def load_pkg_resources(finder, module):
     """the pkg_resources must be loaded as a package;
-       dynamically loaded modules in subpackages is growing."""
+       to prevent it to break in the future."""
     finder.IncludePackage("pkg_resources")
+    finder.ExcludePackage("pkg_resources.extern")
 
 
 def load_postgresql_lib(finder, module):
@@ -678,6 +684,11 @@ def load_scipy_special__cephes(finder, module):
     module.AddGlobalName("gammaln")
 
 
+def load_setuptools(finder, module):
+    """the setuptools - ignore the fake package."""
+    finder.ExcludePackage("setuptools.extern")
+
+
 def load_setuptools_extension(finder, module):
     """the setuptools.extension module optionally loads
        Pyrex.Distutils.build_ext but its absence is not considered an error."""
@@ -689,6 +700,11 @@ def load_site(finder, module):
        modules; ignore the error if these modules do not exist."""
     module.IgnoreName("sitecustomize")
     module.IgnoreName("usercustomize")
+
+
+def load_six(finder, module):
+    """the six module - ignore the fake package."""
+    finder.ExcludePackage("six.moves")
 
 
 def load_ssl(finder, module):
