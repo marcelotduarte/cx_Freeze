@@ -607,6 +607,11 @@ class ModuleFinder(object):
         self.excludes[name] = None
         self._modules[name] = None
 
+    def ExcludePackage(self, name):
+        """Exclude the named package from the resulting frozen executable."""
+        self.excludes[name] = "*"
+        self._modules[name] = None
+
     def IncludeFile(self, path, moduleName = None):
         """Include the named file as a module in the frozen executable."""
         name, ext = os.path.splitext(os.path.basename(path))
@@ -646,17 +651,31 @@ class ModuleFinder(object):
     def ReportMissingModules(self):
         """Display a list of modules that weren't found."""
         if self._bad_modules:
-            sys.stdout.write("Missing modules:\n")
-            names = list(self._bad_modules.keys())
+            exclude_packages = [name for name, value in self.excludes.items()
+                                if value == "*"]
+            excluded = set(self._bad_modules) & set(self.excludes)
+            if excluded:
+                excluded = list(excluded)
+                excluded.sort()
+                print("\nExcluded modules (defined by cx_Freeze or excluded "\
+                      "by user option):")
+                for name in excluded:
+                    exclude_all = ".*" if name in exclude_packages else ""
+                    print("  %s%s" % (name, exclude_all))
+            print("Missing modules:")
+            missing = set(self._bad_modules) - set(self.excludes)
+            names = list(missing)
+            for name in missing:
+                for pkg in exclude_packages:
+                    if name.startswith(pkg+"."):
+                        names.remove(name)
             names.sort()
             for name in names:
                 callers = list(self._bad_modules[name].keys())
                 callers.sort()
-                sys.stdout.write("? %s imported from %s\n" % \
-                        (name, ", ".join(callers)))
-            sys.stdout.write("This is not necessarily a problem - the modules "
-                             "may not be needed on this platform.\n")
-            sys.stdout.write("\n")
+                print("  %s imported from %s" % (name, ", ".join(callers)))
+            print("This is not necessarily a problem - the modules "
+                  "may not be needed on this platform.\n")
 
     def ZipIncludeFiles(self, sourcePath, targetPath):
         """Include the file(s) in the library.zip"""
