@@ -3,6 +3,7 @@ Base class for finding modules.
 """
 
 import dis
+import glob
 import imp
 import importlib.machinery
 import importlib.util
@@ -677,6 +678,25 @@ class Module(object):
         self.source_is_zip_file = False
         self.in_import = True
         self.store_in_file_system = True
+        self.dist_files = None
+        if file_name is not None:
+            dir_name = os.path.dirname(file_name)
+            search_path = os.path.join(dir_name, name+"-*.dist-info")
+        elif path:
+            search_path = path[0]+"-*.dist-info"
+        else:
+            search_path = None
+        if search_path:
+            pathnames = glob.glob(search_path)
+            if pathnames:
+                dist_path = pathnames[0]
+                arc_path = os.path.basename(dist_path)
+                # cache file names to use in write modules
+                dist_files = []
+                for fname in os.listdir(dist_path):
+                    dist_files.append((os.path.join(dist_path, fname),
+                                       os.path.join(arc_path, fname)))
+                self.dist_files = dist_files
 
     def __repr__(self):
         parts = ["name=%s" % repr(self.name)]
