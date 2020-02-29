@@ -171,7 +171,7 @@ def initialize(finder):
     if not sys.platform.startswith("OpenVMS"):
         finder.ExcludeModule("vms_lib")
     if "__pypy__" not in sys.builtin_module_names:
-        finder.ExcludeModule("__pypy__")
+        finder.ExcludePackage("__pypy__")
 
 
 def load_asyncio(finder, module):
