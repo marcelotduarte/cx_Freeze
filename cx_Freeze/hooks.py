@@ -684,11 +684,6 @@ def load_scipy_special__cephes(finder, module):
     module.AddGlobalName("gammaln")
 
 
-def load_setuptools(finder, module):
-    """the setuptools - ignore the fake package."""
-    finder.ExcludePackage("setuptools.extern")
-
-
 def load_setuptools_extension(finder, module):
     """the setuptools.extension module optionally loads
        Pyrex.Distutils.build_ext but its absence is not considered an error."""
