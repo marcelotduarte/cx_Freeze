@@ -39,8 +39,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
 
     def add_config(self, fullname):
         if self.add_to_path:
+            p = "Path"
+            if self.all_users:
+                p = "=-*" + p
             msilib.add_data(self.db, 'Environment',
-                    [("E_PATH", "=-*Path", r"[~];[TARGETDIR]", "TARGETDIR")])
+                    [("E_PATH", p, r"[~];[TARGETDIR]", "TARGETDIR")])
         if self.directories:
             msilib.add_data(self.db, "Directory", self.directories)
         if self.environment_variables:
