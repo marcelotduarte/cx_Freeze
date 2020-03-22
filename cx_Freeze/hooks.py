@@ -906,3 +906,8 @@ def load_sqlite3(finder, module):
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
     finder.IncludePackage('sqlite3')
+
+def load_pytest(finder, module):
+    import pytest
+    for m in pytest.freeze_includes():
+        finder.IncludeModule(m)
