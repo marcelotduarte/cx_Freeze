@@ -906,3 +906,15 @@ def load_sqlite3(finder, module):
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
     finder.IncludePackage('sqlite3')
+
+def load_importlib_metadata(finder, module):
+    """importlib_metadata tries to extact its own metadata from dist-info on
+    import. Include dist-info in the package."""
+    importlib_metadata = __import__('importlib_metadata')
+    dist = importlib_metadata.distribution('importlib_metadata')
+    src_path = dist._path
+    dst_name = "importlib_metadata-{}.dist-info".format(dist.version)
+
+    assert src_path.is_dir()
+
+    finder.IncludeFiles(str(src_path), os.path.join('lib', dst_name))
