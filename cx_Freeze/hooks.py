@@ -695,10 +695,14 @@ def load_ssl(finder, module):
     """In Windows, the SSL module in Python >= 3.7 requires additional dlls to
        be present in the build directory."""
     if sys.platform == "win32" and sys.version_info >= (3, 7):
-        for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
-            for dll_path in glob.glob(os.path.join(sys.base_prefix, "DLLs", dll_search)):
-                dll_name = os.path.basename(dll_path)
-                finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+        for dll_search_mask in ["libcrypto-*.dll", "libssl-*.dll"]:
+            for dll_path in sys.path:
+                found_dlls = glob.glob(os.path.join(dll_path, dll_search_mask))
+                if found_dlls:
+                    found_dll = sorted(found_dlls)[-1]  # if there were multiple versions, now we have the latest one
+                    dll_name = os.path.basename(found_dll)
+                    finder.IncludeFiles(found_dll, os.path.join("lib", dll_name))
+                    break
 
 
 def load_tkinter(finder, module):
