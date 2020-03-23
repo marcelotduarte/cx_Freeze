@@ -110,9 +110,7 @@ def load__ctypes(finder, module):
     """In Windows, the _ctypes module in Python >= 3.8 requires an additional dll
        libffi-7.dll to be present in the build directory."""
     if sys.platform == "win32" and sys.version_info >= (3, 8):
-        dll_name = "libffi-7.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+        _include_dll(finder, "libffi-7.dll")
 
 
 def load_cx_Oracle(finder, module):
@@ -696,13 +694,7 @@ def load_ssl(finder, module):
        be present in the build directory."""
     if sys.platform == "win32" and sys.version_info >= (3, 7):
         for dll_search_mask in ["libcrypto-*.dll", "libssl-*.dll"]:
-            for dll_path in sys.path:
-                found_dlls = glob.glob(os.path.join(dll_path, dll_search_mask))
-                if found_dlls:
-                    found_dll = sorted(found_dlls)[-1]  # if there were multiple versions, now we have the latest one
-                    dll_name = os.path.basename(found_dll)
-                    finder.IncludeFiles(found_dll, os.path.join("lib", dll_name))
-                    break
+            _include_dll(finder, dll_search_mask)
 
 
 def load_tkinter(finder, module):
@@ -725,8 +717,7 @@ def load_tkinter(finder, module):
             finder.AddConstant(env_name, targetPath)
             finder.IncludeFiles(lib_texts, targetPath)
             dll_name = mod_name + str(ver_var).replace(".", "") + "t.dll"
-            dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-            finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+            _include_dll(finder, dll_name)
 
 
 def load_tempfile(finder, module):
@@ -906,7 +897,16 @@ def load_sqlite3(finder, module):
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
        be present in the build directory."""
     if sys.platform == "win32":
-        dll_name = "sqlite3.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+        _include_dll(finder, "sqlite3.dll")
     finder.IncludePackage('sqlite3')
+
+
+def _include_dll(finder, dll_search_mask):
+    """find a DLL file (using a glob pattern) in sys.path and include it"""
+    for dll_path in sys.path:
+        found_dlls = glob.glob(os.path.join(dll_path, dll_search_mask))
+        if found_dlls:
+            found_dll = sorted(found_dlls)[-1]  # if there were multiple versions, now we have the latest one
+            dll_name = os.path.basename(found_dll)
+            finder.IncludeFiles(found_dll, os.path.join("lib", dll_name))
+            break
