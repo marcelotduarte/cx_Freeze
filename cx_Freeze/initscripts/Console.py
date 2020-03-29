@@ -11,7 +11,6 @@ import BUILD_CONSTANTS
 
 sys.frozen = True
 
-FILE_NAME = sys.executable
 DIR_NAME = os.path.dirname(sys.executable)
 
 if hasattr(BUILD_CONSTANTS, "TCL_LIBRARY"):
@@ -20,7 +19,7 @@ if hasattr(BUILD_CONSTANTS, "TCL_LIBRARY"):
 
 if hasattr(BUILD_CONSTANTS, "TK_LIBRARY"):
     os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME,
-                                             BUILD_CONSTANTS.TK_LIBRARY)
+                                            BUILD_CONSTANTS.TK_LIBRARY)
 
 if hasattr(BUILD_CONSTANTS, "MATPLOTLIBDATA"):
     os.environ["MATPLOTLIBDATA"] = os.path.join(DIR_NAME,
@@ -31,7 +30,8 @@ if hasattr(BUILD_CONSTANTS, "PYTZ_TZDATADIR"):
                                                 BUILD_CONSTANTS.PYTZ_TZDATADIR)
 
 def run():
-    name, ext = os.path.splitext(os.path.basename(os.path.normcase(FILE_NAME)))
-    moduleName = "%s__main__" % name
-    code = __loader__.get_code(moduleName)
-    exec(code, {'__name__': '__main__'})
+    name = "%s__main__" % __name__[:-8]
+    code = __loader__.get_code(name)
+    m = __import__('__main__')
+    m.__dict__['__file__'] = code.co_filename
+    exec(code,  m.__dict__)
