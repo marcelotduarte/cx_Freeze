@@ -9,6 +9,7 @@ def initialize(finder):
     finder.ExcludeModule("Tkinter")
     finder.ExcludeModule("os.path")
     finder.ExcludeModule("multiprocessing.Process")
+    finder.ExcludeModule("multiprocessing.Pool")
     if os.name == "nt":
         finder.ExcludeModule("fcntl")
         finder.ExcludeModule("grp")
