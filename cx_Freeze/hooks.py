@@ -651,6 +651,7 @@ def load_scipy(finder, module):
        being present."""
     finder.IncludePackage("scipy._lib")
     finder.IncludePackage("scipy.misc")
+    finder.ExcludeModule("scipy.spatial.cKDTree")
 
 
 def load_scipy_linalg(finder, module):
