@@ -2,6 +2,8 @@ import glob
 import os
 import sys
 
+from cx_Freeze.common import rebuild_code_object
+
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
@@ -298,7 +300,7 @@ def _get_data_path():
             if isinstance(value, type(co)) and value.co_name == co_func.co_name:
                 constants[i] = finder.BuildNewCodeObject(co_func)
                 break
-        module.code = finder.BuildNewCodeObject(co, constants=constants)
+        module.code = rebuild_code_object(co, constants=constants)
 
 
 def load_numpy(finder, module):
