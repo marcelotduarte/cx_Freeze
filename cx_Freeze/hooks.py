@@ -167,7 +167,7 @@ def pycryptodome_filename(dir_comps, filename):
             if isinstance(value, type(co)) and value.co_name == co_func.co_name:
                 constants[i] = rebuild_code_object(co_func)
                 break
-        module.code = finder.BuildNewCodeObject(co, constants=constants)
+        module.code = rebuild_code_object(co, constants=constants)
 
 
 def load__ctypes(finder, module):
