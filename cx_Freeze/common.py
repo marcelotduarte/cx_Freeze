@@ -20,7 +20,7 @@ def normalize_to_list(value):
     return normalizedValue
 
 
-def rebuild_code_object(self, co, code=None, constants=None, filename=None):
+def rebuild_code_object(co, code=None, constants=None, filename=None):
     """Rebuild the code object."""
     code = code or co.co_code
     constants = tuple(constants or co.co_consts)
