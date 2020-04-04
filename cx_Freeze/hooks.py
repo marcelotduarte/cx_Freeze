@@ -2,6 +2,8 @@ import glob
 import os
 import sys
 
+from cx_Freeze.common import rebuild_code_object
+
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
@@ -142,8 +144,10 @@ def load_Crypto_Util(finder, module):
         finder.IncludePackage(module.name)
 
 
-#WARNING: do not touch this code string
-PYCRYPTODOME_CODE_STR = """
+def load_Crypto_Util__file_system(finder, module):
+    """pycryptodome package"""
+    # WARNING: do not touch this code string
+    PYCRYPTODOME_CODE_STR = """
 import os
 
 def pycryptodome_filename(dir_comps, filename):
@@ -154,9 +158,6 @@ def pycryptodome_filename(dir_comps, filename):
     root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
     return os.path.join(root_lib, '.'.join(dir_comps))
 """
-
-def load_Crypto_Util__file_system(finder, module):
-    """pycryptodome package"""
     if not module.WillBeStoredInFileSystem() and module.code is not None:
         new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
         co_func = new_code.co_consts[2]
@@ -164,7 +165,7 @@ def load_Crypto_Util__file_system(finder, module):
         constants = list(co.co_consts)
         for i, value in enumerate(constants):
             if isinstance(value, type(co)) and value.co_name == co_func.co_name:
-                constants[i] = finder.BuildNewCodeObject(co_func)
+                constants[i] = rebuild_code_object(co_func)
                 break
         module.code = finder.BuildNewCodeObject(co, constants=constants)
 
