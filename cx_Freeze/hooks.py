@@ -6,6 +6,7 @@ def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
     finder.ExcludeModule("FCNTL")
+    finder.ExcludeModule("Tkinter")
     finder.ExcludeModule("os.path")
     finder.ExcludeModule("multiprocessing.Process")
     if os.name == "nt":
@@ -74,6 +75,17 @@ def initialize(finder):
 def load_asyncio(finder, module):
     """the asyncio must be loaded as a package."""
     finder.IncludePackage('asyncio')
+
+
+def load_babel(finder, module):
+    """babel must be loaded as a package, and has pickeable data."""
+    finder.IncludePackage('babel')
+    module.store_in_file_system = True
+
+
+def load_bcrypt(finder, module):
+    """the bcrypt package requires the _cffi_backend module (loaded implicitly)"""
+    finder.IncludeModule('_cffi_backend')
 
 
 def load_cElementTree(finder, module):
@@ -432,8 +444,9 @@ def load_PIL(finder, module):
 
 
 def load_pkg_resources(finder, module):
-    """pkg_resources dynamic load modules in a subpackage."""
-    finder.IncludePackage("pkg_resources._vendor")
+    """the pkg_resources must be loaded as a package;
+       dynamically loaded modules in subpackages is growing."""
+    finder.IncludePackage("pkg_resources")
 
 
 def load_postgresql_lib(finder, module):
