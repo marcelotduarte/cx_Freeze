@@ -13,9 +13,9 @@ import os
 import pkgutil
 import sys
 import tokenize
-import types
 import zipfile
 
+from cx_Freeze.common import rebuild_code_object
 import cx_Freeze.hooks
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
@@ -503,16 +503,7 @@ class ModuleFinder(object):
             if isinstance(value, type(co)):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
         
-        # Build the new code object.
-        params = [co.co_argcount, co.co_kwonlyargcount,
-                  co.co_nlocals, co.co_stacksize, co.co_flags, co.co_code,
-                  tuple(constants), co.co_names, co.co_varnames, newFileName,
-                  co.co_name, co.co_firstlineno, co.co_lnotab, co.co_freevars,
-                  co.co_cellvars]
-        if hasattr(co, "co_posonlyargcount"):
-            #PEP570 added "positional only arguments" in Python 3.8
-            params.insert(1, co.co_posonlyargcount)
-        return types.CodeType(*params)
+        return rebuild_code_object(co, constants=constants, filename=newFileName)
 
     def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
