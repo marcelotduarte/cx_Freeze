@@ -298,7 +298,7 @@ def _get_data_path():
         constants = list(co.co_consts)
         for i, value in enumerate(constants):
             if isinstance(value, type(co)) and value.co_name == co_func.co_name:
-                constants[i] = finder.BuildNewCodeObject(co_func)
+                constants[i] = rebuild_code_object(co_func)
                 break
         module.code = rebuild_code_object(co, constants=constants)
 
