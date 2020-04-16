@@ -324,6 +324,9 @@ class bdist_mac(Command):
                 self.copy_tree(resource, self.resourcesDir + '/' +
                                destination)
             else:
+                parent_dirs = os.path.dirname(self.resourcesDir + '/' +
+                                              destination)
+                os.makedirs(parent_dirs, exist_ok=True)
                 self.copy_file(resource, self.resourcesDir + '/' +
                                destination)
 
