@@ -155,7 +155,7 @@ class bdist_mac(Command):
                                      stdout=subprocess.PIPE)
 
             for line in otool.stdout.readlines()[1:]:
-                lib = line.lstrip('\t').split(' (compat')[0]
+                lib = line.decode('utf-8').lstrip('\t').split(' (compat')[0]
 
                 if lib.startswith('@executable_path'):
                     replacement = lib.replace('@executable_path', path)
@@ -176,9 +176,8 @@ class bdist_mac(Command):
         files = []
         for root, dirs, dir_files in os.walk(self.binDir):
             for f in dir_files:
-                p = subprocess.Popen(("file", os.path.join(root, f)),
-                                     stdout=subprocess.PIPE)
-                if "Mach-O" in p.stdout.readline():
+                p = subprocess.Popen(("file", os.path.join(root, f)), stdout=subprocess.PIPE)
+                if "Mach-O" in p.stdout.readline().decode():
                     files.append(os.path.join(root, f).replace(self.binDir + "/", ""))
 
         for fileName in files:
@@ -202,7 +201,7 @@ class bdist_mac(Command):
             for reference in references:
 
                 # find the actual referenced file name
-                referencedFile = reference.strip().split()[0]
+                referencedFile = reference.decode().strip().split()[0]
 
                 if referencedFile.startswith('@executable_path'):
                     # the referencedFile is already a relative path (to the executable)
