@@ -202,25 +202,27 @@ class bdist_mac(Command):
 
                 # find the actual referenced file name
                 referencedFile = reference.decode().strip().split()[0]
+                locationFile = referencedFile
 
                 if referencedFile.startswith('@executable_path'):
                     # the referencedFile is already a relative path (to the executable)
                     continue
 
                 if self.rpath_lib_folder is not None:
-                    referencedFile = str(referencedFile).replace("@rpath", self.rpath_lib_folder)
+                    locationFile = str(referencedFile).replace("@rpath", self.rpath_lib_folder)
 
                 if referencedFile.startswith('@loader_path'):
                     fileParent = os.path.dirname(filePath)
-                    referencedFile = referencedFile.replace("@loader_path", fileParent)
+                    locationFile = referencedFile.replace("@loader_path", fileParent)
+
 
                 # the output of otool on archive contain self referencing
                 # content inside parantheses.
-                if not os.path.exists(referencedFile):
+                if not os.path.exists(locationFile):
                     print("skip unknown file {} ".format(referencedFile))
                     continue
 
-                path, name = os.path.split(referencedFile)
+                path, name = os.path.split(locationFile)
 
                 #some referenced files have not previously been copied to the
                 #executable directory - the assumption is that you don't need
@@ -230,9 +232,9 @@ class bdist_mac(Command):
                         path.startswith('/System')):
                     print(referencedFile)
                     try:
-                        self.copy_file(referencedFile, os.path.join(self.binDir, name))
+                        self.copy_file(locationFile, os.path.join(self.binDir, name))
                     except DistutilsFileError as e:
-                        print("issue copying {} to {} error {} skipping".format(referencedFile, os.path.join(self.binDir, name), e))
+                        print("issue copying {} to {} error {} skipping".format(locationFile, os.path.join(self.binDir, name), e))
                     else:
                         files.append(name)
 
