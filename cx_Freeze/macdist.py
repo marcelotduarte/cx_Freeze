@@ -210,6 +210,10 @@ class bdist_mac(Command):
                 if self.rpath_lib_folder is not None:
                     referencedFile = str(referencedFile).replace("@rpath", self.rpath_lib_folder)
 
+                if referencedFile.startswith('@loader_path'):
+                    fileParent = os.path.dirname(filePath)
+                    referencedFile = referencedFile.replace("@loader_path", fileParent)
+
                 # the output of otool on archive contain self referencing
                 # content inside parantheses.
                 if not os.path.exists(referencedFile):
