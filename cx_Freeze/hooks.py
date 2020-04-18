@@ -109,6 +109,15 @@ def load_ceODBC(finder, module):
     finder.IncludeModule("decimal")
 
 
+def load_cffi_cparser(finder, module):
+    """the cffi.cparser module can use a extension if present."""
+    try:
+        import cffi._pycparser
+        finder.IncludeModule(cffi._pycparser.__name__)
+    except ImportError:
+        finder.ExcludeModule('cffi._pycparser')
+
+
 def load_cryptography_hazmat_bindings__padding(finder, module):
     """the cryptography module requires the _cffi_backend module (loaded implicitly)"""
     finder.IncludeModule('_cffi_backend')
