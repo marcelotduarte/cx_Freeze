@@ -288,6 +288,7 @@ def _get_data_path():
     return os.path.join(os.path.dirname(sys.executable), '{}')
 """
     import matplotlib
+    finder.IncludePackage(module.name)
     data_path = matplotlib.get_data_path()
     target_path = os.path.join("lib", module.name, "mpl-data")
     finder.IncludeFiles(data_path, target_path, copyDependentFiles=False)
