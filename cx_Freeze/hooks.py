@@ -110,6 +110,7 @@ def initialize(finder):
     finder.ExcludeModule("_frozen_importlib_external")
     finder.ExcludeModule("os.path")
     # confused names in Windows
+    finder.ExcludeModule("multiprocessing.Pool")
     finder.ExcludeModule("multiprocessing.Process")
     # exclusion by platform/os
     if os.name == "nt":
