@@ -1,6 +1,7 @@
 import glob
 import os
 import sys
+import sysconfig
 
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
@@ -109,7 +110,7 @@ def load_cryptography_hazmat_bindings__padding(finder, module):
 def load__ctypes(finder, module):
     """In Windows, the _ctypes module in Python >= 3.8 requires an additional dll
        libffi-7.dll to be present in the build directory."""
-    if sys.platform == "win32" and sys.version_info >= (3, 8):
+    if sys.platform == "win32" and sys.version_info >= (3, 8) and sysconfig.get_platform() != "mingw":
         dll_name = "libffi-7.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
