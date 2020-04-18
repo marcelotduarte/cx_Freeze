@@ -42,7 +42,7 @@ if hasattr(BUILD_CONSTANTS, "PYTZ_TZDATADIR"):
                                                 BUILD_CONSTANTS.PYTZ_TZDATADIR)
 
 def run():
-    name = "%s__main__" % __name__[:-8]
+    name = __name__.rpartition("__init__")[0] + "__main__"
     code = __loader__.get_code(name)
     m = __import__('__main__')
     m.__dict__['__file__'] = code.co_filename
