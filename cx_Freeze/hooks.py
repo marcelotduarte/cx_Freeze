@@ -3,6 +3,8 @@ import os
 import sys
 import sysconfig
 
+from cx_Freeze.common import rebuild_code_object
+
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
@@ -279,17 +281,33 @@ def load_idna(finder, module):
 
 
 def load_matplotlib(finder, module):
-    """the matplotlib module requires data to be found in mpl-data in the
-       same directory as the frozen executable so oblige it"""
+    """the matplotlib package requires mpl-data in a subdirectory of the
+    package."""
+    MATPLOTLIB_CODE_STR = """
+def _get_data_path():
+    return os.path.join(os.path.dirname(sys.executable), '{}')
+"""
     import matplotlib
-    dataPath = matplotlib.get_data_path()
-    targetPath = os.path.join("lib", "matplotlib", "mpl-data")
-    finder.AddConstant("MATPLOTLIBDATA", targetPath)
-    finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
+    data_path = matplotlib.get_data_path()
+    target_path = os.path.join("lib", module.name, "mpl-data")
+    finder.IncludeFiles(data_path, target_path, copyDependentFiles=False)
+    if module.code is not None:
+        code_str = MATPLOTLIB_CODE_STR.format(target_path)
+        new_code = compile(code_str, module.file, "exec")
+        co_func = new_code.co_consts[0]
+        co = module.code
+        constants = list(co.co_consts)
+        for i, value in enumerate(constants):
+            if isinstance(value, type(co)) and value.co_name == co_func.co_name:
+                constants[i] = rebuild_code_object(co_func)
+                break
+        module.code = rebuild_code_object(co, constants=constants)
 
 
 def load_numpy(finder, module):
     finder.IncludePackage("numpy")
+    if not module.WillBeStoredInFileSystem():
+        module.store_in_file_system = True
 
 
 def load_matplotlib_numerix(finder, module):
