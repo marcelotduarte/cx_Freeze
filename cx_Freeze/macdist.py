@@ -177,7 +177,7 @@ class bdist_mac(Command):
         for root, dirs, dir_files in os.walk(self.binDir):
             for f in dir_files:
                 p = subprocess.Popen(("file", os.path.join(root, f)), stdout=subprocess.PIPE)
-                if "Mach-O" in p.stdout.readline().decode():
+                if b"Mach-O" in p.stdout.readline():
                     files.append(os.path.join(root, f).replace(self.binDir + "/", ""))
 
         for fileName in files:
