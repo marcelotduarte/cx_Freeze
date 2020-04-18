@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""A simple script to demonstrate matplotlib."""
 
 from numpy import arange, sin, pi
 import matplotlib
@@ -7,7 +6,6 @@ matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
-import sys
 import wx
 
 
