@@ -294,6 +294,11 @@ def load_idna(finder, module):
     finder.IncludeModule("idna.idnadata")
 
 
+def load_lxml(finder, module):
+    """the lxml package use an extension."""
+    finder.IncludeModule("lxml._elementpath")
+
+
 def load_matplotlib(finder, module):
     """the matplotlib package requires mpl-data in a subdirectory of the
     package."""
@@ -456,6 +461,11 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_pikepdf(finder, module):
+    """for the pikepdf package"""
+    finder.IncludePackage('pikepdf')
+
+
 def load_PIL(finder, module):
     """Pillow must be loaded as a package."""
     finder.IncludePackage("PIL")
@@ -485,6 +495,11 @@ def load_pycparser(finder, module):
     """
     finder.IncludeModule("pycparser.lextab")
     finder.IncludeModule("pycparser.yacctab")
+
+
+def load_pygments(finder, module):
+    """the pygments package dynamically load styles"""
+    finder.IncludePackage("pygments.styles")
 
 
 def load_pydoc(finder, module):
