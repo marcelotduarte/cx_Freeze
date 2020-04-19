@@ -78,8 +78,6 @@ def initialize(finder):
     # macos specfic removed in py3
     # https://docs.python.org/2.7/library/mac.html?highlight=removed
     finder.ExcludeModule("autoGIL")
-    finder.ExcludePackage("Carbon")
-    finder.ExcludePackage("ColorPicker")
     finder.ExcludeModule("EasyDialogs")
     finder.ExcludeModule("findertools")
     finder.ExcludeModule("FrameWork")
@@ -168,14 +166,8 @@ def initialize(finder):
         finder.ExcludeModule("riscosenviron")
         finder.ExcludeModule("riscospath")
         finder.ExcludeModule("rourl2path")
-    if not sys.platform.startswith("java"):
-        finder.ExcludePackage("com.sun")
-        finder.ExcludePackage("java")
-        finder.ExcludePackage("org.python")
     if not sys.platform.startswith("OpenVMS"):
         finder.ExcludeModule("vms_lib")
-    if "__pypy__" not in sys.builtin_module_names:
-        finder.ExcludePackage("__pypy__")
 
 
 def load_aiofiles(finder, module):
