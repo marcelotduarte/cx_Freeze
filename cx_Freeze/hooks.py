@@ -5,8 +5,6 @@ import sysconfig
 
 from cx_Freeze.common import rebuild_code_object
 
-from cx_Freeze.common import rebuild_code_object
-
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
