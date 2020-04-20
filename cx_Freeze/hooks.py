@@ -1,22 +1,125 @@
 import glob
 import os
 import sys
+import sysconfig
+
+from cx_Freeze.common import rebuild_code_object
 
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
+    # py2 modules that have been removed or renamed in py3
+    import collections.abc
+    for name in collections.abc.__all__:
+        finder.ExcludeModule("collections."+name)
+    finder.ExcludeModule("__builtin__")
+    finder.ExcludeModule("_winreg")
+    finder.ExcludeModule("audiodev")
+    finder.ExcludeModule("anydbm")
+    finder.ExcludeModule("BaseHTTPServer")
+    finder.ExcludeModule("Bastion")
+    finder.ExcludeModule("bsddb")
+    finder.ExcludeModule("cPickle")
+    finder.ExcludeModule("commands")
+    finder.ExcludeModule("ConfigParser")
+    finder.ExcludeModule("Cookie")
+    finder.ExcludeModule("copy_reg")
+    finder.ExcludeModule("cStringIO")
+    finder.ExcludeModule("dbhash")
+    finder.ExcludeModule("dbm")
+    finder.ExcludeModule("dircache")
+    finder.ExcludeModule("dl")
+    finder.ExcludeModule("dumbdbm")
+    finder.ExcludeModule("dummy_thread")
     finder.ExcludeModule("FCNTL")
+    finder.ExcludeModule("fl")
+    finder.ExcludeModule("fm")
+    finder.ExcludeModule("fpformat")
+    finder.ExcludeModule("gl")
+    finder.ExcludeModule("gdbm")
+    finder.ExcludeModule("htmllib")
+    finder.ExcludeModule("HTMLParser")
+    finder.ExcludeModule("httplib")
+    finder.ExcludeModule("hotshot")
+    finder.ExcludeModule("ihooks")
+    finder.ExcludeModule("imputil")
+    finder.ExcludeModule("linuxaudiodev")
+    finder.ExcludeModule("md5")
+    finder.ExcludeModule("Nav")
+    finder.ExcludeModule("new")
+    finder.ExcludeModule("mutex")
+    finder.ExcludeModule("Pickle")
+    finder.ExcludeModule("Queue")
+    finder.ExcludeModule("rexec")
+    finder.ExcludeModule("robotparser")
+    finder.ExcludeModule("sgmllib")
+    finder.ExcludeModule("sha")
+    finder.ExcludeModule("SocketServer")
+    finder.ExcludeModule("statvfs")
+    finder.ExcludeModule("StringIO")
+    finder.ExcludeModule("sunaudiodev")
+    finder.ExcludeModule("thread")
     finder.ExcludeModule("Tkinter")
+    finder.ExcludeModule("toaiff")
+    finder.ExcludeModule("urllib.quote")
+    finder.ExcludeModule("urllib.quote_plus")
+    finder.ExcludeModule("urllib.unquote")
+    finder.ExcludeModule("urllib.unquote_plus")
+    finder.ExcludeModule("urllib.urlencode")
+    finder.ExcludeModule("urllib.urlopen")
+    finder.ExcludeModule("urllib.urlretrieve")
+    finder.ExcludeModule("urllib2")
+    finder.ExcludeModule("urlparse")
+    finder.ExcludeModule("user")
+    finder.ExcludeModule("UserDict")
+    finder.ExcludeModule("UserList")
+    finder.ExcludeModule("UserString")
+    finder.ExcludeModule("whichdb")
+    # macos specfic removed in py3
+    # https://docs.python.org/2.7/library/mac.html?highlight=removed
+    finder.ExcludeModule("autoGIL")
+    finder.ExcludeModule("EasyDialogs")
+    finder.ExcludeModule("findertools")
+    finder.ExcludeModule("FrameWork")
+    finder.ExcludeModule("ic")
+    finder.ExcludeModule("MacOS")
+    finder.ExcludeModule("macostools")
+    # macpython removed
+    finder.ExcludeModule("aetools")
+    finder.ExcludeModule("aepack")
+    finder.ExcludeModule("aetypes")
+    finder.ExcludeModule("applesingle")
+    finder.ExcludeModule("buildtools")
+    finder.ExcludeModule("cfmfile")
+    finder.ExcludeModule("icopen")
+    finder.ExcludeModule("macerros")
+    finder.ExcludeModule("macresource")
+    finder.ExcludeModule("PixMapWrapper")
+    finder.ExcludeModule("videoreader")
+    finder.ExcludeModule("W")
+    # sgi removed
+    finder.ExcludeModule("al")
+    finder.ExcludeModule("imgfile")
+    finder.ExcludeModule("jpeg")
+    finder.ExcludeModule("cd")
+    finder.ExcludeModule("sv")
+    # internal modules
+    finder.ExcludeModule("_frozen_importlib")
+    finder.ExcludeModule("_frozen_importlib_external")
     finder.ExcludeModule("os.path")
+    # confused names in Windows
+    finder.ExcludeModule("multiprocessing.Pool")
     finder.ExcludeModule("multiprocessing.Process")
+    # exclusion by platform/os
     if os.name == "nt":
         finder.ExcludeModule("fcntl")
         finder.ExcludeModule("grp")
         finder.ExcludeModule("pwd")
         finder.ExcludeModule("termios")
     else:
+        finder.ExcludeModule("_overlapped")
         finder.ExcludeModule("_subprocess")
-        finder.ExcludeModule("_winreg")
+        finder.ExcludeModule("_winapi")
         finder.ExcludeModule("msilib")
         finder.ExcludeModule("msvcrt")
         finder.ExcludeModule("multiprocessing._multiprocessing")
@@ -29,6 +132,7 @@ def initialize(finder):
         finder.ExcludeModule("winsound")
         finder.ExcludeModule("win32api")
         finder.ExcludeModule("win32con")
+        finder.ExcludeModule("win32com.shell")
         finder.ExcludeModule("win32gui")
         finder.ExcludeModule("win32event")
         finder.ExcludeModule("win32evtlog")
@@ -39,20 +143,18 @@ def initialize(finder):
         finder.ExcludeModule("win32process")
         finder.ExcludeModule("win32security")
         finder.ExcludeModule("win32service")
+        finder.ExcludeModule("win32stat")
+        finder.ExcludeModule("win32wnet")
+        finder.ExcludeModule("winreg")
         finder.ExcludeModule("wx.activex")
     if os.name != "posix":
         finder.ExcludeModule("posix")
     if sys.platform != "darwin":
-        finder.ExcludeModule("Carbon")
-        finder.ExcludeModule("ic")
+        finder.ExcludeModule("ctypes.macholib.dyld")
         finder.ExcludeModule("mac")
-        finder.ExcludeModule("MacOS")
-        finder.ExcludeModule("macostools")
         finder.ExcludeModule("macpath")
         finder.ExcludeModule("macurl2path")
         finder.ExcludeModule("_scproxy")
-        if os.name != "nt":
-            finder.ExcludeModule("EasyDialogs")
     if os.name != "os2":
         finder.ExcludeModule("os2")
         finder.ExcludeModule("os2emxpath")
@@ -64,12 +166,13 @@ def initialize(finder):
         finder.ExcludeModule("riscosenviron")
         finder.ExcludeModule("riscospath")
         finder.ExcludeModule("rourl2path")
-    if sys.platform[:4] != "java":
-        finder.ExcludeModule("java.lang")
-        finder.ExcludeModule("org.python.core")
-    if sys.platform[:4] != "OpenVMS":
+    if not sys.platform.startswith("OpenVMS"):
         finder.ExcludeModule("vms_lib")
-    finder.ExcludeModule("new")
+
+
+def load_aiofiles(finder, module):
+    """the aiofiles must be loaded as a package."""
+    finder.IncludePackage('aiofiles')
 
 
 def load_asyncio(finder, module):
@@ -101,6 +204,15 @@ def load_ceODBC(finder, module):
     finder.IncludeModule("decimal")
 
 
+def load_cffi_cparser(finder, module):
+    """the cffi.cparser module can use a extension if present."""
+    try:
+        import cffi._pycparser
+        finder.IncludeModule(cffi._pycparser.__name__)
+    except ImportError:
+        finder.ExcludeModule('cffi._pycparser')
+
+
 def load_cryptography_hazmat_bindings__padding(finder, module):
     """the cryptography module requires the _cffi_backend module (loaded implicitly)"""
     finder.IncludeModule('_cffi_backend')
@@ -109,7 +221,7 @@ def load_cryptography_hazmat_bindings__padding(finder, module):
 def load__ctypes(finder, module):
     """In Windows, the _ctypes module in Python >= 3.8 requires an additional dll
        libffi-7.dll to be present in the build directory."""
-    if sys.platform == "win32" and sys.version_info >= (3, 8):
+    if sys.platform == "win32" and sys.version_info >= (3, 8) and sysconfig.get_platform() != "mingw":
         dll_name = "libffi-7.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
@@ -265,7 +377,7 @@ def load_h5py(finder, module):
     finder.IncludeModule('h5py._proxy')
     try:
         import h5py.api_gen
-        finder.IncludeModule('h5py.api_gen')
+        finder.IncludeModule(h5py.api_gen.__name__)
     except ImportError:
         pass
     finder.IncludeModule('h5py._errors')
@@ -277,18 +389,40 @@ def load_idna(finder, module):
     finder.IncludeModule("idna.idnadata")
 
 
+def load_lxml(finder, module):
+    """the lxml package use an extension."""
+    finder.IncludeModule("lxml._elementpath")
+
+
 def load_matplotlib(finder, module):
-    """the matplotlib module requires data to be found in mpl-data in the
-       same directory as the frozen executable so oblige it"""
+    """the matplotlib package requires mpl-data in a subdirectory of the
+    package."""
+    MATPLOTLIB_CODE_STR = """
+def _get_data_path():
+    return os.path.join(os.path.dirname(sys.executable), '{}')
+"""
     import matplotlib
-    dataPath = matplotlib.get_data_path()
-    targetPath = os.path.join("lib", "matplotlib", "mpl-data")
-    finder.AddConstant("MATPLOTLIBDATA", targetPath)
-    finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
+    finder.IncludePackage(module.name)
+    data_path = matplotlib.get_data_path()
+    target_path = os.path.join("lib", module.name, "mpl-data")
+    finder.IncludeFiles(data_path, target_path, copyDependentFiles=False)
+    if module.code is not None:
+        code_str = MATPLOTLIB_CODE_STR.format(target_path)
+        new_code = compile(code_str, module.file, "exec")
+        co_func = new_code.co_consts[0]
+        co = module.code
+        constants = list(co.co_consts)
+        for i, value in enumerate(constants):
+            if isinstance(value, type(co)) and value.co_name == co_func.co_name:
+                constants[i] = rebuild_code_object(co_func)
+                break
+        module.code = rebuild_code_object(co, constants=constants)
 
 
 def load_numpy(finder, module):
     finder.IncludePackage("numpy")
+    if not module.WillBeStoredInFileSystem():
+        module.store_in_file_system = True
 
 
 def load_matplotlib_numerix(finder, module):
@@ -422,6 +556,11 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_pikepdf(finder, module):
+    """for the pikepdf package"""
+    finder.IncludePackage('pikepdf')
+
+
 def load_PIL(finder, module):
     """Pillow must be loaded as a package."""
     finder.IncludePackage("PIL")
@@ -451,6 +590,11 @@ def load_pycparser(finder, module):
     """
     finder.IncludeModule("pycparser.lextab")
     finder.IncludeModule("pycparser.yacctab")
+
+
+def load_pygments(finder, module):
+    """the pygments package dynamically load styles"""
+    finder.IncludePackage("pygments.styles")
 
 
 def load_pydoc(finder, module):
@@ -651,6 +795,7 @@ def load_scipy(finder, module):
        being present."""
     finder.IncludePackage("scipy._lib")
     finder.IncludePackage("scipy.misc")
+    finder.ExcludeModule("scipy.spatial.cKDTree")
 
 
 def load_scipy_linalg(finder, module):
@@ -851,14 +996,6 @@ def load_zope_component(finder, module):
     finder.IncludeModule("pkg_resources")
 
 
-def missing_EasyDialogs(finder, caller):
-    """the EasyDialogs module is not normally present on Windows but it also
-       may be so instead of excluding it completely, ignore it if it can't be
-       found"""
-    if sys.platform == "win32":
-        caller.IgnoreName("EasyDialogs")
-
-
 def missing_gdk(finder, caller):
     """the gdk module is buried inside gtk so there is no need to concern
        ourselves with an error saying that it cannot be found"""
@@ -912,3 +1049,8 @@ def load_sqlite3(finder, module):
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
     finder.IncludePackage('sqlite3')
+
+def load_pytest(finder, module):
+    import pytest
+    for m in pytest.freeze_includes():
+        finder.IncludeModule(m)
