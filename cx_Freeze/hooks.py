@@ -682,7 +682,6 @@ def load_setuptools(finder, module):
     """the setuptools must be loaded as a package;
        to prevent it to break in the future."""
     finder.IncludePackage("setuptools")
-    finder.ExcludePackage("setuptools.extern")
 
 
 def load_setuptools_extension(finder, module):
