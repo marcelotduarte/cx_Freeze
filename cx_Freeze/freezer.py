@@ -177,10 +177,10 @@ class Freezer(object):
                 ".py")
         finder.IncludeFile(startupModule)
 
-        # Always copy the python dynamic libraries into lib folder
+        # Copy the python dynamic libraries
+        copyDependentFiles = True
         if sys.platform == "linux":
-            self._CopyFile(exe.base, exe.targetName,
-                           copyDependentFiles=False, includeMode=True)
+            # Always copy the python dynamic libraries into lib folder
             targetDir = os.path.join(os.path.dirname(exe.targetName), 'lib')
             dependentFiles = self._GetDependentFiles(exe.base) or \
                              self._GetDependentFiles(sys.executable)
@@ -188,9 +188,25 @@ class Freezer(object):
                 target = os.path.join(targetDir, os.path.basename(source))
                 self._CopyFile(source, target,
                                copyDependentFiles=True, includeMode=True)
-        else:
-            self._CopyFile(exe.base, exe.targetName,
-                           copyDependentFiles=True, includeMode=True)
+            copyDependentFiles = False
+        elif sys.platform == "win32":
+            # Copy the python dynamic libraries into build folder
+            targetDir = os.path.dirname(exe.targetName)
+            dependentFiles = self._GetDependentFiles(exe.base) or \
+                             self._GetDependentFiles(sys.executable)
+            # Ensure the copy of default python libraries
+            sourceDir = os.path.dirname(dependentFiles[0])
+            for name in self._GetDefaultBinIncludes():
+                source = os.path.join(sourceDir, os.path.normcase(name))
+                if source not in dependentFiles:
+                    dependentFiles.append(source)
+            for source in dependentFiles:
+                target = os.path.join(targetDir, os.path.basename(source))
+                self._CopyFile(source, target,
+                               copyDependentFiles=True, includeMode=True)
+            copyDependentFiles = False
+        self._CopyFile(exe.base, exe.targetName,
+                       copyDependentFiles=copyDependentFiles, includeMode=True)
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
@@ -323,7 +339,7 @@ class Freezer(object):
                 dependentFiles = [self._CheckDependentFile(f, dirname)
                     for f in dependentFiles if self._ShouldCopyFile(f)]
             else:
-                dependentFiles = [f
+                dependentFiles = [os.path.normcase(f)
                     for f in dependentFiles if self._ShouldCopyFile(f)]
             self.dependentFiles[path] = dependentFiles
         return dependentFiles
