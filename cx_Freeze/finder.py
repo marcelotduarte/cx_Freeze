@@ -673,7 +673,6 @@ class Module(object):
         self.in_import = True
         self.store_in_file_system = True
         self.dist_files = None
-        #breakpoint()
         if file_name is not None:
             module_dirs = [os.path.dirname(file_name)]
         elif path:
@@ -693,7 +692,7 @@ class Module(object):
                         continue
                     arc_path = file.as_posix()
                     for module_dir in module_dirs:
-                        dist_path = os.path.join(module_dir,
+                        dist_path = os.path.join(os.path.dirname(module_dir),
                                                  os.path.normpath(arc_path))
                         if os.path.isfile(dist_path):
                             dist_files.append((dist_path, arc_path))
