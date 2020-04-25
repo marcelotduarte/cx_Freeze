@@ -3,7 +3,6 @@ Base class for finding modules.
 """
 
 import dis
-import glob
 import imp
 import importlib.machinery
 import importlib.util
@@ -18,6 +17,10 @@ import zipfile
 
 from cx_Freeze.common import rebuild_code_object
 import cx_Freeze.hooks
+try:
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    import importlib_metadata
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
 INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
@@ -670,23 +673,30 @@ class Module(object):
         self.in_import = True
         self.store_in_file_system = True
         self.dist_files = None
+        #breakpoint()
         if file_name is not None:
-            dir_name = os.path.dirname(file_name)
-            search_path = os.path.join(dir_name, name+"-*.dist-info")
+            module_dirs = [os.path.dirname(file_name)]
         elif path:
-            search_path = path[0]+"-*.dist-info"
+            module_dirs = path
         else:
-            search_path = None
-        if search_path:
-            pathnames = glob.glob(search_path)
-            if pathnames:
-                dist_path = pathnames[0]
-                arc_path = os.path.basename(dist_path)
+            module_dirs = None
+        if module_dirs:
+            try:
+                files = importlib_metadata.files(name)
+            except importlib_metadata.PackageNotFoundError:
+                files = None
+            if files:
                 # cache file names to use in write modules
                 dist_files = []
-                for fname in os.listdir(dist_path):
-                    dist_files.append((os.path.join(dist_path, fname),
-                                       os.path.join(arc_path, fname)))
+                for file in files:
+                    if not file.match('*.dist-info/*'):
+                        continue
+                    arc_path = file.as_posix()
+                    for module_dir in module_dirs:
+                        dist_path = os.path.join(module_dir,
+                                                 os.path.normpath(arc_path))
+                        if os.path.isfile(dist_path):
+                            dist_files.append((dist_path, arc_path))
                 self.dist_files = dist_files
 
     def __repr__(self):
