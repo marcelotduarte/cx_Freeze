@@ -356,6 +356,7 @@ class Freezer(object):
             finder.IncludeModule(name)
         for name in self.packages:
             finder.IncludePackage(name)
+        finder.SetOptimizeFlag(self.optimizeFlag)
         return finder
 
     def _IncludeMSVCR(self, exe):
@@ -606,8 +607,6 @@ class Freezer(object):
         self.filesCopied = {}
         self.linkerWarnings = {}
         self.msvcRuntimeDir = None
-        import cx_Freeze.util
-        cx_Freeze.util.SetOptimizeFlag(self.optimizeFlag)
 
         self.finder = self._GetModuleFinder()
         for executable in self.executables:
