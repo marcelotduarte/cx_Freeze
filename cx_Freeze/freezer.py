@@ -242,21 +242,21 @@ class Freezer(object):
     def _GetDefaultBinIncludes(self):
         """Return the file names of libraries which must be included for the
            frozen executable to work."""
+        python_shared_libs = []
         if sys.platform == "win32":
             if sysconfig.get_platform() == "mingw":
-                soName = distutils.sysconfig.get_config_var("INSTSONAME")
-                pythonDlls = [soName.replace(".dll.a", ".dll")]
+                name = distutils.sysconfig.get_config_var("INSTSONAME")
+                if name:
+                    python_shared_libs.append(name.replace(".dll.a", ".dll"))
             else:
-                pythonDlls = ["python%s.dll" % sys.version_info[0],
-                              "python%s%s.dll" % sys.version_info[:2],
-                              "vcruntime140.dll"]
-            return pythonDlls
+                python_shared_libs += ["python%s.dll" % sys.version_info[0],
+                                       "python%s%s.dll" % sys.version_info[:2],
+                                       "vcruntime140.dll"]
         else:
-            soName = distutils.sysconfig.get_config_var("INSTSONAME")
-            if soName is None:
-                return []
-            pythonSharedLib = self._RemoveVersionNumbers(soName)
-            return [pythonSharedLib]
+            name = distutils.sysconfig.get_config_var("INSTSONAME")
+            if name:
+                python_shared_libs.append(self._RemoveVersionNumbers(name))
+        return python_shared_libs
 
     def _GetDefaultBinPathExcludes(self):
         """Return the paths of directories which contain files that should not
