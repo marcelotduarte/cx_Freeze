@@ -30,3 +30,5 @@ with open('dump.sql', 'w') as f:
 
 print('dump.sql created')
 con.close()
+
+input("Press ENTER")

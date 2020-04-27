@@ -1,4 +1,4 @@
-# A setup script to demonstrate the use of sqlite3
+"""A setup script to demonstrate the use of sqlite3"""
 #
 # Run the build process by running the command 'python setup.py build'
 #
@@ -7,11 +7,11 @@
 
 from cx_Freeze import setup, Executable
 
-buildOptions = {"replace_paths": [("*", "")]}
-executables = [Executable("test_sqlite3.py")]
-
-setup(name='test_sqlite3',
-      version='0.2',
-      description='cx_Freeze script to test sqlite3',
-      executables=executables,
-      options=dict(build_exe=buildOptions))
+setup(name="test_sqlite3",
+      version="0.3",
+      description="cx_Freeze script to test sqlite3",
+      executables=[Executable("test_sqlite3.py")],
+      options={"build_exe": {"excludes": ["tkinter"],
+                             "replace_paths": [("*", "")],
+                             "zip_include_packages": ["*"],
+                             "zip_exclude_packages": []}})

@@ -1,0 +1,4 @@
+cx-freeze
+pyqt5
+
+
