@@ -14,6 +14,7 @@ import socket
 import stat
 import struct
 import sys
+import sysconfig
 import time
 import zipfile
 
@@ -242,9 +243,13 @@ class Freezer(object):
         """Return the file names of libraries which must be included for the
            frozen executable to work."""
         if sys.platform == "win32":
-            pythonDlls = ["python%s.dll" % sys.version_info[0],
-                          "python%s%s.dll" % sys.version_info[:2],
-                          "vcruntime140.dll"]
+            if sysconfig.get_platform() == "mingw":
+                soName = distutils.sysconfig.get_config_var("INSTSONAME")
+                pythonDlls = [soName.replace(".dll.a", ".dll")]
+            else:
+                pythonDlls = ["python%s.dll" % sys.version_info[0],
+                              "python%s%s.dll" % sys.version_info[:2],
+                              "vcruntime140.dll"]
             return pythonDlls
         else:
             soName = distutils.sysconfig.get_config_var("INSTSONAME")
