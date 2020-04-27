@@ -1048,6 +1048,8 @@ def load_sqlite3(finder, module):
     if WIN32 and not MINGW:
         dll_name = "sqlite3.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+        if not os.path.exists(dll_path):
+            dll_path = os.path.join(sys.base_prefix, "Library", "bin", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
     finder.IncludePackage("sqlite3")
 
