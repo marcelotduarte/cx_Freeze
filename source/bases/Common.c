@@ -143,8 +143,9 @@ static int InitializePython(int argc, wchar_t **argv)
 //-----------------------------------------------------------------------------
 static int InitializePython(int argc, char **argv)
 {
-    wchar_t **wargv, *wExecutableName, *wPath;
-    char *sPath;
+    wchar_t **wargv, *wpath;
+    char *path;
+    PyObject *executable;
     size_t size;
     int i;
 
@@ -152,31 +153,33 @@ static int InitializePython(int argc, char **argv)
     if (SetExecutableName(argv[0]) < 0)
         return -1;
 
-    // convert executable name to wide characters
-    wExecutableName = Py_DecodeLocale(g_ExecutableName, NULL);
-    if (!wExecutableName)
-        return FatalError("Unable to convert executable name to string!");
-
     // initialize Python
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
-    Py_SetProgramName(wExecutableName);
     Py_Initialize();
+
+    // sys.executable
+    executable = PyUnicode_FromString(g_ExecutableName);
+    if (!executable)
+        return FatalError("Unable to convert executable name to string!");
+    Py_INCREF(executable);
+    if (PySys_SetObject("executable", executable) == -1)
+        return FatalError("Unable to set executable name!");
 
     // create sys.path
     // after Py_Initialize to eliminate surrogates in Py_DecodeLocale
     size = strlen(g_ExecutableDirName) * 2 + strlen(CX_PATH_FORMAT) + 1;
-    sPath = PyMem_RawMalloc(sizeof(char) * size);
-    if (!sPath)
+    path = PyMem_RawMalloc(sizeof(char) * size);
+    if (!path)
         return FatalError("Out of memory creating sys.path!");
-    PyOS_snprintf(sPath, size, CX_PATH_FORMAT,
+    PyOS_snprintf(path, size, CX_PATH_FORMAT,
                   g_ExecutableDirName, g_ExecutableDirName);
-    wPath = Py_DecodeLocale(sPath, NULL);
-    PyMem_RawFree(sPath);
-    if (!wPath)
+    wpath = Py_DecodeLocale(path, NULL);
+    PyMem_RawFree(path);
+    if (!wpath)
         return FatalError("Unable to convert path to string!");
-    PySys_SetPath(wPath);
+    PySys_SetPath(wpath);
 
     // convert arguments to wide characters
     wargv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);

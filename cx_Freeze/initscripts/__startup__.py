@@ -34,7 +34,6 @@ class ExtensionFinder(importlib.machinery.PathFinder):
 sys.meta_path.append(ExtensionFinder)
 
 def run():
-    sys.executable = os.fsencode(sys.executable).decode()
     baseName = os.path.normcase(os.path.basename(sys.executable))
     name, ext = os.path.splitext(baseName)
     module = __import__(name + "__init__")
