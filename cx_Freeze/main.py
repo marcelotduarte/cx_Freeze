@@ -94,11 +94,6 @@ def ParseCommandLine():
             dest = "excludeModules",
             metavar = "NAMES",
             help = "comma separated list of modules to exclude")
-    parser.add_option("--ext-list-file",
-            dest = "extListFile",
-            metavar = "NAME",
-            help = "name of file in which to place the list of dependent files "
-                   "which were copied into the target directory")
     parser.add_option("--include-files",
             dest = "includeFiles",
             metavar = "NAMES",

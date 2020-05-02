@@ -90,11 +90,6 @@ Further customization can be done using the following options:
 
     comma separated list of modules to exclude
 
-.. option:: --ext-list-file=NAME
-
-    name of file in which to place the list of dependent
-    files which were copied into the target directory
-
 .. option:: --include-files=FILES
 
     comma separated list of paths to include
