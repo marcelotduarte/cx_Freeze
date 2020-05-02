@@ -95,6 +95,10 @@ Further customization can be done using the following options:
     name of file in which to place the list of dependent
     files which were copied into the target directory
 
+.. option:: --include-files=FILES
+
+    comma separated list of paths to include
+
 .. option:: -z SPEC, --zip-include=SPEC
 
     name of file to add to the zip file or a specification
