@@ -3,14 +3,11 @@
 //   Main routine for frozen programs written for the Win32 GUI subsystem.
 //-----------------------------------------------------------------------------
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <locale.h>
 #include <windows.h>
 #include <shlwapi.h>
-
-// define macro for convenience
-#define cxString_FromAscii(str) \
-    PyUnicode_DecodeASCII(str, strlen(str), NULL)
 
 
 //-----------------------------------------------------------------------------
@@ -28,16 +25,19 @@ static int FatalError(
 
 //-----------------------------------------------------------------------------
 // DisplayMessageFromPythonObjects()
-//   Display message from Python objects. The Python objects are expected to be
-// of the correct type (Unicode for Python 3.x and string for Python 2.x). The
-// method returns -1 as a convenience to the caller.
+//   Display message from Python objects.
+//   The method returns -1 as a convenience to the caller.
 //-----------------------------------------------------------------------------
 static int DisplayMessageFromPythonObjects(
     PyObject *caption,                  // caption
     PyObject *message)                  // message
 {
-    MessageBoxW(NULL, PyUnicode_AS_UNICODE(message),
-            PyUnicode_AS_UNICODE(caption), MB_ICONERROR);
+    wchar_t *wcaption, *wmessage;
+    wcaption = PyUnicode_AsWideCharString(caption, NULL);
+    wmessage = PyUnicode_AsWideCharString(message, NULL);
+    MessageBoxW(NULL, wmessage, wcaption, MB_ICONERROR);
+    PyMem_Free(wcaption);
+    PyMem_Free(wmessage);
     return -1;
 }
 
@@ -72,10 +72,10 @@ static int FatalPythonErrorNoTraceback(
     // create caption and message objects
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
-    contextMessageObj = cxString_FromAscii(contextMessage);
+    contextMessageObj = PyUnicode_FromString(contextMessage);
     if (!contextMessageObj)
         return FatalError("Cannot create context message string object.");
-    format = cxString_FromAscii("%s\nException: %s\nOriginal Exception: %s");
+    format = PyUnicode_FromString("%s\nException: %s\nOriginal Exception: %s");
     if (!format)
         return FatalError("Cannot create format string object.");
     formatArgs = PyTuple_New(3);
@@ -87,7 +87,7 @@ static int FatalPythonErrorNoTraceback(
     message = PyUnicode_Format(format, formatArgs);
     if (!message)
         return FatalError("Cannot format exception values.");
-    caption = cxString_FromAscii("cx_Freeze: Python error in main script "
+    caption = PyUnicode_FromString("cx_Freeze: Python error in main script "
             "(traceback unavailable)");
     if (!caption)
         return FatalError("Cannot create caption string object.");
@@ -113,7 +113,7 @@ static int HandleSystemExitException()
     caption = PyObject_GetAttrString(value, "caption");
     if (!caption || !PyUnicode_Check(caption)) {
         PyErr_Clear();
-        caption = cxString_FromAscii("cx_Freeze: Application Terminated");
+        caption = PyUnicode_FromString("cx_Freeze: Application Terminated");
         if (!caption)
             return FatalError("Cannot create caption string object.");
     }
@@ -193,7 +193,7 @@ static int FatalScriptError()
                 "Exception raised when calling format_exception.");
 
     // convert to string
-    emptyString = cxString_FromAscii("");
+    emptyString = PyUnicode_FromString("");
     if (!emptyString)
         return FatalPythonErrorNoTraceback(value,
                 "Cannot create empty string object.");
@@ -206,7 +206,7 @@ static int FatalScriptError()
     caption = PyObject_GetAttrString(value, "caption");
     if (!caption || !PyUnicode_Check(caption)) {
         PyErr_Clear();
-        caption = cxString_FromAscii("cx_Freeze: Python error in main script");
+        caption = PyUnicode_FromString("cx_Freeze: Python error in main script");
         if (!caption)
             return FatalPythonErrorNoTraceback(value,
                     "Cannot create default caption string.");
