@@ -3,16 +3,13 @@
 //   Base executable for handling Windows services.
 //-----------------------------------------------------------------------------
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <locale.h>
 #include <windows.h>
 #include <Winsvc.h>
 #include <shlwapi.h>
 #include <cx_Logging.h>
-
-// define macro for convenience
-#define cxString_FromAscii(str) \
-    PyUnicode_DecodeASCII(str, strlen(str), NULL)
 
 // define constants
 #define CX_LOGGING_SECTION_NAME         L"Logging"
@@ -363,6 +360,7 @@ static int Service_Install(
 {
     PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
+    wchar_t *wfullName, *wdisplayName, *wcommand, *wdescription;
     wchar_t fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_DESCRIPTIONW sd;
@@ -393,7 +391,7 @@ static int Service_Install(
     if (!executableNameObj)
         return LogPythonException("cannot create executable name obj");
     if (!configFileName) {
-        formatObj = cxString_FromAscii("\"%s\"");
+        formatObj = PyUnicode_FromString("\"%s\"");
         if (!formatObj)
             return LogPythonException("cannot create format string");
         formatArgs = PyTuple_Pack(1, executableNameObj);
@@ -405,7 +403,7 @@ static int Service_Install(
                 PATH_MAX + 1))
             return LogWin32Error(GetLastError(),
                     "cannot calculate absolute path of config file name");
-        formatObj = cxString_FromAscii("\"%s\" \"%s\"");
+        formatObj = PyUnicode_FromString("\"%s\" \"%s\"");
         if (!formatObj)
             return LogPythonException("cannot create format string");
         configFileNameObj = PyUnicode_FromWideChar(fullPathConfigFileName, -1);
@@ -429,21 +427,27 @@ static int Service_Install(
         return LogWin32Error(GetLastError(), "cannot open service manager");
 
     // create service
-    serviceHandle = CreateServiceW(managerHandle,
-            PyUnicode_AS_UNICODE(fullName), PyUnicode_AS_UNICODE(displayName),
+    wfullName = PyUnicode_AsWideCharString(fullName, NULL);
+    wdisplayName = PyUnicode_AsWideCharString(displayName, NULL);
+    wcommand = PyUnicode_AsWideCharString(command, NULL);
+    serviceHandle = CreateServiceW(managerHandle, wfullName, wdisplayName,
             SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, info.startType,
-            SERVICE_ERROR_NORMAL, PyUnicode_AS_UNICODE(command), NULL, NULL,
-            NULL, NULL, NULL);
+            SERVICE_ERROR_NORMAL, wcommand, NULL, NULL, NULL, NULL, NULL);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot create service");
+    PyMem_Free(wfullName);
+    PyMem_Free(wdisplayName);
+    PyMem_Free(wcommand);
 
     // set the description of the service, if one was specified
     if (info.description) {
-        sd.lpDescription = PyUnicode_AS_UNICODE(info.description);
+        wdescription = PyUnicode_AsWideCharString(info.description, NULL);
+        sd.lpDescription = wdescription;
         if (!ChangeServiceConfig2W(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
                     &sd))
             return LogWin32Error(GetLastError(),
                     "cannot set service description");
+        PyMem_Free(wdescription);
     }
 
     // if the service is one that should be automatically started, start it
@@ -468,6 +472,7 @@ static int Service_Uninstall(
     wchar_t *name)                      // name of service
 {
     PyObject *fullName, *formatArgs, *nameObj;
+    wchar_t *wfullName;
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
@@ -494,10 +499,11 @@ static int Service_Uninstall(
         return LogWin32Error(GetLastError(), "cannot open service manager");
 
     // create service
-    serviceHandle = OpenServiceW(managerHandle, PyUnicode_AS_UNICODE(fullName),
-            SERVICE_ALL_ACCESS);
+    wfullName = PyUnicode_AsWideCharString(fullName, NULL);
+    serviceHandle = OpenServiceW(managerHandle, wfullName, SERVICE_ALL_ACCESS);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot open service");
+    PyMem_Free(wfullName);
     ControlService(serviceHandle, SERVICE_CONTROL_STOP, &statusInfo);
     if (!DeleteService(serviceHandle))
         return LogWin32Error(GetLastError(), "cannot delete service");
