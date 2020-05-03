@@ -88,13 +88,27 @@ class build_ext(distutils.command.build_ext.build_ext):
 
 
 def find_cx_Logging():
-    dirName = os.path.dirname(os.getcwd())
+    import subprocess
+    dirName = os.path.dirname(os.path.dirname(os.path.os.path.abspath(__file__)))
     loggingDir = os.path.join(dirName, "cx_Logging")
+    if not os.path.exists(loggingDir):
+        try:
+            subprocess.run(["git", "clone",
+                            "https://github.com/anthony-tuininga/cx_Logging.git",
+                            loggingDir])
+        except (FileNotFoundError, subprocess.SubprocessError):
+            pass
     if not os.path.exists(loggingDir):
         return
     subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
     importLibraryDir = os.path.join(loggingDir, "build", subDir)
     includeDir = os.path.join(loggingDir, "src")
+    if not os.path.exists(importLibraryDir):
+        try:
+            subprocess.run([sys.executable, "setup.py", "install"],
+                           cwd=loggingDir)
+        except (FileNotFoundError, subprocess.SubprocessError):
+            pass
     if not os.path.exists(importLibraryDir):
         return
     return includeDir, importLibraryDir
