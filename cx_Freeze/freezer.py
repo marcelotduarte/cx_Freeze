@@ -349,6 +349,7 @@ class Freezer(object):
                 self.path, self.replacePaths, self.zipIncludeAllPackages,
                 self.zipExcludePackages, self.zipIncludePackages,
                 self.constantsModule, self.zipIncludes)
+        finder.SetOptimizeFlag(self.optimizeFlag)
         for name in self.namespacePackages:
             package = finder.IncludeModule(name, namespace = True)
             package.ExtendPath()
@@ -356,7 +357,6 @@ class Freezer(object):
             finder.IncludeModule(name)
         for name in self.packages:
             finder.IncludePackage(name)
-        finder.SetOptimizeFlag(self.optimizeFlag)
         return finder
 
     def _IncludeMSVCR(self, exe):
