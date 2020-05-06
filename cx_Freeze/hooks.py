@@ -266,7 +266,7 @@ def pycryptodome_filename(dir_comps, filename):
         raise ValueError("Only available for modules under 'Crypto'")
     dir_comps = list(dir_comps) + [filename]
     root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
-    return os.path.join(root_lib, '.'.join(dir_comps))
+    return os.path.join(root_lib, ".".join(dir_comps))
 """
     if not module.WillBeStoredInFileSystem() and module.code is not None:
         new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
