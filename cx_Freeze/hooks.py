@@ -558,7 +558,7 @@ def load_numpy_random_mtrand(finder, module):
 
 def load_pikepdf(finder, module):
     """for the pikepdf package"""
-    finder.IncludePackage('pikepdf')
+    #finder.IncludePackage('pikepdf')
 
 
 def load_PIL(finder, module):
