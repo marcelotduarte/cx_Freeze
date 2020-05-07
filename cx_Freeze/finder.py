@@ -486,38 +486,35 @@ class ModuleFinder(object):
     def _ReplacePackageInCode(self, module):
         """Replace the value of __package__ directly in the code,
            only in zipped modules."""
-        if module.parent is None or module.WillBeStoredInFileSystem():
-            return
         co = module.code
+        if co is None or module.parent is None or \
+            module.WillBeStoredInFileSystem() or \
+            "__package__" in module.global_names.keys():
+            # In some modules, like 'six' the variable is defined, so...
+            return
         # Only if the code references it.
         if "__package__" in co.co_names:
-            # In some modules, like 'six' the variable is defined.
-            # Don't touch this code.
-            if "__package__" in module.global_names.keys():
-                return
-            breakpoint()
             # Insert a bytecode to represent the code:
             # __package__ = module.parent.name
             constants = list(co.co_consts)
             pkg_const_index = len(constants)
             pkg_name_index = co.co_names.index("__package__")
             if pkg_const_index > 255 or pkg_name_index > 255:
-                return # Don't touch modules with many constants or names
+                # Don't touch modules with many constants or names;
+                # This is good for now.
+                return
             # The bytecode/wordcode
             codes = [LOAD_CONST, pkg_const_index,
                      STORE_NAME, pkg_name_index]
-            '''if (pkg_const_index >> 8) > 0:
-                if sys.version_info[:2] >= (3, 7):
-                    codes[1] = pkg_const_index&255
-                    codes.insert(0, pkg_const_index>>8)
-                    codes.insert(0, dis.EXTENDED_ARG)'''
+            #if pkg_const_index > 255:
+            #    if sys.version_info[:2] >= (3, 7):
+            #        codes[1] = pkg_const_index&255
+            #        codes.insert(0, pkg_const_index>>8)
+            #        codes.insert(0, dis.EXTENDED_ARG)
             asm_code = bytes(codes)
-            #dis.dis(asm_code)
             new_code = asm_code + co.co_code
             constants.append(module.parent.name)
             code = rebuild_code_object(co, code=new_code, constants=constants)
-            #print(code)
-            #dis.dis(code)
             module.code = code
 
     def _ReplacePathsInCode(self, topLevelModule, co):
