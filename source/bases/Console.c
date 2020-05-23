@@ -3,6 +3,7 @@
 //   Main routine for frozen programs which run in a console.
 //-----------------------------------------------------------------------------
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <locale.h>
 #ifdef MS_WINDOWS
