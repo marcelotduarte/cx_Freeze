@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include <locale.h>
 #include <windows.h>
@@ -14,8 +15,7 @@
 // FatalError()
 //   Handle a fatal error.
 //-----------------------------------------------------------------------------
-static int FatalError(
-    char *a_Message)                    // message to display
+static int FatalError(char *a_Message)
 {
     MessageBoxA(NULL, a_Message, "cx_Freeze Fatal Error", MB_ICONERROR);
     Py_Finalize();
@@ -25,12 +25,11 @@ static int FatalError(
 
 //-----------------------------------------------------------------------------
 // DisplayMessageFromPythonObjects()
-//   Display message from Python objects.
-//   The method returns -1 as a convenience to the caller.
+//   Display message from Python objects. Returns -1 as a convenience to the
+// caller.
 //-----------------------------------------------------------------------------
-static int DisplayMessageFromPythonObjects(
-    PyObject *caption,                  // caption
-    PyObject *message)                  // message
+static int DisplayMessageFromPythonObjects(PyObject *caption,
+        PyObject *message)
 {
     wchar_t *wcaption, *wmessage;
     wcaption = PyUnicode_AsWideCharString(caption, NULL);
@@ -46,8 +45,7 @@ static int DisplayMessageFromPythonObjects(
 // ArgumentValue()
 //   Return a suitable argument value by replacing NULL with Py_None.
 //-----------------------------------------------------------------------------
-static PyObject *ArgumentValue(
-    PyObject *object)                   // argument to massage
+static PyObject *ArgumentValue(PyObject *object)
 {
     if (object) {
         Py_INCREF(object);
@@ -62,9 +60,8 @@ static PyObject *ArgumentValue(
 // FatalPythonErrorNoTraceback()
 //   Handle a fatal Python error without traceback.
 //-----------------------------------------------------------------------------
-static int FatalPythonErrorNoTraceback(
-    PyObject *origValue,                // exception value
-    char *contextMessage)               // context message to display
+static int FatalPythonErrorNoTraceback(PyObject *origValue,
+        char *contextMessage)
 {
     PyObject *contextMessageObj, *message, *format, *formatArgs, *caption;
     PyObject *type, *value, *traceback;
@@ -224,11 +221,9 @@ static int FatalScriptError()
 // WinMain()
 //   Main routine for the executable in Windows.
 //-----------------------------------------------------------------------------
-int WINAPI wWinMain(
-    HINSTANCE instance,                 // handle to application
-    HINSTANCE prevInstance,             // previous handle to application
-    wchar_t *commandLine,               // command line
-    int showFlag)                       // show flag
+int WINAPI wWinMain(HINSTANCE instance,
+        HINSTANCE prevInstance, wchar_t *commandLine,
+        int showFlag)
 {
     int status = 0;
 
@@ -242,4 +237,3 @@ int WINAPI wWinMain(
     Py_Finalize();
     return status;
 }
-

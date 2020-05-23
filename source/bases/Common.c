@@ -34,8 +34,7 @@
 // platforms other than Windows links are followed in order to find the actual
 // executable path.
 //-----------------------------------------------------------------------------
-static int SetExecutableName(
-    const char *argv0)                  // script to execute
+static int SetExecutableName(const char *argv0)
 {
 #ifdef MS_WINDOWS
     if (!GetModuleFileNameW(NULL, g_ExecutableName, MAXPATHLEN + 1))
