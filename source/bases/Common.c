@@ -138,14 +138,14 @@ static int InitializePython(int argc, wchar_t **argv)
 
 //-----------------------------------------------------------------------------
 // InitializePython()
-//   Initialize Python for Python 3 and higher on all other platforms.
+//   Initialize Python on all other platforms.
 //-----------------------------------------------------------------------------
 static int InitializePython(int argc, char **argv)
 {
     wchar_t **wargv, *wpath;
-    char *path;
     PyObject *executable;
     size_t size;
+    char *path;
     int i;
 
     // determine executable name
@@ -158,13 +158,13 @@ static int InitializePython(int argc, char **argv)
     Py_IgnoreEnvironmentFlag = 1;
     Py_Initialize();
 
-    // sys.executable
+    // set sys.executable
     executable = PyUnicode_FromString(g_ExecutableName);
     if (!executable)
         return FatalError("Unable to convert executable name to string!");
-    Py_INCREF(executable);
-    if (PySys_SetObject("executable", executable) == -1)
+    if (PySys_SetObject("executable", executable) < 0)
         return FatalError("Unable to set executable name!");
+    Py_DECREF(executable);
 
     // create sys.path
     // after Py_Initialize to eliminate surrogates in Py_DecodeLocale
@@ -179,6 +179,7 @@ static int InitializePython(int argc, char **argv)
     if (!wpath)
         return FatalError("Unable to convert path to string!");
     PySys_SetPath(wpath);
+    PyMem_RawFree(wpath);
 
     // convert arguments to wide characters
     wargv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);
@@ -190,6 +191,9 @@ static int InitializePython(int argc, char **argv)
             return FatalError("Unable to convert argument to string!");
     }
     PySys_SetArgvEx(argc, wargv, 0);
+    for (i = 0; i < argc; i++)
+        PyMem_RawFree(wargv[i]);
+    PyMem_RawFree(wargv);
 
     return 0;
 }
