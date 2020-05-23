@@ -220,10 +220,13 @@ class bdist_mac(Command):
 
                 #some referenced files have not previously been copied to the
                 #executable directory - the assumption is that you don't need
-                #to copy anything fro /usr or /System, just from folders like
-                #/opt this fix should probably be elsewhere though
-                if (name not in files and not path.startswith('/usr') and not
-                        path.startswith('/System')):
+                #to copy anything from /usr (but of /usr/local) or /System,
+                #just from folders like /opt this fix should probably be
+                #elsewhere though
+                if (name not in files
+                        and (not path.startswith('/usr')
+                            or path.startswith('/usr/local'))
+                        and not path.startswith('/System')):
                     print(referencedFile)
                     try:
                         self.copy_file(referencedFile, os.path.join(self.binDir, name))
