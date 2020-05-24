@@ -3,6 +3,7 @@
 //   Main routine for frozen programs which run in a console.
 //-----------------------------------------------------------------------------
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <locale.h>
 #ifdef MS_WINDOWS
@@ -19,8 +20,7 @@ int _CRT_glob = 0;
 // FatalError()
 //   Prints a fatal error.
 //-----------------------------------------------------------------------------
-static int FatalError(
-    const char *message)                // message to print
+static int FatalError(const char *message)
 {
     if (Py_IsInitialized()) {
         PyErr_Print();
@@ -66,4 +66,3 @@ int main(int argc, char **argv)
     Py_Finalize();
     return status;
 }
-

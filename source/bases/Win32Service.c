@@ -63,8 +63,7 @@ static wchar_t gIniFileName[PATH_MAX + 1];
 // FatalError()
 //   Called when an attempt to initialize the module zip fails.
 //-----------------------------------------------------------------------------
-static int FatalError(
-    const char *message)		        // message to print
+static int FatalError(const char *message)
 {
     return LogPythonException(message);
 }
@@ -85,9 +84,7 @@ static int FatalScriptError(void)
 // Service_SetStatus()
 //   Set the status for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetStatus(
-    udt_ServiceInfo* info,              // service information
-    DWORD status)			            // status to set
+static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
 {
     SERVICE_STATUS serviceStatus;
 
@@ -113,8 +110,7 @@ static int Service_SetStatus(
 // the main thread is ended or the control GUI does not understand that the
 // service has ended.
 //-----------------------------------------------------------------------------
-static int Service_Stop(
-    udt_ServiceInfo* info)              // service information
+static int Service_Stop(udt_ServiceInfo* info)
 {
     PyThreadState *threadState;
     PyObject *result;
@@ -161,9 +157,7 @@ static int Service_Stop(
 // Service_SessionChange()
 //   Called when a session has changed.
 //-----------------------------------------------------------------------------
-static int Service_SessionChange(
-    DWORD sessionId,                    // session that has changed
-    DWORD eventType)                    // event type
+static int Service_SessionChange(DWORD sessionId, DWORD eventType)
 {
     PyThreadState *threadState;
     PyObject *result;
@@ -196,11 +190,8 @@ static int Service_SessionChange(
 // must be ended before the main thread is ended or the control GUI does not
 // understand that the service has ended.
 //-----------------------------------------------------------------------------
-static DWORD WINAPI Service_Control(
-    DWORD controlCode,			        // control code
-    DWORD eventType,                    // event type
-    LPVOID eventData,                   // event data
-    LPVOID context)                     // context
+static DWORD WINAPI Service_Control(DWORD controlCode, DWORD eventType,
+        LPVOID eventData, LPVOID context)
 {
     udt_ServiceInfo *serviceInfo = (udt_ServiceInfo*) context;
     WTSSESSION_NOTIFICATION *sessionInfo;
@@ -265,8 +256,7 @@ static int Service_StartLogging(void)
 // Service_SetupPython()
 //   Setup Python usage for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetupPython(
-    udt_ServiceInfo *info)              // info about service (OUT)
+static int Service_SetupPython(udt_ServiceInfo *info)
 {
     PyObject *module, *serviceModule, *temp;
     PyThreadState *threadState;
@@ -354,9 +344,7 @@ static int Service_SetupPython(
 // Service_Install()
 //   Install the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Install(
-    wchar_t *name,                      // name of service
-    wchar_t *configFileName)            // name of configuration file or NULL
+static int Service_Install(wchar_t *name, wchar_t *configFileName)
 {
     PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
@@ -468,8 +456,7 @@ static int Service_Install(
 // Service_Uninstall()
 //   Uninstall the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Uninstall(
-    wchar_t *name)                      // name of service
+static int Service_Uninstall(wchar_t *name)
 {
     PyObject *fullName, *formatArgs, *nameObj;
     wchar_t *wfullName;
@@ -518,8 +505,7 @@ static int Service_Uninstall(
 // Service_Run()
 //   Initialize the service.
 //-----------------------------------------------------------------------------
-static int Service_Run(
-    udt_ServiceInfo *info)              // information about the service
+static int Service_Run(udt_ServiceInfo *info)
 {
     PyObject *temp, *iniFileNameObj;
 
@@ -562,9 +548,7 @@ static int Service_Run(
 // Service_Main()
 //   Main routine for the service.
 //-----------------------------------------------------------------------------
-static void WINAPI Service_Main(
-    int argc,				            // number of arguments
-    char **argv)			            // argument values
+static void WINAPI Service_Main(int argc, char **argv)
 {
     udt_ServiceInfo info;
 
@@ -657,4 +641,3 @@ int wmain(int argc, wchar_t **argv)
     // run the service normally
     return StartServiceCtrlDispatcher(table);
 }
-
