@@ -653,6 +653,9 @@ class ModuleFinder(object):
     def SetOptimizeFlag(self, optimizeFlag):
         """Set a new value of optimize flag and returns the previous value."""
         previous = self.optimizeFlag
+        # The value of optimizeFlag is propagated according to the user's
+        # choice and checked in dist.py or main,py. This value is unlikely
+        # to be wrong, yet we check and ignore any divergent value.
         if -1 <= optimizeFlag <= 2:
             self.optimizeFlag = optimizeFlag
         return previous
