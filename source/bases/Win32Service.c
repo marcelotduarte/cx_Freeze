@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include <locale.h>
 #include <windows.h>
@@ -421,20 +422,22 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName)
     serviceHandle = CreateServiceW(managerHandle, wfullName, wdisplayName,
             SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, info.startType,
             SERVICE_ERROR_NORMAL, wcommand, NULL, NULL, NULL, NULL, NULL);
-    if (!serviceHandle)
-        return LogWin32Error(GetLastError(), "cannot create service");
     PyMem_Free(wfullName);
     PyMem_Free(wdisplayName);
     PyMem_Free(wcommand);
+    if (!serviceHandle)
+        return LogWin32Error(GetLastError(), "cannot create service");
 
     // set the description of the service, if one was specified
     if (info.description) {
         wdescription = PyUnicode_AsWideCharString(info.description, NULL);
         sd.lpDescription = wdescription;
-        if (!ChangeServiceConfig2W(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
-                    &sd))
+        if (!ChangeServiceConfig2W(serviceHandle,
+                                   SERVICE_CONFIG_DESCRIPTION, &sd)) {
+            PyMem_Free(wdescription);
             return LogWin32Error(GetLastError(),
-                    "cannot set service description");
+                                 "cannot set service description");
+        }
         PyMem_Free(wdescription);
     }
 
@@ -488,9 +491,9 @@ static int Service_Uninstall(wchar_t *name)
     // create service
     wfullName = PyUnicode_AsWideCharString(fullName, NULL);
     serviceHandle = OpenServiceW(managerHandle, wfullName, SERVICE_ALL_ACCESS);
+    PyMem_Free(wfullName);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot open service");
-    PyMem_Free(wfullName);
     ControlService(serviceHandle, SERVICE_CONTROL_STOP, &statusInfo);
     if (!DeleteService(serviceHandle))
         return LogWin32Error(GetLastError(), "cannot delete service");
