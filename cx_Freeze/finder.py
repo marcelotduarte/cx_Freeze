@@ -506,11 +506,6 @@ class ModuleFinder(object):
             # The bytecode/wordcode
             codes = [LOAD_CONST, pkg_const_index,
                      STORE_NAME, pkg_name_index]
-            #if pkg_const_index > 255:
-            #    if sys.version_info[:2] >= (3, 7):
-            #        codes[1] = pkg_const_index&255
-            #        codes.insert(0, pkg_const_index>>8)
-            #        codes.insert(0, dis.EXTENDED_ARG)
             asm_code = bytes(codes)
             new_code = asm_code + co.co_code
             constants.append(module.parent.name)
