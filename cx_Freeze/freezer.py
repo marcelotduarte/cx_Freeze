@@ -277,7 +277,7 @@ class Freezer(object):
                 else:
                     dependentFiles = []
             else:
-                if not os.access(path, os.X_OK):
+                if not os.access(path, os.R_OK):
                     self.dependentFiles[path] = []
                     return []
                 dependentFiles = []
