@@ -31,25 +31,6 @@ STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = [ "Module", "ModuleFinder" ]
 
-if getattr(dis, '_unpack_opargs', None) is None:
-    def _unpack_opargs(code):
-        """Unpack the operations and arguments from the byte code. From Python
-           3.5.2 onwards this is found in the private method _unpack_opargs
-           but for earlier releases this wasn't available as a separate
-           method."""
-        opIndex = 0
-        numOps = len(code)
-        while opIndex < numOps:
-            offset = opIndex
-            op = code[opIndex]
-            opIndex += 1
-            arg = None
-            if op >= dis.HAVE_ARGUMENT:
-                arg = code[opIndex] + code[opIndex + 1] * 256
-                opIndex += 2
-            yield (offset, op, arg)
-    dis._unpack_opargs = _unpack_opargs
-
 
 class ZipModulesCache(object):
     """A cache of module and package locations within zip files."""
