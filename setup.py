@@ -9,8 +9,8 @@ import distutils.sysconfig
 import os
 import sys
 
-if sys.version_info < (3, 5):
-    sys.exit("Sorry, Python < 3.5 is not supported. Use cx_Freeze 5 for "
+if sys.version_info < (3, 5, 2):
+    sys.exit("Sorry, Python < 3.5.2 is not supported. Use cx_Freeze 5 for "
             "support of earlier Python versions.")
 
 try:

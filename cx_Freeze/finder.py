@@ -32,6 +32,7 @@ STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = [ "Module", "ModuleFinder" ]
 
+
 class ZipModulesCache(object):
     """A cache of module and package locations within zip files."""
     def __init__(self):
@@ -553,9 +554,7 @@ class ModuleFinder(object):
            modules are truly missing."""
         arguments = []
         importedModule = None
-        method = dis._unpack_opargs if sys.version_info[:3] >= (3, 5, 2) \
-                else self._UnpackOpArgs
-        for opIndex, op, opArg in method(co.co_code):
+        for opIndex, op, opArg in dis._unpack_opargs(co.co_code):
 
             # keep track of constants (these are used for importing)
             # immediately restart loop so arguments are retained
@@ -598,23 +597,6 @@ class ModuleFinder(object):
             if isinstance(constant, type(co)):
                 self._ScanCode(constant, module, deferredImports,
                         topLevel = False)
-
-    def _UnpackOpArgs(self, code):
-        """Unpack the operations and arguments from the byte code. From Python
-           3.5 onwards this is found in the private method _unpack_opargs
-           but for earlier releases this wasn't available as a separate
-           method."""
-        opIndex = 0
-        numOps = len(code)
-        while opIndex < numOps:
-            offset = opIndex
-            op = code[opIndex]
-            opIndex += 1
-            arg = None
-            if op >= dis.HAVE_ARGUMENT:
-                arg = code[opIndex] + code[opIndex + 1] * 256
-                opIndex += 2
-            yield (offset, op, arg)
 
     def AddAlias(self, name, aliasFor):
         """Add an alias for a particular module; when an attempt is made to
