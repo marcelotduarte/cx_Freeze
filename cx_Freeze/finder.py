@@ -32,7 +32,6 @@ STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = [ "Module", "ModuleFinder" ]
 
-
 class ZipModulesCache(object):
     """A cache of module and package locations within zip files."""
     def __init__(self):
