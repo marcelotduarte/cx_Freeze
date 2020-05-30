@@ -125,6 +125,7 @@ class ModuleFinder(object):
             constants_module=None, zip_includes=None):
         self.include_files = include_files or []
         self.excludes = dict.fromkeys(excludes or [])
+        self.optimizeFlag = 0
         self.path = path or sys.path
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
@@ -424,7 +425,8 @@ class ModuleFinder(object):
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
             try:
-                module.code = compile(codeString, path, "exec")
+                module.code = compile(codeString, path, "exec",
+                                      optimize=self.optimizeFlag)
             except SyntaxError:
                 raise ImportError("Invalid syntax in %s" % path)
         
@@ -605,8 +607,7 @@ class ModuleFinder(object):
             moduleName = name
         info = (ext, "r", imp.PY_SOURCE)
         deferredImports = []
-        module = self._LoadModule(moduleName, open(path, "U"), path, info,
-                deferredImports)
+        module = self._LoadModule(moduleName, None, path, info, deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
 
@@ -648,6 +649,16 @@ class ModuleFinder(object):
             sys.stdout.write("This is not necessarily a problem - the modules "
                              "may not be needed on this platform.\n")
             sys.stdout.write("\n")
+
+    def SetOptimizeFlag(self, optimizeFlag):
+        """Set a new value of optimize flag and returns the previous value."""
+        previous = self.optimizeFlag
+        # The value of optimizeFlag is propagated according to the user's
+        # choice and checked in dist.py or main,py. This value is unlikely
+        # to be wrong, yet we check and ignore any divergent value.
+        if -1 <= optimizeFlag <= 2:
+            self.optimizeFlag = optimizeFlag
+        return previous
 
     def ZipIncludeFiles(self, sourcePath, targetPath):
         """Include the file(s) in the library.zip"""
