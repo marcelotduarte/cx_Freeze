@@ -1,4 +1,2 @@
 cx-freeze
 pyqt5
-
-
