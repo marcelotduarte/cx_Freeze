@@ -607,7 +607,7 @@ class ModuleFinder(object):
             moduleName = name
         info = (ext, "r", imp.PY_SOURCE)
         deferredImports = []
-        module = self._LoadModule(moduleName, 0, path, info, deferredImports)
+        module = self._LoadModule(moduleName, None, path, info, deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
 
