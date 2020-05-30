@@ -88,13 +88,27 @@ class build_ext(distutils.command.build_ext.build_ext):
 
 
 def find_cx_Logging():
-    dirName = os.path.dirname(os.getcwd())
+    import subprocess
+    dirName = os.path.dirname(os.path.dirname(os.path.os.path.abspath(__file__)))
     loggingDir = os.path.join(dirName, "cx_Logging")
+    if not os.path.exists(loggingDir):
+        try:
+            subprocess.run(["git", "clone",
+                            "https://github.com/anthony-tuininga/cx_Logging.git",
+                            loggingDir])
+        except (FileNotFoundError, subprocess.SubprocessError):
+            pass
     if not os.path.exists(loggingDir):
         return
     subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
     importLibraryDir = os.path.join(loggingDir, "build", subDir)
     includeDir = os.path.join(loggingDir, "src")
+    if not os.path.exists(importLibraryDir):
+        try:
+            subprocess.run([sys.executable, "setup.py", "install"],
+                           cwd=loggingDir)
+        except (FileNotFoundError, subprocess.SubprocessError):
+            pass
     if not os.path.exists(importLibraryDir):
         return
     return includeDir, importLibraryDir
@@ -102,34 +116,34 @@ def find_cx_Logging():
 
 commandClasses = dict(build_ext=build_ext)
 
-# build utility module
+# build base executables
 if sys.platform == "win32":
     libraries = ["imagehlp", "Shlwapi"]
 else:
     libraries = []
-utilModule = Extension("cx_Freeze.util", ["source/util.c"],
-        libraries = libraries)
-
-# build base executables
-docFiles = "README.txt"
 options = dict(install=dict(optimize=1))
 depends = ["source/bases/Common.c"]
 console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
-        depends = depends, libraries = libraries)
-extensions = [utilModule, console]
+                    depends=depends, libraries=libraries)
+extensions = [console]
 if sys.platform == "win32":
     gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
-            depends = depends, libraries = libraries + ["user32"])
+                    depends=depends, libraries=libraries + ["user32"])
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
         service = Extension("cx_Freeze.bases.Win32Service",
-                ["source/bases/Win32Service.c"], depends = depends,
-                library_dirs = [libraryDir],
-                libraries = libraries + ["advapi32", "cx_Logging"],
-                include_dirs = [includeDir])
+                            ["source/bases/Win32Service.c"],
+                            depends=depends,
+                            library_dirs=[libraryDir],
+                            libraries=libraries + ["advapi32", "cx_Logging"],
+                            include_dirs=[includeDir])
         extensions.append(service)
+    # build utility module
+    utilModule = Extension("cx_Freeze.util", ["source/util.c"],
+                           libraries=libraries)
+    extensions.append(utilModule)
 
 # define package data
 packageData = []

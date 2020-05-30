@@ -3,6 +3,7 @@ Base class for finding modules.
 """
 
 import dis
+import glob
 import imp
 import importlib.machinery
 import importlib.util
@@ -129,6 +130,7 @@ class ModuleFinder(object):
             constants_module=None, zip_includes=None):
         self.include_files = include_files or []
         self.excludes = dict.fromkeys(excludes or [])
+        self.optimizeFlag = 0
         self.path = path or sys.path
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
@@ -428,7 +430,8 @@ class ModuleFinder(object):
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
             try:
-                module.code = compile(codeString, path, "exec")
+                module.code = compile(codeString, path, "exec",
+                                      optimize=self.optimizeFlag)
             except SyntaxError:
                 raise ImportError("Invalid syntax in %s" % path)
         
@@ -466,6 +469,9 @@ class ModuleFinder(object):
             # Scan the module code for import statements
             self._ScanCode(module.code, module, deferredImports)
         
+            # Verify __package__ in use
+            self._ReplacePackageInCode(module)
+
         module.in_import = False
         return module
 
@@ -483,6 +489,35 @@ class ModuleFinder(object):
             module.code = compile("", fileName, "exec")
             logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
         return module
+
+    def _ReplacePackageInCode(self, module):
+        """Replace the value of __package__ directly in the code,
+           only in zipped modules."""
+        co = module.code
+        if co is None or module.parent is None or \
+                module.WillBeStoredInFileSystem() or \
+                "__package__" in module.global_names:
+            # In some modules, like 'six' the variable is defined, so...
+            return
+        # Only if the code references it.
+        if "__package__" in co.co_names:
+            # Insert a bytecode to represent the code:
+            # __package__ = module.parent.name
+            constants = list(co.co_consts)
+            pkg_const_index = len(constants)
+            pkg_name_index = co.co_names.index("__package__")
+            if pkg_const_index > 255 or pkg_name_index > 255:
+                # Don't touch modules with many constants or names;
+                # This is good for now.
+                return
+            # The bytecode/wordcode
+            codes = [LOAD_CONST, pkg_const_index,
+                     STORE_NAME, pkg_name_index]
+            asm_code = bytes(codes)
+            new_code = asm_code + co.co_code
+            constants.append(module.parent.name)
+            code = rebuild_code_object(co, code=new_code, constants=constants)
+            module.code = code
 
     def _ReplacePathsInCode(self, topLevelModule, co):
         """Replace paths in the code as directed, returning a new code object
@@ -609,8 +644,7 @@ class ModuleFinder(object):
             moduleName = name
         info = (ext, "r", imp.PY_SOURCE)
         deferredImports = []
-        module = self._LoadModule(moduleName, open(path, "U"), path, info,
-                deferredImports)
+        module = self._LoadModule(moduleName, None, path, info, deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
 
@@ -652,6 +686,16 @@ class ModuleFinder(object):
             sys.stdout.write("This is not necessarily a problem - the modules "
                              "may not be needed on this platform.\n")
             sys.stdout.write("\n")
+
+    def SetOptimizeFlag(self, optimizeFlag):
+        """Set a new value of optimize flag and returns the previous value."""
+        previous = self.optimizeFlag
+        # The value of optimizeFlag is propagated according to the user's
+        # choice and checked in dist.py or main,py. This value is unlikely
+        # to be wrong, yet we check and ignore any divergent value.
+        if -1 <= optimizeFlag <= 2:
+            self.optimizeFlag = optimizeFlag
+        return previous
 
     def ZipIncludeFiles(self, sourcePath, targetPath):
         """Include the file(s) in the library.zip"""

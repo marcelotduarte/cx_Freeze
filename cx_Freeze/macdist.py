@@ -47,7 +47,7 @@ class bdist_dmg(Command):
                 raise OSError('creation of Applications shortcut failed')
 
             createargs.append('-srcfolder')
-            createargs.append(self.buildDir + '/Applications')
+            createargs.append(os.path.join(self.buildDir, 'Applications'))
 
         # Create the dmg
         if os.spawnvp(os.P_WAIT, 'hdiutil', createargs) != 0:
@@ -191,7 +191,7 @@ class bdist_mac(Command):
 
             # let the file itself know its place
             subprocess.call(('install_name_tool', '-id',
-                             '@executable_path/' + fileName, filePath))
+                             os.path.join('@executable_path', fileName), filePath))
 
             # find the references: call otool -L on the file
             otool = subprocess.Popen(('otool', '-L', filePath),
@@ -218,12 +218,15 @@ class bdist_mac(Command):
 
                 path, name = os.path.split(referencedFile)
 
-                #some referenced files have not previously been copied to the
-                #executable directory - the assumption is that you don't need
-                #to copy anything fro /usr or /System, just from folders like
-                #/opt this fix should probably be elsewhere though
-                if (name not in files and not path.startswith('/usr') and not
-                        path.startswith('/System')):
+                # some referenced files have not previously been copied to the
+                # executable directory - the assumption is that you don't need
+                # to copy anything from /usr (but should from /usr/local) or
+                # /System, just from folders like /opt this fix should probably
+                # be elsewhere though
+                if (name not in files
+                        and (not path.startswith('/usr')
+                            or path.startswith('/usr/local'))
+                        and not path.startswith('/System')):
                     print(referencedFile)
                     try:
                         self.copy_file(referencedFile, os.path.join(self.binDir, name))
@@ -235,7 +238,7 @@ class bdist_mac(Command):
                 # see if we provide the referenced file;
                 # if so, change the reference
                 if name in files:
-                    newReference = '@executable_path/' + name
+                    newReference = os.path.join('@executable_path', name)
                     subprocess.call(('install_name_tool', '-change',
                                     referencedFile, newReference, filePath))
 
@@ -315,17 +318,20 @@ class bdist_mac(Command):
 
         # Copy in Frameworks
         for framework in self.include_frameworks:
-            self.copy_tree(framework, self.frameworksDir + '/' +
-                           os.path.basename(framework))
+            self.copy_tree(framework, os.path.join(self.frameworksDir,
+                           os.path.basename(framework)))
 
         # Copy in Resources
         for resource, destination in self.include_resources:
             if os.path.isdir(resource):
-                self.copy_tree(resource, self.resourcesDir + '/' +
-                               destination)
+                self.copy_tree(resource, os.path.join(self.resourcesDir,
+                               destination))
             else:
-                self.copy_file(resource, self.resourcesDir + '/' +
-                               destination)
+                parent_dirs = os.path.dirname(os.path.join(self.resourcesDir,
+                                              destination))
+                os.makedirs(parent_dirs, exist_ok=True)
+                self.copy_file(resource, os.path.join(self.resourcesDir,
+                               destination))
 
         # Create the Info.plist file
         self.execute(self.create_plist, ())

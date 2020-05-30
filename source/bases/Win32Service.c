@@ -3,16 +3,14 @@
 //   Base executable for handling Windows services.
 //-----------------------------------------------------------------------------
 
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include <locale.h>
 #include <windows.h>
 #include <Winsvc.h>
 #include <shlwapi.h>
 #include <cx_Logging.h>
-
-// define macro for convenience
-#define cxString_FromAscii(str) \
-    PyUnicode_DecodeASCII(str, strlen(str), NULL)
 
 // define constants
 #define CX_LOGGING_SECTION_NAME         L"Logging"
@@ -66,8 +64,7 @@ static wchar_t gIniFileName[PATH_MAX + 1];
 // FatalError()
 //   Called when an attempt to initialize the module zip fails.
 //-----------------------------------------------------------------------------
-static int FatalError(
-    const char *message)		        // message to print
+static int FatalError(const char *message)
 {
     return LogPythonException(message);
 }
@@ -88,9 +85,7 @@ static int FatalScriptError(void)
 // Service_SetStatus()
 //   Set the status for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetStatus(
-    udt_ServiceInfo* info,              // service information
-    DWORD status)			            // status to set
+static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
 {
     SERVICE_STATUS serviceStatus;
 
@@ -116,8 +111,7 @@ static int Service_SetStatus(
 // the main thread is ended or the control GUI does not understand that the
 // service has ended.
 //-----------------------------------------------------------------------------
-static int Service_Stop(
-    udt_ServiceInfo* info)              // service information
+static int Service_Stop(udt_ServiceInfo* info)
 {
     PyThreadState *threadState;
     PyObject *result;
@@ -164,9 +158,7 @@ static int Service_Stop(
 // Service_SessionChange()
 //   Called when a session has changed.
 //-----------------------------------------------------------------------------
-static int Service_SessionChange(
-    DWORD sessionId,                    // session that has changed
-    DWORD eventType)                    // event type
+static int Service_SessionChange(DWORD sessionId, DWORD eventType)
 {
     PyThreadState *threadState;
     PyObject *result;
@@ -199,11 +191,8 @@ static int Service_SessionChange(
 // must be ended before the main thread is ended or the control GUI does not
 // understand that the service has ended.
 //-----------------------------------------------------------------------------
-static DWORD WINAPI Service_Control(
-    DWORD controlCode,			        // control code
-    DWORD eventType,                    // event type
-    LPVOID eventData,                   // event data
-    LPVOID context)                     // context
+static DWORD WINAPI Service_Control(DWORD controlCode, DWORD eventType,
+        LPVOID eventData, LPVOID context)
 {
     udt_ServiceInfo *serviceInfo = (udt_ServiceInfo*) context;
     WTSSESSION_NOTIFICATION *sessionInfo;
@@ -268,8 +257,7 @@ static int Service_StartLogging(void)
 // Service_SetupPython()
 //   Setup Python usage for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetupPython(
-    udt_ServiceInfo *info)              // info about service (OUT)
+static int Service_SetupPython(udt_ServiceInfo *info)
 {
     PyObject *module, *serviceModule, *temp;
     PyThreadState *threadState;
@@ -357,12 +345,11 @@ static int Service_SetupPython(
 // Service_Install()
 //   Install the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Install(
-    wchar_t *name,                      // name of service
-    wchar_t *configFileName)            // name of configuration file or NULL
+static int Service_Install(wchar_t *name, wchar_t *configFileName)
 {
     PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
+    wchar_t *wfullName, *wdisplayName, *wcommand, *wdescription;
     wchar_t fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_DESCRIPTIONW sd;
@@ -393,7 +380,7 @@ static int Service_Install(
     if (!executableNameObj)
         return LogPythonException("cannot create executable name obj");
     if (!configFileName) {
-        formatObj = cxString_FromAscii("\"%s\"");
+        formatObj = PyUnicode_FromString("\"%s\"");
         if (!formatObj)
             return LogPythonException("cannot create format string");
         formatArgs = PyTuple_Pack(1, executableNameObj);
@@ -405,7 +392,7 @@ static int Service_Install(
                 PATH_MAX + 1))
             return LogWin32Error(GetLastError(),
                     "cannot calculate absolute path of config file name");
-        formatObj = cxString_FromAscii("\"%s\" \"%s\"");
+        formatObj = PyUnicode_FromString("\"%s\" \"%s\"");
         if (!formatObj)
             return LogPythonException("cannot create format string");
         configFileNameObj = PyUnicode_FromWideChar(fullPathConfigFileName, -1);
@@ -429,21 +416,29 @@ static int Service_Install(
         return LogWin32Error(GetLastError(), "cannot open service manager");
 
     // create service
-    serviceHandle = CreateServiceW(managerHandle,
-            PyUnicode_AS_UNICODE(fullName), PyUnicode_AS_UNICODE(displayName),
+    wfullName = PyUnicode_AsWideCharString(fullName, NULL);
+    wdisplayName = PyUnicode_AsWideCharString(displayName, NULL);
+    wcommand = PyUnicode_AsWideCharString(command, NULL);
+    serviceHandle = CreateServiceW(managerHandle, wfullName, wdisplayName,
             SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, info.startType,
-            SERVICE_ERROR_NORMAL, PyUnicode_AS_UNICODE(command), NULL, NULL,
-            NULL, NULL, NULL);
+            SERVICE_ERROR_NORMAL, wcommand, NULL, NULL, NULL, NULL, NULL);
+    PyMem_Free(wfullName);
+    PyMem_Free(wdisplayName);
+    PyMem_Free(wcommand);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot create service");
 
     // set the description of the service, if one was specified
     if (info.description) {
-        sd.lpDescription = PyUnicode_AS_UNICODE(info.description);
-        if (!ChangeServiceConfig2W(serviceHandle, SERVICE_CONFIG_DESCRIPTION,
-                    &sd))
+        wdescription = PyUnicode_AsWideCharString(info.description, NULL);
+        sd.lpDescription = wdescription;
+        if (!ChangeServiceConfig2W(serviceHandle,
+                                   SERVICE_CONFIG_DESCRIPTION, &sd)) {
+            PyMem_Free(wdescription);
             return LogWin32Error(GetLastError(),
-                    "cannot set service description");
+                                 "cannot set service description");
+        }
+        PyMem_Free(wdescription);
     }
 
     // if the service is one that should be automatically started, start it
@@ -464,10 +459,10 @@ static int Service_Install(
 // Service_Uninstall()
 //   Uninstall the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Uninstall(
-    wchar_t *name)                      // name of service
+static int Service_Uninstall(wchar_t *name)
 {
     PyObject *fullName, *formatArgs, *nameObj;
+    wchar_t *wfullName;
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
@@ -494,8 +489,9 @@ static int Service_Uninstall(
         return LogWin32Error(GetLastError(), "cannot open service manager");
 
     // create service
-    serviceHandle = OpenServiceW(managerHandle, PyUnicode_AS_UNICODE(fullName),
-            SERVICE_ALL_ACCESS);
+    wfullName = PyUnicode_AsWideCharString(fullName, NULL);
+    serviceHandle = OpenServiceW(managerHandle, wfullName, SERVICE_ALL_ACCESS);
+    PyMem_Free(wfullName);
     if (!serviceHandle)
         return LogWin32Error(GetLastError(), "cannot open service");
     ControlService(serviceHandle, SERVICE_CONTROL_STOP, &statusInfo);
@@ -512,8 +508,7 @@ static int Service_Uninstall(
 // Service_Run()
 //   Initialize the service.
 //-----------------------------------------------------------------------------
-static int Service_Run(
-    udt_ServiceInfo *info)              // information about the service
+static int Service_Run(udt_ServiceInfo *info)
 {
     PyObject *temp, *iniFileNameObj;
 
@@ -556,9 +551,7 @@ static int Service_Run(
 // Service_Main()
 //   Main routine for the service.
 //-----------------------------------------------------------------------------
-static void WINAPI Service_Main(
-    int argc,				            // number of arguments
-    char **argv)			            // argument values
+static void WINAPI Service_Main(int argc, char **argv)
 {
     udt_ServiceInfo info;
 
@@ -651,4 +644,3 @@ int wmain(int argc, wchar_t **argv)
     // run the service normally
     return StartServiceCtrlDispatcher(table);
 }
-
