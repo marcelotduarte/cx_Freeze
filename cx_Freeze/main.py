@@ -94,11 +94,10 @@ def ParseCommandLine():
             dest = "excludeModules",
             metavar = "NAMES",
             help = "comma separated list of modules to exclude")
-    parser.add_option("--ext-list-file",
-            dest = "extListFile",
-            metavar = "NAME",
-            help = "name of file in which to place the list of dependent files "
-                   "which were copied into the target directory")
+    parser.add_option("--include-files",
+            dest = "includeFiles",
+            metavar = "NAMES",
+            help = "comma separated list of paths to include")
     parser.add_option("-z", "--zip-include",
             dest = "zipIncludes",
             action = "append",
@@ -143,6 +142,10 @@ def ParseCommandLine():
         sys.path = paths + sys.path
     if options.script is not None:
         sys.path.insert(0, os.path.dirname(options.script))
+    if options.includeFiles:
+        options.includeFiles = options.includeFiles.split(",")
+    else:
+        options.includeFiles = []
     zipIncludes = []
     if options.zipIncludes:
         for spec in options.zipIncludes:
@@ -170,6 +173,7 @@ def main():
             optimizeFlag = options.optimized,
             path = None,
             targetDir = options.targetDir,
+            includeFiles = options.includeFiles,
             zipIncludes = options.zipIncludes,
             silent = options.silent)
     freezer.Freeze()
