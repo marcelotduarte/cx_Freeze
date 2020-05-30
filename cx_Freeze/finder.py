@@ -491,8 +491,8 @@ class ModuleFinder(object):
            only in zipped modules."""
         co = module.code
         if co is None or module.parent is None or \
-            module.WillBeStoredInFileSystem() or \
-            "__package__" in module.global_names.keys():
+                module.WillBeStoredInFileSystem() or \
+                "__package__" in module.global_names:
             # In some modules, like 'six' the variable is defined, so...
             return
         # Only if the code references it.
