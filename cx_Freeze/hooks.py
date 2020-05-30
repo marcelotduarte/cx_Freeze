@@ -221,6 +221,68 @@ def load_cryptography_hazmat_bindings__padding(finder, module):
     finder.IncludeModule('_cffi_backend')
 
 
+def load_Crypto_Cipher(finder, module):
+    """pycryptodome package - Crypto.Cipher subpackage."""
+    if not module.WillBeStoredInFileSystem():
+        finder.IncludePackage(module.name)
+
+
+def load_Crypto_Hash(finder, module):
+    """pycryptodome package - Crypto.Hash subpackage."""
+    if not module.WillBeStoredInFileSystem():
+        finder.IncludePackage(module.name)
+
+
+def load_Crypto_Math(finder, module):
+    """pycryptodome package - Crypto.Math subpackage."""
+    if not module.WillBeStoredInFileSystem():
+        finder.IncludePackage(module.name)
+
+
+def load_Crypto_Protocol(finder, module):
+    """pycryptodome package - Crypto.Protocol subpackage."""
+    if not module.WillBeStoredInFileSystem():
+        finder.IncludePackage(module.name)
+
+
+def load_Crypto_PublicKey(finder, module):
+    """pycryptodome package - Crypto.PublicKey subpackage."""
+    if not module.WillBeStoredInFileSystem():
+        finder.IncludePackage(module.name)
+
+
+def load_Crypto_Util(finder, module):
+    """pycryptodome package - Crypto.Util subpackage."""
+    if not module.WillBeStoredInFileSystem():
+        finder.IncludePackage(module.name)
+
+
+def load_Crypto_Util__file_system(finder, module):
+    """pycryptodome package"""
+    # WARNING: do not touch this code string
+    PYCRYPTODOME_CODE_STR = """
+import os
+
+def pycryptodome_filename(dir_comps, filename):
+    import sys
+    if dir_comps[0] != "Crypto":
+        raise ValueError("Only available for modules under 'Crypto'")
+    dir_comps = list(dir_comps) + [filename]
+    root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
+    return os.path.join(root_lib, ".".join(dir_comps))
+"""
+    if not module.WillBeStoredInFileSystem() and module.code is not None:
+        new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
+        co_func = new_code.co_consts[2]
+        co = module.code
+        constants = list(co.co_consts)
+        for i, value in enumerate(constants):
+            if isinstance(value, type(co)) and value.co_name == co_func.co_name:
+                constants[i] = rebuild_code_object(co_func)
+                break
+        module.code = rebuild_code_object(co, constants=constants)
+
+
 def load__ctypes(finder, module):
     """In Windows, the _ctypes module in Python 3.8+ requires an additional dll
        libffi-7.dll to be present in the build directory."""
