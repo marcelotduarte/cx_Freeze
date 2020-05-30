@@ -465,6 +465,9 @@ class ModuleFinder(object):
             # Scan the module code for import statements
             self._ScanCode(module.code, module, deferredImports)
         
+            # Verify __package__ in use
+            self._ReplacePackageInCode(module)
+
         module.in_import = False
         return module
 
@@ -482,6 +485,35 @@ class ModuleFinder(object):
             module.code = compile("", fileName, "exec")
             logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
         return module
+
+    def _ReplacePackageInCode(self, module):
+        """Replace the value of __package__ directly in the code,
+           only in zipped modules."""
+        co = module.code
+        if co is None or module.parent is None or \
+            module.WillBeStoredInFileSystem() or \
+            "__package__" in module.global_names.keys():
+            # In some modules, like 'six' the variable is defined, so...
+            return
+        # Only if the code references it.
+        if "__package__" in co.co_names:
+            # Insert a bytecode to represent the code:
+            # __package__ = module.parent.name
+            constants = list(co.co_consts)
+            pkg_const_index = len(constants)
+            pkg_name_index = co.co_names.index("__package__")
+            if pkg_const_index > 255 or pkg_name_index > 255:
+                # Don't touch modules with many constants or names;
+                # This is good for now.
+                return
+            # The bytecode/wordcode
+            codes = [LOAD_CONST, pkg_const_index,
+                     STORE_NAME, pkg_name_index]
+            asm_code = bytes(codes)
+            new_code = asm_code + co.co_code
+            constants.append(module.parent.name)
+            code = rebuild_code_object(co, code=new_code, constants=constants)
+            module.code = code
 
     def _ReplacePathsInCode(self, topLevelModule, co):
         """Replace paths in the code as directed, returning a new code object
