@@ -29,7 +29,6 @@ def initialize(finder):
     finder.ExcludeModule("copy_reg")
     finder.ExcludeModule("cStringIO")
     finder.ExcludeModule("dbhash")
-    finder.ExcludeModule("dbm")
     finder.ExcludeModule("dircache")
     finder.ExcludeModule("dl")
     finder.ExcludeModule("dumbdbm")
