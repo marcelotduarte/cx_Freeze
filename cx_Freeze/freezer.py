@@ -561,7 +561,11 @@ class Freezer(object):
                         parts.append("__init__")
                     targetName = os.path.join(targetDir, *parts) + ".pyc"
                     open(targetName, "wb").write(data)
-
+                if module.dist_files:
+                    for filepath, arcname in module.dist_files:
+                        self._CopyFile(filepath,
+                                       os.path.join(targetDir, arcname),
+                                       copyDependentFiles=False)
 
             # otherwise, write to the zip file
             elif module.code is not None:
@@ -573,6 +577,9 @@ class Freezer(object):
                 if self.compress:
                     zinfo.compress_type = zipfile.ZIP_DEFLATED
                 outFile.writestr(zinfo, data)
+                if module.dist_files:
+                    for filepath, arcname in module.dist_files:
+                        outFile.write(filepath, arcname.replace("\\", "/"))
 
         # write any files to the zip file that were requested specially
         for sourceFileName, targetFileName in finder.zip_includes:
