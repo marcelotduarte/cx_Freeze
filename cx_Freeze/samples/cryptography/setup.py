@@ -1,4 +1,4 @@
-# A setup script to demonstrate build using cffi (inside a cryptography pkg)
+"""A setup script to demonstrate build using cffi (used by cryptography)"""
 #
 # Run the build process by running the command 'python setup.py build'
 #
@@ -7,11 +7,10 @@
 
 from cx_Freeze import setup, Executable
 
-buildOptions = dict(zip_include_packages=["*"], zip_exclude_packages=[])
-executables = [Executable("test_crypt.py")]
-
-setup(name='test_crypt',
-      version='0.1',
-      description='cx_Freeze script to test cryptography',
-      executables=executables,
-      options=dict(build_exe=buildOptions))
+setup(name="test_crypt",
+      version="0.2",
+      description="cx_Freeze script to test cryptography",
+      executables=[Executable("test_crypt.py")],
+      options={"build_exe": {"excludes": ["tkinter"],
+                             "zip_include_packages": ["*"],
+                             "zip_exclude_packages": []}})

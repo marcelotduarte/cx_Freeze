@@ -5,6 +5,9 @@ import sysconfig
 
 from cx_Freeze.common import rebuild_code_object
 
+MINGW = sysconfig.get_platform() == "mingw"
+WIN32 = sys.platform == "win32"
+
 def initialize(finder):
     """upon initialization of the finder, this routine is called to set up some
        automatic exclusions for various platforms."""
@@ -219,9 +222,9 @@ def load_cryptography_hazmat_bindings__padding(finder, module):
 
 
 def load__ctypes(finder, module):
-    """In Windows, the _ctypes module in Python >= 3.8 requires an additional dll
+    """In Windows, the _ctypes module in Python 3.8+ requires an additional dll
        libffi-7.dll to be present in the build directory."""
-    if sys.platform == "win32" and sys.version_info >= (3, 8) and sysconfig.get_platform() != "mingw":
+    if WIN32 and sys.version_info >= (3, 8) and not MINGW:
         dll_name = "libffi-7.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
@@ -683,7 +686,7 @@ def load_PyQt4_phonon(finder, module):
     """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
        be present in the build directory inside a folder phonon_backend."""
     name, QtCore = _qt_implementation(module)
-    if sys.platform == "win32":
+    if WIN32:
         copy_qt_plugins("phonon_backend", finder, QtCore)
 
 load_PySide_phonon = load_PyQt5_phonon = load_PyQt4_phonon
@@ -837,9 +840,9 @@ def load_site(finder, module):
 
 
 def load_ssl(finder, module):
-    """In Windows, the SSL module in Python >= 3.7 requires additional dlls to
+    """In Windows, the SSL module in Python 3.7+ requires additional dlls to
        be present in the build directory."""
-    if sys.platform == "win32" and sys.version_info >= (3, 7):
+    if WIN32 and sys.version_info >= (3, 7) and not MINGW:
         for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
             for dll_path in glob.glob(os.path.join(sys.base_prefix, "DLLs", dll_search)):
                 dll_name = os.path.basename(dll_path)
@@ -850,24 +853,28 @@ def load_tkinter(finder, module):
     """the tkinter module has data files that are required to be loaded so
        ensure that they are copied into the directory that is expected at
        runtime."""
-    if sys.platform == "win32":
+    if WIN32:
         import tkinter
         root_names = "tcl", "tk"
         environ_names = "TCL_LIBRARY", "TK_LIBRARY"
         version_vars = tkinter.TclVersion, tkinter.TkVersion
         zipped = zip(environ_names, version_vars, root_names)
         for env_name, ver_var, mod_name in zipped:
+            dir_name = mod_name + str(ver_var)
             try:
                 lib_texts = os.environ[env_name]
             except KeyError:
-                lib_texts = os.path.join(sys.base_prefix, "tcl",
-                        mod_name + str(ver_var))
-            targetPath = os.path.join("lib", "tkinter", mod_name)
+                if MINGW:
+                    lib_texts = os.path.join(sys.base_prefix, "lib", dir_name)
+                else:
+                    lib_texts = os.path.join(sys.base_prefix, "tcl", dir_name)
+            targetPath = os.path.join("lib", "tkinter", dir_name)
             finder.AddConstant(env_name, targetPath)
             finder.IncludeFiles(lib_texts, targetPath)
-            dll_name = mod_name + str(ver_var).replace(".", "") + "t.dll"
-            dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-            finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+            if not MINGW:
+                dll_name = dir_name.replace(".", "") + "t.dll"
+                dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+                finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
 def load_tempfile(finder, module):
@@ -1006,7 +1013,7 @@ def missing_readline(finder, caller):
     """the readline module is not normally present on Windows but it also may
        be so instead of excluding it completely, ignore it if it can't be
        found"""
-    if sys.platform == "win32":
+    if WIN32:
         caller.IgnoreName("readline")
 
 
@@ -1014,7 +1021,7 @@ def load_zmq(finder, module):
     """the zmq package loads zmq.backend.cython dynamically and links
     dynamically to zmq.libzmq."""
     finder.IncludePackage("zmq.backend.cython")
-    if sys.platform == "win32":
+    if WIN32:
         # Not sure yet if this is cross platform
         # Include the bundled libzmq library, if it exists
         try:
@@ -1038,11 +1045,13 @@ def load_clr(finder, module):
 def load_sqlite3(finder, module):
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
        be present in the build directory."""
-    if sys.platform == "win32":
+    if WIN32 and not MINGW:
         dll_name = "sqlite3.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+        if not os.path.exists(dll_path):
+            dll_path = os.path.join(sys.base_prefix, "Library", "bin", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-    finder.IncludePackage('sqlite3')
+    finder.IncludePackage("sqlite3")
 
 def load_pytest(finder, module):
     import pytest
