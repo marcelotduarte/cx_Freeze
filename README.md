@@ -1,11 +1,12 @@
 # About cx\_Freeze
 
 **cx\_Freeze** is a set of scripts and modules for freezing Python scripts into
-executables, in much the same way that [py2exe](http://www.py2exe.org/) and
-[py2app](https://pythonhosted.org/py2app/) do. Unlike these two tools,
-cx\_Freeze is cross platform and should work on any platform that Python itself works on. It supports [Python](https://www.python.org/) 3.5 or higher.
+executables, in much the same way that [py2exe](https://pypi.org/project/py2exe/) and
+[py2app](https://pypi.org/project/py2app/) do. Unlike these two tools,
+cx\_Freeze is cross platform and should work on any platform that Python itself
+works on. It supports [Python](https://www.python.org/) 3.5.2 or higher.
 
-If you need support for Python 2.x, cx\_Freeze version 5 should be used
+If you need support for Python 2.x, cx\_Freeze version 5.1.x should be used
 instead.
 
 # Download/Install
@@ -25,12 +26,6 @@ downloaded and extracted:
 ```
 python setup.py build
 python setup.py install
-```
-
-To build with MSVC versions after 9.0 use this trick:
-
-```
-set VS100COMNTOOLS=%VS140COMNTOOLS%
 ```
 
 # Documentation
