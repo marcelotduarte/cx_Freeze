@@ -13,7 +13,7 @@
 #if defined(MS_WINDOWS)
     #define CX_PATH_FORMAT              L"%ls\\lib\\library.zip;%ls\\lib"
 #else
-    #define CX_PATH_FORMAT              "%s/lib/library.zip:%s/lib"
+    #define CX_PATH_FORMAT              L"%ls/lib/library.zip:%ls/lib"
 #endif
 
 // global variables (used for simplicity)
@@ -116,7 +116,7 @@ static int InitializePython(int argc, wchar_t **argv)
 
     // create sys.path
     size = wcslen(g_ExecutableDirName) * 2 + wcslen(CX_PATH_FORMAT) + 1;
-    wPath = PyMem_RawMalloc(sizeof(wchar_t) * size);
+    wPath = PyMem_Malloc(sizeof(wchar_t) * size);
     if (!wPath)
         return FatalError("Out of memory creating sys.path!");
     swprintf(wPath, size, CX_PATH_FORMAT, g_ExecutableDirName,
@@ -138,51 +138,30 @@ static int InitializePython(int argc, wchar_t **argv)
 
 //-----------------------------------------------------------------------------
 // InitializePython()
-//   Initialize Python on all other platforms.
+//   Initialize Python for Python 3 and higher on all other platforms.
 //-----------------------------------------------------------------------------
 static int InitializePython(int argc, char **argv)
 {
-    wchar_t **wargv, *wpath;
-    PyObject *executable;
+    wchar_t **wargv, *wExecutableName, *wExecutableDirName, *wPath;
     size_t size;
-    char *path;
     int i;
 
     // determine executable name
     if (SetExecutableName(argv[0]) < 0)
         return -1;
 
-    // initialize Python
-    Py_NoSiteFlag = 1;
-    Py_FrozenFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    Py_Initialize();
-
-    // set sys.executable
-    executable = PyUnicode_FromString(g_ExecutableName);
-    if (!executable)
+    // convert executable name to wide characters
+    wExecutableName = Py_DecodeLocale(g_ExecutableName, NULL);
+    if (!wExecutableName)
         return FatalError("Unable to convert executable name to string!");
-    if (PySys_SetObject("executable", executable) < 0)
-        return FatalError("Unable to set executable name!");
-    Py_DECREF(executable);
 
-    // create sys.path
-    // after Py_Initialize to eliminate surrogates in Py_DecodeLocale
-    size = strlen(g_ExecutableDirName) * 2 + strlen(CX_PATH_FORMAT) + 1;
-    path = PyMem_RawMalloc(sizeof(char) * size);
-    if (!path)
-        return FatalError("Out of memory creating sys.path!");
-    PyOS_snprintf(path, size, CX_PATH_FORMAT,
-                  g_ExecutableDirName, g_ExecutableDirName);
-    wpath = Py_DecodeLocale(path, NULL);
-    PyMem_RawFree(path);
-    if (!wpath)
-        return FatalError("Unable to convert path to string!");
-    PySys_SetPath(wpath);
-    PyMem_RawFree(wpath);
+    // convert executable dir name to wide characters
+    wExecutableDirName = Py_DecodeLocale(g_ExecutableDirName, NULL);
+    if (!wExecutableDirName)
+        return FatalError("Unable to convert executable dir name to string!");
 
     // convert arguments to wide characters
-    wargv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);
+    wargv = PyMem_Malloc(sizeof(wchar_t*) * argc);
     if (!wargv)
         return FatalError("Out of memory converting arguments!");
     for (i = 0; i < argc; i++) {
@@ -190,10 +169,23 @@ static int InitializePython(int argc, char **argv)
         if (!wargv[i])
             return FatalError("Unable to convert argument to string!");
     }
-    PySys_SetArgvEx(argc, wargv, 0);
-    for (i = 0; i < argc; i++)
-        PyMem_RawFree(wargv[i]);
-    PyMem_RawFree(wargv);
+
+    // create sys.path
+    size = wcslen(wExecutableDirName) * 2 + wcslen(CX_PATH_FORMAT) + 1;
+    wPath = PyMem_Malloc(sizeof(wchar_t) * size);
+    if (!wPath)
+        return FatalError("Out of memory creating sys.path!");
+    swprintf(wPath, size, CX_PATH_FORMAT, wExecutableDirName,
+            wExecutableDirName);
+
+    // initialize Python
+    Py_NoSiteFlag = 1;
+    Py_FrozenFlag = 1;
+    Py_IgnoreEnvironmentFlag = 1;
+    Py_SetProgramName(wExecutableName);
+    Py_SetPath(wPath);
+    Py_Initialize();
+    PySys_SetArgv(argc, wargv);
 
     return 0;
 }
@@ -207,9 +199,13 @@ static int InitializePython(int argc, char **argv)
 //-----------------------------------------------------------------------------
 static int ExecuteScript(void)
 {
-    PyObject *module, *function, *result;
+    PyObject *name, *module, *function, *result;
 
-    module = PyImport_ImportModule("__startup__");
+    name = PyUnicode_FromString("__startup__");
+    if (!name)
+        return FatalError("Cannot create string for startup module name!");
+
+    module = PyImport_Import(name);
     if (!module)
         return FatalScriptError();
 
@@ -224,6 +220,7 @@ static int ExecuteScript(void)
     Py_DECREF(result);
     Py_DECREF(function);
     Py_DECREF(module);
+    Py_DECREF(name);
 
     return 0;
 }
