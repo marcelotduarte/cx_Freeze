@@ -3,6 +3,7 @@ Base class for finding modules.
 """
 
 import dis
+import glob
 import imp
 import importlib.machinery
 import importlib.util
@@ -125,6 +126,7 @@ class ModuleFinder(object):
             constants_module=None, zip_includes=None):
         self.include_files = include_files or []
         self.excludes = dict.fromkeys(excludes or [])
+        self.optimizeFlag = 0
         self.path = path or sys.path
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
@@ -424,7 +426,8 @@ class ModuleFinder(object):
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
             try:
-                module.code = compile(codeString, path, "exec")
+                module.code = compile(codeString, path, "exec",
+                                      optimize=self.optimizeFlag)
             except SyntaxError:
                 raise ImportError("Invalid syntax in %s" % path)
         
@@ -462,6 +465,9 @@ class ModuleFinder(object):
             # Scan the module code for import statements
             self._ScanCode(module.code, module, deferredImports)
         
+            # Verify __package__ in use
+            self._ReplacePackageInCode(module)
+
         module.in_import = False
         return module
 
@@ -479,6 +485,35 @@ class ModuleFinder(object):
             module.code = compile("", fileName, "exec")
             logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
         return module
+
+    def _ReplacePackageInCode(self, module):
+        """Replace the value of __package__ directly in the code,
+           only in zipped modules."""
+        co = module.code
+        if co is None or module.parent is None or \
+                module.WillBeStoredInFileSystem() or \
+                "__package__" in module.global_names:
+            # In some modules, like 'six' the variable is defined, so...
+            return
+        # Only if the code references it.
+        if "__package__" in co.co_names:
+            # Insert a bytecode to represent the code:
+            # __package__ = module.parent.name
+            constants = list(co.co_consts)
+            pkg_const_index = len(constants)
+            pkg_name_index = co.co_names.index("__package__")
+            if pkg_const_index > 255 or pkg_name_index > 255:
+                # Don't touch modules with many constants or names;
+                # This is good for now.
+                return
+            # The bytecode/wordcode
+            codes = [LOAD_CONST, pkg_const_index,
+                     STORE_NAME, pkg_name_index]
+            asm_code = bytes(codes)
+            new_code = asm_code + co.co_code
+            constants.append(module.parent.name)
+            code = rebuild_code_object(co, code=new_code, constants=constants)
+            module.code = code
 
     def _ReplacePathsInCode(self, topLevelModule, co):
         """Replace paths in the code as directed, returning a new code object
@@ -518,9 +553,7 @@ class ModuleFinder(object):
            modules are truly missing."""
         arguments = []
         importedModule = None
-        method = dis._unpack_opargs if sys.version_info[:3] >= (3, 5, 2) \
-                else self._UnpackOpArgs
-        for opIndex, op, opArg in method(co.co_code):
+        for opIndex, op, opArg in dis._unpack_opargs(co.co_code):
 
             # keep track of constants (these are used for importing)
             # immediately restart loop so arguments are retained
@@ -564,23 +597,6 @@ class ModuleFinder(object):
                 self._ScanCode(constant, module, deferredImports,
                         topLevel = False)
 
-    def _UnpackOpArgs(self, code):
-        """Unpack the operations and arguments from the byte code. From Python
-           3.5 onwards this is found in the private method _unpack_opargs
-           but for earlier releases this wasn't available as a separate
-           method."""
-        opIndex = 0
-        numOps = len(code)
-        while opIndex < numOps:
-            offset = opIndex
-            op = code[opIndex]
-            opIndex += 1
-            arg = None
-            if op >= dis.HAVE_ARGUMENT:
-                arg = code[opIndex] + code[opIndex + 1] * 256
-                opIndex += 2
-            yield (offset, op, arg)
-
     def AddAlias(self, name, aliasFor):
         """Add an alias for a particular module; when an attempt is made to
            import a module using the alias name, import the actual name
@@ -605,8 +621,7 @@ class ModuleFinder(object):
             moduleName = name
         info = (ext, "r", imp.PY_SOURCE)
         deferredImports = []
-        module = self._LoadModule(moduleName, open(path, "U"), path, info,
-                deferredImports)
+        module = self._LoadModule(moduleName, None, path, info, deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
 
@@ -649,6 +664,16 @@ class ModuleFinder(object):
                              "may not be needed on this platform.\n")
             sys.stdout.write("\n")
 
+    def SetOptimizeFlag(self, optimizeFlag):
+        """Set a new value of optimize flag and returns the previous value."""
+        previous = self.optimizeFlag
+        # The value of optimizeFlag is propagated according to the user's
+        # choice and checked in dist.py or main,py. This value is unlikely
+        # to be wrong, yet we check and ignore any divergent value.
+        if -1 <= optimizeFlag <= 2:
+            self.optimizeFlag = optimizeFlag
+        return previous
+
     def ZipIncludeFiles(self, sourcePath, targetPath):
         """Include the file(s) in the library.zip"""
         self.zip_includes.append((sourcePath, targetPath))
@@ -668,6 +693,25 @@ class Module(object):
         self.source_is_zip_file = False
         self.in_import = True
         self.store_in_file_system = True
+        self.dist_files = None
+        if file_name is not None:
+            dir_name = os.path.dirname(file_name)
+            search_path = os.path.join(dir_name, name+"-*.dist-info")
+        elif path:
+            search_path = path[0]+"-*.dist-info"
+        else:
+            search_path = None
+        if search_path:
+            pathnames = glob.glob(search_path)
+            if pathnames:
+                dist_path = pathnames[0]
+                arc_path = os.path.basename(dist_path)
+                # cache file names to use in write modules
+                dist_files = []
+                for fname in os.listdir(dist_path):
+                    dist_files.append((os.path.join(dist_path, fname),
+                                       os.path.join(arc_path, fname)))
+                self.dist_files = dist_files
 
     def __repr__(self):
         parts = ["name=%s" % repr(self.name)]

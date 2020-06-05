@@ -1,4 +1,4 @@
-'''A setup script to demonstrate build using bcrypt'''
+"""A setup script to demonstrate build using bcrypt"""
 #
 # Run the build process by running the command 'python setup.py build'
 #
@@ -7,13 +7,10 @@
 
 from cx_Freeze import setup, Executable
 
-setup(name='test_bcrypt',
-      version='0.1',
-      description='cx_Freeze script to test bcrypt',
+setup(name="test_bcrypt",
+      version="0.2",
+      description="cx_Freeze script to test bcrypt",
       executables=[Executable("test_bcrypt.py")],
-      options={
-          'build_exe': {'zip_include_packages': ["*"],
-                        'zip_exclude_packages': [],
-                        #'includes': ['_cffi_backend']
-                        }
-          })
+      options={"build_exe": {"excludes": ["tkinter"],
+                             "zip_include_packages": ["*"],
+                             "zip_exclude_packages": []}})

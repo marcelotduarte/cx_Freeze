@@ -393,25 +393,9 @@ static PyObject *ExtGetWindowsDir(
 
 
 //-----------------------------------------------------------------------------
-// ExtSetOptimizeFlag()
-//   Set the optimize flag as needed.
-//-----------------------------------------------------------------------------
-static PyObject *ExtSetOptimizeFlag(
-    PyObject *self,                     // passthrough argument
-    PyObject *args)                     // arguments
-{
-    if (!PyArg_ParseTuple(args, "i", &Py_OptimizeFlag))
-        return NULL;
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-
-//-----------------------------------------------------------------------------
 // Methods
 //-----------------------------------------------------------------------------
 static PyMethodDef g_ModuleMethods[] = {
-    { "SetOptimizeFlag", ExtSetOptimizeFlag, METH_VARARGS },
 #ifdef MS_WINDOWS
     { "BeginUpdateResource", ExtBeginUpdateResource, METH_VARARGS },
     { "UpdateResource", ExtUpdateResource, METH_VARARGS },
@@ -461,4 +445,3 @@ PyMODINIT_FUNC PyInit_util(void)
 #endif
     return module;
 }
-
