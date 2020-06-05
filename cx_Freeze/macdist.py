@@ -212,9 +212,9 @@ class bdist_mac(Command):
 
                 # the output of otool on archive contain self referencing
                 # content inside parantheses.
-                if not os.path.exists(referencedFile):
-                    print("skip unknown file {} ".format(referencedFile))
-                    continue
+                # if not os.path.exists(referencedFile):
+                #     print("skip unknown file {} ".format(referencedFile))
+                #     continue
 
                 path, name = os.path.split(referencedFile)
 
