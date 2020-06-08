@@ -11,7 +11,6 @@ import logging
 import marshal
 import opcode
 import os
-import pkgutil
 import sys
 import tokenize
 import zipfile
@@ -384,8 +383,6 @@ class ModuleFinder(object):
                             namespace = namespace)
             if parentModule is None:
                 return None
-            if namespace:
-                parentModule.ExtendPath()
             path = parentModule.path
             searchName = name[pos + 1:]
 
@@ -726,11 +723,6 @@ class Module(object):
 
     def ExcludeName(self, name):
         self.exclude_names[name] = None
-
-    def ExtendPath(self):
-        self.path = pkgutil.extend_path(self.path, self.name)
-        if self.parent is not None:
-            self.parent.ExtendPath()
 
     def IgnoreName(self, name):
         self.ignore_names[name] = None
