@@ -398,9 +398,10 @@ class ModuleFinder(object):
         # detect namespace packages
         try:
             spec = importlib.util.find_spec(name)
-        except (AttributeError, ValueError):
+        except (AttributeError, ModuleNotFoundError, ValueError):
             spec = None
-        if spec and spec.origin is None and spec.submodule_search_locations:
+        if spec and spec.origin in (None, 'namespace') and \
+                spec.submodule_search_locations:
             path = list(spec.submodule_search_locations)[0]
             return self._LoadNamespacePackage(name, path, parentModule)
         # other modules or packages

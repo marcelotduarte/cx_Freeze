@@ -12,12 +12,19 @@ subdirectory that contains the files needed to run the application
 
 from cx_Freeze import setup, Executable
 
+options = {
+    "build_exe": {
+        "excludes": ["tkinter"],
+    }
+}
+
 executables = [
-    Executable('qotd.py')
+    Executable("qotd.py")
 ]
 
-setup(name='QOTD sample',
-      version='1.1',
-      description='QOTD sample for demonstrating use of namespace packages',
+setup(name="QOTD sample",
+      version="1.1",
+      description="QOTD sample for demonstrating use of namespace packages",
+      options=options,
       executables=executables
       )
