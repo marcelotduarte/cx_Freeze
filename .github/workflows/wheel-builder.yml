@@ -4,8 +4,8 @@
 name: Wheel Builder
 
 on:
-  release:
-    types: [created]
+  repository_dispatch:
+    types: [wheel-builder]
 
 jobs:
   linux:
