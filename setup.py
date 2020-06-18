@@ -199,6 +199,7 @@ setup(name = "cx_Freeze",
         keywords = "freeze",
         license = "Python Software Foundation License",
         package_data = {"cx_Freeze" : packageData },
+        install_requires = ["importlib_metadata; python_version < '3.8'"],
         entry_points = {
                 'console_scripts': [
                         'cxfreeze = cx_Freeze.main:main',
