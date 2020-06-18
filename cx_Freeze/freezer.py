@@ -372,8 +372,7 @@ class Freezer(object):
                 self.constantsModule, self.zipIncludes)
         finder.SetOptimizeFlag(self.optimizeFlag)
         for name in self.namespacePackages:
-            package = finder.IncludeModule(name, namespace = True)
-            package.ExtendPath()
+            finder.IncludeModule(name, namespace = True)
         for name in self.includes:
             finder.IncludeModule(name)
         for name in self.packages:
