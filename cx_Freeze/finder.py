@@ -396,6 +396,16 @@ class ModuleFinder(object):
             self._modules[name] = module
             return module
 
+        # detect namespace packages
+        try:
+            spec = importlib.util.find_spec(name)
+        except (AttributeError, ModuleNotFoundError, ValueError):
+            spec = None
+        if spec and spec.origin in (None, 'namespace') and \
+                spec.submodule_search_locations:
+            path = list(spec.submodule_search_locations)[0]
+            return self._LoadNamespacePackage(name, path, parentModule)
+        # other modules or packages
         try:
             fp, path, info = self._FindModule(searchName, path, namespace)
             if info[-1] == imp.C_BUILTIN and parentModule is not None:
@@ -470,6 +480,14 @@ class ModuleFinder(object):
             self._ReplacePackageInCode(module)
 
         module.in_import = False
+        return module
+
+    def _LoadNamespacePackage(self, name, path, parent):
+        """Load the namespace package, given its name and path."""
+        module = self._AddModule(name, path=[path], parent=parent)
+        filename = os.path.join(path, "__init__.py")
+        module.code = compile("", filename, "exec")
+        logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
         return module
 
     def _LoadPackage(self, name, path, parent, deferredImports, namespace):
