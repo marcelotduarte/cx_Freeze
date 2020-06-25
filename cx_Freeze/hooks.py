@@ -206,6 +206,20 @@ def load_ceODBC(finder, module):
     finder.IncludeModule("decimal")
 
 
+def load_certifi(finder, module):
+    """The certifi package, in python 3.7 and up, uses importlib.resources
+       to locate the cacert.pem in zip packages.
+       In previous versions, it is expected to be stored in the file system."""
+    if not module.WillBeStoredInFileSystem():
+        if sys.version_info < (3, 7):
+            module.store_in_file_system = True
+            return
+        import certifi
+        cacert = certifi.where()
+        target = "certifi/" + os.path.basename(cacert)
+        finder.ZipIncludeFiles(cacert, target)
+
+
 def load_cffi_cparser(finder, module):
     """the cffi.cparser module can use a extension if present."""
     try:
