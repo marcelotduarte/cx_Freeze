@@ -40,7 +40,7 @@ for Windows, freeze it on Windows; if you want to run it on Macs, freeze it on
 a Mac.
 
 At a pinch, you can try to make a Windows executable using
-`Wine <http://www.winehq.org/>`_. Our experience is that you need to copy some
+`Wine <https://www.winehq.org/>`_. Our experience is that you need to copy some
 files in manually after cx_Freeze has run to make the executable work. We don't
 recommend this option.
 
@@ -99,7 +99,7 @@ Single-file executables
 cx_Freeze does not support building a single file exe, where all of the
 libraries for your application are embedded in one executable file.
 
-You can use `IExpress <http://en.wikipedia.org/wiki/IExpress>`_ to compress the
+You can use `IExpress <https://en.wikipedia.org/wiki/IExpress>`_ to compress the
 build directory from cx_Freeze into a self-extracting archive: an exe which
 unpacks your application into a temporary directory and runs it. IExpress is a
 utility that's included with Windows, intended for making installers, but it
@@ -107,6 +107,6 @@ works equally well if you tell it to run the cx_Freeze-built exe after
 extraction.
 
 Alternatively, you can create a `self extracting archive using 7zip
-<http://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_. This is a bit more
+<https://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_. This is a bit more
 complex than using IExpress, but might provide more flexibility, and allows you
 to build your application using only open source tools.

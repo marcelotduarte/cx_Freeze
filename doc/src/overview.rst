@@ -16,7 +16,7 @@ program, along with the shared libraries (DLLs or .so files) needed to run it.
 You can make a simple Windows installer using a :ref:`setup script <distutils>`
 with the ``bdist_msi`` option, or a Mac disk image with ``bdist_dmg``. For a
 more advanced Windows installer, use a separate tool like `Inno Setup
-<http://www.jrsoftware.org/isinfo.php>`_ to package the files cx_Freeze
+<https://www.jrsoftware.org/isinfo.php>`_ to package the files cx_Freeze
 collects.
 
 Python modules for your executables are stored in a zip file. Packages are
