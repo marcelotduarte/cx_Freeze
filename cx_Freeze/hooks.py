@@ -1118,3 +1118,6 @@ def load_pytest(finder, module):
     import pytest
     for m in pytest.freeze_includes():
         finder.IncludeModule(m)
+
+def load_uvloop(finder, module):
+    finder.IncludeModule("uvloop._noop")
