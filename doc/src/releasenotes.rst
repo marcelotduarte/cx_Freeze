@@ -4,12 +4,118 @@ Release notes
 6.x releases
 ############
 
-Version 6.2 (TBD)
------------------
+Version 6.2 (July 2020)
+-----------------------
 
-#)  Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
+#)  New or improved hooks for:
+	aiofiles (`PR #600`_)
+    babel (`PR #577`_)
+	bcrypt (`PR #583`_, `Issue #581`_)
+	certifi (`PR #690`_)
+	cffi.cparser (`PR #603`_)
+	ctypes (for MSYS2 mingw) (`PR #565`_)
+	matplotlib (`PR #574`_, `Issue #569`_)
+	pikepdf (`PR #604`_)
+	lxml (`PR #604`_)
+    pycryptodome (`PR #602`_)
+	pygments (`PR #604`_)
+  	pkg_resources (`PR #584`_, `Issue #579`_)
+	pytest (`PR #617`_)
+	setuptools (`PR #608`_)
+	uvloop (`PR #689`_)
+#)  Linux:
+    Pass command line arguments in current locale (`PR #645`_, `Issue #611`_)
+#)  Windows:
+    Solving multiprocessing pickling errors (`PR #622`_, `Issue #539`_, `Issue #402,`_ `Issue #403`_, `Issue #231`_, `Issue #536`_)
+    Ensure the copy of default python libraries (`PR #640`_)
+    win32gui - replace deprecated functions that will be removed in py4 (`PR #649`_)
+    fix - exclude Tkinter from loaded modules (`PR #576`_, `Issue #567`_)
+    fix - no module named 'scipy.spatial.cKDTree' (`PR #626`_, `Issue #233`_)
+    fix - no module named 'multiprocessing.pool' (`PR #627`_, `Issue #353`_)
+    Download cx_Logging to build Win32Service.exe when building from sources (`PR #650`_, `Issue #519`_)
+#)  macOS:
+    Fixing modification of PATH for single user install (`PR #614`_, `Issue #613`_)
+    Make needed dirs when using include_resources (`PR #633`_)
+    Check for Mach-O using byte strings to allow case of non unicode chars (`PR #635`_)
+    Copy references from /usr/local (`PR #648`_)
+#)  Documentation
+    Update doc and faq (`PR #564`_, `PR #663`_, `PR #688`_)
+    Initial work to be pep8 compliant (`PR #572`_, `PR #582`_)
+#)  Misc
+    Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
+	remove old packages/modules names, do not report as missing (`PR #605`_)
+    better support for msys2 and anaconda3 (`PR #642`_)
+    Support python 3.5.2 and up (`PR #606`_)
+    Support metadata to use by pkg_resources (`PR #608`_)
+    New commom function rebuild_code_object to be reusable (`PR #629`_)
+    Fix optimize option in python 3.8 (`PR #641`_)
+    cmd: Add --include-files option (`PR #647`_)
+    Replace the value of __package__ directly in the code (`PR #651`_)
+    dbm module is in py3 (`PR #662`_)
+    Detect namespace packages (`PR #669`_, `PR #668`_)
+    Installing from source requires setuptools (`PR #687`_)
+    Remove PyUnicode_FromUnicode (`PR #673`_)
 
+
+.. _Issue #231: https://github.com/marcelotduarte/cx_Freeze/issues/231
+.. _Issue #233: https://github.com/marcelotduarte/cx_Freeze/issues/233
+.. _Issue #353: https://github.com/marcelotduarte/cx_Freeze/issues/353
+.. _Issue #402: https://github.com/marcelotduarte/cx_Freeze/issues/402
+.. _Issue #403: https://github.com/marcelotduarte/cx_Freeze/issues/403
+.. _Issue #519: https://github.com/marcelotduarte/cx_Freeze/issues/519
+.. _Issue #536: https://github.com/marcelotduarte/cx_Freeze/issues/536
+.. _Issue #539: https://github.com/marcelotduarte/cx_Freeze/issues/539
 .. _Issue #560: https://github.com/marcelotduarte/cx_Freeze/issues/560
+.. _Issue #567: https://github.com/marcelotduarte/cx_Freeze/issues/567
+.. _Issue #569: https://github.com/marcelotduarte/cx_Freeze/issues/569
+.. _Issue #579: https://github.com/marcelotduarte/cx_Freeze/issues/579
+.. _Issue #581: https://github.com/marcelotduarte/cx_Freeze/issues/581
+.. _Issue #611: https://github.com/marcelotduarte/cx_Freeze/issues/611
+.. _Issue #613: https://github.com/marcelotduarte/cx_Freeze/issues/613
+.. _PR #564: https://github.com/marcelotduarte/cx_Freeze/pull/564
+.. _PR #565: https://github.com/marcelotduarte/cx_Freeze/pull/565
+.. _PR #569: https://github.com/marcelotduarte/cx_Freeze/pull/569
+.. _PR #572: https://github.com/marcelotduarte/cx_Freeze/pull/572
+.. _PR #576: https://github.com/marcelotduarte/cx_Freeze/pull/576
+.. _PR #577: https://github.com/marcelotduarte/cx_Freeze/pull/577
+.. _PR #582: https://github.com/marcelotduarte/cx_Freeze/pull/582
+.. _PR #583: https://github.com/marcelotduarte/cx_Freeze/pull/583
+.. _PR #584: https://github.com/marcelotduarte/cx_Freeze/pull/584
+.. _PR #600: https://github.com/marcelotduarte/cx_Freeze/pull/600
+.. _PR #602: https://github.com/marcelotduarte/cx_Freeze/pull/602
+.. _PR #603: https://github.com/marcelotduarte/cx_Freeze/pull/603
+.. _PR #604: https://github.com/marcelotduarte/cx_Freeze/pull/604
+.. _PR #605: https://github.com/marcelotduarte/cx_Freeze/pull/605
+.. _PR #606: https://github.com/marcelotduarte/cx_Freeze/pull/606
+.. _PR #608: https://github.com/marcelotduarte/cx_Freeze/pull/608
+.. _PR #614: https://github.com/marcelotduarte/cx_Freeze/pull/614
+.. _PR #617: https://github.com/marcelotduarte/cx_Freeze/pull/617
+.. _PR #622: https://github.com/marcelotduarte/cx_Freeze/pull/622
+.. _PR #626: https://github.com/marcelotduarte/cx_Freeze/pull/626
+.. _PR #627: https://github.com/marcelotduarte/cx_Freeze/pull/627
+.. _PR #629: https://github.com/marcelotduarte/cx_Freeze/pull/629
+.. _PR #633: https://github.com/marcelotduarte/cx_Freeze/pull/633
+.. _PR #635: https://github.com/marcelotduarte/cx_Freeze/pull/635
+.. _PR #640: https://github.com/marcelotduarte/cx_Freeze/pull/640
+.. _PR #641: https://github.com/marcelotduarte/cx_Freeze/pull/641
+.. _PR #642: https://github.com/marcelotduarte/cx_Freeze/pull/642
+.. _PR #645: https://github.com/marcelotduarte/cx_Freeze/pull/645
+.. _PR #647: https://github.com/marcelotduarte/cx_Freeze/pull/647
+.. _PR #648: https://github.com/marcelotduarte/cx_Freeze/pull/648
+.. _PR #649: https://github.com/marcelotduarte/cx_Freeze/pull/649
+.. _PR #650: https://github.com/marcelotduarte/cx_Freeze/pull/650
+.. _PR #651: https://github.com/marcelotduarte/cx_Freeze/pull/651
+.. _PR #662: https://github.com/marcelotduarte/cx_Freeze/pull/662
+.. _PR #663: https://github.com/marcelotduarte/cx_Freeze/pull/663
+.. _PR #668: https://github.com/marcelotduarte/cx_Freeze/pull/668
+.. _PR #669: https://github.com/marcelotduarte/cx_Freeze/pull/669
+.. _PR #673: https://github.com/marcelotduarte/cx_Freeze/pull/673
+.. _PR #686: https://github.com/marcelotduarte/cx_Freeze/pull/686
+.. _PR #687: https://github.com/marcelotduarte/cx_Freeze/pull/687
+.. _PR #688: https://github.com/marcelotduarte/cx_Freeze/pull/688
+.. _PR #689: https://github.com/marcelotduarte/cx_Freeze/pull/689
+.. _PR #690: https://github.com/marcelotduarte/cx_Freeze/pull/690
+
 
 
 Version 6.1 (January 2020)
