@@ -26,7 +26,7 @@ Version 6.2 (July 2020)
 #)  Linux:
     Pass command line arguments in current locale (`PR #645`_, `Issue #611`_)
 #)  Windows:
-    Solving multiprocessing pickling errors (`PR #622`_, `Issue #539`_, `Issue #402,`_ `Issue #403`_, `Issue #231`_, `Issue #536`_)
+    Solving multiprocessing pickling errors (`PR #622`_, `Issue #539`_, `Issue #402`_, `Issue #403`_, `Issue #231`_, `Issue #536`_)
     Ensure the copy of default python libraries (`PR #640`_)
     win32gui - replace deprecated functions that will be removed in py4 (`PR #649`_)
     fix - exclude Tkinter from loaded modules (`PR #576`_, `Issue #567`_)
@@ -43,8 +43,8 @@ Version 6.2 (July 2020)
     Initial work to be pep8 compliant (`PR #572`_, `PR #582`_)
 #)  Misc
     Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
-	remove old packages/modules names, do not report as missing (`PR #605`_)
-    better support for msys2 and anaconda3 (`PR #642`_)
+    Remove old packages/modules names, do not report as missing (`PR #605`_)
+    Better support for msys2 and anaconda3 (`PR #642`_)
     Support python 3.5.2 and up (`PR #606`_)
     Support metadata to use by pkg_resources (`PR #608`_)
     New commom function rebuild_code_object to be reusable (`PR #629`_)
@@ -76,6 +76,7 @@ Version 6.2 (July 2020)
 .. _PR #565: https://github.com/marcelotduarte/cx_Freeze/pull/565
 .. _PR #569: https://github.com/marcelotduarte/cx_Freeze/pull/569
 .. _PR #572: https://github.com/marcelotduarte/cx_Freeze/pull/572
+.. _PR #574: https://github.com/marcelotduarte/cx_Freeze/pull/574
 .. _PR #576: https://github.com/marcelotduarte/cx_Freeze/pull/576
 .. _PR #577: https://github.com/marcelotduarte/cx_Freeze/pull/577
 .. _PR #582: https://github.com/marcelotduarte/cx_Freeze/pull/582
