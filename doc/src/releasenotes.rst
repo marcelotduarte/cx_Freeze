@@ -9,7 +9,7 @@ Version 6.2 (TBD)
 
 #)  Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
 
-.. _Issue #560: https://github.com/anthony-tuininga/cx_Freeze/issues/560
+.. _Issue #560: https://github.com/marcelotduarte/cx_Freeze/issues/560
 
 
 Version 6.1 (January 2020)
@@ -49,30 +49,30 @@ Version 6.1 (January 2020)
     the file system and include files in the zip file.
 #)  Improved documentation (`PR #510`_).
 
-.. _PR #297: https://github.com/anthony-tuininga/cx_Freeze/pull/297
-.. _PR #492: https://github.com/anthony-tuininga/cx_Freeze/pull/492
-.. _PR #494: https://github.com/anthony-tuininga/cx_Freeze/pull/494
-.. _PR #502: https://github.com/anthony-tuininga/cx_Freeze/pull/502
-.. _PR #505: https://github.com/anthony-tuininga/cx_Freeze/pull/505
-.. _PR #507: https://github.com/anthony-tuininga/cx_Freeze/pull/507
-.. _PR #508: https://github.com/anthony-tuininga/cx_Freeze/pull/508
-.. _PR #509: https://github.com/anthony-tuininga/cx_Freeze/pull/509
-.. _PR #510: https://github.com/anthony-tuininga/cx_Freeze/pull/510
-.. _PR #511: https://github.com/anthony-tuininga/cx_Freeze/pull/511
-.. _PR #512: https://github.com/anthony-tuininga/cx_Freeze/pull/512
-.. _PR #516: https://github.com/anthony-tuininga/cx_Freeze/pull/516
-.. _PR #518: https://github.com/anthony-tuininga/cx_Freeze/pull/518
-.. _PR #533: https://github.com/anthony-tuininga/cx_Freeze/pull/533
-.. _PR #537: https://github.com/anthony-tuininga/cx_Freeze/pull/537
-.. _PR #545: https://github.com/anthony-tuininga/cx_Freeze/pull/545
-.. _PR #546: https://github.com/anthony-tuininga/cx_Freeze/pull/546
-.. _PR #549: https://github.com/anthony-tuininga/cx_Freeze/pull/549
-.. _PR #552: https://github.com/anthony-tuininga/cx_Freeze/pull/552
-.. _PR #554: https://github.com/anthony-tuininga/cx_Freeze/pull/554
-.. _PR #555: https://github.com/anthony-tuininga/cx_Freeze/pull/555
-.. _PR #556: https://github.com/anthony-tuininga/cx_Freeze/pull/556
-.. _PR #557: https://github.com/anthony-tuininga/cx_Freeze/pull/557
-.. _PR #559: https://github.com/anthony-tuininga/cx_Freeze/pull/559
+.. _PR #297: https://github.com/marcelotduarte/cx_Freeze/pull/297
+.. _PR #492: https://github.com/marcelotduarte/cx_Freeze/pull/492
+.. _PR #494: https://github.com/marcelotduarte/cx_Freeze/pull/494
+.. _PR #502: https://github.com/marcelotduarte/cx_Freeze/pull/502
+.. _PR #505: https://github.com/marcelotduarte/cx_Freeze/pull/505
+.. _PR #507: https://github.com/marcelotduarte/cx_Freeze/pull/507
+.. _PR #508: https://github.com/marcelotduarte/cx_Freeze/pull/508
+.. _PR #509: https://github.com/marcelotduarte/cx_Freeze/pull/509
+.. _PR #510: https://github.com/marcelotduarte/cx_Freeze/pull/510
+.. _PR #511: https://github.com/marcelotduarte/cx_Freeze/pull/511
+.. _PR #512: https://github.com/marcelotduarte/cx_Freeze/pull/512
+.. _PR #516: https://github.com/marcelotduarte/cx_Freeze/pull/516
+.. _PR #518: https://github.com/marcelotduarte/cx_Freeze/pull/518
+.. _PR #533: https://github.com/marcelotduarte/cx_Freeze/pull/533
+.. _PR #537: https://github.com/marcelotduarte/cx_Freeze/pull/537
+.. _PR #545: https://github.com/marcelotduarte/cx_Freeze/pull/545
+.. _PR #546: https://github.com/marcelotduarte/cx_Freeze/pull/546
+.. _PR #549: https://github.com/marcelotduarte/cx_Freeze/pull/549
+.. _PR #552: https://github.com/marcelotduarte/cx_Freeze/pull/552
+.. _PR #554: https://github.com/marcelotduarte/cx_Freeze/pull/554
+.. _PR #555: https://github.com/marcelotduarte/cx_Freeze/pull/555
+.. _PR #556: https://github.com/marcelotduarte/cx_Freeze/pull/556
+.. _PR #557: https://github.com/marcelotduarte/cx_Freeze/pull/557
+.. _PR #559: https://github.com/marcelotduarte/cx_Freeze/pull/559
 
 
 Version 6.0 (August 2019)
@@ -134,53 +134,53 @@ Version 6.0 (August 2019)
     avoid spurious errors when checking for dependent files.
 #)  Improved hook for matplotlib.
 
-.. _Issue #268: https://github.com/anthony-tuininga/cx_Freeze/issues/268
-.. _Issue #292: https://github.com/anthony-tuininga/cx_Freeze/issues/292
-.. _Issue #304: https://github.com/anthony-tuininga/cx_Freeze/issues/304
-.. _Issue #368: https://github.com/anthony-tuininga/cx_Freeze/issues/368
-.. _Issue #332: https://github.com/anthony-tuininga/cx_Freeze/issues/332
-.. _Issue #340: https://github.com/anthony-tuininga/cx_Freeze/issues/340
-.. _Issue #376: https://github.com/anthony-tuininga/cx_Freeze/issues/376
-.. _Issue #426: https://github.com/anthony-tuininga/cx_Freeze/issues/426
-.. _PR #266: https://github.com/anthony-tuininga/cx_Freeze/pull/266
-.. _PR #297: https://github.com/anthony-tuininga/cx_Freeze/pull/297
-.. _PR #307: https://github.com/anthony-tuininga/cx_Freeze/pull/307
-.. _PR #342: https://github.com/anthony-tuininga/cx_Freeze/pull/342
-.. _PR #348: https://github.com/anthony-tuininga/cx_Freeze/pull/348
-.. _PR #349: https://github.com/anthony-tuininga/cx_Freeze/pull/349
-.. _PR #358: https://github.com/anthony-tuininga/cx_Freeze/pull/358
-.. _PR #364: https://github.com/anthony-tuininga/cx_Freeze/pull/364
-.. _PR #365: https://github.com/anthony-tuininga/cx_Freeze/pull/365
-.. _PR #387: https://github.com/anthony-tuininga/cx_Freeze/pull/387
-.. _PR #394: https://github.com/anthony-tuininga/cx_Freeze/pull/394
-.. _PR #395: https://github.com/anthony-tuininga/cx_Freeze/pull/395
-.. _PR #397: https://github.com/anthony-tuininga/cx_Freeze/pull/397
-.. _PR #401: https://github.com/anthony-tuininga/cx_Freeze/pull/401
-.. _PR #419: https://github.com/anthony-tuininga/cx_Freeze/pull/419
-.. _PR #423: https://github.com/anthony-tuininga/cx_Freeze/pull/423
-.. _PR #424: https://github.com/anthony-tuininga/cx_Freeze/pull/424
-.. _PR #427: https://github.com/anthony-tuininga/cx_Freeze/pull/427
-.. _PR #430: https://github.com/anthony-tuininga/cx_Freeze/pull/430
-.. _PR #435: https://github.com/anthony-tuininga/cx_Freeze/pull/435
-.. _PR #442: https://github.com/anthony-tuininga/cx_Freeze/pull/442
-.. _PR #444: https://github.com/anthony-tuininga/cx_Freeze/pull/444
-.. _PR #446: https://github.com/anthony-tuininga/cx_Freeze/pull/446
-.. _PR #468: https://github.com/anthony-tuininga/cx_Freeze/pull/468
-.. _PR #470: https://github.com/anthony-tuininga/cx_Freeze/pull/470
-.. _PR #475: https://github.com/anthony-tuininga/cx_Freeze/pull/475
-.. _PR #476: https://github.com/anthony-tuininga/cx_Freeze/pull/476
-.. _PR #477: https://github.com/anthony-tuininga/cx_Freeze/pull/477
-.. _PR #478: https://github.com/anthony-tuininga/cx_Freeze/pull/478
-.. _PR #481: https://github.com/anthony-tuininga/cx_Freeze/pull/481
-.. _PR #484: https://github.com/anthony-tuininga/cx_Freeze/pull/484
-.. _PR #485: https://github.com/anthony-tuininga/cx_Freeze/pull/485
-.. _PR #486: https://github.com/anthony-tuininga/cx_Freeze/pull/486
-.. _PR #489: https://github.com/anthony-tuininga/cx_Freeze/pull/489
-.. _PR #490: https://github.com/anthony-tuininga/cx_Freeze/pull/490
-.. _PR #491: https://github.com/anthony-tuininga/cx_Freeze/pull/491
-.. _PR #492: https://github.com/anthony-tuininga/cx_Freeze/pull/492
-.. _PR #493: https://github.com/anthony-tuininga/cx_Freeze/pull/493
-.. _PR #495: https://github.com/anthony-tuininga/cx_Freeze/pull/495
+.. _Issue #268: https://github.com/marcelotduarte/cx_Freeze/issues/268
+.. _Issue #292: https://github.com/marcelotduarte/cx_Freeze/issues/292
+.. _Issue #304: https://github.com/marcelotduarte/cx_Freeze/issues/304
+.. _Issue #368: https://github.com/marcelotduarte/cx_Freeze/issues/368
+.. _Issue #332: https://github.com/marcelotduarte/cx_Freeze/issues/332
+.. _Issue #340: https://github.com/marcelotduarte/cx_Freeze/issues/340
+.. _Issue #376: https://github.com/marcelotduarte/cx_Freeze/issues/376
+.. _Issue #426: https://github.com/marcelotduarte/cx_Freeze/issues/426
+.. _PR #266: https://github.com/marcelotduarte/cx_Freeze/pull/266
+.. _PR #297: https://github.com/marcelotduarte/cx_Freeze/pull/297
+.. _PR #307: https://github.com/marcelotduarte/cx_Freeze/pull/307
+.. _PR #342: https://github.com/marcelotduarte/cx_Freeze/pull/342
+.. _PR #348: https://github.com/marcelotduarte/cx_Freeze/pull/348
+.. _PR #349: https://github.com/marcelotduarte/cx_Freeze/pull/349
+.. _PR #358: https://github.com/marcelotduarte/cx_Freeze/pull/358
+.. _PR #364: https://github.com/marcelotduarte/cx_Freeze/pull/364
+.. _PR #365: https://github.com/marcelotduarte/cx_Freeze/pull/365
+.. _PR #387: https://github.com/marcelotduarte/cx_Freeze/pull/387
+.. _PR #394: https://github.com/marcelotduarte/cx_Freeze/pull/394
+.. _PR #395: https://github.com/marcelotduarte/cx_Freeze/pull/395
+.. _PR #397: https://github.com/marcelotduarte/cx_Freeze/pull/397
+.. _PR #401: https://github.com/marcelotduarte/cx_Freeze/pull/401
+.. _PR #419: https://github.com/marcelotduarte/cx_Freeze/pull/419
+.. _PR #423: https://github.com/marcelotduarte/cx_Freeze/pull/423
+.. _PR #424: https://github.com/marcelotduarte/cx_Freeze/pull/424
+.. _PR #427: https://github.com/marcelotduarte/cx_Freeze/pull/427
+.. _PR #430: https://github.com/marcelotduarte/cx_Freeze/pull/430
+.. _PR #435: https://github.com/marcelotduarte/cx_Freeze/pull/435
+.. _PR #442: https://github.com/marcelotduarte/cx_Freeze/pull/442
+.. _PR #444: https://github.com/marcelotduarte/cx_Freeze/pull/444
+.. _PR #446: https://github.com/marcelotduarte/cx_Freeze/pull/446
+.. _PR #468: https://github.com/marcelotduarte/cx_Freeze/pull/468
+.. _PR #470: https://github.com/marcelotduarte/cx_Freeze/pull/470
+.. _PR #475: https://github.com/marcelotduarte/cx_Freeze/pull/475
+.. _PR #476: https://github.com/marcelotduarte/cx_Freeze/pull/476
+.. _PR #477: https://github.com/marcelotduarte/cx_Freeze/pull/477
+.. _PR #478: https://github.com/marcelotduarte/cx_Freeze/pull/478
+.. _PR #481: https://github.com/marcelotduarte/cx_Freeze/pull/481
+.. _PR #484: https://github.com/marcelotduarte/cx_Freeze/pull/484
+.. _PR #485: https://github.com/marcelotduarte/cx_Freeze/pull/485
+.. _PR #486: https://github.com/marcelotduarte/cx_Freeze/pull/486
+.. _PR #489: https://github.com/marcelotduarte/cx_Freeze/pull/489
+.. _PR #490: https://github.com/marcelotduarte/cx_Freeze/pull/490
+.. _PR #491: https://github.com/marcelotduarte/cx_Freeze/pull/491
+.. _PR #492: https://github.com/marcelotduarte/cx_Freeze/pull/492
+.. _PR #493: https://github.com/marcelotduarte/cx_Freeze/pull/493
+.. _PR #495: https://github.com/marcelotduarte/cx_Freeze/pull/495
 
 
 Version 6.0b1 (November 2017)
@@ -195,8 +195,8 @@ Version 6.0b1 (November 2017)
 #)  Ensure the sqlite3 DLL is loaded in the same directory as the module which
     depends on it (`Issue #296`_).
 
-.. _PR #279: https://github.com/anthony-tuininga/cx_Freeze/pull/279
-.. _Issue #296: https://github.com/anthony-tuininga/cx_Freeze/issues/296
+.. _PR #279: https://github.com/marcelotduarte/cx_Freeze/pull/279
+.. _Issue #296: https://github.com/marcelotduarte/cx_Freeze/issues/296
 
 
 5.x releases
@@ -213,10 +213,10 @@ Version 5.1.1 (December 2017)
     the root directory; also add a sample for PyQt5 to demonstrate its correct
     use (`Issue #328`_).
 
-.. _Issue #324: https://github.com/anthony-tuininga/cx_Freeze/issues/324
-.. _Issue #325: https://github.com/anthony-tuininga/cx_Freeze/issues/325
-.. _Issue #328: https://github.com/anthony-tuininga/cx_Freeze/issues/328
-.. _Issue #332: https://github.com/anthony-tuininga/cx_Freeze/issues/332
+.. _Issue #324: https://github.com/marcelotduarte/cx_Freeze/issues/324
+.. _Issue #325: https://github.com/marcelotduarte/cx_Freeze/issues/325
+.. _Issue #328: https://github.com/marcelotduarte/cx_Freeze/issues/328
+.. _Issue #332: https://github.com/marcelotduarte/cx_Freeze/issues/332
 
 
 Version 5.1 (November 2017)
@@ -231,11 +231,11 @@ Version 5.1 (November 2017)
 #)  Droppped support for Python 3.4.
 
 
-.. _PR #272: https://github.com/anthony-tuininga/cx_Freeze/pull/272
-.. _PR #281: https://github.com/anthony-tuininga/cx_Freeze/pull/281
-.. _PR #286: https://github.com/anthony-tuininga/cx_Freeze/pull/286
-.. _PR #295: https://github.com/anthony-tuininga/cx_Freeze/pull/295
-.. _PR #301: https://github.com/anthony-tuininga/cx_Freeze/pull/301
+.. _PR #272: https://github.com/marcelotduarte/cx_Freeze/pull/272
+.. _PR #281: https://github.com/marcelotduarte/cx_Freeze/pull/281
+.. _PR #286: https://github.com/marcelotduarte/cx_Freeze/pull/286
+.. _PR #295: https://github.com/marcelotduarte/cx_Freeze/pull/295
+.. _PR #301: https://github.com/marcelotduarte/cx_Freeze/pull/301
 
 
 Version 5.0.2 (May 2017)
@@ -250,15 +250,15 @@ Version 5.0.2 (May 2017)
 #) Add hook for sqlite3 and improve win32file hook (`PR #261`_)
 #) Add FAQ entry (`PR #267`_)
 
-.. _Issue #225: https://github.com/anthony-tuininga/cx_Freeze/issues/225
-.. _Issue #230: https://github.com/anthony-tuininga/cx_Freeze/issues/230
-.. _PR #235: https://github.com/anthony-tuininga/cx_Freeze/pull/235
-.. _PR #236: https://github.com/anthony-tuininga/cx_Freeze/pull/236
-.. _PR #245: https://github.com/anthony-tuininga/cx_Freeze/pull/245
-.. _PR #251: https://github.com/anthony-tuininga/cx_Freeze/pull/251
-.. _PR #260: https://github.com/anthony-tuininga/cx_Freeze/pull/260
-.. _PR #261: https://github.com/anthony-tuininga/cx_Freeze/pull/261
-.. _PR #267: https://github.com/anthony-tuininga/cx_Freeze/pull/267
+.. _Issue #225: https://github.com/marcelotduarte/cx_Freeze/issues/225
+.. _Issue #230: https://github.com/marcelotduarte/cx_Freeze/issues/230
+.. _PR #235: https://github.com/marcelotduarte/cx_Freeze/pull/235
+.. _PR #236: https://github.com/marcelotduarte/cx_Freeze/pull/236
+.. _PR #245: https://github.com/marcelotduarte/cx_Freeze/pull/245
+.. _PR #251: https://github.com/marcelotduarte/cx_Freeze/pull/251
+.. _PR #260: https://github.com/marcelotduarte/cx_Freeze/pull/260
+.. _PR #261: https://github.com/marcelotduarte/cx_Freeze/pull/261
+.. _PR #267: https://github.com/marcelotduarte/cx_Freeze/pull/267
 
 
 Version 5.0.1 (January 2017)
@@ -483,7 +483,7 @@ Version 4.3 (July 2012)
 #) Added options to build Mac OS X application bundles and DMG packages using
    ``bdist_mac`` and ``bdist_dmg`` distutils commands. Written by Rob Reilink.
 #) The documentation is now using Sphinx, and is `available on ReadTheDocs.org
-   <http://cx_freeze.readthedocs.org/en/latest/index.html>`_.
+   <https://cx_freeze.readthedocs.org/en/latest/index.html>`_.
 #) Added support for Python 3.3 which uses a different compiled file format
    than earlier versions of Python.
 #) Added support for Windows services which start automatically and which are
@@ -824,7 +824,7 @@ Version 3.0.1 (December 2004)
    use for embedding Python where the interface is C but the ability to run
    from source is still desired.
 #) Modified the documentation to indicate that building from source on
-   Windows currently requires the mingw compiler (http://www.mingw.org).
+   Windows currently requires the mingw compiler (https://www.mingw.org).
 #) Workaround the problem in Python 2.3 (fixed in Python 2.4) which causes a
    broken module to be left in sys.modules if an ImportError takes place
    during the execution of the code in that module. Thanks to Roger Binns
