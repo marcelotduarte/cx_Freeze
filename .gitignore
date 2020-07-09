@@ -1,5 +1,7 @@
+.spyproject/
 build/
 dist/
+wheelhouse/
 cx_Freeze/bases
 cx_Freeze/util*.so
 cx_Freeze/util*.dll
