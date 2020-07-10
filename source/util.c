@@ -369,7 +369,7 @@ static PyObject *ExtGetSystemDir(
 {
     OLECHAR dir[MAX_PATH + 1];
     if (GetSystemDirectoryW(dir, sizeof(dir)))
-        return PyUnicode_FromUnicode(dir, wcslen(dir));
+        return PyUnicode_FromWideChar(dir, -1);
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
@@ -385,7 +385,7 @@ static PyObject *ExtGetWindowsDir(
 {
     OLECHAR dir[MAX_PATH + 1];
     if (GetWindowsDirectoryW(dir, sizeof(dir)))
-        return PyUnicode_FromUnicode(dir, wcslen(dir));
+        return PyUnicode_FromWideChar(dir, -1);
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }

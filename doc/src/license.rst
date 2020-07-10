@@ -8,7 +8,7 @@ Licensing
 * All rights reserved.
 
 NOTE: this license is derived from the Python Software Foundation License
-which can be found at http://www.python.org/psf/license
+which can be found at https://www.python.org/psf/license
 
 License for cx_Freeze
 ---------------------

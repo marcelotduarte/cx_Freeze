@@ -9,15 +9,13 @@ import distutils.sysconfig
 import os
 import sys
 
-if sys.version_info < (3, 5):
-    sys.exit("Sorry, Python < 3.5 is not supported. Use cx_Freeze 5 for "
+from setuptools import setup, Extension
+
+
+if sys.version_info < (3, 5, 2):
+    sys.exit("Sorry, Python < 3.5.2 is not supported. Use cx_Freeze 5 for "
             "support of earlier Python versions.")
 
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension
 
 class build_ext(distutils.command.build_ext.build_ext):
 
@@ -158,52 +156,16 @@ for fileName in os.listdir(os.path.join("cx_Freeze", "samples")):
         continue
     packageData.append("samples/%s/*.py" % fileName)
 
-classifiers = [
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Python Software Foundation License",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: C",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3 :: Only",
-        "Topic :: Software Development :: Build Tools",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: System :: Software Distribution",
-        "Topic :: Utilities"
-]
-
-with open("cx_Freeze/__init__.py") as fp:
-    for line in fp:
-        if line.startswith('__version__'):
-            version = line.replace('__version__ = "', '').replace('"\n', '')
-            break
-
-setup(name = "cx_Freeze",
-        description = "create standalone executables from Python scripts",
-        long_description = "create standalone executables from Python scripts",
-        version = version,
-        cmdclass = commandClasses,
-        options = options,
-        ext_modules = extensions,
-        packages = ['cx_Freeze'],
-        maintainer="Anthony Tuininga",
-        maintainer_email="anthony.tuininga@gmail.com",
-        url = "https://anthony-tuininga.github.io/cx_Freeze",
-        classifiers = classifiers,
-        keywords = "freeze",
-        license = "Python Software Foundation License",
-        package_data = {"cx_Freeze" : packageData },
-        entry_points = {
-                'console_scripts': [
-                        'cxfreeze = cx_Freeze.main:main',
-                        'cxfreeze-quickstart = cx_Freeze.setupwriter:main',
-                ],
-        },
-        zip_safe=False,
+setup(
+      cmdclass = commandClasses,
+      options = options,
+      ext_modules = extensions,
+      packages = ["cx_Freeze"],
+      package_data = {"cx_Freeze" : packageData },
+      entry_points = {
+          "console_scripts": [
+              "cxfreeze = cx_Freeze.main:main",
+              "cxfreeze-quickstart = cx_Freeze.setupwriter:main",
+              ],
+    },
 )
