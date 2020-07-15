@@ -7,6 +7,14 @@ Release notes
 Version 6.2 (July 2020)
 -----------------------
 
+#)  Highlights:
+	- Namespace packages are automatically detected
+	- Enhanced support for Python 3.8
+	- Better support for MSYS2
+	- More integrated to setuptools
+	- Initial support for metadata to use by pkg_resources and importlib.metadata
+	- Fixed long-awaited bugs and recent bugs
+	- Fixed issues with multiprocessing (see Windows section)
 #)  New or improved hooks for:
 	- aiofiles (`PR #600`_)
 	- babel (`PR #577`_)
@@ -26,12 +34,12 @@ Version 6.2 (July 2020)
 #)  Linux:
 	- Pass command line arguments in current locale (`PR #645`_, `Issue #611`_)
 #)  Windows:
-	- Solving multiprocessing pickling errors (`PR #622`_, `Issue #539`_, `Issue #402`_, `Issue #403`_, `Issue #231`_, `Issue #536`_)
+	- Fixed multiprocessing pickling errors (`PR #622`_, `Issue #539`_, `Issue #402`_, `Issue #403`_, `Issue #231`_, `Issue #536`_)
 	- Ensure the copy of default python libraries (`PR #640`_)
-	- win32gui - replace deprecated functions that will be removed in py4 (`PR #649`_)
-	- fix - exclude Tkinter from loaded modules (`PR #576`_, `Issue #567`_)
-	- fix - no module named 'scipy.spatial.cKDTree' (`PR #626`_, `Issue #233`_)
-	- fix - no module named 'multiprocessing.pool' (`PR #627`_, `Issue #353`_)
+	- Replace deprecated functions that will be removed in py4 - win32gui (`PR #649`_)
+	- Exclude Tkinter from loaded modules (`PR #576`_, `Issue #567`_)
+	- Fixed "no module named 'scipy.spatial.cKDTree'" (`PR #626`_, `Issue #233`_)
+	- Fixed "no module named 'multiprocessing.pool'" (`PR #627`_, `Issue #353`_)
 	- Download cx_Logging to build Win32Service.exe when building from sources (`PR #650`_, `Issue #519`_)
 #)  macOS:
 	- Fixing modification of PATH for single user install (`PR #614`_, `Issue #613`_)
@@ -44,14 +52,14 @@ Version 6.2 (July 2020)
 #)  Misc
 	- Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
 	- Remove old packages/modules names, do not report as missing (`PR #605`_)
-	- Better support for msys2 and anaconda3 (`PR #642`_)
+	- Better support for MSYS2 and Anaconda3 (`PR #642`_)
 	- Support python 3.5.2 and up (`PR #606`_)
 	- Support metadata to use by pkg_resources (`PR #608`_)
 	- New commom function rebuild_code_object to be reusable (`PR #629`_)
 	- Fix optimize option in python 3.8 (`PR #641`_)
-	- cmd: Add --include-files option (`PR #647`_)
+	- Add --include-files option to ``cxfreeze`` script (`PR #647`_)
 	- Replace the value of __package__ directly in the code (`PR #651`_)
-	- dbm module is in py3 (`PR #662`_)
+	- Eliminate exclusion of ``dbm`` module since it is in Python 3 (`PR #662`_, `Issue #660`_)
 	- Detect namespace packages (`PR #669`_, `PR #668`_)
 	- Installing from source requires setuptools (`PR #687`_)
 	- Remove PyUnicode_FromUnicode (`PR #673`_)
@@ -71,6 +79,7 @@ Version 6.2 (July 2020)
 .. _Issue #581: https://github.com/marcelotduarte/cx_Freeze/issues/581
 .. _Issue #611: https://github.com/marcelotduarte/cx_Freeze/issues/611
 .. _Issue #613: https://github.com/marcelotduarte/cx_Freeze/issues/613
+.. _Issue #660: https://github.com/marcelotduarte/cx_Freeze/issues/660
 .. _PR #564: https://github.com/marcelotduarte/cx_Freeze/pull/564
 .. _PR #565: https://github.com/marcelotduarte/cx_Freeze/pull/565
 .. _PR #569: https://github.com/marcelotduarte/cx_Freeze/pull/569
