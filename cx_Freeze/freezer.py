@@ -151,8 +151,9 @@ class Freezer(object):
                 and source not in self.finder.exclude_dependent_files:
             # Always copy dependent files on root directory
             # to allow to set relative reference
-            if sys.platform == 'darwin':
+            if sys.platform == "darwin":
                 targetDir = self.targetDir
+                relativeSource = False
             sourceDir = os.path.dirname(source)
             for source in self._GetDependentFiles(source):
                 if relativeSource and os.path.isabs(source) and \
@@ -514,8 +515,14 @@ class Freezer(object):
         outFile = zipfile.PyZipFile(fileName, "w", zipfile.ZIP_DEFLATED)
 
         filesToCopy = []
-        ignorePatterns = shutil.ignore_patterns("*.py", "*.pyc", "*.pyo",
-                "__pycache__")
+        ignore_glob_patterns = ["*.py", "*.pyc", "*.pyo", "__pycache__"]
+        if sys.platform == "win32":
+            ignore_glob_patterns.extend(["*.pyd", "*.dll"])
+        else:
+            ignore_glob_patterns.extend(["*.so", "*.so.*"])
+        if sys.platform == "darwin":
+            ignore_glob_patterns.append("*.dylib")
+        ignore_patterns = shutil.ignore_patterns(*ignore_glob_patterns)
         for module in modules:
 
             # determine if the module should be written to the file system;
@@ -528,21 +535,22 @@ class Freezer(object):
             # if the module refers to a package, check to see if this package
             # should be included in the zip file or should be written to the
             # file system; if the package should be written to the file system,
-            # any non-Python files are copied at this point if the target
-            # directory does not already exist
-            if module.path is not None and includeInFileSystem:
+            # data files (non-Python and non-DL files) are copied at this point
+            # if the target directory does not already exist
+            if includeInFileSystem and module.path is not None and \
+                    module.file is not None:
                 parts = module.name.split(".")
-                targetPackageDir = os.path.join(targetDir, *parts)
-                sourcePackageDir = os.path.dirname(module.file)
-                if not os.path.exists(targetPackageDir):
+                target_package_dir = os.path.join(targetDir, *parts)
+                if not os.path.exists(target_package_dir):
                     print("Copying data from package", module.name + "...")
-                    shutil.copytree(sourcePackageDir, targetPackageDir,
-                            ignore = ignorePatterns)
+                    source_package_dir = os.path.dirname(module.file)
+                    shutil.copytree(source_package_dir, target_package_dir,
+                                    ignore=ignore_patterns)
 
             # if an extension module is found in a package that is to be
-            # included in a zip file, save a Python loader in the zip file and
-            # copy the actual file to the build directory because shared
-            # libraries cannot be loaded from a zip file
+            # included in a zip file, copy the actual file to the build
+            # directory because shared libraries cannot be loaded from a
+            # zip file
             if module.code is None and module.file is not None \
                     and not includeInFileSystem:
                 parts = module.name.split(".")[:-1]
@@ -575,7 +583,8 @@ class Freezer(object):
                     parts.append(os.path.basename(module.file))
                     targetName = os.path.join(targetDir, *parts)
                     self._CopyFile(module.file, targetName,
-                            copyDependentFiles = True)
+                                   copyDependentFiles=True,
+                                   relativeSource=True)
                 else:
                     if module.path is not None:
                         parts.append("__init__")
@@ -622,8 +631,9 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target, copyDependentFiles=True,
-                               relativeSource=(sys.platform == "linux"))
+                self._CopyFile(module.file, target,
+                               copyDependentFiles=True,
+                               relativeSource=True)
             finally:
                 os.environ["PATH"] = origPath
 
@@ -661,12 +671,14 @@ class Freezer(object):
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
-                                copyDependentFiles = True)
+                                       copyDependentFiles = True,
+                                       relativeSource=True)
             else:
                 # Copy regular files.
                 fullName = os.path.join(targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
-                        copyDependentFiles = True)
+                               copyDependentFiles=True,
+                               relativeSource=True)
 
 
 class ConfigError(Exception):
