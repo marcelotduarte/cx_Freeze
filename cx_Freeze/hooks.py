@@ -498,15 +498,14 @@ def _get_data_path():
 
 
 def load_numpy(finder, module):
+    finder.ExcludeModule("numpy.random._examples")
+    finder.IncludePackage("numpy")
     if not module.WillBeStoredInFileSystem():
         import numpy
         version = tuple([int(n) for n in numpy.__version__.split(".")])
         del numpy
         if version >= (1, 18, 3):
             module.store_in_file_system = True
-        else:
-            finder.IncludePackage("numpy")
-    finder.ExcludeModule("numpy.random._examples")
 
 
 def load_Numeric(finder, module):
