@@ -23,7 +23,7 @@ options = {
 
         # Sometimes a little fine-tuning is needed
         # exclude all backends except wx
-        'excludes': ['gtk', 'PyQt4', 'PyQt5', 'Tkinter']
+        'excludes': ['gtk', 'PyQt4', 'PyQt5', 'tkinter']
     }
 }
 

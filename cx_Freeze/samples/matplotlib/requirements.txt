@@ -1,2 +1,2 @@
 matplotlib
-wxpython
+wxpython < 4.1

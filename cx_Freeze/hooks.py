@@ -480,7 +480,6 @@ def _get_data_path():
     return os.path.join(os.path.dirname(sys.executable), '{}')
 """
     import matplotlib
-    finder.IncludePackage(module.name)
     data_path = matplotlib.get_data_path()
     target_path = os.path.join("lib", module.name, "mpl-data")
     finder.IncludeFiles(data_path, target_path, copyDependentFiles=False)
@@ -495,18 +494,18 @@ def _get_data_path():
                 constants[i] = rebuild_code_object(co_func)
                 break
         module.code = rebuild_code_object(co, constants=constants)
+    finder.ExcludeModule("matplotlib.tests")
 
 
 def load_numpy(finder, module):
+    finder.ExcludeModule("numpy.random._examples")
     finder.IncludePackage("numpy")
     if not module.WillBeStoredInFileSystem():
-        module.store_in_file_system = True
-
-
-def load_matplotlib_numerix(finder, module):
-    """the numpy.numerix module loads a number of modules dynamically"""
-    for name in ("ma", "fft", "linear_algebra", "random_array", "mlab"):
-        finder.IncludeModule("%s.%s" % (module.name, name))
+        import numpy
+        version = tuple([int(n) for n in numpy.__version__.split(".")])
+        del numpy
+        if version >= (1, 18, 3):
+            module.store_in_file_system = True
 
 
 def load_Numeric(finder, module):
