@@ -17,6 +17,10 @@ import zipfile
 
 from cx_Freeze.common import rebuild_code_object
 import cx_Freeze.hooks
+try:
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    import importlib_metadata
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
 INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
@@ -708,25 +712,36 @@ class Module(object):
         self.source_is_zip_file = False
         self.in_import = True
         self.store_in_file_system = True
-        self.dist_files = None
+        # distribution files (metadata)
+        dist_files = []
         if file_name is not None:
-            dir_name = os.path.dirname(file_name)
-            search_path = os.path.join(dir_name, name+"-*.dist-info")
+            module_dirs = [os.path.dirname(file_name)]
         elif path:
-            search_path = path[0]+"-*.dist-info"
+            module_dirs = path
         else:
-            search_path = None
-        if search_path:
-            pathnames = glob.glob(search_path)
-            if pathnames:
-                dist_path = pathnames[0]
-                arc_path = os.path.basename(dist_path)
-                # cache file names to use in write modules
-                dist_files = []
-                for fname in os.listdir(dist_path):
-                    dist_files.append((os.path.join(dist_path, fname),
-                                       os.path.join(arc_path, fname)))
-                self.dist_files = dist_files
+            module_dirs = None
+        if module_dirs:
+            packages = [name.replace(".","-")]
+            try:
+                requires = importlib_metadata.requires(packages[0])
+            except importlib_metadata.PackageNotFoundError:
+                requires = None
+            if requires is not None:
+                packages += [req.partition(" ")[0] for req in requires]
+            for package_name in packages:
+                try:
+                    files = importlib_metadata.files(package_name)
+                except importlib_metadata.PackageNotFoundError:
+                    files = None
+                if files is not None:
+                    # cache file names to use in write modules
+                    for file in files:
+                        if not file.match('*.dist-info/*'):
+                            continue
+                        dist_path = str(file.locate())
+                        arc_path = file.as_posix()
+                        dist_files.append((dist_path, arc_path))
+        self.dist_files = dist_files
 
     def __repr__(self):
         parts = ["name=%s" % repr(self.name)]

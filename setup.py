@@ -162,6 +162,7 @@ setup(
       ext_modules = extensions,
       packages = ["cx_Freeze"],
       package_data = {"cx_Freeze" : packageData },
+      install_requires = ["importlib_metadata; python_version < '3.8'"],
       entry_points = {
           "console_scripts": [
               "cxfreeze = cx_Freeze.main:main",
