@@ -152,6 +152,21 @@ static int InitializePython(int argc, char **argv)
     if (SetExecutableName(argv[0]) < 0)
         return -1;
 
+    // create sys.path before Py_Initialize for compatibility py < 3.8
+    size = strlen(g_ExecutableDirName) * 2 + strlen(CX_PATH_FORMAT) + 1;
+    path = PyMem_RawMalloc(sizeof(char) * size);
+    if (!path)
+        return FatalError("Out of memory creating sys.path!");
+    PyOS_snprintf(path, size, CX_PATH_FORMAT,
+                  g_ExecutableDirName, g_ExecutableDirName);
+    wpath = Py_DecodeLocale(path, NULL);
+    if (!wpath) {
+        PyMem_RawFree(path);
+        return FatalError("Unable to convert path to string!");
+    }
+    Py_SetPath(wpath);
+    PyMem_RawFree(wpath);
+
     // initialize Python
     Py_NoSiteFlag = 1;
     Py_FrozenFlag = 1;
@@ -166,14 +181,8 @@ static int InitializePython(int argc, char **argv)
         return FatalError("Unable to set executable name!");
     Py_DECREF(executable);
 
-    // create sys.path
-    // after Py_Initialize to eliminate surrogates in Py_DecodeLocale
-    size = strlen(g_ExecutableDirName) * 2 + strlen(CX_PATH_FORMAT) + 1;
-    path = PyMem_RawMalloc(sizeof(char) * size);
-    if (!path)
-        return FatalError("Out of memory creating sys.path!");
-    PyOS_snprintf(path, size, CX_PATH_FORMAT,
-                  g_ExecutableDirName, g_ExecutableDirName);
+    // recreate sys.path after Py_Initialize to eliminate surrogatescapes
+    // in Py_DecodeLocale
     wpath = Py_DecodeLocale(path, NULL);
     PyMem_RawFree(path);
     if (!wpath)
