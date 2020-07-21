@@ -178,36 +178,38 @@ class Freezer(object):
                 ".py")
         finder.IncludeFile(startupModule)
 
-        # Copy the python dynamic libraries
-        copyDependentFiles = True
-        if sys.platform == "linux":
+        # Ensure the copy of default python libraries
+        dependent_files = self._GetDependentFiles(exe.base) or []
+        dependent_files += self._GetDependentFiles(sys.executable) or []
+        dependent_files = list(set(dependent_files))
+        for name in self._GetDefaultBinIncludes():
+            normalized_name = os.path.normcase(name)
+            found = False
+            for dependent_name in dependent_files[:]:
+                if os.path.normcase(dependent_name).endswith(normalized_name):
+                    found = True
+                    break
+                source_dir = os.path.dirname(dependent_name)
+                source = os.path.join(source_dir, name)
+                if os.path.isfile(source):
+                    dependent_files.append(source)
+                    found = True
+                    break
+            if not found:
+                print('warning: default bin include not found', name)
+        # Copy the python dynamic libraries and the frozen executable
+        if sys.platform == "win32":
+            # Copy the python dynamic libraries into build root folder
+            target_dir = os.path.dirname(exe.targetName)
+        else:
             # Always copy the python dynamic libraries into lib folder
-            targetDir = os.path.join(os.path.dirname(exe.targetName), 'lib')
-            dependentFiles = self._GetDependentFiles(exe.base) or \
-                             self._GetDependentFiles(sys.executable)
-            for source in dependentFiles:
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target,
-                               copyDependentFiles=True, includeMode=True)
-            copyDependentFiles = False
-        elif sys.platform == "win32":
-            # Copy the python dynamic libraries into build folder
-            targetDir = os.path.dirname(exe.targetName)
-            dependentFiles = self._GetDependentFiles(exe.base) or \
-                             self._GetDependentFiles(sys.executable)
-            # Ensure the copy of default python libraries
-            sourceDir = os.path.dirname(dependentFiles[0])
-            for name in self._GetDefaultBinIncludes():
-                source = os.path.join(sourceDir, os.path.normcase(name))
-                if source not in dependentFiles:
-                    dependentFiles.append(source)
-            for source in dependentFiles:
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target,
-                               copyDependentFiles=True, includeMode=True)
-            copyDependentFiles = False
+            target_dir = os.path.join(os.path.dirname(exe.targetName), "lib")
+        for source in dependent_files:
+            target = os.path.join(target_dir, os.path.basename(source))
+            self._CopyFile(source, target,
+                           copyDependentFiles=True, includeMode=True)
         self._CopyFile(exe.base, exe.targetName,
-                       copyDependentFiles=copyDependentFiles, includeMode=True)
+                       copyDependentFiles=False, includeMode=True)
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
