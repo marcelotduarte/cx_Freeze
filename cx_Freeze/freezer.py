@@ -151,9 +151,8 @@ class Freezer(object):
                 and source not in self.finder.exclude_dependent_files:
             # Always copy dependent files on root directory
             # to allow to set relative reference
-            if sys.platform == "darwin":
+            if sys.platform == 'darwin':
                 targetDir = self.targetDir
-                relativeSource = False
             sourceDir = os.path.dirname(source)
             for source in self._GetDependentFiles(source):
                 if relativeSource and os.path.isabs(source) and \
@@ -515,14 +514,10 @@ class Freezer(object):
         outFile = zipfile.PyZipFile(fileName, "w", zipfile.ZIP_DEFLATED)
 
         filesToCopy = []
-        ignore_glob_patterns = ["*.py", "*.pyc", "*.pyo", "__pycache__"]
-        if sys.platform == "win32":
-            ignore_glob_patterns.extend(["*.pyd", "*.dll"])
-        else:
-            ignore_glob_patterns.extend(["*.so", "*.so.*"])
-        if sys.platform == "darwin":
-            ignore_glob_patterns.append("*.dylib")
-        ignore_patterns = shutil.ignore_patterns(*ignore_glob_patterns)
+        ignore_patterns_glob = ["*.py", "*.pyc", "*.pyo", "__pycache__"]
+        if sys.platform == "linux":
+            ignore_patterns_glob.extend(["*.so", "*.so.*"])
+        ignore_patterns = shutil.ignore_patterns(*ignore_patterns_glob)
         for module in modules:
 
             # determine if the module should be written to the file system;
@@ -583,8 +578,7 @@ class Freezer(object):
                     parts.append(os.path.basename(module.file))
                     targetName = os.path.join(targetDir, *parts)
                     self._CopyFile(module.file, targetName,
-                                   copyDependentFiles=True,
-                                   relativeSource=True)
+                            copyDependentFiles = True)
                 else:
                     if module.path is not None:
                         parts.append("__init__")
@@ -631,9 +625,8 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target,
-                               copyDependentFiles=True,
-                               relativeSource=True)
+                self._CopyFile(module.file, target, copyDependentFiles=True,
+                               relativeSource=(sys.platform == "linux"))
             finally:
                 os.environ["PATH"] = origPath
 
@@ -671,14 +664,12 @@ class Freezer(object):
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
-                                       copyDependentFiles = True,
-                                       relativeSource=True)
+                                copyDependentFiles = True)
             else:
                 # Copy regular files.
                 fullName = os.path.join(targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
-                               copyDependentFiles=True,
-                               relativeSource=True)
+                        copyDependentFiles = True)
 
 
 class ConfigError(Exception):
