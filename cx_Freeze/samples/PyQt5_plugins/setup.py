@@ -1,10 +1,43 @@
-
+import sys, os, site
 from cx_Freeze import setup, Executable
-from util import getQtPluginIncludes
+from typing import List, Tuple
 
 PACKAGENAME = "TEST"
-
 INCLUDE_QT = True  # whether to include certain PyQT-related files
+
+
+
+def getQtPluginIncludes(pluginList: List[str]) -> List[Tuple[str,str]]:
+    includes = []
+    for ppath in pluginList:
+        includes.append(_getInclude(ppath))
+        pass
+    return includes
+
+def _getInclude(pluginPath: str) -> Tuple[str,str]:
+    foundPath = None
+
+    if sys.platform == "darwin":
+        packagesDirs = [c for c in sys.path if c.find("site-packages")!=-1]
+    else:
+        packagesDirs = site.getsitepackages()  # search site packages locations to see if we can find required .dll
+        pass
+    for pdir in packagesDirs:
+        testPath = os.path.join(pdir, os.path.join("PyQt5", "Qt", "plugins", pluginPath ))
+        bname = os.path.basename(pluginPath)
+
+        # print("Checking for {} at {}".format(bname, testPath))
+        if os.path.exists(testPath):
+            foundPath = testPath
+            # print("DLL Found")
+            break
+        pass
+    if foundPath is None:
+        print("Error, could not find: {}".format(pluginPath))
+        sys.exit(1)
+
+    return (foundPath, pluginPath)
+
 
 
 # force the inclusion of certain plugins that cx-freeze cannot find on its own

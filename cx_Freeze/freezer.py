@@ -372,7 +372,8 @@ class Freezer(object):
                     if dependentFile:
                         dependentFiles.append(dependentFile)
 
-            dependentFiles = [f for f in dependentFiles if self._ShouldCopyFile(f)]
+            dependentFiles = [os.path.normcase(f) for f in dependentFiles if
+                              self._ShouldCopyFile(f)]
             self.dependentFiles[path] = dependentFiles
         return dependentFiles
 

@@ -215,7 +215,8 @@ class build_exe(distutils.core.Command):
                                     zipIncludePackages=self.zip_include_packages,
                                     zipExcludePackages=self.zip_exclude_packages)
 
-        self.freezer = freezer  # keep freezer around so that its data case be used in bdist_mac phase
+        # keep freezer around so that its data case be used in bdist_mac phase
+        self.freezer = freezer
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
