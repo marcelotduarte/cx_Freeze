@@ -530,7 +530,8 @@ class Freezer(object):
             # file system; if the package should be written to the file system,
             # any non-Python files are copied at this point if the target
             # directory does not already exist
-            if module.path is not None and includeInFileSystem:
+            if includeInFileSystem and module.path is not None and \
+                    module.file is not None:
                 parts = module.name.split(".")
                 targetPackageDir = os.path.join(targetDir, *parts)
                 sourcePackageDir = os.path.dirname(module.file)
@@ -568,7 +569,7 @@ class Freezer(object):
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
-            if includeInFileSystem:
+            if includeInFileSystem and module.file is not None:
                 parts = module.name.split(".")
                 if module.code is None:
                     parts.pop()
