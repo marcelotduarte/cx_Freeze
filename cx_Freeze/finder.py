@@ -540,6 +540,8 @@ class ModuleFinder(object):
         origFileName = newFileName = os.path.normpath(co.co_filename)
         for searchValue, replaceValue in self.replace_paths:
             if searchValue == "*":
+                if topLevelModule.file is None:
+                    continue
                 searchValue = os.path.dirname(topLevelModule.file)
                 if topLevelModule.path:
                     searchValue = os.path.dirname(searchValue)
