@@ -149,6 +149,9 @@ class Freezer(object):
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles \
                 and source not in self.finder.exclude_dependent_files:
+            # TODO: relativeSource for other platforms
+            if sys.platform != "linux":
+                relativeSource = False
             # Always copy dependent files on root directory
             # to allow to set relative reference
             if sys.platform == 'darwin':
@@ -178,36 +181,38 @@ class Freezer(object):
                 ".py")
         finder.IncludeFile(startupModule)
 
-        # Copy the python dynamic libraries
-        copyDependentFiles = True
-        if sys.platform == "linux":
+        # Ensure the copy of default python libraries
+        dependent_files = self._GetDependentFiles(exe.base) or []
+        dependent_files += self._GetDependentFiles(sys.executable) or []
+        dependent_files = list(set(dependent_files))
+        for name in self._GetDefaultBinIncludes():
+            normalized_name = os.path.normcase(name)
+            found = False
+            for dependent_name in dependent_files[:]:
+                if os.path.normcase(dependent_name).endswith(normalized_name):
+                    found = True
+                    break
+                source_dir = os.path.dirname(dependent_name)
+                source = os.path.join(source_dir, name)
+                if os.path.isfile(source):
+                    dependent_files.append(source)
+                    found = True
+                    break
+            if not found:
+                print('warning: default bin include not found', name)
+        # Copy the python dynamic libraries and the frozen executable
+        if sys.platform == "win32":
+            # Copy the python dynamic libraries into build root folder
+            target_dir = os.path.dirname(exe.targetName)
+        else:
             # Always copy the python dynamic libraries into lib folder
-            targetDir = os.path.join(os.path.dirname(exe.targetName), 'lib')
-            dependentFiles = self._GetDependentFiles(exe.base) or \
-                             self._GetDependentFiles(sys.executable)
-            for source in dependentFiles:
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target,
-                               copyDependentFiles=True, includeMode=True)
-            copyDependentFiles = False
-        elif sys.platform == "win32":
-            # Copy the python dynamic libraries into build folder
-            targetDir = os.path.dirname(exe.targetName)
-            dependentFiles = self._GetDependentFiles(exe.base) or \
-                             self._GetDependentFiles(sys.executable)
-            # Ensure the copy of default python libraries
-            sourceDir = os.path.dirname(dependentFiles[0])
-            for name in self._GetDefaultBinIncludes():
-                source = os.path.join(sourceDir, os.path.normcase(name))
-                if source not in dependentFiles:
-                    dependentFiles.append(source)
-            for source in dependentFiles:
-                target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target,
-                               copyDependentFiles=True, includeMode=True)
-            copyDependentFiles = False
+            target_dir = os.path.join(os.path.dirname(exe.targetName), "lib")
+        for source in dependent_files:
+            target = os.path.join(target_dir, os.path.basename(source))
+            self._CopyFile(source, target,
+                           copyDependentFiles=True, includeMode=True)
         self._CopyFile(exe.base, exe.targetName,
-                       copyDependentFiles=copyDependentFiles, includeMode=True)
+                       copyDependentFiles=False, includeMode=True)
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
@@ -530,7 +535,8 @@ class Freezer(object):
             # file system; if the package should be written to the file system,
             # any non-Python files are copied at this point if the target
             # directory does not already exist
-            if module.path is not None and includeInFileSystem:
+            if includeInFileSystem and module.path is not None and \
+                    module.file is not None:
                 parts = module.name.split(".")
                 targetPackageDir = os.path.join(targetDir, *parts)
                 sourcePackageDir = os.path.dirname(module.file)
@@ -568,24 +574,20 @@ class Freezer(object):
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
-            if includeInFileSystem:
+            if includeInFileSystem and module.file is not None:
                 parts = module.name.split(".")
                 if module.code is None:
                     parts.pop()
                     parts.append(os.path.basename(module.file))
                     targetName = os.path.join(targetDir, *parts)
                     self._CopyFile(module.file, targetName,
-                            copyDependentFiles = True)
+                                   copyDependentFiles=True,
+                                   relativeSource=True)
                 else:
                     if module.path is not None:
                         parts.append("__init__")
                     targetName = os.path.join(targetDir, *parts) + ".pyc"
                     open(targetName, "wb").write(data)
-                if module.dist_files:
-                    for filepath, arcname in module.dist_files:
-                        self._CopyFile(filepath,
-                                       os.path.join(targetDir, arcname),
-                                       copyDependentFiles=False)
 
             # otherwise, write to the zip file
             elif module.code is not None:
@@ -597,9 +599,12 @@ class Freezer(object):
                 if self.compress:
                     zinfo.compress_type = zipfile.ZIP_DEFLATED
                 outFile.writestr(zinfo, data)
-                if module.dist_files:
-                    for filepath, arcname in module.dist_files:
-                        outFile.write(filepath, arcname.replace("\\", "/"))
+
+            # put the distribution files metadata in the zip file
+            if module.dist_files:
+                for filepath, arcname in module.dist_files:
+                    if arcname not in outFile.namelist():
+                        outFile.write(filepath, arcname)
 
         # write any files to the zip file that were requested specially
         for sourceFileName, targetFileName in finder.zip_includes:
@@ -622,8 +627,9 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target, copyDependentFiles=True,
-                               relativeSource=(sys.platform == "linux"))
+                self._CopyFile(module.file, target,
+                               copyDependentFiles=True,
+                               relativeSource=True)
             finally:
                 os.environ["PATH"] = origPath
 
@@ -661,12 +667,14 @@ class Freezer(object):
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
-                                copyDependentFiles = True)
+                                       copyDependentFiles=True,
+                                       relativeSource=True)
             else:
                 # Copy regular files.
                 fullName = os.path.join(targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
-                        copyDependentFiles = True)
+                               copyDependentFiles=True,
+                               relativeSource=True)
 
 
 class ConfigError(Exception):

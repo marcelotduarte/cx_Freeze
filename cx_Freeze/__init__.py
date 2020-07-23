@@ -1,3 +1,4 @@
+import setuptools
 import sys
 from cx_Freeze.dist import bdist_rpm, build, build_exe, install, install_exe,\
     setup

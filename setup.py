@@ -2,14 +2,13 @@
 Distutils script for cx_Freeze.
 """
 
+from setuptools import setup, Extension
 import distutils.command.build_ext
 import distutils.command.install
 import distutils.command.install_data
 import distutils.sysconfig
 import os
 import sys
-
-from setuptools import setup, Extension
 
 
 if sys.version_info < (3, 5, 2):
@@ -162,6 +161,7 @@ setup(
       ext_modules = extensions,
       packages = ["cx_Freeze"],
       package_data = {"cx_Freeze" : packageData },
+      install_requires = ["importlib_metadata; python_version < '3.8'"],
       entry_points = {
           "console_scripts": [
               "cxfreeze = cx_Freeze.main:main",
