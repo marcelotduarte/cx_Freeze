@@ -149,6 +149,9 @@ class Freezer(object):
         self.filesCopied[normalizedTarget] = None
         if copyDependentFiles \
                 and source not in self.finder.exclude_dependent_files:
+            # TODO: relativeSource for other platforms
+            if sys.platform != "linux":
+                relativeSource = False
             # Always copy dependent files on root directory
             # to allow to set relative reference
             if sys.platform == 'darwin':
@@ -576,7 +579,8 @@ class Freezer(object):
                     parts.append(os.path.basename(module.file))
                     targetName = os.path.join(targetDir, *parts)
                     self._CopyFile(module.file, targetName,
-                            copyDependentFiles = True)
+                                   copyDependentFiles=True,
+                                   relativeSource=True)
                 else:
                     if module.path is not None:
                         parts.append("__init__")
@@ -621,8 +625,9 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target, copyDependentFiles=True,
-                               relativeSource=(sys.platform == "linux"))
+                self._CopyFile(module.file, target,
+                               copyDependentFiles=True,
+                               relativeSource=True)
             finally:
                 os.environ["PATH"] = origPath
 
@@ -660,12 +665,14 @@ class Freezer(object):
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
                         self._CopyFile(fullSourceName, fullTargetName,
-                                copyDependentFiles = True)
+                                       copyDependentFiles=True,
+                                       relativeSource=True)
             else:
                 # Copy regular files.
                 fullName = os.path.join(targetDir, targetFileName)
                 self._CopyFile(sourceFileName, fullName,
-                        copyDependentFiles = True)
+                               copyDependentFiles=True,
+                               relativeSource=True)
 
 
 class ConfigError(Exception):
