@@ -431,7 +431,7 @@ def load_glib(finder, module):
 
 
 def load_google_cloud(finder, module):
-    """the google.cloud package uses an extension."""
+    """the google.cloud package always uses _http module."""
     finder.IncludeModule("google.cloud._http")
 
 
