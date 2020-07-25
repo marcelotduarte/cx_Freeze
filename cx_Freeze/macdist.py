@@ -6,7 +6,7 @@ import subprocess
 
 from cx_Freeze.common import normalize_to_list
 
-from cx_Freeze.darwintools import changeLoadReference
+from cx_Freeze.darwintools import changeLoadReference, DarwinFile, DarwinFileTracker
 
 __all__ = ["bdist_dmg", "bdist_mac"]
 
@@ -178,14 +178,23 @@ class bdist_mac(Command):
         #TODO: Do an initial pass through the DarwinFiles to see if any references on DarwinFiles copied into the
         # bundle that were not already set--in which case we set them?
 
-        for mf in self.darwinFiles:
-            relativeMFDest = os.path.relpath(mf.copyDestinationPath, buildDir)
-            filePathInBinDir = os.path.join(binDir, relativeMFDest)
-            for path, ref in mf.machReferenceDict.items():
-                if not ref.isCopied: continue
-                rawPath = ref.rawPath  # this is the reference in the machO file that needs to be updated
-                targFile = ref.targetFile
-                absoluteDest = targFile.copyDestinationPath  # this is the absolute in the build directory
+        for darwinFile in self.darwinTracker:
+            # get the relative path to darwinFile in build directory
+            relativeCopyDestination = os.path.relpath(darwinFile.copyDestinationPath, buildDir)
+            # figure out directory where it will go in binary directory
+            filePathInBinDir = os.path.join(binDir, relativeCopyDestination)
+
+            # for each file that this darwinFile references, update the reference as necessary
+            # if the file is copied into the binary package, change the refernce to be relative to
+            # @executable_path (so an .app bundle will work wherever it is moved)
+            for path, machORef in darwinFile.machReferenceDict.items():
+                if not machORef.isCopied:
+                    # referenced file not copied -- assume this is a system file that will also be
+                    # present on the user's machine, and do not change reference
+                    continue
+                rawPath = machORef.rawPath  # this is the reference in the machO file that needs to be updated
+                referencedDarwinFile: DarwinFile = machORef.targetFile
+                absoluteDest = referencedDarwinFile.copyDestinationPath  # this is the absolute in the build directory
                 relativeDest = os.path.relpath(absoluteDest, buildDir)
                 exePath = "@executable_path/{}".format(relativeDest)
                 changeLoadReference(filePathInBinDir,oldReference=rawPath,newReference=exePath, VERBOSE=False)
@@ -242,7 +251,7 @@ class bdist_mac(Command):
     def run(self):
         self.run_command('build')
         build = self.get_finalized_command('build')
-        freezer = self.get_finalized_command('build_exe').freezer
+        freezer: "freezer.Freezer" = self.get_finalized_command('build_exe').freezer
 
         # Define the paths within the application bundle
         self.bundleDir = os.path.join(build.build_base,
@@ -289,7 +298,7 @@ class bdist_mac(Command):
         self.execute(self.create_plist, ())
 
         # Make all references to libraries relative
-        self.darwinFiles = freezer.darwinFiles
+        self.darwinTracker: DarwinFileTracker = freezer.darwinTracker
         self.execute(self.setRelativeReferencePaths, (os.path.abspath(build.build_exe), os.path.abspath(self.binDir)))
 
         # Make library references absolute if enabled

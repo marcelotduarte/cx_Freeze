@@ -16,10 +16,11 @@ import struct
 import sys
 import sysconfig
 import time
+from typing import Optional
 import zipfile
 
 import cx_Freeze
-from cx_Freeze.darwintools import DarwinFile, MachOReference
+from cx_Freeze.darwintools import DarwinFile, MachOReference, DarwinFileTracker
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
@@ -139,18 +140,9 @@ class Freezer(object):
             if sys.platform == "darwin" and (machOReference is not None):
                 # If file was already copied, and we are following a reference from a DarwinFile, then we need
                 # to tell the reference where the file was copied to.
-                if normalizedTarget not in self.darwinFileDict:
-                    raise Exception("File \"{}\" already copied to, but no DarwinFile object found for it.".format(normalizedTarget))
-                assert (normalizedTarget in self.darwinFileDict)
-                # confirm that the file already copied to this location came from the same source
-                targetFile: DarwinFile = self.darwinFileDict[normalizedTarget]
-                machOReference.setTargetFile(darwinFile=targetFile)
-                if targetFile.originalObjectPath != normalizedSource:
-                    raise Exception("Attempting to copy two files to \"{}\" (\"{}\" and \"{}\")".format(
-                        normalizedTarget, normalizedSource, targetFile.originalObjectPath
-                    ))
-                assert( targetFile.originalObjectPath == normalizedSource )
-                #TODO: we should check that targetFile has the same source path as the reference specifies (otherwise, we have multiple files being copied to the same target...
+                targetDarwinFile = self.darwinTracker.getDarwinFile(sourcePath=normalizedSource,
+                                                                    targetPath=normalizedTarget)
+                machOReference.setTargetFile(darwinFile=targetDarwinFile)
             return
         if normalizedSource == normalizedTarget:
             return
@@ -175,8 +167,7 @@ class Freezer(object):
             newDarwinFile.copyDestinationPath = normalizedTarget
             if machOReference is not None:
                 machOReference.setTargetFile(darwinFile=newDarwinFile)
-            self.darwinFiles.append(newDarwinFile)
-            self.darwinFileDict[normalizedTarget] = newDarwinFile
+            self.darwinTracker.addFile(targetPath=normalizedTarget, darwinFile=newDarwinFile)
             pass
 
         if copyDependentFiles \
@@ -647,8 +638,10 @@ class Freezer(object):
         self.filesCopied = {}
         self.linkerWarnings = {}
         self.msvcRuntimeDir = None
-        self.darwinFiles = []
-        self.darwinFileDict = {}
+
+        self.darwinTracker: Optional[DarwinFileTracker] = None
+        if sys.platform == "darwin":
+            self.darwinTracker = DarwinFileTracker()
 
         self.finder = self._GetModuleFinder()
         for executable in self.executables:

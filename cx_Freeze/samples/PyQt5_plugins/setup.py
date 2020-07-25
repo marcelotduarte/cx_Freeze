@@ -81,6 +81,8 @@ bdist_dmg_options = {
 }
 
 exe = Executable(script = "test_script.py")
+exe2 = Executable(script = "test_script2.py")
+
 
 setup(  name = "Test application",
         author = "[author]",
@@ -88,5 +90,5 @@ setup(  name = "Test application",
         maintainer_email = "[email]",
         options = {"build":build_options, "build_exe" : build_exe_options, "bdist_mac": bdist_mac_options,
                    "bdist_dmg": bdist_dmg_options},
-        executables = [exe]
+        executables = [exe, exe2]
         )
