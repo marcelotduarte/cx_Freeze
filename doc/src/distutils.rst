@@ -250,11 +250,10 @@ command:
    * - target_name
      - specifies the name of the file that is to be created
    * - upgrade_code
-     - define the upgrade code for the package that is created; this is used to
-       force removal of any packages created with the same upgrade code prior
-       to the installation of this one; the valid format for a GUID is
-       {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit
-       (0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F).
+     - define the GUID of the upgrade code for the package that is created;
+       this is used to force removal of any packages created with the same
+       upgrade code prior to the installation of this one; the valid format for
+       a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
 
 For example::
 
