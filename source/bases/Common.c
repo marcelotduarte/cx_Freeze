@@ -152,7 +152,8 @@ static int InitializePython(int argc, char **argv)
     if (SetExecutableName(argv[0]) < 0)
         return -1;
 
-    // create sys.path before Py_Initialize for compatibility py < 3.8
+    // create sys.path before Py_Initialize for compatibility with
+    // some versions of python in mac
     size = strlen(g_ExecutableDirName) * 2 + strlen(CX_PATH_FORMAT) + 1;
     path = PyMem_RawMalloc(sizeof(char) * size);
     if (!path)
