@@ -3,7 +3,6 @@ Base class for finding modules.
 """
 
 import dis
-import glob
 import imp
 import importlib.machinery
 import importlib.util
@@ -399,7 +398,7 @@ class ModuleFinder(object):
         # detect namespace packages
         try:
             spec = importlib.util.find_spec(name)
-        except (AttributeError, ModuleNotFoundError, ValueError):
+        except (AttributeError, ImportError, TypeError, ValueError):
             spec = None
         if spec and spec.origin in (None, 'namespace') and \
                 spec.submodule_search_locations:
@@ -541,6 +540,8 @@ class ModuleFinder(object):
         origFileName = newFileName = os.path.normpath(co.co_filename)
         for searchValue, replaceValue in self.replace_paths:
             if searchValue == "*":
+                if topLevelModule.file is None:
+                    continue
                 searchValue = os.path.dirname(topLevelModule.file)
                 if topLevelModule.path:
                     searchValue = os.path.dirname(searchValue)
