@@ -879,7 +879,8 @@ def load_scipy(finder, module):
        being present."""
     finder.IncludePackage("scipy._lib")
     finder.IncludePackage("scipy.misc")
-    finder.ExcludeModule("scipy.spatial.cKDTree")
+    if WIN32:
+        finder.ExcludeModule("scipy.spatial.cKDTree")
 
 
 def load_scipy_linalg(finder, module):
@@ -895,9 +896,26 @@ def load_scipy_linalg_interface_gen(finder, module):
     module.IgnoreName("pre")
 
 
+def load_scipy_ndimage(finder, module):
+    """the scipy.ndimage must be loaded as a package."""
+    finder.ExcludeModule("scipy.ndimage.tests")
+    finder.IncludePackage("scipy.ndimage")
+
+
+def load_scipy_sparse_csgraph(finder, module):
+    """the scipy.sparse.csgraph must be loaded as a package."""
+    finder.ExcludeModule("scipy.sparse.csgraph.tests")
+    finder.IncludePackage("scipy.sparse.csgraph")
+
+
 def load_scipy_sparse_linalg_dsolve_linsolve(finder, module):
     """the scipy.linalg.dsolve.linsolve optionally loads scikits.umfpack"""
     module.IgnoreName("scikits.umfpack")
+
+
+def load_scipy_special(finder, module):
+    """the scipy.special must be loaded as a package."""
+    finder.IncludePackage("scipy.special")
 
 
 def load_scipy_special__cephes(finder, module):
