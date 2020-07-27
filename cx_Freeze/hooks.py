@@ -929,6 +929,16 @@ def load_ssl(finder, module):
                 finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
+def load_sysconfig(finder, module):
+    """The sysconfig module implicitly loads _sysconfigdata."""
+    import sysconfig
+    if hasattr(sysconfig, '_get_sysconfigdata_name'):
+        datafile = sysconfig._get_sysconfigdata_name()
+    else:
+        datafile = "_sysconfigdata"
+    finder.IncludeModule(datafile)
+
+
 def load_tkinter(finder, module):
     """the tkinter module has data files that are required to be loaded so
        ensure that they are copied into the directory that is expected at
