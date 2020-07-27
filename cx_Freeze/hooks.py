@@ -958,6 +958,13 @@ def load_sysconfig(finder, module):
     finder.IncludeModule(datafile)
 
 
+def load_tensorflow(finder, module):
+    """the tensorflow package implicitly loads some packages."""
+    finder.IncludePackage("tensorboard")
+    finder.IncludePackage("tensorflow.compiler")
+    finder.IncludePackage("tensorflow.python")
+
+
 def load_time(finder, module):
     """the time module implicitly loads _strptime; make sure this happens."""
     finder.IncludeModule("_strptime")
