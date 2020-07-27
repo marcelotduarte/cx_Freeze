@@ -1,10 +1,10 @@
 import distutils.command.bdist_msi
 import distutils.errors
 import distutils.util
-import msilib
 import importlib
-
+import msilib
 import os
+import re
 
 __all__ = [ "bdist_msi" ]
 
@@ -258,7 +258,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if metadata.url:
             props.append(("ARPURLINFOABOUT", metadata.url))
         if self.upgrade_code is not None:
-            props.append(("UpgradeCode", self.upgrade_code))
+            if not is_valid_GUID(self.upgrade_code):
+                raise ValueError("upgrade-code must be in valid GUID format")
+            props.append(("UpgradeCode", self.upgrade_code.upper()))
         if self.install_icon:
             props.append(('ARPPRODUCTICON', 'InstallIcon'))
         msilib.add_data(self.db, 'Property', props)
@@ -430,3 +432,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if not self.keep_temp:
             distutils.dir_util.remove_tree(self.bdist_dir,
                     dry_run = self.dry_run)
+
+
+def is_valid_GUID(code):
+    pattern = re.compile(r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$",
+                         re.IGNORECASE)
+    return isinstance(code, str) and pattern.match(code) is not None
