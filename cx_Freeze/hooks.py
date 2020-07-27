@@ -229,6 +229,15 @@ def load_cffi_cparser(finder, module):
         finder.ExcludeModule('cffi._pycparser')
 
 
+def load_clr(finder, module):
+    """the pythonnet package (imported as 'clr') needs Python.Runtime.dll
+    in runtime"""
+    module_dir = os.path.dirname(module.file)
+    dll_name = 'Python.Runtime.dll'
+    finder.IncludeFiles(os.path.join(module_dir, dll_name),
+            os.path.join("lib", dll_name))
+
+
 def load_cryptography_hazmat_bindings__padding(finder, module):
     """the cryptography module requires the _cffi_backend module (loaded implicitly)"""
     finder.IncludeModule('_cffi_backend')
@@ -327,15 +336,6 @@ def load_dummy_threading(finder, module):
     """the dummy_threading module plays games with the name of the threading
        module for its own purposes; ignore that here"""
     finder.ExcludeModule("_dummy_threading")
-
-
-def load_email(finder, module):
-    """the email package has a bunch of aliases as the submodule names were
-       all changed to lowercase in Python 2.5; mimic that here."""
-    for name in ("Charset", "Encoders", "Errors", "FeedParser",
-            "Generator", "Header", "Iterators", "Message", "Parser",
-            "Utils", "base64MIME", "quopriMIME"):
-        finder.AddAlias("email.%s" % name, "email.%s" % name.lower())
 
 
 def load_ftplib(finder, module):
@@ -473,7 +473,7 @@ def load_idna(finder, module):
 
 
 def load_lxml(finder, module):
-    """the lxml package use an extension."""
+    """the lxml package uses an extension."""
     finder.IncludeModule("lxml._elementpath")
 
 
@@ -503,20 +503,16 @@ def _get_data_path():
 
 
 def load_numpy(finder, module):
+    """the numpy must be loaded as a package."""
     finder.ExcludeModule("numpy.random._examples")
     finder.IncludePackage("numpy")
     if not module.WillBeStoredInFileSystem():
+        # version 1.18.3+ changed the location of dll/so
         import numpy
         version = tuple([int(n) for n in numpy.__version__.split(".")])
         del numpy
         if version >= (1, 18, 3):
             module.store_in_file_system = True
-
-
-def load_Numeric(finder, module):
-    """the Numeric module optionally loads the dotblas module; ignore the error
-       if this modules does not exist."""
-    module.IgnoreName("dotblas")
 
 
 def load_numpy_core_multiarray(finder, module):
@@ -638,6 +634,12 @@ def load_numpy_random_mtrand(finder, module):
     module.AddGlobalName("randn")
 
 
+def load_Numeric(finder, module):
+    """the Numeric module optionally loads the dotblas module; ignore the error
+       if this modules does not exist."""
+    module.IgnoreName("dotblas")
+
+
 def load_pikepdf(finder, module):
     """for the pikepdf package"""
     finder.IncludePackage('pikepdf')
@@ -679,10 +681,10 @@ def load_pygments(finder, module):
     finder.IncludePackage("pygments.styles")
 
 
-def load_pydoc(finder, module):
-    """The pydoc module will work without the Tkinter module so ignore the
-       error if that module cannot be found."""
-    module.IgnoreName("Tkinter")
+def load_pytest(finder, module):
+    import pytest
+    for m in pytest.freeze_includes():
+        finder.IncludeModule(m)
 
 
 def load_pythoncom(finder, module):
@@ -924,6 +926,18 @@ def load_site(finder, module):
     module.IgnoreName("usercustomize")
 
 
+def load_sqlite3(finder, module):
+    """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
+       be present in the build directory."""
+    if WIN32 and not MINGW:
+        dll_name = "sqlite3.dll"
+        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+        if not os.path.exists(dll_path):
+            dll_path = os.path.join(sys.base_prefix, "Library", "bin", dll_name)
+        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+    finder.IncludePackage("sqlite3")
+
+
 def load_ssl(finder, module):
     """In Windows, the SSL module in Python 3.7+ requires additional dlls to
        be present in the build directory."""
@@ -942,6 +956,11 @@ def load_sysconfig(finder, module):
     else:
         datafile = "_sysconfigdata"
     finder.IncludeModule(datafile)
+
+
+def load_time(finder, module):
+    """the time module implicitly loads _strptime; make sure this happens."""
+    finder.IncludeModule("_strptime")
 
 
 def load_tkinter(finder, module):
@@ -972,19 +991,6 @@ def load_tkinter(finder, module):
                 finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
-def load_tempfile(finder, module):
-    """the tempfile module attempts to load the fcntl and thread modules but
-       continues if these modules cannot be found; ignore these modules if they
-       cannot be found."""
-    module.IgnoreName("fcntl")
-    module.IgnoreName("thread")
-
-
-def load_time(finder, module):
-    """the time module implicitly loads _strptime; make sure this happens."""
-    finder.IncludeModule("_strptime")
-
-
 def load_twisted_conch_ssh_transport(finder, module):
     """the twisted.conch.ssh.transport module uses __import__ builtin to
        dynamically load different ciphers at runtime."""
@@ -998,6 +1004,11 @@ def load_twitter(finder, module):
     module.IgnoreName("json")
     module.IgnoreName("simplejson")
     module.IgnoreName("django.utils")
+
+
+def load_uvloop(finder, module):
+    """the uvloop module implicitly loads an extension module."""
+    finder.IncludeModule("uvloop._noop")
 
 
 def load_win32api(finder, module):
@@ -1060,24 +1071,26 @@ def load_Xlib_XK(finder, module):
     finder.IncludeModule("Xlib.keysymdef.latin1")
 
 
-def load_xml(finder, module):
-    """the builtin xml package attempts to load the _xmlplus module to see if
-       that module should take its role instead; ignore the failure to find
-       this module, though."""
-    module.IgnoreName("_xmlplus")
-
-
 def load_xml_etree_cElementTree(finder, module):
     """the xml.etree.cElementTree module implicitly loads the
        xml.etree.ElementTree module; make sure this happens."""
     finder.IncludeModule("xml.etree.ElementTree")
 
 
-def load_xmlrpclib(finder, module):
-    """the xmlrpclib optionally imports the _xmlrpclib and sgmlop modules;
-       ignore the error if these modules cannot be found."""
-    module.IgnoreName("_xmlrpclib")
-    module.IgnoreName("sgmlop")
+def load_zmq(finder, module):
+    """the zmq package loads zmq.backend.cython dynamically and links
+    dynamically to zmq.libzmq."""
+    finder.IncludePackage("zmq.backend.cython")
+    if WIN32:
+        # Not sure yet if this is cross platform
+        # Include the bundled libzmq library, if it exists
+        try:
+            import zmq.libzmq
+            srcFileName = os.path.basename(zmq.libzmq.__file__)
+            finder.IncludeFiles(
+                os.path.join(module.path[0], srcFileName), srcFileName)
+        except ImportError:
+            pass  # No bundled libzmq library
 
 
 def load_zope_component(finder, module):
@@ -1104,48 +1117,3 @@ def missing_readline(finder, caller):
        found"""
     if WIN32:
         caller.IgnoreName("readline")
-
-
-def load_zmq(finder, module):
-    """the zmq package loads zmq.backend.cython dynamically and links
-    dynamically to zmq.libzmq."""
-    finder.IncludePackage("zmq.backend.cython")
-    if WIN32:
-        # Not sure yet if this is cross platform
-        # Include the bundled libzmq library, if it exists
-        try:
-            import zmq.libzmq
-            srcFileName = os.path.basename(zmq.libzmq.__file__)
-            finder.IncludeFiles(
-                os.path.join(module.path[0], srcFileName), srcFileName)
-        except ImportError:
-            pass  # No bundled libzmq library
-
-
-def load_clr(finder, module):
-    """the pythonnet package (imported as 'clr') needs Python.Runtime.dll
-    in runtime"""
-    module_dir = os.path.dirname(module.file)
-    dll_name = 'Python.Runtime.dll'
-    finder.IncludeFiles(os.path.join(module_dir, dll_name),
-            os.path.join("lib", dll_name))
-
-
-def load_sqlite3(finder, module):
-    """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
-       be present in the build directory."""
-    if WIN32 and not MINGW:
-        dll_name = "sqlite3.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-        if not os.path.exists(dll_path):
-            dll_path = os.path.join(sys.base_prefix, "Library", "bin", dll_name)
-        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-    finder.IncludePackage("sqlite3")
-
-def load_pytest(finder, module):
-    import pytest
-    for m in pytest.freeze_includes():
-        finder.IncludeModule(m)
-
-def load_uvloop(finder, module):
-    finder.IncludeModule("uvloop._noop")
