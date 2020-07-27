@@ -430,6 +430,11 @@ def load_glib(finder, module):
     module.AddGlobalName("timeout_add_seconds")
 
 
+def load_google_cloud_storage(finder, module):
+    """the google.cloud.storage package always uses _http module."""
+    finder.IncludeModule("google.cloud._http")
+
+
 def load_gtk__gtk(finder, module):
     """the gtk._gtk module has a number of implicit imports"""
     finder.IncludeModule("atk")
