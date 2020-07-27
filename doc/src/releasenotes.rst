@@ -7,294 +7,151 @@ Release notes
 Version 6.2 (July 2020)
 -----------------------
 
-#)  Highlights:
-	- Namespace packages are automatically detected
-	- Enhanced support for Python 3.8
-	- Better support for MSYS2
-	- More integrated to setuptools
-	- Initial support for metadata to use by pkg_resources and importlib.metadata
-	- Fixed long-awaited bugs and recent bugs
-	- Fixed issues with multiprocessing (see Windows section)
 #)  New or improved hooks for:
-	- aiofiles (`PR #600`_)
-	- babel (`PR #577`_)
-	- bcrypt (`PR #583`_, `Issue #581`_)
-	- certifi (`PR #690`_)
-	- cffi.cparser (`PR #603`_)
-	- ctypes (for MSYS2 mingw) (`PR #565`_)
-	- matplotlib (`PR #574`_, `Issue #569`_)
-	- pikepdf (`PR #604`_)
-	- lxml (`PR #604`_)
-	- pycryptodome (`PR #602`_)
-	- pygments (`PR #604`_)
-	- pkg_resources (`PR #584`_, `Issue #579`_)
-	- pytest (`PR #617`_)
-	- setuptools (`PR #608`_)
-	- uvloop (`PR #689`_)
+	- aiofiles (:pull:`600`)
+	- babel (:pull:`577`)
+	- bcrypt (:pull:`583`, :issue:`581`)
+	- certifi (:pull:`690`)
+	- cffi.cparser (:pull:`603`)
+	- ctypes (for MSYS2 mingw) (:pull:`565`)
+	- matplotlib (:pull:`574`, :issue:`569`)
+	- pikepdf (:pull:`604`)
+	- lxml (:pull:`604`)
+	- pycryptodome (:pull:`602`)
+	- pygments (:pull:`604`)
+	- pkg_resources (:pull:`584`, :issue:`579`)
+	- pytest (:pull:`617`)
+	- setuptools (:pull:`608`)
+	- uvloop (:pull:`689`)
 #)  Linux:
-	- Pass command line arguments in current locale (`PR #645`_, `Issue #611`_)
+	- Pass command line arguments in current locale (:pull:`645`, :issue:`611`)
 #)  Windows:
-	- Fixed multiprocessing pickling errors (`PR #622`_, `Issue #539`_, `Issue #402`_, `Issue #403`_, `Issue #231`_, `Issue #536`_)
-	- Ensure the copy of default python libraries (`PR #640`_)
-	- Replace deprecated functions that will be removed in py4 - win32gui (`PR #649`_)
-	- Exclude Tkinter from loaded modules (`PR #576`_, `Issue #567`_)
-	- Fixed "no module named 'scipy.spatial.cKDTree'" (`PR #626`_, `Issue #233`_)
-	- Fixed "no module named 'multiprocessing.pool'" (`PR #627`_, `Issue #353`_)
-	- Download cx_Logging to build Win32Service.exe when building from sources (`PR #650`_, `Issue #519`_)
+	- Fixed multiprocessing pickling errors (:pull:`622`, :issue:`539`, :issue:`402`, :issue:`403`, :issue:`231`, :issue:`536`)
+	- Ensure the copy of default python libraries (:pull:`640`)
+	- Replace deprecated functions that will be removed in py4 - win32gui (:pull:`649`)
+	- Exclude Tkinter from loaded modules (:pull:`576`, :issue:`567`)
+	- Fixed "no module named 'scipy.spatial.cKDTree'" (:pull:`626`, :issue:`233`)
+	- Fixed "no module named 'multiprocessing.pool'" (:pull:`627`, :issue:`353`)
+	- Download cx_Logging to build Win32Service.exe when building from sources (:pull:`650`, :issue:`519`)
 #)  macOS:
-	- Fixing modification of PATH for single user install (`PR #614`_, `Issue #613`_)
-	- Make needed dirs when using include_resources (`PR #633`_)
-	- Check for Mach-O using byte strings to allow case of non unicode chars (`PR #635`_)
-	- Copy references from /usr/local (`PR #648`_)
+	- Fixing modification of PATH for single user install (:pull:`614`, :issue:`613`)
+	- Make needed dirs when using include_resources (:pull:`633`)
+	- Check for Mach-O using byte strings to allow case of non unicode chars (:pull:`635`)
+	- Copy references from /usr/local (:pull:`648`)
 #)  Documentation
-	- Update doc and faq (`PR #564`_, `PR #663`_, `PR #688`_)
-	- Initial work to be pep8 compliant (`PR #572`_, `PR #582`_)
+	- Update doc and faq (:pull:`564`, :pull:`663`, :pull:`688`)
+	- Initial work to be pep8 compliant (:pull:`572`, :pull:`582`)
 #)  Misc
-	- Fixed bug in ``cxfreeze`` script introduced in 6.1 (`Issue #560`_).
-	- Remove old packages/modules names, do not report as missing (`PR #605`_)
-	- Better support for MSYS2 and Anaconda3 (`PR #642`_)
-	- Support python 3.5.2 and up (`PR #606`_)
-	- Support metadata to use by pkg_resources (`PR #608`_)
-	- New commom function rebuild_code_object to be reusable (`PR #629`_)
-	- Fix optimize option in python 3.8 (`PR #641`_)
-	- Add --include-files option to ``cxfreeze`` script (`PR #647`_)
-	- Replace the value of __package__ directly in the code (`PR #651`_)
-	- Eliminate exclusion of ``dbm`` module since it is in Python 3 (`PR #662`_, `Issue #660`_)
-	- Detect namespace packages (`PR #669`_, `PR #668`_)
-	- Installing from source requires setuptools (`PR #687`_)
-	- Remove PyUnicode_FromUnicode (`PR #673`_)
-
-.. _Issue #231: https://github.com/marcelotduarte/cx_Freeze/issues/231
-.. _Issue #233: https://github.com/marcelotduarte/cx_Freeze/issues/233
-.. _Issue #353: https://github.com/marcelotduarte/cx_Freeze/issues/353
-.. _Issue #402: https://github.com/marcelotduarte/cx_Freeze/issues/402
-.. _Issue #403: https://github.com/marcelotduarte/cx_Freeze/issues/403
-.. _Issue #519: https://github.com/marcelotduarte/cx_Freeze/issues/519
-.. _Issue #536: https://github.com/marcelotduarte/cx_Freeze/issues/536
-.. _Issue #539: https://github.com/marcelotduarte/cx_Freeze/issues/539
-.. _Issue #560: https://github.com/marcelotduarte/cx_Freeze/issues/560
-.. _Issue #567: https://github.com/marcelotduarte/cx_Freeze/issues/567
-.. _Issue #569: https://github.com/marcelotduarte/cx_Freeze/issues/569
-.. _Issue #579: https://github.com/marcelotduarte/cx_Freeze/issues/579
-.. _Issue #581: https://github.com/marcelotduarte/cx_Freeze/issues/581
-.. _Issue #611: https://github.com/marcelotduarte/cx_Freeze/issues/611
-.. _Issue #613: https://github.com/marcelotduarte/cx_Freeze/issues/613
-.. _Issue #660: https://github.com/marcelotduarte/cx_Freeze/issues/660
-.. _PR #564: https://github.com/marcelotduarte/cx_Freeze/pull/564
-.. _PR #565: https://github.com/marcelotduarte/cx_Freeze/pull/565
-.. _PR #569: https://github.com/marcelotduarte/cx_Freeze/pull/569
-.. _PR #572: https://github.com/marcelotduarte/cx_Freeze/pull/572
-.. _PR #574: https://github.com/marcelotduarte/cx_Freeze/pull/574
-.. _PR #576: https://github.com/marcelotduarte/cx_Freeze/pull/576
-.. _PR #577: https://github.com/marcelotduarte/cx_Freeze/pull/577
-.. _PR #582: https://github.com/marcelotduarte/cx_Freeze/pull/582
-.. _PR #583: https://github.com/marcelotduarte/cx_Freeze/pull/583
-.. _PR #584: https://github.com/marcelotduarte/cx_Freeze/pull/584
-.. _PR #600: https://github.com/marcelotduarte/cx_Freeze/pull/600
-.. _PR #602: https://github.com/marcelotduarte/cx_Freeze/pull/602
-.. _PR #603: https://github.com/marcelotduarte/cx_Freeze/pull/603
-.. _PR #604: https://github.com/marcelotduarte/cx_Freeze/pull/604
-.. _PR #605: https://github.com/marcelotduarte/cx_Freeze/pull/605
-.. _PR #606: https://github.com/marcelotduarte/cx_Freeze/pull/606
-.. _PR #608: https://github.com/marcelotduarte/cx_Freeze/pull/608
-.. _PR #614: https://github.com/marcelotduarte/cx_Freeze/pull/614
-.. _PR #617: https://github.com/marcelotduarte/cx_Freeze/pull/617
-.. _PR #622: https://github.com/marcelotduarte/cx_Freeze/pull/622
-.. _PR #626: https://github.com/marcelotduarte/cx_Freeze/pull/626
-.. _PR #627: https://github.com/marcelotduarte/cx_Freeze/pull/627
-.. _PR #629: https://github.com/marcelotduarte/cx_Freeze/pull/629
-.. _PR #633: https://github.com/marcelotduarte/cx_Freeze/pull/633
-.. _PR #635: https://github.com/marcelotduarte/cx_Freeze/pull/635
-.. _PR #640: https://github.com/marcelotduarte/cx_Freeze/pull/640
-.. _PR #641: https://github.com/marcelotduarte/cx_Freeze/pull/641
-.. _PR #642: https://github.com/marcelotduarte/cx_Freeze/pull/642
-.. _PR #645: https://github.com/marcelotduarte/cx_Freeze/pull/645
-.. _PR #647: https://github.com/marcelotduarte/cx_Freeze/pull/647
-.. _PR #648: https://github.com/marcelotduarte/cx_Freeze/pull/648
-.. _PR #649: https://github.com/marcelotduarte/cx_Freeze/pull/649
-.. _PR #650: https://github.com/marcelotduarte/cx_Freeze/pull/650
-.. _PR #651: https://github.com/marcelotduarte/cx_Freeze/pull/651
-.. _PR #662: https://github.com/marcelotduarte/cx_Freeze/pull/662
-.. _PR #663: https://github.com/marcelotduarte/cx_Freeze/pull/663
-.. _PR #668: https://github.com/marcelotduarte/cx_Freeze/pull/668
-.. _PR #669: https://github.com/marcelotduarte/cx_Freeze/pull/669
-.. _PR #673: https://github.com/marcelotduarte/cx_Freeze/pull/673
-.. _PR #686: https://github.com/marcelotduarte/cx_Freeze/pull/686
-.. _PR #687: https://github.com/marcelotduarte/cx_Freeze/pull/687
-.. _PR #688: https://github.com/marcelotduarte/cx_Freeze/pull/688
-.. _PR #689: https://github.com/marcelotduarte/cx_Freeze/pull/689
-.. _PR #690: https://github.com/marcelotduarte/cx_Freeze/pull/690
-
+	- Fixed bug in ``cxfreeze`` script introduced in 6.1 (:issue:`560`).
+	- Remove old packages/modules names, do not report as missing (:pull:`605`)
+	- Better support for MSYS2 and Anaconda3 (:pull:`642`)
+	- Support python 3.5.2 and up (:pull:`606`)
+	- Support metadata to use by pkg_resources (:pull:`608`)
+	- New commom function rebuild_code_object to be reusable (:pull:`629`)
+	- Fix optimize option in python 3.8 (:pull:`641`)
+	- Add --include-files option to ``cxfreeze`` script (:pull:`647`)
+	- Replace the value of __package__ directly in the code (:pull:`651`)
+	- Eliminate exclusion of ``dbm`` module since it is in Python 3 (:pull:`662`, :issue:`660`)
+	- Detect namespace packages (:pull:`669`, :pull:`668`)
+	- Installing from source requires setuptools (:pull:`687`)
+	- Remove PyUnicode_FromUnicode (:pull:`673`)
 
 Version 6.1 (January 2020)
 --------------------------
 
-#)  Added support for Python 3.8 (`PR #545`_, `PR #556`_).
-#)  Added support for ``python setup.py develop`` (`PR #502`_).
+#)  Added support for Python 3.8 (:pull:`545`, :pull:`556`).
+#)  Added support for ``python setup.py develop`` (:pull:`502`).
 #)  Use ``console_scripts`` in ``entry_points`` so that the commands
     ``cxfreeze`` and ``cxfreeze-quickstart`` run on Windows without the need
-    for running a postinstall script (`PR #511`_).
+    for running a postinstall script (:pull:`511`).
 #)  Added support for switching from per-user to per-machine installations on
-    Windows (`PR #507`_).
+    Windows (:pull:`507`).
 #)  Fix installation if ``AlwaysInstallElevated`` policy is set on Windows
-    (`PR #533`_).
-#)  Updated default dependencies for Python 3 on Windows (`PR #505`_).
-#)  Removed unused code (`PR #549`_).
+    (:pull:`533`).
+#)  Updated default dependencies for Python 3 on Windows (:pull:`505`).
+#)  Removed unused code (:pull:`549`).
 #)  The default dependencies are now always copied into the lib folder instead
     of into the directory where the executable resides on Linux
-    (`PR #518`_).
+    (:pull:`518`).
 #)  Dependent files are now copied to the same relative directory as their
-    location in the source on Linux (`PR #494`_).
+    location in the source on Linux (:pull:`494`).
 #)  Added tests for commonly used packages like ``cryptography``, ``pillow``,
     ``sqlite``, ``pytz``, ``ctypes`` and ``distutils``
-    (`PR #508`_, `PR #537`_, `PR #546`_, `PR #555`_, `PR #557`_).
-#)  Fix regression with DLL dependencies introduced in 6.0 by `PR #492`_
-    due to case differences (`PR #512`_).
-#)  Fix regression with dependent files introduced in 6.0 by `PR #297`_
-    for platforms other than macOS (`PR #516`_).
-#)  The version of cx_Freeze is now defined in one place (`PR #552`_).
+    (:pull:`508`, :pull:`537`, :pull:`546`, :pull:`555`, :pull:`557`).
+#)  Fix regression with DLL dependencies introduced in 6.0 by :pull:`492`
+    due to case differences (:pull:`512`).
+#)  Fix regression with dependent files introduced in 6.0 by :pull:`297`
+    for platforms other than macOS (:pull:`516`).
+#)  The version of cx_Freeze is now defined in one place (:pull:`552`).
 #)  Eliminate exclusion of ``gestalt`` module on platforms other than macOS
     since it exists outside of macOS.
-#)  Improved hooks for ``sqlite3`` (`PR #509`_), ``cryptography``, and
-    ``tkinter`` (`PR #559`_).
-#)  Added hook for ``pytz`` (`PR #554`_).
+#)  Improved hooks for ``sqlite3`` (:pull:`509`), ``cryptography``, and
+    ``tkinter`` (:pull:`559`).
+#)  Added hook for ``pytz`` (:pull:`554`).
 #)  Improved hook infrastructure, permitting hooks to add constants that can
     be examined at runtime, determine whether a module is going to be stored in
     the file system and include files in the zip file.
-#)  Improved documentation (`PR #510`_).
-
-.. _PR #297: https://github.com/marcelotduarte/cx_Freeze/pull/297
-.. _PR #492: https://github.com/marcelotduarte/cx_Freeze/pull/492
-.. _PR #494: https://github.com/marcelotduarte/cx_Freeze/pull/494
-.. _PR #502: https://github.com/marcelotduarte/cx_Freeze/pull/502
-.. _PR #505: https://github.com/marcelotduarte/cx_Freeze/pull/505
-.. _PR #507: https://github.com/marcelotduarte/cx_Freeze/pull/507
-.. _PR #508: https://github.com/marcelotduarte/cx_Freeze/pull/508
-.. _PR #509: https://github.com/marcelotduarte/cx_Freeze/pull/509
-.. _PR #510: https://github.com/marcelotduarte/cx_Freeze/pull/510
-.. _PR #511: https://github.com/marcelotduarte/cx_Freeze/pull/511
-.. _PR #512: https://github.com/marcelotduarte/cx_Freeze/pull/512
-.. _PR #516: https://github.com/marcelotduarte/cx_Freeze/pull/516
-.. _PR #518: https://github.com/marcelotduarte/cx_Freeze/pull/518
-.. _PR #533: https://github.com/marcelotduarte/cx_Freeze/pull/533
-.. _PR #537: https://github.com/marcelotduarte/cx_Freeze/pull/537
-.. _PR #545: https://github.com/marcelotduarte/cx_Freeze/pull/545
-.. _PR #546: https://github.com/marcelotduarte/cx_Freeze/pull/546
-.. _PR #549: https://github.com/marcelotduarte/cx_Freeze/pull/549
-.. _PR #552: https://github.com/marcelotduarte/cx_Freeze/pull/552
-.. _PR #554: https://github.com/marcelotduarte/cx_Freeze/pull/554
-.. _PR #555: https://github.com/marcelotduarte/cx_Freeze/pull/555
-.. _PR #556: https://github.com/marcelotduarte/cx_Freeze/pull/556
-.. _PR #557: https://github.com/marcelotduarte/cx_Freeze/pull/557
-.. _PR #559: https://github.com/marcelotduarte/cx_Freeze/pull/559
+#)  Improved documentation (:pull:`510`).
 
 
 Version 6.0 (August 2019)
 -------------------------
 
-#)  Corrected support for Python 3.7 (`PR #395`_).
+#)  Corrected support for Python 3.7 (:pull:`395`).
 #)  Use importlib and other Python 3 improvements
-    (`PR #484`_, `PR #485`_, `PR #486`_, `PR #490`_).
-#)  Fixed issue with @rpath causing file copy errors on macOS (`PR #307`_).
+    (:pull:`484`, :pull:`485`, :pull:`486`, :pull:`490`).
+#)  Fixed issue with @rpath causing file copy errors on macOS (:pull:`307`).
 #)  Replaced file() with open() and use context manager to ensure the file
-    handle is closed and deleted (`PR #348`_).
-#)  Corrected invalid version handling in bdist_msi (`PR #349`_, `Issue #340`_).
-#)  Corrected hook for clr module (`PR #397`_, `PR #444`_).
-#)  Corrected documentation for compress option (`PR #358`_).
+    handle is closed and deleted (:pull:`348`).
+#)  Corrected invalid version handling in bdist_msi (:pull:`349`, :issue:`340`).
+#)  Corrected hook for clr module (:pull:`397`, :pull:`444`).
+#)  Corrected documentation for compress option (:pull:`358`).
 #)  Ensure that the pythoncom and pywintypes DLLs are found in the lib
-    directory and not in the base directory (`Issue #332`_).
-#)  Always copy dependent files to root directory on macOS (`PR #365`_).
-#)  Skip self referencing archive on macOS (`PR #364`_, `Issue #304`_).
-#)  Include doc directory in source distribution (`PR #394`_, `Issue #376`_).
+    directory and not in the base directory (:issue:`332`).
+#)  Always copy dependent files to root directory on macOS (:pull:`365`).
+#)  Skip self referencing archive on macOS (:pull:`364`, :issue:`304`).
+#)  Include doc directory in source distribution (:pull:`394`, :issue:`376`).
 #)  Force msilib module to be reloaded in order to allow for the generation of
-    multiple MSI packages in a single session (`PR #419`_).
-#)  Added hook for PyQt5.QtPrintSupport module (`PR #401`_).
+    multiple MSI packages in a single session (:pull:`419`).
+#)  Added hook for PyQt5.QtPrintSupport module (:pull:`401`).
 #)  Added ability to include an icon on the add/remove program window that pops
-    up during installation (`PR #387`_).
+    up during installation (:pull:`387`).
 #)  Prevent spurious errors from being printed during building on macOS by
     checking to see that a file is a Mach-O binary before adding it to the list
-    of files it is checking the reference of (`PR #342`_, `Issue #268`_).
-#)  Avoid otool bug on macOS Yosemite (`PR #297`_, `Issue #292`_).
+    of files it is checking the reference of (:pull:`342`, :issue:`268`).
+#)  Avoid otool bug on macOS Yosemite (:pull:`297`, :issue:`292`).
 #)  Added ability to specify environment variables that should be created when
-    an MSI package is installed (`PR #266`_).
+    an MSI package is installed (:pull:`266`).
 #)  Added support for including resources in an app bundle for macOS
-    (`PR #423`_).
-#)  Added absolute reference path option for macOS packages (`PR #424`_).
-#)  Added CFBundle identifier for macOS packages (`PR #427`_, `Issue #426`_).
-#)  Added hook for copying SSL DLLs for Python 3.7+ on Windows (`PR #470`_).
-#)  Added -municode flag when building on Windows with mingw32 (`PR #468`_).
-#)  Added hook for pycparser (`PR #446`_).
+    (:pull:`423`).
+#)  Added absolute reference path option for macOS packages (:pull:`424`).
+#)  Added CFBundle identifier for macOS packages (:pull:`427`, :issue:`426`).
+#)  Added hook for copying SSL DLLs for Python 3.7+ on Windows (:pull:`470`).
+#)  Added -municode flag when building on Windows with mingw32 (:pull:`468`).
+#)  Added hook for pycparser (:pull:`446`).
 #)  Fixed hook for zmq so it doesn't fail when there is no bundled libzmq
-    library in the installed pyzmq package (`PR #442`_).
-#)  Print error when fetching dependent files fails (`PR #435`_).
+    library in the installed pyzmq package (:pull:`442`).
+#)  Print error when fetching dependent files fails (:pull:`435`).
 #)  Make executable writable before adding the icon
-    (`PR #430`_, `Issue #368`_).
+    (:pull:`430`, :issue:`368`).
 #)  Dropped support for RPM and MSI packages for cx_Freeze itself since these
     are no longer supported by PyPI.
-#)  Fix building console app with mingw32 (`PR #475`_).
+#)  Fix building console app with mingw32 (:pull:`475`).
 #)  Force inclusion of the unicodedata module which is used by the socket
-    module, and possibly others (`PR #476`_).
-#)  Added hook for asyncio package (`PR #477`_).
-#)  Added hook for idna package (`PR #478`_).
-#)  Added hook for pkg_resources package (`PR #481`_).
-#)  Added hook for gevent (`PR #495`_).
+    module, and possibly others (:pull:`476`).
+#)  Added hook for asyncio package (:pull:`477`).
+#)  Added hook for idna package (:pull:`478`).
+#)  Added hook for pkg_resources package (:pull:`481`).
+#)  Added hook for gevent (:pull:`495`).
 #)  Force .exe extension to be included on Windows, so that the same setup code
-    can be used on both Linux and Windows (`PR #489`_).
-#)  Added hook for Pillow (`PR #491`_).
-#)  Improved hook for tkinter (`PR #493`_).
+    can be used on both Linux and Windows (:pull:`489`).
+#)  Added hook for Pillow (:pull:`491`).
+#)  Improved hook for tkinter (:pull:`493`).
 #)  Avoid attempting to check for dependent files on Windows when the file is
-    not an executable or DLL (`PR #492`_).
+    not an executable or DLL (:pull:`492`).
 #)  Ensure that only executable files are checked for dependencies in order to
     avoid spurious errors when checking for dependent files.
 #)  Improved hook for matplotlib.
-
-.. _Issue #268: https://github.com/marcelotduarte/cx_Freeze/issues/268
-.. _Issue #292: https://github.com/marcelotduarte/cx_Freeze/issues/292
-.. _Issue #304: https://github.com/marcelotduarte/cx_Freeze/issues/304
-.. _Issue #368: https://github.com/marcelotduarte/cx_Freeze/issues/368
-.. _Issue #332: https://github.com/marcelotduarte/cx_Freeze/issues/332
-.. _Issue #340: https://github.com/marcelotduarte/cx_Freeze/issues/340
-.. _Issue #376: https://github.com/marcelotduarte/cx_Freeze/issues/376
-.. _Issue #426: https://github.com/marcelotduarte/cx_Freeze/issues/426
-.. _PR #266: https://github.com/marcelotduarte/cx_Freeze/pull/266
-.. _PR #297: https://github.com/marcelotduarte/cx_Freeze/pull/297
-.. _PR #307: https://github.com/marcelotduarte/cx_Freeze/pull/307
-.. _PR #342: https://github.com/marcelotduarte/cx_Freeze/pull/342
-.. _PR #348: https://github.com/marcelotduarte/cx_Freeze/pull/348
-.. _PR #349: https://github.com/marcelotduarte/cx_Freeze/pull/349
-.. _PR #358: https://github.com/marcelotduarte/cx_Freeze/pull/358
-.. _PR #364: https://github.com/marcelotduarte/cx_Freeze/pull/364
-.. _PR #365: https://github.com/marcelotduarte/cx_Freeze/pull/365
-.. _PR #387: https://github.com/marcelotduarte/cx_Freeze/pull/387
-.. _PR #394: https://github.com/marcelotduarte/cx_Freeze/pull/394
-.. _PR #395: https://github.com/marcelotduarte/cx_Freeze/pull/395
-.. _PR #397: https://github.com/marcelotduarte/cx_Freeze/pull/397
-.. _PR #401: https://github.com/marcelotduarte/cx_Freeze/pull/401
-.. _PR #419: https://github.com/marcelotduarte/cx_Freeze/pull/419
-.. _PR #423: https://github.com/marcelotduarte/cx_Freeze/pull/423
-.. _PR #424: https://github.com/marcelotduarte/cx_Freeze/pull/424
-.. _PR #427: https://github.com/marcelotduarte/cx_Freeze/pull/427
-.. _PR #430: https://github.com/marcelotduarte/cx_Freeze/pull/430
-.. _PR #435: https://github.com/marcelotduarte/cx_Freeze/pull/435
-.. _PR #442: https://github.com/marcelotduarte/cx_Freeze/pull/442
-.. _PR #444: https://github.com/marcelotduarte/cx_Freeze/pull/444
-.. _PR #446: https://github.com/marcelotduarte/cx_Freeze/pull/446
-.. _PR #468: https://github.com/marcelotduarte/cx_Freeze/pull/468
-.. _PR #470: https://github.com/marcelotduarte/cx_Freeze/pull/470
-.. _PR #475: https://github.com/marcelotduarte/cx_Freeze/pull/475
-.. _PR #476: https://github.com/marcelotduarte/cx_Freeze/pull/476
-.. _PR #477: https://github.com/marcelotduarte/cx_Freeze/pull/477
-.. _PR #478: https://github.com/marcelotduarte/cx_Freeze/pull/478
-.. _PR #481: https://github.com/marcelotduarte/cx_Freeze/pull/481
-.. _PR #484: https://github.com/marcelotduarte/cx_Freeze/pull/484
-.. _PR #485: https://github.com/marcelotduarte/cx_Freeze/pull/485
-.. _PR #486: https://github.com/marcelotduarte/cx_Freeze/pull/486
-.. _PR #489: https://github.com/marcelotduarte/cx_Freeze/pull/489
-.. _PR #490: https://github.com/marcelotduarte/cx_Freeze/pull/490
-.. _PR #491: https://github.com/marcelotduarte/cx_Freeze/pull/491
-.. _PR #492: https://github.com/marcelotduarte/cx_Freeze/pull/492
-.. _PR #493: https://github.com/marcelotduarte/cx_Freeze/pull/493
-.. _PR #495: https://github.com/marcelotduarte/cx_Freeze/pull/495
 
 
 Version 6.0b1 (November 2017)
@@ -305,12 +162,9 @@ Version 6.0b1 (November 2017)
     file that looks like pythonxx.zip (which is disabled on some platforms like
     Ubuntu), set the Python path to include a subdirectory called "lib" and a
     zip file "lib/library.zip" on all platforms.
-#)  Do not create version resource when version is omitted (`PR #279`_).
+#)  Do not create version resource when version is omitted (:pull:`279`).
 #)  Ensure the sqlite3 DLL is loaded in the same directory as the module which
-    depends on it (`Issue #296`_).
-
-.. _PR #279: https://github.com/marcelotduarte/cx_Freeze/pull/279
-.. _Issue #296: https://github.com/marcelotduarte/cx_Freeze/issues/296
+    depends on it (:issue:`296`).
 
 
 5.x releases
@@ -320,59 +174,37 @@ Version 5.1.1 (December 2017)
 -----------------------------
 
 #)  Correct code used to identify the directory in which the library and its
-    zip file are located (`Issue #324`_, `Issue #325`_).
+    zip file are located (:issue:`324`, :issue:`325`).
 #)  Ensure that the pythoncom and pywintypes DLLs are found in the lib
-    directory, not in the base directory (`Issue #332`_).
+    directory, not in the base directory (:issue:`332`).
 #)  Copy dependent files to the same directory as the file it depends on, not
     the root directory; also add a sample for PyQt5 to demonstrate its correct
-    use (`Issue #328`_).
-
-.. _Issue #324: https://github.com/marcelotduarte/cx_Freeze/issues/324
-.. _Issue #325: https://github.com/marcelotduarte/cx_Freeze/issues/325
-.. _Issue #328: https://github.com/marcelotduarte/cx_Freeze/issues/328
-.. _Issue #332: https://github.com/marcelotduarte/cx_Freeze/issues/332
+    use (:issue:`328`).
 
 
 Version 5.1 (November 2017)
 ---------------------------
 
 #)  Use fixed library location on all platforms; should correct the error
-    "no module named __startup__" (`PR #286`_).
-#)  Correct sqlite3 hook for use in Python 2.7 (`PR #272`_).
-#)  Correct usage of scipy.lib (`PR #281`_).
-#)  Correct handling of __path__ attribute in module (`PR #295`_).
-#)  Fix gevent bug #42 (`PR #301`_).
+    "no module named __startup__" (:pull:`286`).
+#)  Correct sqlite3 hook for use in Python 2.7 (:pull:`272`).
+#)  Correct usage of scipy.lib (:pull:`281`).
+#)  Correct handling of __path__ attribute in module (:pull:`295`).
+#)  Fix gevent bug #42 (:pull:`301`).
 #)  Droppped support for Python 3.4.
-
-
-.. _PR #272: https://github.com/marcelotduarte/cx_Freeze/pull/272
-.. _PR #281: https://github.com/marcelotduarte/cx_Freeze/pull/281
-.. _PR #286: https://github.com/marcelotduarte/cx_Freeze/pull/286
-.. _PR #295: https://github.com/marcelotduarte/cx_Freeze/pull/295
-.. _PR #301: https://github.com/marcelotduarte/cx_Freeze/pull/301
 
 
 Version 5.0.2 (May 2017)
 ------------------------
 
-#) Correct handling of import in child thread (`PR #245`_)
-#) Correct handling of "dis" module with Python 3.5.1 (`Issue #225`_)
-#) Correct handling of "multiprocess.process" module (`Issue #230`_)
-#) Correct attempt to assign variable to an empty list (`PR #260`_)
-#) Improved README (`PR #235`_, `PR #236`_)
-#) Add hook for pythonnet package (`PR #251`_)
-#) Add hook for sqlite3 and improve win32file hook (`PR #261`_)
-#) Add FAQ entry (`PR #267`_)
-
-.. _Issue #225: https://github.com/marcelotduarte/cx_Freeze/issues/225
-.. _Issue #230: https://github.com/marcelotduarte/cx_Freeze/issues/230
-.. _PR #235: https://github.com/marcelotduarte/cx_Freeze/pull/235
-.. _PR #236: https://github.com/marcelotduarte/cx_Freeze/pull/236
-.. _PR #245: https://github.com/marcelotduarte/cx_Freeze/pull/245
-.. _PR #251: https://github.com/marcelotduarte/cx_Freeze/pull/251
-.. _PR #260: https://github.com/marcelotduarte/cx_Freeze/pull/260
-.. _PR #261: https://github.com/marcelotduarte/cx_Freeze/pull/261
-.. _PR #267: https://github.com/marcelotduarte/cx_Freeze/pull/267
+#) Correct handling of import in child thread (:pull:`245`)
+#) Correct handling of "dis" module with Python 3.5.1 (:issue:`225`)
+#) Correct handling of "multiprocess.process" module (:issue:`230`)
+#) Correct attempt to assign variable to an empty list (:pull:`260`)
+#) Improved README (:pull:`235`, :pull:`236`)
+#) Add hook for pythonnet package (:pull:`251`)
+#) Add hook for sqlite3 and improve win32file hook (:pull:`261`)
+#) Add FAQ entry (:pull:`267`)
 
 
 Version 5.0.1 (January 2017)
