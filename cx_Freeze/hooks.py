@@ -15,6 +15,10 @@ def initialize(finder):
     import collections.abc
     for name in collections.abc.__all__:
         finder.ExcludeModule("collections."+name)
+    for name in ("Charset", "Encoders", "Errors", "FeedParser",
+                 "Generator", "Header", "Iterators", "Message", "Parser",
+                 "Utils", "base64MIME", "quopriMIME"):
+        finder.ExcludeModule("email."+name)
     finder.ExcludeModule("__builtin__")
     finder.ExcludeModule("_winreg")
     finder.ExcludeModule("audiodev")
