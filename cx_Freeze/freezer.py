@@ -84,8 +84,7 @@ class Freezer(object):
         self.constantsModule = constantsModule
         self.includes = list(includes)
         self.excludes = list(excludes)
-        self.packages = list(packages)
-        self.namespacePackages = list(namespacePackages)
+        self.packages = set(list(packages) + list(namespacePackages))
         self.replacePaths = list(replacePaths)
         self.compress = compress
         self.optimizeFlag = optimizeFlag
@@ -199,7 +198,7 @@ class Freezer(object):
                     found = True
                     break
             if not found:
-                print('warning: default bin include not found', name)
+                print("*** WARNING *** default bin include not found:", name)
         # Copy the python dynamic libraries and the frozen executable
         if sys.platform == "win32":
             # Copy the python dynamic libraries into build root folder
@@ -376,8 +375,6 @@ class Freezer(object):
                 self.zipExcludePackages, self.zipIncludePackages,
                 self.constantsModule, self.zipIncludes)
         finder.SetOptimizeFlag(self.optimizeFlag)
-        for name in self.namespacePackages:
-            finder.IncludeModule(name, namespace = True)
         for name in self.includes:
             finder.IncludeModule(name)
         for name in self.packages:
@@ -546,9 +543,9 @@ class Freezer(object):
                             ignore = ignorePatterns)
 
             # if an extension module is found in a package that is to be
-            # included in a zip file, save a Python loader in the zip file and
-            # copy the actual file to the build directory because shared
-            # libraries cannot be loaded from a zip file
+            # included in a zip file, copy the actual file to the build
+            # directory because shared libraries cannot be loaded from a
+            # zip file
             if module.code is None and module.file is not None \
                     and not includeInFileSystem:
                 parts = module.name.split(".")[:-1]

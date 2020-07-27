@@ -18,6 +18,7 @@ Contents:
    :maxdepth: 2
 
    overview.rst
+   installation.rst
    distutils.rst
    script.rst
    faq.rst

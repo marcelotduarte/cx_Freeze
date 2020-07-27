@@ -211,17 +211,11 @@ class ModuleFinder(object):
                 subModuleName = "%s.%s" % (packageModule.name, name)
                 self._ImportModule(subModuleName, deferredImports, caller)
 
-    def _FindModule(self, name, path, namespace):
+    def _FindModule(self, name, path):
         try:
             # imp loads normal modules from the filesystem
             return imp.find_module(name, path)
         except ImportError:
-            if namespace and name in sys.modules:
-                # Namespace package (?)
-                module = sys.modules[name]
-                info = ("", "", imp.PKG_DIRECTORY)
-                return None, list(module.__path__)[0], info
-
             # Check for modules in zip files.
             # If a path is a subdirectory within a zip file, we must have
             # already cached the contents of the zip file to find modules in it.
@@ -301,15 +295,14 @@ class ModuleFinder(object):
             skipInImport = True
 
     def _ImportModule(self, name, deferredImports, caller = None,
-            relativeImportIndex = 0, namespace = False):
+            relativeImportIndex = 0):
         """Attempt to find the named module and return it or None if no module
            by that name could be found."""
 
         # absolute import (available in Python 2.5 and up)
         # the name given is the only name that will be searched
         if relativeImportIndex == 0:
-            module = self._InternalImportModule(name,
-                    deferredImports, namespace = namespace)
+            module = self._InternalImportModule(name, deferredImports)
 
         # old style relative import (regular 'import foo' in Python 2)
         # the name given is tried in the current package, and if
@@ -318,14 +311,12 @@ class ModuleFinder(object):
             parent = self._DetermineParent(caller)
             if parent is not None:
                 fullName = "%s.%s" % (parent.name, name)
-                module = self._InternalImportModule(fullName,
-                        deferredImports, namespace = namespace)
+                module = self._InternalImportModule(fullName, deferredImports)
                 if module is not None:
                     parent.global_names[name] = None
                     return module
 
-            module = self._InternalImportModule(name,
-                    deferredImports, namespace = namespace)
+            module = self._InternalImportModule(name, deferredImports)
 
         # new style relative import (available in Python 2.5 and up)
         # the index indicates how many levels to traverse and only that level
@@ -343,8 +334,7 @@ class ModuleFinder(object):
                 module = parent
             else:
                 name = "%s.%s" % (parent.name, name)
-                module = self._InternalImportModule(name,
-                        deferredImports, namespace = namespace)
+                module = self._InternalImportModule(name, deferredImports)
 
         # if module not found, track that fact
         if module is None:
@@ -357,7 +347,7 @@ class ModuleFinder(object):
 
         return module
 
-    def _InternalImportModule(self, name, deferredImports, namespace = False):
+    def _InternalImportModule(self, name, deferredImports):
         """Internal method used for importing a module which assumes that the
            name given is an absolute name. None is returned if the module
            cannot be found."""
@@ -382,8 +372,7 @@ class ModuleFinder(object):
         else:        # Dotted module name - look up the parent module
             parentName = name[:pos]
             parentModule = \
-                    self._InternalImportModule(parentName, deferredImports,
-                            namespace = namespace)
+                    self._InternalImportModule(parentName, deferredImports)
             if parentModule is None:
                 return None
             path = parentModule.path
@@ -406,24 +395,22 @@ class ModuleFinder(object):
             return self._LoadNamespacePackage(name, path, parentModule)
         # other modules or packages
         try:
-            fp, path, info = self._FindModule(searchName, path, namespace)
+            fp, path, info = self._FindModule(searchName, path)
             if info[-1] == imp.C_BUILTIN and parentModule is not None:
                 return None
             module = self._LoadModule(name, fp, path, info, deferredImports,
-                    parentModule, namespace)
+                    parentModule)
         except ImportError:
             logging.debug("Module [%s] cannot be imported", name)
             self._modules[name] = None
             return None
         return module
 
-    def _LoadModule(self, name, fp, path, info, deferredImports,
-            parent = None, namespace = False):
+    def _LoadModule(self, name, fp, path, info, deferredImports, parent=None):
         """Load the module, given the information acquired by the finder."""
         suffix, mode, type = info
         if type == imp.PKG_DIRECTORY:
-            return self._LoadPackage(name, path, parent, deferredImports,
-                    namespace)
+            return self._LoadPackage(name, path, parent, deferredImports)
         module = self._AddModule(name, file_name=path, parent=parent)
 
         if type == imp.PY_SOURCE:
@@ -489,19 +476,15 @@ class ModuleFinder(object):
         logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
         return module
 
-    def _LoadPackage(self, name, path, parent, deferredImports, namespace):
+    def _LoadPackage(self, name, path, parent, deferredImports):
         """Load the package, given its name and path."""
         module = self._AddModule(name, path=[path], parent=parent)
         try:
-            fp, path, info = self._FindModule("__init__", module.path, False)
+            fp, path, info = self._FindModule("__init__", module.path)
             self._LoadModule(name, fp, path, info, deferredImports, parent)
             logging.debug("Adding module [%s] [PKG_DIRECTORY]", name)
         except ImportError:
-            if not namespace:
-                raise
-            fileName = os.path.join(path, "__init__.py")
-            module.code = compile("", fileName, "exec")
-            logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
+            raise
         return module
 
     def _ReplacePackageInCode(self, module):
@@ -651,11 +634,10 @@ class ModuleFinder(object):
         if not copyDependentFiles:
             self.ExcludeDependentFiles(sourcePath)
 
-    def IncludeModule(self, name, namespace = False):
+    def IncludeModule(self, name):
         """Include the named module in the frozen executable."""
         deferredImports = []
-        module = self._ImportModule(name, deferredImports,
-                namespace = namespace)
+        module = self._ImportModule(name, deferredImports)
         self._ImportDeferredImports(deferredImports, skipInImport = True)
         return module
 

@@ -1,6 +1,6 @@
 """
 A simple setup script to create an executable using Zope which demonstrates
-the use of namespace packages.
+the use of namespace packages (auto detected).
 
 qotd.py is a very simple type of Zope application
 

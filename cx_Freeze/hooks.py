@@ -430,6 +430,11 @@ def load_glib(finder, module):
     module.AddGlobalName("timeout_add_seconds")
 
 
+def load_google_cloud_storage(finder, module):
+    """the google.cloud.storage package always uses _http module."""
+    finder.IncludeModule("google.cloud._http")
+
+
 def load_gtk__gtk(finder, module):
     """the gtk._gtk module has a number of implicit imports"""
     finder.IncludeModule("atk")
@@ -927,6 +932,16 @@ def load_ssl(finder, module):
             for dll_path in glob.glob(os.path.join(sys.base_prefix, "DLLs", dll_search)):
                 dll_name = os.path.basename(dll_path)
                 finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+
+
+def load_sysconfig(finder, module):
+    """The sysconfig module implicitly loads _sysconfigdata."""
+    import sysconfig
+    if hasattr(sysconfig, '_get_sysconfigdata_name'):
+        datafile = sysconfig._get_sysconfigdata_name()
+    else:
+        datafile = "_sysconfigdata"
+    finder.IncludeModule(datafile)
 
 
 def load_tkinter(finder, module):

@@ -106,9 +106,6 @@ It can be further customized:
    * - packages (-p)
      - comma separated list of packages to include, which includes all
        submodules in the package
-   * - namespace_packages
-     - comma separated list of packages to be treated as namespace packages
-       (path is extended using pkgutil)
    * - replace_paths
      - Modify filenames attached to code objects, which appear in tracebacks.
        Pass a comma separated list of paths in the form <search>=<replace>. The
@@ -250,9 +247,10 @@ command:
    * - target_name
      - specifies the name of the file that is to be created
    * - upgrade_code
-     - define the upgrade code for the package that is created; this is used to
-       force removal of any packages created with the same upgrade code prior
-       to the installation of this one
+     - define the GUID of the upgrade code for the package that is created;
+       this is used to force removal of any packages created with the same
+       upgrade code prior to the installation of this one; the valid format for
+       a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
 
 For example::
 
