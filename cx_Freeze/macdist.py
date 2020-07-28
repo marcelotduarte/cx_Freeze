@@ -175,29 +175,30 @@ class bdist_mac(Command):
         """ Make all the references from included Mach-O files to other included
         Mach-O files relative. """
 
-        #TODO: Do an initial pass through the DarwinFiles to see if any references on DarwinFiles copied into the
-        # bundle that were not already set--in which case we set them?
+        # TODO: Do an initial pass through the DarwinFiles to see if any references on DarwinFiles copied into the
+        #  bundle that were not already set--in which case we set them?
 
         for darwinFile in self.darwinTracker:
             # get the relative path to darwinFile in build directory
-            relativeCopyDestination = os.path.relpath(darwinFile.copyDestinationPath, buildDir)
+            relativeCopyDestination = os.path.relpath(darwinFile.getBuildPath(), buildDir)
             # figure out directory where it will go in binary directory
+            # for .app bundle, this would be the Content/MacOS subdirectory in bundle
             filePathInBinDir = os.path.join(binDir, relativeCopyDestination)
 
             # for each file that this darwinFile references, update the reference as necessary
             # if the file is copied into the binary package, change the refernce to be relative to
             # @executable_path (so an .app bundle will work wherever it is moved)
-            for path, machORef in darwinFile.machReferenceDict.items():
+            for path, machORef in darwinFile.machOReferenceDict.items():
                 if not machORef.isCopied:
                     # referenced file not copied -- assume this is a system file that will also be
                     # present on the user's machine, and do not change reference
                     continue
                 rawPath = machORef.rawPath  # this is the reference in the machO file that needs to be updated
                 referencedDarwinFile: DarwinFile = machORef.targetFile
-                absoluteDest = referencedDarwinFile.copyDestinationPath  # this is the absolute in the build directory
-                relativeDest = os.path.relpath(absoluteDest, buildDir)
-                exePath = "@executable_path/{}".format(relativeDest)
-                changeLoadReference(filePathInBinDir,oldReference=rawPath,newReference=exePath, VERBOSE=False)
+                absoluteBuildDest = referencedDarwinFile.getBuildPath()  # this is where file copied in build dir
+                relativeBuildDest = os.path.relpath(absoluteBuildDest, buildDir)
+                exePath = "@executable_path/{}".format(relativeBuildDest)
+                changeLoadReference(filePathInBinDir, oldReference=rawPath,newReference=exePath, VERBOSE=False)
                 pass
             pass
         return

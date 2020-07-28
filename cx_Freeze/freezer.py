@@ -132,7 +132,7 @@ class Freezer(object):
 
     def _CopyFile(self, source, target, copyDependentFiles,
                   includeMode = False, relativeSource = False,
-                  machOReference: MachOReference = None):
+                  machOReference: Optional[MachOReference] = None):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
 
@@ -159,15 +159,16 @@ class Freezer(object):
 
         newDarwinFile = None
         if sys.platform == "darwin":
-            # Create a DarwinFile file object to represent the file being copied.
+            # The file was not previously copied, so need to create a DarwinFile file object to
+            # represent the file being copied.
             referencingFile = None
             if machOReference is not None:
                 referencingFile = machOReference.sourceFile
-            newDarwinFile = DarwinFile(originalObjectPath=source, referencingFile=referencingFile)
-            newDarwinFile.copyDestinationPath = normalizedTarget
+            newDarwinFile = DarwinFile(originalFilePath=source, referencingFile=referencingFile)
+            newDarwinFile.setBuildPath( normalizedTarget )
             if machOReference is not None:
                 machOReference.setTargetFile(darwinFile=newDarwinFile)
-            self.darwinTracker.addFile(targetPath=normalizedTarget, darwinFile=newDarwinFile)
+            self.darwinTracker.recordCopiedFile(targetPath=normalizedTarget, darwinFile=newDarwinFile)
             pass
 
         if copyDependentFiles \
@@ -183,8 +184,8 @@ class Freezer(object):
                 targetDir = self.targetDir
                 for dependent_file in self._GetDependentFiles(source, darwinFile=newDarwinFile):
                     target = os.path.join(targetDir, os.path.basename(dependent_file))
-                    self._CopyFile(dependent_file, target, copyDependentFiles,
-                                       machOReference=newDarwinFile.getMachOReference(resolvedPath=dependent_file))
+                    self._CopyFile(dependent_file, target, copyDependentFiles=True,
+                                   machOReference=newDarwinFile.getMachOReference(resolvedPath=dependent_file))
             else:
                 for dependent_file in self._GetDependentFiles(source, darwinFile=newDarwinFile):
                     if relativeSource and os.path.isabs(dependent_file) and \
@@ -238,8 +239,12 @@ class Freezer(object):
             target_dir = os.path.join(os.path.dirname(exe.targetName), "lib")
         for source in dependent_files:
             target = os.path.join(target_dir, os.path.basename(source))
-            self._CopyFile(source, target,
-                           copyDependentFiles=True, includeMode=True)
+            if sys.platform == "darwin":
+                self._CopyFile(source, target, copyDependentFiles=True, includeMode=True,
+                               machOReference=self.darwinTracker.getCachedReferenceTo(path=source))
+            else:
+                self._CopyFile(source, target,
+                               copyDependentFiles=True, includeMode=True)
         self._CopyFile(exe.base, exe.targetName,
                        copyDependentFiles=False, includeMode=True)
         if not os.access(exe.targetName, os.W_OK):
@@ -332,7 +337,16 @@ class Freezer(object):
                 else:
                     dependentFiles = []
             elif sys.platform == "darwin":
-                dependentFiles = darwinFile.getDependentFiles()
+                # if darwinFile is None, create a temporary DarwinFile object for the path, just
+                # so we can read its dependencies
+                if darwinFile is None:
+                    darwinFile = DarwinFile(originalFilePath=path, referencingFile=None)
+                dependentFiles = darwinFile.getDependentFilePaths()
+
+                # cache the MachOReferences to the dependencies, so they can be called up later
+                # in _CopyFile if copying a dependency without an explicit reference provided
+                for depFilePath, ref in darwinFile.getMachOReferences():
+                    self.darwinTracker.cacheReferenceTo(path=depFilePath, machOReference=ref)
             else:
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
@@ -677,6 +691,10 @@ class Freezer(object):
                 self._CopyFile(sourceFileName, fullName,
                                copyDependentFiles=True,
                                relativeSource=True)
+
+        if sys.platform == "darwin":
+            self.darwinTracker.finalizeReferences()
+        return
 
 
 class ConfigError(Exception):
