@@ -974,6 +974,8 @@ def load_sysconfig(finder, module):
     """The sysconfig module implicitly loads _sysconfigdata."""
     import sysconfig
     if hasattr(sysconfig, '_get_sysconfigdata_name'):
+        if not hasattr(sys, "abiflags"):
+            sys.abiflags = ""
         datafile = sysconfig._get_sysconfigdata_name()
     else:
         datafile = "_sysconfigdata"
