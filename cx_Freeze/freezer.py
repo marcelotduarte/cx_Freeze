@@ -740,7 +740,7 @@ class ConstantsModule(object):
         self.values["BUILD_RELEASE_STRING"] = releaseString
         self.values["BUILD_COPYRIGHT"] = copyright
         for constant in constants:
-            parts = constant.split("=")
+            parts = constant.split("=", maxsplit=1)
             if len(parts) == 1:
                 name = constant
                 value = None
