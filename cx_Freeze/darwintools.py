@@ -447,7 +447,6 @@ class DarwinFileTracker:
                     # being copied and, if so, use that to complete the reference
                     realTargetPath = os.path.realpath( path )
                     if realTargetPath in self._sourceFileDict:
-                        print("Finalizing ref {} in {}".format(realTargetPath, df.originalFilePath))
                         ref.setTargetFile(self._sourceFileDict[realTargetPath])
                     pass
                 pass
