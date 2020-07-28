@@ -7,6 +7,7 @@ from __future__ import print_function
 import datetime
 import distutils.sysconfig
 from importlib.util import MAGIC_NUMBER
+from keyword import iskeyword
 import marshal
 import os
 import shutil
@@ -729,6 +730,12 @@ class Executable(object):
             raise ConfigError("no initscript named %s", name)
 
 
+def _isValidVariableName(name: str) -> bool:
+    """Returns True if name is a valid variable name."""
+    if not name.isidentifier(): return False
+    if iskeyword(name): return False
+    return True
+
 class ConstantsModule(object):
 
     def __init__(self, releaseString = None, copyright = None,
@@ -747,6 +754,9 @@ class ConstantsModule(object):
             else:
                 name, stringValue = parts
                 value = eval(stringValue)
+            if not _isValidVariableName(name):
+                raise Exception("Invalid constant name in ConstantsModule (\"{}\")".format(name))
+
             self.values[name] = value
 
     def Create(self, finder):
