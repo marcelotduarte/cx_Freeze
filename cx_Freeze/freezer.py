@@ -730,12 +730,6 @@ class Executable(object):
             raise ConfigError("no initscript named %s", name)
 
 
-def _isValidVariableName(name: str) -> bool:
-    """Returns True if name is a valid variable name."""
-    if not name.isidentifier(): return False
-    if iskeyword(name): return False
-    return True
-
 class ConstantsModule(object):
 
     def __init__(self, releaseString = None, copyright = None,
@@ -754,9 +748,8 @@ class ConstantsModule(object):
             else:
                 name, stringValue = parts
                 value = eval(stringValue)
-            if not _isValidVariableName(name):
-                raise Exception("Invalid constant name in ConstantsModule (\"{}\")".format(name))
-
+            if (not name.isidentifier()) or iskeyword(name):
+                raise ConfigError("Invalid constant name in ConstantsModule (\"{}\")".format(name))
             self.values[name] = value
 
     def Create(self, finder):
