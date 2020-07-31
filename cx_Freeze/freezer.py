@@ -7,6 +7,7 @@ from __future__ import print_function
 import datetime
 import distutils.sysconfig
 from importlib.util import MAGIC_NUMBER
+from keyword import iskeyword
 import marshal
 import os
 import shutil
@@ -740,13 +741,15 @@ class ConstantsModule(object):
         self.values["BUILD_RELEASE_STRING"] = releaseString
         self.values["BUILD_COPYRIGHT"] = copyright
         for constant in constants:
-            parts = constant.split("=")
+            parts = constant.split("=", maxsplit=1)
             if len(parts) == 1:
                 name = constant
                 value = None
             else:
                 name, stringValue = parts
                 value = eval(stringValue)
+            if (not name.isidentifier()) or iskeyword(name):
+                raise ConfigError("Invalid constant name in ConstantsModule (\"{}\")".format(name))
             self.values[name] = value
 
     def Create(self, finder):
