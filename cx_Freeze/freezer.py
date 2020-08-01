@@ -513,7 +513,11 @@ class Freezer(object):
         self._CreateDirectory(targetDir)
 
         # Prepare zip file
-        outFile = zipfile.PyZipFile(fileName, "w", zipfile.ZIP_DEFLATED)
+        if self.compress:
+            compress_type = zipfile.ZIP_DEFLATED
+        else:
+            compress_type = zipfile.ZIP_STORED
+        outFile = zipfile.PyZipFile(fileName, "w", compress_type)
 
         filesToCopy = []
         ignorePatterns = shutil.ignore_patterns("*.py", "*.pyc", "*.pyo",
@@ -558,16 +562,16 @@ class Freezer(object):
             # the file is up to date so we can safely set this value to zero
             if module.code is not None:
                 if module.file is not None and os.path.exists(module.file):
-                    stat = os.stat(module.file)
-                    mtime = stat.st_mtime
-                    size = stat.st_size & 0xFFFFFFFF
+                    st = os.stat(module.file)
+                    mtime = int(st.st_mtime)
+                    size = st.st_size & 0xFFFFFFFF
                 else:
-                    mtime = time.time()
+                    mtime = int(time.time())
                     size = 0
                 if sys.version_info[:2] < (3, 7):
-                    header = MAGIC_NUMBER + struct.pack("<ii", int(mtime), size)
+                    header = MAGIC_NUMBER + struct.pack("<ii", mtime, size)
                 else:
-                    header = MAGIC_NUMBER + struct.pack("<iii", 0, int(mtime), size)
+                    header = MAGIC_NUMBER + struct.pack("<iii", 0, mtime, size)
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
@@ -593,8 +597,7 @@ class Freezer(object):
                 if module.path:
                     fileName += "/__init__"
                 zinfo = zipfile.ZipInfo(fileName + ".pyc", zipTime)
-                if self.compress:
-                    zinfo.compress_type = zipfile.ZIP_DEFLATED
+                zinfo.compress_type = compress_type
                 outFile.writestr(zinfo, data)
 
             # put the distribution files metadata in the zip file
