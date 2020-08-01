@@ -697,33 +697,26 @@ class Module(object):
         self.store_in_file_system = True
         # distribution files (metadata)
         dist_files = []
-        if file_name is not None:
-            module_dirs = [os.path.dirname(file_name)]
-        elif path:
-            module_dirs = path
-        else:
-            module_dirs = None
-        if module_dirs:
-            packages = [name.replace(".","-")]
+        packages = [name.replace(".","-")]
+        try:
+            requires = importlib_metadata.requires(packages[0])
+        except importlib_metadata.PackageNotFoundError:
+            requires = None
+        if requires is not None:
+            packages += [req.partition(" ")[0] for req in requires]
+        for package_name in packages:
             try:
-                requires = importlib_metadata.requires(packages[0])
+                files = importlib_metadata.files(package_name)
             except importlib_metadata.PackageNotFoundError:
-                requires = None
-            if requires is not None:
-                packages += [req.partition(" ")[0] for req in requires]
-            for package_name in packages:
-                try:
-                    files = importlib_metadata.files(package_name)
-                except importlib_metadata.PackageNotFoundError:
-                    files = None
-                if files is not None:
-                    # cache file names to use in write modules
-                    for file in files:
-                        if not file.match('*.dist-info/*'):
-                            continue
-                        dist_path = str(file.locate())
-                        arc_path = file.as_posix()
-                        dist_files.append((dist_path, arc_path))
+                files = None
+            if files is not None:
+                # cache file names to use in write modules
+                for file in files:
+                    if not file.match('*.dist-info/*'):
+                        continue
+                    dist_path = str(file.locate())
+                    arc_path = file.as_posix()
+                    dist_files.append((dist_path, arc_path))
         self.dist_files = dist_files
 
     def __repr__(self):
