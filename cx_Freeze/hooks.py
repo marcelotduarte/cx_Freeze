@@ -233,6 +233,11 @@ def load_cffi_cparser(finder, module):
         finder.ExcludeModule('cffi._pycparser')
 
 
+def load_crc32c(finder, module):
+    """the google.crc32c module requires _cffi_backend module"""
+    finder.IncludeModule("_cffi_backend")
+
+
 def load_clr(finder, module):
     """the pythonnet package (imported as 'clr') needs Python.Runtime.dll
     in runtime"""
