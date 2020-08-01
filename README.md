@@ -17,7 +17,7 @@ Install by issuing the command
 python -m pip install cx_Freeze --upgrade
 ```
 
-or download directly from [PyPI](https://pypi.python.org/pypi/cx_Freeze).
+or download directly from [PyPI](https://pypi.org/project/cx_Freeze).
 
 If you do not have pip installed or would prefer a more manual installation
 process, the following steps also work once the source package has been
@@ -42,5 +42,4 @@ cx\_Freeze uses a license derived from the
 [Python Software Foundation License](https://www.python.org/psf/license).
 You can read the cx\_Freeze license in the
 [documentation](https://cx-freeze.readthedocs.io/en/latest/license.html)
-or in the [source repository](doc/license.rst).
-
+or in the [source repository](doc/src/license.rst).
