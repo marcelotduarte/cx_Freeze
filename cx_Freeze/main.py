@@ -7,6 +7,7 @@ import os
 import sys
 
 import cx_Freeze
+from cx_Freeze.common import normalize_to_list
 
 __all__ = ["main"]
 
@@ -163,6 +164,7 @@ def prepare_parser():
     parser.add_argument(
         "--zip-exclude-packages",
         dest="zip_exclude_packages",
+        default="*",
         metavar="NAMES",
         help="comma separated list of packages which should be excluded from "
         "the zip file and placed in the file system instead; the default is "
@@ -174,37 +176,22 @@ def prepare_parser():
     parser.add_argument(
         "--icon", dest="icon", help="name of the icon file for the application"
     )
-    parser.usage = parser.format_usage()[7:] + DESCRIPTION
+    # remove the initial "usage: " of format_usage()
+    parser.usage = parser.format_usage()[len("usage: ") :] + DESCRIPTION
     return parser
 
 
 def parse_command_line(parser):
     args = parser.parse_args()
-    # parser.error("only one script can be specified")
     if args.script is None and args.includes is None:
         parser.error("script or a list of modules must be specified")
     if args.script is None and args.target_name is None:
         parser.error("script or a target name must be specified")
-    if args.excludes:
-        args.excludes = args.excludes.split(",")
-    else:
-        args.excludes = []
-    if args.includes:
-        args.includes = args.includes.split(",")
-    else:
-        args.includes = []
-    if args.packages:
-        args.packages = args.packages.split(",")
-    else:
-        args.packages = []
-    if args.zip_include_packages:
-        args.zip_include_packages = args.zip_include_packages.split(",")
-    else:
-        args.zip_include_packages = []
-    if args.zip_exclude_packages:
-        args.zip_exclude_packages = args.zip_exclude_packages.split(",")
-    else:
-        args.zip_exclude_packages = ["*"]
+    args.excludes = normalize_to_list(args.excludes)
+    args.includes = normalize_to_list(args.includes)
+    args.packages = normalize_to_list(args.packages)
+    args.zip_include_packages = normalize_to_list(args.zip_include_packages)
+    args.zip_exclude_packages = normalize_to_list(args.zip_exclude_packages)
     replace_paths = []
     if args.replace_paths:
         for directive in args.replace_paths.split(os.pathsep):
@@ -218,10 +205,7 @@ def parse_command_line(parser):
         sys.path = paths + sys.path
     if args.script is not None:
         sys.path.insert(0, os.path.dirname(args.script))
-    if args.include_files:
-        args.include_files = args.include_files.split(",")
-    else:
-        args.include_files = []
+    args.include_files = normalize_to_list(args.include_files)
     zip_includes = []
     if args.zip_includes:
         for spec in args.zip_includes:
@@ -238,10 +222,10 @@ def main():
     executables = [
         cx_Freeze.Executable(
             args.script,
-            initScript=args.init_script,
-            base=args.base_name,
-            icon=args.icon,
-            targetName=args.target_name,
+            args.init_script,
+            args.base_name,
+            args.target_name,
+            args.icon,
         )
     ]
     freezer = cx_Freeze.Freezer(
