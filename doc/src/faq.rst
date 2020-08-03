@@ -52,10 +52,12 @@ Using data files
 Applications often need data files besides the code, such as icons. Using a
 :ref:`setup script <distutils>`, you can list data files or directories in the
 ``include_files`` option to ``build_exe``. They'll be copied to the build
-directory alongside the executable. Then to find them, use code like this::
+directory alongside the executable. Then to find them, use code like this:
+
+  .. code-block:: python
 
     def find_data_file(filename):
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, "frozen", False):
             # The application is frozen
             datadir = os.path.dirname(sys.executable)
         else:
@@ -65,9 +67,7 @@ directory alongside the executable. Then to find them, use code like this::
         return os.path.join(datadir, filename)
 
 An alternative is to embed data in code, for example by using `Qt's resource
-system <http://developer.qt.nokia.com/doc/qt-4.8/resources.html>`_.
-
-.. seealso:: `A tutorial covering resources in PyQt <http://lateral.netmanagers.com.ar/stories/BBS49.html>`_
+system <https://doc.qt.io/qt-5/resources.html>`_.
 
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------

@@ -5,7 +5,9 @@ distutils setup script
 
 In order to make use of distutils a setup script must be created. This is
 called ``setup.py`` by convention, although it can have any name. It looks
-something like this::
+something like this:
+
+  .. code-block:: python
 
     import sys
     from cx_Freeze import setup, Executable
@@ -28,7 +30,9 @@ something like this::
 There are more examples in the ``samples/`` directory of `the source
 <https://github.com/marcelotduarte/cx_Freeze/tree/master/cx_Freeze/samples>`_.
 
-The script is invoked as follows::
+The script is invoked as follows:
+
+  .. code-block:: console
 
     python setup.py build
 
@@ -38,7 +42,9 @@ identifier for the platform that distutils uses. This allows for multiple
 platforms to be built without conflicts.
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
-includes for your application, by running the setup script as::
+includes for your application, by running the setup script as:
+
+  .. code-block:: console
 
     python setup.py bdist_msi
 
@@ -52,12 +58,16 @@ provide the ability to both build and install executables. In typical distutils
 fashion they can be provided in the setup script, on the command line or in
 a ``setup.cfg`` configuration file. They are described in further detail below.
 
-To specify options in the script, use underscores in the name. For example::
+To specify options in the script, use underscores in the name. For example:
+
+  .. code-block:: python
 
     setup(...
           options = {'build_exe': {'init_script':'Console'}} )
 
-To specify the same options on the command line, use dashes, like this::
+To specify the same options on the command line, use dashes, like this:
+
+  .. code-block:: console
 
     python setup.py build_exe --init-script Console
 
@@ -252,7 +262,9 @@ command:
        upgrade code prior to the installation of this one; the valid format for
        a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
 
-For example::
+For example:
+
+  .. code-block:: python
 
     'bdist_msi': {
         'upgrade_code': upgrade_code,

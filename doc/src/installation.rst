@@ -6,7 +6,9 @@ The source code can be found on `Github <https://github.com/marcelotduarte/cx_Fr
 
 Issue tracking on `Github <https://github.com/marcelotduarte/cx_Freeze/issues>`_.
 
-Install by issuing the command::
+Install by issuing the command:
+
+  .. code-block:: console
 
     pip install cx_Freeze --upgrade
 
