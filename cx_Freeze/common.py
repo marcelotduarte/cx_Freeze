@@ -5,19 +5,19 @@ This module contains utility functions shared between cx_Freeze modules.
 import types
 
 
-def normalize_to_list(value):
+def normalize_to_list(value) -> list:
     """
     Takes the different formats of options containing multiple values and
     returns the value as a list object.
     """
     if value is None:
-        normalizedValue = []
+        normalized_value = []
     elif isinstance(value, str):
-        normalizedValue = value.split(",")
+        normalized_value = value.split(",")
     else:
-        normalizedValue = list(value)
+        normalized_value = list(value)
 
-    return normalizedValue
+    return normalized_value
 
 
 def rebuild_code_object(co, code=None, constants=None, filename=None):
