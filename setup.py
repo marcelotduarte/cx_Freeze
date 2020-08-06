@@ -4,30 +4,30 @@ Distutils script for cx_Freeze.
 
 from setuptools import setup, Extension
 import distutils.command.build_ext
-import distutils.sysconfig
+from distutils.sysconfig import get_config_var
 import os
 import sys
 
 
 if sys.version_info < (3, 5, 2):
-    sys.exit("Sorry, Python < 3.5.2 is not supported. Use cx_Freeze 5 for "
-            "support of earlier Python versions.")
+    sys.exit("Python3 versions lower than 3.5.2 are not supported.")
 
 
 class build_ext(distutils.command.build_ext.build_ext):
-
     def build_extension(self, ext):
         if "bases" not in ext.name:
-            distutils.command.build_ext.build_ext.build_extension(self, ext)
+            super().build_extension(ext)
             return
         if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
         os.environ["LD_RUN_PATH"] = "${ORIGIN}/../lib:${ORIGIN}/lib"
-        objects = self.compiler.compile(ext.sources,
-                output_dir = self.build_temp,
-                include_dirs = ext.include_dirs,
-                debug = self.debug,
-                depends = ext.depends)
+        objects = self.compiler.compile(
+            ext.sources,
+            output_dir=self.build_temp,
+            include_dirs=ext.include_dirs,
+            debug=self.debug,
+            depends=ext.depends,
+        )
         fileName = os.path.splitext(self.get_ext_filename(ext.name))[0]
         if self.inplace:
             fullName = os.path.join(os.path.dirname(__file__), fileName)
@@ -45,52 +45,61 @@ class build_ext(distutils.command.build_ext.build_ext):
                     extraArgs.append("-mwindows")
                 else:
                     extraArgs.append("-mconsole")
-                if sys.version_info[0] == 3:
-                    extraArgs.append("-municode")
+                extraArgs.append("-municode")
         else:
-            vars = distutils.sysconfig.get_config_vars()
-            libraryDirs.append(vars["LIBPL"])
+            libraryDirs.append(get_config_var("LIBPL"))
             abiflags = getattr(sys, "abiflags", "")
-            libraries.append("python%s.%s%s" % \
-                    (sys.version_info[0], sys.version_info[1], abiflags))
-            if vars["LINKFORSHARED"] and sys.platform != "darwin":
-                extraArgs.extend(vars["LINKFORSHARED"].split())
-            if vars["LIBS"]:
-                extraArgs.extend(vars["LIBS"].split())
-            if vars["LIBM"]:
-                extraArgs.append(vars["LIBM"])
-            if vars["BASEMODLIBS"]:
-                extraArgs.extend(vars["BASEMODLIBS"].split())
-            if vars["LOCALMODLIBS"]:
-                extraArgs.extend(vars["LOCALMODLIBS"].split())
+            libraries.append(
+                "python%s.%s%s"
+                % (sys.version_info[0], sys.version_info[1], abiflags)
+            )
+            if get_config_var("LINKFORSHARED") and sys.platform != "darwin":
+                extraArgs.extend(get_config_var("LINKFORSHARED").split())
+            if get_config_var("LIBS"):
+                extraArgs.extend(get_config_var("LIBS").split())
+            if get_config_var("LIBM"):
+                extraArgs.append(get_config_var("LIBM"))
+            if get_config_var("BASEMODLIBS"):
+                extraArgs.extend(get_config_var("BASEMODLIBS").split())
+            if get_config_var("LOCALMODLIBS"):
+                extraArgs.extend(get_config_var("LOCALMODLIBS").split())
             extraArgs.append("-s")
-        self.compiler.link_executable(objects, fullName,
-                libraries = libraries,
-                library_dirs = libraryDirs,
-                runtime_library_dirs = ext.runtime_library_dirs,
-                extra_postargs = extraArgs,
-                debug = self.debug)
+        self.compiler.link_executable(
+            objects,
+            fullName,
+            libraries=libraries,
+            library_dirs=libraryDirs,
+            runtime_library_dirs=ext.runtime_library_dirs,
+            extra_postargs=extraArgs,
+            debug=self.debug,
+        )
 
     def get_ext_filename(self, name):
-        fileName = distutils.command.build_ext.build_ext.get_ext_filename(self,
-                name)
+        fileName = super().get_ext_filename(name)
         if name.endswith("util"):
             return fileName
-        vars = distutils.sysconfig.get_config_vars()
-        soExt = vars.get("EXT_SUFFIX", vars.get("SO"))
+        soExt = get_config_var("EXT_SUFFIX")
         ext = self.compiler.exe_extension or ""
-        return fileName[:-len(soExt)] + ext
+        return fileName[: -len(soExt)] + ext
 
 
 def find_cx_Logging():
     import subprocess
-    dirName = os.path.dirname(os.path.dirname(os.path.os.path.abspath(__file__)))
+
+    dirName = os.path.dirname(
+        os.path.dirname(os.path.os.path.abspath(__file__))
+    )
     loggingDir = os.path.join(dirName, "cx_Logging")
     if not os.path.exists(loggingDir):
         try:
-            subprocess.run(["git", "clone",
-                            "https://github.com/anthony-tuininga/cx_Logging.git",
-                            loggingDir])
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "https://github.com/anthony-tuininga/cx_Logging.git",
+                    loggingDir,
+                ]
+            )
         except (FileNotFoundError, subprocess.SubprocessError):
             pass
     if not os.path.exists(loggingDir):
@@ -100,8 +109,9 @@ def find_cx_Logging():
     includeDir = os.path.join(loggingDir, "src")
     if not os.path.exists(importLibraryDir):
         try:
-            subprocess.run([sys.executable, "setup.py", "install"],
-                           cwd=loggingDir)
+            subprocess.run(
+                [sys.executable, "setup.py", "install"], cwd=loggingDir
+            )
         except (FileNotFoundError, subprocess.SubprocessError):
             pass
     if not os.path.exists(importLibraryDir):
@@ -109,35 +119,46 @@ def find_cx_Logging():
     return includeDir, importLibraryDir
 
 
-commandClasses = dict(build_ext=build_ext)
+commandClasses = {"build_ext": build_ext}
 
 # build base executables
 if sys.platform == "win32":
     libraries = ["imagehlp", "Shlwapi"]
 else:
     libraries = []
-options = dict(install=dict(optimize=1))
+options = {"install": {"optimize": 1}}
 depends = ["source/bases/Common.c"]
-console = Extension("cx_Freeze.bases.Console", ["source/bases/Console.c"],
-                    depends=depends, libraries=libraries)
+console = Extension(
+    "cx_Freeze.bases.Console",
+    ["source/bases/Console.c"],
+    depends=depends,
+    libraries=libraries,
+)
 extensions = [console]
 if sys.platform == "win32":
-    gui = Extension("cx_Freeze.bases.Win32GUI", ["source/bases/Win32GUI.c"],
-                    depends=depends, libraries=libraries + ["user32"])
+    gui = Extension(
+        "cx_Freeze.bases.Win32GUI",
+        ["source/bases/Win32GUI.c"],
+        depends=depends,
+        libraries=libraries + ["user32"],
+    )
     extensions.append(gui)
     moduleInfo = find_cx_Logging()
     if moduleInfo is not None:
         includeDir, libraryDir = moduleInfo
-        service = Extension("cx_Freeze.bases.Win32Service",
-                            ["source/bases/Win32Service.c"],
-                            depends=depends,
-                            library_dirs=[libraryDir],
-                            libraries=libraries + ["advapi32", "cx_Logging"],
-                            include_dirs=[includeDir])
+        service = Extension(
+            "cx_Freeze.bases.Win32Service",
+            ["source/bases/Win32Service.c"],
+            depends=depends,
+            library_dirs=[libraryDir],
+            libraries=libraries + ["advapi32", "cx_Logging"],
+            include_dirs=[includeDir],
+        )
         extensions.append(service)
     # build utility module
-    utilModule = Extension("cx_Freeze.util", ["source/util.c"],
-                           libraries=libraries)
+    utilModule = Extension(
+        "cx_Freeze.util", ["source/util.c"], libraries=libraries
+    )
     extensions.append(utilModule)
 
 # define package data
@@ -154,9 +175,9 @@ for fileName in os.listdir(os.path.join("cx_Freeze", "samples")):
     packageData.append("samples/%s/*.py" % fileName)
 
 setup(
-      cmdclass = commandClasses,
-      options = options,
-      ext_modules = extensions,
-      packages = ["cx_Freeze"],
-      package_data = {"cx_Freeze" : packageData },
+    cmdclass=commandClasses,
+    options=options,
+    ext_modules=extensions,
+    packages=["cx_Freeze"],
+    package_data={"cx_Freeze": packageData},
 )
