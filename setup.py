@@ -4,8 +4,6 @@ Distutils script for cx_Freeze.
 
 from setuptools import setup, Extension
 import distutils.command.build_ext
-import distutils.command.install
-import distutils.command.install_data
 import distutils.sysconfig
 import os
 import sys
