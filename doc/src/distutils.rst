@@ -267,7 +267,7 @@ For example:
   .. code-block:: python
 
     'bdist_msi': {
-        'upgrade_code': upgrade_code,
+        'upgrade_code': "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
         'add_to_path': True,
         'environment_variables': [
             ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
