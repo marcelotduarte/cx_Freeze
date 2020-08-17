@@ -165,13 +165,16 @@ static int InitializePython(int argc, char **argv)
         PyMem_RawFree(path);
         return FatalError("Unable to convert path to string!");
     }
+
+    // set initialization flags prior Py_SetPath
+    Py_NoSiteFlag = 1;
+    Py_FrozenFlag = 1;
+    Py_IgnoreEnvironmentFlag = 1;
+
     Py_SetPath(wpath);
     PyMem_RawFree(wpath);
 
     // initialize Python
-    Py_NoSiteFlag = 1;
-    Py_FrozenFlag = 1;
-    Py_IgnoreEnvironmentFlag = 1;
     Py_Initialize();
 
     // set sys.executable
