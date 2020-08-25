@@ -541,7 +541,10 @@ class Freezer(object):
                     module.file is not None:
                 parts = module.name.split(".")
                 targetPackageDir = os.path.join(targetDir, *parts)
-                sourcePackageDir = os.path.dirname(module.file)
+                if module.file is None:
+                    sourcePackageDir = module.path
+                else:
+                    sourcePackageDir = os.path.dirname(module.file)
                 if not os.path.exists(targetPackageDir):
                     print("Copying data from package", module.name + "...")
                     shutil.copytree(sourcePackageDir, targetPackageDir,
@@ -589,7 +592,8 @@ class Freezer(object):
                     if module.path is not None:
                         parts.append("__init__")
                     targetName = os.path.join(targetDir, *parts) + ".pyc"
-                    open(targetName, "wb").write(data)
+                    with open(targetName, "wb") as fp:
+                        fp.write(data)
 
             # otherwise, write to the zip file
             elif module.code is not None:
