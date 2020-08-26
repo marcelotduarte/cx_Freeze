@@ -14,7 +14,7 @@ instead.
 Install by issuing the command
 
 ```
-python -m pip install cx_Freeze --upgrade
+python3 -m pip install cx_Freeze --upgrade
 ```
 
 or download directly from [PyPI](https://pypi.org/project/cx_Freeze).
@@ -24,8 +24,8 @@ process, the following steps also work once the source package has been
 downloaded and extracted:
 
 ```
-python setup.py build
-python setup.py install
+python3 setup.py build
+python3 setup.py install
 ```
 
 # Documentation
