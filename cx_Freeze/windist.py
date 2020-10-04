@@ -25,10 +25,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ('target-name=', None, 'name of the file to create'),
         ('directories=', None, 'list of 3-tuples of directories to create'),
         ('environment-variables=', None, 'list of environment variables'),
-        ('data=', None, 'dictionary of data indexed by table name'),
+        ('data=', None, 'dictionary of data indexed by table name, and each value is a tuple to include in table'),
+        ('summary-data=', None, 'Dictionary of data to include in msi summary data stream.  Allowed keys are "author", "comments", "keywords".'),
         ('product-code=', None, 'product code to use'),
         ('install-icon=', None, 'icon path to add/remove programs '),
-        ('all-users=', None, 'installation for all users (or just me)')
+        ('all-users=', None, 'installation for all users (or just me)'),
     ]
     x = y = 50
     width = 370
@@ -75,6 +76,23 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                                 None, None, None, None)])
         for tableName, data in self.data.items():
             msilib.add_data(self.db, tableName, data)
+        
+        # If provided, add data to MSI's summary information stream
+        if len(self.summary_data) > 0:
+            for k in self.summary_data:
+                if k not in ["author", "comments", "keywords"]:
+                    raise Exception('Unknown key provided in summary-data: "{}"'.format(k))
+            
+            summaryInfo = self.db.GetSummaryInformation(5)
+            if "author" in self.summary_data:
+                summaryInfo.SetProperty(msilib.PID_AUTHOR, self.summary_data["author"])
+            if "comments" in self.summary_data:
+                summaryInfo.SetProperty(msilib.PID_COMMENTS, self.summary_data["comments"])
+            if "keywords" in self.summary_data:
+                summaryInfo.SetProperty(msilib.PID_KEYWORDS, self.summary_data["keywords"])
+            summaryInfo.Persist()
+        
+        
 
     def add_cancel_dialog(self):
         dialog = msilib.Dialog(self.db, "CancelDlg", 50, 10, 260, 85, 3,
@@ -372,6 +390,8 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             self.environment_variables = []
         if self.data is None:
             self.data = {}
+        if not isinstance(self.summary_data, dict):
+            self.summary_data = {}
 
     def initialize_options(self):
         distutils.command.bdist_msi.bdist_msi.initialize_options(self)
@@ -383,8 +403,10 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.directories = None
         self.environment_variables = None
         self.data = None
+        self.summary_data = None
         self.install_icon = None
         self.all_users = False
+
 
     def run(self):
         if not self.skip_build:

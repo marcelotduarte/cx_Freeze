@@ -241,6 +241,9 @@ command:
        results in an installation for just the installing user
    * - data
      - dictionary of arbitrary MSI data indexed by table name
+   * - summary_data
+     - dictionary data to include in MSI summary information stream (allowable 
+	   keys are "author", "comments", "keywords")
    * - directories
      - list of directories that should be created during installation
    * - environment_variables
