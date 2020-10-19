@@ -263,14 +263,14 @@ command:
      - define the GUID of the upgrade code for the package that is created;
        this is used to force removal of any packages created with the same
        upgrade code prior to the installation of this one; the valid format for
-       a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
+       a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit. Refer to `Windows GUID <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
 
 For example:
 
   .. code-block:: python
 
     'bdist_msi': {
-        'upgrade_code': upgrade_code,
+        'upgrade_code': "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
         'add_to_path': True,
         'environment_variables': [
             ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
