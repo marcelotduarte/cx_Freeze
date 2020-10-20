@@ -4,6 +4,54 @@ Release notes
 6.x releases
 ############
 
+#) Highlights of Version 6.2 and 6.3:
+	- Initial support for metadata to use by pkg_resources and importlib.metadata
+	- Namespace packages are automatically detected
+	- Enhanced support for Python 3.8
+	- Better support for MSYS2
+	- More integrated to setuptools
+	- Fixed long-awaited bugs and recent bugs
+	- Fixed issues with multiprocessing (see Windows section of 6.2)
+
+Version 6.3 (October 2020)
+--------------------------
+
+#)  Improvements:
+	- Improve metadata using importlib.metadata (:pull:`697`)
+	- New options in ``cxfreeze`` script; documentation updated (:pull:`742`)
+	- The command line parser was rewritten and modernised using argparse (:pull:`741`)
+	- Documentation (:pull:`740`, :pull:`722`, :pull:`720`)
+	- Cleanups (:pull:`766`, :pull:`746`, :pull:`744`, :pull:`743`, :pull:`736`, :pull:`726`, :pull:`724`, :pull:`721`, :pull:`712`)
+#)  New or improved hooks for:
+	- google.cloud.storage (:pull:`708`)
+	- google.crc32c (:pull:`737`)
+	- matplotlib and numpy (:pull:`695`, :issue:`692`)
+	- scipy (:pull:`725`)
+	- sysconfig (:pull:`727`, :pull:`715`)
+	- tensorflow (:pull:`710`)
+#)  Linux:
+	- Improve copy dependent files relative to source module file (linux) (:pull:`704`)
+#)  Windows:
+	- Check if upgrade-code is valid and document the valid format (:pull:`711`, :issue:`585`)
+	- Improve Windows GUID documentation (:pull:`749`)
+	- Added option to bdist_msi to specify information for msi summary information stream (:pull:`760`)
+#)  macOS:
+	- Fix the syspath for some version of python on macOS (:pull:`719`, :issue:`667`)
+#)  Samples:
+	- Add pyside2 sample (:pull:`664`)
+	- A sample for testing PyQt5 included in zip package (:pull:`717`)
+	- Add pandas sample (:pull:`709`)
+	- Added sample code to show the use of ConstantsModule / BUILD_CONSTANTS (:pull:`729`)
+#)  Bugfixes:
+	- Ensure the copy of default python libraries in all platforms (:pull:`706, :issue:`701`)
+	- Remove warning 'Distutils was imported before Setuptools' (:pull:`694`, :issue:`693`)
+	- Fix the use of compress and desambiguate the use of stat (:pull:`738`)
+	- Small fix to handle a build constant that includes a "=" symbol. (:pull:`728`)
+	- Fix issue when module.file is None (:pull:`707`)
+	- Fix detect namespaces in py35 (:pull:`700`)
+	- Set python initialization flags prior to Py_SetPath call to avoid warnings (:pull:`751`)
+
+
 Version 6.2 (July 2020)
 -----------------------
 
