@@ -17,6 +17,7 @@ import struct
 import sys
 import sysconfig
 import time
+from typing import List
 import zipfile
 
 import cx_Freeze
@@ -182,20 +183,20 @@ class Freezer(object):
         finder.IncludeFile(startupModule)
 
         # Ensure the copy of default python libraries
-        dependent_files = self._GetDependentFiles(exe.base) or []
-        dependent_files += self._GetDependentFiles(sys.executable) or []
-        dependent_files = list(set(dependent_files))
+        dependent_files = set()
+        dependent_files.update(self._GetDependentFiles(exe.base))
+        dependent_files.update(self._GetDependentFiles(sys.executable))
         for name in self._GetDefaultBinIncludes():
             normalized_name = os.path.normcase(name)
             found = False
-            for dependent_name in dependent_files[:]:
+            for dependent_name in list(dependent_files):
                 if os.path.normcase(dependent_name).endswith(normalized_name):
                     found = True
                     break
                 source_dir = os.path.dirname(dependent_name)
                 source = os.path.join(source_dir, name)
                 if os.path.isfile(source):
-                    dependent_files.append(source)
+                    dependent_files.add(source)
                     found = True
                     break
             if not found:
@@ -278,14 +279,14 @@ class Freezer(object):
             return ["/lib", "/lib32", "/lib64", "/usr/lib", "/usr/lib32",
                     "/usr/lib64"]
 
-    def _GetDependentFiles(self, path):
+    def _GetDependentFiles(self, path) -> List:
         """Return the file's dependencies using platform-specific tools (the
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
         path = os.path.normcase(path)
         dirname = os.path.dirname(path)
-        dependentFiles = self.dependentFiles.get(path)
-        if dependentFiles is None:
+        dependentFiles = self.dependentFiles.get(path, [])
+        if not dependentFiles:
             if sys.platform == "win32":
                 if path.endswith(('.exe', '.dll', '.pyd')):
                     origPath = os.environ["PATH"]
@@ -296,17 +297,13 @@ class Freezer(object):
                     except cx_Freeze.util.BindError as exc:
                         # Sometimes this gets called when path is not actually a
                         # library See issue 88
-                        dependentFiles = []
                         fmt = "error during GetDependentFiles() of \"%s\": %s\n"
                         sys.stderr.write(fmt % (path, str(exc)))
                     os.environ["PATH"] = origPath
-                else:
-                    dependentFiles = []
             else:
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
                     return []
-                dependentFiles = []
                 if sys.platform == "darwin":
                     command = 'otool -L "%s"' % path
                     splitString = " (compatibility"
