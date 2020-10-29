@@ -416,9 +416,11 @@ class ModuleFinder(object):
         if type == imp.PY_SOURCE:
             logging.debug("Adding module [%s] [PY_SOURCE]", name)
             # Load & compile Python source code
-            fp = open(path, "rb")
-            encoding, lines = tokenize.detect_encoding(fp.readline)
-            fp = open(path, "U", encoding = encoding)
+            # if file opened, it already use good encoding; else detect it manually
+            if not fp:
+                with open(path, "rb") as f:
+                    encoding = tokenize.detect_encoding(f.readline)[0]
+                fp = open(path, "r", encoding=encoding)
             codeString = fp.read()
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
