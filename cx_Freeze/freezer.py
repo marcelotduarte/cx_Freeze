@@ -17,7 +17,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import List
+from typing import Any, Dict, List
 import zipfile
 
 import cx_Freeze
@@ -134,7 +134,7 @@ class Freezer(object):
             includeMode = False, relativeSource = False):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
-        if normalizedTarget in self.filesCopied:
+        if normalizedTarget in self.files_copied:
             return
         if normalizedSource == normalizedTarget:
             return
@@ -147,7 +147,7 @@ class Freezer(object):
         shutil.copystat(source, target)
         if includeMode:
             shutil.copymode(source, target)
-        self.filesCopied[normalizedTarget] = None
+        self.files_copied.add(normalizedTarget)
         if copyDependentFiles \
                 and source not in self.finder.exclude_dependent_files:
             # TODO: relativeSource for other platforms
@@ -381,7 +381,7 @@ class Freezer(object):
 
     def _IncludeMSVCR(self, exe):
         targetDir = os.path.dirname(exe.targetName)
-        for fullName in self.filesCopied:
+        for fullName in self.files_copied:
             path, name = os.path.split(os.path.normcase(fullName))
             if name.startswith("msvcr") and name.endswith(".dll"):
                 for otherName in [name.replace("r", c) for c in "mp"]:
@@ -634,8 +634,8 @@ class Freezer(object):
     def Freeze(self):
         self.finder = None
         self.excludeModules = {}
-        self.dependentFiles = {}
-        self.filesCopied = {}
+        self.dependentFiles: Dict[Any, List] = {}
+        self.files_copied = set()
         self.linkerWarnings = {}
         self.msvcRuntimeDir = None
 
