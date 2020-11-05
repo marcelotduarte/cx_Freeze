@@ -634,7 +634,7 @@ class Freezer(object):
     def Freeze(self):
         self.finder = None
         self.excludeModules = {}
-        self.dependentFiles: Dict[Any, List] = {}
+        self.dependentFiles = {}  # type: Dict[Any, List]
         self.files_copied = set()
         self.linkerWarnings = {}
         self.msvcRuntimeDir = None
