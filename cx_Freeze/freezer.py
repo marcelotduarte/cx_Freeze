@@ -17,9 +17,11 @@ import struct
 import sys
 import sysconfig
 import time
+from typing import Optional
 import zipfile
 
 import cx_Freeze
+from cx_Freeze.darwintools import DarwinFile, MachOReference, DarwinFileTracker
 
 __all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
 
@@ -130,10 +132,18 @@ class Freezer(object):
         stamp(fileName, versionInfo)
 
     def _CopyFile(self, source, target, copyDependentFiles,
-            includeMode = False, relativeSource = False):
+                  includeMode = False, relativeSource = False,
+                  machOReference: Optional[MachOReference] = None):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
+
         if normalizedTarget in self.filesCopied:
+            if sys.platform == "darwin" and (machOReference is not None):
+                # If file was already copied, and we are following a reference from a DarwinFile, then we need
+                # to tell the reference where the file was copied to.
+                targetDarwinFile = self.darwinTracker.getDarwinFile(sourcePath=normalizedSource,
+                                                                    targetPath=normalizedTarget)
+                machOReference.setTargetFile(darwinFile=targetDarwinFile)
             return
         if normalizedSource == normalizedTarget:
             return
@@ -147,6 +157,21 @@ class Freezer(object):
         if includeMode:
             shutil.copymode(source, target)
         self.filesCopied[normalizedTarget] = None
+
+        newDarwinFile = None
+        if sys.platform == "darwin":
+            # The file was not previously copied, so need to create a DarwinFile file object to
+            # represent the file being copied.
+            referencingFile = None
+            if machOReference is not None:
+                referencingFile = machOReference.sourceFile
+            newDarwinFile = DarwinFile(originalFilePath=source, referencingFile=referencingFile)
+            newDarwinFile.setBuildPath( normalizedTarget )
+            if machOReference is not None:
+                machOReference.setTargetFile(darwinFile=newDarwinFile)
+            self.darwinTracker.recordCopiedFile(targetPath=normalizedTarget, darwinFile=newDarwinFile)
+            pass
+
         if copyDependentFiles \
                 and source not in self.finder.exclude_dependent_files:
             # TODO: relativeSource for other platforms
@@ -154,18 +179,24 @@ class Freezer(object):
                 relativeSource = False
             # Always copy dependent files on root directory
             # to allow to set relative reference
+            sourceDir = os.path.dirname(source)
+
             if sys.platform == 'darwin':
                 targetDir = self.targetDir
-            sourceDir = os.path.dirname(source)
-            for source in self._GetDependentFiles(source):
-                if relativeSource and os.path.isabs(source) and \
-                        os.path.commonpath((source, sourceDir)) == sourceDir:
-                    relative = os.path.relpath(source, sourceDir)
-                    target = os.path.join(targetDir, relative)
-                else:
-                    target = os.path.join(targetDir, os.path.basename(source))
-                self._CopyFile(source, target, copyDependentFiles,
-                               relativeSource=relativeSource)
+                for dependent_file in self._GetDependentFiles(source, darwinFile=newDarwinFile):
+                    target = os.path.join(targetDir, os.path.basename(dependent_file))
+                    self._CopyFile(dependent_file, target, copyDependentFiles=True,
+                                   machOReference=newDarwinFile.getMachOReference(resolvedPath=dependent_file))
+            else:
+                for dependent_file in self._GetDependentFiles(source, darwinFile=newDarwinFile):
+                    if relativeSource and os.path.isabs(dependent_file) and \
+                            os.path.commonpath((dependent_file, sourceDir)) == sourceDir:
+                        relative = os.path.relpath(dependent_file, sourceDir)
+                        target = os.path.join(targetDir, relative)
+                    else:
+                        target = os.path.join(targetDir, os.path.basename(dependent_file))
+                    self._CopyFile(dependent_file, target, copyDependentFiles,
+                                       relativeSource=relativeSource)
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
@@ -209,8 +240,12 @@ class Freezer(object):
             target_dir = os.path.join(os.path.dirname(exe.targetName), "lib")
         for source in dependent_files:
             target = os.path.join(target_dir, os.path.basename(source))
-            self._CopyFile(source, target,
-                           copyDependentFiles=True, includeMode=True)
+            if sys.platform == "darwin":
+                self._CopyFile(source, target, copyDependentFiles=True, includeMode=True,
+                               machOReference=self.darwinTracker.getCachedReferenceTo(path=source))
+            else:
+                self._CopyFile(source, target,
+                               copyDependentFiles=True, includeMode=True)
         self._CopyFile(exe.base, exe.targetName,
                        copyDependentFiles=False, includeMode=True)
         if not os.access(exe.targetName, os.W_OK):
@@ -278,7 +313,7 @@ class Freezer(object):
             return ["/lib", "/lib32", "/lib64", "/usr/lib", "/usr/lib32",
                     "/usr/lib64"]
 
-    def _GetDependentFiles(self, path):
+    def _GetDependentFiles(self, path, darwinFile: DarwinFile = None):
         """Return the file's dependencies using platform-specific tools (the
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
@@ -302,19 +337,25 @@ class Freezer(object):
                     os.environ["PATH"] = origPath
                 else:
                     dependentFiles = []
+            elif sys.platform == "darwin":
+                # if darwinFile is None, create a temporary DarwinFile object for the path, just
+                # so we can read its dependencies
+                if darwinFile is None:
+                    darwinFile = DarwinFile(originalFilePath=path, referencingFile=None)
+                dependentFiles = darwinFile.getDependentFilePaths()
+
+                # cache the MachOReferences to the dependencies, so they can be called up later
+                # in _CopyFile if copying a dependency without an explicit reference provided
+                for depFilePath, ref in darwinFile.getMachOReferences():
+                    self.darwinTracker.cacheReferenceTo(path=depFilePath, machOReference=ref)
             else:
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
                     return []
                 dependentFiles = []
-                if sys.platform == "darwin":
-                    command = 'otool -L "%s"' % path
-                    splitString = " (compatibility"
-                    dependentFileIndex = 0
-                else:
-                    command = 'ldd "%s"' % path
-                    splitString = " => "
-                    dependentFileIndex = 1
+                command = 'ldd "%s"' % path
+                splitString = " => "
+                dependentFileIndex = 1
                 for line in os.popen(command):
                     parts = line.expandtabs().strip().split(splitString)
                     if len(parts) != 2:
@@ -336,37 +377,11 @@ class Freezer(object):
                         dependentFile = dependentFile[:pos].strip()
                     if dependentFile:
                         dependentFiles.append(dependentFile)
-                if sys.platform == "darwin":
-                    # Make library paths absolute. This is needed to use
-                    # cx_Freeze on OSX in e.g. a conda-based distribution.
-                    # Note that with @rpath we just assume Python's lib dir,
-                    # which should work in most cases.
-                    dependentFiles = [p.replace('@loader_path', dirname)
-                                      for p in dependentFiles]
-                    dependentFiles = [p.replace('@rpath', sys.prefix + '/lib')
-                                      for p in dependentFiles]
-            if sys.platform == "darwin":
-                dependentFiles = [self._CheckDependentFile(f, dirname)
-                    for f in dependentFiles if self._ShouldCopyFile(f)]
-            else:
-                dependentFiles = [os.path.normcase(f)
-                    for f in dependentFiles if self._ShouldCopyFile(f)]
+
+            dependentFiles = [os.path.normcase(f) for f in dependentFiles if
+                              self._ShouldCopyFile(f)]
             self.dependentFiles[path] = dependentFiles
         return dependentFiles
-
-    def _CheckDependentFile(self, dependentFile, dirname):
-        """If the file does not exist, try to locate it in the directory of the
-           parent file (this is to workaround an issue in how otool returns
-           dependencies. See issue #292.
-           https://github.com/anthony-tuininga/cx_Freeze/issues/292"""
-        if os.path.isfile(dependentFile):
-            return dependentFile
-        basename = os.path.basename(dependentFile)
-        joined = os.path.join(dirname, basename)
-        if os.path.isfile(joined):
-            return joined
-        raise FileNotFoundError("otool returned a dependent file that "
-                "could not be found: " + dependentFile)
 
     def _GetModuleFinder(self, argsSource = None):
         if argsSource is None:
@@ -642,6 +657,10 @@ class Freezer(object):
         self.linkerWarnings = {}
         self.msvcRuntimeDir = None
 
+        self.darwinTracker: Optional[DarwinFileTracker] = None
+        if sys.platform == "darwin":
+            self.darwinTracker = DarwinFileTracker()
+
         self.finder = self._GetModuleFinder()
         for executable in self.executables:
             self._FreezeExecutable(executable)
@@ -676,6 +695,10 @@ class Freezer(object):
                 self._CopyFile(sourceFileName, fullName,
                                copyDependentFiles=True,
                                relativeSource=True)
+
+        if sys.platform == "darwin":
+            self.darwinTracker.finalizeReferences()
+        return
 
 
 class ConfigError(Exception):
