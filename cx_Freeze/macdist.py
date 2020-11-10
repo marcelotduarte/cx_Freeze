@@ -6,6 +6,8 @@ import subprocess
 
 from cx_Freeze.common import normalize_to_list
 
+from cx_Freeze.darwintools import changeLoadReference, DarwinFile, DarwinFileTracker
+
 __all__ = ["bdist_dmg", "bdist_mac"]
 
 
@@ -169,78 +171,37 @@ class bdist_mac(Command):
                             'install_name_tool', '-change', lib, replacement,
                             filename))
 
-    def setRelativeReferencePaths(self):
-        """ Create a list of all the Mach-O binaries in Contents/MacOS.
-            Then, check if they contain references to other files in
-            that dir. If so, make those references relative. """
-        files = []
-        for root, dirs, dir_files in os.walk(self.binDir):
-            for f in dir_files:
-                p = subprocess.Popen(("file", os.path.join(root, f)), stdout=subprocess.PIPE)
-                if b"Mach-O" in p.stdout.readline():
-                    files.append(os.path.join(root, f).replace(self.binDir + "/", ""))
+    def setRelativeReferencePaths(self, buildDir: str, binDir: str):
+        """ Make all the references from included Mach-O files to other included
+        Mach-O files relative. """
 
-        for fileName in files:
+        # TODO: Do an initial pass through the DarwinFiles to see if any references on DarwinFiles copied into the
+        #  bundle that were not already set--in which case we set them?
 
-            filePath = os.path.join(self.binDir, fileName)
+        for darwinFile in self.darwinTracker:
+            # get the relative path to darwinFile in build directory
+            relativeCopyDestination = os.path.relpath(darwinFile.getBuildPath(), buildDir)
+            # figure out directory where it will go in binary directory
+            # for .app bundle, this would be the Content/MacOS subdirectory in bundle
+            filePathInBinDir = os.path.join(binDir, relativeCopyDestination)
 
-            # ensure write permissions
-            mode = os.stat(filePath).st_mode
-            if not (mode & stat.S_IWUSR):
-                os.chmod(filePath, mode | stat.S_IWUSR)
-
-            # let the file itself know its place
-            subprocess.call(('install_name_tool', '-id',
-                             os.path.join('@executable_path', fileName), filePath))
-
-            # find the references: call otool -L on the file
-            otool = subprocess.Popen(('otool', '-L', filePath),
-                                     stdout=subprocess.PIPE)
-            references = otool.stdout.readlines()[1:]
-
-            for reference in references:
-
-                # find the actual referenced file name
-                referencedFile = reference.decode().strip().split()[0]
-
-                if referencedFile.startswith('@executable_path'):
-                    # the referencedFile is already a relative path (to the executable)
+            # for each file that this darwinFile references, update the reference as necessary
+            # if the file is copied into the binary package, change the refernce to be relative to
+            # @executable_path (so an .app bundle will work wherever it is moved)
+            for path, machORef in darwinFile.machOReferenceDict.items():
+                if not machORef.isCopied:
+                    # referenced file not copied -- assume this is a system file that will also be
+                    # present on the user's machine, and do not change reference
                     continue
-
-                if self.rpath_lib_folder is not None:
-                    referencedFile = str(referencedFile).replace("@rpath", self.rpath_lib_folder)
-
-                # the output of otool on archive contain self referencing
-                # content inside parantheses.
-                if not os.path.exists(referencedFile):
-                    print("skip unknown file {} ".format(referencedFile))
-                    continue
-
-                path, name = os.path.split(referencedFile)
-
-                # some referenced files have not previously been copied to the
-                # executable directory - the assumption is that you don't need
-                # to copy anything from /usr (but should from /usr/local) or
-                # /System, just from folders like /opt this fix should probably
-                # be elsewhere though
-                if (name not in files
-                        and (not path.startswith('/usr')
-                            or path.startswith('/usr/local'))
-                        and not path.startswith('/System')):
-                    print(referencedFile)
-                    try:
-                        self.copy_file(referencedFile, os.path.join(self.binDir, name))
-                    except DistutilsFileError as e:
-                        print("issue copying {} to {} error {} skipping".format(referencedFile, os.path.join(self.binDir, name), e))
-                    else:
-                        files.append(name)
-
-                # see if we provide the referenced file;
-                # if so, change the reference
-                if name in files:
-                    newReference = os.path.join('@executable_path', name)
-                    subprocess.call(('install_name_tool', '-change',
-                                    referencedFile, newReference, filePath))
+                rawPath = machORef.rawPath  # this is the reference in the machO file that needs to be updated
+                referencedDarwinFile: DarwinFile = machORef.targetFile
+                absoluteBuildDest = referencedDarwinFile.getBuildPath()  # this is where file copied in build dir
+                relativeBuildDest = os.path.relpath(absoluteBuildDest, buildDir)
+                exePath = "@executable_path/{}".format(relativeBuildDest)
+                changeLoadReference(filePathInBinDir, oldReference=rawPath,newReference=exePath, VERBOSE=False)
+                pass
+            pass
+        return
 
     def find_qt_menu_nib(self):
         """Returns a location of a qt_menu.nib folder, or None if this is not
@@ -291,6 +252,7 @@ class bdist_mac(Command):
     def run(self):
         self.run_command('build')
         build = self.get_finalized_command('build')
+        freezer: "freezer.Freezer" = self.get_finalized_command('build_exe').freezer
 
         # Define the paths within the application bundle
         self.bundleDir = os.path.join(build.build_base,
@@ -337,7 +299,8 @@ class bdist_mac(Command):
         self.execute(self.create_plist, ())
 
         # Make all references to libraries relative
-        self.execute(self.setRelativeReferencePaths, ())
+        self.darwinTracker: DarwinFileTracker = freezer.darwinTracker
+        self.execute(self.setRelativeReferencePaths, (os.path.abspath(build.build_exe), os.path.abspath(self.binDir)))
 
         # Make library references absolute if enabled
         if self.absolute_reference_path:
