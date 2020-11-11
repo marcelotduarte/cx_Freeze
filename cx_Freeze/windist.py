@@ -455,6 +455,10 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             distutils.dir_util.remove_tree(self.bdist_dir,
                     dry_run = self.dry_run)
 
+        # Cause the MSI file to be released.  Without this, then if bdist_msi is run programmatically
+        # from within a larger script, subsequent editting of the MSI is blocked.
+        self.db = None
+
 
 def is_valid_GUID(code):
     pattern = re.compile(r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$",
