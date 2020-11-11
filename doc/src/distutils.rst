@@ -87,8 +87,8 @@ the standard set of options for the command:
    * - option name
      - description
    * - build_exe (-b)
-     - directory for built executables and dependent files, defaults to
-       ``build/``
+     - directory for built executables and dependent files, defaults to a
+       directory of the form ``build/exe.[platform identifier].[python version]``
 
 .. _distutils_build_exe:
 
@@ -106,7 +106,10 @@ It can be further customized:
      - description
    * - build_exe (-b)
      - directory for built executables and dependent files, defaults to
-       ``build/``
+       the value of the "build_exe" option on the build command (see
+       above); note that using this option (instead of the corresponding
+       option on the build command) may break bdist_msi, bdist_mac, and
+       other commands
    * - optimize (-o)
      - optimization level, one of 0 (disabled), 1 or 2
    * - excludes (-e)
@@ -240,10 +243,12 @@ command:
      - perform installation for all users; the default value is False and
        results in an installation for just the installing user
    * - data
-     - dictionary of arbitrary MSI data indexed by table name
+     - dictionary of arbitrary MSI data indexed by table name; for each table, a
+       list of tuples should be provided, representing the rows that should be
+       added to the table
    * - summary_data
-     - dictionary data to include in MSI summary information stream (allowable 
-	   keys are "author", "comments", "keywords")
+     - dictionary of data to include in MSI summary information stream (allowable
+       keys are "author", "comments", "keywords")
    * - directories
      - list of directories that should be created during installation
    * - environment_variables
