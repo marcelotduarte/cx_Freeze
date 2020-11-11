@@ -12,14 +12,14 @@ except ImportError:
     sys.stderr.write('Please install a cx-freeze package to test')
     sys.exit(-1)
 
-program = '%s getdependentfiles.py' % sys.executable
+program = '{} getdependentfiles.py'.format( sys.executable )
 dlls = os.path.join(sys.base_prefix, 'DLLs')
 scripts = os.path.join(sys.base_prefix, 'Scripts')
 cx_Freeze_dir = os.path.dirname(cx_Freeze.__file__)
 
 dependencies_to_check = [
     os.path.join(sys.base_prefix, 'python.exe'),
-    os.path.join(sys.base_prefix, "python%s%s.dll" % sys.version_info[:2]),
+    os.path.join(sys.base_prefix, "python{}{}.dll".format(sys.version_info[0], sys.version_info[1])),
     sys.executable,
     os.path.join(dlls, '_ctypes.pyd'),
     os.path.join(dlls, '_sqlite3.pyd'),

@@ -3,23 +3,23 @@
 
 from datetime import datetime
 import sys
-from sys import stdout
 
-stdout.write('Hello from cx_Freeze\n')
-stdout.write('The current date is %s\n\n' %
-             datetime.today().strftime('%B %d, %Y %H:%M:%S'))
+print('Hello from cx_Freeze')
+print('The current date is {}\n'.format(
+             datetime.today().strftime('%B %d, %Y %H:%M:%S')))
 
-stdout.write('Executable: %r\n' % sys.executable)
-stdout.write('Prefix: %r\n' % sys.prefix)
-stdout.write('Default encoding: %r\n' % sys.getdefaultencoding())
-stdout.write('File system encoding: %r\n\n' % sys.getfilesystemencoding())
+print('Executable: {}'.format(sys.executable))
+print('Prefix: {}'.format(sys.prefix))
+print('Default encoding: {}'.format(sys.getdefaultencoding()))
+print('File system encoding: {}\n'.format(sys.getfilesystemencoding()))
 
-stdout.write('ARGUMENTS:\n')
+print('ARGUMENTS:')
 for a in sys.argv:
-    stdout.write('%s\n' % a)
-stdout.write('\n')
+    print('{}'.format(a))
+print('')
 
-stdout.write('PATH:\n')
+print('PATH:')
 for p in sys.path:
-    stdout.write('%s\n' % p)
-stdout.write('\n')
+    print('{}'.format(p))
+print()
+
