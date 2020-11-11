@@ -12,6 +12,7 @@ import opcode
 import os
 import sys
 import tokenize
+from typing import Dict, Optional
 import zipfile
 
 from cx_Freeze.common import rebuild_code_object
@@ -139,7 +140,7 @@ class ModuleFinder(object):
         self.modules = []
         self.aliases = {}
         self.exclude_dependent_files = {}
-        self._modules = dict.fromkeys(excludes)
+        self._modules = dict.fromkeys(excludes)  # type: Dict[str, Optional[Module]]
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
         self._zip_modules_cache = ZipModulesCache()
@@ -277,7 +278,7 @@ class ModuleFinder(object):
                     if subModuleName not in self.excludes:
                         raise ImportError("No module named %r" % subModuleName)
                 else:
-                    module.global_names[name] = None
+                    module.global_names.add(name)
                     if subModule.path and recursive:
                         self._ImportAllSubModules(subModule, deferredImports,
                                 recursive)
@@ -313,7 +314,7 @@ class ModuleFinder(object):
                 fullName = "%s.%s" % (parent.name, name)
                 module = self._InternalImportModule(fullName, deferredImports)
                 if module is not None:
-                    parent.global_names[name] = None
+                    parent.global_names.add(name)
                     return module
 
             module = self._InternalImportModule(name, deferredImports)
@@ -552,7 +553,7 @@ class ModuleFinder(object):
         if method is not None:
             method(self, *args)
 
-    def _ScanCode(self, co, module, deferredImports, topLevel = True):
+    def _ScanCode(self, co, module: 'Module', deferredImports, topLevel = True):
         """Scan code, looking for imported modules and keeping track of the
            constants that have been created in order to better tell which
            modules are truly missing."""
@@ -590,7 +591,7 @@ class ModuleFinder(object):
             # store operation: track only top level
             elif topLevel and op in STORE_OPS:
                 name = co.co_names[opArg]
-                module.global_names[name] = None
+                module.global_names.add(name)
 
             # reset arguments; these are only needed for import statements so
             # ignore them in all other cases!
@@ -691,9 +692,9 @@ class Module(object):
         self.path = path
         self.code = None
         self.parent = parent
-        self.global_names = {}
-        self.exclude_names = {}
-        self.ignore_names = {}
+        self.global_names = set()
+        self.exclude_names = set()
+        self.ignore_names = set()
         self.source_is_zip_file = False
         self.in_import = True
         self.store_in_file_system = True
@@ -730,13 +731,13 @@ class Module(object):
         return "<Module %s>" % ", ".join(parts)
 
     def AddGlobalName(self, name):
-        self.global_names[name] = None
+        self.global_names.add(name)
 
     def ExcludeName(self, name):
-        self.exclude_names[name] = None
+        self.exclude_names.add(name)
 
     def IgnoreName(self, name):
-        self.ignore_names[name] = None
+        self.ignore_names.add(name)
 
     def WillBeStoredInFileSystem(self):
         if self.parent is not None:
