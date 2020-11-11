@@ -17,7 +17,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import Optional
+from typing import Any, Dict, List, Optional
 import zipfile
 
 import cx_Freeze
@@ -137,7 +137,7 @@ class Freezer(object):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
 
-        if normalizedTarget in self.filesCopied:
+        if normalizedTarget in self.files_copied:
             if sys.platform == "darwin" and (machOReference is not None):
                 # If file was already copied, and we are following a reference from a DarwinFile, then we need
                 # to tell the reference where the file was copied to.
@@ -156,7 +156,7 @@ class Freezer(object):
         shutil.copystat(source, target)
         if includeMode:
             shutil.copymode(source, target)
-        self.filesCopied[normalizedTarget] = None
+        self.files_copied.add(normalizedTarget)
 
         newDarwinFile = None
         if sys.platform == "darwin":
@@ -213,20 +213,20 @@ class Freezer(object):
         finder.IncludeFile(startupModule)
 
         # Ensure the copy of default python libraries
-        dependent_files = self._GetDependentFiles(exe.base) or []
-        dependent_files += self._GetDependentFiles(sys.executable) or []
-        dependent_files = list(set(dependent_files))
+        dependent_files = set()
+        dependent_files.update(self._GetDependentFiles(exe.base))
+        dependent_files.update(self._GetDependentFiles(sys.executable))
         for name in self._GetDefaultBinIncludes():
             normalized_name = os.path.normcase(name)
             found = False
-            for dependent_name in dependent_files[:]:
+            for dependent_name in list(dependent_files):
                 if os.path.normcase(dependent_name).endswith(normalized_name):
                     found = True
                     break
                 source_dir = os.path.dirname(dependent_name)
                 source = os.path.join(source_dir, name)
                 if os.path.isfile(source):
-                    dependent_files.append(source)
+                    dependent_files.add(source)
                     found = True
                     break
             if not found:
@@ -313,14 +313,14 @@ class Freezer(object):
             return ["/lib", "/lib32", "/lib64", "/usr/lib", "/usr/lib32",
                     "/usr/lib64"]
 
-    def _GetDependentFiles(self, path, darwinFile: DarwinFile = None):
+    def _GetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
         """Return the file's dependencies using platform-specific tools (the
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
         path = os.path.normcase(path)
         dirname = os.path.dirname(path)
-        dependentFiles = self.dependentFiles.get(path)
-        if dependentFiles is None:
+        dependentFiles = self.dependentFiles.get(path, [])
+        if not dependentFiles:
             if sys.platform == "win32":
                 if path.endswith(('.exe', '.dll', '.pyd')):
                     origPath = os.environ["PATH"]
@@ -331,12 +331,9 @@ class Freezer(object):
                     except cx_Freeze.util.BindError as exc:
                         # Sometimes this gets called when path is not actually a
                         # library See issue 88
-                        dependentFiles = []
                         fmt = "error during GetDependentFiles() of \"%s\": %s\n"
                         sys.stderr.write(fmt % (path, str(exc)))
                     os.environ["PATH"] = origPath
-                else:
-                    dependentFiles = []
             elif sys.platform == "darwin":
                 # if darwinFile is None, create a temporary DarwinFile object for the path, just
                 # so we can read its dependencies
@@ -352,7 +349,6 @@ class Freezer(object):
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
                     return []
-                dependentFiles = []
                 command = 'ldd "%s"' % path
                 splitString = " => "
                 dependentFileIndex = 1
@@ -399,7 +395,7 @@ class Freezer(object):
 
     def _IncludeMSVCR(self, exe):
         targetDir = os.path.dirname(exe.targetName)
-        for fullName in self.filesCopied:
+        for fullName in self.files_copied:
             path, name = os.path.split(os.path.normcase(fullName))
             if name.startswith("msvcr") and name.endswith(".dll"):
                 for otherName in [name.replace("r", c) for c in "mp"]:
@@ -652,12 +648,12 @@ class Freezer(object):
     def Freeze(self):
         self.finder = None
         self.excludeModules = {}
-        self.dependentFiles = {}
-        self.filesCopied = {}
+        self.dependentFiles = {}  # type: Dict[Any, List]
+        self.files_copied = set()
         self.linkerWarnings = {}
         self.msvcRuntimeDir = None
 
-        self.darwinTracker: Optional[DarwinFileTracker] = None
+        self.darwinTracker = None  # type: Optional[DarwinFileTracker]
         if sys.platform == "darwin":
             self.darwinTracker = DarwinFileTracker()
 
