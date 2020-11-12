@@ -18,13 +18,12 @@ options = {
     }
 }
 
-executables = [
-    Executable("qotd.py")
-]
+executables = [Executable("qotd.py")]
 
-setup(name="QOTD sample",
-      version="1.1",
-      description="QOTD sample for demonstrating use of namespace packages",
-      options=options,
-      executables=executables
-      )
+setup(
+    name="QOTD sample",
+    version="1.1",
+    description="QOTD sample for demonstrating use of namespace packages",
+    options=options,
+    executables=executables,
+)

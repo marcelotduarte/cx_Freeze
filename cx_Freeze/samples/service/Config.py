@@ -1,4 +1,4 @@
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Config.py
 #   This file defines information about the service. The first four
 # attributes are expected to be defined and if they are not an exception will
@@ -34,12 +34,12 @@
 #       whether the service should monitor session changes (optional). If
 #       True, session changes will call the method 'SessionChanged' with the
 #       parameters sessionId and eventTypeId.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-NAME = 'cx_FreezeSampleService%s'
-DISPLAY_NAME = 'cx_Freeze Sample Service - %s'
-MODULE_NAME = 'ServiceHandler'
-CLASS_NAME = 'Handler'
-DESCRIPTION = 'Sample service description'
+NAME = "cx_FreezeSampleService%s"
+DISPLAY_NAME = "cx_Freeze Sample Service - %s"
+MODULE_NAME = "ServiceHandler"
+CLASS_NAME = "Handler"
+DESCRIPTION = "Sample service description"
 AUTO_START = False
 SESSION_CHANGES = False

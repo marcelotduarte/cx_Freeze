@@ -6,15 +6,17 @@ import wx
 
 class Frame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, parent=None, title='Hello from cx_Freeze')
+        wx.Frame.__init__(self, parent=None, title="Hello from cx_Freeze")
         panel = wx.Panel(self)
-        closeMeButton = wx.Button(panel, -1, 'Close Me')
-        self.Connect(closeMeButton.GetId(), -1, wx.EVT_BUTTON.typeId,
-                self.OnCloseMe)
+        closeMeButton = wx.Button(panel, -1, "Close Me")
+        self.Connect(
+            closeMeButton.GetId(), -1, wx.EVT_BUTTON.typeId, self.OnCloseMe
+        )
         self.Connect(self.GetId(), -1, wx.EVT_CLOSE.typeId, self.OnCloseWindow)
-        pushMeButton = wx.Button(panel, -1, 'Push Me')
-        self.Connect(pushMeButton.GetId(), -1, wx.EVT_BUTTON.typeId,
-                self.OnPushMe)
+        pushMeButton = wx.Button(panel, -1, "Push Me")
+        self.Connect(
+            pushMeButton.GetId(), -1, wx.EVT_BUTTON.typeId, self.OnPushMe
+        )
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(closeMeButton, flag=wx.ALL, border=20)
         sizer.Add(pushMeButton, flag=wx.ALL, border=20)
@@ -27,7 +29,7 @@ class Frame(wx.Frame):
         self.Close(True)
 
     def OnPushMe(self, event):
-        wx.MessageBox('I was pushed!', 'Informational message')
+        wx.MessageBox("I was pushed!", "Informational message")
 
     def OnCloseWindow(self, event):
         self.Destroy()

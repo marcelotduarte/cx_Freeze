@@ -7,6 +7,7 @@ are called.
 
 import threading
 
+
 class Handler(object):
 
     # no parameters are permitted; all configuration should be placed in the
@@ -31,4 +32,3 @@ class Handler(object):
     def Stop(self):
         self.stopRequestedEvent.set()
         self.stopEvent.wait()
-
