@@ -12,12 +12,11 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('test_openpyxl.py')
-]
+executables = [Executable("test_openpyxl.py")]
 
-setup(name='test_openpyxl',
-      version='0.1',
-      description='Sample cx_Freeze script testing the use of openpyxl',
-      executables=executables
-      )
+setup(
+    name="test_openpyxl",
+    version="0.1",
+    description="Sample cx_Freeze script testing the use of openpyxl",
+    executables=executables,
+)

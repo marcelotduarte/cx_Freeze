@@ -17,34 +17,33 @@ import os
 import sys
 from cx_Freeze import setup, Executable
 
-base = 'Console'
-if sys.platform == 'win32':
-    base = 'Win32GUI'
+base = "Console"
+if sys.platform == "win32":
+    base = "Win32GUI"
 
-dir_name = "zip.%s-%s" % \
-        (distutils.util.get_platform(), sys.version[0:3])
-build_exe_dir = os.path.join('build', dir_name)
+dir_name = "zip.%s-%s" % (distutils.util.get_platform(), sys.version[0:3])
+build_exe_dir = os.path.join("build", dir_name)
 
 options = {
-    'build_exe': {
-
+    "build_exe": {
         # Sometimes a little fine-tuning is needed
         # exclude all backends except wx
-        'excludes': ['gtk', 'PyQt4', 'PyQt5', 'tkinter'],
-        'zip_include_packages': ["*"],
-        'zip_exclude_packages': [],
-        'build_exe': build_exe_dir
+        "excludes": ["gtk", "PyQt4", "PyQt5", "tkinter"],
+        "zip_include_packages": ["*"],
+        "zip_exclude_packages": [],
+        "build_exe": build_exe_dir,
     }
 }
 
 executables = [
-    Executable('matplotlib_afm.py'),
-    Executable('matplotlib_eg.py', base=base)
+    Executable("matplotlib_afm.py"),
+    Executable("matplotlib_eg.py", base=base),
 ]
 
-setup(name='matplotlib_samples',
-      version='0.1',
-      description='Sample matplotlib script',
-      executables=executables,
-      options=options
-      )
+setup(
+    name="matplotlib_samples",
+    version="0.1",
+    description="Sample matplotlib script",
+    executables=executables,
+    options=options,
+)

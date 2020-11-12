@@ -10,21 +10,23 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('hello.py')
-]
+executables = [Executable("hello.py")]
 
 bdist_msi_options = {
     "summary_data": {
-        "author":"Name of the author",
-        "comments":"This is a comment",
-        "keywords":"These Are Some Keywords"
+        "author": "Name of the author",
+        "comments": "This is a comment",
+        "keywords": "These Are Some Keywords",
     },
 }
 
-setup(name='hello',
-      version='0.1',
-      description='Sample cx_Freeze script to test MSI summary data stream',
-      executables=executables,
-      options = {"build_exe": {"excludes":["tkinter"]}, "bdist_msi":bdist_msi_options}
-      )
+setup(
+    name="hello",
+    version="0.1",
+    description="Sample cx_Freeze script to test MSI summary data stream",
+    executables=executables,
+    options={
+        "build_exe": {"excludes": ["tkinter"]},
+        "bdist_msi": bdist_msi_options,
+    },
+)

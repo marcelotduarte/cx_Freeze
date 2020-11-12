@@ -10,8 +10,10 @@ from cx_Freeze import setup, Executable
 buildOptions = dict(zip_include_packages=["*"], zip_exclude_packages=[])
 executables = [Executable("test_pillow.py")]
 
-setup(name='test_pillow',
-      version='0.1',
-      description='cx_Freeze script to test pillow (PIL)',
-      executables=executables,
-      options=dict(build_exe=buildOptions))
+setup(
+    name="test_pillow",
+    version="0.1",
+    description="cx_Freeze script to test pillow (PIL)",
+    executables=executables,
+    options=dict(build_exe=buildOptions),
+)

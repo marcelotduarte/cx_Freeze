@@ -10,12 +10,11 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('asmodule.py')
-]
+executables = [Executable("asmodule.py")]
 
-setup(name='asmodule',
-      version='0.1',
-      description='Sample cx_Freeze script',
-      executables=executables
-      )
+setup(
+    name="asmodule",
+    version="0.1",
+    description="Sample cx_Freeze script",
+    executables=executables,
+)

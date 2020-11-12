@@ -10,12 +10,11 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('relimport.py')
-]
+executables = [Executable("relimport.py")]
 
-setup(name='relimport',
-      version='0.1',
-      description='Sample cx_Freeze script for relative imports',
-      executables=executables
-      )
+setup(
+    name="relimport",
+    version="0.1",
+    description="Sample cx_Freeze script for relative imports",
+    executables=executables,
+)

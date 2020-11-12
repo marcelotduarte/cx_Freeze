@@ -10,20 +10,16 @@
 import sys
 from cx_Freeze import setup, Executable
 
-options = {
-    'build_exe': {
-        'excludes': ['tkinter']
-    }
-}
+options = {"build_exe": {"excludes": ["tkinter"]}}
 
 executables = [
-    Executable('test_pandas.py'),
+    Executable("test_pandas.py"),
 ]
 
-setup(name='test_pandas',
-      version='0.1',
-      description='Sample pandas script',
-      executables=executables,
-      options=options
-      )
-
+setup(
+    name="test_pandas",
+    version="0.1",
+    description="Sample pandas script",
+    executables=executables,
+    options=options,
+)

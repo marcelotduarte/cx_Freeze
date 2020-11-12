@@ -12,20 +12,15 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('hello.py')
-]
+executables = [Executable("hello.py")]
 
-options = {
-    'build_exe': {
-        'constants': ['A=7', "B=\"hello=7\"" ]
-    }
-}
+options = {"build_exe": {"constants": ["A=7", 'B="hello=7"']}}
 
 
-setup(name='hello',
-      version='0.1',
-      description='Sample cx_Freeze script',
-      options=options,
-      executables=executables
-      )
+setup(
+    name="hello",
+    version="0.1",
+    description="Sample cx_Freeze script",
+    options=options,
+    executables=executables,
+)

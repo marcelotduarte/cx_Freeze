@@ -15,15 +15,14 @@ import sys
 from cx_Freeze import setup, Executable
 
 base = None
-if sys.platform == 'win32':
-    base = 'Win32GUI'
+if sys.platform == "win32":
+    base = "Win32GUI"
 
-executables = [
-    Executable('wxapp.py', base=base)
-]
+executables = [Executable("wxapp.py", base=base)]
 
-setup(name='hello',
-      version='0.1',
-      description='Sample cx_Freeze wxPython script',
-      executables=executables
-      )
+setup(
+    name="hello",
+    version="0.1",
+    description="Sample cx_Freeze wxPython script",
+    executables=executables,
+)

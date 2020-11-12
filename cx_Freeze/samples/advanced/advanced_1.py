@@ -2,6 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-print('Hello from cx_Freeze Advanced #1\n')
+print("Hello from cx_Freeze Advanced #1\n")
 
-module = __import__('testfreeze_1')
+module = __import__("testfreeze_1")
