@@ -170,7 +170,6 @@ class Freezer(object):
             if machOReference is not None:
                 machOReference.setTargetFile(darwinFile=newDarwinFile)
             self.darwinTracker.recordCopiedFile(targetPath=normalizedTarget, darwinFile=newDarwinFile)
-            pass
 
         if copyDependentFiles \
                 and source not in self.finder.exclude_dependent_files:
@@ -318,7 +317,6 @@ class Freezer(object):
            imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
            limit this list by the exclusion lists as needed"""
         path = os.path.normcase(path)
-        dirname = os.path.dirname(path)
         dependentFiles = self.dependentFiles.get(path, [])
         if not dependentFiles:
             if sys.platform == "win32":
@@ -729,7 +727,7 @@ class Executable(object):
         self._GetBaseFileName()
         if self.targetName is None:
             name, _ = os.path.splitext(os.path.basename(self.script))
-            baseName, ext = os.path.splitext(self.base)
+            ext = os.path.splitext(self.base)[1]
             self.targetName = name + ext
         name, ext = os.path.splitext(self.targetName)
         if ext == "" and sys.platform == "win32":
