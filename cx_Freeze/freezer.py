@@ -23,7 +23,8 @@ import zipfile
 import cx_Freeze
 from cx_Freeze.darwintools import DarwinFile, MachOReference, DarwinFileTracker
 
-__all__ = [ "ConfigError", "ConstantsModule", "Executable", "Freezer" ]
+__all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
+
 
 def process_path_specs(specs):
     """Prepare paths specified as config.
@@ -41,16 +42,21 @@ def process_path_specs(specs):
             source = spec
             target = None
         elif len(spec) != 2:
-            raise ConfigError("path spec must be a list or tuple of length two")
+            raise ConfigError(
+                "path spec must be a list or tuple of length two"
+            )
         else:
             source, target = spec
         source = os.path.normpath(source)
         if not target:
             target = os.path.basename(source)
         elif os.path.isabs(target):
-            raise ConfigError("target path for include file may not be an absolute path")
+            raise ConfigError(
+                "target path for include file may not be an absolute path"
+            )
         processedSpecs.append((source, target))
     return processedSpecs
+
 
 def get_resource_file_path(dirName, name, ext):
     """Return the path to a resource file shipped with cx_Freeze.
@@ -64,21 +70,37 @@ def get_resource_file_path(dirName, name, ext):
     fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dirName)
     if os.path.isdir(fullDir):
         for fileName in os.listdir(fullDir):
-            checkName, checkExt = \
-                    os.path.splitext(os.path.normcase(fileName))
+            checkName, checkExt = os.path.splitext(os.path.normcase(fileName))
             if name == checkName and ext == checkExt:
                 return os.path.join(fullDir, fileName)
 
 
 class Freezer(object):
-
-    def __init__(self, executables, constantsModule = None, includes = [],
-            excludes = [], packages = [], replacePaths = [], compress = True,
-            optimizeFlag = 0, path = None, targetDir = None, binIncludes = [],
-            binExcludes = [], binPathIncludes = [], binPathExcludes = [],
-            includeFiles = [], zipIncludes = [], silent = False,
-            namespacePackages = [], metadata = None, includeMSVCR = False,
-            zipIncludePackages = [], zipExcludePackages = ["*"]):
+    def __init__(
+        self,
+        executables,
+        constantsModule=None,
+        includes=[],
+        excludes=[],
+        packages=[],
+        replacePaths=[],
+        compress=True,
+        optimizeFlag=0,
+        path=None,
+        targetDir=None,
+        binIncludes=[],
+        binExcludes=[],
+        binPathIncludes=[],
+        binPathExcludes=[],
+        includeFiles=[],
+        zipIncludes=[],
+        silent=False,
+        namespacePackages=[],
+        metadata=None,
+        includeMSVCR=False,
+        zipIncludePackages=[],
+        zipExcludePackages=["*"],
+    ):
         self.executables = list(executables)
         if constantsModule is None:
             constantsModule = ConstantsModule()
@@ -92,13 +114,19 @@ class Freezer(object):
         self.path = path
         self.includeMSVCR = includeMSVCR
         self.targetDir = targetDir
-        self.binIncludes = [os.path.normcase(n) \
-                for n in self._GetDefaultBinIncludes() + binIncludes]
-        self.binExcludes = [os.path.normcase(n) \
-                for n in self._GetDefaultBinExcludes() + binExcludes]
+        self.binIncludes = [
+            os.path.normcase(n)
+            for n in self._GetDefaultBinIncludes() + binIncludes
+        ]
+        self.binExcludes = [
+            os.path.normcase(n)
+            for n in self._GetDefaultBinExcludes() + binExcludes
+        ]
         self.binPathIncludes = [os.path.normcase(n) for n in binPathIncludes]
-        self.binPathExcludes = [os.path.normcase(n) \
-                for n in self._GetDefaultBinPathExcludes() + binPathExcludes]
+        self.binPathExcludes = [
+            os.path.normcase(n)
+            for n in self._GetDefaultBinPathExcludes() + binPathExcludes
+        ]
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
@@ -120,27 +148,37 @@ class Freezer(object):
             print("version must be specified")
             return
         fileName = exe.targetName
-        versionInfo = VersionInfo(self.metadata.version,
-                comments = self.metadata.long_description,
-                description = self.metadata.description,
-                company = self.metadata.author,
-                product = self.metadata.name,
-                copyright = exe.copyright,
-                trademarks = exe.trademarks)
+        versionInfo = VersionInfo(
+            self.metadata.version,
+            comments=self.metadata.long_description,
+            description=self.metadata.description,
+            company=self.metadata.author,
+            product=self.metadata.name,
+            copyright=exe.copyright,
+            trademarks=exe.trademarks,
+        )
         stamp(fileName, versionInfo)
 
-    def _CopyFile(self, source, target, copyDependentFiles,
-                  includeMode = False, relativeSource = False,
-                  machOReference: Optional[MachOReference] = None):
+    def _CopyFile(
+        self,
+        source,
+        target,
+        copyDependentFiles,
+        includeMode=False,
+        relativeSource=False,
+        machOReference: Optional[MachOReference] = None,
+    ):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
 
         if normalizedTarget in self.files_copied:
             if sys.platform == "darwin" and (machOReference is not None):
-                # If file was already copied, and we are following a reference from a DarwinFile, then we need
-                # to tell the reference where the file was copied to.
-                targetDarwinFile = self.darwinTracker.getDarwinFile(sourcePath=normalizedSource,
-                                                                    targetPath=normalizedTarget)
+                # If file was already copied, and we are following a reference
+                # from a DarwinFile, then we need to tell the reference where
+                # the file was copied to.
+                targetDarwinFile = self.darwinTracker.getDarwinFile(
+                    sourcePath=normalizedSource, targetPath=normalizedTarget
+                )
                 machOReference.setTargetFile(darwinFile=targetDarwinFile)
             return
         if normalizedSource == normalizedTarget:
@@ -158,19 +196,25 @@ class Freezer(object):
 
         newDarwinFile = None
         if sys.platform == "darwin":
-            # The file was not previously copied, so need to create a DarwinFile file object to
-            # represent the file being copied.
+            # The file was not previously copied, so need to create a
+            # DarwinFile file object to represent the file being copied.
             referencingFile = None
             if machOReference is not None:
                 referencingFile = machOReference.sourceFile
-            newDarwinFile = DarwinFile(originalFilePath=source, referencingFile=referencingFile)
-            newDarwinFile.setBuildPath( normalizedTarget )
+            newDarwinFile = DarwinFile(
+                originalFilePath=source, referencingFile=referencingFile
+            )
+            newDarwinFile.setBuildPath(normalizedTarget)
             if machOReference is not None:
                 machOReference.setTargetFile(darwinFile=newDarwinFile)
-            self.darwinTracker.recordCopiedFile(targetPath=normalizedTarget, darwinFile=newDarwinFile)
+            self.darwinTracker.recordCopiedFile(
+                targetPath=normalizedTarget, darwinFile=newDarwinFile
+            )
 
-        if copyDependentFiles \
-                and source not in self.finder.exclude_dependent_files:
+        if (
+            copyDependentFiles
+            and source not in self.finder.exclude_dependent_files
+        ):
             # TODO: relativeSource for other platforms
             if sys.platform != "linux":
                 relativeSource = False
@@ -178,22 +222,44 @@ class Freezer(object):
             # to allow to set relative reference
             sourceDir = os.path.dirname(source)
 
-            if sys.platform == 'darwin':
+            if sys.platform == "darwin":
                 targetDir = self.targetDir
-                for dependent_file in self._GetDependentFiles(source, darwinFile=newDarwinFile):
-                    target = os.path.join(targetDir, os.path.basename(dependent_file))
-                    self._CopyFile(dependent_file, target, copyDependentFiles=True,
-                                   machOReference=newDarwinFile.getMachOReference(resolvedPath=dependent_file))
+                for dependent_file in self._GetDependentFiles(
+                    source, darwinFile=newDarwinFile
+                ):
+                    target = os.path.join(
+                        targetDir, os.path.basename(dependent_file)
+                    )
+                    self._CopyFile(
+                        dependent_file,
+                        target,
+                        copyDependentFiles=True,
+                        machOReference=newDarwinFile.getMachOReference(
+                            resolvedPath=dependent_file
+                        ),
+                    )
             else:
-                for dependent_file in self._GetDependentFiles(source, darwinFile=newDarwinFile):
-                    if relativeSource and os.path.isabs(dependent_file) and \
-                            os.path.commonpath((dependent_file, sourceDir)) == sourceDir:
+                for dependent_file in self._GetDependentFiles(
+                    source, darwinFile=newDarwinFile
+                ):
+                    if (
+                        relativeSource
+                        and os.path.isabs(dependent_file)
+                        and os.path.commonpath((dependent_file, sourceDir))
+                        == sourceDir
+                    ):
                         relative = os.path.relpath(dependent_file, sourceDir)
                         target = os.path.join(targetDir, relative)
                     else:
-                        target = os.path.join(targetDir, os.path.basename(dependent_file))
-                    self._CopyFile(dependent_file, target, copyDependentFiles,
-                                       relativeSource=relativeSource)
+                        target = os.path.join(
+                            targetDir, os.path.basename(dependent_file)
+                        )
+                    self._CopyFile(
+                        dependent_file,
+                        target,
+                        copyDependentFiles,
+                        relativeSource=relativeSource,
+                    )
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
@@ -205,8 +271,9 @@ class Freezer(object):
         finder = self.finder
         finder.IncludeFile(exe.script, exe.moduleName)
         finder.IncludeFile(exe.initScript, exe.initModuleName)
-        startupModule = get_resource_file_path("initscripts", "__startup__",
-                ".py")
+        startupModule = get_resource_file_path(
+            "initscripts", "__startup__", ".py"
+        )
         finder.IncludeFile(startupModule)
 
         # Ensure the copy of default python libraries
@@ -238,13 +305,25 @@ class Freezer(object):
         for source in dependent_files:
             target = os.path.join(target_dir, os.path.basename(source))
             if sys.platform == "darwin":
-                self._CopyFile(source, target, copyDependentFiles=True, includeMode=True,
-                               machOReference=self.darwinTracker.getCachedReferenceTo(path=source))
+                self._CopyFile(
+                    source,
+                    target,
+                    copyDependentFiles=True,
+                    includeMode=True,
+                    machOReference=self.darwinTracker.getCachedReferenceTo(
+                        path=source
+                    ),
+                )
             else:
-                self._CopyFile(source, target,
-                               copyDependentFiles=True, includeMode=True)
-        self._CopyFile(exe.base, exe.targetName,
-                       copyDependentFiles=False, includeMode=True)
+                self._CopyFile(
+                    source, target, copyDependentFiles=True, includeMode=True
+                )
+        self._CopyFile(
+            exe.base,
+            exe.targetName,
+            copyDependentFiles=False,
+            includeMode=True,
+        )
         if not os.access(exe.targetName, os.W_OK):
             mode = os.stat(exe.targetName).st_mode
             os.chmod(exe.targetName, mode | stat.S_IWUSR)
@@ -256,21 +335,22 @@ class Freezer(object):
         if exe.icon is not None:
             if sys.platform == "win32":
                 import cx_Freeze.util
+
                 cx_Freeze.util.AddIcon(exe.targetName, exe.icon)
             else:
-                targetName = os.path.join(os.path.dirname(exe.targetName),
-                                          os.path.basename(exe.icon))
-                self._CopyFile(exe.icon, targetName,
-                               copyDependentFiles=False)
+                targetName = os.path.join(
+                    os.path.dirname(exe.targetName), os.path.basename(exe.icon)
+                )
+                self._CopyFile(exe.icon, targetName, copyDependentFiles=False)
 
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe)
 
     def _GetDefaultBinExcludes(self):
         """Return the file names of libraries that need not be included because
-           they would normally be expected to be found on the target system or
-           because they are part of a package which requires independent
-           installation anyway."""
+        they would normally be expected to be found on the target system or
+        because they are part of a package which requires independent
+        installation anyway."""
         if sys.platform == "win32":
             return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
         else:
@@ -278,7 +358,7 @@ class Freezer(object):
 
     def _GetDefaultBinIncludes(self):
         """Return the file names of libraries which must be included for the
-           frozen executable to work."""
+        frozen executable to work."""
         python_shared_libs = []
         if sys.platform == "win32":
             if sysconfig.get_platform() == "mingw":
@@ -286,9 +366,11 @@ class Freezer(object):
                 if name:
                     python_shared_libs.append(name.replace(".dll.a", ".dll"))
             else:
-                python_shared_libs += ["python%s.dll" % sys.version_info[0],
-                                       "python%s%s.dll" % sys.version_info[:2],
-                                       "vcruntime140.dll"]
+                python_shared_libs += [
+                    "python%s.dll" % sys.version_info[0],
+                    "python%s%s.dll" % sys.version_info[:2],
+                    "vcruntime140.dll",
+                ]
         else:
             name = distutils.sysconfig.get_config_var("INSTSONAME")
             if name:
@@ -297,55 +379,68 @@ class Freezer(object):
 
     def _GetDefaultBinPathExcludes(self):
         """Return the paths of directories which contain files that should not
-           be included, generally because they contain standard system
-           libraries."""
+        be included, generally because they contain standard system
+        libraries."""
         if sys.platform == "win32":
             import cx_Freeze.util
+
             systemDir = cx_Freeze.util.GetSystemDir()
             windowsDir = cx_Freeze.util.GetWindowsDir()
             return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
         elif sys.platform == "darwin":
             return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
         else:
-            return ["/lib", "/lib32", "/lib64", "/usr/lib", "/usr/lib32",
-                    "/usr/lib64"]
+            return [
+                "/lib",
+                "/lib32",
+                "/lib64",
+                "/usr/lib",
+                "/usr/lib32",
+                "/usr/lib64",
+            ]
 
     def _GetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
         """Return the file's dependencies using platform-specific tools (the
-           imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
-           limit this list by the exclusion lists as needed"""
+        imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
+        limit this list by the exclusion lists as needed"""
         path = os.path.normcase(path)
         dependentFiles = self.dependentFiles.get(path, [])
         if not dependentFiles:
             if sys.platform == "win32":
-                if path.endswith(('.exe', '.dll', '.pyd')):
+                if path.endswith((".exe", ".dll", ".pyd")):
                     origPath = os.environ["PATH"]
-                    os.environ["PATH"] = origPath + os.pathsep + \
-                            os.pathsep.join(sys.path)
+                    os.environ["PATH"] = (
+                        origPath + os.pathsep + os.pathsep.join(sys.path)
+                    )
                     try:
                         dependentFiles = cx_Freeze.util.GetDependentFiles(path)
                     except cx_Freeze.util.BindError as exc:
                         # Sometimes this gets called when path is not actually a
                         # library See issue 88
-                        fmt = "error during GetDependentFiles() of \"%s\": %s\n"
-                        sys.stderr.write(fmt % (path, str(exc)))
+                        print("error during GetDependentFiles() of ", end="")
+                        print("{!r}: {!s}".format(path, exc))
                     os.environ["PATH"] = origPath
             elif sys.platform == "darwin":
-                # if darwinFile is None, create a temporary DarwinFile object for the path, just
-                # so we can read its dependencies
+                # if darwinFile is None, create a temporary DarwinFile object
+                # for the path, just so we can read its dependencies
                 if darwinFile is None:
-                    darwinFile = DarwinFile(originalFilePath=path, referencingFile=None)
+                    darwinFile = DarwinFile(
+                        originalFilePath=path, referencingFile=None
+                    )
                 dependentFiles = darwinFile.getDependentFilePaths()
 
-                # cache the MachOReferences to the dependencies, so they can be called up later
-                # in _CopyFile if copying a dependency without an explicit reference provided
+                # cache the MachOReferences to the dependencies, so they can be
+                # called up later in _CopyFile if copying a dependency without
+                # an explicit reference provided
                 for depFilePath, ref in darwinFile.getMachOReferences():
-                    self.darwinTracker.cacheReferenceTo(path=depFilePath, machOReference=ref)
+                    self.darwinTracker.cacheReferenceTo(
+                        path=depFilePath, machOReference=ref
+                    )
             else:
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
                     return []
-                command = 'ldd "%s"' % path
+                command = "ldd {!r}".format(path)
                 splitString = " => "
                 dependentFileIndex = 1
                 for line in os.popen(command):
@@ -370,18 +465,28 @@ class Freezer(object):
                     if dependentFile:
                         dependentFiles.append(dependentFile)
 
-            dependentFiles = [os.path.normcase(f) for f in dependentFiles if
-                              self._ShouldCopyFile(f)]
+            dependentFiles = [
+                os.path.normcase(f)
+                for f in dependentFiles
+                if self._ShouldCopyFile(f)
+            ]
             self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
-    def _GetModuleFinder(self, argsSource = None):
+    def _GetModuleFinder(self, argsSource=None):
         if argsSource is None:
             argsSource = self
-        finder = cx_Freeze.ModuleFinder(self.includeFiles, self.excludes,
-                self.path, self.replacePaths, self.zipIncludeAllPackages,
-                self.zipExcludePackages, self.zipIncludePackages,
-                self.constantsModule, self.zipIncludes)
+        finder = cx_Freeze.ModuleFinder(
+            self.includeFiles,
+            self.excludes,
+            self.path,
+            self.replacePaths,
+            self.zipIncludeAllPackages,
+            self.zipExcludePackages,
+            self.zipIncludePackages,
+            self.constantsModule,
+            self.zipIncludes,
+        )
         finder.SetOptimizeFlag(self.optimizeFlag)
         for name in self.includes:
             finder.IncludeModule(name)
@@ -399,8 +504,9 @@ class Freezer(object):
                     if not os.path.exists(sourceName):
                         continue
                     targetName = os.path.join(targetDir, otherName)
-                    self._CopyFile(sourceName, targetName,
-                            copyDependentFiles = False)
+                    self._CopyFile(
+                        sourceName, targetName, copyDependentFiles=False
+                    )
                 break
 
     def _PrintReport(self, fileName, modules):
@@ -434,13 +540,13 @@ class Freezer(object):
 
     def _ShouldCopyFile(self, path):
         """Return true if the file should be copied to the target machine. This
-           is done by checking the binPathIncludes, binPathExcludes,
-           binIncludes and binExcludes configuration variables using first the
-           full file name, then just the base file name, then the file name
-           without any version numbers.
+        is done by checking the binPathIncludes, binPathExcludes,
+        binIncludes and binExcludes configuration variables using first the
+        full file name, then just the base file name, then the file name
+        without any version numbers.
 
-           Files are included unless specifically excluded but inclusions take
-           precedence over exclusions."""
+        Files are included unless specifically excluded but inclusions take
+        precedence over exclusions."""
 
         # check for C runtime, if desired
         path = os.path.normcase(path)
@@ -486,32 +592,41 @@ class Freezer(object):
         if self.path is None:
             self.path = sys.path
 
-        for sourceFileName, targetFileName in \
-                self.includeFiles + self.zipIncludes:
+        for sourceFileName, targetFileName in (
+            self.includeFiles + self.zipIncludes
+        ):
             if not os.path.exists(sourceFileName):
-                raise ConfigError("cannot find file/directory named {}".format(sourceFileName))
+                raise ConfigError(
+                    "cannot find file/directory named {}".format(
+                        sourceFileName
+                    )
+                )
             if os.path.isabs(targetFileName):
                 raise ConfigError("target file/directory cannot be absolute")
 
         self.zipExcludeAllPackages = "*" in self.zipExcludePackages
         self.zipIncludeAllPackages = "*" in self.zipIncludePackages
         if self.zipExcludeAllPackages and self.zipIncludeAllPackages:
-            raise ConfigError("all packages cannot be included and excluded " \
-                    "from the zip file at the same time")
+            raise ConfigError(
+                "all packages cannot be included and excluded "
+                "from the zip file at the same time"
+            )
         for name in self.zipIncludePackages:
             if name in self.zipExcludePackages:
-                raise ConfigError("package {} cannot be both included and " \
-                        "excluded from zip file".format(name))
-
+                raise ConfigError(
+                    "package {} cannot be both included and "
+                    "excluded from zip file".format(name)
+                )
 
         for executable in self.executables:
             executable._VerifyConfiguration(self)
 
     def _WriteModules(self, fileName, finder):
         self.constantsModule.Create(finder)
-        modules = [m for m in finder.modules \
-                if m.name not in self.excludeModules]
-        modules.sort(key = lambda m: m.name)
+        modules = [
+            m for m in finder.modules if m.name not in self.excludeModules
+        ]
+        modules.sort(key=lambda m: m.name)
 
         if not self.silent:
             self._PrintReport(fileName, modules)
@@ -528,8 +643,9 @@ class Freezer(object):
         outFile = zipfile.PyZipFile(fileName, "w", compress_type)
 
         filesToCopy = []
-        ignorePatterns = shutil.ignore_patterns("*.py", "*.pyc", "*.pyo",
-                "__pycache__")
+        ignorePatterns = shutil.ignore_patterns(
+            "*.py", "*.pyc", "*.pyo", "__pycache__"
+        )
         for module in modules:
 
             # determine if the module should be written to the file system;
@@ -544,22 +660,31 @@ class Freezer(object):
             # file system; if the package should be written to the file system,
             # any non-Python files are copied at this point if the target
             # directory does not already exist
-            if include_in_file_system and module.path is not None and \
-                    module.file is not None:
+            if (
+                include_in_file_system
+                and module.path is not None
+                and module.file is not None
+            ):
                 parts = module.name.split(".")
                 targetPackageDir = os.path.join(targetDir, *parts)
                 sourcePackageDir = os.path.dirname(module.file)
                 if not os.path.exists(targetPackageDir):
                     print("Copying data from package", module.name + "...")
-                    shutil.copytree(sourcePackageDir, targetPackageDir,
-                            ignore = ignorePatterns)
+                    shutil.copytree(
+                        sourcePackageDir,
+                        targetPackageDir,
+                        ignore=ignorePatterns,
+                    )
 
             # if an extension module is found in a package that is to be
             # included in a zip file, copy the actual file to the build
             # directory because shared libraries cannot be loaded from a
             # zip file
-            if module.code is None and module.file is not None \
-                    and not include_in_file_system:
+            if (
+                module.code is None
+                and module.file is not None
+                and not include_in_file_system
+            ):
                 parts = module.name.split(".")[:-1]
                 parts.append(os.path.basename(module.file))
                 target = os.path.join(targetDir, ".".join(parts))
@@ -589,14 +714,18 @@ class Freezer(object):
                     parts.pop()
                     parts.append(os.path.basename(module.file))
                     targetName = os.path.join(targetDir, *parts)
-                    self._CopyFile(module.file, targetName,
-                                   copyDependentFiles=True,
-                                   relativeSource=True)
+                    self._CopyFile(
+                        module.file,
+                        targetName,
+                        copyDependentFiles=True,
+                        relativeSource=True,
+                    )
                 else:
                     if module.path is not None:
                         parts.append("__init__")
                     targetName = os.path.join(targetDir, *parts) + ".pyc"
-                    open(targetName, "wb").write(data)
+                    with open(targetName, "wb") as fp:
+                        fp.write(data)
 
             # otherwise, write to the zip file
             elif module.code is not None:
@@ -618,11 +747,13 @@ class Freezer(object):
         for sourceFileName, targetFileName in finder.zip_includes:
             if os.path.isdir(sourceFileName):
                 for dirPath, _, fileNames in os.walk(sourceFileName):
-                    basePath = dirPath[len(sourceFileName):]
+                    basePath = dirPath[len(sourceFileName) :]
                     targetPath = targetFileName + basePath.replace("\\", "/")
                     for name in fileNames:
-                        outFile.write(os.path.join(dirPath, name),
-                                targetPath + "/" + name)
+                        outFile.write(
+                            os.path.join(dirPath, name),
+                            targetPath + "/" + name,
+                        )
             else:
                 outFile.write(sourceFileName, targetFileName)
 
@@ -635,9 +766,12 @@ class Freezer(object):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._CopyFile(module.file, target,
-                               copyDependentFiles=True,
-                               relativeSource=True)
+                self._CopyFile(
+                    module.file,
+                    target,
+                    copyDependentFiles=True,
+                    relativeSource=True,
+                )
             finally:
                 os.environ["PATH"] = origPath
 
@@ -667,26 +801,33 @@ class Freezer(object):
                 # Copy directories by recursing into them.
                 # Can't use shutil.copytree because we may need dependencies
                 for path, dirNames, fileNames in os.walk(sourceFileName):
-                    shortPath = path[len(sourceFileName) + 1:]
+                    shortPath = path[len(sourceFileName) + 1 :]
                     if ".svn" in dirNames:
                         dirNames.remove(".svn")
                     if "CVS" in dirNames:
                         dirNames.remove("CVS")
-                    fullTargetDir = os.path.join(targetDir,
-                            targetFileName, shortPath)
+                    fullTargetDir = os.path.join(
+                        targetDir, targetFileName, shortPath
+                    )
                     self._CreateDirectory(fullTargetDir)
                     for fileName in fileNames:
                         fullSourceName = os.path.join(path, fileName)
                         fullTargetName = os.path.join(fullTargetDir, fileName)
-                        self._CopyFile(fullSourceName, fullTargetName,
-                                       copyDependentFiles=True,
-                                       relativeSource=True)
+                        self._CopyFile(
+                            fullSourceName,
+                            fullTargetName,
+                            copyDependentFiles=True,
+                            relativeSource=True,
+                        )
             else:
                 # Copy regular files.
                 fullName = os.path.join(targetDir, targetFileName)
-                self._CopyFile(sourceFileName, fullName,
-                               copyDependentFiles=True,
-                               relativeSource=True)
+                self._CopyFile(
+                    sourceFileName,
+                    fullName,
+                    copyDependentFiles=True,
+                    relativeSource=True,
+                )
 
         if sys.platform == "darwin":
             self.darwinTracker.finalizeReferences()
@@ -694,7 +835,6 @@ class Freezer(object):
 
 
 class ConfigError(Exception):
-
     def __init__(self, msg):
         self.what = msg
 
@@ -703,10 +843,18 @@ class ConfigError(Exception):
 
 
 class Executable(object):
-
-    def __init__(self, script, initScript = None, base = None,
-            targetName = None, icon = None, shortcutName = None,
-            shortcutDir = None, copyright = None, trademarks = None):
+    def __init__(
+        self,
+        script,
+        initScript=None,
+        base=None,
+        targetName=None,
+        icon=None,
+        shortcutName=None,
+        shortcutDir=None,
+        copyright=None,
+        trademarks=None,
+    ):
         self.script = script
         self.initScript = initScript or "Console"
         self.base = base or "Console"
@@ -748,12 +896,15 @@ class Executable(object):
             raise ConfigError("no initscript named {}".format(name))
 
 
-
 class ConstantsModule(object):
-
-    def __init__(self, releaseString = None, copyright = None,
-            moduleName="BUILD_CONSTANTS", timeFormat="%B %d, %Y %H:%M:%S",
-            constants=[]):
+    def __init__(
+        self,
+        releaseString=None,
+        copyright=None,
+        moduleName="BUILD_CONSTANTS",
+        timeFormat="%B %d, %Y %H:%M:%S",
+        constants=[],
+    ):
         self.moduleName = moduleName
         self.timeFormat = timeFormat
         self.values = {}
@@ -768,12 +919,16 @@ class ConstantsModule(object):
                 name, stringValue = parts
                 value = eval(stringValue)
             if (not name.isidentifier()) or iskeyword(name):
-                raise ConfigError("Invalid constant name in ConstantsModule ({!r})".format(name))
+                raise ConfigError(
+                    "Invalid constant name in ConstantsModule ({!r})".format(
+                        name
+                    )
+                )
             self.values[name] = value
 
     def Create(self, finder):
         """Create the module which consists of declaration statements for each
-           of the values."""
+        of the values."""
         today = datetime.datetime.today()
         sourceTimestamp = 0
         for module in finder.modules:
@@ -782,14 +937,19 @@ class ConstantsModule(object):
             if module.source_is_zip_file:
                 continue
             if not os.path.exists(module.file):
-                raise ConfigError("no file named {} (for module {})".format(module.file, module.name))
+                raise ConfigError(
+                    "no file named {} (for module {})".format(
+                        module.file, module.name
+                    )
+                )
             timestamp = os.stat(module.file).st_mtime
             sourceTimestamp = max(sourceTimestamp, timestamp)
         sourceTimestamp = datetime.datetime.fromtimestamp(sourceTimestamp)
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.timeFormat)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
-        self.values["SOURCE_TIMESTAMP"] = \
-                sourceTimestamp.strftime(self.timeFormat)
+        self.values["SOURCE_TIMESTAMP"] = sourceTimestamp.strftime(
+            self.timeFormat
+        )
         module = finder._AddModule(self.moduleName)
         sourceParts = []
         names = list(self.values.keys())
@@ -803,11 +963,21 @@ class ConstantsModule(object):
 
 
 class VersionInfo(object):
-
-    def __init__(self, version, internalName = None, originalFileName = None,
-            comments = None, company = None, description = None,
-            copyright = None, trademarks = None, product = None, dll = False,
-            debug = False, verbose = True):
+    def __init__(
+        self,
+        version,
+        internalName=None,
+        originalFileName=None,
+        comments=None,
+        company=None,
+        description=None,
+        copyright=None,
+        trademarks=None,
+        product=None,
+        dll=False,
+        debug=False,
+        verbose=True,
+    ):
         parts = version.split(".")
         while len(parts) < 4:
             parts.append("0")
