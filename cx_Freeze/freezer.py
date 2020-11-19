@@ -41,16 +41,14 @@ def process_path_specs(specs):
             source = spec
             target = None
         elif len(spec) != 2:
-            raise ConfigError("path spec must be a list or tuple of "
-                    "length two")
+            raise ConfigError("path spec must be a list or tuple of length two")
         else:
             source, target = spec
         source = os.path.normpath(source)
         if not target:
             target = os.path.basename(source)
         elif os.path.isabs(target):
-            raise ConfigError("target path for include file may not be "
-                    "an absolute path")
+            raise ConfigError("target path for include file may not be an absolute path")
         processedSpecs.append((source, target))
     return processedSpecs
 
@@ -491,8 +489,7 @@ class Freezer(object):
         for sourceFileName, targetFileName in \
                 self.includeFiles + self.zipIncludes:
             if not os.path.exists(sourceFileName):
-                raise ConfigError("cannot find file/directory named %s",
-                        sourceFileName)
+                raise ConfigError("cannot find file/directory named {}".format(sourceFileName))
             if os.path.isabs(targetFileName):
                 raise ConfigError("target file/directory cannot be absolute")
 
@@ -503,8 +500,9 @@ class Freezer(object):
                     "from the zip file at the same time")
         for name in self.zipIncludePackages:
             if name in self.zipExcludePackages:
-                raise ConfigError("package %s cannot be both included and " \
-                        "excluded from zip file", name)
+                raise ConfigError("package {} cannot be both included and " \
+                        "excluded from zip file".format(name))
+
 
         for executable in self.executables:
             executable._VerifyConfiguration(self)
@@ -697,8 +695,8 @@ class Freezer(object):
 
 class ConfigError(Exception):
 
-    def __init__(self, format, *args):
-        self.what = format % args
+    def __init__(self, msg):
+        self.what = msg
 
     def __str__(self):
         return self.what
@@ -741,13 +739,14 @@ class Executable(object):
         ext = ".exe" if sys.platform == "win32" else ""
         self.base = get_resource_file_path("bases", name, ext)
         if self.base is None:
-            raise ConfigError("no base named %s", name)
+            raise ConfigError("no base named {}".format(name))
 
     def _GetInitScriptFileName(self):
         name = self.initScript
         self.initScript = get_resource_file_path("initscripts", name, ".py")
         if self.initScript is None:
-            raise ConfigError("no initscript named %s", name)
+            raise ConfigError("no initscript named {}".format(name))
+
 
 
 class ConstantsModule(object):
@@ -769,7 +768,7 @@ class ConstantsModule(object):
                 name, stringValue = parts
                 value = eval(stringValue)
             if (not name.isidentifier()) or iskeyword(name):
-                raise ConfigError("Invalid constant name in ConstantsModule (\"{}\")".format(name))
+                raise ConfigError("Invalid constant name in ConstantsModule ({!r})".format(name))
             self.values[name] = value
 
     def Create(self, finder):
@@ -783,8 +782,7 @@ class ConstantsModule(object):
             if module.source_is_zip_file:
                 continue
             if not os.path.exists(module.file):
-                raise ConfigError("no file named %s (for module %s)",
-                        module.file, module.name)
+                raise ConfigError("no file named {} (for module {})".format(module.file, module.name))
             timestamp = os.stat(module.file).st_mtime
             sourceTimestamp = max(sourceTimestamp, timestamp)
         sourceTimestamp = datetime.datetime.fromtimestamp(sourceTimestamp)
