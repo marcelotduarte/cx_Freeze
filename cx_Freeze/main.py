@@ -199,7 +199,9 @@ def parse_command_line(parser):
             replace_paths.append((from_path, replacement))
     args.replace_paths = replace_paths
     if args.default_path is not None:
-        sys.path = [p for mp in args.default_path for p in mp.split(os.pathsep)]
+        sys.path = [
+            p for mp in args.default_path for p in mp.split(os.pathsep)
+        ]
     if args.include_path is not None:
         paths = [p for mp in args.include_path for p in mp.split(os.pathsep)]
         sys.path = paths + sys.path

@@ -1,7 +1,14 @@
 import setuptools
 import sys
-from cx_Freeze.dist import bdist_rpm, build, build_exe, install, install_exe,\
-    setup
+from cx_Freeze.dist import (
+    bdist_rpm,
+    build,
+    build_exe,
+    install,
+    install_exe,
+    setup,
+)
+
 if sys.platform == "win32":
     from cx_Freeze.windist import bdist_msi
 elif sys.platform == "darwin":
