@@ -2,13 +2,14 @@
 Welcome to cx_Freeze's documentation!
 =====================================
 
-**cx_Freeze** is a set of scripts and modules for freezing Python scripts into
-executables in much the same way that py2exe_ and py2app_ do. Unlike these two
-tools, cx_Freeze is cross platform and should work on any platform that Python
-itself works on. It supports Python_ 3.5.2 or higher.
+**cx_Freeze** creates standalone executables from Python scripts, with the same
+performance, is cross-platform and should work on any platform that Python
+itself works on.
 
-If you need support for Python 2.x, cx\_Freeze version 5.1.x should be used
-instead.
+cx_Freeze 6.4 supports Python_ 3.6 or higher.
+cx_Freeze 6.3 supports Python_ 3.5.2 or higher.
+cx_Freeze 6.1 supports Python_ 3.5.0 or higher.
+cx_Freeze 5.1.x supports Python_ 2.7.
 
 **cx_Freeze** is distributed under an open-source :ref:`license <license>` (the PSF license).
 
