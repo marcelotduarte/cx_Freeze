@@ -227,7 +227,7 @@ def load_certifi(finder, module):
     """The certifi package, in python 3.7 and up, uses importlib.resources
     to locate the cacert.pem in zip packages.
     In previous versions, it is expected to be stored in the file system."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         if sys.version_info < (3, 7):
             module.store_in_file_system = True
             return
@@ -270,37 +270,37 @@ def load_cryptography_hazmat_bindings__padding(finder, module):
 
 def load_Crypto_Cipher(finder, module):
     """pycryptodome package - Crypto.Cipher subpackage."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Hash(finder, module):
     """pycryptodome package - Crypto.Hash subpackage."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Math(finder, module):
     """pycryptodome package - Crypto.Math subpackage."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Protocol(finder, module):
     """pycryptodome package - Crypto.Protocol subpackage."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_PublicKey(finder, module):
     """pycryptodome package - Crypto.PublicKey subpackage."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Util(finder, module):
     """pycryptodome package - Crypto.Util subpackage."""
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
@@ -318,7 +318,7 @@ def pycryptodome_filename(dir_comps, filename):
     root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
     return os.path.join(root_lib, ".".join(dir_comps))
 """
-    if not module.WillBeStoredInFileSystem() and module.code is not None:
+    if not module.in_file_system and module.code is not None:
         new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
         co_func = new_code.co_consts[2]
         co = module.code
@@ -539,7 +539,7 @@ def load_numpy(finder, module):
     """the numpy must be loaded as a package."""
     finder.ExcludeModule("numpy.random._examples")
     finder.IncludePackage("numpy")
-    if not module.WillBeStoredInFileSystem():
+    if not module.in_file_system:
         # version 1.18.3+ changed the location of dll/so
         import numpy
 
@@ -756,7 +756,7 @@ def load_pytz(finder, module):
         if os.path.isdir(dataPath):
             finder.AddConstant("PYTZ_TZDATADIR", targetPath)
     if os.path.isdir(dataPath):
-        if module.WillBeStoredInFileSystem():
+        if module.in_file_system:
             finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
         else:
             finder.ZipIncludeFiles(dataPath, "pytz/zoneinfo")
@@ -797,10 +797,6 @@ def _qt_implementation(module):
     return name, _qtcore
 
 
-def _qt_in_file_system(module):
-    return module.WillBeStoredInFileSystem()
-
-
 def copy_qt_plugins(plugins, finder, QtCore):
     """Helper function to find and copy Qt plugins."""
 
@@ -816,7 +812,7 @@ def copy_qt_plugins(plugins, finder, QtCore):
 def load_PyQt4_phonon(finder, module):
     """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
     be present in the build directory inside a folder phonon_backend."""
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     if WIN32:
@@ -842,7 +838,7 @@ def sip_module_name(QtCore) -> str:
 def load_PyQt4_QtCore(finder, module):
     """the PyQt4.QtCore module implicitly imports the sip module and,
     depending on configuration, the PyQt4._qt module."""
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule(sip_module_name(QtCore=QtCore))
@@ -866,7 +862,7 @@ def load_PyQt4_Qt(finder, module):
     foolish way of doing things but perhaps there is some hidden advantage
     to this technique over pure Python; ignore the absence of some of
     the modules since not every installation includes all of them."""
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtCore" % name)
@@ -897,7 +893,7 @@ def load_PyQt4_uic(finder, module):
     """The uic module makes use of "plugins" that need to be read directly and
     cannot be frozen; the PyQt4.QtWebKit and PyQt4.QtNetwork modules are
     also implicity loaded."""
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     dir = os.path.join(module.path[0], "widget-plugins")
@@ -926,7 +922,7 @@ def load_PyQt4_QtGui(finder, module):
     """There is a chance that GUI will use some image formats
     add the image format plugins
     """
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     _QtGui(finder, module, QtCore.QT_VERSION_STR)
@@ -946,13 +942,13 @@ def load_PySide_QtGui(finder, module):
 
 
 def load_PyQt5_QtWidgets(finder, module):
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     finder.IncludeModule("PyQt5.QtGui")
 
 
 def load_PyQt4_QtWebKit(finder, module):
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtNetwork" % name)
@@ -963,7 +959,7 @@ load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
 
 
 def load_PyQt5_QtMultimedia(finder, module):
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtCore" % name)
@@ -972,7 +968,7 @@ def load_PyQt5_QtMultimedia(finder, module):
 
 
 def load_PyQt5_QtPrintSupport(finder, module):
-    if _qt_in_file_system(module):
+    if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     copy_qt_plugins("printsupport", finder, QtCore)

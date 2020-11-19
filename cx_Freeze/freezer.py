@@ -537,14 +537,14 @@ class Freezer(object):
             # require will be found in a location relative to where
             # they are located on disk; these packages will fail with strange
             # errors when they are written to a zip file instead
-            includeInFileSystem = module.WillBeStoredInFileSystem()
+            include_in_file_system = module.in_file_system
 
             # if the module refers to a package, check to see if this package
             # should be included in the zip file or should be written to the
             # file system; if the package should be written to the file system,
             # any non-Python files are copied at this point if the target
             # directory does not already exist
-            if includeInFileSystem and module.path is not None and \
+            if include_in_file_system and module.path is not None and \
                     module.file is not None:
                 parts = module.name.split(".")
                 targetPackageDir = os.path.join(targetDir, *parts)
@@ -559,7 +559,7 @@ class Freezer(object):
             # directory because shared libraries cannot be loaded from a
             # zip file
             if module.code is None and module.file is not None \
-                    and not includeInFileSystem:
+                    and not include_in_file_system:
                 parts = module.name.split(".")[:-1]
                 parts.append(os.path.basename(module.file))
                 target = os.path.join(targetDir, ".".join(parts))
@@ -583,7 +583,7 @@ class Freezer(object):
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
-            if includeInFileSystem and module.file is not None:
+            if include_in_file_system and module.file is not None:
                 parts = module.name.split(".")
                 if module.code is None:
                     parts.pop()

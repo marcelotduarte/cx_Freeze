@@ -489,7 +489,7 @@ class ModuleFinder(object):
            only in zipped modules."""
         co = module.code
         if co is None or module.parent is None or \
-                module.WillBeStoredInFileSystem() or \
+                module.in_file_system or \
                 "__package__" in module.global_names:
             # In some modules, like 'six' the variable is defined, so...
             return
@@ -733,9 +733,10 @@ class Module(object):
     def IgnoreName(self, name):
         self.ignore_names.add(name)
 
-    def WillBeStoredInFileSystem(self):
+    @property
+    def in_file_system(self):
         if self.parent is not None:
-            return self.parent.WillBeStoredInFileSystem()
+            return self.parent.in_file_system
         if self.path is None or self.file is None:
             return False
         return self.store_in_file_system
