@@ -777,23 +777,22 @@ def load_pywintypes(finder, module):
     )
 
 
-# PyQt5 and PyQt4 can't both be loaded in the same process, so we cache the
-# QtCore module so we can still return something sensible if we try to load
-# both.
+# cache the QtCore module
 _qtcore = None
 
 
 def _qt_implementation(module):
-    """Helper function to get name (PyQt4, PyQt5, PySide) and the QtCore module"""
+    """Helper function to get name (PyQt5) and the QtCore module"""
     global _qtcore
     name = module.name.split(".")[0]
-    try:
-        _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
-    except RuntimeError:
-        print(
-            "WARNING: Tried to load multiple incompatible Qt wrappers. "
-            "Some incorrect files may be copied."
-        )
+    if _qtcore is None:
+        try:
+            _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
+        except RuntimeError:
+            print(
+                "WARNING: Tried to load multiple incompatible Qt wrappers. "
+                "Some incorrect files may be copied."
+            )
     return name, _qtcore
 
 
@@ -809,8 +808,8 @@ def copy_qt_plugins(plugins, finder, QtCore):
             finder.IncludeFiles(sourcepath, plugins)
 
 
-def load_PyQt4_phonon(finder, module):
-    """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
+def load_PyQt5_phonon(finder, module):
+    """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
     be present in the build directory inside a folder phonon_backend."""
     if module.in_file_system:
         return
@@ -819,11 +818,9 @@ def load_PyQt4_phonon(finder, module):
         copy_qt_plugins("phonon_backend", finder, QtCore)
 
 
-load_PySide_phonon = load_PyQt5_phonon = load_PyQt4_phonon
-
-
 def sip_module_name(QtCore) -> str:
-    """Returns the name of the sip module to import.  (As of 5.11, the distributed wheels no longer provided for the
+    """Returns the name of the sip module to import.
+    (As of 5.11, the distributed wheels no longer provided for the
     sip module outside of the PyQt5 namespace)."""
     versionString = QtCore.PYQT_VERSION_STR
     try:
@@ -835,9 +832,9 @@ def sip_module_name(QtCore) -> str:
     return "sip"
 
 
-def load_PyQt4_QtCore(finder, module):
-    """the PyQt4.QtCore module implicitly imports the sip module and,
-    depending on configuration, the PyQt4._qt module."""
+def load_PyQt5_QtCore(finder, module):
+    """the PyQt5.QtCore module implicitly imports the sip module and,
+    depending on configuration, the PyQt5._qt module."""
     if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
@@ -848,16 +845,8 @@ def load_PyQt4_QtCore(finder, module):
         pass
 
 
-load_PyQt5_QtCore = load_PyQt4_QtCore
-
-
-def load_PySide_QtCore(finder, module):
-    """PySide.QtCore dynamically loads the stdlib atexit module."""
-    finder.IncludeModule("atexit")
-
-
-def load_PyQt4_Qt(finder, module):
-    """the PyQt4.Qt module is an extension module which imports a number of
+def load_PyQt5_Qt(finder, module):
+    """the PyQt5.Qt module is an extension module which imports a number of
     other modules and injects their namespace into its own. It seems a
     foolish way of doing things but perhaps there is some hidden advantage
     to this technique over pure Python; ignore the absence of some of
@@ -886,12 +875,9 @@ def load_PyQt4_Qt(finder, module):
             pass
 
 
-load_PyQt5_Qt = load_PyQt4_Qt
-
-
-def load_PyQt4_uic(finder, module):
+def load_PyQt5_uic(finder, module):
     """The uic module makes use of "plugins" that need to be read directly and
-    cannot be frozen; the PyQt4.QtWebKit and PyQt4.QtNetwork modules are
+    cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
     also implicity loaded."""
     if module.in_file_system:
         return
@@ -905,20 +891,17 @@ def load_PyQt4_uic(finder, module):
         pass
 
 
-load_PyQt5_uic = load_PyQt4_uic
-
-
 def _QtGui(finder, module, version_str):
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtCore" % name)
     copy_qt_plugins("imageformats", finder, QtCore)
     if version_str >= "5":
-        # On Qt5, we need the platform plugins. For simplicity, we just copy any
-        # that are installed.
+        # On Qt5, we need the platform plugins. For simplicity, we just copy
+        # any that are installed.
         copy_qt_plugins("platforms", finder, QtCore)
 
 
-def load_PyQt4_QtGui(finder, module):
+def load_PyQt5_QtGui(finder, module):
     """There is a chance that GUI will use some image formats
     add the image format plugins
     """
@@ -928,34 +911,18 @@ def load_PyQt4_QtGui(finder, module):
     _QtGui(finder, module, QtCore.QT_VERSION_STR)
 
 
-load_PyQt5_QtGui = load_PyQt4_QtGui
-
-
-def load_PySide_QtGui(finder, module):
-    """There is a chance that GUI will use some image formats
-    add the image format plugins
-    """
-    from PySide import QtCore
-
-    # Pyside.__version* is PySide version, PySide.QtCore.__version* is Qt version
-    _QtGui(finder, module, QtCore.__version__)
-
-
 def load_PyQt5_QtWidgets(finder, module):
     if module.in_file_system:
         return
     finder.IncludeModule("PyQt5.QtGui")
 
 
-def load_PyQt4_QtWebKit(finder, module):
+def load_PyQt5_QtWebKit(finder, module):
     if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
     finder.IncludeModule("%s.QtNetwork" % name)
     finder.IncludeModule("%s.QtGui" % name)
-
-
-load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
 
 
 def load_PyQt5_QtMultimedia(finder, module):
