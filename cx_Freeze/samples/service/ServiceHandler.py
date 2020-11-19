@@ -17,18 +17,18 @@ class Handler(object):
         self.stopRequestedEvent = threading.Event()
 
     # called when the service is starting
-    def Initialize(self, configFileName):
+    def initialize(self, configFileName):
         pass
 
     # called when the service is starting immediately after Initialize()
     # use this to perform the work of the service; don't forget to set or check
     # for the stop event or the service GUI will not respond to requests to
     # stop the service
-    def Run(self):
+    def run(self):
         self.stopRequestedEvent.wait()
         self.stopEvent.set()
 
     # called when the service is being stopped by the service manager GUI
-    def Stop(self):
+    def stop(self):
         self.stopRequestedEvent.set()
         self.stopEvent.wait()

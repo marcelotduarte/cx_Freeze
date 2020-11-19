@@ -18,10 +18,10 @@
 #   CLASS_NAME
 #       the name of the class within the module implementing the service. This
 #       class should accept no parameters in the constructor. It should have a
-#       method called 'Initialize' which will accept the configuration file
-#       name. It should also have a method called 'Run' which will be called
+#       method called 'initialize' which will accept the configuration file
+#       name. It should also have a method called 'run' which will be called
 #       with no parameters when the service is started. It should also have a
-#       method called 'Stop' which will be called with no parameters when the
+#       method called 'stop' which will be called with no parameters when the
 #       service is stopped using the service control GUI.
 #
 #   DESCRIPTION
@@ -32,7 +32,7 @@
 #
 #   SESSION_CHANGES
 #       whether the service should monitor session changes (optional). If
-#       True, session changes will call the method 'SessionChanged' with the
+#       True, session changes will call the method 'session_changed' with the
 #       parameters sessionId and eventTypeId.
 # ------------------------------------------------------------------------------
 
