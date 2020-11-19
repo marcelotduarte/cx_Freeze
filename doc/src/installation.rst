@@ -14,24 +14,34 @@ Without virtual environment, depending on the system:
 
     python -m pip install cx_Freeze --upgrade
 
+or
+
   .. code-block:: console
 
     python3 -m pip install cx_Freeze --upgrade
 
 or download directly from `PyPI <https://pypi.org/project/cx_Freeze>`_.
 
-or download directly from [PyPI](https://pypi.org/project/cx_Freeze).
 
-The source code can be found on `Github <https://github.com/marcelotduarte/cx_Freeze>`__.
+Source code
+-----------
 
-If you do not have pip installed or would prefer a more manual installation
-process, the source code can be found on
-`Github <https://github.com/marcelotduarte/cx_Freeze>`__ and the following
-steps also work once the source package has been downloaded and extracted:
+You can download and extract the source code found on
+`Github <https://github.com/marcelotduarte/cx_Freeze>`__
+to do a a manual installation.
 
-```
-python setup.py build
-python setup.py install
-```
+The following steps are needed:
+
+  .. code-block:: console
+
+    python setup.py build
+    python setup.py install
+
+or
+
+  .. code-block:: console
+
+    python setup.py develop
+
 
 Issue tracking on `Github <https://github.com/marcelotduarte/cx_Freeze/issues>`_.

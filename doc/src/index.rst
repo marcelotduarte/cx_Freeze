@@ -3,13 +3,23 @@ Welcome to cx_Freeze's documentation!
 =====================================
 
 **cx_Freeze** creates standalone executables from Python scripts, with the same
-performance, is cross-platform and should work on any platform that Python
+performance, is cross-platform and should work on any platform that Python_
 itself works on.
 
-cx_Freeze 6.4 supports Python_ 3.6 or higher.
-cx_Freeze 6.3 supports Python_ 3.5.2 or higher.
-cx_Freeze 6.1 supports Python_ 3.5.0 or higher.
-cx_Freeze 5.1.x supports Python_ 2.7.
+.. list-table::
+   :header-rows: 1
+   :widths: 200 600
+
+   * - cx_Freeze version
+     - Python version supported
+   * - cx_Freeze 6.4
+     - Python 3.6 or higher
+   * - cx_Freeze 6.3
+     - Python 3.5.2 or higher
+   * - cx_Freeze 6.1
+     - Python 3.5.0 or higher
+   * - cx_Freeze 5.1.x
+     - Python 2.7
 
 **cx_Freeze** is distributed under an open-source :ref:`license <license>` (the PSF license).
 
