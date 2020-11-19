@@ -187,7 +187,7 @@ class Freezer(object):
         targetDir = os.path.dirname(target)
         self._CreateDirectory(targetDir)
         if not self.silent:
-            sys.stdout.write("copying %s -> %s\n" % (source, target))
+            print("copying %s -> %s" % (source, target))
         shutil.copyfile(source, target)
         shutil.copystat(source, target)
         if includeMode:
@@ -264,7 +264,7 @@ class Freezer(object):
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
             if not self.silent:
-                sys.stdout.write("creating directory %s\n" % path)
+                print("creating directory %s" % path)
             os.makedirs(path)
 
     def _FreezeExecutable(self, exe):
@@ -454,8 +454,7 @@ class Freezer(object):
                         fileName = parts[0]
                         if fileName not in self.linkerWarnings:
                             self.linkerWarnings[fileName] = None
-                            message = "WARNING: cannot find %s\n" % fileName
-                            sys.stdout.write(message)
+                            print("WARNING: cannot find %s" % fileName)
                         continue
                     if dependentFile.startswith("("):
                         continue
@@ -510,16 +509,15 @@ class Freezer(object):
                 break
 
     def _PrintReport(self, fileName, modules):
-        sys.stdout.write("writing zip file %s\n\n" % fileName)
-        sys.stdout.write("  %-25s %s\n" % ("Name", "File"))
-        sys.stdout.write("  %-25s %s\n" % ("----", "----"))
+        print("writing zip file %s\n" % fileName)
+        print("  %-25s %s" % ("Name", "File"))
+        print("  %-25s %s" % ("----", "----"))
         for module in modules:
             if module.path:
-                sys.stdout.write("P")
+                print("P", end="")
             else:
-                sys.stdout.write("m")
-            sys.stdout.write(" %-25s %s\n" % (module.name, module.file or ""))
-        sys.stdout.write("\n")
+                print("m", end="")
+            print(" %-25s %s\n" % (module.name, module.file or ""))
 
     def _RemoveFile(self, path):
         if os.path.exists(path):
@@ -837,6 +835,7 @@ class Freezer(object):
 class ConfigError(Exception):
     def __init__(self, msg):
         self.what = msg
+        super().__init__()
 
     def __str__(self):
         return self.what

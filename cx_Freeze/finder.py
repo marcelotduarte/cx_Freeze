@@ -8,10 +8,10 @@ import io
 import importlib.machinery
 import importlib.util
 import logging
-import opcode
 import os
-import pkgutil
 import sys
+import opcode
+import pkgutil
 import tokenize
 from typing import Dict, Optional
 import zipfile
@@ -223,6 +223,7 @@ class ModuleFinder(object):
             if caller.path is not None:
                 return caller
             return self._GetParentByName(caller.name)
+        return None
 
     def _EnsureFromList(
         self, caller, packageModule, fromList, deferredImports
@@ -262,6 +263,7 @@ class ModuleFinder(object):
         if pos > 0:
             parentName = name[:pos]
             return self._modules[parentName]
+        return None
 
     def _ImportAllSubModules(self, module, deferredImports, recursive=True):
         """Import all sub modules to the given package."""
@@ -604,7 +606,7 @@ class ModuleFinder(object):
                 continue
 
             # import statement: attempt to import module
-            elif op == IMPORT_NAME:
+            if op == IMPORT_NAME:
                 name = co.co_names[opArg]
                 if len(arguments) >= 2:
                     relativeImportIndex, fromList = arguments[-2:]
@@ -704,20 +706,17 @@ class ModuleFinder(object):
     def ReportMissingModules(self):
         """Display a list of modules that weren't found."""
         if self._bad_modules:
-            sys.stdout.write("Missing modules:\n")
+            print("Missing modules:")
             names = list(self._bad_modules.keys())
             names.sort()
             for name in names:
                 callers = list(self._bad_modules[name].keys())
                 callers.sort()
-                sys.stdout.write(
-                    "? %s imported from %s\n" % (name, ", ".join(callers))
-                )
-            sys.stdout.write(
+                print("? %s imported from %s" % (name, ", ".join(callers)))
+            print(
                 "This is not necessarily a problem - the modules "
                 "may not be needed on this platform.\n"
             )
-            sys.stdout.write("\n")
 
     def SetOptimizeFlag(self, optimizeFlag):
         """Set a new value of optimize flag and returns the previous value."""

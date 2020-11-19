@@ -8,6 +8,7 @@ from distutils.sysconfig import get_config_var
 import os
 import sys
 
+WIN32 = sys.platform == "win32"
 
 if sys.version_info < (3, 5, 2):
     sys.exit("Python3 versions lower than 3.5.2 are not supported.")
@@ -18,7 +19,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         if "bases" not in ext.name:
             super().build_extension(ext)
             return
-        if sys.platform == "win32" and self.compiler.compiler_type == "mingw32":
+        if WIN32 and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
         os.environ["LD_RUN_PATH"] = "${ORIGIN}/../lib:${ORIGIN}/lib"
         objects = self.compiler.compile(
@@ -36,7 +37,7 @@ class build_ext(distutils.command.build_ext.build_ext):
         libraryDirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extraArgs = ext.extra_link_args or []
-        if sys.platform == "win32":
+        if WIN32:
             compiler_type = self.compiler.compiler_type
             if compiler_type == "msvc":
                 extraArgs.append("/MANIFEST")
@@ -122,7 +123,7 @@ def find_cx_Logging():
 commandClasses = {"build_ext": build_ext}
 
 # build base executables
-if sys.platform == "win32":
+if WIN32:
     libraries = ["imagehlp", "Shlwapi"]
 else:
     libraries = []
@@ -135,7 +136,7 @@ console = Extension(
     libraries=libraries,
 )
 extensions = [console]
-if sys.platform == "win32":
+if WIN32:
     gui = Extension(
         "cx_Freeze.bases.Win32GUI",
         ["source/bases/Win32GUI.c"],

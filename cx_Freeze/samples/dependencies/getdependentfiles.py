@@ -15,13 +15,13 @@ import sys
 try:
     import cx_Freeze.util
 except ImportError:
-    sys.stderr.write("Please install a cx-freeze package to test\n")
+    print("Please install a cx-freeze package to test", file=sys.stderr)
     sys.exit(-1)
 
 
 def print_usage():
-    sys.stderr.write("cx_Freeze dependencies demo (for windows only)\n")
-    sys.stderr.write("usage:\n\t%s FILE...\n" % sys.argv[0])
+    print("cx_Freeze dependencies demo (for windows only)", file=sys.stderr)
+    print("usage:\n\t%s FILE..." % sys.argv[0], file=sys.stderr)
     return -1
 
 
@@ -29,7 +29,7 @@ def main():
     if len(sys.argv) <= 1:
         return print_usage()
     if sys.platform != "win32":
-        sys.stderr.write(sys.argv[0] + " is only for windows\n")
+        print(sys.argv[0] + " is only for windows", file=sys.stderr)
         return -1
     res = 0
     for i in range(1, len(sys.argv)):
@@ -39,8 +39,8 @@ def main():
             dependent_files = cx_Freeze.util.GetDependentFiles(path)
         except cx_Freeze.util.BindError as exc:
             dependent_files = []
-            fmt = 'error during GetDependentFiles() of "%s": %s\n'
-            sys.stderr.write(fmt % (path, str(exc)))
+            print("error during GetDependentFiles() of ")
+            print("{!r}: {!s}".format(path, exc), file=sys.stderr)
             res = -1
         if dependent_files:
             for file_name in dependent_files:
