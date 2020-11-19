@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import sys
-
-sys.stdout.write("importing pkg1.sub1\n")
+print("importing pkg1.sub1")
 
 from . import sub2

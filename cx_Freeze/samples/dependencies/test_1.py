@@ -9,7 +9,7 @@ import sys
 try:
     import cx_Freeze
 except ImportError:
-    sys.stderr.write("Please install a cx-freeze package to test")
+    print("Please install a cx-freeze package to test", file=sys.stderr)
     sys.exit(-1)
 
 program = "{} getdependentfiles.py".format(sys.executable)
