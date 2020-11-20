@@ -4,7 +4,7 @@
 performance, is cross-platform and should work on any platform that Python
 itself works on.
 
-It supports [Python](https://www.python.org/) 3.6 or higher.
+It supports [Python](https://www.python.org/) 3.6 up to 3.9.
 
 If you need support for older Python check the documentation.
 
