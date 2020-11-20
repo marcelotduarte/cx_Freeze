@@ -13,11 +13,11 @@ itself works on.
    * - cx_Freeze version
      - Python version supported
    * - cx_Freeze 6.4
-     - Python 3.6 or higher
+     - Python 3.6 to 3.9
    * - cx_Freeze 6.3
-     - Python 3.5.2 or higher
+     - Python 3.5.2 to 3.8
    * - cx_Freeze 6.1
-     - Python 3.5.0 or higher
+     - Python 3.5.0 to 3.8
    * - cx_Freeze 5.1.x
      - Python 2.7
 
