@@ -3,13 +3,14 @@ name: Build wheel
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   windows:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
         architecture: ['x86', 'x64']
     name: "Python ${{ matrix.python-version }} on ${{ matrix.architecture }}"
     steps:

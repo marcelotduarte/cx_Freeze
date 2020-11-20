@@ -30,6 +30,9 @@ You can download and extract the source code found on
 `Github <https://github.com/marcelotduarte/cx_Freeze>`__
 to do a a manual installation.
 
+Installing from source requires ``setuptools``. This is installed
+automatically in virtual environments.
+
 The following steps are needed:
 
   .. code-block:: console
