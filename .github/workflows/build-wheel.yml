@@ -24,9 +24,42 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U setuptools wheel
-      - name: Build
-        run: python setup.py bdist_wheel --dist-dir wheelhouse
-      - uses: actions/upload-artifact@v2
+      - name: Build the wheel
+        run: |
+          python setup.py bdist_wheel --dist-dir wheelhouse
+      - name: Upload the artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: "wheelhouse"
+          name: wheelhouse
           path: wheelhouse
+  publish:
+    needs: windows
+    runs-on: ubuntu-latest
+    name: Publish package to PyPI
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U setuptools wheel
+      - name: Download the artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: wheelhouse
+          path: wheelhouse
+      - name: Build the sdist
+        run: |
+          python setup.py sdist --dist-dir wheelhouse
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
+          packages_dir: wheelhouse/
+          skip_existing: true
+          verbose: true
+
