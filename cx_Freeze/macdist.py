@@ -274,7 +274,7 @@ class bdist_mac(Command):
                 relativeBuildDest = os.path.relpath(
                     absoluteBuildDest, buildDir
                 )
-                exePath = "@executable_path/{}".format(relativeBuildDest)
+                exePath = f"@executable_path/{relativeBuildDest}"
                 changeLoadReference(
                     filePathInBinDir,
                     oldReference=rawPath,
@@ -321,7 +321,7 @@ class bdist_mac(Command):
                 return path
 
         print("Could not find qt_menu.nib")
-        raise IOError("Could not find qt_menu.nib")
+        raise OSError("Could not find qt_menu.nib")
 
     def prepare_qt_app(self):
         """Add resource files for a Qt application. Should do nothing if the

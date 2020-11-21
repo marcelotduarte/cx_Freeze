@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A very simple setup script to create a single executable that makes use of
 # the openpyxl package. This package, like a number of others, makes the
 # assumption that it is found in the file system, and so fails miserably if

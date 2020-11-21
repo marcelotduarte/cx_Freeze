@@ -122,10 +122,10 @@ class DarwinFile:
         l = []
         # l.append("RPath Commands: {}".format(self.rpathCommands))
         # l.append("Load commands: {}".format(self.loadCommands))
-        l.append("Mach-O File: {}".format(self.originalFilePath))
+        l.append(f"Mach-O File: {self.originalFilePath}")
         l.append("Resolved rpath:")
         for rp in self.getRPath():
-            l.append("   {}".format(rp))
+            l.append(f"   {rp}")
         l.append("Loaded libraries:")
         for rp in self.libraryPathResolution:
             l.append("   {} -> {}".format(rp, self.libraryPathResolution[rp]))
@@ -158,9 +158,7 @@ class DarwinFile:
         located."""
         if self.isLoaderPath(path=path):
             return path.replace("@loader_path", self.sourceDir(), 1)
-        raise DarwinException(
-            "resolveLoader() called on bad path: {}".format(path)
-        )
+        raise DarwinException(f"resolveLoader() called on bad path: {path}")
 
     def resolveExecutable(self, path: str) -> str:
         """@executable_path should resolve to the directory where the original
@@ -172,7 +170,7 @@ class DarwinFile:
         if self.isExecutablePath(path=path):
             return path.replace("@executable_path", self.sourceDir(), 1)
         raise DarwinException(
-            "resolveExecutable() called on bad path: {}".format(path)
+            f"resolveExecutable() called on bad path: {path}"
         )
 
     def resolveRPath(self, path: str) -> str:
@@ -180,9 +178,7 @@ class DarwinFile:
             testPath = os.path.abspath(path.replace("@rpath", rp, 1))
             if _isMachOFile(testPath):
                 return testPath
-        raise DarwinException(
-            "resolveRPath() failed to resolve path: {}".format(path)
-        )
+        raise DarwinException(f"resolveRPath() failed to resolve path: {path}")
 
     def getRPath(self) -> List[str]:
         """Returns the rpath in effect for this file.  Determined by rpath commands in this file
@@ -221,7 +217,7 @@ class DarwinFile:
         testPath = os.path.abspath(os.path.join(self.sourceDir(), path))
         if _isMachOFile(path=testPath):
             return testPath
-        raise DarwinException("Could not resolve path: {}".format(path))
+        raise DarwinException(f"Could not resolve path: {path}")
 
     def resolveLibraryPaths(self):
         for lc in self.loadCommands:
@@ -265,7 +261,7 @@ class MachOCommand:
     @staticmethod
     def _getMachOCommands(forFileAtPath: str) -> List["MachOCommand"]:
         """Returns a list of load commands in the specified file, using otool."""
-        shellCommand = 'otool -l "{}"'.format(forFileAtPath)
+        shellCommand = f'otool -l "{forFileAtPath}"'
         commands: List[MachOCommand] = []
         currentCommandLines = None
 
@@ -317,7 +313,7 @@ class MachOLoadCommand(MachOCommand):
         return self.loadPath
 
     def __repr__(self):
-        return '<LoadCommand path="{}">'.format(self.loadPath)
+        return f'<LoadCommand path="{self.loadPath}">'
 
 
 class MachORPathCommand(MachOCommand):
@@ -336,7 +332,7 @@ class MachORPathCommand(MachOCommand):
         return
 
     def __repr__(self):
-        return '<RPath path="{}">'.format(self.rPath)
+        return f'<RPath path="{self.rPath}">'
 
 
 def _printFile(

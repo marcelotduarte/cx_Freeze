@@ -40,7 +40,7 @@ def main():
         except cx_Freeze.util.BindError as exc:
             dependent_files = []
             print("error during GetDependentFiles() of ")
-            print("{!r}: {!s}".format(path, exc), file=sys.stderr)
+            print(f"{path!r}: {exc!s}", file=sys.stderr)
             res = -1
         if dependent_files:
             for file_name in dependent_files:

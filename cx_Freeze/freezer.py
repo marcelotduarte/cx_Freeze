@@ -74,7 +74,7 @@ def get_resource_file_path(dirName, name, ext):
                 return os.path.join(fullDir, fileName)
 
 
-class Freezer(object):
+class Freezer:
     def __init__(
         self,
         executables: List["Executable"],
@@ -180,7 +180,7 @@ class Freezer(object):
         targetDir = os.path.dirname(target)
         self._CreateDirectory(targetDir)
         if not self.silent:
-            print("copying %s -> %s" % (source, target))
+            print(f"copying {source} -> {target}")
         shutil.copyfile(source, target)
         shutil.copystat(source, target)
         if includeMode:
@@ -411,7 +411,7 @@ class Freezer(object):
                         # Sometimes this gets called when path is not actually a
                         # library See issue 88
                         print("error during GetDependentFiles() of ", end="")
-                        print("{!r}: {!s}".format(path, exc))
+                        print(f"{path!r}: {exc!s}")
                     os.environ["PATH"] = origPath
             elif sys.platform == "darwin":
                 # if darwinFile is None, create a temporary DarwinFile object
@@ -433,7 +433,7 @@ class Freezer(object):
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
                     return []
-                command = "ldd {!r}".format(path)
+                command = f"ldd {path!r}"
                 splitString = " => "
                 dependentFileIndex = 1
                 for line in os.popen(command):
@@ -503,14 +503,14 @@ class Freezer(object):
 
     def _PrintReport(self, fileName, modules):
         print("writing zip file %s\n" % fileName)
-        print("  %-25s %s" % ("Name", "File"))
-        print("  %-25s %s" % ("----", "----"))
+        print("  {:<25} {}".format("Name", "File"))
+        print("  {:<25} {}".format("----", "----"))
         for module in modules:
             if module.path:
                 print("P", end="")
             else:
                 print("m", end="")
-            print(" %-25s %s\n" % (module.name, module.file or ""))
+            print(" {:<25} {}\n".format(module.name, module.file or ""))
 
     def _RemoveFile(self, path):
         if os.path.exists(path):
@@ -834,7 +834,7 @@ class ConfigError(Exception):
         return self.what
 
 
-class Executable(object):
+class Executable:
     def __init__(
         self,
         script,
@@ -879,16 +879,16 @@ class Executable(object):
         ext = ".exe" if sys.platform == "win32" else ""
         self.base = get_resource_file_path("bases", name, ext)
         if self.base is None:
-            raise ConfigError("no base named {}".format(name))
+            raise ConfigError(f"no base named {name}")
 
     def _GetInitScriptFileName(self):
         name = self.initScript
         self.initScript = get_resource_file_path("initscripts", name, ".py")
         if self.initScript is None:
-            raise ConfigError("no initscript named {}".format(name))
+            raise ConfigError(f"no initscript named {name}")
 
 
-class ConstantsModule(object):
+class ConstantsModule:
     def __init__(
         self,
         release_string: Optional[str] = None,
@@ -943,13 +943,13 @@ class ConstantsModule(object):
         names.sort()
         for name in names:
             value = self.values[name]
-            source_parts.append("%s = %r" % (name, value))
+            source_parts.append(f"{name} = {value!r}")
         source = "\n".join(source_parts)
         module.code = compile(source, "%s.py" % self.module_name, "exec")
         return module
 
 
-class VersionInfo(object):
+class VersionInfo:
     def __init__(
         self,
         version,

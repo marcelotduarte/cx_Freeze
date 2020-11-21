@@ -1,8 +1,4 @@
-try:
-    from unittest import mock  # Python >= 3.3
-except ImportError:
-    import mock
-
+from unittest import mock
 import os.path
 import sys
 

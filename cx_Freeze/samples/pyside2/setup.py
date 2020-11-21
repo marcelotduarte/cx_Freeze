@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A simple setup script to create an executable using PySide2. This also
 # demonstrates how to use include_files, zip_include_packages and excludes
 # to get minimal package size

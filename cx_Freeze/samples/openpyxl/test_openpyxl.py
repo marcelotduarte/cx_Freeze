@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # NOTE: this code is the sample code found in the openpyxl documentation which
 # can be found at https://openpyxl.readthedocs.io/en/default.

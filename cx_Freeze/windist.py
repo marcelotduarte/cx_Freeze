@@ -131,7 +131,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             for k in self.summary_data:
                 if k not in ["author", "comments", "keywords"]:
                     raise Exception(
-                        'Unknown key provided in summary-data: "{}"'.format(k)
+                        f"Unknown key provided in summary-data: {k!r}"
                     )
 
             summaryInfo = self.db.GetSummaryInformation(5)
@@ -301,7 +301,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                         dir,
                         file,
                         file,
-                        "%s|%s" % (dir.make_short(file), file),
+                        "{}|{}".format(dir.make_short(file), file),
                     )
                     todo.append(newDir)
                 else:
@@ -753,14 +753,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 programFilesFolder = "ProgramFiles64Folder"
             else:
                 programFilesFolder = "ProgramFilesFolder"
-            self.initial_target_dir = r"[%s]\%s" % (programFilesFolder, name)
+            self.initial_target_dir = fr"[{programFilesFolder}]\{name}"
         if self.add_to_path is None:
             self.add_to_path = False
         if self.target_name is None:
             self.target_name = fullname
         if not self.target_name.lower().endswith(".msi"):
             platform = distutils.util.get_platform().replace("win-", "")
-            self.target_name = "%s-%s.msi" % (self.target_name, platform)
+            self.target_name = f"{self.target_name}-{platform}.msi"
         if not os.path.isabs(self.target_name):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
         if self.directories is None:
