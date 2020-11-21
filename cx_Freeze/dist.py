@@ -10,6 +10,7 @@ import distutils.util
 import distutils.version
 import os
 import sys
+import warnings
 
 import cx_Freeze
 from cx_Freeze.common import normalize_to_list
@@ -79,11 +80,7 @@ class build_exe(distutils.core.Command):
         ("excludes=", "e", "comma-separated list of modules to exclude"),
         ("includes=", "i", "comma-separated list of modules to include"),
         ("packages=", "p", "comma-separated list of packages to include"),
-        (
-            "namespace-packages=",
-            None,
-            "comma-separated list of namespace packages to include",
-        ),
+        ("namespace-packages=", None, "[DEPRECATED]"),
         (
             "replace-paths=",
             None,
@@ -230,6 +227,10 @@ class build_exe(distutils.core.Command):
         constants_module = cx_Freeze.ConstantsModule(
             metadata.version, constants=self.constants
         )
+        if self.namespace_packages:
+            warnings.warn(
+                "namespace-packages is obsolete and will be removed in the next version"
+            )
         freezer = cx_Freeze.Freezer(
             self.distribution.executables,
             constants_module,
@@ -247,7 +248,6 @@ class build_exe(distutils.core.Command):
             binExcludes=self.bin_excludes,
             zipIncludes=self.zip_includes,
             silent=self.silent,
-            namespacePackages=self.namespace_packages,
             binPathIncludes=self.bin_path_includes,
             binPathExcludes=self.bin_path_excludes,
             metadata=metadata,
