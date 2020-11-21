@@ -2,9 +2,8 @@
 Base class for freezing scripts into executables.
 """
 
-from __future__ import print_function
-
 import datetime
+from distutils.dist import DistributionMetadata
 import distutils.sysconfig
 from importlib.util import MAGIC_NUMBER
 from keyword import iskeyword
@@ -78,61 +77,56 @@ def get_resource_file_path(dirName, name, ext):
 class Freezer(object):
     def __init__(
         self,
-        executables,
-        constantsModule=None,
-        includes=[],
-        excludes=[],
-        packages=[],
-        replacePaths=[],
-        compress=True,
-        optimizeFlag=0,
-        path=None,
-        targetDir=None,
-        binIncludes=[],
-        binExcludes=[],
-        binPathIncludes=[],
-        binPathExcludes=[],
-        includeFiles=[],
-        zipIncludes=[],
-        silent=False,
+        executables: List["Executable"],
+        constantsModule: Optional["ConstantsModule"] = None,
+        includes: Optional[List[str]] = None,
+        excludes: Optional[List[str]] = None,
+        packages: Optional[List[str]] = None,
+        replacePaths: Optional[List] = None,
+        compress: bool = True,
+        optimizeFlag: int = 0,
+        path: Optional[List[str]] = None,
+        targetDir: Optional[str] = None,
+        binIncludes: Optional[List] = None,
+        binExcludes: Optional[List] = None,
+        binPathIncludes: Optional[List] = None,
+        binPathExcludes: Optional[List] = None,
+        includeFiles: Optional[List] = None,
+        zipIncludes: Optional[List] = None,
+        silent: bool = False,
         namespacePackages=[],
-        metadata=None,
-        includeMSVCR=False,
-        zipIncludePackages=[],
-        zipExcludePackages=["*"],
+        metadata: Optional[DistributionMetadata] = None,
+        includeMSVCR: bool = False,
+        zipIncludePackages: Optional[List[str]] = None,
+        zipExcludePackages: Optional[List[str]] = ["*"],
     ):
         self.executables = list(executables)
-        if constantsModule is None:
-            constantsModule = ConstantsModule()
-        self.constantsModule = constantsModule
-        self.includes = list(includes)
-        self.excludes = list(excludes)
-        self.packages = set(list(packages) + list(namespacePackages))
-        self.replacePaths = list(replacePaths)
+        self.constantsModule = constantsModule or ConstantsModule()
+        self.includes = list(includes or [])
+        self.excludes = list(excludes or [])
+        self.packages = set(list(packages or []) + list(namespacePackages))
+        self.replacePaths = list(replacePaths or [])
         self.compress = compress
         self.optimizeFlag = optimizeFlag
         self.path = path
         self.includeMSVCR = includeMSVCR
         self.targetDir = targetDir
-        self.binIncludes = [
-            os.path.normcase(n)
-            for n in self._GetDefaultBinIncludes() + binIncludes
-        ]
-        self.binExcludes = [
-            os.path.normcase(n)
-            for n in self._GetDefaultBinExcludes() + binExcludes
-        ]
+        binIncludes = self._GetDefaultBinIncludes() + list(binIncludes or [])
+        self.binIncludes = [os.path.normcase(n) for n in binIncludes]
+        binExcludes = self._GetDefaultBinExcludes() + list(binExcludes or [])
+        self.binExcludes = [os.path.normcase(n) for n in binExcludes]
+        binPathIncludes = binPathIncludes or []
         self.binPathIncludes = [os.path.normcase(n) for n in binPathIncludes]
-        self.binPathExcludes = [
-            os.path.normcase(n)
-            for n in self._GetDefaultBinPathExcludes() + binPathExcludes
-        ]
+        binPathExcludes = self._GetDefaultBinPathExcludes() + list(
+            binPathExcludes or []
+        )
+        self.binPathExcludes = [os.path.normcase(n) for n in binPathExcludes]
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
         self.metadata = metadata
-        self.zipIncludePackages = list(zipIncludePackages)
-        self.zipExcludePackages = list(zipExcludePackages)
+        self.zipIncludePackages = list(zipIncludePackages or [])
+        self.zipExcludePackages = list(zipExcludePackages or [])
         self._VerifyConfiguration()
 
     def _AddVersionResource(self, exe):
@@ -898,32 +892,33 @@ class Executable(object):
 class ConstantsModule(object):
     def __init__(
         self,
-        releaseString=None,
-        copyright=None,
-        moduleName="BUILD_CONSTANTS",
-        timeFormat="%B %d, %Y %H:%M:%S",
-        constants=[],
+        releaseString: Optional[str] = None,
+        copyright: Optional[str] = None,
+        moduleName: str = "BUILD_CONSTANTS",
+        timeFormat: str = "%B %d, %Y %H:%M:%S",
+        constants: Optional[List] = None,
     ):
         self.moduleName = moduleName
         self.timeFormat = timeFormat
         self.values = {}
         self.values["BUILD_RELEASE_STRING"] = releaseString
         self.values["BUILD_COPYRIGHT"] = copyright
-        for constant in constants:
-            parts = constant.split("=", maxsplit=1)
-            if len(parts) == 1:
-                name = constant
-                value = None
-            else:
-                name, stringValue = parts
-                value = eval(stringValue)
-            if (not name.isidentifier()) or iskeyword(name):
-                raise ConfigError(
-                    "Invalid constant name in ConstantsModule ({!r})".format(
-                        name
+        if constants:
+            for constant in constants:
+                parts = constant.split("=", maxsplit=1)
+                if len(parts) == 1:
+                    name = constant
+                    value = None
+                else:
+                    name, stringValue = parts
+                    value = eval(stringValue)
+                if (not name.isidentifier()) or iskeyword(name):
+                    raise ConfigError(
+                        "Invalid constant name in ConstantsModule ({!r})".format(
+                            name
+                        )
                     )
-                )
-            self.values[name] = value
+                self.values[name] = value
 
     def Create(self, finder):
         """Create the module which consists of declaration statements for each
