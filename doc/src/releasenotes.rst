@@ -4,14 +4,23 @@ Release notes
 6.x releases
 ############
 
-#) Highlights of Version 6.2 and 6.3:
-	- Initial support for metadata to use by pkg_resources and importlib.metadata
-	- Namespace packages are automatically detected
-	- Enhanced support for Python 3.8
-	- Better support for MSYS2
-	- More integrated to setuptools
-	- Fixed long-awaited bugs and recent bugs
-	- Fixed issues with multiprocessing (see Windows section of 6.2)
+Version 6.4 (November 2020)
+---------------------------
+
+#)  Improvements:
+	- Improved the resolution of dependencies in darwin MachO files (:pull:`590`)
+	- Documentation (:pull:`783`, :pull:`796``)
+	- Release using GitHub Actions CI/CD workflows (:pull:`797`)
+	- Modernize code (Type annotation, PEP8, pyupgrade, black, refactor, cleanup) (:pull:`785`, :pull:`776`, :pull:`314`, :pull:`787`, :pull:`784`, :pull:`786`, :pull:`788`, :pull:`789`, :pull:`793`, :pull:`794`, :pull:`780`, :pull:`795`, :pull:`799`, :pull:`800`, :pull:`801`, :pull:`790`, :pull:`798`)
+#)  New or improved hooks for:
+	- PyQt5 (:pull:`718`, :pull:`791`)
+#)  Samples:
+	- Added a sample to illustrate problem with importlib.util.find_spec (:pull:`735`)
+	- Sample for bdist_msi, summary_data option (:pull:`775`)
+	- README for some samples; remove requirements.txt to avoid to be interpreted by some sites as the requirements of cx_Freeze (:pull:`802`)
+#)  Bugfixes:
+	- Cause MSI file to be released at the end of bdist_msi command. (:pull:`781`)
+
 
 Version 6.3 (October 2020)
 --------------------------
@@ -43,7 +52,7 @@ Version 6.3 (October 2020)
 	- Add pandas sample (:pull:`709`)
 	- Added sample code to show the use of ConstantsModule / BUILD_CONSTANTS (:pull:`729`)
 #)  Bugfixes:
-	- Ensure the copy of default python libraries in all platforms (:pull:`706, :issue:`701`)
+	- Ensure the copy of default python libraries in all platforms (:pull:`706`, :issue:`701`)
 	- Remove warning 'Distutils was imported before Setuptools' (:pull:`694`, :issue:`693`)
 	- Fix the use of compress and desambiguate the use of stat (:pull:`738`)
 	- Small fix to handle a build constant that includes a "=" symbol. (:pull:`728`)
