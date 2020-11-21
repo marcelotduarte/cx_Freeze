@@ -892,17 +892,17 @@ class Executable(object):
 class ConstantsModule(object):
     def __init__(
         self,
-        releaseString: Optional[str] = None,
-        copyright: Optional[str] = None,
-        moduleName: str = "BUILD_CONSTANTS",
-        timeFormat: str = "%B %d, %Y %H:%M:%S",
-        constants: Optional[List] = None,
+        release_string: Optional[str] = None,
+        copyright_string: Optional[str] = None,
+        module_name: str = "BUILD_CONSTANTS",
+        time_format: str = "%B %d, %Y %H:%M:%S",
+        constants: Optional[List[str]] = None,
     ):
-        self.moduleName = moduleName
-        self.timeFormat = timeFormat
+        self.module_name = module_name
+        self.time_format = time_format
         self.values = {}
-        self.values["BUILD_RELEASE_STRING"] = releaseString
-        self.values["BUILD_COPYRIGHT"] = copyright
+        self.values["BUILD_RELEASE_STRING"] = release_string
+        self.values["BUILD_COPYRIGHT"] = copyright_string
         if constants:
             for constant in constants:
                 parts = constant.split("=", maxsplit=1)
@@ -910,13 +910,11 @@ class ConstantsModule(object):
                     name = constant
                     value = None
                 else:
-                    name, stringValue = parts
-                    value = eval(stringValue)
+                    name, string_value = parts
+                    value = eval(string_value)
                 if (not name.isidentifier()) or iskeyword(name):
                     raise ConfigError(
-                        "Invalid constant name in ConstantsModule ({!r})".format(
-                            name
-                        )
+                        f"Invalid constant name in ConstantsModule ({name!r})"
                     )
                 self.values[name] = value
 
@@ -924,7 +922,7 @@ class ConstantsModule(object):
         """Create the module which consists of declaration statements for each
         of the values."""
         today = datetime.datetime.today()
-        sourceTimestamp = 0
+        source_timestamp = 0
         for module in finder.modules:
             if module.file is None:
                 continue
@@ -932,27 +930,23 @@ class ConstantsModule(object):
                 continue
             if not os.path.exists(module.file):
                 raise ConfigError(
-                    "no file named {} (for module {})".format(
-                        module.file, module.name
-                    )
+                    f"No file named {module.file} (for module {module.name})"
                 )
             timestamp = os.stat(module.file).st_mtime
-            sourceTimestamp = max(sourceTimestamp, timestamp)
-        sourceTimestamp = datetime.datetime.fromtimestamp(sourceTimestamp)
-        self.values["BUILD_TIMESTAMP"] = today.strftime(self.timeFormat)
+            source_timestamp = max(source_timestamp, timestamp)
+        stamp = datetime.datetime.fromtimestamp(source_timestamp)
+        self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
-        self.values["SOURCE_TIMESTAMP"] = sourceTimestamp.strftime(
-            self.timeFormat
-        )
-        module = finder._AddModule(self.moduleName)
-        sourceParts = []
+        self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
+        module = finder._AddModule(self.module_name)
+        source_parts = []
         names = list(self.values.keys())
         names.sort()
         for name in names:
             value = self.values[name]
-            sourceParts.append("%s = %r" % (name, value))
-        source = "\n".join(sourceParts)
-        module.code = compile(source, "%s.py" % self.moduleName, "exec")
+            source_parts.append("%s = %r" % (name, value))
+        source = "\n".join(source_parts)
+        module.code = compile(source, "%s.py" % self.module_name, "exec")
         return module
 
 
