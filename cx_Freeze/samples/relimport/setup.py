@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # relimport.py is a very simple script that tests importing using relative
 # imports (available in Python 2.5 and up)
 #

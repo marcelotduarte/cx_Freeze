@@ -8,7 +8,7 @@ are called.
 import threading
 
 
-class Handler(object):
+class Handler:
 
     # no parameters are permitted; all configuration should be placed in the
     # configuration file and handled in the Initialize() method

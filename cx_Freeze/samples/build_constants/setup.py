@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A very simple setup script to create a single executable, and test the BUILD_CONSTANTS functionality.
 #
 # hello.py is a very simple 'Hello, world' type script which also displays certains constants stored in

@@ -12,7 +12,7 @@ except ImportError:
     print("Please install a cx-freeze package to test", file=sys.stderr)
     sys.exit(-1)
 
-program = "{} getdependentfiles.py".format(sys.executable)
+program = f"{sys.executable} getdependentfiles.py"
 dlls = os.path.join(sys.base_prefix, "DLLs")
 scripts = os.path.join(sys.base_prefix, "Scripts")
 cx_Freeze_dir = os.path.dirname(cx_Freeze.__file__)

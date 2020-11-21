@@ -36,7 +36,7 @@ def _getInclude(pluginPath: str) -> Tuple[str, str]:
             break
         pass
     if foundPath is None:
-        print("Error, could not find: {}".format(pluginPath))
+        print(f"Error, could not find: {pluginPath}")
         sys.exit(1)
 
     return (foundPath, pluginPath)

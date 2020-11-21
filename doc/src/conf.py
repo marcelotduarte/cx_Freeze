@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # cx_Freeze documentation build configuration file, created by
 # sphinx-quickstart on Wed Feb  1 22:01:33 2012.

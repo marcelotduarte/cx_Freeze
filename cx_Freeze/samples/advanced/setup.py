@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # An advanced setup script to create multiple executables and demonstrate a few
 # of the features available to setup scripts
 #

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A very simple setup script to test adding summary data stream to an MSI file.
 #
 # hello.py is a very simple 'Hello, world' type script which also displays the

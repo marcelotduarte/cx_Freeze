@@ -38,7 +38,7 @@ STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 __all__ = ["Module", "ModuleFinder"]
 
 
-class ZipModulesCache(object):
+class ZipModulesCache:
     """A cache of module and package locations within zip files."""
 
     def __init__(self):
@@ -135,7 +135,7 @@ class ZipModulesCache(object):
             )
 
 
-class ModuleFinder(object):
+class ModuleFinder:
     def __init__(
         self,
         include_files=None,
@@ -238,7 +238,7 @@ class ModuleFinder(object):
             for name in fromList:
                 if name in packageModule.global_names:
                     continue
-                subModuleName = "%s.%s" % (packageModule.name, name)
+                subModuleName = f"{packageModule.name}.{name}"
                 self._ImportModule(subModuleName, deferredImports, caller)
 
     def _FindModule(self, name, path):
@@ -301,7 +301,7 @@ class ModuleFinder(object):
                     if name == "__init__":
                         continue
 
-                subModuleName = "%s.%s" % (module.name, name)
+                subModuleName = f"{module.name}.{name}"
                 subModule = self._InternalImportModule(
                     subModuleName, deferredImports
                 )
@@ -345,7 +345,7 @@ class ModuleFinder(object):
         elif relativeImportIndex < 0:
             parent = self._DetermineParent(caller)
             if parent is not None:
-                fullName = "%s.%s" % (parent.name, name)
+                fullName = f"{parent.name}.{name}"
                 module = self._InternalImportModule(fullName, deferredImports)
                 if module is not None:
                     parent.global_names.add(name)
@@ -368,7 +368,7 @@ class ModuleFinder(object):
             elif not name:
                 module = parent
             else:
-                name = "%s.%s" % (parent.name, name)
+                name = f"{parent.name}.{name}"
                 module = self._InternalImportModule(name, deferredImports)
 
         # if module not found, track that fact
@@ -460,7 +460,7 @@ class ModuleFinder(object):
             if not fp:
                 with open(path, "rb") as f:
                     encoding = tokenize.detect_encoding(f.readline)[0]
-                fp = open(path, "r", encoding=encoding)
+                fp = open(path, encoding=encoding)
             codeString = fp.read()
             if codeString and codeString[-1] != "\n":
                 codeString = codeString + "\n"
@@ -586,7 +586,7 @@ class ModuleFinder(object):
 
     def _RunHook(self, hookName, moduleName, *args):
         """Run hook for the given module if one is present."""
-        name = "%s_%s" % (hookName, moduleName.replace(".", "_"))
+        name = "{}_{}".format(hookName, moduleName.replace(".", "_"))
         method = getattr(cx_Freeze.hooks, name, None)
         if method is not None:
             method(self, *args)
@@ -712,7 +712,7 @@ class ModuleFinder(object):
             for name in names:
                 callers = list(self._bad_modules[name].keys())
                 callers.sort()
-                print("? %s imported from %s" % (name, ", ".join(callers)))
+                print("? {} imported from {}".format(name, ", ".join(callers)))
             print(
                 "This is not necessarily a problem - the modules "
                 "may not be needed on this platform.\n"
@@ -733,7 +733,7 @@ class ModuleFinder(object):
         self.zip_includes.append((sourcePath, targetPath))
 
 
-class Module(object):
+class Module:
     def __init__(self, name, path=None, file_name=None, parent=None):
         self.name = name
         self.file = file_name

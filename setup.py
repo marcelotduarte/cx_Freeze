@@ -105,7 +105,9 @@ def find_cx_Logging():
             pass
     if not os.path.exists(loggingDir):
         return
-    subDir = "implib.%s-%s" % (distutils.util.get_platform(), sys.version[:3])
+    subDir = "implib.{}-{}".format(
+        distutils.util.get_platform(), sys.version[:3]
+    )
     importLibraryDir = os.path.join(loggingDir, "build", subDir)
     includeDir = os.path.join(loggingDir, "src")
     if not os.path.exists(importLibraryDir):

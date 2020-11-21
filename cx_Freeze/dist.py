@@ -60,7 +60,7 @@ class build(distutils.command.build.build):
     def finalize_options(self):
         distutils.command.build.build.finalize_options(self)
         if self.build_exe is None:
-            dir_name = "exe.%s-%s" % (
+            dir_name = "exe.{}-{}".format(
                 distutils.util.get_platform(),
                 sys.version[0:3],
             )
@@ -301,7 +301,7 @@ class install(distutils.command.install.install):
             )
             prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
             metadata = self.distribution.metadata
-            self.prefix = "%s/%s" % (prefix, metadata.name)
+            self.prefix = f"{prefix}/{metadata.name}"
         distutils.command.install.install.finalize_options(self)
         self.convert_paths("exe")
         if self.root is not None:
@@ -314,7 +314,7 @@ class install(distutils.command.install.install):
                 self.install_exe = "$base"
             else:
                 metadata = self.distribution.metadata
-                dir_name = "%s-%s" % (metadata.name, metadata.version)
+                dir_name = f"{metadata.name}-{metadata.version}"
                 self.install_exe = "$base/lib/%s" % dir_name
 
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A setup script to demonstrate the use of complex importlib machinery at work
 #
 # Each of these samples (server_simple.py, web_srv.py and wsgiserver.py) are

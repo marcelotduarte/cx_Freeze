@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from datetime import datetime
 import sys
@@ -11,17 +10,17 @@ print(
     )
 )
 
-print("Executable: {}".format(sys.executable))
-print("Prefix: {}".format(sys.prefix))
-print("Default encoding: {}".format(sys.getdefaultencoding()))
-print("File system encoding: {}\n".format(sys.getfilesystemencoding()))
+print(f"Executable: {sys.executable}")
+print(f"Prefix: {sys.prefix}")
+print(f"Default encoding: {sys.getdefaultencoding()}")
+print(f"File system encoding: {sys.getfilesystemencoding()}\n")
 
 print("ARGUMENTS:")
 for a in sys.argv:
-    print("{}".format(a))
+    print(f"{a}")
 print("")
 
 print("PATH:")
 for p in sys.path:
-    print("{}".format(p))
+    print(f"{p}")
 print()
