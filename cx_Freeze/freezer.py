@@ -94,7 +94,6 @@ class Freezer(object):
         includeFiles: Optional[List] = None,
         zipIncludes: Optional[List] = None,
         silent: bool = False,
-        namespacePackages=[],
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
@@ -104,7 +103,7 @@ class Freezer(object):
         self.constantsModule = constantsModule or ConstantsModule()
         self.includes = list(includes or [])
         self.excludes = list(excludes or [])
-        self.packages = set(list(packages or []) + list(namespacePackages))
+        self.packages = set(list(packages or []))
         self.replacePaths = list(replacePaths or [])
         self.compress = compress
         self.optimizeFlag = optimizeFlag
