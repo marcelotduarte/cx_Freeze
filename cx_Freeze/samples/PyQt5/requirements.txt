@@ -1,2 +1,0 @@
-cx-freeze
-pyqt5
