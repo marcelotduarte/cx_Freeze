@@ -10,8 +10,8 @@ import sys
 
 WIN32 = sys.platform == "win32"
 
-if sys.version_info < (3, 5, 2):
-    sys.exit("Python3 versions lower than 3.5.2 are not supported.")
+if sys.version_info < (3, 6, 0):
+    sys.exit("Python3 versions lower than 3.6.0 are not supported.")
 
 
 class build_ext(distutils.command.build_ext.build_ext):
