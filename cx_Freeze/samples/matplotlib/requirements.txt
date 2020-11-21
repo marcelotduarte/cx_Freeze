@@ -1,2 +1,0 @@
-matplotlib
-wxpython < 4.1
