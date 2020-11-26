@@ -533,6 +533,7 @@ def _get_data_path():
                 break
         module.code = rebuild_code_object(co, constants=constants)
     finder.ExcludeModule("matplotlib.tests")
+    finder.IncludePackage("matplotlib")
 
 
 def load_numpy(finder, module):
