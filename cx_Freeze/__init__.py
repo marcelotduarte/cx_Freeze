@@ -16,5 +16,10 @@ elif sys.platform == "darwin":
 from cx_Freeze.finder import Module, ModuleFinder
 from cx_Freeze.freezer import ConfigError, ConstantsModule, Executable, Freezer
 
-__version__ = "6.2"
+try:
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    import importlib_metadata
+
+__version__ = importlib_metadata.version("cx_Freeze")
 version = __version__

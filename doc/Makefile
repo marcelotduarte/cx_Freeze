@@ -7,6 +7,7 @@ BUILDDIR      = build
 
 .PHONY: html
 html:
+	pip install -U sphinx
 	@$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: epub
@@ -16,6 +17,10 @@ epub:
 .PHONY: pdf
 pdf:
 	@$(SPHINXBUILD) -M latexpdf $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
+
+.PHONY: test
+test:
+	firefox build/html/index.html &
 
 .PHONY: clean
 clean:
