@@ -1,4 +1,3 @@
-import imp
 import os
 import shutil
 import tempfile
@@ -7,7 +6,7 @@ import zipfile
 test_dir = os.path.dirname(__file__)
 samples_dir = os.path.join(test_dir, "samples")
 
-from cx_Freeze.finder import ZipModulesCache, ModuleFinder, Module
+from cx_Freeze.finder import ModuleFinder, Module
 
 
 def clean_pyc_files():
@@ -29,27 +28,6 @@ def prepare_zip_file():
     eggzip.writepy(os.path.join(samples_dir, "testpkg1"))
     eggzip.close()
     return egg
-
-
-def test_ZipModulesCache():
-    egg = prepare_zip_file()
-    try:
-        zmc = ZipModulesCache()
-
-        mod = zmc.find(egg, "testmod1")
-        assert mod is not None
-        assert mod[2][2] == imp.PY_COMPILED
-
-        pkg = zmc.find(egg, "testpkg1")
-        assert pkg is not None
-        assert pkg[2][2] == imp.PKG_DIRECTORY
-
-        # This needs to be called after zmc.find(egg, *)
-        submod = zmc.find(os.path.join(egg, "testpkg1"), "submod")
-        assert submod is not None
-        assert submod[2][2] == imp.PY_COMPILED
-    finally:
-        os.unlink(egg)
 
 
 def test_FindModule_from_zip():
