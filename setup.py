@@ -64,7 +64,10 @@ class build_ext(distutils.command.build_ext.build_ext):
                 extraArgs.extend(get_config_var("BASEMODLIBS").split())
             if get_config_var("LOCALMODLIBS"):
                 extraArgs.extend(get_config_var("LOCALMODLIBS").split())
-            extraArgs.append("-s")
+            if sys.platform == "darwin":
+                extraArgs.extend(["-flto", "-Wl,-export_dynamic"])
+            else:
+                extraArgs.append("-s")
         self.compiler.link_executable(
             objects,
             fullName,
