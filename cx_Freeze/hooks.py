@@ -263,6 +263,11 @@ def load_clr(finder, module):
     )
 
 
+def load_cryptography_hazmat_bindings__openssl(finder, module):
+    """the cryptography module requires the cffi module"""
+    finder.IncludeModule("cffi")
+
+
 def load_cryptography_hazmat_bindings__padding(finder, module):
     """the cryptography module requires the _cffi_backend module (loaded implicitly)"""
     finder.IncludeModule("_cffi_backend")
