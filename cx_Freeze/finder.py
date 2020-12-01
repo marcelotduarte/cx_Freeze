@@ -549,10 +549,11 @@ class ModuleFinder:
                 return
             # The bytecode/wordcode
             codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
-            asm_code = bytes(codes)
-            new_code = asm_code + co.co_code
+            codestring = bytes(codes) + co.co_code
             constants.append(module.parent.name)
-            code = rebuild_code_object(co, code=new_code, constants=constants)
+            code = rebuild_code_object(
+                co, codestring=codestring, constants=constants
+            )
             module.code = code
 
     def _ReplacePathsInCode(self, topLevelModule, co):

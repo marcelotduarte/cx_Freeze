@@ -8,13 +8,33 @@ from cx_Freeze.dist import (
     install_exe,
     setup,
 )
+from cx_Freeze.common import ConfigError
+from cx_Freeze.finder import Module, ModuleFinder
+from cx_Freeze.freezer import ConstantsModule, Executable, Freezer
+
+__all__ = [
+    "bdist_rpm",
+    "build",
+    "build_exe",
+    "install",
+    "install_exe",
+    "setup",
+    "ConfigError",
+    "ConstantsModule",
+    "Executable",
+    "Freezer",
+    "Module",
+    "ModuleFinder",
+]
 
 if sys.platform == "win32":
     from cx_Freeze.windist import bdist_msi
+
+    __all__.append("bdist_msi")
 elif sys.platform == "darwin":
     from cx_Freeze.macdist import bdist_dmg, bdist_mac
-from cx_Freeze.finder import Module, ModuleFinder
-from cx_Freeze.freezer import ConfigError, ConstantsModule, Executable, Freezer
+
+    __all__.extend(["bdist_dmg", "bdist_mac"])
 
 try:
     import importlib.metadata as importlib_metadata
@@ -23,3 +43,4 @@ except ImportError:
 
 __version__ = importlib_metadata.version("cx_Freeze")
 version = __version__
+__all__.extend(["__version__", "version"])
