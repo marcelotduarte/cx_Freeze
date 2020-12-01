@@ -1,7 +1,6 @@
-from distutils.core import Command, DistutilsFileError
+from distutils.core import Command
 import os
 import plistlib
-import stat
 import subprocess
 
 from cx_Freeze.common import normalize_to_list
@@ -183,7 +182,8 @@ class bdist_mac(Command):
         """Create the Contents/Info.plist file"""
         # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
-            contents = plistlib.readPlist(self.custom_info_plist)
+            with open(self.custom_info_plist, "rb") as fp:
+                contents = plistlib.load(fp, fmt=None, use_builtin_types=False)
         else:
             contents = {
                 "CFBundleIconFile": "icon.icns",
@@ -194,9 +194,8 @@ class bdist_mac(Command):
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
 
-        plist = open(os.path.join(self.contentsDir, "Info.plist"), "wb")
-        plistlib.writePlist(contents, plist)
-        plist.close()
+        with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as fp:
+            plistlib.dump(contents, fp)
 
     def setAbsoluteReferencePaths(self, path=None):
         """
