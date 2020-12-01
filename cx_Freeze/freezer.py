@@ -19,59 +19,14 @@ import time
 from typing import Any, Dict, List, Optional
 import zipfile
 
-import cx_Freeze
-from cx_Freeze.darwintools import DarwinFile, MachOReference, DarwinFileTracker
+from .common import ConfigError, get_resource_file_path, process_path_specs
+from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
+from .finder import ModuleFinder
+
+if sys.platform == "win32":
+    import cx_Freeze.util
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
-
-
-def process_path_specs(specs):
-    """Prepare paths specified as config.
-
-    The input is a list of either strings, or 2-tuples (source, target).
-    Where single strings are supplied, the basenames are used as targets.
-    Where targets are given explicitly, they must not be absolute paths.
-
-    Returns a list of 2-tuples, or throws ConfigError if something is wrong
-    in the input.
-    """
-    processedSpecs = []
-    for spec in specs:
-        if not isinstance(spec, (list, tuple)):
-            source = spec
-            target = None
-        elif len(spec) != 2:
-            raise ConfigError(
-                "path spec must be a list or tuple of length two"
-            )
-        else:
-            source, target = spec
-        source = os.path.normpath(source)
-        if not target:
-            target = os.path.basename(source)
-        elif os.path.isabs(target):
-            raise ConfigError(
-                "target path for include file may not be an absolute path"
-            )
-        processedSpecs.append((source, target))
-    return processedSpecs
-
-
-def get_resource_file_path(dirName, name, ext):
-    """Return the path to a resource file shipped with cx_Freeze.
-
-    This is used to find our base executables and initscripts when they are
-    just specified by name.
-    """
-    if os.path.isabs(name):
-        return name
-    name = os.path.normcase(name)
-    fullDir = os.path.join(os.path.dirname(cx_Freeze.__file__), dirName)
-    if os.path.isdir(fullDir):
-        for fileName in os.listdir(fullDir):
-            checkName, checkExt = os.path.splitext(os.path.normcase(fileName))
-            if name == checkName and ext == checkExt:
-                return os.path.join(fullDir, fileName)
 
 
 class Freezer:
@@ -327,8 +282,6 @@ class Freezer:
         # Copy icon
         if exe.icon is not None:
             if sys.platform == "win32":
-                import cx_Freeze.util
-
                 cx_Freeze.util.AddIcon(exe.targetName, exe.icon)
             else:
                 targetName = os.path.join(
@@ -375,8 +328,6 @@ class Freezer:
         be included, generally because they contain standard system
         libraries."""
         if sys.platform == "win32":
-            import cx_Freeze.util
-
             systemDir = cx_Freeze.util.GetSystemDir()
             windowsDir = cx_Freeze.util.GetWindowsDir()
             return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
@@ -468,7 +419,7 @@ class Freezer:
     def _GetModuleFinder(self, argsSource=None):
         if argsSource is None:
             argsSource = self
-        finder = cx_Freeze.ModuleFinder(
+        finder = ModuleFinder(
             self.includeFiles,
             self.excludes,
             self.path,
@@ -823,15 +774,6 @@ class Freezer:
         if sys.platform == "darwin":
             self.darwinTracker.finalizeReferences()
         return
-
-
-class ConfigError(Exception):
-    def __init__(self, msg):
-        self.what = msg
-        super().__init__()
-
-    def __str__(self):
-        return self.what
 
 
 class Executable:
