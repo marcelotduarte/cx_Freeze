@@ -25,7 +25,7 @@ def _isMachOFile(path: str) -> bool:
     if not os.path.isfile(path):
         return False
     p = subprocess.Popen(("file", path), stdout=subprocess.PIPE)
-    if "Mach-O" in p.stdout.readline().decode():
+    if b"Mach-O" in p.stdout.readline():
         return True
     return False
 
