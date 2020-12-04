@@ -314,7 +314,7 @@ class ModuleFinder:
         path: Union[str, List[str]],
         deferredImports: List[str],
         parent: Optional["Module"] = None,
-    ) -> "Module":
+    ) -> Optional["Module"]:
         """Load the module, searching the module spec."""
         module: "Module"
         loader: ExecutionLoader
