@@ -316,8 +316,9 @@ class ModuleFinder:
         parent: Optional["Module"] = None,
     ) -> Optional["Module"]:
         """Load the module, searching the module spec."""
-        module: "Module"
+        spec: Optional[importlib.machinery.ModuleSpec]
         loader: ExecutionLoader
+        module: "Module"
 
         if isinstance(path, str):
             # Include file as module
