@@ -459,8 +459,8 @@ def load_glib(finder, module):
 
 
 def load_google_cloud_storage(finder, module):
-    """the google.cloud.storage package always uses _http module."""
-    finder.IncludeModule("google.cloud._http")
+    """the google.cloud.storage package always uses the parent module."""
+    finder.IncludePackage("google.cloud")
 
 
 def load_gtk__gtk(finder, module):
