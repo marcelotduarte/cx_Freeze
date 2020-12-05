@@ -11,6 +11,7 @@ from cx_Freeze.dist import (
 from cx_Freeze.common import ConfigError
 from cx_Freeze.finder import Module, ModuleFinder
 from cx_Freeze.freezer import ConstantsModule, Executable, Freezer
+import importlib_metadata
 
 __all__ = [
     "bdist_rpm",
@@ -35,11 +36,6 @@ elif sys.platform == "darwin":
     from cx_Freeze.macdist import bdist_dmg, bdist_mac
 
     __all__.extend(["bdist_dmg", "bdist_mac"])
-
-try:
-    import importlib.metadata as importlib_metadata
-except ImportError:
-    import importlib_metadata
 
 __version__ = importlib_metadata.version("cx_Freeze")
 version = __version__
