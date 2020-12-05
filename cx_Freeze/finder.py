@@ -16,13 +16,10 @@ import tokenize
 from typing import Dict, Optional
 import zipfile
 
+import importlib_metadata
 from cx_Freeze.common import rebuild_code_object
 import cx_Freeze.hooks
 
-try:
-    import importlib.metadata as importlib_metadata
-except ImportError:
-    import importlib_metadata
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
 INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
@@ -749,7 +746,7 @@ class Module:
         self.store_in_file_system = True
         # distribution files (metadata)
         dist_files = []
-        packages = [name.replace(".", "-")]
+        packages = [name]
         try:
             requires = importlib_metadata.requires(packages[0])
         except importlib_metadata.PackageNotFoundError:
