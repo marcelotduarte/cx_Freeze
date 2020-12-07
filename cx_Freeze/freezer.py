@@ -22,6 +22,7 @@ import zipfile
 from .common import ConfigError, get_resource_file_path, process_path_specs
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 from .finder import ModuleFinder
+from .petools import get_pe_dependencies
 
 if sys.platform == "win32":
     import cx_Freeze.util
@@ -364,6 +365,7 @@ class Freezer:
                         print("error during GetDependentFiles() of ", end="")
                         print(f"{path!r}: {exc!s}")
                     os.environ["PATH"] = origPath
+                    dependentFiles.extend(get_pe_dependencies(path))
             elif sys.platform == "darwin":
                 # if darwinFile is None, create a temporary DarwinFile object
                 # for the path, just so we can read its dependencies
