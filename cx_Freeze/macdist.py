@@ -355,7 +355,7 @@ class bdist_mac(Command):
         self.frameworksDir = os.path.join(self.contentsDir, "Frameworks")
 
         # Find the executable name
-        executable = self.distribution.executables[0].targetName
+        executable = self.distribution.executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
 
         # Build the app directory structure
