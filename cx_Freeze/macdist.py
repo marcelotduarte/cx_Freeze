@@ -107,6 +107,12 @@ class bdist_mac(Command):
             "without the .app extension.",
         ),
         (
+            "plist-items=",
+            None,
+            "A list of key-value pairs (type: List[Tuple[str,str]]) to "
+            "be added to the app bundle Info.plist file."
+        ),
+        (
             "custom-info-plist=",
             None,
             "File to be used as the Info.plist in "
@@ -165,6 +171,7 @@ class bdist_mac(Command):
         self.iconfile = None
         self.qt_menu_nib = False
         self.bundle_name = self.distribution.get_fullname()
+        self.plist_items = None
         self.custom_info_plist = None
         self.include_frameworks = []
         self.include_resources = []
@@ -177,6 +184,15 @@ class bdist_mac(Command):
 
     def finalize_options(self):
         self.include_frameworks = normalize_to_list(self.include_frameworks)
+        if self.plist_items is None: self.plist_items = []
+        if not isinstance(self.plist_items, list):
+            raise Exception("plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (was not given a list).")
+        for item in self.plist_items:
+            if not isinstance(item, tuple) or len(item) != 2:
+                raise Exception("Error, plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (bad list item).")
+
+        if not isinstance(self.plist_items, list):
+            self.plist_items = []
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
@@ -193,6 +209,10 @@ class bdist_mac(Command):
 
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
+
+        print(self.plist_items)
+        for key, value in self.plist_items:  # add custom items to the plist file
+            contents[key] = value
 
         with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as fp:
             plistlib.dump(contents, fp)
