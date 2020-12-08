@@ -3,18 +3,13 @@ Base class for finding modules.
 """
 
 import dis
-import imp
-import io
 import importlib.machinery
-import importlib.util
 import logging
 import os
 import sys
 import opcode
-import pkgutil
-import tokenize
-from typing import Dict, Optional
-import zipfile
+from typing import Dict, List, Optional, Union
+from importlib.abc import ExecutionLoader
 
 import importlib_metadata
 from cx_Freeze.common import rebuild_code_object
@@ -33,103 +28,6 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 __all__ = ["Module", "ModuleFinder"]
-
-
-class ZipModulesCache:
-    """A cache of module and package locations within zip files."""
-
-    def __init__(self):
-        # filename -> None (used like a set)
-        self.files_seen = {}
-        # (path, modulename) -> module_details
-        self.loadable_modules = {}
-
-    def find(self, path, modulename):
-        """Find a module in the given path.
-
-        path should be a string referring to a zipfile or a directory in a
-        zip file. If it is outside a zip file, it will be ignored.
-
-        modulename should be a string, with only the last part of the module
-        name, i.e. not containing any dots.
-
-        If the module is found, this returns information in the same format
-        as :func:`imp.find_module`. Otherwise, it returns None.
-        """
-        try:
-            return self.retrieve_loadable_module(path, modulename)
-        except KeyError:
-            pass
-
-        if path in self.files_seen:
-            return None
-
-        # This is a marker that we've seen it, whether or not it's a zip file.
-        self.files_seen[path] = None
-
-        if os.path.isfile(path) and zipfile.is_zipfile(path):
-            self.cache_zip_file(path)
-            try:
-                return self.retrieve_loadable_module(path, modulename)
-            except KeyError:
-                return None
-
-    def retrieve_loadable_module(self, directory, modulename):
-        """Retrieve a module from the cache and translate its info into the
-        format returned by :func:`imp.find_module`.
-
-        Raises KeyError if the module is not present.
-        """
-        zip, ideal_path, actual_path, ispkg = self.loadable_modules[
-            directory, modulename
-        ]
-        # zip: zipfile.ZipFile object
-        # ideal_path: the path to the pkg directory or module .py file
-        # actual path: path to the .pyc file (None for pkg directories)
-        # ispkg: bool, True if this entry refers to a package.
-        full_path = os.path.join(zip.filename, ideal_path)
-        if ispkg:
-            return None, full_path, ("", "", imp.PKG_DIRECTORY)
-        else:
-            fp = zip.read(actual_path)
-            info = (".pyc", "rb", imp.PY_COMPILED)
-            return fp, full_path, info
-
-    def cache_zip_file(self, zip_path):
-        """Read a zip file and cache the modules and packages found inside it."""
-        zip = zipfile.ZipFile(zip_path)
-        for archiveName in zip.namelist():
-            baseName, ext = os.path.splitext(archiveName)
-            if ext not in (".pyc", ".pyo"):
-                continue
-            if "__pycache__" in baseName:
-                if not baseName.endswith(sys.implementation.cache_tag):
-                    continue
-                baseName = os.path.splitext(
-                    importlib.util.source_from_cache(archiveName)
-                )[0]
-            nameparts = baseName.split("/")
-
-            if len(nameparts) > 1 and nameparts[-1] == "__init__":
-                # dir/__init__.pyc  -> dir is a package
-                self.record_loadable_module(nameparts[:-1], None, zip, True)
-
-            self.record_loadable_module(nameparts, archiveName, zip, False)
-
-    def record_loadable_module(self, nameparts, actual_path, zip, ispkg=False):
-        """Cache one module found in the zip file."""
-        parent_dir = os.path.normpath(
-            os.path.join(zip.filename, "/".join(nameparts[:-1]))
-        )
-        modulename = nameparts[-1]
-        ideal_path = "/".join(nameparts) + ("" if ispkg else ".py")
-        if (parent_dir, modulename) not in self.loadable_modules:
-            self.loadable_modules[parent_dir, modulename] = (
-                zip,
-                ideal_path,
-                actual_path,
-                ispkg,
-            )
 
 
 class ModuleFinder:
@@ -163,7 +61,6 @@ class ModuleFinder:
         )  # type: Dict[str, Optional[Module]]
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
-        self._zip_modules_cache = ZipModulesCache()
         cx_Freeze.hooks.initialize(self)
         self._AddBaseModules()
 
@@ -193,9 +90,8 @@ class ModuleFinder:
         handled properly."""
         module = self._modules.get(name)
         if module is None:
-            module = self._modules[name] = Module(
-                name, path, file_name, parent
-            )
+            module = Module(name, path, file_name, parent)
+            self._modules[name] = module
             self.modules.append(module)
             if name in self._bad_modules:
                 logging.debug(
@@ -237,22 +133,6 @@ class ModuleFinder:
                     continue
                 subModuleName = f"{packageModule.name}.{name}"
                 self._ImportModule(subModuleName, deferredImports, caller)
-
-    def _FindModule(self, name, path):
-        try:
-            # imp loads normal modules from the filesystem
-            return imp.find_module(name, path)
-        except ImportError:
-            # Check for modules in zip files.
-            # If a path is a subdirectory within a zip file, we must have
-            # already cached the contents of the zip file to find modules in it.
-            if path is None:
-                path = []
-            for location in path:
-                res = self._zip_modules_cache.find(location, name)
-                if res is not None:
-                    return res
-            raise
 
     def _GetParentByName(self, name):
         """Return the parent module given the name of a module."""
@@ -304,7 +184,7 @@ class ModuleFinder:
                 )
                 if subModule is None:
                     if subModuleName not in self.excludes:
-                        raise ImportError("No module named %r" % subModuleName)
+                        raise ImportError(f"No module named {subModuleName!r}")
                 else:
                     module.global_names.add(name)
                     if subModule.path and recursive:
@@ -371,7 +251,7 @@ class ModuleFinder:
         # if module not found, track that fact
         if module is None:
             if caller is None:
-                raise ImportError("No module named %r" % name)
+                raise ImportError(f"No module named {name!r}")
             self._RunHook("missing", name, caller)
             if name not in caller.ignore_names:
                 callers = self._bad_modules.setdefault(name, {})
@@ -399,7 +279,6 @@ class ModuleFinder:
         pos = name.rfind(".")
         if pos < 0:  # Top-level module
             path = self.path
-            searchName = name
             parentModule = None
         else:  # Dotted module name - look up the parent module
             parentName = name[:pos]
@@ -409,7 +288,6 @@ class ModuleFinder:
             if parentModule is None:
                 return None
             path = parentModule.path
-            searchName = name[pos + 1 :]
 
         if name in self.aliases:
             actualName = self.aliases[name]
@@ -417,25 +295,9 @@ class ModuleFinder:
             self._modules[name] = module
             return module
 
-        # detect namespace packages
         try:
-            spec = importlib.util.find_spec(name)
-        except (AttributeError, ImportError, TypeError, ValueError):
-            spec = None
-        if (
-            spec
-            and spec.origin in (None, "namespace")
-            and spec.submodule_search_locations
-        ):
-            path = list(spec.submodule_search_locations)[0]
-            return self._LoadNamespacePackage(name, path, parentModule)
-        # other modules or packages
-        try:
-            fp, path, info = self._FindModule(searchName, path)
-            if info[-1] == imp.C_BUILTIN and parentModule is not None:
-                return None
-            module = self._LoadModule(
-                name, fp, path, info, deferredImports, parentModule
+            module = self._load_module(
+                name, path, deferredImports, parentModule
             )
         except ImportError:
             logging.debug("Module [%s] cannot be imported", name)
@@ -443,43 +305,82 @@ class ModuleFinder:
             return None
         return module
 
-    def _LoadModule(self, name, fp, path, info, deferredImports, parent=None):
-        """Load the module, given the information acquired by the finder."""
-        suffix, mode, type = info
-        if type == imp.PKG_DIRECTORY:
-            return self._LoadPackage(name, path, parent, deferredImports)
-        module = self._AddModule(name, file_name=path, parent=parent)
+    def _load_module(
+        self,
+        name: str,
+        path: Union[str, List[str]],
+        deferredImports: List[str],
+        parent: Optional["Module"] = None,
+    ) -> Optional["Module"]:
+        """Load the module, searching the module spec."""
+        spec: Optional[importlib.machinery.ModuleSpec]
+        loader: ExecutionLoader
+        module: "Module"
 
-        if type == imp.PY_SOURCE:
-            logging.debug("Adding module [%s] [PY_SOURCE]", name)
-            # Load & compile Python source code
-            # if file opened, it already use good encoding; else detect it manually
-            if not fp:
-                with open(path, "rb") as f:
-                    encoding = tokenize.detect_encoding(f.readline)[0]
-                fp = open(path, encoding=encoding)
-            codeString = fp.read()
-            if codeString and codeString[-1] != "\n":
-                codeString = codeString + "\n"
+        if isinstance(path, str):
+            # Include file as module
+            module = self._AddModule(name, file_name=path, parent=parent)
+            ext = os.path.splitext(os.path.basename(path))[1]
+            if ext in importlib.machinery.SOURCE_SUFFIXES:
+                loader = importlib.machinery.SourceFileLoader(name, path)
+            elif ext in importlib.machinery.BYTECODE_SUFFIXES:
+                loader = importlib.machinery.SourcelessFileLoader(name, path)
+            else:
+                raise ImportError(f"No module named {name!r}", name=name)
+        else:
+            # Find modules to load
             try:
-                module.code = compile(
-                    codeString, path, "exec", optimize=self.optimizeFlag
+                # It's recommended to clear the caches first.
+                importlib.machinery.PathFinder.invalidate_caches()
+                spec = importlib.machinery.PathFinder.find_spec(name, path)
+            except Exception:
+                spec = None
+            if spec is None:
+                return None
+            # Handle special cases
+            loader = spec.loader
+            if loader is importlib.machinery.BuiltinImporter:
+                return None
+            if loader is importlib.machinery.FrozenImporter:
+                return None
+            # Load package or namespae package
+            if spec.submodule_search_locations:
+                path_list = list(spec.submodule_search_locations)
+                module = self._AddModule(name, path=path_list, parent=parent)
+                if spec.origin in (None, "namespace"):
+                    logging.debug("Adding module [%s] [NAMESPACE]", name)
+                    path = os.path.join(path_list[0], "__init__.py")
+                    module.code = compile("", path, "exec")
+                    return module
+                else:
+                    logging.debug("Adding module [%s] [PACKAGE]", name)
+                    path = spec.origin  # path of __init__
+                    module.file = path
+            else:
+                path = spec.origin
+                module = self._AddModule(name, file_name=path, parent=parent)
+
+        if isinstance(loader, importlib.machinery.SourceFileLoader):
+            logging.debug("Adding module [%s] [SOURCE]", name)
+            # Load & compile Python source code
+            source_bytes = loader.get_data(path)
+            try:
+                module.code = loader.source_to_code(
+                    source_bytes, path, _optimize=self.optimizeFlag
                 )
             except SyntaxError:
-                raise ImportError("Invalid syntax in %s" % path)
-
-        elif type == imp.PY_COMPILED:
-            logging.debug("Adding module [%s] [PY_COMPILED]", name)
+                logging.debug("Invalid syntax in [%s]", name)
+                raise ImportError(f"Invalid syntax in {path}", name=name)
+        elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
+            logging.debug("Adding module [%s] [BYTECODE]", name)
             # Load Python bytecode
-            if isinstance(fp, bytes):
-                fp = io.BytesIO(fp)
-                module.source_is_zip_file = True
-            module.code = pkgutil.read_code(fp)
+            module.code = loader.get_code(name)
             if module.code is None:
-                raise ImportError("Bad magic number in %s" % path)
-
-        elif type == imp.C_EXTENSION:
-            logging.debug("Adding module [%s] [C_EXTENSION]", name)
+                raise ImportError(f"Bad magic number in {path}", name=name)
+        elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
+            logging.debug("Adding module [%s] [EXTENSION]", name)
+        else:
+            raise ImportError(f"Unknown module loader in {path}", name=name)
 
         # If there's a custom hook for this module, run it.
         self._RunHook("load", module.name, module)
@@ -500,25 +401,6 @@ class ModuleFinder:
             self._ReplacePackageInCode(module)
 
         module.in_import = False
-        return module
-
-    def _LoadNamespacePackage(self, name, path, parent):
-        """Load the namespace package, given its name and path."""
-        module = self._AddModule(name, path=[path], parent=parent)
-        filename = os.path.join(path, "__init__.py")
-        module.code = compile("", filename, "exec")
-        logging.debug("Adding module [%s] [PKG_NAMESPACE_DIRECTORY]", name)
-        return module
-
-    def _LoadPackage(self, name, path, parent, deferredImports):
-        """Load the package, given its name and path."""
-        module = self._AddModule(name, path=[path], parent=parent)
-        try:
-            fp, path, info = self._FindModule("__init__", module.path)
-            self._LoadModule(name, fp, path, info, deferredImports, parent)
-            logging.debug("Adding module [%s] [PKG_DIRECTORY]", name)
-        except ImportError:
-            raise
         return module
 
     def _ReplacePackageInCode(self, module):
@@ -665,16 +547,12 @@ class ModuleFinder:
         self.excludes[name] = None
         self._modules[name] = None
 
-    def IncludeFile(self, path, moduleName=None):
+    def IncludeFile(self, path: str, name: Optional[str] = None) -> "Module":
         """Include the named file as a module in the frozen executable."""
-        name, ext = os.path.splitext(os.path.basename(path))
-        if moduleName is None:
-            moduleName = name
-        info = (ext, "r", imp.PY_SOURCE)
+        if name is None:
+            name = os.path.splitext(os.path.basename(path))[0]
         deferredImports = []
-        module = self._LoadModule(
-            moduleName, None, path, info, deferredImports
-        )
+        module = self._load_module(name, path, deferredImports)
         self._ImportDeferredImports(deferredImports)
         return module
 
