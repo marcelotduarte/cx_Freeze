@@ -210,7 +210,6 @@ class bdist_mac(Command):
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
 
-        print(self.plist_items)
         for key, value in self.plist_items:  # add custom items to the plist file
             contents[key] = value
 
