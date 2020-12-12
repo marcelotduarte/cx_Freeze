@@ -168,13 +168,18 @@ class bdist_mac(Command):
     ]
 
     def initialize_options(self):
+        self.list_options = [
+            "plist_items",
+            "include_frameworks",
+            "include_resources"
+        ]
+        for option in self.list_options:
+            setattr(self, option, [])
+
         self.iconfile = None
         self.qt_menu_nib = False
         self.bundle_name = self.distribution.get_fullname()
-        self.plist_items = None
         self.custom_info_plist = None
-        self.include_frameworks = []
-        self.include_resources = []
         self.codesign_identity = None
         self.codesign_entitlements = None
         self.codesign_deep = None
@@ -183,16 +188,12 @@ class bdist_mac(Command):
         self.rpath_lib_folder = None
 
     def finalize_options(self):
-        self.include_frameworks = normalize_to_list(self.include_frameworks)
-        if self.plist_items is None: self.plist_items = []
-        if not isinstance(self.plist_items, list):
-            raise Exception("plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (was not given a list).")
+        # Make sure all options of multiple values are lists
+        for option in self.list_options:
+            setattr(self, option, normalize_to_list(getattr(self, option)))
         for item in self.plist_items:
             if not isinstance(item, tuple) or len(item) != 2:
                 raise Exception("Error, plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (bad list item).")
-
-        if not isinstance(self.plist_items, list):
-            self.plist_items = []
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
