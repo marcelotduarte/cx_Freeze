@@ -2,6 +2,7 @@ from distutils.core import Command
 import os
 import plistlib
 import subprocess
+import warnings
 
 from cx_Freeze.common import normalize_to_list
 
@@ -157,7 +158,7 @@ class bdist_mac(Command):
         (
             "rpath-lib-folder",
             None,
-            "replace @rpath with given folder for any files",
+            "DEPRECATED.  Will be removed in next version.",
         ),
     ]
 
@@ -177,6 +178,11 @@ class bdist_mac(Command):
 
     def finalize_options(self):
         self.include_frameworks = normalize_to_list(self.include_frameworks)
+        if self.rpath_lib_folder is not None:
+            warnings.warn(
+                "rpath-lib-folder is obsolete and will be removed in the next version"
+            )
+
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
