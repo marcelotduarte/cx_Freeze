@@ -1,7 +1,8 @@
 from distutils.core import Command
-import os
-import plistlib
-import subprocess
+import os, plistlib, subprocess
+
+from typing import List, Tuple
+
 
 from cx_Freeze.common import normalize_to_list
 
@@ -91,6 +92,8 @@ class bdist_dmg(Command):
 
 class bdist_mac(Command):
     description = "create a Mac application bundle"
+
+    plist_items: List[Tuple[str,str]]
 
     user_options = [
         ("iconfile=", None, "Path to an icns icon file for the application."),
