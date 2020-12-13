@@ -332,7 +332,7 @@ bundle (a .app directory).
    * - absolute_reference_path
      - Path to use for all referenced libraries instead of @executable_path
    * - rpath_lib_folder
-     - **[DEPRECIATED]** Will be removed in next version. (Formerly replaced @rpath with given folder for any files.)
+     - **DEPRECATED**. Will be removed in next version. (Formerly replaced @rpath with given folder for any files.)
 
 .. versionadded:: 4.3
 

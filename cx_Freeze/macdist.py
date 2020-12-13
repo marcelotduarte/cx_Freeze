@@ -158,7 +158,7 @@ class bdist_mac(Command):
         (
             "rpath-lib-folder",
             None,
-            "[DEPRECIATED]",
+            "DEPRECATED.  Will be removed in next version.",
         ),
     ]
 
