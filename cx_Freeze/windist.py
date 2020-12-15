@@ -99,18 +99,18 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         )
         for index, executable in enumerate(self.distribution.executables):
             if (
-                executable.shortcutName is not None
-                and executable.shortcutDir is not None
+                executable.shortcut_name is not None
+                and executable.shortcut_dir is not None
             ):
-                baseName = os.path.basename(executable.targetName)
+                baseName = os.path.basename(executable.target_name)
                 msilib.add_data(
                     self.db,
                     "Shortcut",
                     [
                         (
                             "S_APP_%s" % index,
-                            executable.shortcutDir,
-                            executable.shortcutName,
+                            executable.shortcut_dir,
+                            executable.shortcut_name,
                             "TARGETDIR",
                             "[TARGETDIR]%s" % baseName,
                             None,
