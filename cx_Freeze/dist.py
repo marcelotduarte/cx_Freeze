@@ -355,7 +355,7 @@ class install_exe(distutils.core.Command):
                 "..", self.install_dir[len(base_dir) + 1 :]
             )
             for executable in self.distribution.executables:
-                name = os.path.basename(executable.targetName)
+                name = os.path.basename(executable.target_name)
                 source = os.path.join(source_dir, name)
                 target = os.path.join(bin_dir, name)
                 if os.path.exists(target):

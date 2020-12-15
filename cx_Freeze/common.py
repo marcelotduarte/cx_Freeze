@@ -5,6 +5,7 @@ This module contains utility functions shared between cx_Freeze modules.
 import os.path
 import types
 from typing import Any, List, Tuple, Optional, Union
+import warnings
 
 
 def get_resource_file_path(dirname: str, name: str, ext: str) -> str:
@@ -108,6 +109,25 @@ def rebuild_code_object(
         # PEP570 added "positional only arguments" in Python 3.8
         params.insert(1, code.co_posonlyargcount)
     return types.CodeType(*params)
+
+
+def validate_args(arg, snake_value, camelValue):
+    """
+    Validate arguments from two exclusive sources.
+    This is a temporary function to be used while transitioning from using
+    camelCase parameters to snake_case.
+    """
+    if isinstance(snake_value, str):
+        if isinstance(camelValue, str):
+            raise ConfigError(
+                f"May not pass {arg!r} as snake_case and camelCase"
+            )
+    elif isinstance(camelValue, str):
+        warnings.warn(
+            "camelCase values is obsolete and will be removed in the "
+            f"next major version -> use the new name {arg!r}"
+        )
+    return snake_value or camelValue
 
 
 class ConfigError(Exception):

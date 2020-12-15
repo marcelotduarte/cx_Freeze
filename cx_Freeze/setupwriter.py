@@ -81,7 +81,7 @@ class SetupWriter:
             w("executables = [")
             if self.executable_name != self.default_executable_name:
                 w(
-                    "    Executable(%r, base=base, targetName = %r)"
+                    "    Executable(%r, base=base, target_name = %r)"
                     % (self.script, self.executable_name)
                 )
             else:

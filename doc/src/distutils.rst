@@ -393,7 +393,7 @@ constructor are as follows:
      - description
    * - script
      - the name of the file containing the script which is to be frozen
-   * - initScript
+   * - init_script
      - the name of the initialization script that will be executed before the
        actual script is executed; this script is used to set up the environment
        for the executable; if a name is given without an absolute path the
@@ -403,18 +403,18 @@ constructor are as follows:
      - the name of the base executable; if a name is given without an absolute
        path the names of files in the bases subdirectory of the cx_Freeze
        package is searched
-   * - targetName
+   * - target_name
      - the name of the target executable; the default value is the name of the
        script with the extension exchanged with the extension for the base
        executable; if specified without extension, one will be added (Windows
-       only).
+       only). If specified a pathname, raise an error.
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
-   * - shortcutName
+   * - shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
        package (Windows only).
-   * - shortcutDir
+   * - shortcut_dir
      - the directory in which to place the shortcut when being installed by an
        MSI package; see the MSI Shortcut table documentation for more
        information on what values can be placed here (Windows only).
