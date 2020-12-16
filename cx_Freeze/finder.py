@@ -57,7 +57,7 @@ class ModuleFinder:
         self.aliases = {}
         self.exclude_dependent_files = {}
         self._modules = dict.fromkeys(
-            excludes
+            excludes or []
         )  # type: Dict[str, Optional[Module]]
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
