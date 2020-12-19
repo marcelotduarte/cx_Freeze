@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import opcode
+import types
 from typing import Dict, List, Optional, Union
 from importlib.abc import ExecutionLoader
 
@@ -387,81 +388,90 @@ class ModuleFinder:
 
         if module.code is not None:
             if self.replace_paths:
-                topLevelModule = module
-                while topLevelModule.parent is not None:
-                    topLevelModule = topLevelModule.parent
-                module.code = self._ReplacePathsInCode(
-                    topLevelModule, module.code
-                )
+                module.code = self._replace_paths_in_code(module)
 
             # Scan the module code for import statements
             self._ScanCode(module.code, module, deferredImports)
 
             # Verify __package__ in use
-            self._ReplacePackageInCode(module)
+            module.code = self._replace_package_in_code(module)
 
         module.in_import = False
         return module
 
-    def _ReplacePackageInCode(self, module):
-        """Replace the value of __package__ directly in the code,
-        only in zipped modules."""
-        co = module.code
+    def _replace_package_in_code(self, module: "Module") -> types.CodeType:
+        """
+        Replace the value of __package__ directly in the code,
+        when the module is in a package and will be stored in library.zip.
+        """
+        code = module.code
+        # Check if module is in a package and will be stored in library.zip
+        # and is not defined in the module, like 'six' do
         if (
-            co is None
-            or module.parent is None
+            module.parent is None
             or module.in_file_system
             or "__package__" in module.global_names
+            or code is None
         ):
-            # In some modules, like 'six' the variable is defined, so...
-            return
+            return code
         # Only if the code references it.
-        if "__package__" in co.co_names:
-            # Insert a bytecode to represent the code:
-            # __package__ = module.parent.name
-            constants = list(co.co_consts)
-            pkg_const_index = len(constants)
-            pkg_name_index = co.co_names.index("__package__")
+        if "__package__" in code.co_names:
+            consts = list(code.co_consts)
+            pkg_const_index = len(consts)
+            pkg_name_index = code.co_names.index("__package__")
             if pkg_const_index > 255 or pkg_name_index > 255:
                 # Don't touch modules with many constants or names;
                 # This is good for now.
-                return
-            # The bytecode/wordcode
+                return code
+            # Insert a bytecode to represent the code:
+            # __package__ = module.parent.name
             codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
-            codestring = bytes(codes) + co.co_code
-            constants.append(module.parent.name)
+            codestring = bytes(codes) + code.co_code
+            consts.append(module.parent.name)
             code = code_object_replace(
-                co, co_code=codestring, co_consts=constants
+                code, co_code=codestring, co_consts=consts
             )
-            module.code = code
+        return code
 
-    def _ReplacePathsInCode(self, topLevelModule, co):
-        """Replace paths in the code as directed, returning a new code object
-        with the modified paths in place."""
+    def _replace_paths_in_code(
+        self, module: "Module", code: Optional[types.CodeType] = None
+    ) -> types.CodeType:
+        """
+        Replace paths in the code as directed, returning a new code object
+        with the modified paths in place.
+        """
+        top_level_module = module  # type: Module
+        while top_level_module.parent is not None:
+            top_level_module = top_level_module.parent
+        if code is None:
+            code = module.code
         # Prepare the new filename.
-        origFileName = newFileName = os.path.normpath(co.co_filename)
-        for searchValue, replaceValue in self.replace_paths:
-            if searchValue == "*":
-                if topLevelModule.file is None:
+        new_filename = original_filename = os.path.normpath(code.co_filename)
+        for search_value, replace_value in self.replace_paths:
+            if search_value == "*":
+                if top_level_module.file is None:
                     continue
-                searchValue = os.path.dirname(topLevelModule.file)
-                if topLevelModule.path:
-                    searchValue = os.path.dirname(searchValue)
-                if searchValue:
-                    searchValue = searchValue + os.path.sep
-            if not origFileName.startswith(searchValue):
-                continue
-            newFileName = replaceValue + origFileName[len(searchValue) :]
-            break
+                search_value = os.path.dirname(top_level_module.file)
+                if top_level_module.path:
+                    search_value = os.path.dirname(search_value)
+                if search_value:
+                    search_value = search_value + os.path.sep
+            if original_filename.startswith(search_value):
+                new_filename = (
+                    replace_value + original_filename[len(search_value) :]
+                )
+                break
 
         # Run on subordinate code objects from function & class definitions.
-        constants = list(co.co_consts)
-        for i, value in enumerate(constants):
-            if isinstance(value, type(co)):
-                constants[i] = self._ReplacePathsInCode(topLevelModule, value)
+        consts = list(code.co_consts)
+        for i in range(len(consts)):
+            if isinstance(consts[i], type(code)):
+                consts[i] = self._replace_paths_in_code(
+                    top_level_module, consts[i]
+                )
 
         return code_object_replace(
-            co, co_consts=constants, co_filename=newFileName
+            code, co_consts=consts, co_filename=new_filename
         )
 
     def _RunHook(self, hookName, moduleName, *args):
@@ -614,7 +624,7 @@ class Module:
         self.name = name
         self.file = file_name
         self.path = path
-        self.code = None
+        self.code: Optional[types.CodeType] = None
         self.parent = parent
         self.global_names = set()
         self.exclude_names = set()
