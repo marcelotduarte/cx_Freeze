@@ -12,9 +12,9 @@ import types
 from typing import Dict, List, Optional, Union
 from importlib.abc import ExecutionLoader
 
-import importlib_metadata
 from cx_Freeze.common import code_object_replace
 import cx_Freeze.hooks
+from cx_Freeze.module import Module
 
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
@@ -617,66 +617,3 @@ class ModuleFinder:
     def ZipIncludeFiles(self, sourcePath, targetPath):
         """Include the file(s) in the library.zip"""
         self.zip_includes.append((sourcePath, targetPath))
-
-
-class Module:
-    def __init__(self, name, path=None, file_name=None, parent=None):
-        self.name = name
-        self.file = file_name
-        self.path = path
-        self.code: Optional[types.CodeType] = None
-        self.parent = parent
-        self.global_names = set()
-        self.exclude_names = set()
-        self.ignore_names = set()
-        self.source_is_zip_file = False
-        self.in_import = True
-        self.store_in_file_system = True
-        # distribution files (metadata)
-        dist_files = []
-        packages = [name]
-        try:
-            requires = importlib_metadata.requires(packages[0])
-        except importlib_metadata.PackageNotFoundError:
-            requires = None
-        if requires is not None:
-            packages += [req.partition(" ")[0] for req in requires]
-        for package_name in packages:
-            try:
-                files = importlib_metadata.files(package_name)
-            except importlib_metadata.PackageNotFoundError:
-                files = None
-            if files is not None:
-                # cache file names to use in write modules
-                for file in files:
-                    if not file.match("*.dist-info/*"):
-                        continue
-                    dist_path = str(file.locate())
-                    arc_path = file.as_posix()
-                    dist_files.append((dist_path, arc_path))
-        self.dist_files = dist_files
-
-    def __repr__(self):
-        parts = ["name=%s" % repr(self.name)]
-        if self.file is not None:
-            parts.append("file=%s" % repr(self.file))
-        if self.path is not None:
-            parts.append("path=%s" % repr(self.path))
-        return "<Module %s>" % ", ".join(parts)
-
-    def AddGlobalName(self, name):
-        self.global_names.add(name)
-
-    def ExcludeName(self, name):
-        self.exclude_names.add(name)
-
-    def IgnoreName(self, name):
-        self.ignore_names.add(name)
-
-    @property
-    def in_file_system(self):
-        if self.parent is not None:
-            return self.parent.in_file_system
-        if self.path is None or self.file is None:
-            return False
-        return self.store_in_file_system
