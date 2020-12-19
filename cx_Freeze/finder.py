@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Union
 from importlib.abc import ExecutionLoader
 
 import importlib_metadata
-from cx_Freeze.common import rebuild_code_object
+from cx_Freeze.common import code_object_replace
 import cx_Freeze.hooks
 
 
@@ -430,8 +430,8 @@ class ModuleFinder:
             codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
             codestring = bytes(codes) + co.co_code
             constants.append(module.parent.name)
-            code = rebuild_code_object(
-                co, codestring=codestring, constants=constants
+            code = code_object_replace(
+                co, co_code=codestring, co_consts=constants
             )
             module.code = code
 
@@ -460,8 +460,8 @@ class ModuleFinder:
             if isinstance(value, type(co)):
                 constants[i] = self._ReplacePathsInCode(topLevelModule, value)
 
-        return rebuild_code_object(
-            co, constants=constants, filename=newFileName
+        return code_object_replace(
+            co, co_consts=constants, co_filename=newFileName
         )
 
     def _RunHook(self, hookName, moduleName, *args):

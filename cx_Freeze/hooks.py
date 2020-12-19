@@ -3,7 +3,7 @@ import os
 import sys
 import sysconfig
 
-from cx_Freeze.common import rebuild_code_object
+from cx_Freeze.common import code_object_replace
 
 MINGW = sysconfig.get_platform() == "mingw"
 WIN32 = sys.platform == "win32"
@@ -326,16 +326,14 @@ def pycryptodome_filename(dir_comps, filename):
     if not module.in_file_system and module.code is not None:
         new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
         co_func = new_code.co_consts[2]
-        co = module.code
-        constants = list(co.co_consts)
-        for i, value in enumerate(constants):
-            if (
-                isinstance(value, type(co))
-                and value.co_name == co_func.co_name
-            ):
-                constants[i] = rebuild_code_object(co_func)
+        name = co_func.co_name
+        code = module.code
+        consts = list(code.co_consts)
+        for i in range(len(consts)):
+            if isinstance(consts[i], type(code)) and consts[i].co_name == name:
+                consts[i] = co_func
                 break
-        module.code = rebuild_code_object(co, constants=constants)
+        module.code = code_object_replace(code, co_consts=consts)
 
 
 def load__ctypes(finder, module):
@@ -527,16 +525,14 @@ def _get_data_path():
         code_str = MATPLOTLIB_CODE_STR.format(target_path)
         new_code = compile(code_str, module.file, "exec")
         co_func = new_code.co_consts[0]
-        co = module.code
-        constants = list(co.co_consts)
-        for i, value in enumerate(constants):
-            if (
-                isinstance(value, type(co))
-                and value.co_name == co_func.co_name
-            ):
-                constants[i] = rebuild_code_object(co_func)
+        name = co_func.co_name
+        code = module.code
+        consts = list(code.co_consts)
+        for i in range(len(consts)):
+            if isinstance(consts[i], type(code)) and consts[i].co_name == name:
+                consts[i] = co_func
                 break
-        module.code = rebuild_code_object(co, constants=constants)
+        module.code = code_object_replace(code, co_consts=consts)
     finder.ExcludeModule("matplotlib.tests")
     finder.IncludePackage("matplotlib")
 
