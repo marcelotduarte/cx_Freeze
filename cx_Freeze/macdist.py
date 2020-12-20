@@ -183,7 +183,6 @@ class bdist_mac(Command):
                 "rpath-lib-folder is obsolete and will be removed in the next version"
             )
 
-
     def create_plist(self):
         """Create the Contents/Info.plist file"""
         # Use custom plist if supplied, otherwise create a simple default.
