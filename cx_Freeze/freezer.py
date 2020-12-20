@@ -15,8 +15,10 @@ import stat
 import struct
 import sys
 import sysconfig
+import tempfile
 import time
 from typing import Any, Dict, List, Optional
+import uuid
 import zipfile
 
 from .common import (
@@ -924,15 +926,17 @@ class ConstantsModule:
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
         self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
-        module = finder._AddModule(self.module_name)
         source_parts = []
         names = list(self.values.keys())
         names.sort()
         for name in names:
             value = self.values[name]
             source_parts.append(f"{name} = {value!r}")
-        source = "\n".join(source_parts)
-        module.code = compile(source, "%s.py" % self.module_name, "exec")
+        filename = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}.py")
+        with open(filename, "w") as fp:
+            fp.write("\n".join(source_parts))
+        module = finder.IncludeFile(filename, self.module_name)
+        os.remove(filename)
         return module
 
 
