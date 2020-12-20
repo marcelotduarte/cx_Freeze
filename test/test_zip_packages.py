@@ -35,7 +35,9 @@ def test_FindModule_from_zip():
     try:
         mf = ModuleFinder()
         mf.path = [egg]
-        mod = mf._InternalImportModule("testpkg1.submod", deferredImports=[])
+        mod = mf._internal_import_module(
+            "testpkg1.submod", deferred_imports=[]
+        )
         assert isinstance(mod, Module)
     finally:
         os.unlink(egg)
