@@ -81,7 +81,7 @@ def process_path_specs(
 def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
     """
     Return a copy of the code object with new values for the specified fields.
-   """
+    """
     try:
         kwargs["co_consts"] = tuple(kwargs["co_consts"])
     except ValueError:

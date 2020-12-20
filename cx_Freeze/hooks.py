@@ -520,7 +520,7 @@ def _get_data_path():
 
     data_path = matplotlib.get_data_path()
     target_path = os.path.join("lib", module.name, "mpl-data")
-    finder.IncludeFiles(data_path, target_path, copyDependentFiles=False)
+    finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
     if module.code is not None:
         code_str = MATPLOTLIB_CODE_STR.format(target_path)
         new_code = compile(code_str, module.file, "exec")
@@ -720,8 +720,8 @@ def load_pygments(finder, module):
 def load_pytest(finder, module):
     import pytest
 
-    for m in pytest.freeze_includes():
-        finder.IncludeModule(m)
+    for mod in pytest.freeze_includes():
+        finder.IncludeModule(mod)
 
 
 def load_pythoncom(finder, module):
@@ -735,7 +735,7 @@ def load_pythoncom(finder, module):
     finder.IncludeFiles(
         pythoncom.__file__,
         os.path.join("lib", os.path.basename(pythoncom.__file__)),
-        copyDependentFiles=False,
+        copy_dependent_files=False,
     )
 
 
@@ -744,24 +744,26 @@ def load_pytz(finder, module):
     or in the zip file where the package is written"""
     import pytz
 
-    targetPath = os.path.join("lib", "pytz", "zoneinfo")
-    dataPath = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
-    if not os.path.isdir(dataPath):
+    target_path = os.path.join("lib", "pytz", "zoneinfo")
+    data_path = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
+    if not os.path.isdir(data_path):
         # Fedora (and possibly other systems) use a separate location to
         # store timezone data so look for that here as well
         if hasattr(pytz, "_tzinfo_dir"):
-            dataPath = pytz._tzinfo_dir
+            data_path = pytz._tzinfo_dir
         else:
-            dataPath = os.getenv("PYTZ_TZDATADIR") or "/usr/share/zoneinfo"
-        if dataPath.endswith(os.sep):
-            dataPath = dataPath[:-1]
-        if os.path.isdir(dataPath):
-            finder.AddConstant("PYTZ_TZDATADIR", targetPath)
-    if os.path.isdir(dataPath):
+            data_path = os.getenv("PYTZ_TZDATADIR") or "/usr/share/zoneinfo"
+        if data_path.endswith(os.sep):
+            data_path = data_path[:-1]
+        if os.path.isdir(data_path):
+            finder.AddConstant("PYTZ_TZDATADIR", target_path)
+    if os.path.isdir(data_path):
         if module.in_file_system:
-            finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
+            finder.IncludeFiles(
+                data_path, target_path, copy_dependent_files=False
+            )
         else:
-            finder.ZipIncludeFiles(dataPath, "pytz/zoneinfo")
+            finder.ZipIncludeFiles(data_path, "pytz/zoneinfo")
 
 
 def load_pywintypes(finder, module):
@@ -775,7 +777,7 @@ def load_pywintypes(finder, module):
     finder.IncludeFiles(
         pywintypes.__file__,
         os.path.join("lib", os.path.basename(pywintypes.__file__)),
-        copyDependentFiles=False,
+        copy_dependent_files=False,
     )
 
 
@@ -884,11 +886,11 @@ def load_PyQt5_uic(finder, module):
     if module.in_file_system:
         return
     name, QtCore = _qt_implementation(module)
-    dir = os.path.join(module.path[0], "widget-plugins")
-    finder.IncludeFiles(dir, "%s.uic.widget-plugins" % name)
-    finder.IncludeModule("%s.QtNetwork" % name)
+    source_dir = os.path.join(module.path[0], "widget-plugins")
+    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
+    finder.IncludeModule(f"{name}.QtNetwork")
     try:
-        finder.IncludeModule("%s.QtWebKit" % name)
+        finder.IncludeModule(f"{name}.QtWebKit")
     except ImportError:
         pass
 
@@ -1048,8 +1050,6 @@ def load_ssl(finder, module):
 
 def load_sysconfig(finder, module):
     """The sysconfig module implicitly loads _sysconfigdata."""
-    import sysconfig
-
     if hasattr(sysconfig, "_get_sysconfigdata_name"):
         if not hasattr(sys, "abiflags"):
             sys.abiflags = ""
@@ -1091,9 +1091,9 @@ def load_tkinter(finder, module):
                     lib_texts = os.path.join(sys.base_prefix, "lib", dir_name)
                 else:
                     lib_texts = os.path.join(sys.base_prefix, "tcl", dir_name)
-            targetPath = os.path.join("lib", "tkinter", dir_name)
-            finder.AddConstant(env_name, targetPath)
-            finder.IncludeFiles(lib_texts, targetPath)
+            target_path = os.path.join("lib", "tkinter", dir_name)
+            finder.AddConstant(env_name, target_path)
+            finder.IncludeFiles(lib_texts, target_path)
             if not MINGW:
                 dll_name = dir_name.replace(".", "") + "t.dll"
                 dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
@@ -1131,8 +1131,8 @@ def load_win32com(finder, module):
     """the win32com package manipulates its search path at runtime to include
     the sibling directory called win32comext; simulate that by changing the
     search path in a similar fashion here."""
-    baseDir = os.path.dirname(os.path.dirname(module.file))
-    module.path.append(os.path.join(baseDir, "win32comext"))
+    base_dir = os.path.dirname(os.path.dirname(module.file))
+    module.path.append(os.path.join(base_dir, "win32comext"))
 
 
 def load_win32file(finder, module):
@@ -1148,8 +1148,8 @@ def load_wx_lib_pubsub_core(finder, module):
     search path here instead so that the right modules are found; note
     that this only works if the import of wx.lib.pubsub.setupkwargs
     occurs first."""
-    dirName = os.path.dirname(module.file)
-    module.path.insert(0, os.path.join(dirName, "kwargs"))
+    dir_name = os.path.dirname(module.file)
+    module.path.insert(0, os.path.join(dir_name, "kwargs"))
 
 
 def load_Xlib_display(finder, module):
@@ -1167,10 +1167,10 @@ def load_Xlib_support_connect(finder, module):
     """the Xlib.support.connect module implicitly loads a platform specific
     module; make sure this happens."""
     if sys.platform.split("-")[0] == "OpenVMS":
-        moduleName = "vms_connect"
+        module_name = "vms_connect"
     else:
-        moduleName = "unix_connect"
-    finder.IncludeModule("Xlib.support.%s" % moduleName)
+        module_name = "unix_connect"
+    finder.IncludeModule(f"Xlib.support.{module_name}")
 
 
 def load_Xlib_XK(finder, module):
@@ -1196,9 +1196,9 @@ def load_zmq(finder, module):
         try:
             import zmq.libzmq
 
-            srcFileName = os.path.basename(zmq.libzmq.__file__)
+            filename = os.path.basename(zmq.libzmq.__file__)
             finder.IncludeFiles(
-                os.path.join(module.path[0], srcFileName), srcFileName
+                os.path.join(module.path[0], filename), filename
             )
         except ImportError:
             pass  # No bundled libzmq library
