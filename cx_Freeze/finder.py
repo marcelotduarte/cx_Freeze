@@ -13,7 +13,6 @@ from typing import Dict, List, Optional, Tuple, Union
 import opcode
 
 from cx_Freeze.common import code_object_replace
-import cx_Freeze.hooks
 from cx_Freeze.module import Module
 
 
@@ -64,7 +63,8 @@ class ModuleFinder:
         )  # type: Dict[str, Optional[Module]]
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
-        cx_Freeze.hooks.initialize(self)
+        self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
+        self._hooks.initialize(self)
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
@@ -519,7 +519,7 @@ class ModuleFinder:
         Run hook (load or missing) for the given module if one is present.
         """
         name = "{}_{}".format(hook, module_name.replace(".", "_"))
-        method = getattr(cx_Freeze.hooks, name, None)
+        method = getattr(self._hooks, name, None)
         if method is not None:
             method(self, *args)
 
