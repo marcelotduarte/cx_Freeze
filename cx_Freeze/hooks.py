@@ -242,9 +242,7 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
         if sys.version_info < (3, 7):
             module.store_in_file_system = True
             return
-        import certifi
-
-        cacert = certifi.where()
+        cacert = __import__("certifi").where()
         target = "certifi/" + os.path.basename(cacert)
         finder.ZipIncludeFiles(cacert, target)
 
@@ -252,9 +250,9 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
 def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
     """The cffi.cparser module can use a extension if present."""
     try:
-        import cffi._pycparser
-
-        finder.IncludeModule(cffi._pycparser.__name__)
+        cffi = __import__("cffi", fromlist=["_pycparser"])
+        pycparser = getattr(cffi, "_pycparser")
+        finder.IncludeModule(pycparser.__name__)
     except ImportError:
         finder.ExcludeModule("cffi._pycparser")
 
@@ -524,9 +522,8 @@ def load_h5py(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("h5py.utils")
     finder.IncludeModule("h5py._proxy")
     try:
-        import h5py.api_gen
-
-        finder.IncludeModule(h5py.api_gen.__name__)
+        api_gen = __import__("h5py", fromlist=["api_gen"]).api_gen
+        finder.IncludeModule(api_gen.__name__)
     except ImportError:
         pass
     finder.IncludeModule("h5py._errors")
@@ -552,9 +549,7 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
 def _get_data_path():
     return os.path.join(os.path.dirname(sys.executable), '{}')
 """
-    import matplotlib
-
-    data_path = matplotlib.get_data_path()
+    data_path = __import__("matplotlib").get_data_path()
     target_path = os.path.join("lib", module.name, "mpl-data")
     finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
     if module.code is not None:
@@ -579,8 +574,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.IncludePackage("numpy")
     if not module.in_file_system:
         # version 1.18.3+ changed the location of dll/so
-        import numpy
-
+        numpy = __import__("numpy")
         version = tuple([int(n) for n in numpy.__version__.split(".")])
         del numpy
         if version >= (1, 18, 3):
@@ -761,8 +755,8 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
     The postgresql.lib module requires the libsys.sql file to be included
     so make sure that file is included.
     """
-    fileName = os.path.join(module.path[0], "libsys.sql")
-    finder.IncludeFiles(fileName, os.path.basename(fileName))
+    filename = os.path.join(module.path[0], "libsys.sql")
+    finder.IncludeFiles(filename, os.path.basename(filename))
 
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
@@ -785,8 +779,7 @@ def load_pygments(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pytest(finder: ModuleFinder, module: Module) -> None:
-    import pytest
-
+    pytest = __import__("pytest")
     for mod in pytest.freeze_includes():
         finder.IncludeModule(mod)
 
@@ -799,8 +792,7 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     determine the name of the DLL and ensure it is included as a file in
     the target directory.
     """
-    import pythoncom
-
+    pythoncom = __import__("pythoncom")
     finder.IncludeFiles(
         pythoncom.__file__,
         os.path.join("lib", os.path.basename(pythoncom.__file__)),
@@ -813,17 +805,17 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
     The pytz module requires timezone data to be found in a known directory
     or in the zip file where the package is written.
     """
-    import pytz
-
     target_path = os.path.join("lib", "pytz", "zoneinfo")
-    data_path = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
+    data_path = os.path.join(module.path[0], "zoneinfo")
     if not os.path.isdir(data_path):
         # Fedora (and possibly other systems) use a separate location to
         # store timezone data so look for that here as well
-        if hasattr(pytz, "_tzinfo_dir"):
-            data_path = pytz._tzinfo_dir
-        else:
-            data_path = os.getenv("PYTZ_TZDATADIR") or "/usr/share/zoneinfo"
+        pytz = __import__("pytz")
+        data_path = (
+            getattr(pytz, "_tzinfo_dir", None)
+            or os.getenv("PYTZ_TZDATADIR")
+            or "/usr/share/zoneinfo"
+        )
         if data_path.endswith(os.sep):
             data_path = data_path[:-1]
         if os.path.isdir(data_path):
@@ -845,8 +837,7 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     determine the name of the DLL and ensure it is included as a file in the
     target directory.
     """
-    import pywintypes
-
+    pywintypes = __import__("pywintypes")
     finder.IncludeFiles(
         pywintypes.__file__,
         os.path.join("lib", os.path.basename(pywintypes.__file__)),
@@ -873,13 +864,13 @@ def _qt_implementation(module: Module) -> Tuple[str, Any]:
     return name, _qtcore
 
 
-def copy_qt_plugins(plugins, finder, QtCore):
+def copy_qt_plugins(plugins, finder, qtcore):
     """Helper function to find and copy Qt plugins."""
 
     # Qt Plugins can either be in a plugins directory next to the Qt libraries,
     # or in other locations listed by QCoreApplication.libraryPaths()
-    dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
-    for libpath in QtCore.QCoreApplication.libraryPaths() + [dir0]:
+    dir0 = os.path.join(os.path.dirname(qtcore.__file__), "plugins")
+    for libpath in qtcore.QCoreApplication.libraryPaths() + [dir0]:
         sourcepath = os.path.join(str(libpath), plugins)
         if os.path.exists(sourcepath):
             finder.IncludeFiles(sourcepath, plugins)
@@ -892,21 +883,21 @@ def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
     """
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
+    _, qtcore = _qt_implementation(module)
     if WIN32:
-        copy_qt_plugins("phonon_backend", finder, QtCore)
+        copy_qt_plugins("phonon_backend", finder, qtcore)
 
 
-def sip_module_name(QtCore) -> str:
+def sip_module_name(qtcore) -> str:
     """
     Returns the name of the sip module to import.
     (As of 5.11, the distributed wheels no longer provided for the sip module
     outside of the PyQt5 namespace).
     """
-    versionString = QtCore.PYQT_VERSION_STR
+    version_string = qtcore.PYQT_VERSION_STR
     try:
-        pyqtVersionInts = tuple(int(c) for c in versionString.split("."))
-        if pyqtVersionInts >= (5, 11):
+        pyqt_version_ints = tuple(int(c) for c in version_string.split("."))
+        if pyqt_version_ints >= (5, 11):
             return "PyQt5.sip"
     except Exception:
         pass
@@ -920,8 +911,8 @@ def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
     """
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
-    finder.IncludeModule(sip_module_name(QtCore=QtCore))
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(sip_module_name(qtcore))
     try:
         finder.IncludeModule(f"{name}._qt")
     except ImportError:
@@ -938,7 +929,7 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
     """
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
+    name, _ = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtCore")
     finder.IncludeModule(f"{name}.QtGui")
     for mod in (
@@ -968,7 +959,7 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
     """
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
+    name, _ = _qt_implementation(module)
     source_dir = os.path.join(module.path[0], "widget-plugins")
     finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
     finder.IncludeModule(f"{name}.QtNetwork")
@@ -979,13 +970,13 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
 
 
 def _QtGui(finder, module, version_str):
-    name, QtCore = _qt_implementation(module)
+    name, qtcore = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtCore")
-    copy_qt_plugins("imageformats", finder, QtCore)
+    copy_qt_plugins("imageformats", finder, qtcore)
     if version_str >= "5":
         # On Qt5, we need the platform plugins. For simplicity, we just copy
         # any that are installed.
-        copy_qt_plugins("platforms", finder, QtCore)
+        copy_qt_plugins("platforms", finder, qtcore)
 
 
 def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
@@ -995,8 +986,8 @@ def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     """
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
-    _QtGui(finder, module, QtCore.QT_VERSION_STR)
+    _, qtcore = _qt_implementation(module)
+    _QtGui(finder, module, qtcore.QT_VERSION_STR)
 
 
 def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
@@ -1008,7 +999,7 @@ def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
 def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
+    name, _ = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtNetwork")
     finder.IncludeModule(f"{name}.QtGui")
 
@@ -1016,17 +1007,17 @@ def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
 def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
+    name, qtcore = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtCore")
     finder.IncludeModule(f"{name}.QtMultimediaWidgets")
-    copy_qt_plugins("mediaservice", finder, QtCore)
+    copy_qt_plugins("mediaservice", finder, qtcore)
 
 
 def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system:
         return
-    name, QtCore = _qt_implementation(module)
-    copy_qt_plugins("printsupport", finder, QtCore)
+    _, qtcore = _qt_implementation(module)
+    copy_qt_plugins("printsupport", finder, qtcore)
 
 
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:
@@ -1158,12 +1149,13 @@ def load_ssl(finder: ModuleFinder, module: Module) -> None:
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
     """The sysconfig module implicitly loads _sysconfigdata."""
-    if hasattr(sysconfig, "_get_sysconfigdata_name"):
+    get_data_name = getattr(sysconfig, "_get_sysconfigdata_name", None)
+    if get_data_name is None:
+        datafile = "_sysconfigdata"
+    else:
         if not hasattr(sys, "abiflags"):
             sys.abiflags = ""
-        datafile = sysconfig._get_sysconfigdata_name()
-    else:
-        datafile = "_sysconfigdata"
+        datafile = get_data_name()
     finder.IncludeModule(datafile)
 
 
@@ -1186,8 +1178,7 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
     runtime.
     """
     if WIN32:
-        import tkinter
-
+        tkinter = __import__("tkinter")
         root_names = "tcl", "tk"
         environ_names = "TCL_LIBRARY", "TK_LIBRARY"
         version_vars = tkinter.TclVersion, tkinter.TkVersion
@@ -1328,9 +1319,8 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
         # Not sure yet if this is cross platform
         # Include the bundled libzmq library, if it exists
         try:
-            import zmq.libzmq
-
-            filename = os.path.basename(zmq.libzmq.__file__)
+            libzmq = __import__("zmq", fromlist=["libzmq"]).libzmq
+            filename = os.path.basename(libzmq.__file__)
             finder.IncludeFiles(
                 os.path.join(module.path[0], filename), filename
             )
