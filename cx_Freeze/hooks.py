@@ -253,7 +253,7 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
         cffi = __import__("cffi", fromlist=["_pycparser"])
         pycparser = getattr(cffi, "_pycparser")
         finder.IncludeModule(pycparser.__name__)
-    except ImportError:
+    except (ImportError, AttributeError):
         finder.ExcludeModule("cffi._pycparser")
 
 
