@@ -4,6 +4,8 @@ import plistlib
 import subprocess
 import warnings
 
+from typing import List, Tuple
+
 from cx_Freeze.common import normalize_to_list
 
 from cx_Freeze.darwintools import (
