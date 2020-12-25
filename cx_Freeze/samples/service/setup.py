@@ -23,7 +23,7 @@ executables = [
     Executable(
         "Config.py",
         base="Win32Service",
-        targetName="cx_FreezeSampleService.exe",
+        target_name="cx_FreezeSampleService.exe",
     )
 ]
 

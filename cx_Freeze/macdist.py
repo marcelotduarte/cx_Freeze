@@ -1,8 +1,8 @@
 from distutils.core import Command
-import os, plistlib, subprocess
-
-from typing import List, Tuple
-
+import os
+import plistlib
+import subprocess
+import warnings
 
 from cx_Freeze.common import normalize_to_list
 
@@ -166,7 +166,7 @@ class bdist_mac(Command):
         (
             "rpath-lib-folder",
             None,
-            "replace @rpath with given folder for any files",
+            "DEPRECATED.  Will be removed in next version.",
         ),
     ]
 
@@ -197,6 +197,10 @@ class bdist_mac(Command):
         for item in self.plist_items:
             if not isinstance(item, tuple) or len(item) != 2:
                 raise Exception("Error, plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (bad list item).")
+        if self.rpath_lib_folder is not None:
+            warnings.warn(
+                "rpath-lib-folder is obsolete and will be removed in the next version"
+            )
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
@@ -378,7 +382,7 @@ class bdist_mac(Command):
         self.frameworksDir = os.path.join(self.contentsDir, "Frameworks")
 
         # Find the executable name
-        executable = self.distribution.executables[0].targetName
+        executable = self.distribution.executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
 
         # Build the app directory structure

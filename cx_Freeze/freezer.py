@@ -15,11 +15,18 @@ import stat
 import struct
 import sys
 import sysconfig
+import tempfile
 import time
 from typing import Any, Dict, List, Optional
+import uuid
 import zipfile
 
-from .common import ConfigError, get_resource_file_path, process_path_specs
+from .common import (
+    ConfigError,
+    get_resource_file_path,
+    process_path_specs,
+    validate_args,
+)
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 from .finder import ModuleFinder
 
@@ -95,7 +102,7 @@ class Freezer:
             print(warning_msg)
             print("version must be specified")
             return
-        fileName = exe.targetName
+        fileName = os.path.join(self.targetDir, exe.target_name)
         versionInfo = VersionInfo(
             self.metadata.version,
             comments=self.metadata.long_description,
@@ -217,8 +224,8 @@ class Freezer:
 
     def _FreezeExecutable(self, exe):
         finder = self.finder
-        finder.IncludeFile(exe.script, exe.moduleName)
-        finder.IncludeFile(exe.initScript, exe.initModuleName)
+        finder.IncludeFile(exe.main_script, exe.main_module_name)
+        finder.IncludeFile(exe.init_script, exe.init_module_name)
         startupModule = get_resource_file_path(
             "initscripts", "__startup__", ".py"
         )
@@ -246,10 +253,10 @@ class Freezer:
         # Copy the python dynamic libraries and the frozen executable
         if sys.platform == "win32":
             # Copy the python dynamic libraries into build root folder
-            target_dir = os.path.dirname(exe.targetName)
+            target_dir = self.targetDir
         else:
             # Always copy the python dynamic libraries into lib folder
-            target_dir = os.path.join(os.path.dirname(exe.targetName), "lib")
+            target_dir = os.path.join(self.targetDir, "lib")
         for source in dependent_files:
             target = os.path.join(target_dir, os.path.basename(source))
             if sys.platform == "darwin":
@@ -266,15 +273,16 @@ class Freezer:
                 self._CopyFile(
                     source, target, copyDependentFiles=True, includeMode=True
                 )
+        target_path = os.path.join(self.targetDir, exe.target_name)
         self._CopyFile(
             exe.base,
-            exe.targetName,
+            target_path,
             copyDependentFiles=False,
             includeMode=True,
         )
-        if not os.access(exe.targetName, os.W_OK):
-            mode = os.stat(exe.targetName).st_mode
-            os.chmod(exe.targetName, mode | stat.S_IWUSR)
+        if not os.access(target_path, os.W_OK):
+            mode = os.stat(target_path).st_mode
+            os.chmod(target_path, mode | stat.S_IWUSR)
 
         if self.includeMSVCR:
             self._IncludeMSVCR(exe)
@@ -282,12 +290,12 @@ class Freezer:
         # Copy icon
         if exe.icon is not None:
             if sys.platform == "win32":
-                cx_Freeze.util.AddIcon(exe.targetName, exe.icon)
+                cx_Freeze.util.AddIcon(target_path, exe.icon)
             else:
-                targetName = os.path.join(
-                    os.path.dirname(exe.targetName), os.path.basename(exe.icon)
+                target_icon = os.path.join(
+                    self.targetDir, os.path.basename(exe.icon)
                 )
-                self._CopyFile(exe.icon, targetName, copyDependentFiles=False)
+                self._CopyFile(exe.icon, target_icon, copyDependentFiles=False)
 
         if self.metadata is not None and sys.platform == "win32":
             self._AddVersionResource(exe)
@@ -438,7 +446,7 @@ class Freezer:
         return finder
 
     def _IncludeMSVCR(self, exe):
-        targetDir = os.path.dirname(exe.targetName)
+        targetDir = self.targetDir
         for fullName in self.files_copied:
             path, name = os.path.split(os.path.normcase(fullName))
             if name.startswith("msvcr") and name.endswith(".dll"):
@@ -446,9 +454,9 @@ class Freezer:
                     sourceName = os.path.join(self.msvcRuntimeDir, otherName)
                     if not os.path.exists(sourceName):
                         continue
-                    targetName = os.path.join(targetDir, otherName)
+                    target_name = os.path.join(targetDir, otherName)
                     self._CopyFile(
-                        sourceName, targetName, copyDependentFiles=False
+                        sourceName, target_name, copyDependentFiles=False
                     )
                 break
 
@@ -560,9 +568,6 @@ class Freezer:
                     "excluded from zip file".format(name)
                 )
 
-        for executable in self.executables:
-            executable._VerifyConfiguration(self)
-
     def _WriteModules(self, fileName, finder):
         self.constantsModule.Create(finder)
         modules = [
@@ -655,18 +660,18 @@ class Freezer:
                 if module.code is None:
                     parts.pop()
                     parts.append(os.path.basename(module.file))
-                    targetName = os.path.join(targetDir, *parts)
+                    target_name = os.path.join(targetDir, *parts)
                     self._CopyFile(
                         module.file,
-                        targetName,
+                        target_name,
                         copyDependentFiles=True,
                         relativeSource=True,
                     )
                 else:
                     if module.path is not None:
                         parts.append("__init__")
-                    targetName = os.path.join(targetDir, *parts) + ".pyc"
-                    with open(targetName, "wb") as fp:
+                    target_name = os.path.join(targetDir, *parts) + ".pyc"
+                    with open(target_name, "wb") as fp:
                         fp.write(data)
 
             # otherwise, write to the zip file
@@ -777,57 +782,99 @@ class Freezer:
 
 
 class Executable:
+
+    _base: str
+    _init_script: str
+    _name: str
+    _ext: str
+
     def __init__(
         self,
-        script,
-        initScript=None,
-        base=None,
-        targetName=None,
-        icon=None,
-        shortcutName=None,
-        shortcutDir=None,
-        copyright=None,
-        trademarks=None,
+        script: str,
+        init_script: Optional[str] = None,
+        base: Optional[str] = None,
+        target_name: Optional[str] = None,
+        icon: Optional[str] = None,
+        shortcut_name: Optional[str] = None,
+        shortcut_dir: Optional[str] = None,
+        copyright: Optional[str] = None,
+        trademarks: Optional[str] = None,
+        *,
+        initScript: Optional[str] = None,
+        targetName: Optional[str] = None,
+        shortcutName: Optional[str] = None,
+        shortcutDir: Optional[str] = None,
     ):
-        self.script = script
-        self.initScript = initScript or "Console"
-        self.base = base or "Console"
-        self.targetName = targetName
+        self.main_script: str = script
+        self.init_script = validate_args(
+            "init_script", init_script, initScript
+        )
+        self.base = base
+        self.target_name = validate_args(
+            "target_name", target_name, targetName
+        )
         self.icon = icon
-        self.shortcutName = shortcutName
-        self.shortcutDir = shortcutDir
+        self.shortcut_name = validate_args(
+            "shortcut_name", shortcut_name, shortcutName
+        )
+        self.shortcut_dir = validate_args(
+            "shortcut_dir", shortcut_dir, shortcutDir
+        )
         self.copyright = copyright
         self.trademarks = trademarks
 
     def __repr__(self):
-        return "<Executable script=%s>" % self.script
+        return f"<Executable script={self.main_script}>"
 
-    def _VerifyConfiguration(self, freezer):
-        self._GetInitScriptFileName()
-        self._GetBaseFileName()
-        if self.targetName is None:
-            name, _ = os.path.splitext(os.path.basename(self.script))
-            ext = os.path.splitext(self.base)[1]
-            self.targetName = name + ext
-        name, ext = os.path.splitext(self.targetName)
-        if ext == "" and sys.platform == "win32":
-            self.targetName += ".exe"
-        self.moduleName = "%s__main__" % os.path.normcase(name)
-        self.initModuleName = "%s__init__" % os.path.normcase(name)
-        self.targetName = os.path.join(freezer.targetDir, self.targetName)
+    @property
+    def base(self) -> str:
+        return self._base
 
-    def _GetBaseFileName(self):
-        name = self.base
+    @base.setter
+    def base(self, name: Optional[str]):
+        name = name or "Console"
         ext = ".exe" if sys.platform == "win32" else ""
-        self.base = get_resource_file_path("bases", name, ext)
-        if self.base is None:
+        self._base = get_resource_file_path("bases", name, ext)
+        if self._base is None:
             raise ConfigError(f"no base named {name}")
 
-    def _GetInitScriptFileName(self):
-        name = self.initScript
-        self.initScript = get_resource_file_path("initscripts", name, ".py")
-        if self.initScript is None:
-            raise ConfigError(f"no initscript named {name}")
+    @property
+    def init_module_name(self) -> str:
+        return f"{self._name}__init__"
+
+    @property
+    def init_script(self) -> str:
+        return self._init_script
+
+    @init_script.setter
+    def init_script(self, name: Optional[str]):
+        name = name or "Console"
+        self._init_script = get_resource_file_path("initscripts", name, ".py")
+        if self._init_script is None:
+            raise ConfigError(f"no init_script named {name}")
+
+    @property
+    def main_module_name(self) -> str:
+        return f"{self._name}__main__"
+
+    @property
+    def target_name(self) -> str:
+        return self._name + self._ext
+
+    @target_name.setter
+    def target_name(self, name: Optional[str]):
+        if name is None:
+            name = os.path.splitext(os.path.basename(self.main_script))[0]
+            ext = os.path.splitext(self.base)[1]
+        else:
+            if name != os.path.basename(name):
+                raise ConfigError(
+                    "target_name should only be the name, for example: "
+                    f"{os.path.basename(name)}"
+                )
+            name, ext = os.path.splitext(name)
+        self._name = os.path.normcase(name)
+        self._ext = ".exe" if ext == "" and sys.platform == "win32" else ext
 
 
 class ConstantsModule:
@@ -879,15 +926,17 @@ class ConstantsModule:
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
         self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
-        module = finder._AddModule(self.module_name)
         source_parts = []
         names = list(self.values.keys())
         names.sort()
         for name in names:
             value = self.values[name]
             source_parts.append(f"{name} = {value!r}")
-        source = "\n".join(source_parts)
-        module.code = compile(source, "%s.py" % self.module_name, "exec")
+        filename = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}.py")
+        with open(filename, "w") as fp:
+            fp.write("\n".join(source_parts))
+        module = finder.IncludeFile(filename, self.module_name)
+        os.remove(filename)
         return module
 
 

@@ -9,7 +9,7 @@ print(
     % datetime.today().strftime("%B %d, %Y %H:%M:%S")
 )
 
-print("Executable: %r\n" % sys.executable)
+print(f"Executable: {sys.executable!r}\n")
 
 import BUILD_CONSTANTS
 
@@ -26,4 +26,5 @@ print("== variables in BUILD_CONSTANTS ==\n")
 for var in dir(BUILD_CONSTANTS):
     if var in excludedVars:
         continue
-    print("{} = {}".format(var, repr(BUILD_CONSTANTS.__getattribute__(var))))
+    attr = BUILD_CONSTANTS.__getattribute__(var)
+    print(f"{var} = {attr!r}")

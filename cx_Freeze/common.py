@@ -5,6 +5,7 @@ This module contains utility functions shared between cx_Freeze modules.
 import os.path
 import types
 from typing import Any, List, Tuple, Optional, Union
+import warnings
 
 
 def get_resource_file_path(dirname: str, name: str, ext: str) -> str:
@@ -77,37 +78,54 @@ def process_path_specs(
     return processed_specs
 
 
-def rebuild_code_object(
-    code: types.CodeType,
-    codestring: Optional[bytes] = None,
-    constants: Optional[Tuple[Any, ...]] = None,
-    filename: Optional[str] = None,
-) -> types.CodeType:
-    """Rebuild the code object."""
-    codestring: bytes = codestring or code.co_code
-    constants: Tuple[Any, ...] = tuple(constants or code.co_consts)
-    filename: str = filename or code.co_filename
+def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
+    """
+    Return a copy of the code object with new values for the specified fields.
+    """
+    try:
+        kwargs["co_consts"] = tuple(kwargs["co_consts"])
+    except ValueError:
+        pass
+    # Python 3.8+
+    if hasattr(code, "replace"):
+        return code.replace(**kwargs)
     params = [
-        code.co_argcount,
-        code.co_kwonlyargcount,
-        code.co_nlocals,
-        code.co_stacksize,
-        code.co_flags,
-        codestring,
-        constants,
-        code.co_names,
-        code.co_varnames,
-        filename,
-        code.co_name,
-        code.co_firstlineno,
-        code.co_lnotab,
-        code.co_freevars,
-        code.co_cellvars,
+        kwargs.get("co_argcount", code.co_argcount),
+        kwargs.get("co_kwonlyargcount", code.co_kwonlyargcount),
+        kwargs.get("co_nlocals", code.co_nlocals),
+        kwargs.get("co_stacksize", code.co_stacksize),
+        kwargs.get("co_flags", code.co_flags),
+        kwargs.get("co_code", code.co_code),
+        kwargs.get("co_consts", code.co_consts),
+        kwargs.get("co_names", code.co_names),
+        kwargs.get("co_varnames", code.co_varnames),
+        kwargs.get("co_filename", code.co_filename),
+        kwargs.get("co_name", code.co_name),
+        kwargs.get("co_firstlineno", code.co_firstlineno),
+        kwargs.get("co_lnotab", code.co_lnotab),
+        kwargs.get("co_freevars", code.co_freevars),
+        kwargs.get("co_cellvars", code.co_cellvars),
     ]
-    if hasattr(code, "co_posonlyargcount"):
-        # PEP570 added "positional only arguments" in Python 3.8
-        params.insert(1, code.co_posonlyargcount)
     return types.CodeType(*params)
+
+
+def validate_args(arg, snake_value, camelValue):
+    """
+    Validate arguments from two exclusive sources.
+    This is a temporary function to be used while transitioning from using
+    camelCase parameters to snake_case.
+    """
+    if isinstance(snake_value, str):
+        if isinstance(camelValue, str):
+            raise ConfigError(
+                f"May not pass {arg!r} as snake_case and camelCase"
+            )
+    elif isinstance(camelValue, str):
+        warnings.warn(
+            "camelCase values is obsolete and will be removed in the "
+            f"next major version -> use the new name {arg!r}"
+        )
+    return snake_value or camelValue
 
 
 class ConfigError(Exception):

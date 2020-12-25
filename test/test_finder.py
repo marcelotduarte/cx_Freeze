@@ -11,7 +11,7 @@ any3 = (mock.ANY,) * 3
 
 def test_ScanCode():
     mf = ModuleFinder()
-    with mock.patch.object(mf, "_ImportModule") as _ImportModule_mock:
+    with mock.patch.object(mf, "_import_module") as _ImportModule_mock:
         _ImportModule_mock.return_value = None
         mf.IncludeFile(os.path.join(test_dir, "imports_sample.py"))
         _ImportModule_mock.assert_has_calls(
