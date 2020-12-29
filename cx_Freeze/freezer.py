@@ -785,6 +785,7 @@ class Executable:
 
     _base: str
     _init_script: str
+    _internal_name: str
     _name: str
     _ext: str
 
@@ -840,7 +841,7 @@ class Executable:
 
     @property
     def init_module_name(self) -> str:
-        return f"{self._name}__init__"
+        return f"{self._internal_name}__init__"
 
     @property
     def init_script(self) -> str:
@@ -855,7 +856,7 @@ class Executable:
 
     @property
     def main_module_name(self) -> str:
-        return f"{self._name}__main__"
+        return f"{self._internal_name}__main__"
 
     @property
     def target_name(self) -> str:
@@ -872,9 +873,21 @@ class Executable:
                     "target_name should only be the name, for example: "
                     f"{os.path.basename(name)}"
                 )
-            name, ext = os.path.splitext(name)
-        self._name = os.path.normcase(name)
-        self._ext = ".exe" if ext == "" and sys.platform == "win32" else ext
+            if sys.platform == "win32":
+                if name.endswith(".exe"):
+                    name, ext = os.path.splitext(name)
+                else:
+                    ext = ".exe"
+            else:
+                ext = ""
+        self._name = name
+        self._ext = ext
+        name = os.path.normcase(name).replace(" ", "_")
+        name = name.partition("-")[0]
+        name = name.partition(".")[0]
+        if not name.isidentifier():
+            raise ConfigError(f"Invalid name for target_name ({self._name!r})")
+        self._internal_name = name
 
 
 class ConstantsModule:
