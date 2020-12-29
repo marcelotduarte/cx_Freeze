@@ -407,7 +407,8 @@ constructor are as follows:
      - the name of the target executable; the default value is the name of the
        script with the extension exchanged with the extension for the base
        executable; if specified without extension, one will be added (Windows
-       only). If specified a pathname, raise an error.
+       only); support for names with version (target_name="Hello-1.0");
+       if specified a pathname, raise an error.
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms

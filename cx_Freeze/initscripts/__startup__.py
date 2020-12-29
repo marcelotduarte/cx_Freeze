@@ -35,7 +35,11 @@ sys.meta_path.append(ExtensionFinder)
 
 
 def run():
-    baseName = os.path.normcase(os.path.basename(sys.executable))
-    name, ext = os.path.splitext(baseName)
+    name = os.path.basename(sys.executable)
+    if sys.platform == "win32":
+        name, _ = os.path.splitext(name)
+    name = os.path.normcase(name).replace(" ", "_")
+    name = name.partition("-")[0]
+    name = name.partition(".")[0]
     module = __import__(name + "__init__")
     module.run()
