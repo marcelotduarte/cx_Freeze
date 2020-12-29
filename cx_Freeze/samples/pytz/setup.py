@@ -1,5 +1,6 @@
-"""A setup script to demonstrate build using pytz
-   This version requires the zoneinfo in the zip file
+"""
+A setup script to demonstrate build using pytz
+This version requires the zoneinfo in the file system
 """
 #
 # Run the build process by running the command 'python setup.py build'
@@ -11,13 +12,7 @@ from cx_Freeze import setup, Executable
 
 setup(
     name="test_pytz_zip",
-    version="0.2",
+    version="0.3",
     description="cx_Freeze script to test pytz",
     executables=[Executable("test_pytz.py")],
-    options={
-        "build_exe": {
-            "zip_include_packages": ["*"],
-            "zip_exclude_packages": [],
-        }
-    },
 )
