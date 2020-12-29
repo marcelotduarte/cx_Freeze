@@ -2,7 +2,7 @@ import glob
 import os
 import sys
 import sysconfig
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 from .common import code_object_replace
 from .finder import ModuleFinder
@@ -1326,6 +1326,33 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
             )
         except ImportError:
             pass  # No bundled libzmq library
+
+
+def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
+    """
+    The zoneinfo package requires timezone data, that
+    can be the in tzdata package, if installed.
+    """
+    tzdata: Optional[Module]
+    try:
+        tzdata = finder.IncludePackage("tzdata")
+    except ImportError:
+        tzdata = None
+    if tzdata is None:
+        return
+    # store tzdata along with zoneinfo
+    tzdata.store_in_file_system = module.in_file_system
+    if tzdata.in_file_system:
+        finder.IncludeFiles(
+            tzdata.path[0],
+            os.path.join("lib", "tzdata"),
+            copy_dependent_files=False,
+        )
+    else:
+        finder.ZipIncludeFiles(tzdata.path[0], "tzdata")
+
+
+load_backports_zoneinfo = load_zoneinfo
 
 
 def load_zope_component(finder: ModuleFinder, module: Module) -> None:
