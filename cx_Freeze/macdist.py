@@ -4,6 +4,8 @@ import plistlib
 import subprocess
 import warnings
 
+from typing import List, Tuple
+
 from cx_Freeze.common import normalize_to_list
 
 from cx_Freeze.darwintools import (
@@ -93,6 +95,8 @@ class bdist_dmg(Command):
 class bdist_mac(Command):
     description = "create a Mac application bundle"
 
+    plist_items: List[Tuple[str,str]]
+
     user_options = [
         ("iconfile=", None, "Path to an icns icon file for the application."),
         (
@@ -106,6 +110,12 @@ class bdist_mac(Command):
             None,
             "File name for the bundle application "
             "without the .app extension.",
+        ),
+        (
+            "plist-items=",
+            None,
+            "A list of key-value pairs (type: List[Tuple[str,str]]) to "
+            "be added to the app bundle Info.plist file."
         ),
         (
             "custom-info-plist=",
@@ -163,12 +173,18 @@ class bdist_mac(Command):
     ]
 
     def initialize_options(self):
+        self.list_options = [
+            "plist_items",
+            "include_frameworks",
+            "include_resources"
+        ]
+        for option in self.list_options:
+            setattr(self, option, [])
+
         self.iconfile = None
         self.qt_menu_nib = False
         self.bundle_name = self.distribution.get_fullname()
         self.custom_info_plist = None
-        self.include_frameworks = []
-        self.include_resources = []
         self.codesign_identity = None
         self.codesign_entitlements = None
         self.codesign_deep = None
@@ -177,7 +193,12 @@ class bdist_mac(Command):
         self.rpath_lib_folder = None
 
     def finalize_options(self):
-        self.include_frameworks = normalize_to_list(self.include_frameworks)
+        # Make sure all options of multiple values are lists
+        for option in self.list_options:
+            setattr(self, option, normalize_to_list(getattr(self, option)))
+        for item in self.plist_items:
+            if not isinstance(item, tuple) or len(item) != 2:
+                raise Exception("Error, plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (bad list item).")
         if self.rpath_lib_folder is not None:
             warnings.warn(
                 "rpath-lib-folder is obsolete and will be removed in the next version"
@@ -198,6 +219,9 @@ class bdist_mac(Command):
 
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
+
+        for key, value in self.plist_items:  # add custom items to the plist file
+            contents[key] = value
 
         with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as fp:
             plistlib.dump(contents, fp)
