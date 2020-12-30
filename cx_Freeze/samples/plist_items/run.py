@@ -13,14 +13,15 @@ import plistlib
 
 print("Testing plist_items option with bdist_mac.")
 
-distutils.core.run_setup("setup.py",["bdist_mac"])
+distutils.core.run_setup("setup.py", ["bdist_mac"])
 
 # Test that the additional keys were correctly added to the plist.
-with open(os.path.join(BUILD_DIR, f"{BUNDLE_NAME}.app", "Contents", "Info.plist" ), "rb") as f:
+name = os.path.join(BUILD_DIR, f"{BUNDLE_NAME}.app", "Contents", "Info.plist")
+with open(name, "rb") as f:
     contents = plistlib.load(f, fmt=None, use_builtin_types=False)
 
 try:
-    assert(contents[TEST_KEY] == TEST_VALUE)
+    assert contents[TEST_KEY] == TEST_VALUE
     print("Test Successful")
 except AssertionError:
     print("Error, keys not correctly added to plist.")

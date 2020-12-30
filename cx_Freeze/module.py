@@ -3,7 +3,7 @@ Base class for module.
 """
 
 from types import CodeType
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import importlib_metadata
 
@@ -53,7 +53,7 @@ class Module:
                     dist_path = str(file.locate())
                     arc_path = file.as_posix()
                     dist_files.append((dist_path, arc_path))
-        self.dist_files: List[str] = dist_files
+        self.dist_files: List[Tuple[str, str]] = dist_files
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]

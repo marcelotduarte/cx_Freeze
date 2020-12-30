@@ -19,8 +19,10 @@ setup(
     description="Sample cx_Freeze script",
     options={
         "build": {"build_base": BUILD_DIR},
-        "bdist_mac":
-                 {"bundle_name":BUNDLE_NAME, "plist_items": [(TEST_KEY,TEST_VALUE)]}
+        "bdist_mac": {
+            "bundle_name": BUNDLE_NAME,
+            "plist_items": [(TEST_KEY, TEST_VALUE)],
+        },
     },
     executables=executables,
 )

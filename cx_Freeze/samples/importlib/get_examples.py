@@ -7,7 +7,7 @@ examples = [
 ]
 
 for example in examples:
-    fileName = example.split("/")[-1]
-    with urlopen(example) as source, open(fileName, "w+b") as target:
+    filename = example.split("/")[-1]
+    with urlopen(example) as source, open(filename, "w+b") as target:
         target.write(source.read())
-        print("Wrote", fileName)
+        print("Wrote", filename)
