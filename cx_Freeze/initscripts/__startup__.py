@@ -41,5 +41,16 @@ def run():
     name = os.path.normcase(name).replace(" ", "_")
     name = name.partition("-")[0]
     name = name.partition(".")[0]
-    module = __import__(name + "__init__")
+    try:
+        module = __import__(name + "__init__")
+    except ModuleNotFoundError:
+        files = [k for k in __loader__._files if k.endswith("__init__.pyc")]
+        if len(files) != 1:
+            raise RuntimeError(
+                "Apparently the original executable has been renamed to "
+                f"'{name}'. When multiple executables are generated, "
+                "renaming is not allowed."
+            ) from None
+        name = files[0].rpartition("__init__")[0]
+        module = __import__(name + "__init__")
     module.run()
