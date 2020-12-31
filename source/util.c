@@ -3,8 +3,9 @@
 //   Shared library for use by cx_Freeze.
 //-----------------------------------------------------------------------------
 
-#include <Python.h>
+#define PY_SSIZE_T_CLEAN
 
+#include <Python.h>
 #ifdef MS_WINDOWS
 #include <windows.h>
 #include <imagehlp.h>
@@ -56,13 +57,6 @@ typedef struct {
 static PyObject *g_BindErrorException = NULL;
 static PyObject *g_ImageNames = NULL;
 #endif
-
-// define PyInt_* macros for Python 3.x
-#ifndef PyInt_Check
-#define PyInt_Check             PyLong_Check
-#define PyInt_FromLong          PyLong_FromLong
-#endif
-
 
 #ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
@@ -283,7 +277,7 @@ static PyObject *ExtBeginUpdateResource(
                 GetLastError(), fileName);
         return NULL;
     }
-    return PyInt_FromLong((long) handle);
+    return PyLong_FromLongLong(handle);
 }
 
 
