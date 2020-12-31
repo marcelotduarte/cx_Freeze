@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #ifdef MS_WINDOWS
 #include <windows.h>
