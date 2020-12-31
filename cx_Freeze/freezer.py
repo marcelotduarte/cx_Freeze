@@ -290,7 +290,10 @@ class Freezer:
         # Copy icon
         if exe.icon is not None:
             if sys.platform == "win32":
-                cx_Freeze.util.AddIcon(target_path, exe.icon)
+                try:
+                    cx_Freeze.util.AddIcon(target_path, exe.icon)
+                except RuntimeError as exc:
+                    print("*** WARNING ***", exc)
             else:
                 target_icon = os.path.join(
                     self.targetDir, os.path.basename(exe.icon)
