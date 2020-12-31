@@ -82,8 +82,10 @@ def prepare_parser():
         "--target-name",
         dest="target_name",
         metavar="NAME",
-        help="the name of the file to create instead of the base name "
-        "of the script and the extension of the base binary",
+        help="the name of the target executable; the default value is the "
+        "name of the script; the extension is optional (automatically added "
+        "on Windows); support for names with version; if specified a "
+        "pathname, raise an error.",
     )
     parser.add_argument(
         "--default-path",

@@ -414,10 +414,8 @@ constructor are as follows:
        package is searched
    * - target_name
      - the name of the target executable; the default value is the name of the
-       script with the extension exchanged with the extension for the base
-       executable; if specified without extension, one will be added (Windows
-       only); support for names with version (target_name="Hello-1.0");
-       if specified a pathname, raise an error.
+       script; the extension is optional (automatically added on Windows);
+       support for names with version; if specified a pathname, raise an error.
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
@@ -435,3 +433,13 @@ constructor are as follows:
      - the trademarks value to include in the version resource associated with
        the executable (Windows only).
 
+.. versionchanged:: 6.5
+    Arguments are all snake_case (camelCase are still valid up to 7.0)
+
+Note:
+   #. ``setup`` accepts a list of `Executable`
+   #. target_name has been extended to support version, like:
+      target_name="Hello-1.0"
+      target_name="Hello.0.1.exe"
+   #. the name of the target executable can be modified after the build only if
+      one Executable is built.
