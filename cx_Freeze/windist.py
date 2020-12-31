@@ -28,12 +28,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         (
             "data=",
             None,
-            "dictionary of data indexed by table name, and each value is a tuple to include in table",
+            "dictionary of data indexed by table name, and each value is a "
+            "tuple to include in table",
         ),
         (
             "summary-data=",
             None,
-            'Dictionary of data to include in msi summary data stream.  Allowed keys are "author", "comments", "keywords".',
+            "Dictionary of data to include in msi summary data stream. "
+            'Allowed keys are "author", "comments", "keywords".',
         ),
         ("product-code=", None, "product code to use"),
         ("install-icon=", None, "icon path to add/remove programs "),
@@ -842,8 +844,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 self.bdist_dir, dry_run=self.dry_run
             )
 
-        # Cause the MSI file to be released.  Without this, then if bdist_msi is run programmatically
-        # from within a larger script, subsequent editting of the MSI is blocked.
+        # Cause the MSI file to be released. Without this, then if bdist_msi
+        # is run programmatically from within a larger script, subsequent
+        # editting of the MSI is blocked.
         self.db = None
 
 

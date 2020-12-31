@@ -27,7 +27,6 @@ def _getInclude(pluginPath: str) -> Tuple[str, str]:
         testPath = os.path.join(
             pdir, os.path.join("PyQt5", "Qt", "plugins", pluginPath)
         )
-        bname = os.path.basename(pluginPath)
 
         # print("Checking for {} at {}".format(bname, testPath))
         if os.path.exists(testPath):

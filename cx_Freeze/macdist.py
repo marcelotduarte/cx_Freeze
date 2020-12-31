@@ -95,7 +95,9 @@ class bdist_dmg(Command):
 class bdist_mac(Command):
     description = "create a Mac application bundle"
 
-    plist_items: List[Tuple[str,str]]
+    plist_items: List[Tuple[str, str]]
+    include_frameworks: List[str]
+    include_resources: List[str]
 
     user_options = [
         ("iconfile=", None, "Path to an icns icon file for the application."),
@@ -114,8 +116,8 @@ class bdist_mac(Command):
         (
             "plist-items=",
             None,
-            "A list of key-value pairs (type: List[Tuple[str,str]]) to "
-            "be added to the app bundle Info.plist file."
+            "A list of key-value pairs (type: List[Tuple[str, str]]) to "
+            "be added to the app bundle Info.plist file.",
         ),
         (
             "custom-info-plist=",
@@ -176,7 +178,7 @@ class bdist_mac(Command):
         self.list_options = [
             "plist_items",
             "include_frameworks",
-            "include_resources"
+            "include_resources",
         ]
         for option in self.list_options:
             setattr(self, option, [])
@@ -198,10 +200,14 @@ class bdist_mac(Command):
             setattr(self, option, normalize_to_list(getattr(self, option)))
         for item in self.plist_items:
             if not isinstance(item, tuple) or len(item) != 2:
-                raise Exception("Error, plist_items must be a list of key, value pairs (List[Tuple[str,str]]) (bad list item).")
+                raise Exception(
+                    "Error, plist_items must be a list of key, value pairs "
+                    "(List[Tuple[str, str]]) (bad list item)."
+                )
         if self.rpath_lib_folder is not None:
             warnings.warn(
-                "rpath-lib-folder is obsolete and will be removed in the next version"
+                "rpath-lib-folder is obsolete and will be removed in the "
+                "next major version"
             )
 
     def create_plist(self):
@@ -220,7 +226,8 @@ class bdist_mac(Command):
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
 
-        for key, value in self.plist_items:  # add custom items to the plist file
+        # add custom items to the plist file
+        for key, value in self.plist_items:
             contents[key] = value
 
         with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as fp:
@@ -269,36 +276,41 @@ class bdist_mac(Command):
                         )
 
     def setRelativeReferencePaths(self, buildDir: str, binDir: str):
-        """Make all the references from included Mach-O files to other included
-        Mach-O files relative."""
+        """
+        Make all the references from included Mach-O files to other included
+        Mach-O files relative.
+        """
 
-        # TODO: Do an initial pass through the DarwinFiles to see if any references on DarwinFiles copied into the
-        #  bundle that were not already set--in which case we set them?
+        # TODO: Do an initial pass through the DarwinFiles to see if any
+        # references on DarwinFiles copied into the bundle that were not
+        # already set--in which case we set them?
 
         for darwinFile in self.darwinTracker:
             # get the relative path to darwinFile in build directory
             relativeCopyDestination = os.path.relpath(
                 darwinFile.getBuildPath(), buildDir
             )
-            # figure out directory where it will go in binary directory
-            # for .app bundle, this would be the Content/MacOS subdirectory in bundle
+            # figure out directory where it will go in binary directory for
+            # .app bundle, this would be the Content/MacOS subdirectory in
+            # bundle
             filePathInBinDir = os.path.join(binDir, relativeCopyDestination)
 
-            # for each file that this darwinFile references, update the reference as necessary
-            # if the file is copied into the binary package, change the refernce to be relative to
-            # @executable_path (so an .app bundle will work wherever it is moved)
+            # for each file that this darwinFile references, update the
+            # reference as necessary; if the file is copied into the binary
+            # package, change the refernce to be relative to @executable_path
+            # (so an .app bundle will work wherever it is moved)
             for path, machORef in darwinFile.machOReferenceDict.items():
                 if not machORef.isCopied:
-                    # referenced file not copied -- assume this is a system file that will also be
-                    # present on the user's machine, and do not change reference
+                    # referenced file not copied -- assume this is a system
+                    # file that will also be present on the user's machine,
+                    # and do not change reference
                     continue
-                rawPath = (
-                    machORef.rawPath
-                )  # this is the reference in the machO file that needs to be updated
+                # this is the reference in the machO file that needs to be
+                # updated
+                rawPath = machORef.rawPath
                 referencedDarwinFile: DarwinFile = machORef.targetFile
-                absoluteBuildDest = (
-                    referencedDarwinFile.getBuildPath()
-                )  # this is where file copied in build dir
+                # this is where file copied in build dir
+                absoluteBuildDest = referencedDarwinFile.getBuildPath()
                 relativeBuildDest = os.path.relpath(
                     absoluteBuildDest, buildDir
                 )
@@ -314,8 +326,10 @@ class bdist_mac(Command):
         return
 
     def find_qt_menu_nib(self):
-        """Returns a location of a qt_menu.nib folder, or None if this is not
-        a Qt application."""
+        """
+        Returns a location of a qt_menu.nib folder, or None if this is not
+        a Qt application.
+        """
         if self.qt_menu_nib:
             return self.qt_menu_nib
         elif any(
@@ -352,8 +366,10 @@ class bdist_mac(Command):
         raise OSError("Could not find qt_menu.nib")
 
     def prepare_qt_app(self):
-        """Add resource files for a Qt application. Should do nothing if the
-        application does not use QtCore."""
+        """
+        Add resource files for a Qt application. Should do nothing if the
+        application does not use QtCore.
+        """
         nib_locn = self.find_qt_menu_nib()
         if nib_locn is None:
             return
@@ -364,8 +380,8 @@ class bdist_mac(Command):
         )
 
         # qt.conf needs to exist, but needn't have any content
-        f = open(os.path.join(self.resourcesDir, "qt.conf"), "w")
-        f.close()
+        with open(os.path.join(self.resourcesDir, "qt.conf"), "w"):
+            pass
 
     def run(self):
         self.run_command("build")

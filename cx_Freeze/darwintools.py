@@ -9,11 +9,12 @@ from typing import List, Tuple, Dict, Optional, Set, Iterable
 #
 # @executable_path - where ultimate calling executable is
 # @loader_path - directory of current object
-# @rpath - list of paths to check (earlier rpaths have higher priority, i believe)
+# @rpath - list of paths to check
+# (earlier rpaths have higher priority, i believe)
 #
-# Resolving these variables (particularly @rpath) requires tracing through the sequence
-# linked MachO files leading the the current file, to determine which directories are
-# included in the current rpath.
+# Resolving these variables (particularly @rpath) requires tracing through the
+# sequence linked MachO files leading the the current file, to determine which
+# directories are included in the current rpath.
 
 
 class DarwinException(Exception):
@@ -37,9 +38,12 @@ class MachOReference:
         self, sourceFile: "DarwinFile", rawPath: str, resolvedPath: str
     ):
         """
-        :param sourceFile: DarwinFile object for file in which the reference was found
-        :param rawPath: The path that appears in the file (may include @rpath, etc.)
-        :param resolvedPath: The path resolved to an explicit path to a file on system.
+        :param sourceFile: DarwinFile object for file in which the reference
+        was found
+        :param rawPath: The path that appears in the file
+        (may include @rpath, etc.)
+        :param resolvedPath: The path resolved to an explicit path to a file
+        on system.
         """
         self.sourceFile: "DarwinFile" = sourceFile
         self.rawPath: str = rawPath
@@ -59,9 +63,12 @@ class MachOReference:
 
 
 class DarwinFile:
-    """A DarwinFile object tracks a file referenced in the application, and record where it was
-    ultimately moved to in the application bundle. Should also save a copy of the DarwinFile
-    object, if any!, created for each referenced library."""
+    """
+    A DarwinFile object tracks a file referenced in the application, and record
+    where it was ultimately moved to in the application bundle. Should also
+    save a copy of the DarwinFile object, if any!, created for each referenced
+    library.
+    """
 
     def __init__(
         self,
@@ -69,8 +76,10 @@ class DarwinFile:
         referencingFile: Optional["DarwinFile"] = None,
     ):
         """
-        :param originalFilePath: The original path of the DarwinFile (before copying into app)
-        :param referencingFile: DarwinFile object representing the referencing source file
+        :param originalFilePath: The original path of the DarwinFile (before
+        copying into app)
+        :param referencingFile: DarwinFile object representing the referencing
+        source file
         """
         self.originalFilePath = os.path.realpath(originalFilePath)
         # path to file in build directory
@@ -79,8 +88,8 @@ class DarwinFile:
         self.loadCommands: List[MachOLoadCommand] = []
         self.rpathCommands: List[MachORPathCommand] = []
 
-        # note -- if file gets referenced twice (or more), it will only be the first
-        # reference that gets recorded.
+        # note: if file gets referenced twice (or more), it will only be the
+        # first reference that gets recorded.
         self.referencingFile: Optional[DarwinFile] = None
         self.libraryPathResolution: Dict[str, str] = {}
         self._rpath: Optional[List[str]] = None
@@ -161,12 +170,14 @@ class DarwinFile:
         raise DarwinException(f"resolveLoader() called on bad path: {path}")
 
     def resolveExecutable(self, path: str) -> str:
-        """@executable_path should resolve to the directory where the original
+        """
+        @executable_path should resolve to the directory where the original
         executable was located. By default, we set that to the directory of the
         library, so it would resolve in the same was as if linked from an
         executable in the same directory.
         """
-        # consider making this resolve to the directory of the target script instead?
+        # consider making this resolve to the directory of the target script
+        # instead?
         if self.isExecutablePath(path=path):
             return path.replace("@executable_path", self.sourceDir(), 1)
         raise DarwinException(
@@ -181,8 +192,11 @@ class DarwinFile:
         raise DarwinException(f"resolveRPath() failed to resolve path: {path}")
 
     def getRPath(self) -> List[str]:
-        """Returns the rpath in effect for this file.  Determined by rpath commands in this file
-        and (recursively) the chain of files that referenced this file."""
+        """
+        Returns the rpath in effect for this file.  Determined by rpath
+        commands in this file and (recursively) the chain of files that
+        referenced this file.
+        """
         if self._rpath is not None:
             return self._rpath
         rawPaths = [c.rPath for c in self.rpathCommands]
@@ -204,8 +218,10 @@ class DarwinFile:
         return self._rpath
 
     def resolvePath(self, path) -> str:
-        """Resolves any @executable_path, @loader_path, and @rpath references
-        in a path."""
+        """
+        Resolves any @executable_path, @loader_path, and @rpath references
+        in a path.
+        """
         if self.isLoaderPath(path):  # replace @loader_path
             return self.resolveLoader(path)
         if self.isExecutablePath(path):  # replace @executable_path
@@ -234,9 +250,7 @@ class DarwinFile:
     def getMachOReference(self, resolvedPath: str) -> MachOReference:
         if resolvedPath not in self.machOReferenceDict:
             raise DarwinException(
-                "Path {} is not a path referenced from DarwinFile".format(
-                    resolvedPath
-                )
+                f"Path {resolvedPath} is not a path referenced from DarwinFile"
             )
         return self.machOReferenceDict[resolvedPath]
 
@@ -244,8 +258,10 @@ class DarwinFile:
         return self.machOReferenceDict.items()
 
     def setCopyDestination(self, destinationPath: str):
-        """Tell the Mach-O file its relative position (compared to executable)
-        in the bundled package."""
+        """
+        Tell the Mach-O file its relative position (compared to executable)
+        in the bundled package.
+        """
         self._buildPath = destinationPath
 
 
@@ -260,7 +276,9 @@ class MachOCommand:
 
     @staticmethod
     def _getMachOCommands(forFileAtPath: str) -> List["MachOCommand"]:
-        """Returns a list of load commands in the specified file, using otool."""
+        """
+        Returns a list of load commands in the specified file, using otool.
+        """
         shellCommand = f'otool -l "{forFileAtPath}"'
         commands: List[MachOCommand] = []
         currentCommandLines = None
@@ -313,7 +331,7 @@ class MachOLoadCommand(MachOCommand):
         return self.loadPath
 
     def __repr__(self):
-        return f'<LoadCommand path="{self.loadPath}">'
+        return f"<LoadCommand path={self.loadPath!r}>"
 
 
 class MachORPathCommand(MachOCommand):
@@ -332,7 +350,7 @@ class MachORPathCommand(MachOCommand):
         return
 
     def __repr__(self):
-        return f'<RPath path="{self.rPath}">'
+        return f"<RPath path={self.rPath!r}>"
 
 
 def _printFile(
@@ -341,8 +359,10 @@ def _printFile(
     level: int,
     noRecurse=False,
 ):
-    """Utility function to prints details about a DarwinFile and (optionally) recursively
-    any other DarwinFiles that it references."""
+    """
+    Utility function to prints details about a DarwinFile and (optionally)
+    recursively any other DarwinFiles that it references.
+    """
     print("{}{}".format(level * "|  ", darwinFile.originalFilePath), end="")
     print(" (already seen)" if noRecurse else "")
     if noRecurse:
@@ -372,14 +392,13 @@ def printMachOFiles(fileList: List[DarwinFile]):
 def changeLoadReference(
     fileName: str, oldReference: str, newReference: str, VERBOSE: bool = True
 ):
-    """Utility function that uses intall_name_tool to change oldReference to
-    newReference in the machO file specified by fileName."""
+    """
+    Utility function that uses intall_name_tool to change oldReference to
+    newReference in the machO file specified by fileName.
+    """
     if VERBOSE:
-        print(
-            "Redirecting load reference for <{}> {} -> {}".format(
-                fileName, oldReference, newReference
-            )
-        )
+        print("Redirecting load reference for ", end="")
+        print(f"<{fileName}> {oldReference} -> {newReference}")
     original = os.stat(fileName).st_mode
     newMode = original | stat.S_IWUSR
     os.chmod(fileName, newMode)
@@ -396,7 +415,7 @@ class DarwinFileTracker:
         # a list of DarwinFile objects for files being copied into project
         self._targetFileList: List[DarwinFile] = []
 
-        # a dictionary mapping (build directory) target paths to DarwinFile objects
+        # a mapping of (build directory) target paths to DarwinFile objects
         self._targetFileDict: Dict[str, DarwinFile] = {}
 
         self._sourceFileDict: Dict[str, DarwinFile] = {}
@@ -414,15 +433,17 @@ class DarwinFileTracker:
         return False
 
     def getDarwinFile(self, sourcePath: str, targetPath: str) -> DarwinFile:
-        """Gets the DarwinFile for file copied from sourcePath to targetPath. If either (i) nothing,
-        or (ii) a different file has been copied to targetPath, raises a DarwinException."""
+        """
+        Gets the DarwinFile for file copied from sourcePath to targetPath.
+        If either (i) nothing, or (ii) a different file has been copied to
+        targetPath, raises a DarwinException.
+        """
 
         # check that the file has been copied to
         if targetPath not in self._targetFileDict:
             raise DarwinException(
-                'File "{}" already copied to, but no DarwinFile object found for it.'.format(
-                    targetPath
-                )
+                f"File {targetPath!r} already copied to, "
+                "but no DarwinFile object found for it."
             )
 
         # check that the target file came from the specified source
@@ -430,31 +451,26 @@ class DarwinFileTracker:
         realSource = os.path.realpath(sourcePath)
         targetRealSource = os.path.realpath(targetDarwinFile.originalFilePath)
         if realSource != targetRealSource:
-            exceptionString = """Attempting to copy two files to "{}"
-   source 1: "{}" (real: "{}")
-   source 2: "{}" (real: "{}")
-(This may be caused by including modules in the zip file that rely on binary \
-libraries with the same name.)"""
-            exceptionString = exceptionString.format(
-                targetPath,
-                targetDarwinFile.originalFilePath,
-                targetRealSource,
-                sourcePath,
-                realSource,
+            raise DarwinException(
+                f"Attempting to copy two files to {targetPath!r}\n"
+                f"source 1: {targetDarwinFile.originalFilePath!r} "
+                f"(real: {targetRealSource!r})\n"
+                f"source 2: {sourcePath!r} (real: {realSource!r})\n"
+                "(This may be caused by including modules in the zip file "
+                "that rely on binary libraries with the same name.)"
             )
-
-            raise DarwinException(exceptionString)
         return targetDarwinFile
 
     def recordCopiedFile(self, targetPath: str, darwinFile: DarwinFile):
-        """Record that a DarwinFile is being copied to a given path.  If the
+        """
+        Record that a DarwinFile is being copied to a given path.  If the
         same file has already been copied to that path, do nothing. If a
-        different file has been copied to that bath, raise a DarwinException."""
+        different file has been copied to that bath, raise a DarwinException.
+        """
         if self.pathIsAlreadyCopiedTo(targetPath=targetPath):
             raise DarwinException(
-                'addFile() called with targetPath already copied to (targetPath="{}")'.format(
-                    targetPath
-                )
+                "addFile() called with targetPath already copied to "
+                f"(targetPath={targetPath!r})"
             )
 
         self._targetFileList.append(darwinFile)
@@ -472,8 +488,8 @@ libraries with the same name.)"""
     def finalizeReferences(self):
         """
         Goes through the stored list of target files, and updates references.
-        Normally the references may not be updated automatically, if _CopyFile is called without
-        copyDependentFiles=True.
+        Normally the references may not be updated automatically, if _CopyFile
+        is called without copyDependentFiles=True.
         """
 
         for df in self._targetFileList:  # DarwinFile
