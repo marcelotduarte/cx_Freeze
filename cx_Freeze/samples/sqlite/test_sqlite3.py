@@ -1,10 +1,11 @@
 import sqlite3
 
-#examples from python documentation
+# examples from python documentation
 
 con = sqlite3.connect(":memory:")
 cur = con.cursor()
-cur.executescript("""
+cur.executescript(
+    """
     create table person(
         firstname,
         lastname,
@@ -23,10 +24,11 @@ cur.executescript("""
         'Douglas Adams',
         1987
     );
-    """)
-with open('dump.sql', 'w') as f:
+    """
+)
+with open("dump.sql", "w") as f:
     for line in con.iterdump():
-        f.write('%s\n' % line)
+        f.write("%s\n" % line)
 
-print('dump.sql created')
+print("dump.sql created")
 con.close()

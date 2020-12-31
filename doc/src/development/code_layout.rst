@@ -16,7 +16,7 @@ The project's code layout
 * ``source/`` (C files)
 
   * ``util.c`` - Compiled functions for cx_Freeze itself. Compiles to
-    :mod:`cx_Freeze.util`. Most of the functions are used only on Windows.
+    :mod:`cx_Freeze.util`. Functions are used only on Windows.
   * ``bases/`` - The source of the base executables which are used to launch
     your Python applications. Different bases serve for different types of
     application on Windows (GUI, console application or service). The base

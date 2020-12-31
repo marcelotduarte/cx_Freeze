@@ -1,3 +1,0 @@
-cx_Freeze
-twisted
-

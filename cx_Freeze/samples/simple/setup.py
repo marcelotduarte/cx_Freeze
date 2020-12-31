@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A very simple setup script to create a single executable
 #
 # hello.py is a very simple 'Hello, world' type script which also displays the
@@ -12,12 +10,11 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('hello.py')
-]
+executables = [Executable("hello.py")]
 
-setup(name='hello',
-      version='0.1',
-      description='Sample cx_Freeze script',
-      executables=executables
-      )
+setup(
+    name="hello",
+    version="0.1",
+    description="Sample cx_Freeze script",
+    executables=executables,
+)

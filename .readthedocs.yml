@@ -1,0 +1,14 @@
+version: 2
+
+sphinx:
+  builder: html
+  configuration: doc/src/conf.py
+  fail_on_warning: true
+
+formats: all
+
+python:
+  version: 3.8
+  install:
+    - method: pip
+      path: .

@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-
-import sys
-
-sys.stdout.write('importing pkg1.pkg2.sub3\n')
+print("importing pkg1.pkg2.sub3")
 
 from . import sub5
 from .. import sub6

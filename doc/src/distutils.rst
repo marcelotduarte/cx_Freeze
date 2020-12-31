@@ -5,7 +5,9 @@ distutils setup script
 
 In order to make use of distutils a setup script must be created. This is
 called ``setup.py`` by convention, although it can have any name. It looks
-something like this::
+something like this:
+
+  .. code-block:: python
 
     import sys
     from cx_Freeze import setup, Executable
@@ -13,8 +15,8 @@ something like this::
     # Dependencies are automatically detected, but it might need fine tuning.
     build_exe_options = {"packages": ["os"], "excludes": ["tkinter"]}
 
-    # GUI applications require a different base on Windows (the default is for a
-    # console application).
+    # GUI applications require a different base on Windows (the default is for
+    # a console application).
     base = None
     if sys.platform == "win32":
         base = "Win32GUI"
@@ -28,7 +30,9 @@ something like this::
 There are more examples in the ``samples/`` directory of `the source
 <https://github.com/marcelotduarte/cx_Freeze/tree/master/cx_Freeze/samples>`_.
 
-The script is invoked as follows::
+The script is invoked as follows:
+
+  .. code-block:: console
 
     python setup.py build
 
@@ -38,7 +42,9 @@ identifier for the platform that distutils uses. This allows for multiple
 platforms to be built without conflicts.
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
-includes for your application, by running the setup script as::
+includes for your application, by running the setup script as:
+
+  .. code-block:: console
 
     python setup.py bdist_msi
 
@@ -52,16 +58,21 @@ provide the ability to both build and install executables. In typical distutils
 fashion they can be provided in the setup script, on the command line or in
 a ``setup.cfg`` configuration file. They are described in further detail below.
 
-To specify options in the script, use underscores in the name. For example::
+To specify options in the script, use underscores in the name. For example:
+
+  .. code-block:: python
 
     setup(...
           options = {'build_exe': {'init_script':'Console'}} )
 
-To specify the same options on the command line, use dashes, like this::
+To specify the same options on the command line, use dashes, like this:
+
+  .. code-block:: console
 
     python setup.py build_exe --init-script Console
 
-Some options also have a short form to use on the command line. These are given in brackets below.
+Some options also have a short form to use on the command line. These are given
+in brackets below.
 
 build
 `````
@@ -77,8 +88,8 @@ the standard set of options for the command:
    * - option name
      - description
    * - build_exe (-b)
-     - directory for built executables and dependent files, defaults to
-       ``build/``
+     - directory for built executables and dependent files, defaults to a
+       directory of the form ``build/exe.[platform identifier].[python version]``
 
 .. _distutils_build_exe:
 
@@ -96,7 +107,10 @@ It can be further customized:
      - description
    * - build_exe (-b)
      - directory for built executables and dependent files, defaults to
-       ``build/``
+       the value of the "build_exe" option on the build command (see
+       above); note that using this option (instead of the corresponding
+       option on the build command) may break bdist_msi, bdist_mac, and
+       other commands
    * - optimize (-o)
      - optimization level, one of 0 (disabled), 1 or 2
    * - excludes (-e)
@@ -106,14 +120,11 @@ It can be further customized:
    * - packages (-p)
      - comma separated list of packages to include, which includes all
        submodules in the package
-   * - namespace_packages
-     - comma separated list of packages to be treated as namespace packages
-       (path is extended using pkgutil)
    * - replace_paths
      - Modify filenames attached to code objects, which appear in tracebacks.
-       Pass a comma separated list of paths in the form <search>=<replace>. The
-       value * in the search portion will match the directory containing the
-       entire package, leaving just the relative path to the module.
+       Pass a comma separated list of paths in the form <search>=<replace>.
+       The value * in the search portion will match the directory containing
+       the entire package, leaving just the relative path to the module.
    * - path
      - comma separated list of paths to search; the default value is sys.path
    * - no_compress
@@ -233,7 +244,12 @@ command:
      - perform installation for all users; the default value is False and
        results in an installation for just the installing user
    * - data
-     - dictionary of arbitrary MSI data indexed by table name
+     - dictionary of arbitrary MSI data indexed by table name; for each table,
+       a list of tuples should be provided, representing the rows that should
+       be added to the table
+   * - summary_data
+     - dictionary of data to include in MSI summary information stream
+       (allowable keys are "author", "comments", "keywords")
    * - directories
      - list of directories that should be created during installation
    * - environment_variables
@@ -250,14 +266,18 @@ command:
    * - target_name
      - specifies the name of the file that is to be created
    * - upgrade_code
-     - define the upgrade code for the package that is created; this is used to
-       force removal of any packages created with the same upgrade code prior
-       to the installation of this one
+     - define the GUID of the upgrade code for the package that is created;
+       this is used to force removal of any packages created with the same
+       upgrade code prior to the installation of this one; the valid format for
+       a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
+       Refer to `Windows GUID <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
 
-For example::
+For example:
+
+  .. code-block:: python
 
     'bdist_msi': {
-        'upgrade_code': upgrade_code,
+        'upgrade_code': "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
         'add_to_path': True,
         'environment_variables': [
             ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
@@ -293,6 +313,9 @@ bundle (a .app directory).
        auto-detected.
    * - bundle_name
      - File name for the bundle application without the .app extension.
+   * - plist_items
+     - A list of key-value pairs (type: List[Tuple[str, str]]) to be added to
+       the app bundle Info.plist file.
    * - custom_info_plist
      - File to be used as the Info.plist in the app bundle. A basic one will be
        generated by default.
@@ -314,7 +337,8 @@ bundle (a .app directory).
    * - absolute_reference_path
      - Path to use for all referenced libraries instead of @executable_path
    * - rpath_lib_folder
-     - replace @rpath with given folder for any files
+     - **DEPRECATED**. Will be removed in next version. (Formerly replaced
+       @rpath with given folder for any files.)
 
 .. versionadded:: 4.3
 
@@ -333,12 +357,15 @@ bundle (a .app directory).
     ``absolute_reference_path`` and ``rpath_lib_folder`` options. Replaced the
     ``compressed`` option with the ``no_compress`` option.
 
+.. versionchanged:: 6.5
+    Deprecated the ``rpath_lib_folder`` option.
+
 
 bdist_dmg
 `````````
 
-This command is available on Mac OS X systems; it creates an application bundle,
-then packages it into a DMG disk image suitable for distribution and
+This command is available on Mac OS X systems; it creates an application
+bundle, then packages it into a DMG disk image suitable for distribution and
 installation.
 
 .. list-table::
@@ -375,7 +402,7 @@ constructor are as follows:
      - description
    * - script
      - the name of the file containing the script which is to be frozen
-   * - initScript
+   * - init_script
      - the name of the initialization script that will be executed before the
        actual script is executed; this script is used to set up the environment
        for the executable; if a name is given without an absolute path the
@@ -385,18 +412,17 @@ constructor are as follows:
      - the name of the base executable; if a name is given without an absolute
        path the names of files in the bases subdirectory of the cx_Freeze
        package is searched
-   * - targetName
+   * - target_name
      - the name of the target executable; the default value is the name of the
-       script with the extension exchanged with the extension for the base
-       executable; if specified without extension, one will be added (Windows
-       only).
+       script; the extension is optional (automatically added on Windows);
+       support for names with version; if specified a pathname, raise an error.
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
-   * - shortcutName
+   * - shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
        package (Windows only).
-   * - shortcutDir
+   * - shortcut_dir
      - the directory in which to place the shortcut when being installed by an
        MSI package; see the MSI Shortcut table documentation for more
        information on what values can be placed here (Windows only).
@@ -407,3 +433,13 @@ constructor are as follows:
      - the trademarks value to include in the version resource associated with
        the executable (Windows only).
 
+.. versionchanged:: 6.5
+    Arguments are all snake_case (camelCase are still valid up to 7.0)
+
+Note:
+   #. ``setup`` accepts a list of `Executable`
+   #. target_name has been extended to support version, like:
+      target_name="Hello-1.0"
+      target_name="Hello.0.1.exe"
+   #. the name of the target executable can be modified after the build only if
+      one Executable is built.

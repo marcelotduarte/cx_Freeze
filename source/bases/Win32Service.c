@@ -131,10 +131,12 @@ static int Service_Stop(udt_ServiceInfo* info)
         return LogPythonException("unable to create new thread state");
     PyEval_AcquireThread(threadState);
 
-    // call the "Stop" method
-    result = PyObject_CallMethod(gInstance, "Stop", NULL);
+    // call the "stop" method
+    result = PyObject_CallMethod(gInstance, "stop", NULL);
     if (!result)
-        return LogPythonException("exception calling Stop method");
+        result = PyObject_CallMethod(gInstance, "Stop", NULL);
+        if (!result)
+            return LogPythonException("exception calling stop method");
     Py_DECREF(result);
 
     // destroy the Python thread and release the global interpreter lock
@@ -170,10 +172,13 @@ static int Service_SessionChange(DWORD sessionId, DWORD eventType)
     PyEval_AcquireThread(threadState);
 
     // call Python method
-    result = PyObject_CallMethod(gInstance, "SessionChanged", "ii",
-            sessionId, eventType);
+    result = PyObject_CallMethod(gInstance, "session_changed", "ii",
+                                 sessionId, eventType);
     if (!result)
-        return LogPythonException("exception calling SessionChanged method");
+        result = PyObject_CallMethod(gInstance, "sessionChanged", "ii",
+                                     sessionId, eventType);
+        if (!result)
+            return LogPythonException("exception calling session_changed method");
     Py_DECREF(result);
 
     // destroy the Python thread and release the global interpreter lock
@@ -522,9 +527,11 @@ static int Service_Run(udt_ServiceInfo *info)
     iniFileNameObj = PyUnicode_FromWideChar(gIniFileName, -1);
     if (!iniFileNameObj)
         return LogPythonException("failed to create ini file as string");
-    temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
+    temp = PyObject_CallMethod(gInstance, "initialize", "O", iniFileNameObj);
     if (!temp)
-        return LogPythonException("failed to initialize instance properly");
+        temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
+        if (!temp)
+            return LogPythonException("failed to initialize instance properly");
     Py_CLEAR(iniFileNameObj);
     Py_CLEAR(temp);
 
@@ -532,9 +539,11 @@ static int Service_Run(udt_ServiceInfo *info)
     LogMessage(LOG_LEVEL_INFO, "starting up service");
     if (Service_SetStatus(info, SERVICE_RUNNING) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as started");
-    temp = PyObject_CallMethod(gInstance, "Run", NULL);
+    temp = PyObject_CallMethod(gInstance, "run", NULL);
     if (!temp)
-        return LogPythonException("exception running service");
+        temp = PyObject_CallMethod(gInstance, "Run", NULL);
+        if (!temp)
+            return LogPythonException("exception running service");
     Py_DECREF(temp);
     Py_DECREF(gInstance);
     gInstance = NULL;

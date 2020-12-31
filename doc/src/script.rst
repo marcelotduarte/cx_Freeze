@@ -9,9 +9,11 @@ whereas on Unix platforms this in the bin directory of the prefix where Python
 is installed.
 
 Assuming you have a script called ``hello.py`` which you want to turn into an
-executable, this can be accomplished by this command::
+executable, this can be accomplished by this command:
 
-    cxfreeze hello.py --target-dir dist
+  .. code-block:: console
+
+    cxfreeze -c hello.py --target-dir dist
 
 Further customization can be done using the following options:
 
@@ -82,13 +84,18 @@ Further customization can be done using the following options:
     path can be * which means all paths not already
     specified
 
-.. option:: --include-modules=NAMES
+.. option:: --includes=NAMES --include-modules=NAMES
 
     comma separated list of modules to include
 
-.. option:: --exclude-modules=NAMES
+.. option:: --excludes=NAMES --exclude-modules=NAMES
 
     comma separated list of modules to exclude
+
+.. option:: --packages=NAMES
+
+    comma separated list of packages to include, which includes all
+    submodules in the package
 
 .. option:: --include-files=FILES
 
@@ -100,6 +107,23 @@ Further customization can be done using the following options:
     of the form name=arcname which will specify the
     archive name to use; multiple --zip-include arguments
     can be used
+
+.. option:: --zip-include-packages=NAMES
+
+    comma separated list of packages which should be included in
+    the zip file; the default is for all packages to be placed in the
+    file system, not the zip file; those packages which are known to
+    work well inside a zip file can be included if desired; use * to
+    specify that all packages should be included in the zip file
+
+.. option:: --zip-exclude-packages=NAMES
+
+    comma separated list of packages which should be excluded from
+    the zip file and placed in the file system instead; the default is
+    for all packages to be placed in the file system since a number of pa
+    ckages assume that is where they are found and will fail when placed
+    in a zip file; use * to specify that all packages should be placed
+    in the file system and excluded from the zip file (the default)
 
 .. option:: --icon=ICON
 

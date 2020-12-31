@@ -7,10 +7,16 @@
 
 from cx_Freeze import setup, Executable
 
-setup(name="test_crypt",
-      version="0.2",
-      description="cx_Freeze script to test cryptography",
-      executables=[Executable("test_crypt.py")],
-      options={"build_exe": {"excludes": ["tkinter"],
-                             "zip_include_packages": ["*"],
-                             "zip_exclude_packages": []}})
+setup(
+    name="test_crypt",
+    version="0.2",
+    description="cx_Freeze script to test cryptography",
+    executables=[Executable("test_crypt.py")],
+    options={
+        "build_exe": {
+            "excludes": ["tkinter"],
+            "zip_include_packages": ["*"],
+            "zip_exclude_packages": [],
+        }
+    },
+)

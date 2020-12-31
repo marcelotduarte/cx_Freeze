@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # A very simple setup script to create a single executable built from a module
 # which includes an executable section protected by "if __name__ == '__main__'
 #
@@ -10,12 +8,11 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [
-    Executable('asmodule.py')
-]
+executables = [Executable("asmodule.py")]
 
-setup(name='asmodule',
-      version='0.1',
-      description='Sample cx_Freeze script',
-      executables=executables
-      )
+setup(
+    name="asmodule",
+    version="0.1",
+    description="Sample cx_Freeze script",
+    executables=executables,
+)

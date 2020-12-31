@@ -2,7 +2,8 @@
 
 from numpy import arange, sin, pi
 import matplotlib
-matplotlib.use('WXAgg')
+
+matplotlib.use("WXAgg")
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
@@ -11,7 +12,7 @@ import wx
 
 class CanvasFrame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self, None, -1, 'CanvasFrame', size=(550, 350))
+        wx.Frame.__init__(self, None, -1, "CanvasFrame", size=(550, 350))
         color = wx.Colour("WHITE")
         self.SetBackgroundColour(color)
         self.figure = Figure()
@@ -28,7 +29,7 @@ class CanvasFrame(wx.Frame):
     def add_toolbar(self):
         self.toolbar = NavigationToolbar2Wx(self.canvas)
         self.toolbar.Realize()
-        if wx.Platform == '__WXMAC__':
+        if wx.Platform == "__WXMAC__":
             self.SetToolBar(self.toolbar)
         else:
             tw, th = self.toolbar.GetSize()
@@ -43,10 +44,11 @@ class CanvasFrame(wx.Frame):
 
 class App(wx.App):
     def OnInit(self):
-        '''Create the main window and insert the custom frame'''
+        """Create the main window and insert the custom frame"""
         frame = CanvasFrame()
         frame.Show(True)
         return True
+
 
 app = App(0)
 app.MainLoop()

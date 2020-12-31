@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 A simple Quote of the Day server
@@ -11,8 +10,9 @@ from twisted.internet import reactor
 
 class QOTD(Protocol):
     def connectionMade(self):
-        self.transport.write(b'An apple a day keeps the doctor away\r\n')
+        self.transport.write(b"An apple a day keeps the doctor away\r\n")
         self.transport.loseConnection()
+
 
 # Next lines are magic:
 factory = Factory()

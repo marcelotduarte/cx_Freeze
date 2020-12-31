@@ -198,7 +198,16 @@ static PyObject *ExtAddIcon(
     groupIconDir = NULL;
     if (GetFileData(iconName, &data) < 0)
         succeeded = FALSE;
-    iconDir = (ICONDIR*) data;
+
+    // check for valid icon
+    if (succeeded) {
+        iconDir = (ICONDIR*) data;
+        if (iconDir->idType != 1) {
+            PyErr_Format(PyExc_RuntimeError,
+                "Icon filename '%s' has invalid type.", iconName);
+            succeeded = FALSE;
+        }
+    }
 
     // next, attempt to add a group icon resource
     if (succeeded) {

@@ -1,32 +1,31 @@
 # About cx\_Freeze
 
-**cx\_Freeze** is a set of scripts and modules for freezing Python scripts into
-executables, in much the same way that [py2exe](https://pypi.org/project/py2exe/) and
-[py2app](https://pypi.org/project/py2app/) do. Unlike these two tools,
-cx\_Freeze is cross platform and should work on any platform that Python itself
-works on. It supports [Python](https://www.python.org/) 3.5.2 or higher.
+**cx\_Freeze** creates standalone executables from Python scripts, with the same
+performance, is cross-platform and should work on any platform that Python
+itself works on.
 
-If you need support for Python 2.x, cx\_Freeze version 5.1.x should be used
-instead.
+It supports [Python](https://www.python.org/) 3.6 up to 3.9.
 
-# Download/Install
+If you need support for older Python check the documentation.
 
-Install by issuing the command
+# Highlights of Version 6.2 up to 6.4:
+- Support for metadata to use by pkg_resources and importlib.metadata
+- Namespace packages are automatically detected
+- Enhanced support for Python 3.8 and Intial support for Python 3.9
+- Better support for MSYS2
+- Improvements for multiprocessing
+- More integrated to setuptools
+- Various bug fixes.
 
-```
-python -m pip install cx_Freeze --upgrade
-```
+# Installation
 
-or download directly from [PyPI](https://pypi.python.org/pypi/cx_Freeze).
-
-If you do not have pip installed or would prefer a more manual installation
-process, the following steps also work once the source package has been
-downloaded and extracted:
+In a virtual environment, install by issuing the command:
 
 ```
-python setup.py build
-python setup.py install
+pip install cx_Freeze --upgrade
 ```
+
+For other options, check the documentation.
 
 # Documentation
 
@@ -42,5 +41,4 @@ cx\_Freeze uses a license derived from the
 [Python Software Foundation License](https://www.python.org/psf/license).
 You can read the cx\_Freeze license in the
 [documentation](https://cx-freeze.readthedocs.io/en/latest/license.html)
-or in the [source repository](doc/license.rst).
-
+or in the [source repository](doc/src/license.rst).

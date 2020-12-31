@@ -1,22 +1,30 @@
-from os.path import join as pjoin
+import os.path
 import sys
 
 from nose.tools import assert_raises
 
-from cx_Freeze.freezer import process_path_specs, ConfigError
+from cx_Freeze.common import ConfigError, process_path_specs
 
-rootdir = "C:\\" if sys.platform=='win32' else '/'
+rootdir = "C:\\" if sys.platform == "win32" else "/"
+
 
 def test_process_path_specs():
-    inp = [pjoin(rootdir, 'foo', 'bar'),
-           (pjoin(rootdir, 'foo', 'qux'), pjoin('baz', 'xyz'))]
+    inp = [
+        os.path.join(rootdir, "foo", "bar"),
+        (os.path.join(rootdir, "foo", "qux"), os.path.join("baz", "xyz")),
+    ]
     outp = process_path_specs(inp)
-    assert outp == [(pjoin(rootdir, 'foo', 'bar'), 'bar'),
-                    (pjoin(rootdir, 'foo', 'qux'), pjoin('baz', 'xyz'))]
+    assert outp == [
+        (os.path.join(rootdir, "foo", "bar"), "bar"),
+        (os.path.join(rootdir, "foo", "qux"), os.path.join("baz", "xyz")),
+    ]
+
 
 def test_process_path_specs_bad():
     with assert_raises(ConfigError):
-        process_path_specs([(pjoin(rootdir, 'foo'), pjoin(rootdir, 'bar'))])
-    
+        process_path_specs(
+            [(os.path.join(rootdir, "foo"), os.path.join(rootdir, "bar"))]
+        )
+
     with assert_raises(ConfigError):
-        process_path_specs([('a', 'b', 'c')])
+        process_path_specs([("a", "b", "c")])

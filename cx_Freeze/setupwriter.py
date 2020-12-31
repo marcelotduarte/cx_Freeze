@@ -1,12 +1,9 @@
 import os
 import subprocess
 
+
 class SetupWriter:
-    bases = {
-        "C" : "Console",
-        "G" : "Win32GUI",
-        "S" : "Win32Service"
-    }
+    bases = {"C": "Console", "G": "Win32GUI", "S": "Win32Service"}
 
     @property
     def base(self):
@@ -26,8 +23,9 @@ class SetupWriter:
     def get_boolean_value(self, label, default=False):
         default_response = "y" if default else "n"
         while True:
-            response = self.get_value(label, default_response,
-                                      separator="? ").lower()
+            response = self.get_value(
+                label, default_response, separator="? "
+            ).lower()
             if response in ("y", "n", "yes", "no"):
                 break
         return response in ("y", "yes")
@@ -41,18 +39,21 @@ class SetupWriter:
         self.name = self.get_value("Project name", self.name)
         self.version = self.get_value("Version", self.version)
         self.description = self.get_value("Description", self.description)
-        self.script = self.get_value("Python file to make executable from",
-                                     self.script)
-        self.executable_name = self.get_value("Executable file name",
-                                              self.default_executable_name)
+        self.script = self.get_value(
+            "Python file to make executable from", self.script
+        )
+        self.executable_name = self.get_value(
+            "Executable file name", self.default_executable_name
+        )
         bases_prompt = "(C)onsole application, (G)UI application, or (S)ervice"
         while True:
             self.base_code = self.get_value(bases_prompt, "C")
             if self.base_code in self.bases:
                 break
         while True:
-            self.setup_file_name = self.get_value("Save setup script to",
-                                                  self.setup_file_name)
+            self.setup_file_name = self.get_value(
+                "Save setup script to", self.setup_file_name
+            )
             if not os.path.exists(self.setup_file_name):
                 break
             if self.get_boolean_value("Overwrite %s" % self.setup_file_name):
@@ -70,7 +71,7 @@ class SetupWriter:
             w("build_options = {'packages': [], 'excludes': []}")
             w("")
 
-            if self.base.startswith('Win32'):
+            if self.base.startswith("Win32"):
                 w("import sys")
                 w("base = %r if sys.platform=='win32' else None" % self.base)
             else:
@@ -79,19 +80,26 @@ class SetupWriter:
 
             w("executables = [")
             if self.executable_name != self.default_executable_name:
-                w("    Executable(%r, base=base, targetName = %r)" % \
-                        (self.script, self.executable_name))
+                w(
+                    "    Executable(%r, base=base, target_name = %r)"
+                    % (self.script, self.executable_name)
+                )
             else:
                 w("    Executable(%r, base=base)" % self.script)
             w("]")
             w("")
 
-            w(("setup(name=%r,\n"
-               "      version = %r,\n"
-               "      description = %r,\n"
-               "      options = {'build_exe': build_options},\n"
-               "      executables = executables)") % \
-               (self.name, self.version, self.description))
+            w(
+                (
+                    "setup(name=%r,\n"
+                    "      version = %r,\n"
+                    "      description = %r,\n"
+                    "      options = {'build_exe': build_options},\n"
+                    "      executables = executables)"
+                )
+                % (self.name, self.version, self.description)
+            )
+
 
 def main():
     writer = SetupWriter()

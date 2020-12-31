@@ -2,19 +2,41 @@ import glob
 import os
 import sys
 import sysconfig
+from typing import Any, Optional, Tuple
 
-from cx_Freeze.common import rebuild_code_object
+from .common import code_object_replace
+from .finder import ModuleFinder
+from .module import Module
 
 MINGW = sysconfig.get_platform() == "mingw"
 WIN32 = sys.platform == "win32"
 
-def initialize(finder):
-    """upon initialization of the finder, this routine is called to set up some
-       automatic exclusions for various platforms."""
+
+def initialize(finder: ModuleFinder) -> None:
+    """
+    Upon initialization of the finder, this routine is called to set up some
+    automatic exclusions for various platforms.
+    """
     # py2 modules that have been removed or renamed in py3
     import collections.abc
+
     for name in collections.abc.__all__:
-        finder.ExcludeModule("collections."+name)
+        finder.ExcludeModule("collections." + name)
+    for name in (
+        "Charset",
+        "Encoders",
+        "Errors",
+        "FeedParser",
+        "Generator",
+        "Header",
+        "Iterators",
+        "Message",
+        "Parser",
+        "Utils",
+        "base64MIME",
+        "quopriMIME",
+    ):
+        finder.ExcludeModule("email." + name)
     finder.ExcludeModule("__builtin__")
     finder.ExcludeModule("_winreg")
     finder.ExcludeModule("audiodev")
@@ -172,106 +194,143 @@ def initialize(finder):
         finder.ExcludeModule("vms_lib")
 
 
-def load_aiofiles(finder, module):
-    """the aiofiles must be loaded as a package."""
-    finder.IncludePackage('aiofiles')
+def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
+    """The aiofiles must be loaded as a package."""
+    finder.IncludePackage("aiofiles")
 
 
-def load_asyncio(finder, module):
-    """the asyncio must be loaded as a package."""
-    finder.IncludePackage('asyncio')
+def load_asyncio(finder: ModuleFinder, module: Module) -> None:
+    """The asyncio must be loaded as a package."""
+    finder.IncludePackage("asyncio")
 
 
-def load_babel(finder, module):
-    """babel must be loaded as a package, and has pickeable data."""
-    finder.IncludePackage('babel')
+def load_babel(finder: ModuleFinder, module: Module) -> None:
+    """The babel must be loaded as a package, and has pickeable data."""
+    finder.IncludePackage("babel")
     module.store_in_file_system = True
 
 
-def load_bcrypt(finder, module):
-    """the bcrypt package requires the _cffi_backend module (loaded implicitly)"""
-    finder.IncludeModule('_cffi_backend')
+def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
+    """The bcrypt package requires the _cffi_backend module (loaded implicitly)"""
+    finder.IncludeModule("_cffi_backend")
 
 
-def load_cElementTree(finder, module):
-    """the cElementTree module implicitly loads the elementtree.ElementTree
-       module; make sure this happens."""
+def load_cElementTree(finder: ModuleFinder, module: Module) -> None:
+    """
+    The cElementTree module implicitly loads the elementtree.ElementTree
+    module; make sure this happens.
+    """
     finder.IncludeModule("elementtree.ElementTree")
 
 
-def load_ceODBC(finder, module):
-    """the ceODBC module implicitly imports both datetime and decimal; make
-       sure this happens."""
+def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
+    """
+    The ceODBC module implicitly imports both datetime and decimal;
+    make sure this happens.
+    """
     finder.IncludeModule("datetime")
     finder.IncludeModule("decimal")
 
 
-def load_certifi(finder, module):
-    """The certifi package, in python 3.7 and up, uses importlib.resources
-       to locate the cacert.pem in zip packages.
-       In previous versions, it is expected to be stored in the file system."""
-    if not module.WillBeStoredInFileSystem():
+def load_certifi(finder: ModuleFinder, module: Module) -> None:
+    """
+    The certifi package, in python 3.7 and up, uses importlib.resources
+    to locate the cacert.pem in zip packages.
+    In previous versions, it is expected to be stored in the file system.
+    """
+    if not module.in_file_system:
         if sys.version_info < (3, 7):
             module.store_in_file_system = True
             return
-        import certifi
-        cacert = certifi.where()
+        cacert = __import__("certifi").where()
         target = "certifi/" + os.path.basename(cacert)
         finder.ZipIncludeFiles(cacert, target)
 
 
-def load_cffi_cparser(finder, module):
-    """the cffi.cparser module can use a extension if present."""
+def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
+    """The cffi.cparser module can use a extension if present."""
     try:
-        import cffi._pycparser
-        finder.IncludeModule(cffi._pycparser.__name__)
-    except ImportError:
-        finder.ExcludeModule('cffi._pycparser')
+        cffi = __import__("cffi", fromlist=["_pycparser"])
+        pycparser = getattr(cffi, "_pycparser")
+        finder.IncludeModule(pycparser.__name__)
+    except (ImportError, AttributeError):
+        finder.ExcludeModule("cffi._pycparser")
 
 
-def load_cryptography_hazmat_bindings__padding(finder, module):
-    """the cryptography module requires the _cffi_backend module (loaded implicitly)"""
-    finder.IncludeModule('_cffi_backend')
+def load_crc32c(finder: ModuleFinder, module: Module) -> None:
+    """The google.crc32c module requires _cffi_backend module"""
+    finder.IncludeModule("_cffi_backend")
 
 
-def load_Crypto_Cipher(finder, module):
-    """pycryptodome package - Crypto.Cipher subpackage."""
-    if not module.WillBeStoredInFileSystem():
+def load_clr(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pythonnet package (imported as 'clr') needs Python.Runtime.dll
+    in runtime.
+    """
+    module_dir = os.path.dirname(module.file)
+    dll_name = "Python.Runtime.dll"
+    finder.IncludeFiles(
+        os.path.join(module_dir, dll_name), os.path.join("lib", dll_name)
+    )
+
+
+def load_cryptography_hazmat_bindings__openssl(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """The cryptography module requires the cffi module"""
+    finder.IncludeModule("cffi")
+
+
+def load_cryptography_hazmat_bindings__padding(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """
+    The cryptography module requires the _cffi_backend module
+    (loaded implicitly).
+    """
+    finder.IncludeModule("_cffi_backend")
+
+
+def load_Crypto_Cipher(finder: ModuleFinder, module: Module) -> None:
+    """The Crypto.Cipher subpackage of pycryptodome package."""
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
-def load_Crypto_Hash(finder, module):
-    """pycryptodome package - Crypto.Hash subpackage."""
-    if not module.WillBeStoredInFileSystem():
+def load_Crypto_Hash(finder: ModuleFinder, module: Module) -> None:
+    """The Crypto.Hash subpackage of pycryptodome package."""
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
-def load_Crypto_Math(finder, module):
-    """pycryptodome package - Crypto.Math subpackage."""
-    if not module.WillBeStoredInFileSystem():
+def load_Crypto_Math(finder: ModuleFinder, module: Module) -> None:
+    """The Crypto.Math subpackage of pycryptodome package."""
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
-def load_Crypto_Protocol(finder, module):
-    """pycryptodome package - Crypto.Protocol subpackage."""
-    if not module.WillBeStoredInFileSystem():
+def load_Crypto_Protocol(finder: ModuleFinder, module: Module) -> None:
+    """The Crypto.Protocol subpackage of pycryptodome package."""
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
-def load_Crypto_PublicKey(finder, module):
-    """pycryptodome package - Crypto.PublicKey subpackage."""
-    if not module.WillBeStoredInFileSystem():
+def load_Crypto_PublicKey(finder: ModuleFinder, module: Module) -> None:
+    """The Crypto.PublicKey subpackage of pycryptodome package."""
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
-def load_Crypto_Util(finder, module):
-    """pycryptodome package - Crypto.Util subpackage."""
-    if not module.WillBeStoredInFileSystem():
+def load_Crypto_Util(finder: ModuleFinder, module: Module) -> None:
+    """The Crypto.Util subpackage of pycryptodome package."""
+    if not module.in_file_system:
         finder.IncludePackage(module.name)
 
 
-def load_Crypto_Util__file_system(finder, module):
-    """pycryptodome package"""
+def load_Crypto_Util__file_system(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """The pycryptodome package"""
     # WARNING: do not touch this code string
     PYCRYPTODOME_CODE_STR = """
 import os
@@ -284,77 +343,79 @@ def pycryptodome_filename(dir_comps, filename):
     root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
     return os.path.join(root_lib, ".".join(dir_comps))
 """
-    if not module.WillBeStoredInFileSystem() and module.code is not None:
+    if not module.in_file_system and module.code is not None:
         new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
         co_func = new_code.co_consts[2]
-        co = module.code
-        constants = list(co.co_consts)
-        for i, value in enumerate(constants):
-            if isinstance(value, type(co)) and value.co_name == co_func.co_name:
-                constants[i] = rebuild_code_object(co_func)
+        name = co_func.co_name
+        code = module.code
+        consts = list(code.co_consts)
+        for i in range(len(consts)):
+            if isinstance(consts[i], type(code)) and consts[i].co_name == name:
+                consts[i] = co_func
                 break
-        module.code = rebuild_code_object(co, constants=constants)
+        module.code = code_object_replace(code, co_consts=consts)
 
 
-def load__ctypes(finder, module):
-    """In Windows, the _ctypes module in Python 3.8+ requires an additional dll
-       libffi-7.dll to be present in the build directory."""
+def load__ctypes(finder: ModuleFinder, module: Module) -> None:
+    """
+    In Windows, the _ctypes module in Python 3.8+ requires an additional dll
+    libffi-7.dll to be present in the build directory.
+    """
     if WIN32 and sys.version_info >= (3, 8) and not MINGW:
         dll_name = "libffi-7.dll"
         dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
-def load_cx_Oracle(finder, module):
-    """the cx_Oracle module implicitly imports datetime; make sure this
-       happens."""
+def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
+    """
+    The cx_Oracle module implicitly imports datetime; make sure this
+    happens.
+    """
     finder.IncludeModule("datetime")
     finder.IncludeModule("decimal")
 
 
-def load_datetime(finder, module):
-    """the datetime module implicitly imports time; make sure this happens."""
+def load_datetime(finder: ModuleFinder, module: Module) -> None:
+    """The datetime module implicitly imports time; make sure this happens."""
     finder.IncludeModule("time")
 
 
-def load_docutils_frontend(finder, module):
-    """The optik module is the old name for the optparse module; ignore the
-       module if it cannot be found."""
+def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
+    """
+    The optik module is the old name for the optparse module; ignore the
+    module if it cannot be found.
+    """
     module.IgnoreName("optik")
 
 
-def load_dummy_threading(finder, module):
-    """the dummy_threading module plays games with the name of the threading
-       module for its own purposes; ignore that here"""
+def load_dummy_threading(finder: ModuleFinder, module: Module) -> None:
+    """
+    The dummy_threading module plays games with the name of the threading
+    module for its own purposes; ignore that here.
+    """
     finder.ExcludeModule("_dummy_threading")
 
 
-def load_email(finder, module):
-    """the email package has a bunch of aliases as the submodule names were
-       all changed to lowercase in Python 2.5; mimic that here."""
-    for name in ("Charset", "Encoders", "Errors", "FeedParser",
-            "Generator", "Header", "Iterators", "Message", "Parser",
-            "Utils", "base64MIME", "quopriMIME"):
-        finder.AddAlias("email.%s" % name, "email.%s" % name.lower())
-
-
-def load_ftplib(finder, module):
-    """the ftplib module attempts to import the SOCKS module; ignore this
-       module if it cannot be found"""
+def load_ftplib(finder: ModuleFinder, module: Module) -> None:
+    """
+    The ftplib module attempts to import the SOCKS module; ignore this
+    module if it cannot be found.
+    """
     module.IgnoreName("SOCKS")
 
 
-def load_gevent(finder, module):
-    """gevent must be loaded as a package."""
+def load_gevent(finder: ModuleFinder, module: Module) -> None:
+    """The gevent must be loaded as a package."""
     finder.IncludePackage("gevent")
 
 
-def load_GifImagePlugin(finder, module):
+def load_GifImagePlugin(finder: ModuleFinder, module: Module) -> None:
     """The GifImagePlugin module optionally imports the _imaging_gif module"""
     module.IgnoreName("_imaging_gif")
 
 
-def load_glib(finder, module):
+def load_glib(finder: ModuleFinder, module: Module) -> None:
     """Ignore globals that are imported."""
     module.AddGlobalName("GError")
     module.AddGlobalName("IOChannel")
@@ -430,8 +491,13 @@ def load_glib(finder, module):
     module.AddGlobalName("timeout_add_seconds")
 
 
-def load_gtk__gtk(finder, module):
-    """the gtk._gtk module has a number of implicit imports"""
+def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
+    """The google.cloud.storage package always uses the parent module."""
+    finder.IncludePackage("google.cloud")
+
+
+def load_gtk__gtk(finder: ModuleFinder, module: Module) -> None:
+    """The gtk._gtk module has a number of implicit imports."""
     finder.IncludeModule("atk")
     finder.IncludeModule("cairo")
     finder.IncludeModule("gio")
@@ -439,93 +505,98 @@ def load_gtk__gtk(finder, module):
     finder.IncludeModule("pangocairo")
 
 
-def load_hashlib(finder, module):
-    """hashlib's fallback modules don't exist if the equivalent OpenSSL
-    algorithms are loaded from _hashlib, so we can ignore the error."""
+def load_hashlib(finder: ModuleFinder, module: Module) -> None:
+    """
+    hashlib's fallback modules don't exist if the equivalent OpenSSL
+    algorithms are loaded from _hashlib, so we can ignore the error.
+    """
     module.IgnoreName("_md5")
     module.IgnoreName("_sha")
     module.IgnoreName("_sha256")
     module.IgnoreName("_sha512")
 
 
-def load_h5py(finder, module):
+def load_h5py(finder: ModuleFinder, module: Module) -> None:
     """h5py module has a number of implicit imports"""
-    finder.IncludeModule('h5py.defs')
-    finder.IncludeModule('h5py.utils')
-    finder.IncludeModule('h5py._proxy')
+    finder.IncludeModule("h5py.defs")
+    finder.IncludeModule("h5py.utils")
+    finder.IncludeModule("h5py._proxy")
     try:
-        import h5py.api_gen
-        finder.IncludeModule(h5py.api_gen.__name__)
+        api_gen = __import__("h5py", fromlist=["api_gen"]).api_gen
+        finder.IncludeModule(api_gen.__name__)
     except ImportError:
         pass
-    finder.IncludeModule('h5py._errors')
-    finder.IncludeModule('h5py.h5ac')
+    finder.IncludeModule("h5py._errors")
+    finder.IncludeModule("h5py.h5ac")
 
 
-def load_idna(finder, module):
-    """the idna module implicitly loads data; make sure this happens."""
+def load_idna(finder: ModuleFinder, module: Module) -> None:
+    """The idna module implicitly loads data; make sure this happens."""
     finder.IncludeModule("idna.idnadata")
 
 
-def load_lxml(finder, module):
-    """the lxml package use an extension."""
+def load_lxml(finder: ModuleFinder, module: Module) -> None:
+    """The lxml package uses an extension."""
     finder.IncludeModule("lxml._elementpath")
 
 
-def load_matplotlib(finder, module):
-    """the matplotlib package requires mpl-data in a subdirectory of the
-    package."""
+def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
+    """
+    The matplotlib package requires mpl-data in a subdirectory of the
+    package.
+    """
     MATPLOTLIB_CODE_STR = """
 def _get_data_path():
     return os.path.join(os.path.dirname(sys.executable), '{}')
 """
-    import matplotlib
-    data_path = matplotlib.get_data_path()
+    data_path = __import__("matplotlib").get_data_path()
     target_path = os.path.join("lib", module.name, "mpl-data")
-    finder.IncludeFiles(data_path, target_path, copyDependentFiles=False)
+    finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
     if module.code is not None:
         code_str = MATPLOTLIB_CODE_STR.format(target_path)
         new_code = compile(code_str, module.file, "exec")
         co_func = new_code.co_consts[0]
-        co = module.code
-        constants = list(co.co_consts)
-        for i, value in enumerate(constants):
-            if isinstance(value, type(co)) and value.co_name == co_func.co_name:
-                constants[i] = rebuild_code_object(co_func)
+        name = co_func.co_name
+        code = module.code
+        consts = list(code.co_consts)
+        for i in range(len(consts)):
+            if isinstance(consts[i], type(code)) and consts[i].co_name == name:
+                consts[i] = co_func
                 break
-        module.code = rebuild_code_object(co, constants=constants)
+        module.code = code_object_replace(code, co_consts=consts)
     finder.ExcludeModule("matplotlib.tests")
+    finder.IncludePackage("matplotlib")
 
 
-def load_numpy(finder, module):
+def load_numpy(finder: ModuleFinder, module: Module) -> None:
+    """The numpy must be loaded as a package."""
     finder.ExcludeModule("numpy.random._examples")
     finder.IncludePackage("numpy")
-    if not module.WillBeStoredInFileSystem():
-        import numpy
+    if not module.in_file_system:
+        # version 1.18.3+ changed the location of dll/so
+        numpy = __import__("numpy")
         version = tuple([int(n) for n in numpy.__version__.split(".")])
         del numpy
         if version >= (1, 18, 3):
             module.store_in_file_system = True
 
 
-def load_Numeric(finder, module):
-    """the Numeric module optionally loads the dotblas module; ignore the error
-       if this modules does not exist."""
-    module.IgnoreName("dotblas")
-
-
-def load_numpy_core_multiarray(finder, module):
-    """the numpy.core.multiarray module is an extension module and the numpy
-       module imports * from this module; define the list of global names
-       available to this module in order to avoid spurious errors about missing
-       modules"""
+def load_numpy_core_multiarray(finder: ModuleFinder, module: Module) -> None:
+    """
+    The numpy.core.multiarray module is an extension module and the numpy
+    module imports * from this module; define the list of global names
+    available to this module in order to avoid spurious errors about missing
+    modules.
+    """
     module.AddGlobalName("arange")
 
 
-def load_numpy_core_numerictypes(finder, module):
-    """the numpy.core.numerictypes module adds a number of items to itself
-       dynamically; define these to avoid spurious errors about missing
-       modules"""
+def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
+    """
+    The numpy.core.numerictypes module adds a number of items to itself
+    dynamically; define these to avoid spurious errors about missing
+    modules.
+    """
     module.AddGlobalName("bool_")
     module.AddGlobalName("cdouble")
     module.AddGlobalName("complexfloating")
@@ -540,11 +611,13 @@ def load_numpy_core_numerictypes(finder, module):
     module.AddGlobalName("single")
 
 
-def load_numpy_core_umath(finder, module):
-    """the numpy.core.umath module is an extension module and the numpy module
-       imports * from this module; define the list of global names available
-       to this module in order to avoid spurious errors about missing
-       modules"""
+def load_numpy_core_umath(finder: ModuleFinder, module: Module) -> None:
+    """
+    The numpy.core.umath module is an extension module and the numpy module
+    imports * from this module; define the list of global names available
+    to this module in order to avoid spurious errors about missing
+    modules.
+    """
     module.AddGlobalName("add")
     module.AddGlobalName("absolute")
     module.AddGlobalName("arccos")
@@ -594,347 +667,518 @@ def load_numpy_core_umath(finder, module):
     module.AddGlobalName("true_divide")
 
 
-def load_numpy_distutils_command_scons(finder, module):
-    """the numpy.distutils.command.scons module optionally imports the numscons
-       module; ignore the error if the module cannot be found."""
+def load_numpy_distutils_command_scons(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """
+    The numpy.distutils.command.scons module optionally imports the numscons
+    module; ignore the error if the module cannot be found.
+    """
     module.IgnoreName("numscons")
 
 
-def load_numpy_distutils_misc_util(finder, module):
-    """the numpy.distutils.misc_util module optionally imports the numscons
-       module; ignore the error if the module cannot be found."""
+def load_numpy_distutils_misc_util(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """
+    The numpy.distutils.misc_util module optionally imports the numscons
+    module; ignore the error if the module cannot be found.
+    """
     module.IgnoreName("numscons")
 
 
-def load_numpy_distutils_system_info(finder, module):
-    """the numpy.distutils.system_info module optionally imports the Numeric
-       module; ignore the error if the module cannot be found."""
+def load_numpy_distutils_system_info(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """
+    The numpy.distutils.system_info module optionally imports the Numeric
+    module; ignore the error if the module cannot be found.
+    """
     module.IgnoreName("Numeric")
 
 
-def load_numpy_f2py___version__(finder, module):
-    """the numpy.f2py.__version__ module optionally imports the __svn_version__
-       module; ignore the error if the module cannot be found."""
+def load_numpy_f2py___version__(finder: ModuleFinder, module: Module) -> None:
+    """
+    The numpy.f2py.__version__ module optionally imports the __svn_version__
+    module; ignore the error if the module cannot be found.
+    """
     module.IgnoreName("__svn_version__")
 
 
-def load_numpy_linalg(finder, module):
-    """the numpy.linalg module implicitly loads the lapack_lite module; make
-       sure this happens"""
+def load_numpy_linalg(finder: ModuleFinder, module: Module) -> None:
+    """
+    The numpy.linalg module implicitly loads the lapack_lite module; make
+    sure this happens.
+    """
     finder.IncludeModule("numpy.linalg.lapack_lite")
 
 
-def load_numpy_random_mtrand(finder, module):
-    """the numpy.random.mtrand module is an extension module and the numpy
-       module imports * from this module; define the list of global names
-       available to this module in order to avoid spurious errors about missing
-       modules"""
+def load_numpy_random_mtrand(finder: ModuleFinder, module: Module) -> None:
+    """
+    The numpy.random.mtrand module is an extension module and the numpy
+    module imports * from this module; define the list of global names
+    available to this module in order to avoid spurious errors about missing
+    modules.
+    """
     module.AddGlobalName("rand")
     module.AddGlobalName("randn")
 
 
-def load_pikepdf(finder, module):
-    """for the pikepdf package"""
-    finder.IncludePackage('pikepdf')
+def load_Numeric(finder: ModuleFinder, module: Module) -> None:
+    """
+    The Numeric module optionally loads the dotblas module; ignore the error
+    if this modules does not exist.
+    """
+    module.IgnoreName("dotblas")
 
 
-def load_PIL(finder, module):
-    """Pillow must be loaded as a package."""
+def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
+    """The pikepdf must be loaded as a package."""
+    finder.IncludePackage("pikepdf")
+
+
+def load_PIL(finder: ModuleFinder, module: Module) -> None:
+    """The Pillow must be loaded as a package."""
     finder.IncludePackage("PIL")
 
 
-def load_pkg_resources(finder, module):
-    """the pkg_resources must be loaded as a package;
-       dynamically loaded modules in subpackages is growing."""
+def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pkg_resources must be loaded as a package;
+    dynamically loaded modules in subpackages is growing.
+    """
     finder.IncludePackage("pkg_resources")
 
 
-def load_postgresql_lib(finder, module):
-    """the postgresql.lib module requires the libsys.sql file to be included
-       so make sure that file is included"""
-    fileName = os.path.join(module.path[0], "libsys.sql")
-    finder.IncludeFiles(fileName, os.path.basename(fileName))
+def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
+    """
+    The postgresql.lib module requires the libsys.sql file to be included
+    so make sure that file is included.
+    """
+    filename = os.path.join(module.path[0], "libsys.sql")
+    finder.IncludeFiles(filename, os.path.basename(filename))
 
 
-def load_pty(finder, module):
+def load_pty(finder: ModuleFinder, module: Module) -> None:
     """The sgi module is not needed for this module to function."""
     module.IgnoreName("sgi")
 
 
-def load_pycparser(finder, module):
-    """ These files are missing which causes
-        permission denied issues on windows when they are regenerated.
+def load_pycparser(finder: ModuleFinder, module: Module) -> None:
+    """
+    These files are missing which causes
+    permission denied issues on windows when they are regenerated.
     """
     finder.IncludeModule("pycparser.lextab")
     finder.IncludeModule("pycparser.yacctab")
 
 
-def load_pygments(finder, module):
-    """the pygments package dynamically load styles"""
+def load_pygments(finder: ModuleFinder, module: Module) -> None:
+    """The pygments package dynamically load styles."""
     finder.IncludePackage("pygments.styles")
 
 
-def load_pydoc(finder, module):
-    """The pydoc module will work without the Tkinter module so ignore the
-       error if that module cannot be found."""
-    module.IgnoreName("Tkinter")
+def load_pytest(finder: ModuleFinder, module: Module) -> None:
+    pytest = __import__("pytest")
+    for mod in pytest.freeze_includes():
+        finder.IncludeModule(mod)
 
 
-def load_pythoncom(finder, module):
-    """the pythoncom module is actually contained in a DLL but since those
-       cannot be loaded directly in Python 2.5 and higher a special module is
-       used to perform that task; simply use that technique directly to
-       determine the name of the DLL and ensure it is included as a file in
-       the target directory."""
-    import pythoncom
-    finder.IncludeFiles(pythoncom.__file__,
-            os.path.join("lib", os.path.basename(pythoncom.__file__)),
-            copyDependentFiles = False)
+def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pythoncom module is actually contained in a DLL but since those
+    cannot be loaded directly in Python 2.5 and higher a special module is
+    used to perform that task; simply use that technique directly to
+    determine the name of the DLL and ensure it is included as a file in
+    the target directory.
+    """
+    pythoncom = __import__("pythoncom")
+    finder.IncludeFiles(
+        pythoncom.__file__,
+        os.path.join("lib", os.path.basename(pythoncom.__file__)),
+        copy_dependent_files=False,
+    )
 
 
-def load_pytz(finder, module):
-    """the pytz module requires timezone data to be found in a known directory
-       or in the zip file where the package is written"""
-    import pytz
-    targetPath = os.path.join("lib", "pytz", "zoneinfo")
-    dataPath = os.path.join(os.path.dirname(pytz.__file__), "zoneinfo")
-    if not os.path.isdir(dataPath):
+def load_pytz(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pytz module requires timezone data to be found in a known directory
+    or in the zip file where the package is written.
+    """
+    target_path = os.path.join("lib", "pytz", "zoneinfo")
+    data_path = os.path.join(module.path[0], "zoneinfo")
+    if not os.path.isdir(data_path):
         # Fedora (and possibly other systems) use a separate location to
         # store timezone data so look for that here as well
-        if hasattr(pytz, '_tzinfo_dir'):
-            dataPath = pytz._tzinfo_dir
+        pytz = __import__("pytz")
+        data_path = (
+            getattr(pytz, "_tzinfo_dir", None)
+            or os.getenv("PYTZ_TZDATADIR")
+            or "/usr/share/zoneinfo"
+        )
+        if data_path.endswith(os.sep):
+            data_path = data_path[:-1]
+        if os.path.isdir(data_path):
+            finder.AddConstant("PYTZ_TZDATADIR", target_path)
+    if os.path.isdir(data_path):
+        if module.in_file_system:
+            finder.IncludeFiles(
+                data_path, target_path, copy_dependent_files=False
+            )
         else:
-            dataPath = os.getenv('PYTZ_TZDATADIR') or "/usr/share/zoneinfo"
-        if dataPath.endswith(os.sep):
-            dataPath = dataPath[:-1]
-        if os.path.isdir(dataPath):
-            finder.AddConstant("PYTZ_TZDATADIR", targetPath)
-    if os.path.isdir(dataPath):
-        if module.WillBeStoredInFileSystem():
-            finder.IncludeFiles(dataPath, targetPath, copyDependentFiles=False)
-        else:
-            finder.ZipIncludeFiles(dataPath, "pytz/zoneinfo")
+            finder.ZipIncludeFiles(data_path, "pytz/zoneinfo")
 
 
-def load_pywintypes(finder, module):
-    """the pywintypes module is actually contained in a DLL but since those
-       cannot be loaded directly in Python 2.5 and higher a special module is
-       used to perform that task; simply use that technique directly to
-       determine the name of the DLL and ensure it is included as a file in the
-       target directory."""
-    import pywintypes
-    finder.IncludeFiles(pywintypes.__file__,
-            os.path.join("lib", os.path.basename(pywintypes.__file__)),
-            copyDependentFiles = False)
-
-
-# PyQt5 and PyQt4 can't both be loaded in the same process, so we cache the
-# QtCore module so we can still return something sensible if we try to load
-# both.
-_qtcore = None
-def _qt_implementation(module):
-    """Helper function to get name (PyQt4, PyQt5, PySide) and the QtCore module
+def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     """
+    The pywintypes module is actually contained in a DLL but since those
+    cannot be loaded directly in Python 2.5 and higher a special module is
+    used to perform that task; simply use that technique directly to
+    determine the name of the DLL and ensure it is included as a file in the
+    target directory.
+    """
+    pywintypes = __import__("pywintypes")
+    finder.IncludeFiles(
+        pywintypes.__file__,
+        os.path.join("lib", os.path.basename(pywintypes.__file__)),
+        copy_dependent_files=False,
+    )
+
+
+# cache the QtCore module
+_qtcore = None
+
+
+def _qt_implementation(module: Module) -> Tuple[str, Any]:
+    """Helper function to get name (PyQt5) and the QtCore module."""
     global _qtcore
-    name = module.name.split('.')[0]
-    try:
-        _qtcore = __import__(name, fromlist=['QtCore']).QtCore
-    except RuntimeError:
-        print("WARNING: Tried to load multiple incompatible Qt wrappers. "
-              "Some incorrect files may be copied.")
+    name = module.name.split(".")[0]
+    if _qtcore is None:
+        try:
+            _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
+        except RuntimeError:
+            print(
+                "WARNING: Tried to load multiple incompatible Qt wrappers. "
+                "Some incorrect files may be copied."
+            )
     return name, _qtcore
 
-def copy_qt_plugins(plugins, finder, QtCore):
+
+def copy_qt_plugins(plugins, finder, qtcore):
     """Helper function to find and copy Qt plugins."""
 
     # Qt Plugins can either be in a plugins directory next to the Qt libraries,
     # or in other locations listed by QCoreApplication.libraryPaths()
-    dir0 = os.path.join(os.path.dirname(QtCore.__file__), "plugins")
-    for libpath in QtCore.QCoreApplication.libraryPaths() + [dir0]:
+    dir0 = os.path.join(os.path.dirname(qtcore.__file__), "plugins")
+    for libpath in qtcore.QCoreApplication.libraryPaths() + [dir0]:
         sourcepath = os.path.join(str(libpath), plugins)
         if os.path.exists(sourcepath):
             finder.IncludeFiles(sourcepath, plugins)
 
 
-def load_PyQt4_phonon(finder, module):
-    """In Windows, phonon4.dll requires an additional dll phonon_ds94.dll to
-       be present in the build directory inside a folder phonon_backend."""
-    name, QtCore = _qt_implementation(module)
+def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
+    """
+    In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
+    be present in the build directory inside a folder phonon_backend.
+    """
+    if module.in_file_system:
+        return
+    _, qtcore = _qt_implementation(module)
     if WIN32:
-        copy_qt_plugins("phonon_backend", finder, QtCore)
+        copy_qt_plugins("phonon_backend", finder, qtcore)
 
-load_PySide_phonon = load_PyQt5_phonon = load_PyQt4_phonon
 
-def load_PyQt4_QtCore(finder, module):
-    """the PyQt4.QtCore module implicitly imports the sip module and,
-       depending on configuration, the PyQt4._qt module."""
-    name, QtCore = _qt_implementation(module)
-    finder.IncludeModule("sip")
+def sip_module_name(qtcore) -> str:
+    """
+    Returns the name of the sip module to import.
+    (As of 5.11, the distributed wheels no longer provided for the sip module
+    outside of the PyQt5 namespace).
+    """
+    version_string = qtcore.PYQT_VERSION_STR
     try:
-        finder.IncludeModule("%s._qt" % name)
+        pyqt_version_ints = tuple(int(c) for c in version_string.split("."))
+        if pyqt_version_ints >= (5, 11):
+            return "PyQt5.sip"
+    except Exception:
+        pass
+    return "sip"
+
+
+def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
+    """
+    The PyQt5.QtCore module implicitly imports the sip module and,
+    depending on configuration, the PyQt5._qt module.
+    """
+    if module.in_file_system:
+        return
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(sip_module_name(qtcore))
+    try:
+        finder.IncludeModule(f"{name}._qt")
     except ImportError:
         pass
 
-load_PyQt5_QtCore = load_PyQt4_QtCore
 
-def load_PySide_QtCore(finder, module):
-    """PySide.QtCore dynamically loads the stdlib atexit module."""
-    finder.IncludeModule("atexit")
-
-def load_PyQt4_Qt(finder, module):
-    """the PyQt4.Qt module is an extension module which imports a number of
-       other modules and injects their namespace into its own. It seems a
-       foolish way of doing things but perhaps there is some hidden advantage
-       to this technique over pure Python; ignore the absence of some of
-       the modules since not every installation includes all of them."""
-    name, QtCore = _qt_implementation(module)
-    finder.IncludeModule("%s.QtCore" % name)
-    finder.IncludeModule("%s.QtGui" % name)
-    for mod in ("_qt", "QtSvg", "Qsci", "QtAssistant", "QtNetwork", "QtOpenGL",
-                "QtScript", "QtSql", "QtSvg", "QtTest", "QtXml"):
+def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
+    """
+    The PyQt5.Qt module is an extension module which imports a number of
+    other modules and injects their namespace into its own. It seems a
+    foolish way of doing things but perhaps there is some hidden advantage
+    to this technique over pure Python; ignore the absence of some of
+    the modules since not every installation includes all of them.
+    """
+    if module.in_file_system:
+        return
+    name, _ = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtCore")
+    finder.IncludeModule(f"{name}.QtGui")
+    for mod in (
+        "_qt",
+        "QtSvg",
+        "Qsci",
+        "QtAssistant",
+        "QtNetwork",
+        "QtOpenGL",
+        "QtScript",
+        "QtSql",
+        "QtSvg",
+        "QtTest",
+        "QtXml",
+    ):
         try:
-            finder.IncludeModule(name + '.' + mod)
+            finder.IncludeModule(f"{name}.{mod}")
         except ImportError:
             pass
 
-load_PyQt5_Qt = load_PyQt4_Qt
 
-def load_PyQt4_uic(finder, module):
-    """The uic module makes use of "plugins" that need to be read directly and
-       cannot be frozen; the PyQt4.QtWebKit and PyQt4.QtNetwork modules are
-       also implicity loaded."""
-    name, QtCore = _qt_implementation(module)
-    dir = os.path.join(module.path[0], "widget-plugins")
-    finder.IncludeFiles(dir, "%s.uic.widget-plugins" % name)
-    finder.IncludeModule("%s.QtNetwork" % name)
+def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
+    """
+    The uic module makes use of "plugins" that need to be read directly and
+    cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
+    also implicity loaded.
+    """
+    if module.in_file_system:
+        return
+    name, _ = _qt_implementation(module)
+    source_dir = os.path.join(module.path[0], "widget-plugins")
+    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
+    finder.IncludeModule(f"{name}.QtNetwork")
     try:
-        finder.IncludeModule("%s.QtWebKit" % name)
+        finder.IncludeModule(f"{name}.QtWebKit")
     except ImportError:
         pass
 
-load_PyQt5_uic = load_PyQt4_uic
 
 def _QtGui(finder, module, version_str):
-    name, QtCore = _qt_implementation(module)
-    finder.IncludeModule("%s.QtCore" % name)
-    copy_qt_plugins("imageformats", finder, QtCore)
-    if version_str >= '5':
-        # On Qt5, we need the platform plugins. For simplicity, we just copy any
-        # that are installed.
-        copy_qt_plugins("platforms", finder, QtCore)
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtCore")
+    copy_qt_plugins("imageformats", finder, qtcore)
+    if version_str >= "5":
+        # On Qt5, we need the platform plugins. For simplicity, we just copy
+        # any that are installed.
+        copy_qt_plugins("platforms", finder, qtcore)
 
-def load_PyQt4_QtGui(finder, module):
-    """There is a chance that GUI will use some image formats
-    add the image format plugins
+
+def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     """
-    name, QtCore = _qt_implementation(module)
-    _QtGui(finder, module, QtCore.QT_VERSION_STR)
-
-load_PyQt5_QtGui = load_PyQt4_QtGui
-
-def load_PySide_QtGui(finder, module):
-    """There is a chance that GUI will use some image formats
-    add the image format plugins
+    There is a chance that GUI will use some image formats
+    add the image format plugins.
     """
-    from PySide import QtCore
-    # Pyside.__version* is PySide version, PySide.QtCore.__version* is Qt version
-    _QtGui(finder, module, QtCore.__version__)
+    if module.in_file_system:
+        return
+    _, qtcore = _qt_implementation(module)
+    _QtGui(finder, module, qtcore.QT_VERSION_STR)
 
-def load_PyQt5_QtWidgets(finder, module):
-    finder.IncludeModule('PyQt5.QtGui')
 
-def load_PyQt4_QtWebKit(finder, module):
-    name, QtCore = _qt_implementation(module)
-    finder.IncludeModule("%s.QtNetwork" % name)
-    finder.IncludeModule("%s.QtGui" % name)
+def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    finder.IncludeModule("PyQt5.QtGui")
 
-load_PyQt5_QtWebKit = load_PySide_QtWebKit = load_PyQt4_QtWebKit
 
-def load_PyQt5_QtMultimedia(finder, module):
-    name, QtCore = _qt_implementation(module)
-    finder.IncludeModule("%s.QtCore" % name)
-    finder.IncludeModule("%s.QtMultimediaWidgets" % name)
-    copy_qt_plugins("mediaservice", finder, QtCore)
+def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    name, _ = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtNetwork")
+    finder.IncludeModule(f"{name}.QtGui")
 
-def load_PyQt5_QtPrintSupport(finder, module):
-    name, QtCore = _qt_implementation(module)
-    copy_qt_plugins("printsupport", finder, QtCore)
 
-def load_reportlab(finder, module):
-    """the reportlab module loads a submodule rl_settings via exec so force
-       its inclusion here"""
+def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtCore")
+    finder.IncludeModule(f"{name}.QtMultimediaWidgets")
+    copy_qt_plugins("mediaservice", finder, qtcore)
+
+
+def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    _, qtcore = _qt_implementation(module)
+    copy_qt_plugins("printsupport", finder, qtcore)
+
+
+def load_reportlab(finder: ModuleFinder, module: Module) -> None:
+    """
+    The reportlab module loads a submodule rl_settings via exec so force
+    its inclusion here.
+    """
     finder.IncludeModule("reportlab.rl_settings")
 
 
-def load_scipy(finder, module):
-    """the scipy module loads items within itself in a way that causes
-       problems without the entire package and a number of other subpackages
-       being present."""
+def load_scipy(finder: ModuleFinder, module: Module) -> None:
+    """
+    The scipy module loads items within itself in a way that causes
+    problems without the entire package and a number of other subpackages
+    being present.
+    """
     finder.IncludePackage("scipy._lib")
     finder.IncludePackage("scipy.misc")
-    finder.ExcludeModule("scipy.spatial.cKDTree")
+    if WIN32:
+        finder.ExcludeModule("scipy.spatial.cKDTree")
 
 
-def load_scipy_linalg(finder, module):
-    """the scipy.linalg module loads items within itself in a way that causes
-       problems without the entire package being present."""
+def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
+    """
+    The scipy.linalg module loads items within itself in a way that causes
+    problems without the entire package being present.
+    """
     module.AddGlobalName("norm")
     finder.IncludePackage("scipy.linalg")
 
 
-def load_scipy_linalg_interface_gen(finder, module):
-    """the scipy.linalg.interface_gen module optionally imports the pre module;
-       ignore the error if this module cannot be found"""
+def load_scipy_linalg_interface_gen(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """
+    The scipy.linalg.interface_gen module optionally imports the pre module;
+    ignore the error if this module cannot be found.
+    """
     module.IgnoreName("pre")
 
 
-def load_scipy_sparse_linalg_dsolve_linsolve(finder, module):
-    """the scipy.linalg.dsolve.linsolve optionally loads scikits.umfpack"""
+def load_scipy_ndimage(finder: ModuleFinder, module: Module) -> None:
+    """The scipy.ndimage must be loaded as a package."""
+    finder.ExcludeModule("scipy.ndimage.tests")
+    finder.IncludePackage("scipy.ndimage")
+
+
+def load_scipy_sparse_csgraph(finder: ModuleFinder, module: Module) -> None:
+    """The scipy.sparse.csgraph must be loaded as a package."""
+    finder.ExcludeModule("scipy.sparse.csgraph.tests")
+    finder.IncludePackage("scipy.sparse.csgraph")
+
+
+def load_scipy_sparse_linalg_dsolve_linsolve(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """The scipy.linalg.dsolve.linsolve optionally loads scikits.umfpack."""
     module.IgnoreName("scikits.umfpack")
 
 
-def load_scipy_special__cephes(finder, module):
-    """the scipy.special._cephes is an extension module and the scipy module
-       imports * from it in places; advertise the global names that are used
-       in order to avoid spurious errors about missing modules."""
+def load_scipy_special(finder: ModuleFinder, module: Module) -> None:
+    """The scipy.special must be loaded as a package."""
+    finder.IncludePackage("scipy.special")
+
+
+def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
+    """
+    The scipy.special._cephes is an extension module and the scipy module
+    imports * from it in places; advertise the global names that are used
+    in order to avoid spurious errors about missing modules.
+    """
     module.AddGlobalName("gammaln")
 
 
-def load_setuptools(finder, module):
-    """the setuptools must be loaded as a package;
-       to prevent it to break in the future."""
+def load_setuptools(finder: ModuleFinder, module: Module) -> None:
+    """
+    The setuptools must be loaded as a package, to prevent it to break in the
+    future.
+    """
     finder.IncludePackage("setuptools")
 
 
-def load_setuptools_extension(finder, module):
-    """the setuptools.extension module optionally loads
-       Pyrex.Distutils.build_ext but its absence is not considered an error."""
+def load_setuptools_extension(finder: ModuleFinder, module: Module) -> None:
+    """
+    The setuptools.extension module optionally loads
+    Pyrex.Distutils.build_ext but its absence is not considered an error.
+    """
     module.IgnoreName("Pyrex.Distutils.build_ext")
 
 
-def load_site(finder, module):
-    """the site module optionally loads the sitecustomize and usercustomize
-       modules; ignore the error if these modules do not exist."""
+def load_site(finder: ModuleFinder, module: Module) -> None:
+    """
+    The site module optionally loads the sitecustomize and usercustomize
+    modules; ignore the error if these modules do not exist.
+    """
     module.IgnoreName("sitecustomize")
     module.IgnoreName("usercustomize")
 
 
-def load_ssl(finder, module):
-    """In Windows, the SSL module in Python 3.7+ requires additional dlls to
-       be present in the build directory."""
+def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
+    """
+    In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
+    be present in the build directory.
+    """
+    if WIN32 and not MINGW:
+        dll_name = "sqlite3.dll"
+        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
+        if not os.path.exists(dll_path):
+            dll_path = os.path.join(
+                sys.base_prefix, "Library", "bin", dll_name
+            )
+        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+    finder.IncludePackage("sqlite3")
+
+
+def load_ssl(finder: ModuleFinder, module: Module) -> None:
+    """
+    In Windows, the SSL module in Python 3.7+ requires additional dlls to
+    be present in the build directory.
+    """
     if WIN32 and sys.version_info >= (3, 7) and not MINGW:
         for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
-            for dll_path in glob.glob(os.path.join(sys.base_prefix, "DLLs", dll_search)):
+            for dll_path in glob.glob(
+                os.path.join(sys.base_prefix, "DLLs", dll_search)
+            ):
                 dll_name = os.path.basename(dll_path)
                 finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
-def load_tkinter(finder, module):
-    """the tkinter module has data files that are required to be loaded so
-       ensure that they are copied into the directory that is expected at
-       runtime."""
+def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
+    """The sysconfig module implicitly loads _sysconfigdata."""
+    get_data_name = getattr(sysconfig, "_get_sysconfigdata_name", None)
+    if get_data_name is None:
+        datafile = "_sysconfigdata"
+    else:
+        if not hasattr(sys, "abiflags"):
+            sys.abiflags = ""
+        datafile = get_data_name()
+    finder.IncludeModule(datafile)
+
+
+def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
+    """The tensorflow package implicitly loads some packages."""
+    finder.IncludePackage("tensorboard")
+    finder.IncludePackage("tensorflow.compiler")
+    finder.IncludePackage("tensorflow.python")
+
+
+def load_time(finder: ModuleFinder, module: Module) -> None:
+    """The time module implicitly loads _strptime; make sure this happens."""
+    finder.IncludeModule("_strptime")
+
+
+def load_tkinter(finder: ModuleFinder, module: Module) -> None:
+    """
+    The tkinter module has data files that are required to be loaded so
+    ensure that they are copied into the directory that is expected at
+    runtime.
+    """
     if WIN32:
-        import tkinter
+        tkinter = __import__("tkinter")
         root_names = "tcl", "tk"
         environ_names = "TCL_LIBRARY", "TK_LIBRARY"
         version_vars = tkinter.TclVersion, tkinter.TkVersion
@@ -948,78 +1192,86 @@ def load_tkinter(finder, module):
                     lib_texts = os.path.join(sys.base_prefix, "lib", dir_name)
                 else:
                     lib_texts = os.path.join(sys.base_prefix, "tcl", dir_name)
-            targetPath = os.path.join("lib", "tkinter", dir_name)
-            finder.AddConstant(env_name, targetPath)
-            finder.IncludeFiles(lib_texts, targetPath)
+            target_path = os.path.join("lib", "tkinter", dir_name)
+            finder.AddConstant(env_name, target_path)
+            finder.IncludeFiles(lib_texts, target_path)
             if not MINGW:
                 dll_name = dir_name.replace(".", "") + "t.dll"
                 dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
                 finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
 
 
-def load_tempfile(finder, module):
-    """the tempfile module attempts to load the fcntl and thread modules but
-       continues if these modules cannot be found; ignore these modules if they
-       cannot be found."""
-    module.IgnoreName("fcntl")
-    module.IgnoreName("thread")
-
-
-def load_time(finder, module):
-    """the time module implicitly loads _strptime; make sure this happens."""
-    finder.IncludeModule("_strptime")
-
-
-def load_twisted_conch_ssh_transport(finder, module):
-    """the twisted.conch.ssh.transport module uses __import__ builtin to
-       dynamically load different ciphers at runtime."""
+def load_twisted_conch_ssh_transport(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """
+    The twisted.conch.ssh.transport module uses __import__ builtin to
+    dynamically load different ciphers at runtime.
+    """
     finder.IncludePackage("Crypto.Cipher")
 
 
-def load_twitter(finder, module):
-    """the twitter module tries to load the simplejson, json and django.utils
-       module in an attempt to locate any module that will implement the
-       necessary protocol; ignore these modules if they cannot be found."""
+def load_twitter(finder: ModuleFinder, module: Module) -> None:
+    """
+    The twitter module tries to load the simplejson, json and django.utils
+    module in an attempt to locate any module that will implement the
+    necessary protocol; ignore these modules if they cannot be found.
+    """
     module.IgnoreName("json")
     module.IgnoreName("simplejson")
     module.IgnoreName("django.utils")
 
 
-def load_win32api(finder, module):
-    """the win32api module implicitly loads the pywintypes module; make sure
-       this happens."""
+def load_uvloop(finder: ModuleFinder, module: Module) -> None:
+    """The uvloop module implicitly loads an extension module."""
+    finder.IncludeModule("uvloop._noop")
+
+
+def load_win32api(finder: ModuleFinder, module: Module) -> None:
+    """
+    The win32api module implicitly loads the pywintypes module; make sure
+    this happens.
+    """
     finder.ExcludeDependentFiles(module.file)
     finder.IncludeModule("pywintypes")
 
 
-def load_win32com(finder, module):
-    """the win32com package manipulates its search path at runtime to include
-       the sibling directory called win32comext; simulate that by changing the
-       search path in a similar fashion here."""
-    baseDir = os.path.dirname(os.path.dirname(module.file))
-    module.path.append(os.path.join(baseDir, "win32comext"))
+def load_win32com(finder: ModuleFinder, module: Module) -> None:
+    """
+    The win32com package manipulates its search path at runtime to include
+    the sibling directory called win32comext; simulate that by changing the
+    search path in a similar fashion here.
+    """
+    base_dir = os.path.dirname(os.path.dirname(module.file))
+    module.path.append(os.path.join(base_dir, "win32comext"))
 
 
-def load_win32file(finder, module):
-    """the win32file module implicitly loads the pywintypes and win32timezone
-       module; make sure this happens."""
+def load_win32file(finder: ModuleFinder, module: Module) -> None:
+    """
+    The win32file module implicitly loads the pywintypes and win32timezone
+    module; make sure this happens.
+    """
     finder.IncludeModule("pywintypes")
     finder.IncludeModule("win32timezone")
 
 
-def load_wx_lib_pubsub_core(finder, module):
-    """the wx.lib.pubsub.core module modifies the search path which cannot
-       be done in a frozen application in the same way; modify the module
-       search path here instead so that the right modules are found; note
-       that this only works if the import of wx.lib.pubsub.setupkwargs
-       occurs first."""
-    dirName = os.path.dirname(module.file)
-    module.path.insert(0, os.path.join(dirName, "kwargs"))
+def load_wx_lib_pubsub_core(finder: ModuleFinder, module: Module) -> None:
+    """
+    The wx.lib.pubsub.core module modifies the search path which cannot
+    be done in a frozen application in the same way; modify the module
+    search path here instead so that the right modules are found; note
+    that this only works if the import of wx.lib.pubsub.setupkwargs
+    occurs first.
+    """
+    dir_name = os.path.dirname(module.file)
+    module.path.insert(0, os.path.join(dir_name, "kwargs"))
 
 
-def load_Xlib_display(finder, module):
-    """the Xlib.display module implicitly loads a number of extension modules;
-       make sure this happens."""
+def load_Xlib_display(finder: ModuleFinder, module: Module) -> None:
+    """
+    The Xlib.display module implicitly loads a number of extension modules;
+    make sure this happens.
+    """
     finder.IncludeModule("Xlib.ext.xtest")
     finder.IncludeModule("Xlib.ext.shape")
     finder.IncludeModule("Xlib.ext.xinerama")
@@ -1028,109 +1280,109 @@ def load_Xlib_display(finder, module):
     finder.IncludeModule("Xlib.ext.randr")
 
 
-def load_Xlib_support_connect(finder, module):
-    """the Xlib.support.connect module implicitly loads a platform specific
-       module; make sure this happens."""
+def load_Xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
+    """
+    The Xlib.support.connect module implicitly loads a platform specific
+    module; make sure this happens.
+    """
     if sys.platform.split("-")[0] == "OpenVMS":
-        moduleName = "vms_connect"
+        module_name = "vms_connect"
     else:
-        moduleName = "unix_connect"
-    finder.IncludeModule("Xlib.support.%s" % moduleName)
+        module_name = "unix_connect"
+    finder.IncludeModule(f"Xlib.support.{module_name}")
 
 
-def load_Xlib_XK(finder, module):
-    """the Xlib.XK module implicitly loads some keysymdef modules; make sure
-       this happens."""
+def load_Xlib_XK(finder: ModuleFinder, module: Module) -> None:
+    """
+    The Xlib.XK module implicitly loads some keysymdef modules; make sure
+    this happens.
+    """
     finder.IncludeModule("Xlib.keysymdef.miscellany")
     finder.IncludeModule("Xlib.keysymdef.latin1")
 
 
-def load_xml(finder, module):
-    """the builtin xml package attempts to load the _xmlplus module to see if
-       that module should take its role instead; ignore the failure to find
-       this module, though."""
-    module.IgnoreName("_xmlplus")
-
-
-def load_xml_etree_cElementTree(finder, module):
-    """the xml.etree.cElementTree module implicitly loads the
-       xml.etree.ElementTree module; make sure this happens."""
+def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
+    """
+    The xml.etree.cElementTree module implicitly loads the
+    xml.etree.ElementTree module; make sure this happens.
+    """
     finder.IncludeModule("xml.etree.ElementTree")
 
 
-def load_xmlrpclib(finder, module):
-    """the xmlrpclib optionally imports the _xmlrpclib and sgmlop modules;
-       ignore the error if these modules cannot be found."""
-    module.IgnoreName("_xmlrpclib")
-    module.IgnoreName("sgmlop")
-
-
-def load_zope_component(finder, module):
-    """the zope.component package requires the presence of the pkg_resources
-       module but it uses a dynamic, not static import to do its work."""
-    finder.IncludeModule("pkg_resources")
-
-
-def missing_gdk(finder, caller):
-    """the gdk module is buried inside gtk so there is no need to concern
-       ourselves with an error saying that it cannot be found"""
-    caller.IgnoreName("gdk")
-
-
-def missing_ltihooks(finder, caller):
-    """this module is not necessairly present so ignore it when it cannot be
-       found"""
-    caller.IgnoreName("ltihooks")
-
-
-def missing_readline(finder, caller):
-    """the readline module is not normally present on Windows but it also may
-       be so instead of excluding it completely, ignore it if it can't be
-       found"""
-    if WIN32:
-        caller.IgnoreName("readline")
-
-
-def load_zmq(finder, module):
-    """the zmq package loads zmq.backend.cython dynamically and links
-    dynamically to zmq.libzmq."""
+def load_zmq(finder: ModuleFinder, module: Module) -> None:
+    """
+    The zmq package loads zmq.backend.cython dynamically and links
+    dynamically to zmq.libzmq.
+    """
     finder.IncludePackage("zmq.backend.cython")
     if WIN32:
         # Not sure yet if this is cross platform
         # Include the bundled libzmq library, if it exists
         try:
-            import zmq.libzmq
-            srcFileName = os.path.basename(zmq.libzmq.__file__)
+            libzmq = __import__("zmq", fromlist=["libzmq"]).libzmq
+            filename = os.path.basename(libzmq.__file__)
             finder.IncludeFiles(
-                os.path.join(module.path[0], srcFileName), srcFileName)
+                os.path.join(module.path[0], filename), filename
+            )
         except ImportError:
             pass  # No bundled libzmq library
 
 
-def load_clr(finder, module):
-    """the pythonnet package (imported as 'clr') needs Python.Runtime.dll
-    in runtime"""
-    module_dir = os.path.dirname(module.file)
-    dll_name = 'Python.Runtime.dll'
-    finder.IncludeFiles(os.path.join(module_dir, dll_name),
-            os.path.join("lib", dll_name))
+def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
+    """
+    The zoneinfo package requires timezone data, that
+    can be the in tzdata package, if installed.
+    """
+    tzdata: Optional[Module]
+    try:
+        tzdata = finder.IncludePackage("tzdata")
+    except ImportError:
+        tzdata = None
+    if tzdata is None:
+        return
+    # store tzdata along with zoneinfo
+    tzdata.store_in_file_system = module.in_file_system
+    if tzdata.in_file_system:
+        finder.IncludeFiles(
+            tzdata.path[0],
+            os.path.join("lib", "tzdata"),
+            copy_dependent_files=False,
+        )
+    else:
+        finder.ZipIncludeFiles(tzdata.path[0], "tzdata")
 
 
-def load_sqlite3(finder, module):
-    """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
-       be present in the build directory."""
-    if WIN32 and not MINGW:
-        dll_name = "sqlite3.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-        if not os.path.exists(dll_path):
-            dll_path = os.path.join(sys.base_prefix, "Library", "bin", dll_name)
-        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
-    finder.IncludePackage("sqlite3")
+load_backports_zoneinfo = load_zoneinfo
 
-def load_pytest(finder, module):
-    import pytest
-    for m in pytest.freeze_includes():
-        finder.IncludeModule(m)
 
-def load_uvloop(finder, module):
-    finder.IncludeModule("uvloop._noop")
+def load_zope_component(finder: ModuleFinder, module: Module) -> None:
+    """
+    The zope.component package requires the presence of the pkg_resources
+    module but it uses a dynamic, not static import to do its work.
+    """
+    finder.IncludeModule("pkg_resources")
+
+
+def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
+    """
+    The gdk module is buried inside gtk so there is no need to concern
+    ourselves with an error saying that it cannot be found.
+    """
+    caller.IgnoreName("gdk")
+
+
+def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
+    """
+    This module is not necessairly present so ignore it when it cannot be
+    found.
+    """
+    caller.IgnoreName("ltihooks")
+
+
+def missing_readline(finder: ModuleFinder, caller: Module) -> None:
+    """
+    The readline module is not normally present on Windows but it also may be
+    so instead of excluding it completely, ignore it if it can't be found.
+    """
+    if WIN32:
+        caller.IgnoreName("readline")
