@@ -6,19 +6,26 @@ In a virtual environment, install by issuing the command:
 
   .. code-block:: console
 
-    pip install cx_Freeze --upgrade
+    pip install --upgrade cx_Freeze
+
+Using pipenv, install or update by issuing one of the folowing commanda:
+
+  .. code-block:: console
+
+    pipenv install cx_Freeze
+    pipenv update cx_Freeze
 
 Without virtual environment, depending on the system:
 
   .. code-block:: console
 
-    python -m pip install cx_Freeze --upgrade
+    python -m pip install --upgrade cx_Freeze
 
 or
 
   .. code-block:: console
 
-    python3 -m pip install cx_Freeze --upgrade
+    python3 -m pip install --upgrade cx_Freeze
 
 or download directly from `PyPI <https://pypi.org/project/cx_Freeze>`_.
 
@@ -33,12 +40,11 @@ to do a a manual installation.
 Installing from source requires ``setuptools``. This is installed
 automatically in virtual environments.
 
-The following steps are needed:
+In the source directory, use one of the command:
 
   .. code-block:: console
 
-    python setup.py build
-    python setup.py install
+    pip install .
 
 or
 
