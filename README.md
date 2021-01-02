@@ -8,13 +8,14 @@ It supports [Python](https://www.python.org/) 3.6 up to 3.9.
 
 If you need support for older Python check the documentation.
 
-# Highlights of Version 6.2 up to 6.4:
-- Support for metadata to use by pkg_resources and importlib.metadata
-- Namespace packages are automatically detected
-- Enhanced support for Python 3.8 and Intial support for Python 3.9
-- Better support for MSYS2
+# Highlights of Version 6.2 up to 6.5:
+- Improved ModuleFinder, using importlib.machinery
+- Support for package metadata
+- Enhanced support for Python 3.8 and experimental support for Python 3.9
+- Better support for MSYS2 and Anaconda (simultaneously launching the version)
 - Improvements for multiprocessing
-- More integrated to setuptools
+- Integrated to setuptools and importlib.metadata
+- Code modernization
 - Various bug fixes.
 
 # Installation
@@ -32,8 +33,8 @@ For other options, check the documentation.
 The official documentation is available
 [here](https://cx-freeze.readthedocs.io).
 
-If you need help you can also ask on the official mailing list:
-https://lists.sourceforge.net/lists/listinfo/cx-freeze-users
+If you need help you can also ask on the discussion channel:
+https://github.com/marcelotduarte/cx_Freeze/discussions
 
 # License
 

@@ -4,12 +4,48 @@ Release notes
 6.x releases
 ############
 
+Version 6.5 (January 2021)
+---------------------------
+
+#)  Improvements:
+	- Refactor ModuleFinder to use importlib.machinery (:pull:`811`)
+	- Executable target_name now has support for names with version (:pull:`857`)
+	- The name of the target executable can be modified after the build (:pull:`858`)
+	- Use codeType.replace when in py38+ (optimized) (:pull:`836`)
+	- Use a configuration file for Read the Docs (:pull:`818`)
+	- Modernize code (Type annotation, PEP8, black, refactor)
+	  (:pull:`815`, :pull:`832`, :pull:`837`, :pull:`838`, :pull:`839`,
+	  :pull:`840`, :pull:`841`, :pull:`842`, :pull:`843`, :pull:`859`)
+#)  Windows:
+	- Check if icon is valid (:pull:`851`)
+#)  macOS:
+	- Implemented a "plist_items" option on bdist_mac command (:pull:`827`)
+	- Remove deprecated methods in macdist (:pull:`810`)
+	- Fix a regression for macOS (:pull:`816`)
+	- Fix a bug using macOS on Github Actions (:pull:`812`)
+	- Marked rpath-lib-folder option as depreciated. (:pull:`834`)
+#)  New or improved hooks for:
+	- cryptography (:pull:`817`)
+	- google.cloud.storage (:pull:`821`)
+	- matplotlib (:pull:`807`)
+	- pygments (:pull:`863`)
+	- zoneinfo/tzdata (and backports.zoneinfo) (:pull:`854`)
+#)  Samples:
+	- Better pytz sample (:pull:`852`)
+	- Sample for new library zoneinfo (py39) (:pull:`853`)
+	- Sample to demonstrate the use a valid and an invalid icon. (:pull:`850`)
+#)  Bugfixes:
+	- cx_Freeze.__version__ should be the package version (:pull:`806`)
+	- pin importlib_metadata to >=3.1.1 (:pull:`819`, :pull:`820`, :pull:`822`)
+	- Correct test failures when initializing ModuleFinder (:pull:`833`)
+
+
 Version 6.4 (November 2020)
 ---------------------------
 
 #)  Improvements:
 	- Improved the resolution of dependencies in darwin MachO files (:pull:`590`)
-	- Documentation (:pull:`783`, :pull:`796``)
+	- Documentation (:pull:`783`, :pull:`796`)
 	- Release using GitHub Actions CI/CD workflows (:pull:`797`)
 	- Modernize code (Type annotation, PEP8, pyupgrade, black, refactor, cleanup) (:pull:`785`, :pull:`776`, :pull:`314`, :pull:`787`, :pull:`784`, :pull:`786`, :pull:`788`, :pull:`789`, :pull:`793`, :pull:`794`, :pull:`780`, :pull:`795`, :pull:`799`, :pull:`800`, :pull:`801`, :pull:`790`, :pull:`798`)
 #)  New or improved hooks for:
