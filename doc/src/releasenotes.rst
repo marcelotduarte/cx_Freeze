@@ -10,32 +10,36 @@ Version 6.5 (January 2021)
 #)  Improvements:
 	- Refactor ModuleFinder to use importlib.machinery (:pull:`811`)
 	- Executable target_name now has support for names with version (:pull:`857`)
-	- The name of the target executable can be modified after the build (:pull:`858`)
+	- The name of the target executable can be modified after the build
+	  (:pull:`858`, :issue:`703`)
 	- Use codeType.replace when in py38+ (optimized) (:pull:`836`)
 	- Use a configuration file for Read the Docs (:pull:`818`)
 	- Modernize code (Type annotation, PEP8, black, refactor)
 	  (:pull:`815`, :pull:`832`, :pull:`837`, :pull:`838`, :pull:`839`,
-	  :pull:`840`, :pull:`841`, :pull:`842`, :pull:`843`, :pull:`859`)
+	  :pull:`840`, :pull:`841`, :pull:`842`, :pull:`843`, :pull:`859`,
+	  :pull:`860`, :pull:`861`)
 #)  Windows:
-	- Check if icon is valid (:pull:`851`)
+	- Check if icon is valid
+	  (:pull:`851`, :issue:`824`, :issue:`856`, :issue:`379`)
 #)  macOS:
 	- Implemented a "plist_items" option on bdist_mac command (:pull:`827`)
 	- Remove deprecated methods in macdist (:pull:`810`)
-	- Fix a regression for macOS (:pull:`816`)
+	- Fix a regression for macOS (:pull:`816`, :issue:`809`)
 	- Fix a bug using macOS on Github Actions (:pull:`812`)
 	- Marked rpath-lib-folder option as depreciated. (:pull:`834`)
 #)  New or improved hooks for:
-	- cryptography (:pull:`817`)
+	- cryptography (:pull:`817`, :issue:`814`)
 	- google.cloud.storage (:pull:`821`)
-	- matplotlib (:pull:`807`)
-	- pygments (:pull:`863`)
+	- matplotlib (:pull:`807`, :issue:`805`)
+	- pygments (:pull:`863`, :issue:`862`)
 	- zoneinfo/tzdata (and backports.zoneinfo) (:pull:`854`)
 #)  Samples:
 	- Better pytz sample (:pull:`852`)
 	- Sample for new library zoneinfo (py39) (:pull:`853`)
-	- Sample to demonstrate the use a valid and an invalid icon. (:pull:`850`)
+	- Sample to demonstrate the use a valid and an invalid icon (:pull:`850`)
 #)  Bugfixes:
-	- cx_Freeze.__version__ should be the package version (:pull:`806`)
+	- cx_Freeze.__version__ should be the package version
+	  (:pull:`806`, :issue:`804`)
 	- pin importlib_metadata to >=3.1.1 (:pull:`819`, :pull:`820`, :pull:`822`)
 	- Correct test failures when initializing ModuleFinder (:pull:`833`)
 
@@ -47,15 +51,22 @@ Version 6.4 (November 2020)
 	- Improved the resolution of dependencies in darwin MachO files (:pull:`590`)
 	- Documentation (:pull:`783`, :pull:`796`)
 	- Release using GitHub Actions CI/CD workflows (:pull:`797`)
-	- Modernize code (Type annotation, PEP8, pyupgrade, black, refactor, cleanup) (:pull:`785`, :pull:`776`, :pull:`314`, :pull:`787`, :pull:`784`, :pull:`786`, :pull:`788`, :pull:`789`, :pull:`793`, :pull:`794`, :pull:`780`, :pull:`795`, :pull:`799`, :pull:`800`, :pull:`801`, :pull:`790`, :pull:`798`)
+	- Apply pyupgrade (:pull:`801`)
+	- Modernize code (Type annotation, PEP8, black, refactor, cleanup)
+	  (:pull:`785`, :pull:`776`, :pull:`314`, :pull:`787`, :pull:`784`,
+	  :pull:`786`, :pull:`788`, :pull:`789`, :pull:`793`, :pull:`794`,
+	  :pull:`780`, :pull:`795`, :pull:`799`, :pull:`800`, :pull:`790`,
+	  :pull:`798`)
 #)  New or improved hooks for:
 	- PyQt5 (:pull:`718`, :pull:`791`)
 #)  Samples:
-	- Added a sample to illustrate problem with importlib.util.find_spec (:pull:`735`)
+	- Added a sample to illustrate problem with importlib.util.find_spec
+	  (:pull:`735`)
 	- Sample for bdist_msi, summary_data option (:pull:`775`)
-	- README for some samples; remove requirements.txt to avoid to be interpreted by some sites as the requirements of cx_Freeze (:pull:`802`)
+	- README for some samples; remove requirements.txt to avoid to be
+	  interpreted by some sites as the requirements of cx_Freeze (:pull:`802`)
 #)  Bugfixes:
-	- Cause MSI file to be released at the end of bdist_msi command. (:pull:`781`)
+	- Cause MSI file to be released at the end of bdist_msi command (:pull:`781`)
 
 
 Version 6.3 (October 2020)
@@ -64,9 +75,11 @@ Version 6.3 (October 2020)
 #)  Improvements:
 	- Improve metadata using importlib.metadata (:pull:`697`)
 	- New options in ``cxfreeze`` script; documentation updated (:pull:`742`)
-	- The command line parser was rewritten and modernised using argparse (:pull:`741`)
+	- The command line parser was rewritten and modernised using argparse
+	  (:pull:`741`)
 	- Documentation (:pull:`740`, :pull:`722`, :pull:`720`)
-	- Cleanups (:pull:`766`, :pull:`746`, :pull:`744`, :pull:`743`, :pull:`736`, :pull:`726`, :pull:`724`, :pull:`721`, :pull:`712`)
+	- Cleanups (:pull:`766`, :pull:`746`, :pull:`744`, :pull:`743`,
+	  :pull:`736`, :pull:`726`, :pull:`724`, :pull:`721`, :pull:`712`)
 #)  New or improved hooks for:
 	- google.cloud.storage (:pull:`708`)
 	- google.crc32c (:pull:`737`)
@@ -75,26 +88,34 @@ Version 6.3 (October 2020)
 	- sysconfig (:pull:`727`, :pull:`715`)
 	- tensorflow (:pull:`710`)
 #)  Linux:
-	- Improve copy dependent files relative to source module file (linux) (:pull:`704`)
+	- Improve copy dependent files relative to source module file (:pull:`704`)
 #)  Windows:
-	- Check if upgrade-code is valid and document the valid format (:pull:`711`, :issue:`585`)
+	- Check if upgrade-code is valid and document the valid format
+	  (:pull:`711`, :issue:`585`)
 	- Improve Windows GUID documentation (:pull:`749`)
-	- Added option to bdist_msi to specify information for msi summary information stream (:pull:`760`)
+	- Added option to bdist_msi to specify information for msi summary
+	  information stream (:pull:`760`)
 #)  macOS:
-	- Fix the syspath for some version of python on macOS (:pull:`719`, :issue:`667`)
+	- Fix the syspath for some version of python on macOS
+	  (:pull:`719`, :issue:`667`)
 #)  Samples:
 	- Add pyside2 sample (:pull:`664`)
 	- A sample for testing PyQt5 included in zip package (:pull:`717`)
 	- Add pandas sample (:pull:`709`)
-	- Added sample code to show the use of ConstantsModule / BUILD_CONSTANTS (:pull:`729`)
+	- Added sample code to show the use of ConstantsModule / BUILD_CONSTANTS
+	  (:pull:`729`)
 #)  Bugfixes:
-	- Ensure the copy of default python libraries in all platforms (:pull:`706`, :issue:`701`)
-	- Remove warning 'Distutils was imported before Setuptools' (:pull:`694`, :issue:`693`)
+	- Ensure the copy of default python libraries in all platforms
+	  (:pull:`706`, :issue:`701`)
+	- Remove warning 'Distutils was imported before Setuptools'
+	  (:pull:`694`, :issue:`693`)
 	- Fix the use of compress and desambiguate the use of stat (:pull:`738`)
-	- Small fix to handle a build constant that includes a "=" symbol. (:pull:`728`)
+	- Small fix to handle a build constant that includes a "=" symbol
+	  (:pull:`728`)
 	- Fix issue when module.file is None (:pull:`707`)
 	- Fix detect namespaces in py35 (:pull:`700`)
-	- Set python initialization flags prior to Py_SetPath call to avoid warnings (:pull:`751`)
+	- Set python initialization flags prior to Py_SetPath call to avoid
+	  warnings (:pull:`751`)
 
 
 Version 6.2 (July 2020)
