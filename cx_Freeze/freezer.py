@@ -294,6 +294,16 @@ class Freezer:
                     cx_Freeze.util.AddIcon(target_path, exe.icon)
                 except RuntimeError as exc:
                     print("*** WARNING ***", exc)
+                except OSError as exc:
+                    if "\\WindowsApps\\" in sys.base_prefix:
+                        print(
+                            "*** WARNING *** Python installed by "
+                            "Windows Store do not support rewrite of the "
+                            "executable and returned the following error:"
+                        )
+                        print(exc)
+                    else:
+                        raise
             else:
                 target_icon = os.path.join(
                     self.targetDir, os.path.basename(exe.icon)
