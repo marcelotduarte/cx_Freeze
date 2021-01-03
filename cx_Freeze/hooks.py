@@ -776,6 +776,8 @@ def load_pycparser(finder: ModuleFinder, module: Module) -> None:
 def load_pygments(finder: ModuleFinder, module: Module) -> None:
     """The pygments package dynamically load styles."""
     finder.IncludePackage("pygments.styles")
+    finder.IncludePackage("pygments.lexers")
+    finder.IncludePackage("pygments.formatters")
 
 
 def load_pytest(finder: ModuleFinder, module: Module) -> None:
