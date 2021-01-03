@@ -21,7 +21,7 @@ Version 6.5 (January 2021)
 #)  Windows:
 	- Check if icon is valid
 	  (:issue:`856`, :pull:`851`, :issue:`824`, :issue:`379`)
-    - Warning about python from Windows Store (:pull:`867`, :issue:`856`)
+	- Warning about python from Windows Store (:pull:`867`, :issue:`856`)
 #)  macOS:
 	- Implemented a "plist_items" option on bdist_mac command (:pull:`827`)
 	- Remove deprecated methods in macdist (:pull:`810`)
