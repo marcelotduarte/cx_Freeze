@@ -176,7 +176,11 @@ def prepare_parser():
         "in the file system and excluded from the zip file (the default)",
     )
     parser.add_argument(
-        "--icon", dest="icon", help="name of the icon file for the application"
+        "--icon",
+        dest="icon",
+        help="name of icon which should be included in the executable itself "
+        "on Windows or placed in the target directory for other platforms "
+        "(ignored in Microsoft Store Python app)",
     )
     # remove the initial "usage: " of format_usage()
     parser.usage = parser.format_usage()[len("usage: ") :] + DESCRIPTION

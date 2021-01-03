@@ -127,4 +127,6 @@ Further customization can be done using the following options:
 
 .. option:: --icon=ICON
 
-   name of the icon file for the application
+   name of icon which should be included in the executable itself
+   on Windows or placed in the target directory for other platforms
+   (ignored in Microsoft Store Python app)
