@@ -294,6 +294,18 @@ class Freezer:
                     cx_Freeze.util.AddIcon(target_path, exe.icon)
                 except RuntimeError as exc:
                     print("*** WARNING ***", exc)
+                except OSError as exc:
+                    if "\\WindowsApps\\" in sys.base_prefix:
+                        print(
+                            "*** WARNING *** Because of restrictions on "
+                            "Microsoft Store apps, Python scripts may not "
+                            "have full write access to built executable.\n"
+                            "You will need to install the full installer.\n"
+                            "The following error was returned:"
+                        )
+                        print(exc)
+                    else:
+                        raise
             else:
                 target_icon = os.path.join(
                     self.targetDir, os.path.basename(exe.icon)
