@@ -419,6 +419,7 @@ constructor are as follows:
    * - icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
+       (ignored in Microsoft Store Python app)
    * - shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
        package (Windows only).
