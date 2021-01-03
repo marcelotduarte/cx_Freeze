@@ -297,9 +297,11 @@ class Freezer:
                 except OSError as exc:
                     if "\\WindowsApps\\" in sys.base_prefix:
                         print(
-                            "*** WARNING *** Python installed by "
-                            "Windows Store do not support rewrite of the "
-                            "executable and returned the following error:"
+                            "*** WARNING *** Because of restrictions on "
+                            "Microsoft Store apps, Python scripts may not "
+                            "have full write access to built executable.\n"
+                            "You will need to install the full installer.\n"
+                            "The following error was returned:"
                         )
                         print(exc)
                     else:
