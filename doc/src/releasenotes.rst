@@ -17,7 +17,7 @@ Version 6.5 (January 2021)
 	- Modernize code (Type annotation, PEP8, black, refactor)
 	  (:pull:`815`, :pull:`832`, :pull:`837`, :pull:`838`, :pull:`839`,
 	  :pull:`840`, :pull:`841`, :pull:`842`, :pull:`843`, :pull:`859`,
-	  :pull:`860`, :pull:`861`, :pull:`864`, :pull:`865`)
+	  :pull:`860`, :pull:`861`, :pull:`864`, :pull:`865`, :pull:`868`)
 #)  Windows:
 	- Check if icon is valid
 	  (:issue:`856`, :pull:`851`, :issue:`824`, :issue:`379`)
