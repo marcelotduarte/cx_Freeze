@@ -17,10 +17,11 @@ Version 6.5 (January 2021)
 	- Modernize code (Type annotation, PEP8, black, refactor)
 	  (:pull:`815`, :pull:`832`, :pull:`837`, :pull:`838`, :pull:`839`,
 	  :pull:`840`, :pull:`841`, :pull:`842`, :pull:`843`, :pull:`859`,
-	  :pull:`860`, :pull:`861`)
+	  :pull:`860`, :pull:`861`, :pull:`864`, :pull:`865`)
 #)  Windows:
 	- Check if icon is valid
-	  (:pull:`851`, :issue:`824`, :issue:`856`, :issue:`379`)
+	  (:issue:`856`, :pull:`851`, :issue:`824`, :issue:`379`)
+    - Warning about python from Windows Store (:pull:`867`, :issue:`856`)
 #)  macOS:
 	- Implemented a "plist_items" option on bdist_mac command (:pull:`827`)
 	- Remove deprecated methods in macdist (:pull:`810`)
