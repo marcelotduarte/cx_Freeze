@@ -7,13 +7,16 @@
 
 from cx_Freeze import setup, Executable
 
-buildOptions = dict(zip_include_packages=["*"], zip_exclude_packages=[])
-executables = [Executable("test_pillow.py")]
-
 setup(
     name="test_pillow",
-    version="0.1",
+    version="0.2",
     description="cx_Freeze script to test pillow (PIL)",
-    executables=executables,
-    options=dict(build_exe=buildOptions),
+    executables=[Executable("test_pillow.py")],
+    options={
+        "build_exe": {
+            "include_files": ["favicon.png"],
+            "zip_include_packages": ["*"],
+            "zip_exclude_packages": [],
+        }
+    },
 )

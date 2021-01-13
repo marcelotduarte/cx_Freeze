@@ -1,10 +1,18 @@
 import os.path
+import sys
 
 from PIL import Image
 
 print("Opening image with PIL")
-filename = os.path.join("..", "icon", "favicon.png")
-with Image.open(filename) as im, open("test_pillow.pdf", "w+b") as fp:
+
+if getattr(sys, "frozen", False):
+    filename_png = os.path.join(os.path.dirname(sys.executable), "favicon.png")
+else:
+    filename_png = os.path.join(
+        os.path.dirname(os.path.os.path.abspath(__file__)), "favicon.png"
+    )
+filename_pdf = os.path.join(os.path.dirname(filename_png), "test_pillow.pdf")
+with Image.open(filename_png) as im, open(filename_pdf, "w+b") as fp:
     if im.mode == "RGBA":
         im = im.convert("RGB")
     im.save(fp, format="PDF")
