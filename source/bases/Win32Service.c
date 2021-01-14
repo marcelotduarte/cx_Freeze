@@ -133,10 +133,11 @@ static int Service_Stop(udt_ServiceInfo* info)
 
     // call the "stop" method
     result = PyObject_CallMethod(gInstance, "stop", NULL);
-    if (!result)
+    if (!result) {
         result = PyObject_CallMethod(gInstance, "Stop", NULL);
         if (!result)
             return LogPythonException("exception calling stop method");
+    }
     Py_DECREF(result);
 
     // destroy the Python thread and release the global interpreter lock
@@ -174,11 +175,12 @@ static int Service_SessionChange(DWORD sessionId, DWORD eventType)
     // call Python method
     result = PyObject_CallMethod(gInstance, "session_changed", "ii",
                                  sessionId, eventType);
-    if (!result)
+    if (!result) {
         result = PyObject_CallMethod(gInstance, "sessionChanged", "ii",
                                      sessionId, eventType);
         if (!result)
             return LogPythonException("exception calling session_changed method");
+    }
     Py_DECREF(result);
 
     // destroy the Python thread and release the global interpreter lock
@@ -528,10 +530,11 @@ static int Service_Run(udt_ServiceInfo *info)
     if (!iniFileNameObj)
         return LogPythonException("failed to create ini file as string");
     temp = PyObject_CallMethod(gInstance, "initialize", "O", iniFileNameObj);
-    if (!temp)
+    if (!temp) {
         temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
         if (!temp)
             return LogPythonException("failed to initialize instance properly");
+    }
     Py_CLEAR(iniFileNameObj);
     Py_CLEAR(temp);
 
@@ -540,10 +543,11 @@ static int Service_Run(udt_ServiceInfo *info)
     if (Service_SetStatus(info, SERVICE_RUNNING) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as started");
     temp = PyObject_CallMethod(gInstance, "run", NULL);
-    if (!temp)
+    if (!temp) {
         temp = PyObject_CallMethod(gInstance, "Run", NULL);
         if (!temp)
             return LogPythonException("exception running service");
+    }
     Py_DECREF(temp);
     Py_DECREF(gInstance);
     gInstance = NULL;
