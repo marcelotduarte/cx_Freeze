@@ -176,8 +176,6 @@ It can be further customized:
        zip file (the default)
    * - silent (-s)
      - suppress all output except warnings
-   * - no_missing_warnings (-n)
-     - suppress warnings concerning missing modules
 
 
 install
@@ -381,8 +379,6 @@ installation.
    * - applications_shortcut
      - Boolean for whether to include shortcut to Applications in the DMG disk
        image
-   * - silent (-s)
-     - suppress all output except warnings
 
 .. versionadded:: 4.3
 

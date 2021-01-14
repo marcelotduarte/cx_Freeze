@@ -140,8 +140,6 @@ class build_exe(distutils.core.Command):
             "[default: *]",
         ),
         ("silent", "s", "suppress all output except warnings"),
-        ("no-missing-warnings", "n", "suppress warnings concerning missing modules"),
-
     ]
     boolean_options = ["no-compress", "include_msvcr", "silent"]
 
@@ -212,7 +210,6 @@ class build_exe(distutils.core.Command):
         self.path = None
         self.include_msvcr = None
         self.silent = None
-        self.no_missing_warnings = None
 
     def finalize_options(self):
         self.set_undefined_options("build", ("build_exe", "build_exe"))
@@ -220,9 +217,6 @@ class build_exe(distutils.core.Command):
 
         if self.silent is None:
             self.silent = False
-
-        if self.no_missing_warnings is None:
-            self.no_missing_warnings = False
 
         # Make sure all options of multiple values are lists
         for option in self.list_options:
@@ -254,7 +248,6 @@ class build_exe(distutils.core.Command):
             binExcludes=self.bin_excludes,
             zipIncludes=self.zip_includes,
             silent=self.silent,
-            noMissingWarnings=self.no_missing_warnings,
             binPathIncludes=self.bin_path_includes,
             binPathExcludes=self.bin_path_excludes,
             metadata=metadata,

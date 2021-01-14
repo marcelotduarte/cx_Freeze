@@ -56,7 +56,6 @@ class Freezer:
         includeFiles: Optional[List] = None,
         zipIncludes: Optional[List] = None,
         silent: bool = False,
-        noMissingWarnings: bool = False,
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
@@ -86,7 +85,6 @@ class Freezer:
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
-        self.noMissingWarnings = noMissingWarnings
         self.metadata = metadata
         self.zipIncludePackages = list(zipIncludePackages or [])
         self.zipExcludePackages = list(zipExcludePackages or [])
@@ -594,8 +592,7 @@ class Freezer:
 
         if not self.silent:
             self._PrintReport(fileName, modules)
-        if not self.noMissingWarnings:
-            finder.ReportMissingModules()
+        finder.ReportMissingModules()
 
         targetDir = os.path.dirname(fileName)
         self._CreateDirectory(targetDir)
