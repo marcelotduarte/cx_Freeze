@@ -89,24 +89,19 @@ class build_ext(distutils.command.build_ext.build_ext):
 def find_cx_Logging():
     import subprocess
 
-    logging_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "cx_Logging",
-    )
+    cxfreeze_dir = os.path.dirname(os.path.abspath(__file__))
+    logging_dir = os.path.join(cxfreeze_dir, "cx_Logging")
+    try:
+        subprocess.run(
+            ["git", "submodule", "init", "cx_Logging"], cwd=cxfreeze_dir
+        )
+        subprocess.run(
+            ["git", "submodule", "update", "cx_Logging"], cwd=cxfreeze_dir
+        )
+    except (FileNotFoundError, subprocess.SubprocessError):
+        pass
     if not os.path.exists(logging_dir):
-        try:
-            subprocess.run(
-                [
-                    "git",
-                    "clone",
-                    "https://github.com/anthony-tuininga/cx_Logging.git",
-                    logging_dir,
-                ]
-            )
-        except (FileNotFoundError, subprocess.SubprocessError):
-            pass
-    if not os.path.exists(logging_dir):
-        return
+        return None, None
     platform = distutils.util.get_platform()
     ver_major, ver_minor = sys.version_info[0:2]
     sub_dir = f"implib.{platform}-{ver_major}.{ver_minor}"
@@ -120,7 +115,7 @@ def find_cx_Logging():
         except (FileNotFoundError, subprocess.SubprocessError):
             pass
     if not os.path.exists(import_library_dir):
-        return
+        return None, None
     return include_dir, import_library_dir
 
 
@@ -148,9 +143,8 @@ if WIN32:
         libraries=libraries + ["user32"],
     )
     extensions.append(gui)
-    module_info = find_cx_Logging()
-    if module_info is not None:
-        include_dir, library_dir = module_info
+    include_dir, library_dir = find_cx_Logging()
+    if include_dir is not None:
         service = Extension(
             "cx_Freeze.bases.Win32Service",
             ["source/bases/Win32Service.c"],
