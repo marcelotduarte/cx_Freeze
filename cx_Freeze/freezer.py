@@ -897,8 +897,7 @@ class Executable:
                 ext = ""
         self._name = name
         self._ext = ext
-        name = os.path.normcase(name).replace(" ", "_")
-        name = name.partition("-")[0]
+        name = os.path.normcase(name).replace(" ", "_").replace("-", "_")
         name = name.partition(".")[0]
         if not name.isidentifier():
             raise ConfigError(f"Invalid name for target_name ({self._name!r})")

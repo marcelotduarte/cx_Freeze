@@ -44,8 +44,7 @@ def run():
     name = os.path.basename(sys.executable)
     if sys.platform == "win32":
         name, _ = os.path.splitext(name)
-    name = os.path.normcase(name).replace(" ", "_")
-    name = name.partition("-")[0]
+    name = os.path.normcase(name).replace(" ", "_").replace("-", "_")
     name = name.partition(".")[0]
     try:
         module = __import__(name + "__init__")
