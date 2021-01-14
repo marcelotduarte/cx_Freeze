@@ -6,6 +6,7 @@ from setuptools import setup, Extension
 import distutils.command.build_ext
 from distutils.sysconfig import get_config_var
 import os
+import subprocess
 import sys
 
 WIN32 = sys.platform == "win32"
@@ -78,17 +79,15 @@ class build_ext(distutils.command.build_ext.build_ext):
             debug=self.debug,
         )
 
-    def get_ext_filename(self, name):
-        filename = super().get_ext_filename(name)
-        if name.endswith("util"):
+    def get_ext_filename(self, ext_name):
+        filename = super().get_ext_filename(ext_name)
+        if ext_name.endswith("util"):
             return filename
-        ext = self.compiler.exe_extension or ""
-        return filename[: -len(get_config_var("EXT_SUFFIX"))] + ext
+        exe_extension = self.compiler.exe_extension or ""
+        return filename[: -len(get_config_var("EXT_SUFFIX"))] + exe_extension
 
 
-def find_cx_Logging():
-    import subprocess
-
+def find_cx_logging():
     cxfreeze_dir = os.path.dirname(os.path.abspath(__file__))
     logging_dir = os.path.join(cxfreeze_dir, "cx_Logging")
     try:
@@ -119,64 +118,62 @@ def find_cx_Logging():
     return include_dir, import_library_dir
 
 
-cmdclass = {"build_ext": build_ext}
-
-# build base executables
-if WIN32:
-    libraries = ["imagehlp", "Shlwapi"]
-else:
-    libraries = []
-options = {"install": {"optimize": 1}}
-depends = ["source/bases/Common.c"]
-console = Extension(
-    "cx_Freeze.bases.Console",
-    ["source/bases/Console.c"],
-    depends=depends,
-    libraries=libraries,
-)
-extensions = [console]
-if WIN32:
-    gui = Extension(
-        "cx_Freeze.bases.Win32GUI",
-        ["source/bases/Win32GUI.c"],
+if __name__ == "__main__":
+    # build base executables
+    if WIN32:
+        libraries = ["imagehlp", "Shlwapi"]
+    else:
+        libraries = []
+    depends = ["source/bases/Common.c"]
+    console = Extension(
+        "cx_Freeze.bases.Console",
+        ["source/bases/Console.c"],
         depends=depends,
-        libraries=libraries + ["user32"],
+        libraries=libraries,
     )
-    extensions.append(gui)
-    include_dir, library_dir = find_cx_Logging()
-    if include_dir is not None:
-        service = Extension(
-            "cx_Freeze.bases.Win32Service",
-            ["source/bases/Win32Service.c"],
+    extensions = [console]
+    if WIN32:
+        gui = Extension(
+            "cx_Freeze.bases.Win32GUI",
+            ["source/bases/Win32GUI.c"],
             depends=depends,
-            library_dirs=[library_dir],
-            libraries=libraries + ["advapi32", "cx_Logging"],
-            include_dirs=[include_dir],
+            libraries=libraries + ["user32"],
         )
-        extensions.append(service)
-    # build utility module
-    util_module = Extension(
-        "cx_Freeze.util", ["source/util.c"], libraries=libraries
+        extensions.append(gui)
+        include_dir, library_dir = find_cx_logging()
+        if include_dir is not None:
+            service = Extension(
+                "cx_Freeze.bases.Win32Service",
+                ["source/bases/Win32Service.c"],
+                depends=depends,
+                library_dirs=[library_dir],
+                libraries=libraries + ["advapi32", "cx_Logging"],
+                include_dirs=[include_dir],
+            )
+            extensions.append(service)
+        # build utility module
+        util_module = Extension(
+            "cx_Freeze.util", ["source/util.c"], libraries=libraries
+        )
+        extensions.append(util_module)
+
+    # define package data
+    package_data = []
+    for filename in os.listdir(os.path.join("cx_Freeze", "initscripts")):
+        name, ext = os.path.splitext(filename)
+        if ext != ".py":
+            continue
+        package_data.append(f"initscripts/{filename}")
+    for filename in os.listdir(os.path.join("cx_Freeze", "samples")):
+        sample_dir = os.path.join("cx_Freeze", "samples", filename)
+        if not os.path.isdir(sample_dir):
+            continue
+        package_data.append(f"samples/{filename}/*.py")
+
+    setup(
+        cmdclass={"build_ext": build_ext},
+        options={"install": {"optimize": 1}},
+        ext_modules=extensions,
+        packages=["cx_Freeze"],
+        package_data={"cx_Freeze": package_data},
     )
-    extensions.append(util_module)
-
-# define package data
-package_data = []
-for filename in os.listdir(os.path.join("cx_Freeze", "initscripts")):
-    name, ext = os.path.splitext(filename)
-    if ext != ".py":
-        continue
-    package_data.append(f"initscripts/{filename}")
-for filename in os.listdir(os.path.join("cx_Freeze", "samples")):
-    sample_dir = os.path.join("cx_Freeze", "samples", filename)
-    if not os.path.isdir(sample_dir):
-        continue
-    package_data.append(f"samples/{filename}/*.py")
-
-setup(
-    cmdclass=cmdclass,
-    options=options,
-    ext_modules=extensions,
-    packages=["cx_Freeze"],
-    package_data={"cx_Freeze": package_data},
-)
