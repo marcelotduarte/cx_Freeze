@@ -6,13 +6,13 @@ an invalid icon.
 from cx_Freeze import setup, Executable
 
 executables = [
-    Executable("test_icon.py", icon="icon.ico", target_name="test_1.exe"),
-    Executable("test_icon.py", icon="favicon.png", target_name="test_2.exe"),
+    Executable("test_icon.py", icon="icon.ico", target_name="test-valid-icon.exe"),
+    Executable("test_icon.py", icon="favicon.png", target_name="test-invalid-icon.exe"),
 ]
 
 setup(
     name="Icon sample",
-    version="0.1",
+    version="0.2",
     description="Test Icon",
     executables=executables,
 )
