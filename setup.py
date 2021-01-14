@@ -90,7 +90,7 @@ def find_cx_Logging():
     import subprocess
 
     logging_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.os.path.abspath(__file__))),
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "cx_Logging",
     )
     if not os.path.exists(logging_dir):
