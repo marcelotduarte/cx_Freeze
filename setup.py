@@ -109,7 +109,7 @@ def find_cx_logging():
     if not os.path.exists(import_library_dir):
         try:
             subprocess.run(
-                [sys.executable, "setup.py", "install"], cwd=logging_dir
+                [sys.executable, "setup.py", "build"], cwd=logging_dir
             )
         except (FileNotFoundError, subprocess.SubprocessError):
             pass
