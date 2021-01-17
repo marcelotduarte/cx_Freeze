@@ -140,6 +140,39 @@ class DarwinFile:
             l.append("   {} -> {}".format(rp, self.libraryPathResolution[rp]))
         return "\n".join(l)
 
+    def fileReferenceDepth(self) -> int:
+        """Returns how deep this Mach-O file is in the dynamic load order."""
+        if self.referencingFile is not None: return self.referencingFile.fileReferenceDepth() + 1
+        return 0
+
+    def printFileInformation(self):
+        """Prints information about the Mach-O file."""
+        print(f'[{self.fileReferenceDepth()}] File: "{self.originalFilePath}"')
+        print("  Commands:")
+        if len(self.commands) > 0:
+            for c in self.commands: print(f'    {c}')
+        else: print("    [None]")
+
+        # This can be included for even more detail on the problem file.
+        # print("  Load commands:")
+        # if len(self.loadCommands) > 0:
+        #     for lc in self.loadCommands: print(f'    {lc}')
+        # else: print("    [None]")
+
+        print("  RPath commands:")
+        if len(self.rpathCommands) > 0:
+            for rpc in self.rpathCommands: print(f'    {rpc}')
+        else: print("    [None]")
+        print("  Calculated RPath:")
+        rpath = self.getRPath()
+        if len(rpath) > 0:
+            for path in rpath: print(f"    {path}")
+        else: print("    [None]")
+        if self.referencingFile is not None:
+            print("Referenced from:")
+            self.referencingFile.printFileInformation()
+        return
+
     def setBuildPath(self, path: str):
         self._buildPath = path
 
@@ -189,6 +222,8 @@ class DarwinFile:
             testPath = os.path.abspath(path.replace("@rpath", rp, 1))
             if _isMachOFile(testPath):
                 return testPath
+        print(f"\nERROR - Problem resolving RPath ({path}) in file:")
+        self.printFileInformation()
         raise DarwinException(f"resolveRPath() failed to resolve path: {path}")
 
     def getRPath(self) -> List[str]:
@@ -271,8 +306,16 @@ class MachOCommand:
     def __init__(self, lines: List[str]):
         self.lines = lines
 
+    def displayString(self) -> str:
+        l: List[str] = []
+        if len(self.lines) > 0:
+            l.append(self.lines[0].strip())
+        if len(self.lines) > 1:
+            l.append(self.lines[1].strip())
+        return " / ".join(l)
+
     def __repr__(self):
-        return "<MachOCommand>"
+        return f"<MachOCommand ({self.displayString()})>"
 
     @staticmethod
     def _getMachOCommands(forFileAtPath: str) -> List["MachOCommand"]:
@@ -295,7 +338,7 @@ class MachOCommand:
             if currentCommandLines is not None:
                 currentCommandLines.append(line)
         if currentCommandLines is not None:
-            commands.append(currentCommandLines)
+            commands.append(MachOCommand.parseLines(lines=currentCommandLines))
         return commands
 
     @staticmethod
