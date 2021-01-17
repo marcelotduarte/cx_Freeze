@@ -281,10 +281,6 @@ class bdist_mac(Command):
         Mach-O files relative.
         """
 
-        # TODO: Do an initial pass through the DarwinFiles to see if any
-        # references on DarwinFiles copied into the bundle that were not
-        # already set--in which case we set them?
-
         for darwinFile in self.darwinTracker:
             # get the relative path to darwinFile in build directory
             relativeCopyDestination = os.path.relpath(
@@ -292,14 +288,15 @@ class bdist_mac(Command):
             )
             # figure out directory where it will go in binary directory for
             # .app bundle, this would be the Content/MacOS subdirectory in
-            # bundle
+            # bundle.  This is the file that needs to have its dynamic load
+            # references updated.
             filePathInBinDir = os.path.join(binDir, relativeCopyDestination)
 
             # for each file that this darwinFile references, update the
             # reference as necessary; if the file is copied into the binary
-            # package, change the refernce to be relative to @executable_path
+            # package, change the reference to be relative to @executable_path
             # (so an .app bundle will work wherever it is moved)
-            for path, machORef in darwinFile.machOReferenceDict.items():
+            for machORef in darwinFile.getMachOReferenceList():
                 if not machORef.isCopied:
                     # referenced file not copied -- assume this is a system
                     # file that will also be present on the user's machine,
@@ -307,7 +304,7 @@ class bdist_mac(Command):
                     continue
                 # this is the reference in the machO file that needs to be
                 # updated
-                rawPath = machORef.rawPath
+                rawPath = machORef.rawReferencePath
                 referencedDarwinFile: DarwinFile = machORef.targetFile
                 # this is where file copied in build dir
                 absoluteBuildDest = referencedDarwinFile.getBuildPath()

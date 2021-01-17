@@ -130,11 +130,11 @@ class Freezer:
             if sys.platform == "darwin" and (machOReference is not None):
                 # If file was already copied, and we are following a reference
                 # from a DarwinFile, then we need to tell the reference where
-                # the file was copied to.
-                targetDarwinFile = self.darwinTracker.getDarwinFile(
+                # the file was copied to (so the reference can later be updated).
+                copiedDarwinFile = self.darwinTracker.getDarwinFile(
                     sourcePath=normalizedSource, targetPath=normalizedTarget
                 )
-                machOReference.setTargetFile(darwinFile=targetDarwinFile)
+                machOReference.setTargetFile(darwinFile=copiedDarwinFile)
             return
         if normalizedSource == normalizedTarget:
             return
@@ -189,8 +189,8 @@ class Freezer:
                         dependent_file,
                         target,
                         copyDependentFiles=True,
-                        machOReference=newDarwinFile.getMachOReference(
-                            resolvedPath=dependent_file
+                        machOReference=newDarwinFile.getMachOReferenceForPath(
+                            path=dependent_file
                         ),
                     )
             else:
@@ -260,15 +260,15 @@ class Freezer:
         for source in dependent_files:
             target = os.path.join(target_dir, os.path.basename(source))
             if sys.platform == "darwin":
-                self._CopyFile(
-                    source,
-                    target,
-                    copyDependentFiles=True,
-                    includeMode=True,
-                    machOReference=self.darwinTracker.getCachedReferenceTo(
-                        path=source
-                    ),
-                )
+                # this recovers the cached MachOReference pointers to the files found
+                # by the _GetDependentFiles calls above. If one is found, pass into _CopyFile.
+                # We need to do this so the file knows what file referenced it, and can therefore
+                # calculate the appropriate rpath.
+                # (We only cache one reference.)
+                cachedReference = self.darwinTracker.getCachedReferenceTo(sourcePath=source)
+                self._CopyFile( source, target,
+                                copyDependentFiles=True, includeMode=True,
+                                machOReference=cachedReference )
             else:
                 self._CopyFile(
                     source, target, copyDependentFiles=True, includeMode=True
@@ -388,8 +388,10 @@ class Freezer:
                         print(f"{path!r}: {exc!s}")
                     os.environ["PATH"] = origPath
             elif sys.platform == "darwin":
-                # if darwinFile is None, create a temporary DarwinFile object
-                # for the path, just so we can read its dependencies
+                # if darwinFile is None (which means that _GetDependentFiles is being called
+                # outside of _CopyFile -- e.g., one of the preliminary calls in _FreezeExecutable),
+                # create a temporary DarwinFile object for the path, just so we can read
+                # its dependencies
                 if darwinFile is None:
                     darwinFile = DarwinFile(
                         originalFilePath=path, referencingFile=None
@@ -398,11 +400,13 @@ class Freezer:
 
                 # cache the MachOReferences to the dependencies, so they can be
                 # called up later in _CopyFile if copying a dependency without
-                # an explicit reference provided
-                for depFilePath, ref in darwinFile.getMachOReferences():
-                    self.darwinTracker.cacheReferenceTo(
-                        path=depFilePath, machOReference=ref
-                    )
+                # an explicit reference provided (to assist in resolving @rpaths)
+                for reference in darwinFile.getMachOReferenceList():
+                    if reference.isResolved():
+                        self.darwinTracker.cacheReferenceTo(
+                            sourcePath=reference.resolvedReferencePath,
+                            machOReference=reference
+                        )
             else:
                 if not os.access(path, os.X_OK):
                     self.dependentFiles[path] = []
@@ -790,7 +794,7 @@ class Freezer:
                     copyDependentFiles=True,
                     relativeSource=True,
                 )
-
+        # do a final pass to clean up dependency references in Mach-O files.
         if sys.platform == "darwin":
             self.darwinTracker.finalizeReferences()
         return
