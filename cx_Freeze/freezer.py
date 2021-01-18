@@ -631,7 +631,8 @@ class Freezer:
                 targetPackageDir = os.path.join(targetDir, *parts)
                 sourcePackageDir = os.path.dirname(module.file)
                 if not os.path.exists(targetPackageDir):
-                    print("Copying data from package", module.name + "...")
+                    if not self.silent:
+                        print("Copying data from package", module.name + "...")
                     shutil.copytree(
                         sourcePackageDir,
                         targetPackageDir,

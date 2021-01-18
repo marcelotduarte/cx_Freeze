@@ -29,14 +29,17 @@ class bdist_dmg(Command):
             "Boolean for whether to include "
             "shortcut to Applications in the DMG disk image",
         ),
+        ("silent", "s", "suppress all output except warnings")
     ]
 
     def initialize_options(self):
         self.volume_label = self.distribution.get_fullname()
         self.applications_shortcut = False
+        self.silent = None
 
     def finalize_options(self):
-        pass
+        if self.silent is None:
+            self.silent = False
 
     def buildDMG(self):
         # Remove DMG if it already exists
@@ -46,6 +49,10 @@ class bdist_dmg(Command):
         createargs = [
             "hdiutil",
             "create",
+        ]
+        if self.silent:
+            createargs += [ "-quiet" ]
+        createargs += [
             "-fs",
             "HFSX",
             "-format",
