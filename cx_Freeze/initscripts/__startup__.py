@@ -4,12 +4,17 @@ determines the name of the initscript that is to be executed.
 """
 
 import os
+import string
 import sys
 from importlib.machinery import (
     EXTENSION_SUFFIXES,
     ExtensionFileLoader,
     ModuleSpec,
     PathFinder,
+)
+
+STRINGREPLACE = list(
+    string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
 
 
@@ -44,8 +49,11 @@ def run():
     name = os.path.basename(sys.executable)
     if sys.platform == "win32":
         name, _ = os.path.splitext(name)
-    name = os.path.normcase(name).replace(" ", "_").replace("-", "_")
     name = name.partition(".")[0]
+    if not name.isidentifier():
+        for ch in STRINGREPLACE:
+            name = name.replace(ch, "_")
+    name = os.path.normcase(name)
     try:
         module = __import__(name + "__init__")
     except ModuleNotFoundError:
