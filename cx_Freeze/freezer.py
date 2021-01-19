@@ -12,6 +12,7 @@ import os
 import shutil
 import socket
 import stat
+import string
 import struct
 import sys
 import sysconfig
@@ -34,6 +35,10 @@ if sys.platform == "win32":
     import cx_Freeze.util
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
+
+STRINGREPLACE = list(
+    string.whitespace + string.punctuation.replace(".", "").replace("_", "")
+)
 
 
 class Freezer:
@@ -898,8 +903,11 @@ class Executable:
                 ext = ""
         self._name = name
         self._ext = ext
-        name = os.path.normcase(name).replace(" ", "_").replace("-", "_")
         name = name.partition(".")[0]
+        if not name.isidentifier():
+            for ch in STRINGREPLACE:
+                name = name.replace(ch, "_")
+        name = os.path.normcase(name)
         if not name.isidentifier():
             raise ConfigError(f"Invalid name for target_name ({self._name!r})")
         self._internal_name = name
