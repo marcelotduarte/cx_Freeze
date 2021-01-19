@@ -7,7 +7,7 @@ Here are samples to test cx_Freeze or to show how to use a package in cx_Freeze.
 In a virtual environment, install by issuing the command:
 
 ```
-pip install --upgrade cx_Freeze matplotlib
+pip install --upgrade cx_Freeze
 pip install --upgrade wxPython
 ```
 
