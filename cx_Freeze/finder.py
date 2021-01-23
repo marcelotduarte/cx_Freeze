@@ -363,12 +363,14 @@ class ModuleFinder:
             # Include file as module
             module = self._add_module(name, file_name=path, parent=parent)
             ext = os.path.splitext(os.path.basename(path))[1]
-            if ext in importlib.machinery.SOURCE_SUFFIXES:
+            if ext in importlib.machinery.SOURCE_SUFFIXES + [""]:
                 loader = importlib.machinery.SourceFileLoader(name, path)
             elif ext in importlib.machinery.BYTECODE_SUFFIXES:
                 loader = importlib.machinery.SourcelessFileLoader(name, path)
+            elif ext in importlib.machinery.EXTENSION_SUFFIXES:
+                loader = importlib.machinery.ExtensionFileLoader(name, path)
             else:
-                raise ImportError(f"No module named {name!r}", name=name)
+                loader = None
         else:
             # Find modules to load
             try:
