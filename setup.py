@@ -63,10 +63,10 @@ class build_ext(distutils.command.build_ext.build_ext):
                 extra_args.extend(get_config_var("BASEMODLIBS").split())
             if get_config_var("LOCALMODLIBS"):
                 extra_args.extend(get_config_var("LOCALMODLIBS").split())
-            # PR #812 - fix a bug using macOS on Github Actions
-            # PY_LDFLAGS_NODIST = "-flto -Wl,-export_dynamic -g"
-            if get_config_var("PY_LDFLAGS_NODIST"):
-                extra_args.extend(get_config_var("PY_LDFLAGS_NODIST").split())
+            # fix a bug using macOS on Github Actions
+            if "--with-lto" in get_config_var("CONFIG_ARGS"):
+                extra_args.append("-flto")
+                extra_args.append("-Wl,-export_dynamic")
             else:
                 extra_args.append("-s")
         self.compiler.link_executable(
