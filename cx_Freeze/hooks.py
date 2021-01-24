@@ -38,6 +38,7 @@ def initialize(finder: ModuleFinder) -> None:
     ):
         finder.ExcludeModule("email." + name)
     finder.ExcludeModule("__builtin__")
+    finder.ExcludeModule("__main__")
     finder.ExcludeModule("_winreg")
     finder.ExcludeModule("audiodev")
     finder.ExcludeModule("anydbm")
