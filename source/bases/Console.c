@@ -52,7 +52,7 @@ static int FatalScriptError(void)
 #if defined(MS_WINDOWS)
 int wmain(int argc, wchar_t **argv)
 {
-    size_t status = 0;
+    int status = 0;
 
     // initialize Python
     if (InitializePython(argc, argv) < 0)
@@ -68,35 +68,58 @@ int wmain(int argc, wchar_t **argv)
 #else
 int main(int argc, char **argv)
 {
-    size_t status = 0;
+    int status = 0;
     wchar_t **wargv;
+    /* We need a second copy, as Python might modify the first one. */
+    wchar_t **wargv2;
     int i;
+    char *oldloc;
+
+    oldloc = _PyMem_RawStrdup(setlocale(LC_ALL, NULL));
+    if (!oldloc)
+        return FatalError("Out of memory!");
 
     // convert arguments to wide characters, using the system default locale
     setlocale(LC_ALL, "");
-    wargv = PyMem_RawMalloc(sizeof(wchar_t*) * argc);
+    wargv = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
     if (!wargv)
         return FatalError("Out of memory converting arguments!");
+    wargv2 = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
+    if (!wargv2) {
+        PyMem_RawFree(wargv);
+        return FatalError("Out of memory converting arguments!");
+    }
     for (i = 0; i < argc; i++) {
         wargv[i] = Py_DecodeLocale(argv[i], NULL);
-        if (!wargv[i])
-            return FatalError("Unable to convert argument to string!");
+        if (!wargv[i]) {
+            status = FatalError("Unable to convert argument to string!");
+            argc = i;
+            break;
+        }
+        wargv2[i] = wargv[i];
     }
+    wargv2[argc] = wargv[argc] = NULL;
 
     // initialize Python
-    if (InitializePython(argc, wargv) < 0)
-        status = 1;
+    if (status == 0) {
+        status = InitializePython(argc, wargv);
 
-    // do the work
-    if (status == 0 && ExecuteScript() < 0)
-        status = 1;
+        // do the work
+        if (status == 0)
+            status = ExecuteScript();
+
+        Py_Finalize();
+    }
 
     // free the memory
     for (i = 0; i < argc; i++)
-        PyMem_RawFree(wargv[i]);
+        PyMem_RawFree(wargv2[i]);
     PyMem_RawFree(wargv);
+    PyMem_RawFree(wargv2);
 
-    Py_Finalize();
+    setlocale(LC_ALL, oldloc);
+    PyMem_RawFree(oldloc);
+
     return status;
 }
 #endif
