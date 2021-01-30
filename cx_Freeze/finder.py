@@ -382,7 +382,8 @@ class ModuleFinder:
             except KeyError:
                 if parent:
                     # some packages use a directory with vendored modules
-                    # withou a __init__ and are not considered namespace pkg
+                    # without an __init__py and are not considered namespace
+                    # packages, then simulate a subpackage
                     path = [os.path.join(path[0], name.rpartition(".")[-1])]
                     origin = os.path.join(path[0], "__init__.py")
                     module = self._add_module(name, path=path, parent=parent)
