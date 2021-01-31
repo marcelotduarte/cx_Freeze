@@ -98,7 +98,8 @@ class ModuleFinder:
         """
         Add a module to the list of modules but if one is already found,
         then return it instead; this is done so that packages can be
-        handled properly."""
+        handled properly.
+        """
         module = self._modules.get(name)
         if module is None:
             module = Module(name, path, file_name, parent)
@@ -302,7 +303,8 @@ class ModuleFinder:
         """
         Internal method used for importing a module which assumes that the
         name given is an absolute name. None is returned if the module
-        cannot be found."""
+        cannot be found.
+        """
         try:
             # Check in module cache before trying to import it again.
             return self._modules[name]
@@ -377,6 +379,19 @@ class ModuleFinder:
                 # It's recommended to clear the caches first.
                 importlib.machinery.PathFinder.invalidate_caches()
                 spec = importlib.machinery.PathFinder.find_spec(name, path)
+            except KeyError:
+                if parent:
+                    # some packages use a directory with vendored modules
+                    # without an __init__py and are not considered namespace
+                    # packages, then simulate a subpackage
+                    path = [os.path.join(path[0], name.rpartition(".")[-1])]
+                    origin = os.path.join(path[0], "__init__.py")
+                    module = self._add_module(name, path=path, parent=parent)
+                    logging.debug("Adding module [%s] [PACKAGE]", name)
+                    module.code = compile("", origin, "exec")
+                    module.in_import = False
+                    return module
+                spec = None
             except Exception:
                 spec = None
             if spec is None:
@@ -387,7 +402,7 @@ class ModuleFinder:
                 return None
             if loader is importlib.machinery.FrozenImporter:
                 return None
-            # Load package or namespae package
+            # Load package or namespace package
             if spec.submodule_search_locations:
                 path_list = list(spec.submodule_search_locations)
                 module = self._add_module(name, path=path_list, parent=parent)
@@ -395,6 +410,7 @@ class ModuleFinder:
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
                     path = os.path.join(path_list[0], "__init__.py")
                     module.code = compile("", path, "exec")
+                    module.in_import = False
                     return module
                 logging.debug("Adding module [%s] [PACKAGE]", name)
                 path = spec.origin  # path of __init__
