@@ -16,24 +16,10 @@ using different configuration files.
 In a virtual environment, install by issuing the command:
 
 ```
-pip install --upgrade cx_Freeze
+pip install --upgrade cx_Freeze cx_Logging
 ```
 
-You'll need cx_Logging too, but currently it has binaries for Python 3.6 and
-Python 3.7.
-
-```
-pip install --upgrade cx_Logging
-```
-
-For Python 3.8 and Python 3.9 you should download the wheels:
-https://www.lfd.uci.edu/~gohlke/pythonlibs/#cx_logging
-
-For example:
-
-```
-pip install cx_Logging-2.2-cp38-cp38-win_amd64.whl
-```
+cx_Logging 3.0 has support for Python 3.6 up to 3.9.
 
 # Build the executable:
 
