@@ -511,13 +511,16 @@ class DarwinFileTracker:
         realSource = os.path.realpath(sourcePath)
         targetRealSource = os.path.realpath(targetDarwinFile.originalFilePath)
         if realSource != targetRealSource:
-            raise DarwinException(
+            # raise DarwinException(
+            print(
+                "WARNING:\n"
                 f"Attempting to copy two files to {targetPath!r}\n"
                 f"source 1: {targetDarwinFile.originalFilePath!r} "
                 f"(real: {targetRealSource!r})\n"
                 f"source 2: {sourcePath!r} (real: {realSource!r})\n"
                 "(This may be caused by including modules in the zip file "
                 "that rely on binary libraries with the same name.)"
+                "\nUsing only source 1."
             )
         return targetDarwinFile
 
