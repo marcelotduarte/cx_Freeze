@@ -525,7 +525,7 @@ def load_h5py(finder: ModuleFinder, module: Module) -> None:
     try:
         api_gen = __import__("h5py", fromlist=["api_gen"]).api_gen
         finder.IncludeModule(api_gen.__name__)
-    except ImportError:
+    except (ImportError, AttributeError):
         pass
     finder.IncludeModule("h5py._errors")
     finder.IncludeModule("h5py.h5ac")
@@ -1327,7 +1327,7 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
             finder.IncludeFiles(
                 os.path.join(module.path[0], filename), filename
             )
-        except ImportError:
+        except (ImportError, AttributeError):
             pass  # No bundled libzmq library
 
 
