@@ -222,7 +222,7 @@ class bdist_mac(Command):
         # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
             with open(self.custom_info_plist, "rb") as fp:
-                contents = plistlib.load(fp, fmt=None, use_builtin_types=False)
+                contents = plistlib.load(fp)
         else:
             contents = {
                 "CFBundleIconFile": "icon.icns",
