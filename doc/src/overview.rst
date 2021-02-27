@@ -2,7 +2,7 @@
 Using cx_Freeze
 ===============
 
-There are three different ways to use cx_Freeze:
+There are three different ways to use **cx_Freeze**:
 
 1. Use the included :ref:`cxfreeze script <script>`.
 2. Create a :ref:`distutils setup script <distutils>`. This is useful if you

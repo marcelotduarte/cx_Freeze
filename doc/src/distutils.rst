@@ -21,11 +21,13 @@ something like this:
     if sys.platform == "win32":
         base = "Win32GUI"
 
-    setup(  name = "guifoo",
-            version = "0.1",
-            description = "My GUI application!",
-            options = {"build_exe": build_exe_options},
-            executables = [Executable("guifoo.py", base=base)])
+    setup(
+        name = "guifoo",
+        version = "0.1",
+        description = "My GUI application!",
+        options = {"build_exe": build_exe_options},
+        executables = [Executable("guifoo.py", base=base)]
+    )
 
 There are more examples in the ``samples/`` directory of `the source
 <https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples>`_.
@@ -62,8 +64,10 @@ To specify options in the script, use underscores in the name. For example:
 
   .. code-block:: python
 
-    setup(...
-          options = {'build_exe': {'init_script':'Console'}} )
+    setup(
+         #...
+          options = {'build_exe': {'init_script':'Console'}}
+         )
 
 To specify the same options on the command line, use dashes, like this:
 

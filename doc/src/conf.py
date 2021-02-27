@@ -47,7 +47,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "cx_Freeze"
-copyright = "2020, Anthony Tuininga"
+copyright = "2021, Marcelo Duarte"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -228,7 +228,12 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "cx_freeze", "cx_Freeze Documentation", ["Anthony Tuininga"], 1)
+    ("index",
+     "cx_freeze",
+     "cx_Freeze Documentation",
+     ["Anthony Tuininga", "Marcelo Duarte"],
+     1,
+    )
 ]
 
 extlinks = {
