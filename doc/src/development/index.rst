@@ -50,7 +50,7 @@ Contributing
 Submitting pull requests
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Submit pull requests against the ``master`` branch, providing a good
+Submit pull requests against the ``main`` branch, providing a good
 description of what you're doing and why. You must have legal permission to
 distribute any code you contribute to cx_Freeze and it must be available under
 the PSF License.
