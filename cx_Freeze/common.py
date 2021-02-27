@@ -4,7 +4,7 @@ This module contains utility functions shared between cx_Freeze modules.
 
 import os.path
 import types
-from typing import Any, List, Tuple, Optional, Union
+from typing import List, Tuple, Optional, Union
 import warnings
 
 
@@ -44,7 +44,7 @@ def normalize_to_list(
 
 
 def process_path_specs(
-    specs: List[Union[str, Tuple[str, str]]]
+    specs: Optional[List[Union[str, Tuple[str, str]]]]
 ) -> List[Tuple[str, str]]:
     """
     Prepare paths specified as config.
@@ -56,6 +56,8 @@ def process_path_specs(
     Returns a list of 2-tuples, or throws ConfigError if something is wrong
     in the input.
     """
+    if specs is None:
+        specs = []
     processed_specs: List[Tuple[str, str]] = []
     for spec in specs:
         if not isinstance(spec, (list, tuple)):
