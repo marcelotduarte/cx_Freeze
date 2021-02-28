@@ -164,11 +164,6 @@ if __name__ == "__main__":
         if ext != ".py":
             continue
         package_data.append(f"initscripts/{filename}")
-    for filename in os.listdir(os.path.join("cx_Freeze", "samples")):
-        sample_dir = os.path.join("cx_Freeze", "samples", filename)
-        if not os.path.isdir(sample_dir):
-            continue
-        package_data.append(f"samples/{filename}/*.py")
 
     setup(
         cmdclass={"build_ext": build_ext},
