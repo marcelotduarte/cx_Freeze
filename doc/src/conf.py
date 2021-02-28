@@ -228,11 +228,12 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index",
-     "cx_freeze",
-     "cx_Freeze Documentation",
-     ["Anthony Tuininga", "Marcelo Duarte"],
-     1,
+    (
+        "index",
+        "cx_freeze",
+        "cx_Freeze Documentation",
+        ["Anthony Tuininga", "Marcelo Duarte"],
+        1,
     )
 ]
 
