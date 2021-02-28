@@ -270,10 +270,16 @@ class Freezer:
                 # We need to do this so the file knows what file referenced it, and can therefore
                 # calculate the appropriate rpath.
                 # (We only cache one reference.)
-                cachedReference = self.darwinTracker.getCachedReferenceTo(sourcePath=source)
-                self._CopyFile( source, target,
-                                copyDependentFiles=True, includeMode=True,
-                                machOReference=cachedReference )
+                cachedReference = self.darwinTracker.getCachedReferenceTo(
+                    sourcePath=source
+                )
+                self._CopyFile(
+                    source,
+                    target,
+                    copyDependentFiles=True,
+                    includeMode=True,
+                    machOReference=cachedReference,
+                )
             else:
                 self._CopyFile(
                     source, target, copyDependentFiles=True, includeMode=True
@@ -410,7 +416,7 @@ class Freezer:
                     if reference.isResolved():
                         self.darwinTracker.cacheReferenceTo(
                             sourcePath=reference.resolvedReferencePath,
-                            machOReference=reference
+                            machOReference=reference,
                         )
             else:
                 if not os.access(path, os.X_OK):

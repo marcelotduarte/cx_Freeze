@@ -1,6 +1,7 @@
 from distutils.core import Command
 import os
 import plistlib
+import shutil
 import subprocess
 import warnings
 
@@ -19,7 +20,7 @@ __all__ = ["bdist_dmg", "bdist_mac"]
 
 class bdist_dmg(Command):
     description = (
-        "create a Mac DMG disk image containing the Mac " "application bundle"
+        "create a Mac DMG disk image containing the Mac application bundle"
     )
     user_options = [
         ("volume-label=", None, "Volume label of the DMG disk image"),
@@ -29,7 +30,7 @@ class bdist_dmg(Command):
             "Boolean for whether to include "
             "shortcut to Applications in the DMG disk image",
         ),
-        ("silent", "s", "suppress all output except warnings")
+        ("silent", "s", "suppress all output except warnings"),
     ]
 
     def initialize_options(self):
@@ -47,15 +48,15 @@ class bdist_dmg(Command):
             os.unlink(self.dmgName)
 
         # Make dist folder
-        import shutil
-
         self.dist_dir = os.path.join(self.buildDir, "dist")
         if os.path.exists(self.dist_dir):
             shutil.rmtree(self.dist_dir)
         self.mkpath(self.dist_dir)
 
         # Copy App Bundle
-        dest_dir = os.path.join(self.dist_dir, os.path.basename(self.bundleDir))
+        dest_dir = os.path.join(
+            self.dist_dir, os.path.basename(self.bundleDir)
+        )
         self.copy_tree(self.bundleDir, dest_dir)
 
         createargs = [
@@ -80,7 +81,9 @@ class bdist_dmg(Command):
 
         if self.applications_shortcut:
             apps_folder_link = os.path.join(self.dist_dir, "Applications")
-            os.symlink("/Applications", apps_folder_link, target_is_directory=True)
+            os.symlink(
+                "/Applications", apps_folder_link, target_is_directory=True
+            )
 
         # Create the dmg
         if os.spawnvp(os.P_WAIT, "hdiutil", createargs) != 0:
@@ -150,7 +153,7 @@ class bdist_mac(Command):
         (
             "codesign-identity=",
             None,
-            "The identity of the key to be used to " "sign the app bundle.",
+            "The identity of the key to be used to sign the app bundle.",
         ),
         (
             "codesign-entitlements=",
@@ -161,7 +164,7 @@ class bdist_mac(Command):
         (
             "codesign-deep=",
             None,
-            "Boolean for whether to codesign using the " "--deep option.",
+            "Boolean for whether to codesign using the --deep option.",
         ),
         (
             "codesign-resource-rules",
@@ -326,9 +329,6 @@ class bdist_mac(Command):
                     newReference=exePath,
                     VERBOSE=False,
                 )
-                pass
-            pass
-        return
 
     def find_qt_menu_nib(self):
         """

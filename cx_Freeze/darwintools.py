@@ -35,7 +35,10 @@ class MachOReference:
     """Represents a linking reference from MachO file to another file."""
 
     def __init__(
-        self, sourceFile: "DarwinFile", rawPath: str, resolvedPath: Optional[str]
+        self,
+        sourceFile: "DarwinFile",
+        rawPath: str,
+        resolvedPath: Optional[str],
     ):
         """
         :param sourceFile: DarwinFile object for file in which the reference
@@ -43,8 +46,8 @@ class MachOReference:
         :param rawPath: The load path that appears in the file
         (may include @rpath, etc.)
         :param resolvedPath: The path resolved to an explicit path to a file
-        on system.  Or None, if the path could not be resolved at the time the DarwinFile
-        was processed.
+        on system.  Or None, if the path could not be resolved at the time the
+        DarwinFile was processed.
         """
         self.sourceFile: "DarwinFile" = sourceFile
         self.rawReferencePath: str = rawPath
@@ -76,7 +79,7 @@ class DarwinFile:
         self,
         originalFilePath: str,
         referencingFile: Optional["DarwinFile"] = None,
-        strictRPath: bool = False
+        strictRPath: bool = False,
     ):
         """
         :param originalFilePath: The original path of the DarwinFile (before
@@ -90,7 +93,8 @@ class DarwinFile:
         self.referencingFile: Optional[DarwinFile] = None
         self.strictRPath = strictRPath
 
-        self._buildPath: Optional[str] = None  # path to file in build directory (set as part of freeze process)
+        # path to file in build directory (set as part of freeze process)
+        self._buildPath: Optional[str] = None
 
         # commands in a Mach-O file
         self.commands: List[MachOCommand] = []
@@ -99,10 +103,15 @@ class DarwinFile:
 
         # note: if file gets referenced twice (or more), it will only be the
         # first reference that gets recorded.
-        self.libraryPathResolution: Dict[str, Optional[str]] = {}  # mapping of raw load paths to absolute resolved paths (or None, if no resolution was determined)
-        self._rpath: Optional[List[str]] = None  # the is of entries in the rpath in effect for this file.
+        # mapping of raw load paths to absolute resolved paths
+        # (or None, if no resolution was determined)
+        self.libraryPathResolution: Dict[str, Optional[str]] = {}
+        # the is of entries in the rpath in effect for this file.
+        self._rpath: Optional[List[str]] = None
 
-        # dictionary of MachOReference objects, by their paths.  Path used is the resolved path, if available, and otherwise the unresolved load path.
+        # dictionary of MachOReference objects, by their paths.
+        # Path used is the resolved path, if available, and otherwise the
+        # unresolved load path.
         self.machOReferenceForTargetPath: Dict[str, MachOReference] = {}
         self.isMachO = False
 
@@ -127,7 +136,9 @@ class DarwinFile:
 
         # Create MachOReference objects for all the binaries referenced form this file.
         for rawPath, resolvedPath in self.libraryPathResolution.items():
-            dictPath = resolvedPath  # the path to use for storing in dictionary
+            dictPath = (
+                resolvedPath  # the path to use for storing in dictionary
+            )
             if resolvedPath is None:
                 dictPath = rawPath
             if dictPath in self.machOReferenceForTargetPath:
@@ -154,7 +165,8 @@ class DarwinFile:
 
     def fileReferenceDepth(self) -> int:
         """Returns how deep this Mach-O file is in the dynamic load order."""
-        if self.referencingFile is not None: return self.referencingFile.fileReferenceDepth() + 1
+        if self.referencingFile is not None:
+            return self.referencingFile.fileReferenceDepth() + 1
         return 0
 
     def printFileInformation(self):
@@ -162,8 +174,10 @@ class DarwinFile:
         print(f'[{self.fileReferenceDepth()}] File: "{self.originalFilePath}"')
         print("  Commands:")
         if len(self.commands) > 0:
-            for c in self.commands: print(f'    {c}')
-        else: print("    [None]")
+            for c in self.commands:
+                print(f"    {c}")
+        else:
+            print("    [None]")
 
         # This can be included for even more detail on the problem file.
         # print("  Load commands:")
@@ -173,20 +187,23 @@ class DarwinFile:
 
         print("  RPath commands:")
         if len(self.rpathCommands) > 0:
-            for rpc in self.rpathCommands: print(f'    {rpc}')
-        else: print("    [None]")
+            for rpc in self.rpathCommands:
+                print(f"    {rpc}")
+        else:
+            print("    [None]")
         print("  Calculated RPath:")
         rpath = self.getRPath()
         if len(rpath) > 0:
-            for path in rpath: print(f"    {path}")
-        else: print("    [None]")
+            for path in rpath:
+                print(f"    {path}")
+        else:
+            print("    [None]")
         if self.referencingFile is not None:
             print("Referenced from:")
             self.referencingFile.printFileInformation()
-        return
 
     def getBaseName(self) -> str:
-        return os.path.basename( self.originalFilePath )
+        return os.path.basename(self.originalFilePath)
 
     def setBuildPath(self, path: str):
         self._buildPath = path
@@ -539,10 +556,14 @@ class DarwinFileTracker:
         self._darwinFileForBuildPath[targetPath] = darwinFile
         self._darwinFileForSourcePath[darwinFile.originalFilePath] = darwinFile
 
-    def cacheReferenceTo(self, sourcePath: str, machOReference: MachOReference):
+    def cacheReferenceTo(
+        self, sourcePath: str, machOReference: MachOReference
+    ):
         self._referenceCache[sourcePath] = machOReference
 
-    def getCachedReferenceTo(self, sourcePath: str) -> Optional[MachOReference]:
+    def getCachedReferenceTo(
+        self, sourcePath: str
+    ) -> Optional[MachOReference]:
         if sourcePath in self._referenceCache:
             return self._referenceCache[sourcePath]
         return None
@@ -551,41 +572,52 @@ class DarwinFileTracker:
         """Attempts to locate a copied DarwinFile with the specified filename and returns that.
         Otherwise returns None."""
         for df in self._copiedFileList:
-            if df.getBaseName() == fileName: return df
+            if df.getBaseName() == fileName:
+                return df
         return None
 
     def finalizeReferences(self):
         """
-        This function does a final pass through the references for all the copied
-        DarwinFiles and attempts to clean up any remaining references that are not
-        already marked as copied.  It covers two cases where the reference might
-        not be marked as copied:
-        1) Files where _CopyFile was called without copyDependentFiles=True (in which
-        the information would not have been added to the references at that time).
-        2) Files with broken @rpath references.  We try to fix that up here by seeing
-        if the relevant file was located *anywhere* as part of the freeze process.
+        This function does a final pass through the references for all the
+        copied DarwinFiles and attempts to clean up any remaining references
+        that are not already marked as copied.  It covers two cases where the
+        reference might not be marked as copied:
+        1) Files where _CopyFile was called without copyDependentFiles=True
+           (in which the information would not have been added to the
+            references at that time).
+        2) Files with broken @rpath references.  We try to fix that up here by
+           seeing if the relevant file was located *anywhere* as part of the
+           freeze process.
         """
         for copiedFile in self._copiedFileList:  # DarwinFile
             for reference in copiedFile.getMachOReferenceList():
                 if not reference.isCopied:
                     if reference.isResolved():
-                        # if reference is resolve, simply check if the resolved path was otherwise
-                        # copied and lookup the DarwinFile object.
-                        realTargetPath = os.path.realpath(reference.resolvedReferencePath)
+                        # if reference is resolve, simply check if the resolved
+                        # path was otherwise copied and lookup the DarwinFile
+                        # object.
+                        realTargetPath = os.path.realpath(
+                            reference.resolvedReferencePath
+                        )
                         if realTargetPath in self._darwinFileForSourcePath:
-                            reference.setTargetFile(self._darwinFileForSourcePath[realTargetPath])
-                    else:
-                        # if reference is not resolved, look through the copied files and try to find
-                        # a candidate, and use it if found.
-                        potentialTarget = self.findDarwinFileForFilename(
-                                fileName=os.path.basename(reference.rawReferencePath)
+                            reference.setTargetFile(
+                                self._darwinFileForSourcePath[realTargetPath]
                             )
+                    else:
+                        # if reference is not resolved, look through the copied
+                        # files and try to find a candidate, and use it if found.
+                        potentialTarget = self.findDarwinFileForFilename(
+                            fileName=os.path.basename(
+                                reference.rawReferencePath
+                            )
+                        )
                         if potentialTarget is None:
                             # If we cannot find any likely candidate, fail.
                             print(
-                                f"\nERROR: Could not resolve RPath [{reference.rawReferencePath}] "
-                                f"in file [{copiedFile.originalFilePath}], and could not find any "
-                                "likely intended reference."
+                                "\nERROR: Could not resolve RPath "
+                                f"[{reference.rawReferencePath}] in file "
+                                f"[{copiedFile.originalFilePath}], and could "
+                                "not find any likely intended reference."
                             )
                             copiedFile.printFileInformation()
                             raise DarwinException(
@@ -593,13 +625,12 @@ class DarwinFileTracker:
                                 f"[{reference.rawReferencePath}] in file "
                                 f"[{copiedFile.originalFilePath}]."
                             )
-                        else:
-                            print(
-                                f"WARNING: In file [{copiedFile.originalFilePath}] guessing that "
-                                f"{reference.rawReferencePath} resolved to "
-                                f"{potentialTarget.originalFilePath}."
-                            )
-                            reference.resolvedReferencePath = potentialTarget.originalFilePath
-                            reference.setTargetFile(potentialTarget)
-
-
+                        print(
+                            f"WARNING: In file [{copiedFile.originalFilePath}]"
+                            f" guessing that {reference.rawReferencePath} "
+                            f"resolved to {potentialTarget.originalFilePath}."
+                        )
+                        reference.resolvedReferencePath = (
+                            potentialTarget.originalFilePath
+                        )
+                        reference.setTargetFile(potentialTarget)
