@@ -46,12 +46,24 @@ class bdist_dmg(Command):
         if os.path.exists(self.dmgName):
             os.unlink(self.dmgName)
 
+        # Make dist folder
+        import shutil
+
+        self.dist_dir = os.path.join(self.buildDir, "dist")
+        if os.path.exists(self.dist_dir):
+            shutil.rmtree(self.dist_dir)
+        self.mkpath(self.dist_dir)
+
+        # Copy App Bundle
+        dest_dir = os.path.join(self.dist_dir, os.path.basename(self.bundleDir))
+        self.copy_tree(self.bundleDir, dest_dir)
+
         createargs = [
             "hdiutil",
             "create",
         ]
         if self.silent:
-            createargs += [ "-quiet" ]
+            createargs += ["-quiet"]
         createargs += [
             "-fs",
             "HFSX",
@@ -61,25 +73,14 @@ class bdist_dmg(Command):
             "-imagekey",
             "zlib-level=9",
             "-srcfolder",
-            self.bundleDir,
+            self.dist_dir,
             "-volname",
             self.volume_label,
         ]
 
         if self.applications_shortcut:
-            scriptargs = [
-                "osascript",
-                "-e",
-                'tell application "Finder" to make alias \
-                file to POSIX file "/Applications" at POSIX file "%s"'
-                % os.path.realpath(self.buildDir),
-            ]
-
-            if os.spawnvp(os.P_WAIT, "osascript", scriptargs) != 0:
-                raise OSError("creation of Applications shortcut failed")
-
-            createargs.append("-srcfolder")
-            createargs.append(os.path.join(self.buildDir, "Applications"))
+            apps_folder_link = os.path.join(self.dist_dir, "Applications")
+            os.symlink("/Applications", apps_folder_link, target_is_directory=True)
 
         # Create the dmg
         if os.spawnvp(os.P_WAIT, "hdiutil", createargs) != 0:
