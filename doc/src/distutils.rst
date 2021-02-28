@@ -28,7 +28,7 @@ something like this:
             executables = [Executable("guifoo.py", base=base)])
 
 There are more examples in the ``samples/`` directory of `the source
-<https://github.com/marcelotduarte/cx_Freeze/tree/master/cx_Freeze/samples>`_.
+<https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples>`_.
 
 The script is invoked as follows:
 
