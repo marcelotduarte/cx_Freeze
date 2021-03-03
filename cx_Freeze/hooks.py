@@ -1328,7 +1328,13 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
                 os.path.join(module.path[0], filename), filename
             )
         except (ImportError, AttributeError):
-            pass  # No bundled libzmq library
+            # For pyzmq 22 the libzmq dependencies are located in site-packages/pyzmq.libs
+            libzmq_folder = "pyzmq.libs"
+            libs_path = os.path.abspath(os.path.join(module.path[0], os.pardir, libzmq_folder))
+            if os.path.exists(libs_path):
+                finder.IncludeFiles(libs_path, os.path.join('lib', libzmq_folder))
+            else:
+                pass  # No bundled libzmq library
 
 
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
