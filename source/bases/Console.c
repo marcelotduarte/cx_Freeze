@@ -54,6 +54,9 @@ int wmain(int argc, wchar_t **argv)
 {
     int status = 0;
 
+    // use the system default locale
+    Py_SetStandardStreamEncoding("UTF-8", NULL);
+
     // initialize Python
     if (InitializePython(argc, argv) < 0)
         status = 1;
