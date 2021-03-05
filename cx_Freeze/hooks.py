@@ -765,6 +765,15 @@ def load_pty(finder: ModuleFinder, module: Module) -> None:
     module.IgnoreName("sgi")
 
 
+def load_pycountry(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pycountry module has data in subdirectories.
+    """
+    finder.ExcludeModule("pycountry.tests")
+    if not module.in_file_system:
+        module.store_in_file_system = True
+
+
 def load_pycparser(finder: ModuleFinder, module: Module) -> None:
     """
     These files are missing which causes
