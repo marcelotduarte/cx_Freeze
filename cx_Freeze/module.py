@@ -31,29 +31,34 @@ class Module:
         self.source_is_zip_file: bool = False
         self.in_import: bool = True
         self.store_in_file_system: bool = True
-        # distribution files (metadata)
-        dist_files = []
-        packages = [name]
+        # dist-info files (metadata)
+        self.dist_files: List[Tuple[str, str]] = []
+        self._cache_dist_info(name)
         try:
-            requires = importlib_metadata.requires(packages[0])
+            requires = importlib_metadata.requires(name)
         except importlib_metadata.PackageNotFoundError:
             requires = None
         if requires is not None:
-            packages += [req.partition(" ")[0] for req in requires]
-        for package_name in packages:
-            try:
-                files = importlib_metadata.files(package_name)
-            except importlib_metadata.PackageNotFoundError:
-                files = None
-            if files is not None:
-                # cache file names to use in write modules
-                for file in files:
-                    if not file.match("*.dist-info/*"):
-                        continue
-                    dist_path = str(file.locate())
-                    arc_path = file.as_posix()
-                    dist_files.append((dist_path, arc_path))
-        self.dist_files: List[Tuple[str, str]] = dist_files
+            for req in requires:
+                req_name = req.partition(" ")[0]
+                self._cache_dist_info(req_name)
+
+    def _cache_dist_info(self, package_name) -> None:
+        """Cache the dist-info files."""
+        try:
+            files = importlib_metadata.files(package_name)
+        except importlib_metadata.PackageNotFoundError:
+            files = None
+        if files is None:
+            return
+        dist_files: List[Tuple[str, str]] = []
+        for file in files:
+            if not file.match("*.dist-info/*"):
+                continue
+            dist_path = str(file.locate())
+            arc_path = file.as_posix()
+            dist_files.append((dist_path, arc_path))
+        self.dist_files.extend(dist_files)
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]
