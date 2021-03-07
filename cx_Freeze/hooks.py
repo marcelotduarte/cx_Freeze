@@ -1328,7 +1328,13 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
     """
     finder.IncludePackage("zmq.backend.cython")
     if WIN32:
-        # Not sure yet if this is cross platform
+        # For pyzmq 22 the libzmq dependencies are located in
+        # site-packages/pyzmq.libs
+        libzmq_folder = "pyzmq.libs"
+        libs_dir = os.path.join(os.path.dirname(module.path[0]), libzmq_folder)
+        if os.path.exists(libs_dir):
+            finder.IncludeFiles(libs_path, os.path.join("lib", libzmq_folder))
+            return
         # Include the bundled libzmq library, if it exists
         try:
             libzmq = __import__("zmq", fromlist=["libzmq"]).libzmq
@@ -1337,12 +1343,7 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
                 os.path.join(module.path[0], filename), filename
             )
         except (ImportError, AttributeError):
-            # For pyzmq 22 the libzmq dependencies are located in site-packages/pyzmq.libs
-            libzmq_folder = "pyzmq.libs"
-            libs_path = os.path.join(os.path.dirname(module.path[0]), libzmq_folder)
-            # if the pyzmq.libs folder does not exists, assume libzmq is not bundled
-            if os.path.exists(libs_path):
-                finder.IncludeFiles(libs_path, os.path.join("lib", libzmq_folder))
+            pass  # assume libzmq is not bundled
 
 
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:

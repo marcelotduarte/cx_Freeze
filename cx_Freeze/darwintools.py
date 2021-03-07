@@ -530,7 +530,7 @@ class DarwinFileTracker:
         if realSource != targetRealSource:
             # raise DarwinException(
             print(
-                "WARNING:\n"
+                "*** WARNING ***\n"
                 f"Attempting to copy two files to {targetPath!r}\n"
                 f"source 1: {targetDarwinFile.originalFilePath!r} "
                 f"(real: {targetRealSource!r})\n"
