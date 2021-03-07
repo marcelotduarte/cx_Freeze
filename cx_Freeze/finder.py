@@ -66,7 +66,7 @@ class ModuleFinder:
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
         self._hooks.initialize(self)
-        self.dist_cachedir = TemporaryDirectory(prefix="cxfreeze")
+        self._cachedir = TemporaryDirectory(prefix="cxfreeze")
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
@@ -105,7 +105,7 @@ class ModuleFinder:
         module = self._modules.get(name)
         if module is None:
             module = Module(
-                name, path, file_name, parent, dist_cachedir=self.dist_cachedir
+                name, path, file_name, parent, rootcachedir=self._cachedir
             )
             self._modules[name] = module
             self.modules.append(module)
@@ -119,7 +119,7 @@ class ModuleFinder:
                 and module.name not in self.zip_exclude_packages
                 or module.name in self.zip_include_packages
             ):
-                module.store_in_file_system = False
+                module.in_file_system = False
         if module.path is None and path is not None:
             module.path = path
         if module.file is None and file_name is not None:
