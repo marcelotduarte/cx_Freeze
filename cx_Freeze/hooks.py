@@ -1333,7 +1333,7 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
         libzmq_folder = "pyzmq.libs"
         libs_dir = os.path.join(os.path.dirname(module.path[0]), libzmq_folder)
         if os.path.exists(libs_dir):
-            finder.IncludeFiles(libs_path, os.path.join("lib", libzmq_folder))
+            finder.IncludeFiles(libs_dir, os.path.join("lib", libzmq_folder))
             return
         # Include the bundled libzmq library, if it exists
         try:
