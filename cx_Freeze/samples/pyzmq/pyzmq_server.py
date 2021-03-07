@@ -25,4 +25,3 @@ try:
         socket.send_string(reply)
 except KeyboardInterrupt:
     sys.exit(0)
-

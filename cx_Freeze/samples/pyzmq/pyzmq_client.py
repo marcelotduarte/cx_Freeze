@@ -22,5 +22,3 @@ try:
             print(f"Client received: {reply}")
 except KeyboardInterrupt:
     sys.exit(0)
-
-
