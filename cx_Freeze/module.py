@@ -4,8 +4,9 @@ Base class for module.
 
 import os
 import shutil
+from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import importlib_metadata
 
@@ -22,22 +23,22 @@ class Module:
         file_name: Optional[str] = None,
         parent: Optional["Module"] = None,
         *,
-        dist_cachedir: str,
+        rootcachedir: TemporaryDirectory,
     ):
         self.name: str = name
         self.path: Optional[str] = path
         self.file: Optional[str] = file_name
         self.parent: Optional["Module"] = parent
-        self.dist_cachedir = dist_cachedir
+        self.rootcachedir = rootcachedir
         self.code: Optional[CodeType] = None
-        self.global_names: set = set()
-        self.exclude_names: set = set()
-        self.ignore_names: set = set()
-        self.source_is_zip_file: bool = False
-        self.in_import: bool = True
-        self.store_in_file_system: bool = True
-        # dist-info files (metadata)
         self.dist_files: List[str] = []
+        self.exclude_names: Set[str] = set()
+        self.global_names: Set[str] = set()
+        self.ignore_names: Set[str] = set()
+        self.in_import: bool = True
+        self.source_is_zip_file: bool = False
+        self._in_file_system: bool = True
+        # dist-info files (metadata)
         self._cache_dist_info(name)
         try:
             requires = importlib_metadata.requires(name)
@@ -61,7 +62,7 @@ class Module:
         if files:
             for file in files:
                 dist_path = os.path.join(
-                    self.dist_cachedir.name, os.path.normpath(file.as_posix())
+                    self.rootcachedir.name, os.path.normpath(file.as_posix())
                 )
                 os.makedirs(os.path.dirname(dist_path), exist_ok=True)
                 shutil.copyfile(str(file.locate()), dist_path)
@@ -90,4 +91,8 @@ class Module:
             return self.parent.in_file_system
         if self.path is None or self.file is None:
             return False
-        return self.store_in_file_system
+        return self._in_file_system
+
+    @in_file_system.setter
+    def in_file_system(self, value) -> None:
+        self._in_file_system = value

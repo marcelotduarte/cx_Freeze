@@ -105,7 +105,7 @@ class ModuleFinder:
         module = self._modules.get(name)
         if module is None:
             module = Module(
-                name, path, file_name, parent, dist_cachedir=self.dist_cachedir
+                name, path, file_name, parent, rootcachedir=self.dist_cachedir
             )
             self._modules[name] = module
             self.modules.append(module)
@@ -119,7 +119,7 @@ class ModuleFinder:
                 and module.name not in self.zip_exclude_packages
                 or module.name in self.zip_include_packages
             ):
-                module.store_in_file_system = False
+                module.in_file_system = False
         if module.path is None and path is not None:
             module.path = path
         if module.file is None and file_name is not None:
