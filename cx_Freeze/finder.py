@@ -8,6 +8,7 @@ import importlib.machinery
 import logging
 import os
 import sys
+from tempfile import TemporaryDirectory
 from types import CodeType
 from typing import Dict, List, Optional, Tuple, Union
 import opcode
@@ -65,6 +66,7 @@ class ModuleFinder:
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
         self._hooks.initialize(self)
+        self.dist_cachedir = TemporaryDirectory(prefix="cxfreeze")
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
@@ -102,7 +104,9 @@ class ModuleFinder:
         """
         module = self._modules.get(name)
         if module is None:
-            module = Module(name, path, file_name, parent)
+            module = Module(
+                name, path, file_name, parent, dist_cachedir=self.dist_cachedir
+            )
             self._modules[name] = module
             self.modules.append(module)
             if name in self._bad_modules:

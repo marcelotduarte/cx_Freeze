@@ -2,8 +2,10 @@
 Base class for module.
 """
 
+import os
+import shutil
 from types import CodeType
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import importlib_metadata
 
@@ -19,12 +21,15 @@ class Module:
         path: Optional[str] = None,
         file_name: Optional[str] = None,
         parent: Optional["Module"] = None,
+        *,
+        dist_cachedir: str,
     ):
         self.name: str = name
-        self.file: Optional[str] = file_name
         self.path: Optional[str] = path
-        self.code: Optional[CodeType] = None
+        self.file: Optional[str] = file_name
         self.parent: Optional["Module"] = parent
+        self.dist_cachedir = dist_cachedir
+        self.code: Optional[CodeType] = None
         self.global_names: set = set()
         self.exclude_names: set = set()
         self.ignore_names: set = set()
@@ -32,7 +37,7 @@ class Module:
         self.in_import: bool = True
         self.store_in_file_system: bool = True
         # dist-info files (metadata)
-        self.dist_files: List[Tuple[str, str]] = []
+        self.dist_files: List[str] = []
         self._cache_dist_info(name)
         try:
             requires = importlib_metadata.requires(name)
@@ -51,14 +56,16 @@ class Module:
             files = None
         if files is None:
             return
-        dist_files: List[Tuple[str, str]] = []
-        for file in files:
-            if not file.match("*.dist-info/*"):
-                continue
-            dist_path = str(file.locate())
-            arc_path = file.as_posix()
-            dist_files.append((dist_path, arc_path))
-        self.dist_files.extend(dist_files)
+        # select only dist-info files
+        files = [file for file in files if file.match("*.dist-info/*")]
+        if files:
+            for file in files:
+                dist_path = os.path.join(
+                    self.dist_cachedir.name, os.path.normpath(file.as_posix())
+                )
+                os.makedirs(os.path.dirname(dist_path), exist_ok=True)
+                shutil.copyfile(str(file.locate()), dist_path)
+                self.dist_files.append(file.as_posix())
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]
