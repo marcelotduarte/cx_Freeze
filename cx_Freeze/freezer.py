@@ -715,11 +715,12 @@ class Freezer:
                 zinfo.compress_type = compress_type
                 outFile.writestr(zinfo, data)
 
-            # put the distribution files metadata in the zip file
-            if module.dist_files:
-                for filepath, arcname in module.dist_files:
-                    if arcname not in outFile.namelist():
-                        outFile.write(filepath, arcname)
+        # put the distribution files metadata in the zip file
+        dist_cachedir = finder.dist_cachedir.name
+        for dirpath, _, filenames in os.walk(dist_cachedir):
+            basedir = dirpath[len(dist_cachedir) + 1 :].replace("\\", "/")
+            for name in filenames:
+                outFile.write(os.path.join(dirpath, name), f"{basedir}/{name}")
 
         # write any files to the zip file that were requested specially
         for sourceFileName, targetFileName in finder.zip_includes:
