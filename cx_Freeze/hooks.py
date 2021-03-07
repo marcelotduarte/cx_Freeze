@@ -208,7 +208,7 @@ def load_asyncio(finder: ModuleFinder, module: Module) -> None:
 def load_babel(finder: ModuleFinder, module: Module) -> None:
     """The babel must be loaded as a package, and has pickeable data."""
     finder.IncludePackage("babel")
-    module.store_in_file_system = True
+    module.in_file_system = True
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
@@ -241,7 +241,7 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
     """
     if not module.in_file_system:
         if sys.version_info < (3, 7):
-            module.store_in_file_system = True
+            module.in_file_system = True
             return
         cacert = __import__("certifi").where()
         target = "certifi/" + os.path.basename(cacert)
@@ -579,7 +579,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
         version = tuple([int(n) for n in numpy.__version__.split(".")])
         del numpy
         if version >= (1, 18, 3):
-            module.store_in_file_system = True
+            module.in_file_system = True
 
 
 def load_numpy_core_multiarray(finder: ModuleFinder, module: Module) -> None:
@@ -771,7 +771,7 @@ def load_pycountry(finder: ModuleFinder, module: Module) -> None:
     """
     finder.ExcludeModule("pycountry.tests")
     if not module.in_file_system:
-        module.store_in_file_system = True
+        module.in_file_system = True
 
 
 def load_pycparser(finder: ModuleFinder, module: Module) -> None:
@@ -1358,7 +1358,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     if tzdata is None:
         return
     # store tzdata along with zoneinfo
-    tzdata.store_in_file_system = module.in_file_system
+    tzdata.in_file_system = module.in_file_system
     if tzdata.in_file_system:
         finder.IncludeFiles(
             tzdata.path[0],
