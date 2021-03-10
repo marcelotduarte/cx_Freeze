@@ -142,7 +142,6 @@ class Freezer:
             return
         if normalizedSource == normalizedTarget:
             return
-        self._RemoveFile(target)
         targetDir = os.path.dirname(target)
         self._CreateDirectory(targetDir)
         if not self.silent:
@@ -494,11 +493,6 @@ class Freezer:
                 print("m", end="")
             print(" {:<25} {}\n".format(module.name, module.file or ""))
 
-    def _RemoveFile(self, path):
-        if os.path.exists(path):
-            os.chmod(path, stat.S_IWRITE)
-            os.remove(path)
-
     def _RemoveVersionNumbers(self, libName):
         tweaked = False
         parts = libName.split(".")
@@ -560,19 +554,22 @@ class Freezer:
     def _VerifyConfiguration(self):
         if self.compress is None:
             self.compress = True
-        if self.targetDir is None:
-            self.targetDir = os.path.abspath("dist")
         if self.path is None:
             self.path = sys.path
+        if self.targetDir is None:
+            self.targetDir = os.path.abspath("dist")
+        # starts in a clean directory
+        if os.path.isdir(self.targetDir):
+            def onerror(*args):
+                raise ConfigError("the build directory cannot be cleaned")
+            shutil.rmtree(self.targetDir, onerror=onerror)
 
         for sourceFileName, targetFileName in (
             self.includeFiles + self.zipIncludes
         ):
             if not os.path.exists(sourceFileName):
                 raise ConfigError(
-                    "cannot find file/directory named {}".format(
-                        sourceFileName
-                    )
+                    f"cannot find file/directory named {sourceFileName}"
                 )
             if os.path.isabs(targetFileName):
                 raise ConfigError("target file/directory cannot be absolute")
@@ -587,8 +584,8 @@ class Freezer:
         for name in self.zipIncludePackages:
             if name in self.zipExcludePackages:
                 raise ConfigError(
-                    "package {} cannot be both included and "
-                    "excluded from zip file".format(name)
+                    f"package {name} cannot be both included and "
+                    "excluded from zip file"
                 )
 
     def _WriteModules(self, fileName, finder):
@@ -763,7 +760,6 @@ class Freezer:
         targetDir = self.targetDir
         zipTargetDir = os.path.join(targetDir, "lib")
         fileName = os.path.join(zipTargetDir, "library.zip")
-        self._RemoveFile(fileName)
         self._WriteModules(fileName, self.finder)
 
         for sourceFileName, targetFileName in self.finder.include_files:
