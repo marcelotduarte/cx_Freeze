@@ -30,6 +30,7 @@ from .common import (
 )
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 from .finder import ModuleFinder
+from .patchelf import Patchelf
 
 if sys.platform == "win32":
     import cx_Freeze.util
@@ -198,20 +199,30 @@ class Freezer:
                     )
                     self._CopyFile(dependent_file, target, copyDependentFiles)
             else:
-                sourceDir = os.path.dirname(source)
+                source_dir = os.path.dirname(source)
+                library_dir = os.path.join(self.targetDir, "lib")
+                fix_rpath = set()
                 for dependent_file in self._GetDependentFiles(source):
-                    if (
-                        os.path.isabs(dependent_file)
-                        and os.path.commonpath((dependent_file, sourceDir))
-                        == sourceDir
-                    ):
-                        relative = os.path.relpath(dependent_file, sourceDir)
-                        target = os.path.join(targetDir, relative)
-                    else:
-                        target = os.path.join(
-                            targetDir, os.path.basename(dependent_file)
-                        )
-                    self._CopyFile(dependent_file, target, copyDependentFiles)
+                    dep_base = os.path.basename(dependent_file)
+                    dep_abs = os.path.abspath(dependent_file)
+                    dep_rel = os.path.relpath(dep_abs, source_dir)
+                    if targetDir == library_dir:
+                        while dep_rel.startswith(os.pardir + os.sep):
+                            dep_rel = dep_rel[len(os.pardir + os.sep) :]
+                    dep_libs = dep_rel[: -(len(dep_base) + 1)]
+                    if dep_libs:
+                        fix_rpath.add(dep_libs)
+                    dependent_target = os.path.join(targetDir, dep_rel)
+                    self._CopyFile(
+                        dependent_file,
+                        dependent_target,
+                        copyDependentFiles,
+                    )
+                if fix_rpath:
+                    has_rpath = self.patchelf.get_rpath(target)
+                    rpath = ":".join([f"$ORIGIN/{r}" for r in fix_rpath])
+                    if has_rpath != rpath:
+                        self.patchelf.set_rpath(target, rpath)
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
@@ -558,11 +569,14 @@ class Freezer:
             self.path = sys.path
         if self.targetDir is None:
             self.targetDir = os.path.abspath("dist")
+        if sys.platform == "linux":
+            self.patchelf = Patchelf()
         # starts in a clean directory
         if os.path.isdir(self.targetDir):
             def onerror(*args):
                 raise ConfigError("the build directory cannot be cleaned")
             shutil.rmtree(self.targetDir, onerror=onerror)
+
 
         for sourceFileName, targetFileName in (
             self.includeFiles + self.zipIncludes
