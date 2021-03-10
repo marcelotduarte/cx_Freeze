@@ -573,7 +573,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy must be loaded as a package."""
     finder.ExcludeModule("numpy.random._examples")
     finder.IncludePackage("numpy")
-    if not module.in_file_system:
+    if sys.platform != "linux" and not module.in_file_system:
         # version 1.18.3+ changed the location of dll/so
         numpy = __import__("numpy")
         version = tuple([int(n) for n in numpy.__version__.split(".")])
