@@ -125,7 +125,6 @@ class Freezer:
         target,
         copyDependentFiles,
         includeMode=False,
-        relativeSource=False,
         machOReference: Optional[MachOReference] = None,
     ):
         normalizedSource = os.path.normcase(os.path.normpath(source))
@@ -175,13 +174,8 @@ class Freezer:
             copyDependentFiles
             and source not in self.finder.exclude_dependent_files
         ):
-            # TODO: relativeSource for other platforms
-            if sys.platform != "linux":
-                relativeSource = False
             # Always copy dependent files on root directory
             # to allow to set relative reference
-            sourceDir = os.path.dirname(source)
-
             if sys.platform == "darwin":
                 targetDir = self.targetDir
                 for dependent_file in self._GetDependentFiles(
@@ -198,13 +192,17 @@ class Freezer:
                             path=dependent_file
                         ),
                     )
+            elif sys.platform == "win32":
+                for dependent_file in self._GetDependentFiles(source):
+                    target = os.path.join(
+                        targetDir, os.path.basename(dependent_file)
+                    )
+                    self._CopyFile(dependent_file, target, copyDependentFiles)
             else:
-                for dependent_file in self._GetDependentFiles(
-                    source, darwinFile=newDarwinFile
-                ):
+                sourceDir = os.path.dirname(source)
+                for dependent_file in self._GetDependentFiles(source):
                     if (
-                        relativeSource
-                        and os.path.isabs(dependent_file)
+                        os.path.isabs(dependent_file)
                         and os.path.commonpath((dependent_file, sourceDir))
                         == sourceDir
                     ):
@@ -214,12 +212,7 @@ class Freezer:
                         target = os.path.join(
                             targetDir, os.path.basename(dependent_file)
                         )
-                    self._CopyFile(
-                        dependent_file,
-                        target,
-                        copyDependentFiles,
-                        relativeSource=relativeSource,
-                    )
+                    self._CopyFile(dependent_file, target, copyDependentFiles)
 
     def _CreateDirectory(self, path):
         if not os.path.isdir(path):
@@ -696,7 +689,6 @@ class Freezer:
                         module.file,
                         target_name,
                         copyDependentFiles=True,
-                        relativeSource=True,
                     )
                 else:
                     if module.path is not None:
@@ -749,7 +741,6 @@ class Freezer:
                     module.file,
                     target,
                     copyDependentFiles=True,
-                    relativeSource=True,
                 )
             finally:
                 os.environ["PATH"] = origPath
@@ -796,7 +787,6 @@ class Freezer:
                             fullSourceName,
                             fullTargetName,
                             copyDependentFiles=True,
-                            relativeSource=True,
                         )
             else:
                 # Copy regular files.
@@ -805,7 +795,6 @@ class Freezer:
                     sourceFileName,
                     fullName,
                     copyDependentFiles=True,
-                    relativeSource=True,
                 )
         # do a final pass to clean up dependency references in Mach-O files.
         if sys.platform == "darwin":
