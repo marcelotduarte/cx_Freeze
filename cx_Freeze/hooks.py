@@ -733,6 +733,12 @@ def load_Numeric(finder: ModuleFinder, module: Module) -> None:
     module.IgnoreName("dotblas")
 
 
+def load_pandas(finder: ModuleFinder, module: Module) -> None:
+    """The pandas has dynamic imports."""
+    finder.IncludePackage("pandas._libs")
+    finder.ExcludeModule("pandas.tests")
+
+
 def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
     """The pikepdf must be loaded as a package."""
     finder.IncludePackage("pikepdf")
