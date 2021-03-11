@@ -571,15 +571,13 @@ def _get_data_path():
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy must be loaded as a package."""
-    finder.ExcludeModule("numpy.random._examples")
     finder.IncludePackage("numpy")
-    if sys.platform != "linux" and not module.in_file_system:
-        # version 1.18.3+ changed the location of dll/so
-        numpy = __import__("numpy")
-        version = tuple([int(n) for n in numpy.__version__.split(".")])
-        del numpy
-        if version >= (1, 18, 3):
-            module.in_file_system = True
+    finder.ExcludeModule("numpy.random._examples")
+    if WIN32 and not module.in_file_system:
+        # copy any file at site-packages/numpy/.libs
+        libs_dir = os.path.join(module.path[0], ".libs")
+        if os.path.exists(libs_dir):
+            finder.IncludeFiles(libs_dir, "lib")
 
 
 def load_numpy_core_multiarray(finder: ModuleFinder, module: Module) -> None:
