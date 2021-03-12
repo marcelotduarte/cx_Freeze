@@ -542,19 +542,26 @@ def load_lxml(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
-    """
-    The matplotlib package requires mpl-data in a subdirectory of the
-    package.
-    """
-    MATPLOTLIB_CODE_STR = """
-def _get_data_path():
-    return os.path.join(os.path.dirname(sys.executable), '{}')
-"""
-    data_path = __import__("matplotlib").get_data_path()
+    """The matplotlib package requires mpl-data subdirectory."""
+    data_path = os.path.join(module.path[0], "mpl-data")
     target_path = os.path.join("lib", module.name, "mpl-data")
+    # After matplotlib 3.4 mpl-data is guaranteed to be a subdirectory.
+    if not os.path.isdir(data_path):
+        data_path = __import__("matplotlib").get_data_path()
+        need_patch = True
+    else:
+        need_patch = not module.in_file_system
     finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
-    if module.code is not None:
-        code_str = MATPLOTLIB_CODE_STR.format(target_path)
+    finder.IncludePackage("matplotlib")
+    finder.ExcludeModule("matplotlib.tests")
+    finder.ExcludeModule("matplotlib.testing")
+    if not need_patch or module.code is None:
+        return
+    CODE_STR = f"""
+def _get_data_path():
+    return os.path.join(os.path.dirname(sys.executable), "{target_path}")
+"""
+    for code_str in [CODE_STR, CODE_STR.replace("_get_data_", "get_data_")]:
         new_code = compile(code_str, module.file, "exec")
         co_func = new_code.co_consts[0]
         name = co_func.co_name
@@ -565,8 +572,6 @@ def _get_data_path():
                 consts[i] = co_func
                 break
         module.code = code_object_replace(code, co_consts=consts)
-    finder.ExcludeModule("matplotlib.tests")
-    finder.IncludePackage("matplotlib")
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
