@@ -574,6 +574,18 @@ def _get_data_path():
         module.code = code_object_replace(code, co_consts=consts)
 
 
+def load_mkl(finder: ModuleFinder, module: Module) -> None:
+    """The mkl package in conda."""
+    libs_dir = os.path.join(sys.base_prefix, "Library", "bin")
+    if os.path.isdir(libs_dir):
+        for dll_path in glob.glob(os.path.join(libs_dir, "mkl_*.dll")):
+            dll_name = os.path.basename(dll_path)
+            finder.IncludeFiles(dll_path, os.path.join("lib", "mkl", dll_name))
+        for dll_path in glob.glob(os.path.join(libs_dir, "libiomp*.dll")):
+            dll_name = os.path.basename(dll_path)
+            finder.IncludeFiles(dll_path, os.path.join("lib", "mkl", dll_name))
+
+
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy must be loaded as a package."""
     finder.IncludePackage("numpy")
