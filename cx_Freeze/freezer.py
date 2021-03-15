@@ -34,6 +34,7 @@ from .patchelf import Patchelf
 
 if sys.platform == "win32":
     import cx_Freeze.util
+    from . import winmsvcr
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
@@ -78,7 +79,7 @@ class Freezer:
         self.path = path
         self.includeMSVCR = includeMSVCR
         self.targetDir = targetDir
-        binIncludes = self._GetDefaultBinIncludes() + list(binIncludes or [])
+        binIncludes = list(binIncludes or [])
         self.binIncludes = [os.path.normcase(n) for n in binIncludes]
         binExcludes = self._GetDefaultBinExcludes() + list(binExcludes or [])
         self.binExcludes = [os.path.normcase(n) for n in binExcludes]
@@ -130,6 +131,18 @@ class Freezer:
     ):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
+        norm_target_name = os.path.basename(normalizedTarget)
+
+        # fix the target path for C runtime files
+        if norm_target_name in self.runtime_files:
+            target_name = os.path.basename(target)
+            target = os.path.join(self.targetDir, "lib", target_name)
+            # vcruntime140.dll should be duplicated
+            if norm_target_name in self.runtime_files_to_dup:
+                self.runtime_files_to_dup.remove(norm_target_name)
+                self._CopyFile(source, target, copyDependentFiles=False)
+                target = os.path.join(self.targetDir, target_name)
+            normalizedTarget = os.path.normcase(os.path.normpath(target))
 
         if normalizedTarget in self.files_copied:
             if sys.platform == "darwin" and (machOReference is not None):
@@ -240,10 +253,11 @@ class Freezer:
         finder.IncludeFile(startupModule)
 
         # Ensure the copy of default python libraries
+        python_shared_libs = tuple(self._GetDefaultBinIncludes())
         dependent_files = set()
         dependent_files.update(self._GetDependentFiles(exe.base))
         dependent_files.update(self._GetDependentFiles(sys.executable))
-        for name in self._GetDefaultBinIncludes():
+        for name in python_shared_libs:
             normalized_name = os.path.normcase(name)
             found = False
             for dependent_name in list(dependent_files):
@@ -258,15 +272,27 @@ class Freezer:
                     break
             if not found:
                 print("*** WARNING *** default bin include not found:", name)
-        # Copy the python dynamic libraries and the frozen executable
-        if sys.platform == "win32":
-            # Copy the python dynamic libraries into build root folder
-            target_dir = self.targetDir
-        else:
-            # Always copy the python dynamic libraries into lib folder
-            target_dir = os.path.join(self.targetDir, "lib")
+
+        # Search the C runtimes, using the directory of the python libraries
+        # and the directories of the base executable
+        if sys.platform == "win32" and self.runtime_files:
+            search_dirs = set()
+            for filename in dependent_files:
+                search_dirs.add(os.path.split(filename)[0])
+            for filename in self.runtime_files:
+                for search_dir in search_dirs:
+                    filepath = os.path.join(search_dir, filename)
+                    if os.path.exists(filepath):
+                        dependent_files.add(filepath)
+
+        # Always copy the dynamic libraries into lib folder
+        target_dir = os.path.join(self.targetDir, "lib")
         for source in dependent_files:
-            target = os.path.join(target_dir, os.path.basename(source))
+            # but python dlls should be copied within the executable
+            if sys.platform == "win32" and source.endswith(python_shared_libs):
+                target = os.path.join(self.targetDir, os.path.basename(source))
+            else:
+                target = os.path.join(target_dir, os.path.basename(source))
             if sys.platform == "darwin":
                 # this recovers the cached MachOReference pointers to the files found
                 # by the _GetDependentFiles calls above. If one is found, pass into _CopyFile.
@@ -297,9 +323,6 @@ class Freezer:
         if not os.access(target_path, os.W_OK):
             mode = os.stat(target_path).st_mode
             os.chmod(target_path, mode | stat.S_IWUSR)
-
-        if self.includeMSVCR:
-            self._IncludeMSVCR(exe)
 
         # Copy icon
         if exe.icon is not None:
@@ -352,7 +375,6 @@ class Freezer:
                 python_shared_libs += [
                     "python%s.dll" % sys.version_info[0],
                     "python%s%s.dll" % sys.version_info[:2],
-                    "vcruntime140.dll",
                 ]
         else:
             name = distutils.sysconfig.get_config_var("INSTSONAME")
@@ -478,21 +500,6 @@ class Freezer:
             finder.IncludePackage(name)
         return finder
 
-    def _IncludeMSVCR(self, exe):
-        targetDir = self.targetDir
-        for fullName in self.files_copied:
-            path, name = os.path.split(os.path.normcase(fullName))
-            if name.startswith("msvcr") and name.endswith(".dll"):
-                for otherName in [name.replace("r", c) for c in "mp"]:
-                    sourceName = os.path.join(self.msvcRuntimeDir, otherName)
-                    if not os.path.exists(sourceName):
-                        continue
-                    target_name = os.path.join(targetDir, otherName)
-                    self._CopyFile(
-                        sourceName, target_name, copyDependentFiles=False
-                    )
-                break
-
     def _PrintReport(self, fileName, modules):
         print("writing zip file %s\n" % fileName)
         print("  {:<25} {}".format("Name", "File"))
@@ -526,12 +533,8 @@ class Freezer:
         Files are included unless specifically excluded but inclusions take
         precedence over exclusions."""
 
-        # check for C runtime, if desired
         path = os.path.normcase(path)
         dirName, fileName = os.path.split(path)
-        if fileName.startswith("msvcr") and fileName.endswith(".dll"):
-            self.msvcRuntimeDir = dirName
-            return self.includeMSVCR
 
         # check the full path
         if path in self.binIncludes:
@@ -571,12 +574,23 @@ class Freezer:
             self.targetDir = os.path.abspath("dist")
         if sys.platform == "linux":
             self.patchelf = Patchelf()
+        self.runtime_files = set()
+        self.runtime_files_to_dup = set()
+        if sys.platform == "win32":
+            if self.includeMSVCR:
+                self.runtime_files.update(winmsvcr.FILES)
+                self.runtime_files_to_dup.update(winmsvcr.FILES_TO_DUPLICATE)
+            else:
+                # just put on the exclusion list
+                self.binExcludes.extend(winmsvcr.FILES)
+
         # starts in a clean directory
         if os.path.isdir(self.targetDir):
+
             def onerror(*args):
                 raise ConfigError("the build directory cannot be cleaned")
-            shutil.rmtree(self.targetDir, onerror=onerror)
 
+            shutil.rmtree(self.targetDir, onerror=onerror)
 
         for sourceFileName, targetFileName in (
             self.includeFiles + self.zipIncludes
@@ -762,15 +776,18 @@ class Freezer:
         self.dependentFiles = {}  # type: Dict[Any, List]
         self.files_copied = set()
         self.linkerWarnings = {}
-        self.msvcRuntimeDir = None
 
         self.darwinTracker = None  # type: Optional[DarwinFileTracker]
         if sys.platform == "darwin":
             self.darwinTracker = DarwinFileTracker()
 
         self.finder = self._GetModuleFinder()
+
+        # Add the executables to target
         for executable in self.executables:
             self._FreezeExecutable(executable)
+
+        # Write the modules
         targetDir = self.targetDir
         zipTargetDir = os.path.join(targetDir, "lib")
         fileName = os.path.join(zipTargetDir, "library.zip")
