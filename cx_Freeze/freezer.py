@@ -79,7 +79,7 @@ class Freezer:
         self.path = path
         self.includeMSVCR = includeMSVCR
         self.targetDir = targetDir
-        binIncludes = list(binIncludes or [])
+        binIncludes = self._GetDefaultBinIncludes() + list(binIncludes or [])
         self.binIncludes = [os.path.normcase(n) for n in binIncludes]
         binExcludes = self._GetDefaultBinExcludes() + list(binExcludes or [])
         self.binExcludes = [os.path.normcase(n) for n in binExcludes]
