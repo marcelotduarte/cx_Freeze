@@ -10,6 +10,7 @@ import re
 
 class Patchelf:
     """`Patchelf` is based on the logic around invoking `patchelf`."""
+
     def __init__(self) -> None:
         _verify_patchelf()
 
