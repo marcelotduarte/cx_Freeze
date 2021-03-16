@@ -256,22 +256,16 @@ class Freezer:
         python_shared_libs = tuple(self._GetDefaultBinIncludes())
         dependent_files = set()
         dependent_files.update(self._GetDependentFiles(exe.base))
-        dependent_files.update(self._GetDependentFiles(sys.executable))
-        for name in python_shared_libs:
-            normalized_name = os.path.normcase(name)
-            found = False
-            for dependent_name in list(dependent_files):
-                if os.path.normcase(dependent_name).endswith(normalized_name):
-                    found = True
-                    break
-                source_dir = os.path.dirname(dependent_name)
+        if not dependent_files:
+            dependent_files.update(self._GetDependentFiles(sys.executable))
+        if not dependent_files:
+            for name in python_shared_libs:
+                source_dir = os.path.dirname(exe.base)
                 source = os.path.join(source_dir, name)
                 if os.path.isfile(source):
                     dependent_files.add(source)
-                    found = True
-                    break
-            if not found:
-                print("*** WARNING *** default bin include not found:", name)
+        if not dependent_files:
+            print("*** WARNING *** default bin include not found:", name)
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
