@@ -253,19 +253,19 @@ class Freezer:
         finder.IncludeFile(startupModule)
 
         # Ensure the copy of default python libraries
-        python_shared_libs = tuple(self._GetDefaultBinIncludes())
+        python_libs = tuple(self._GetDefaultBinIncludes())
         dependent_files = set()
         dependent_files.update(self._GetDependentFiles(exe.base))
         if not dependent_files:
             dependent_files.update(self._GetDependentFiles(sys.executable))
         if not dependent_files:
-            for name in python_shared_libs:
+            for name in python_libs:
                 source_dir = os.path.dirname(exe.base)
                 source = os.path.join(source_dir, name)
                 if os.path.isfile(source):
                     dependent_files.add(source)
         if not dependent_files:
-            print("*** WARNING *** default bin include not found:", name)
+            print("*** WARNING *** shared libraries not found:", python_libs)
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
@@ -283,7 +283,7 @@ class Freezer:
         target_dir = os.path.join(self.targetDir, "lib")
         for source in dependent_files:
             # but python dlls should be copied within the executable
-            if sys.platform == "win32" and source.endswith(python_shared_libs):
+            if sys.platform == "win32" and source.endswith(python_libs):
                 target = os.path.join(self.targetDir, os.path.basename(source))
             else:
                 target = os.path.join(target_dir, os.path.basename(source))
