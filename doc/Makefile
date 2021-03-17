@@ -3,11 +3,11 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = src
-BUILDDIR      = build
+BUILDDIR      = ../build/doc
 
 .PHONY: html
 html:
-	pip install -U sphinx
+	pip install --upgrade --upgrade-strategy=eager sphinx
 	@$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: epub
@@ -20,8 +20,8 @@ pdf:
 
 .PHONY: test
 test:
-	firefox build/html/index.html &
+	firefox $(BUILDDIR)/html/index.html &
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)/*
+	rm -rf $(BUILDDIR)
