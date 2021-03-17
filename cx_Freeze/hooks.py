@@ -387,7 +387,7 @@ def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
     The optik module is the old name for the optparse module; ignore the
     module if it cannot be found.
     """
-    module.IgnoreName("optik")
+    module.ignore_names.add("optik")
 
 
 def load_dummy_threading(finder: ModuleFinder, module: Module) -> None:
@@ -403,7 +403,7 @@ def load_ftplib(finder: ModuleFinder, module: Module) -> None:
     The ftplib module attempts to import the SOCKS module; ignore this
     module if it cannot be found.
     """
-    module.IgnoreName("SOCKS")
+    module.ignore_names.add("SOCKS")
 
 
 def load_gevent(finder: ModuleFinder, module: Module) -> None:
@@ -413,83 +413,87 @@ def load_gevent(finder: ModuleFinder, module: Module) -> None:
 
 def load_GifImagePlugin(finder: ModuleFinder, module: Module) -> None:
     """The GifImagePlugin module optionally imports the _imaging_gif module"""
-    module.IgnoreName("_imaging_gif")
+    module.ignore_names.add("_imaging_gif")
 
 
 def load_glib(finder: ModuleFinder, module: Module) -> None:
     """Ignore globals that are imported."""
-    module.AddGlobalName("GError")
-    module.AddGlobalName("IOChannel")
-    module.AddGlobalName("IO_ERR")
-    module.AddGlobalName("IO_FLAG_APPEND")
-    module.AddGlobalName("IO_FLAG_GET_MASK")
-    module.AddGlobalName("IO_FLAG_IS_READABLE")
-    module.AddGlobalName("IO_FLAG_IS_SEEKABLE")
-    module.AddGlobalName("IO_FLAG_IS_WRITEABLE")
-    module.AddGlobalName("IO_FLAG_MASK")
-    module.AddGlobalName("IO_FLAG_NONBLOCK")
-    module.AddGlobalName("IO_FLAG_SET_MASK")
-    module.AddGlobalName("IO_HUP")
-    module.AddGlobalName("IO_IN")
-    module.AddGlobalName("IO_NVAL")
-    module.AddGlobalName("IO_OUT")
-    module.AddGlobalName("IO_PRI")
-    module.AddGlobalName("IO_STATUS_AGAIN")
-    module.AddGlobalName("IO_STATUS_EOF")
-    module.AddGlobalName("IO_STATUS_ERROR")
-    module.AddGlobalName("IO_STATUS_NORMAL")
-    module.AddGlobalName("Idle")
-    module.AddGlobalName("MainContext")
-    module.AddGlobalName("MainLoop")
-    module.AddGlobalName("OPTION_ERROR")
-    module.AddGlobalName("OPTION_ERROR_BAD_VALUE")
-    module.AddGlobalName("OPTION_ERROR_FAILED")
-    module.AddGlobalName("OPTION_ERROR_UNKNOWN_OPTION")
-    module.AddGlobalName("OPTION_FLAG_FILENAME")
-    module.AddGlobalName("OPTION_FLAG_HIDDEN")
-    module.AddGlobalName("OPTION_FLAG_IN_MAIN")
-    module.AddGlobalName("OPTION_FLAG_NOALIAS")
-    module.AddGlobalName("OPTION_FLAG_NO_ARG")
-    module.AddGlobalName("OPTION_FLAG_OPTIONAL_ARG")
-    module.AddGlobalName("OPTION_FLAG_REVERSE")
-    module.AddGlobalName("OPTION_REMAINING")
-    module.AddGlobalName("OptionContext")
-    module.AddGlobalName("OptionGroup")
-    module.AddGlobalName("PRIORITY_DEFAULT")
-    module.AddGlobalName("PRIORITY_DEFAULT_IDLE")
-    module.AddGlobalName("PRIORITY_HIGH")
-    module.AddGlobalName("PRIORITY_HIGH_IDLE")
-    module.AddGlobalName("PRIORITY_LOW")
-    module.AddGlobalName("Pid")
-    module.AddGlobalName("PollFD")
-    module.AddGlobalName("SPAWN_CHILD_INHERITS_STDIN")
-    module.AddGlobalName("SPAWN_DO_NOT_REAP_CHILD")
-    module.AddGlobalName("SPAWN_FILE_AND_ARGV_ZERO")
-    module.AddGlobalName("SPAWN_LEAVE_DESCRIPTORS_OPEN")
-    module.AddGlobalName("SPAWN_SEARCH_PATH")
-    module.AddGlobalName("SPAWN_STDERR_TO_DEV_NULL")
-    module.AddGlobalName("SPAWN_STDOUT_TO_DEV_NULL")
-    module.AddGlobalName("Source")
-    module.AddGlobalName("Timeout")
-    module.AddGlobalName("child_watch_add")
-    module.AddGlobalName("filename_display_basename")
-    module.AddGlobalName("filename_display_name")
-    module.AddGlobalName("filename_from_utf8")
-    module.AddGlobalName("get_application_name")
-    module.AddGlobalName("get_current_time")
-    module.AddGlobalName("get_prgname")
-    module.AddGlobalName("glib_version")
-    module.AddGlobalName("idle_add")
-    module.AddGlobalName("io_add_watch")
-    module.AddGlobalName("main_context_default")
-    module.AddGlobalName("main_depth")
-    module.AddGlobalName("markup_escape_text")
-    module.AddGlobalName("set_application_name")
-    module.AddGlobalName("set_prgname")
-    module.AddGlobalName("source_remove")
-    module.AddGlobalName("spawn_async")
-    module.AddGlobalName("timeout_add")
-    module.AddGlobalName("timeout_add_seconds")
+    module.global_names.update(
+        [
+            "GError",
+            "IOChannel",
+            "IO_ERR",
+            "IO_FLAG_APPEND",
+            "IO_FLAG_GET_MASK",
+            "IO_FLAG_IS_READABLE",
+            "IO_FLAG_IS_SEEKABLE",
+            "IO_FLAG_IS_WRITEABLE",
+            "IO_FLAG_MASK",
+            "IO_FLAG_NONBLOCK",
+            "IO_FLAG_SET_MASK",
+            "IO_HUP",
+            "IO_IN",
+            "IO_NVAL",
+            "IO_OUT",
+            "IO_PRI",
+            "IO_STATUS_AGAIN",
+            "IO_STATUS_EOF",
+            "IO_STATUS_ERROR",
+            "IO_STATUS_NORMAL",
+            "Idle",
+            "MainContext",
+            "MainLoop",
+            "OPTION_ERROR",
+            "OPTION_ERROR_BAD_VALUE",
+            "OPTION_ERROR_FAILED",
+            "OPTION_ERROR_UNKNOWN_OPTION",
+            "OPTION_FLAG_FILENAME",
+            "OPTION_FLAG_HIDDEN",
+            "OPTION_FLAG_IN_MAIN",
+            "OPTION_FLAG_NOALIAS",
+            "OPTION_FLAG_NO_ARG",
+            "OPTION_FLAG_OPTIONAL_ARG",
+            "OPTION_FLAG_REVERSE",
+            "OPTION_REMAINING",
+            "OptionContext",
+            "OptionGroup",
+            "PRIORITY_DEFAULT",
+            "PRIORITY_DEFAULT_IDLE",
+            "PRIORITY_HIGH",
+            "PRIORITY_HIGH_IDLE",
+            "PRIORITY_LOW",
+            "Pid",
+            "PollFD",
+            "SPAWN_CHILD_INHERITS_STDIN",
+            "SPAWN_DO_NOT_REAP_CHILD",
+            "SPAWN_FILE_AND_ARGV_ZERO",
+            "SPAWN_LEAVE_DESCRIPTORS_OPEN",
+            "SPAWN_SEARCH_PATH",
+            "SPAWN_STDERR_TO_DEV_NULL",
+            "SPAWN_STDOUT_TO_DEV_NULL",
+            "Source",
+            "Timeout",
+            "child_watch_add",
+            "filename_display_basename",
+            "filename_display_name",
+            "filename_from_utf8",
+            "get_application_name",
+            "get_current_time",
+            "get_prgname",
+            "glib_version",
+            "idle_add",
+            "io_add_watch",
+            "main_context_default",
+            "main_depth",
+            "markup_escape_text",
+            "set_application_name",
+            "set_prgname",
+            "source_remove",
+            "spawn_async",
+            "timeout_add",
+            "timeout_add_seconds",
+        ]
+    )
 
 
 def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
@@ -511,10 +515,7 @@ def load_hashlib(finder: ModuleFinder, module: Module) -> None:
     hashlib's fallback modules don't exist if the equivalent OpenSSL
     algorithms are loaded from _hashlib, so we can ignore the error.
     """
-    module.IgnoreName("_md5")
-    module.IgnoreName("_sha")
-    module.IgnoreName("_sha256")
-    module.IgnoreName("_sha512")
+    module.ignore_names.update(["_md5", "_sha", "_sha256", "_sha512"])
 
 
 def load_h5py(finder: ModuleFinder, module: Module) -> None:
@@ -604,7 +605,7 @@ def load_numpy_core_multiarray(finder: ModuleFinder, module: Module) -> None:
     available to this module in order to avoid spurious errors about missing
     modules.
     """
-    module.AddGlobalName("arange")
+    module.global_names.add("arange")
 
 
 def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
@@ -613,18 +614,22 @@ def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
     dynamically; define these to avoid spurious errors about missing
     modules.
     """
-    module.AddGlobalName("bool_")
-    module.AddGlobalName("cdouble")
-    module.AddGlobalName("complexfloating")
-    module.AddGlobalName("csingle")
-    module.AddGlobalName("double")
-    module.AddGlobalName("float64")
-    module.AddGlobalName("float_")
-    module.AddGlobalName("inexact")
-    module.AddGlobalName("intc")
-    module.AddGlobalName("int32")
-    module.AddGlobalName("number")
-    module.AddGlobalName("single")
+    module.global_names.update(
+        [
+            "bool_",
+            "cdouble",
+            "complexfloating",
+            "csingle",
+            "double",
+            "float64",
+            "float_",
+            "inexact",
+            "intc",
+            "int32",
+            "number",
+            "single",
+        ]
+    )
 
 
 def load_numpy_core_umath(finder: ModuleFinder, module: Module) -> None:
@@ -634,53 +639,57 @@ def load_numpy_core_umath(finder: ModuleFinder, module: Module) -> None:
     to this module in order to avoid spurious errors about missing
     modules.
     """
-    module.AddGlobalName("add")
-    module.AddGlobalName("absolute")
-    module.AddGlobalName("arccos")
-    module.AddGlobalName("arccosh")
-    module.AddGlobalName("arcsin")
-    module.AddGlobalName("arcsinh")
-    module.AddGlobalName("arctan")
-    module.AddGlobalName("arctanh")
-    module.AddGlobalName("bitwise_and")
-    module.AddGlobalName("bitwise_or")
-    module.AddGlobalName("bitwise_xor")
-    module.AddGlobalName("ceil")
-    module.AddGlobalName("conj")
-    module.AddGlobalName("conjugate")
-    module.AddGlobalName("cosh")
-    module.AddGlobalName("divide")
-    module.AddGlobalName("fabs")
-    module.AddGlobalName("floor")
-    module.AddGlobalName("floor_divide")
-    module.AddGlobalName("fmod")
-    module.AddGlobalName("greater")
-    module.AddGlobalName("hypot")
-    module.AddGlobalName("invert")
-    module.AddGlobalName("isfinite")
-    module.AddGlobalName("isinf")
-    module.AddGlobalName("isnan")
-    module.AddGlobalName("less")
-    module.AddGlobalName("left_shift")
-    module.AddGlobalName("log")
-    module.AddGlobalName("logical_and")
-    module.AddGlobalName("logical_not")
-    module.AddGlobalName("logical_or")
-    module.AddGlobalName("logical_xor")
-    module.AddGlobalName("maximum")
-    module.AddGlobalName("minimum")
-    module.AddGlobalName("multiply")
-    module.AddGlobalName("negative")
-    module.AddGlobalName("not_equal")
-    module.AddGlobalName("power")
-    module.AddGlobalName("remainder")
-    module.AddGlobalName("right_shift")
-    module.AddGlobalName("sign")
-    module.AddGlobalName("sinh")
-    module.AddGlobalName("sqrt")
-    module.AddGlobalName("tan")
-    module.AddGlobalName("tanh")
-    module.AddGlobalName("true_divide")
+    module.global_names.update(
+        [
+            "add",
+            "absolute",
+            "arccos",
+            "arccosh",
+            "arcsin",
+            "arcsinh",
+            "arctan",
+            "arctanh",
+            "bitwise_and",
+            "bitwise_or",
+            "bitwise_xor",
+            "ceil",
+            "conj",
+            "conjugate",
+            "cosh",
+            "divide",
+            "fabs",
+            "floor",
+            "floor_divide",
+            "fmod",
+            "greater",
+            "hypot",
+            "invert",
+            "isfinite",
+            "isinf",
+            "isnan",
+            "less",
+            "left_shift",
+            "log",
+            "logical_and",
+            "logical_not",
+            "logical_or",
+            "logical_xor",
+            "maximum",
+            "minimum",
+            "multiply",
+            "negative",
+            "not_equal",
+            "power",
+            "remainder",
+            "right_shift",
+            "sign",
+            "sinh",
+            "sqrt",
+            "tan",
+            "tanh",
+            "true_divide",
+        ]
+    )
 
 
 def load_numpy_distutils_command_scons(
@@ -690,7 +699,7 @@ def load_numpy_distutils_command_scons(
     The numpy.distutils.command.scons module optionally imports the numscons
     module; ignore the error if the module cannot be found.
     """
-    module.IgnoreName("numscons")
+    module.ignore_names.add("numscons")
 
 
 def load_numpy_distutils_misc_util(
@@ -700,7 +709,7 @@ def load_numpy_distutils_misc_util(
     The numpy.distutils.misc_util module optionally imports the numscons
     module; ignore the error if the module cannot be found.
     """
-    module.IgnoreName("numscons")
+    module.ignore_names.add("numscons")
 
 
 def load_numpy_distutils_system_info(
@@ -710,7 +719,7 @@ def load_numpy_distutils_system_info(
     The numpy.distutils.system_info module optionally imports the Numeric
     module; ignore the error if the module cannot be found.
     """
-    module.IgnoreName("Numeric")
+    module.ignore_names.add("Numeric")
 
 
 def load_numpy_f2py___version__(finder: ModuleFinder, module: Module) -> None:
@@ -718,7 +727,7 @@ def load_numpy_f2py___version__(finder: ModuleFinder, module: Module) -> None:
     The numpy.f2py.__version__ module optionally imports the __svn_version__
     module; ignore the error if the module cannot be found.
     """
-    module.IgnoreName("__svn_version__")
+    module.ignore_names.add("__svn_version__")
 
 
 def load_numpy_linalg(finder: ModuleFinder, module: Module) -> None:
@@ -736,8 +745,7 @@ def load_numpy_random_mtrand(finder: ModuleFinder, module: Module) -> None:
     available to this module in order to avoid spurious errors about missing
     modules.
     """
-    module.AddGlobalName("rand")
-    module.AddGlobalName("randn")
+    module.global_names.update(["rand", "randn"])
 
 
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
@@ -745,7 +753,7 @@ def load_Numeric(finder: ModuleFinder, module: Module) -> None:
     The Numeric module optionally loads the dotblas module; ignore the error
     if this modules does not exist.
     """
-    module.IgnoreName("dotblas")
+    module.ignore_names.add("dotblas")
 
 
 def load_pandas(finder: ModuleFinder, module: Module) -> None:
@@ -783,7 +791,7 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
     """The sgi module is not needed for this module to function."""
-    module.IgnoreName("sgi")
+    module.ignore_names.add("sgi")
 
 
 def load_pycountry(finder: ModuleFinder, module: Module) -> None:
@@ -1078,7 +1086,7 @@ def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
     The scipy.linalg module loads items within itself in a way that causes
     problems without the entire package being present.
     """
-    module.AddGlobalName("norm")
+    module.global_names.add("norm")
     finder.IncludePackage("scipy.linalg")
 
 
@@ -1089,7 +1097,7 @@ def load_scipy_linalg_interface_gen(
     The scipy.linalg.interface_gen module optionally imports the pre module;
     ignore the error if this module cannot be found.
     """
-    module.IgnoreName("pre")
+    module.ignore_names.add("pre")
 
 
 def load_scipy_ndimage(finder: ModuleFinder, module: Module) -> None:
@@ -1108,7 +1116,7 @@ def load_scipy_sparse_linalg_dsolve_linsolve(
     finder: ModuleFinder, module: Module
 ) -> None:
     """The scipy.linalg.dsolve.linsolve optionally loads scikits.umfpack."""
-    module.IgnoreName("scikits.umfpack")
+    module.ignore_names.add("scikits.umfpack")
 
 
 def load_scipy_special(finder: ModuleFinder, module: Module) -> None:
@@ -1122,7 +1130,7 @@ def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
     imports * from it in places; advertise the global names that are used
     in order to avoid spurious errors about missing modules.
     """
-    module.AddGlobalName("gammaln")
+    module.global_names.add("gammaln")
 
 
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
@@ -1138,7 +1146,7 @@ def load_setuptools_extension(finder: ModuleFinder, module: Module) -> None:
     The setuptools.extension module optionally loads
     Pyrex.Distutils.build_ext but its absence is not considered an error.
     """
-    module.IgnoreName("Pyrex.Distutils.build_ext")
+    module.ignore_names.add("Pyrex.Distutils.build_ext")
 
 
 def load_site(finder: ModuleFinder, module: Module) -> None:
@@ -1146,8 +1154,7 @@ def load_site(finder: ModuleFinder, module: Module) -> None:
     The site module optionally loads the sitecustomize and usercustomize
     modules; ignore the error if these modules do not exist.
     """
-    module.IgnoreName("sitecustomize")
-    module.IgnoreName("usercustomize")
+    module.ignore_names.update(["sitecustomize", "usercustomize"])
 
 
 def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
@@ -1250,9 +1257,7 @@ def load_twitter(finder: ModuleFinder, module: Module) -> None:
     module in an attempt to locate any module that will implement the
     necessary protocol; ignore these modules if they cannot be found.
     """
-    module.IgnoreName("json")
-    module.IgnoreName("simplejson")
-    module.IgnoreName("django.utils")
+    module.ignore_names.update(["json", "simplejson", "django.utils"])
 
 
 def load_uvloop(finder: ModuleFinder, module: Module) -> None:
@@ -1407,7 +1412,7 @@ def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
     The gdk module is buried inside gtk so there is no need to concern
     ourselves with an error saying that it cannot be found.
     """
-    caller.IgnoreName("gdk")
+    caller.ignore_names.add("gdk")
 
 
 def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
@@ -1415,7 +1420,7 @@ def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
     This module is not necessairly present so ignore it when it cannot be
     found.
     """
-    caller.IgnoreName("ltihooks")
+    caller.ignore_names.add("ltihooks")
 
 
 def missing_readline(finder: ModuleFinder, caller: Module) -> None:
@@ -1424,4 +1429,4 @@ def missing_readline(finder: ModuleFinder, caller: Module) -> None:
     so instead of excluding it completely, ignore it if it can't be found.
     """
     if WIN32:
-        caller.IgnoreName("readline")
+        caller.ignore_names.add("readline")

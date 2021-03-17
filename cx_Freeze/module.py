@@ -76,17 +76,12 @@ class Module:
             parts.append(f"path={self.path!r}")
         return "<Module {}>".format(", ".join(parts))
 
-    def AddGlobalName(self, name: str) -> None:
-        self.global_names.add(name)
-
-    def ExcludeName(self, name: str) -> None:
-        self.exclude_names.add(name)
-
-    def IgnoreName(self, name: str) -> None:
-        self.ignore_names.add(name)
-
     @property
     def in_file_system(self) -> bool:
+        """
+        Returns a boolean indicating if the module will be stored in the
+        file system or not.
+        """
         if self.parent is not None:
             return self.parent.in_file_system
         if self.path is None or self.file is None:

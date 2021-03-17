@@ -702,5 +702,7 @@ class ModuleFinder:
         return previous
 
     def ZipIncludeFiles(self, source_path, target_path):
-        """Include the file(s) in the library.zip"""
+        """
+        Include files or all of the files in a directory to the zip file.
+        """
         self.zip_includes.append((source_path, target_path))
