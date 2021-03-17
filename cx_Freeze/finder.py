@@ -59,9 +59,7 @@ class ModuleFinder:
         self.modules = []
         self.aliases = {}
         self.exclude_dependent_files = {}
-        self._modules = dict.fromkeys(
-            excludes or []
-        )  # type: Dict[str, Optional[Module]]
+        self._modules: Dict[str, Any] = dict.fromkeys(excludes or [])
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
@@ -691,7 +689,7 @@ class ModuleFinder:
                 "may not be needed on this platform.\n"
             )
 
-    def SetOptimizeFlag(self, optimize_flag):
+    def SetOptimizeFlag(self, optimize_flag: int) -> int:
         """Set a new value of optimize flag and returns the previous value."""
         previous = self.optimize_flag
         # The value of optimize_flag is propagated according to the user's
