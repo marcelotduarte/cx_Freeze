@@ -556,19 +556,19 @@ class Freezer:
             shutil.rmtree(self.targetdir, onerror=onerror)
 
         # verify and normalize names and paths
-        filenames = self._GetDefaultBinIncludes()
-        filenames += list(self.binIncludes or [])
+        filenames = list(self.binIncludes or [])
+        filenames += self._GetDefaultBinIncludes()
         self.binIncludes = [os.path.normcase(name) for name in filenames]
 
-        filenames = self._GetDefaultBinExcludes()
-        filenames += list(self.binExcludes or [])
+        filenames = list(self.binExcludes or [])
+        filenames += self._GetDefaultBinExcludes()
         self.binExcludes = [os.path.normcase(name) for name in filenames]
 
         paths = list(self.binPathIncludes or [])
         self.binPathIncludes = [os.path.normcase(name) for name in paths]
 
-        paths = self._GetDefaultBinPathExcludes()
-        paths += list(self.binPathExcludes or [])
+        paths = list(self.binPathExcludes or [])
+        paths += self._GetDefaultBinPathExcludes()
         self.binPathExcludes = [os.path.normcase(n) for n in paths]
 
         # control runtime files
