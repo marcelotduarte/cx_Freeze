@@ -61,7 +61,7 @@ class Freezer:
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
-        zipExcludePackages: Optional[List[str]] = ["*"],
+        zipExcludePackages: Optional[List[str]] = None,
     ):
         self.executables = list(executables)
         self.constantsModule = constantsModule or ConstantsModule()
@@ -69,26 +69,21 @@ class Freezer:
         self.excludes = list(excludes or [])
         self.packages = set(list(packages or []))
         self.replacePaths = list(replacePaths or [])
-        self.compress = compress
+        self.compress = True if compress is None else compress
         self.optimize_flag = optimizeFlag
-        self.path = path
+        self.path = sys.path if path is None else path
         self.include_msvcr = includeMSVCR
         self.targetdir = targetDir
-        binIncludes = self._GetDefaultBinIncludes() + list(binIncludes or [])
-        self.binIncludes = [os.path.normcase(n) for n in binIncludes]
-        binExcludes = self._GetDefaultBinExcludes() + list(binExcludes or [])
-        self.binExcludes = [os.path.normcase(n) for n in binExcludes]
-        binPathIncludes = binPathIncludes or []
-        self.binPathIncludes = [os.path.normcase(n) for n in binPathIncludes]
-        binPathExcludes = self._GetDefaultBinPathExcludes()
-        binPathExcludes.extend(binPathExcludes or [])
-        self.binPathExcludes = [os.path.normcase(n) for n in binPathExcludes]
+        self.binIncludes = binIncludes
+        self.binExcludes = binExcludes
+        self.binPathIncludes = binPathIncludes
+        self.binPathExcludes = binPathExcludes
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
         self.silent = silent
         self.metadata = metadata
-        self.zipIncludePackages = list(zipIncludePackages or [])
-        self.zipExcludePackages = list(zipExcludePackages or [])
+        self.zipIncludePackages = zipIncludePackages
+        self.zipExcludePackages = zipExcludePackages
         self._VerifyConfiguration()
 
     def _AddVersionResource(self, exe):
@@ -129,7 +124,7 @@ class Freezer:
         if norm_target_name in self.runtime_files:
             target_name = os.path.basename(target)
             target = os.path.join(self.targetdir, "lib", target_name)
-            # vcruntime140.dll should be duplicated
+            # vcruntime140.dll must be in the root and in the lib directory
             if norm_target_name in self.runtime_files_to_dup:
                 self.runtime_files_to_dup.remove(norm_target_name)
                 self._CopyFile(source, target, copyDependentFiles=False)
@@ -546,14 +541,37 @@ class Freezer:
         return True
 
     def _VerifyConfiguration(self):
-        if self.compress is None:
-            self.compress = True
-        if self.path is None:
-            self.path = sys.path
-        if self.targetdir is None:
-            self.targetdir = os.path.abspath("dist")
+        # starts external component
         if sys.platform == "linux":
             self.patchelf = Patchelf()
+
+        # starts in a clean directory
+        if self.targetdir is None:
+            self.targetdir = os.path.abspath("dist")
+        if os.path.isdir(self.targetdir):
+
+            def onerror(*args):
+                raise ConfigError("the build directory cannot be cleaned")
+
+            shutil.rmtree(self.targetdir, onerror=onerror)
+
+        # verify and normalize names and paths
+        filenames = self._GetDefaultBinIncludes()
+        filenames += list(self.binIncludes or [])
+        self.binIncludes = [os.path.normcase(name) for name in filenames]
+
+        filenames = self._GetDefaultBinExcludes()
+        filenames += list(self.binExcludes or [])
+        self.binExcludes = [os.path.normcase(name) for name in filenames]
+
+        paths = list(self.binPathIncludes or [])
+        self.binPathIncludes = [os.path.normcase(name) for name in paths]
+
+        paths = self._GetDefaultBinPathExcludes()
+        paths += list(self.binPathExcludes or [])
+        self.binPathExcludes = [os.path.normcase(n) for n in paths]
+
+        # control runtime files
         self.runtime_files = set()
         self.runtime_files_to_dup = set()
         if sys.platform == "win32":
@@ -564,24 +582,18 @@ class Freezer:
                 # just put on the exclusion list
                 self.binExcludes.extend(winmsvcr.FILES)
 
-        # starts in a clean directory
-        if os.path.isdir(self.targetdir):
-
-            def onerror(*args):
-                raise ConfigError("the build directory cannot be cleaned")
-
-            shutil.rmtree(self.targetdir, onerror=onerror)
-
-        for source_filename, target_filename in (
-            self.includeFiles + self.zipIncludes
-        ):
-            if not os.path.exists(source_filename):
-                raise ConfigError(
-                    f"cannot find file/directory named {source_filename}"
-                )
-            if os.path.isabs(target_filename):
+        for source, target in self.includeFiles + self.zipIncludes:
+            if not os.path.exists(source):
+                raise ConfigError(f"cannot find file/directory named {source}")
+            if os.path.isabs(target):
                 raise ConfigError("target file/directory cannot be absolute")
 
+        if self.zipIncludePackages is None and self.zipExcludePackages is None:
+            self.zipIncludePackages = []
+            self.zipExcludePackages = ["*"]
+        else:
+            self.zipIncludePackages = list(self.zipIncludePackages or [])
+            self.zipExcludePackages = list(self.zipExcludePackages or [])
         self.zipExcludeAllPackages = "*" in self.zipExcludePackages
         self.zipIncludeAllPackages = "*" in self.zipIncludePackages
         if self.zipExcludeAllPackages and self.zipIncludeAllPackages:
@@ -592,7 +604,7 @@ class Freezer:
         for name in self.zipIncludePackages:
             if name in self.zipExcludePackages:
                 raise ConfigError(
-                    f"package {name} cannot be both included and "
+                    f"package {name!r} cannot be both included and "
                     "excluded from zip file"
                 )
 

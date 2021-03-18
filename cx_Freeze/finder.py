@@ -10,7 +10,7 @@ import os
 import sys
 from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import opcode
 
 from .common import code_object_replace
