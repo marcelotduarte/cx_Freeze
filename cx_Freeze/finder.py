@@ -13,8 +13,8 @@ from types import CodeType
 from typing import Dict, List, Optional, Tuple, Union
 import opcode
 
-from cx_Freeze.common import code_object_replace
-from cx_Freeze.module import Module
+from .common import code_object_replace
+from .module import Module
 
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]

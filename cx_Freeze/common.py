@@ -7,6 +7,8 @@ import types
 from typing import List, Tuple, Optional, Union
 import warnings
 
+from .exception import ConfigError
+
 
 def get_resource_file_path(dirname: str, name: str, ext: str) -> str:
     """
@@ -128,17 +130,3 @@ def validate_args(arg, snake_value, camelValue):
             f"next major version -> use the new name {arg!r}"
         )
     return snake_value or camelValue
-
-
-class ConfigError(Exception):
-    """
-    Raised when an error is detected in the configuration.
-    The associated value is a string indicating what precisely went wrong.
-    """
-
-    def __init__(self, msg: str):
-        self.what = msg
-        super().__init__()
-
-    def __str__(self):
-        return self.what

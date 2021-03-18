@@ -3,6 +3,8 @@ import subprocess
 import stat
 from typing import List, Dict, Optional, Set, Iterable
 
+from .exception import DarwinException
+
 
 # In a MachO file, need to deal specially with links that use @executable_path,
 # @loader_path, @rpath
@@ -15,10 +17,6 @@ from typing import List, Dict, Optional, Set, Iterable
 # Resolving these variables (particularly @rpath) requires tracing through the
 # sequence linked MachO files leading the the current file, to determine which
 # directories are included in the current rpath.
-
-
-class DarwinException(Exception):
-    pass
 
 
 def _isMachOFile(path: str) -> bool:
