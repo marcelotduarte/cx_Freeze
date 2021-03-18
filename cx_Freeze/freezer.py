@@ -2,33 +2,28 @@
 Base class for freezing scripts into executables.
 """
 
-import datetime
 from distutils.dist import DistributionMetadata
 import distutils.sysconfig
 from importlib.util import MAGIC_NUMBER
-from keyword import iskeyword
 import marshal
 import os
 import shutil
-import socket
 import stat
-import string
 import struct
 import sys
 import sysconfig
-import tempfile
 import time
 from typing import Any, Dict, List, Optional
-import uuid
 import zipfile
 
 from .common import (
     ConfigError,
     get_resource_file_path,
     process_path_specs,
-    validate_args,
 )
+from .constantesmodule import ConstantsModule
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
+from .executable import Executable
 from .finder import ModuleFinder
 
 if sys.platform == "linux":
@@ -36,12 +31,13 @@ if sys.platform == "linux":
 if sys.platform == "win32":
     from . import winmsvcr
     from . import util as winutil
+    from .winversioninfo import VersionInfo
+    try:
+        from win32verstamp import stamp as version_stamp
+    except:
+        version_stamp = None
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
-
-STRINGREPLACE = list(
-    string.whitespace + string.punctuation.replace(".", "").replace("_", "")
-)
 
 
 class Freezer:
@@ -99,9 +95,7 @@ class Freezer:
 
     def _AddVersionResource(self, exe):
         warning_msg = "*** WARNING *** unable to create version resource"
-        try:
-            from win32verstamp import stamp
-        except:
+        if version_stamp is None:
             print(warning_msg)
             print("install pywin32 extensions first")
             return
@@ -119,7 +113,7 @@ class Freezer:
             copyright=exe.copyright,
             trademarks=exe.trademarks,
         )
-        stamp(filename, versionInfo)
+        version_stamp(filename, versionInfo)
 
     def _CopyFile(
         self,
@@ -605,7 +599,7 @@ class Freezer:
                 )
 
     def _WriteModules(self, filename, finder):
-        self.constantsModule.Create(finder)
+        self.constantsModule.create(finder)
         modules = [
             m for m in finder.modules if m.name not in self.excludeModules
         ]
@@ -813,210 +807,3 @@ class Freezer:
         # do a final pass to clean up dependency references in Mach-O files.
         if sys.platform == "darwin":
             self.darwinTracker.finalizeReferences()
-
-
-class Executable:
-
-    _base: str
-    _init_script: str
-    _internal_name: str
-    _name: str
-    _ext: str
-
-    def __init__(
-        self,
-        script: str,
-        init_script: Optional[str] = None,
-        base: Optional[str] = None,
-        target_name: Optional[str] = None,
-        icon: Optional[str] = None,
-        shortcut_name: Optional[str] = None,
-        shortcut_dir: Optional[str] = None,
-        copyright: Optional[str] = None,
-        trademarks: Optional[str] = None,
-        *,
-        initScript: Optional[str] = None,
-        targetName: Optional[str] = None,
-        shortcutName: Optional[str] = None,
-        shortcutDir: Optional[str] = None,
-    ):
-        self.main_script: str = script
-        self.init_script = validate_args(
-            "init_script", init_script, initScript
-        )
-        self.base = base
-        self.target_name = validate_args(
-            "target_name", target_name, targetName
-        )
-        self.icon = icon
-        self.shortcut_name = validate_args(
-            "shortcut_name", shortcut_name, shortcutName
-        )
-        self.shortcut_dir = validate_args(
-            "shortcut_dir", shortcut_dir, shortcutDir
-        )
-        self.copyright = copyright
-        self.trademarks = trademarks
-
-    def __repr__(self):
-        return f"<Executable script={self.main_script}>"
-
-    @property
-    def base(self) -> str:
-        return self._base
-
-    @base.setter
-    def base(self, name: Optional[str]):
-        name = name or "Console"
-        ext = ".exe" if sys.platform == "win32" else ""
-        self._base = get_resource_file_path("bases", name, ext)
-        if self._base is None:
-            raise ConfigError(f"no base named {name}")
-
-    @property
-    def init_module_name(self) -> str:
-        return f"{self._internal_name}__init__"
-
-    @property
-    def init_script(self) -> str:
-        return self._init_script
-
-    @init_script.setter
-    def init_script(self, name: Optional[str]):
-        name = name or "Console"
-        self._init_script = get_resource_file_path("initscripts", name, ".py")
-        if self._init_script is None:
-            raise ConfigError(f"no init_script named {name}")
-
-    @property
-    def main_module_name(self) -> str:
-        return f"{self._internal_name}__main__"
-
-    @property
-    def target_name(self) -> str:
-        return self._name + self._ext
-
-    @target_name.setter
-    def target_name(self, name: Optional[str]):
-        if name is None:
-            name = os.path.splitext(os.path.basename(self.main_script))[0]
-            ext = os.path.splitext(self.base)[1]
-        else:
-            if name != os.path.basename(name):
-                raise ConfigError(
-                    "target_name should only be the name, for example: "
-                    f"{os.path.basename(name)}"
-                )
-            if sys.platform == "win32":
-                if name.endswith(".exe"):
-                    name, ext = os.path.splitext(name)
-                else:
-                    ext = ".exe"
-            else:
-                ext = ""
-        self._name = name
-        self._ext = ext
-        name = name.partition(".")[0]
-        if not name.isidentifier():
-            for ch in STRINGREPLACE:
-                name = name.replace(ch, "_")
-        name = os.path.normcase(name)
-        if not name.isidentifier():
-            raise ConfigError(f"Invalid name for target_name ({self._name!r})")
-        self._internal_name = name
-
-
-class ConstantsModule:
-    def __init__(
-        self,
-        release_string: Optional[str] = None,
-        copyright_string: Optional[str] = None,
-        module_name: str = "BUILD_CONSTANTS",
-        time_format: str = "%B %d, %Y %H:%M:%S",
-        constants: Optional[List[str]] = None,
-    ):
-        self.module_name = module_name
-        self.time_format = time_format
-        self.values = {}
-        self.values["BUILD_RELEASE_STRING"] = release_string
-        self.values["BUILD_COPYRIGHT"] = copyright_string
-        if constants:
-            for constant in constants:
-                parts = constant.split("=", maxsplit=1)
-                if len(parts) == 1:
-                    name = constant
-                    value = None
-                else:
-                    name, string_value = parts
-                    value = eval(string_value)
-                if (not name.isidentifier()) or iskeyword(name):
-                    raise ConfigError(
-                        f"Invalid constant name in ConstantsModule ({name!r})"
-                    )
-                self.values[name] = value
-
-    def Create(self, finder):
-        """Create the module which consists of declaration statements for each
-        of the values."""
-        today = datetime.datetime.today()
-        source_timestamp = 0
-        for module in finder.modules:
-            if module.file is None:
-                continue
-            if module.source_is_zip_file:
-                continue
-            if not os.path.exists(module.file):
-                raise ConfigError(
-                    f"No file named {module.file} (for module {module.name})"
-                )
-            timestamp = os.stat(module.file).st_mtime
-            source_timestamp = max(source_timestamp, timestamp)
-        stamp = datetime.datetime.fromtimestamp(source_timestamp)
-        self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
-        self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
-        self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
-        source_parts = []
-        names = list(self.values.keys())
-        names.sort()
-        for name in names:
-            value = self.values[name]
-            source_parts.append(f"{name} = {value!r}")
-        filename = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}.py")
-        with open(filename, "w") as fp:
-            fp.write("\n".join(source_parts))
-        module = finder.IncludeFile(filename, self.module_name)
-        os.remove(filename)
-        return module
-
-
-class VersionInfo:
-    def __init__(
-        self,
-        version,
-        internalName=None,
-        originalFileName=None,
-        comments=None,
-        company=None,
-        description=None,
-        copyright=None,
-        trademarks=None,
-        product=None,
-        dll=False,
-        debug=False,
-        verbose=True,
-    ):
-        parts = version.split(".")
-        while len(parts) < 4:
-            parts.append("0")
-        self.version = ".".join(parts)
-        self.internal_name = internalName
-        self.original_filename = originalFileName
-        self.comments = comments
-        self.company = company
-        self.description = description
-        self.copyright = copyright
-        self.trademarks = trademarks
-        self.product = product
-        self.dll = dll
-        self.debug = debug
-        self.verbose = verbose
