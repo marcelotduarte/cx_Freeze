@@ -7,7 +7,8 @@ import string
 import sys
 from typing import Optional
 
-from .common import ConfigError, get_resource_file_path, validate_args
+from .common import get_resource_file_path, validate_args
+from .exception import ConfigError
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")

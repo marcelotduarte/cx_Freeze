@@ -10,7 +10,7 @@ import tempfile
 from typing import Dict, List, Optional
 import uuid
 
-from .common import ConfigError
+from .exception import ConfigError
 from .finder import ModuleFinder, Module
 
 __all__ = ["ConstantsModule"]

@@ -12,8 +12,14 @@ import os
 import sys
 import warnings
 
-import cx_Freeze
-from cx_Freeze.common import normalize_to_list
+from .common import normalize_to_list
+from .constantesmodule import ConstantsModule
+from .freezer import Freezer
+
+if sys.platform == "win32":
+    from .windist import bdist_msi
+elif sys.platform == "darwin":
+    from .macdist import bdist_dmg, bdist_mac
 
 __all__ = [
     "bdist_rpm",
@@ -224,14 +230,14 @@ class build_exe(distutils.core.Command):
 
     def run(self):
         metadata = self.distribution.metadata
-        constants_module = cx_Freeze.ConstantsModule(
+        constants_module = ConstantsModule(
             metadata.version, constants=self.constants
         )
         if self.namespace_packages:
             warnings.warn(
                 "namespace-packages is obsolete and will be removed in the next version"
             )
-        freezer = cx_Freeze.Freezer(
+        freezer = Freezer(
             self.distribution.executables,
             constants_module,
             self.includes,
@@ -379,12 +385,12 @@ def setup(**attrs):
     attrs.setdefault("distclass", Distribution)
     command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _AddCommandClass(command_classes, "bdist_msi", cx_Freeze.bdist_msi)
+        _AddCommandClass(command_classes, "bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
-        _AddCommandClass(command_classes, "bdist_dmg", cx_Freeze.bdist_dmg)
-        _AddCommandClass(command_classes, "bdist_mac", cx_Freeze.bdist_mac)
+        _AddCommandClass(command_classes, "bdist_dmg", bdist_dmg)
+        _AddCommandClass(command_classes, "bdist_mac", bdist_mac)
     else:
-        _AddCommandClass(command_classes, "bdist_rpm", cx_Freeze.bdist_rpm)
+        _AddCommandClass(command_classes, "bdist_rpm", bdist_rpm)
     _AddCommandClass(command_classes, "build", build)
     _AddCommandClass(command_classes, "build_exe", build_exe)
     _AddCommandClass(command_classes, "install", install)

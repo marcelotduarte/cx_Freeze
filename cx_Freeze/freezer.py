@@ -16,13 +16,10 @@ import time
 from typing import Any, Dict, List, Optional
 import zipfile
 
-from .common import (
-    ConfigError,
-    get_resource_file_path,
-    process_path_specs,
-)
+from .common import get_resource_file_path, process_path_specs
 from .constantesmodule import ConstantsModule
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
+from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
 
@@ -32,6 +29,7 @@ if sys.platform == "win32":
     from . import winmsvcr
     from . import util as winutil
     from .winversioninfo import VersionInfo
+
     try:
         from win32verstamp import stamp as version_stamp
     except:
