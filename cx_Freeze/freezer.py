@@ -650,11 +650,13 @@ class Freezer:
 
                     # remove the subfolders which belong to excluded modules
                     excludedFolders = [m[len(module.name) + 1:].replace(".", os.sep)
-                                       for m in self.excludeModules if m.startswith(module.name)]
+                                       for m in self.excludeModules if m.split(".")[0] == parts[0]]
                     for folder in excludedFolders:
                         folderToRemove = os.path.join(targetPackageDir, folder)
-                        print("Removing", folderToRemove + "...")
-                        shutil.rmtree(folderToRemove)
+                        if os.path.isdir(folderToRemove):
+                            if not self.silent:
+                                print("Removing", folderToRemove + "...")
+                            shutil.rmtree(folderToRemove)
 
             # if an extension module is found in a package that is to be
             # included in a zip file, copy the actual file to the build
@@ -757,7 +759,6 @@ class Freezer:
 
     def Freeze(self):
         self.finder = None
-        self.excludeModules = self.excludes
         self.dependentFiles = {}  # type: Dict[Any, List]
         self.files_copied = set()
         self.linkerWarnings = {}
@@ -768,6 +769,7 @@ class Freezer:
             self.darwinTracker = DarwinFileTracker()
 
         self.finder = self._GetModuleFinder()
+        self.excludeModules = self.finder.excludes
         for executable in self.executables:
             self._FreezeExecutable(executable)
         targetDir = self.targetDir
