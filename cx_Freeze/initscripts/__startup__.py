@@ -46,6 +46,13 @@ sys.meta_path.append(ExtensionFinder)
 
 
 def run():
+    # fix PATH for anaconda/miniconda
+    if sys.platform == "win32":
+        add_to_path = os.path.join(os.path.dirname(sys.executable), "lib")
+        os.environ["PATH"] = add_to_path + ";" + os.environ["PATH"]
+    # get the real name of __init__ script
+    # basically, the basename of executable plus __init__
+    # but can be renamed when only one executable exists
     name = os.path.basename(sys.executable)
     if sys.platform == "win32":
         name, _ = os.path.splitext(name)
@@ -66,7 +73,7 @@ def run():
         if len(files) != 1:
             raise RuntimeError(
                 "Apparently, the original executable has been renamed to "
-                f"'{name}'. When multiple executables are generated, "
+                f"{name!r}. When multiple executables are generated, "
                 "renaming is not allowed."
             ) from None
         name = files[0]

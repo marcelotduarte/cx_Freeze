@@ -3,7 +3,9 @@ import sys
 
 from nose.tools import assert_raises
 
-from cx_Freeze.common import ConfigError, process_path_specs
+from cx_Freeze.common import process_path_specs
+from cx_Freeze.exception import ConfigError
+
 
 rootdir = "C:\\" if sys.platform == "win32" else "/"
 

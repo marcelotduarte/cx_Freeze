@@ -17,17 +17,16 @@ executable which can then be distributed without requiring a Python \
 installation.
 """
 
-VERSION = """
-%(prog)s {}
+VERSION = f"""
+%(prog)s {cx_Freeze.__version__}
+Copyright (c) 2020-2021 Marcelo Duarte. All rights reserved.
 Copyright (c) 2007-2020 Anthony Tuininga. All rights reserved.
 Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.
-""".format(
-    cx_Freeze.__version__
-)
+"""
 
 
 def prepare_parser():
-    parser = argparse.ArgumentParser(epilog=VERSION)
+    parser = argparse.ArgumentParser(prog="cxfreeze", epilog=VERSION)
     parser.add_argument("--version", action="version", version=VERSION)
     parser.add_argument("script", nargs="?", metavar="SCRIPT")
     parser.add_argument(

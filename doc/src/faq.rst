@@ -4,10 +4,10 @@ Frequently Asked Questions
 Problems with running frozen programs
 -------------------------------------
 
-A common problem is that cx_Freeze hasn't automatically detected that a file
+A common problem is that **cx_Freeze** hasn't automatically detected that a file
 needs to be copied. Modules that your code imports are detected, but if they're
-dynamically loaded - e.g. by a plugin system - you have to tell cx_Freeze about
-them. This is easy using a :doc:`setup script <distutils>`:
+dynamically loaded - e.g. by a plugin system - you have to tell **cx_Freeze**
+about them. This is easy using a :doc:`setup script <distutils>`:
 
 * For Python code, specify the module names in the ``includes`` or ``packages``
   options.
@@ -28,21 +28,21 @@ There are two ways to debug what's going on:
    :doc:`script`). This doesn't use a console window, and reports errors in a
    dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen
-   executable from the command line. This will let you see any error messages in
-   the console.
+   executable from the command line. This will let you see any error messages
+   in the console.
 
 Freezing for other platforms
 ----------------------------
 
-cx_Freeze works on Windows, Mac and Linux, but on each platform it only makes
-an executable that runs on that platform. So if you want to freeze your program
-for Windows, freeze it on Windows; if you want to run it on Macs, freeze it on
-a Mac.
+**cx_Freeze** works on Windows, Mac and Linux, but on each platform it only
+makes an executable that runs on that platform. So if you want to freeze your
+programs for Windows, freeze it on Windows; if you want to run it on Macs,
+freeze it on a Mac.
 
 At a pinch, you can try to make a Windows executable using
 `Wine <https://www.winehq.org/>`_. Our experience is that you need to copy some
-files in manually after cx_Freeze has run to make the executable work. We don't
-recommend this option.
+files in manually after **cx_Freeze** has run to make the executable work. We
+don't recommend this option.
 
 .. _data_files:
 
@@ -72,10 +72,10 @@ system <https://doc.qt.io/qt-5/resources.html>`_.
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------
 
-Python 3.5-3.8 on Windows requires the Visual C++ Redistributable for Visual
-Studio 2015 or 2017 (the redistributables are shared), and because of how this
-is installed, cx_Freeze doesn't automatically copy it for your application.
-It's also not clear whether everyone has the right to redistribute the DLLs.
+Python 3.6-3.9 on Windows requires the Visual C++ Redistributable for Visual
+Studio 2015, 2017 or 2019 (the redistributables are shared), and because of how
+this is installed, cx_Freeze doesn't automatically copy it for your application.
+
 You're responsible for checking the license conditions associated with the DLLs
 you have installed.
 
@@ -96,17 +96,12 @@ you have installed.
 Single-file executables
 -----------------------
 
-cx_Freeze does not support building a single file exe, where all of the
+**cx_Freeze** does not support building a single file exe, where all of the
 libraries for your application are embedded in one executable file.
 
-You can use `IExpress <https://en.wikipedia.org/wiki/IExpress>`_ to compress the
-build directory from cx_Freeze into a self-extracting archive: an exe which
-unpacks your application into a temporary directory and runs it. IExpress is a
-utility that's included with Windows, intended for making installers, but it
-works equally well if you tell it to run the cx_Freeze-built exe after
-extraction.
+You can use other tools to compress the build directory from **cx_Freeze**
+into a self-extracting archive:
 
-Alternatively, you can create a `self extracting archive using 7zip
-<https://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_. This is a bit more
-complex than using IExpress, but might provide more flexibility, and allows you
-to build your application using only open source tools.
+* `IExpress <https://en.wikipedia.org/wiki/IExpress>`_
+
+* `7zip sfx <https://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_

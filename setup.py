@@ -22,7 +22,6 @@ class build_ext(distutils.command.build_ext.build_ext):
             return
         if WIN32 and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
-        os.environ["LD_RUN_PATH"] = "${ORIGIN}/../lib:${ORIGIN}/lib"
         objects = self.compiler.compile(
             ext.sources,
             output_dir=self.build_temp,
@@ -69,6 +68,8 @@ class build_ext(distutils.command.build_ext.build_ext):
                 extra_args.append("-Wl,-export_dynamic")
             else:
                 extra_args.append("-s")
+            extra_args.append("-Wl,-rpath,$ORIGIN/lib")
+            extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
         self.compiler.link_executable(
             objects,
             fullname,
@@ -164,11 +165,6 @@ if __name__ == "__main__":
         if ext != ".py":
             continue
         package_data.append(f"initscripts/{filename}")
-    for filename in os.listdir(os.path.join("cx_Freeze", "samples")):
-        sample_dir = os.path.join("cx_Freeze", "samples", filename)
-        if not os.path.isdir(sample_dir):
-            continue
-        package_data.append(f"samples/{filename}/*.py")
 
     setup(
         cmdclass={"build_ext": build_ext},

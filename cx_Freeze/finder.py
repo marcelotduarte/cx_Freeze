@@ -8,12 +8,13 @@ import importlib.machinery
 import logging
 import os
 import sys
+from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import opcode
 
-from cx_Freeze.common import code_object_replace
-from cx_Freeze.module import Module
+from .common import code_object_replace
+from .module import Module
 
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
@@ -58,13 +59,12 @@ class ModuleFinder:
         self.modules = []
         self.aliases = {}
         self.exclude_dependent_files = {}
-        self._modules = dict.fromkeys(
-            excludes or []
-        )  # type: Dict[str, Optional[Module]]
+        self._modules: Dict[str, Any] = dict.fromkeys(excludes or [])
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
         self._hooks.initialize(self)
+        self.dist_cachedir = TemporaryDirectory(prefix="cxfreeze")
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
@@ -102,7 +102,9 @@ class ModuleFinder:
         """
         module = self._modules.get(name)
         if module is None:
-            module = Module(name, path, file_name, parent)
+            module = Module(
+                name, path, file_name, parent, rootcachedir=self.dist_cachedir
+            )
             self._modules[name] = module
             self.modules.append(module)
             if name in self._bad_modules:
@@ -115,7 +117,7 @@ class ModuleFinder:
                 and module.name not in self.zip_exclude_packages
                 or module.name in self.zip_include_packages
             ):
-                module.store_in_file_system = False
+                module.in_file_system = False
         if module.path is None and path is not None:
             module.path = path
         if module.file is None and file_name is not None:
@@ -687,7 +689,7 @@ class ModuleFinder:
                 "may not be needed on this platform.\n"
             )
 
-    def SetOptimizeFlag(self, optimize_flag):
+    def SetOptimizeFlag(self, optimize_flag: int) -> int:
         """Set a new value of optimize flag and returns the previous value."""
         previous = self.optimize_flag
         # The value of optimize_flag is propagated according to the user's
@@ -698,5 +700,7 @@ class ModuleFinder:
         return previous
 
     def ZipIncludeFiles(self, source_path, target_path):
-        """Include the file(s) in the library.zip"""
+        """
+        Include files or all of the files in a directory to the zip file.
+        """
         self.zip_includes.append((source_path, target_path))
