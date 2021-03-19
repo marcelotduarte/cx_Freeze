@@ -595,7 +595,7 @@ class Freezer:
     def _WriteModules(self, fileName, finder):
         self.constantsModule.Create(finder)
         modules = [
-            m for m in finder.modules if m.name not in self.excludeModules
+            m for m in finder.modules if m.name not in finder.excludes
         ]
         modules.sort(key=lambda m: m.name)
 
@@ -650,7 +650,7 @@ class Freezer:
 
                     # remove the subfolders which belong to excluded modules
                     excludedFolders = [m[len(module.name) + 1:].replace(".", os.sep)
-                                       for m in self.excludeModules if m.split(".")[0] == parts[0]]
+                                       for m in self.finder.excludes if m.split(".")[0] == parts[0]]
                     for folder in excludedFolders:
                         folderToRemove = os.path.join(targetPackageDir, folder)
                         if os.path.isdir(folderToRemove):
@@ -769,7 +769,6 @@ class Freezer:
             self.darwinTracker = DarwinFileTracker()
 
         self.finder = self._GetModuleFinder()
-        self.excludeModules = self.finder.excludes
         for executable in self.executables:
             self._FreezeExecutable(executable)
         targetDir = self.targetDir
