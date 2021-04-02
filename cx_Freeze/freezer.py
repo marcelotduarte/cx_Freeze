@@ -116,6 +116,9 @@ class Freezer:
         includeMode=False,
         machOReference: Optional[MachOReference] = None,
     ):
+        if not self._ShouldCopyFile(source):
+            return
+
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
         norm_target_name = os.path.basename(normalizedTarget)
@@ -447,12 +450,6 @@ class Freezer:
                         dependentFile = dependentFile[:pos].strip()
                     if dependentFile:
                         dependentFiles.append(dependentFile)
-
-            dependentFiles = [
-                os.path.normcase(f)
-                for f in dependentFiles
-                if self._ShouldCopyFile(f)
-            ]
             self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
@@ -565,11 +562,12 @@ class Freezer:
         self.binExcludes = [os.path.normcase(name) for name in filenames]
 
         paths = list(self.binPathIncludes or [])
+        paths += [path for path in self.path if os.path.isdir(path)]
         self.binPathIncludes = [os.path.normcase(name) for name in paths]
 
         paths = list(self.binPathExcludes or [])
         paths += self._GetDefaultBinPathExcludes()
-        self.binPathExcludes = [os.path.normcase(n) for n in paths]
+        self.binPathExcludes = [os.path.normcase(name) for name in paths]
 
         # control runtime files
         self.runtime_files = set()
