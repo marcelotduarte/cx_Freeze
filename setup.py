@@ -88,35 +88,18 @@ class build_ext(distutils.command.build_ext.build_ext):
         return filename[: -len(get_config_var("EXT_SUFFIX"))] + exe_extension
 
 
-def find_cx_logging():
-    cxfreeze_dir = os.path.dirname(os.path.abspath(__file__))
-    logging_dir = os.path.join(cxfreeze_dir, "cx_Logging")
-    try:
-        subprocess.run(
-            ["git", "submodule", "init", "cx_Logging"], cwd=cxfreeze_dir
-        )
-        subprocess.run(
-            ["git", "submodule", "update", "cx_Logging"], cwd=cxfreeze_dir
-        )
-    except (FileNotFoundError, subprocess.SubprocessError):
-        pass
-    if not os.path.exists(logging_dir):
-        return None, None
-    platform = distutils.util.get_platform()
-    ver_major, ver_minor = sys.version_info[0:2]
-    sub_dir = f"implib.{platform}-{ver_major}.{ver_minor}"
-    import_library_dir = os.path.join(logging_dir, "build", sub_dir)
-    include_dir = os.path.join(logging_dir, "src")
-    if not os.path.exists(import_library_dir):
-        try:
-            subprocess.run(
-                [sys.executable, "setup.py", "build"], cwd=logging_dir
-            )
-        except (FileNotFoundError, subprocess.SubprocessError):
-            pass
-    if not os.path.exists(import_library_dir):
-        return None, None
-    return include_dir, import_library_dir
+def fix_cx_logging():
+    from urllib.request import urlopen
+
+    source_url = (
+        "https://raw.githubusercontent.com/anthony-tuininga/cx_Logging"
+        "/master/src/cx_Logging.h"
+    )
+    target_path = os.path.join(sys.exec_prefix, "Include", "cx_Logging.h")
+    if not os.path.exists(target_path):
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+        with urlopen(source_url) as source, open(target_path, "w+b") as target:
+            target.write(source.read())
 
 
 if __name__ == "__main__":
@@ -141,17 +124,14 @@ if __name__ == "__main__":
             libraries=libraries + ["user32"],
         )
         extensions.append(gui)
-        include_dir, library_dir = find_cx_logging()
-        if include_dir is not None:
-            service = Extension(
-                "cx_Freeze.bases.Win32Service",
-                ["source/bases/Win32Service.c"],
-                depends=depends,
-                library_dirs=[library_dir],
-                libraries=libraries + ["advapi32", "cx_Logging"],
-                include_dirs=[include_dir],
-            )
-            extensions.append(service)
+        fix_cx_logging()
+        service = Extension(
+            "cx_Freeze.bases.Win32Service",
+            ["source/bases/Win32Service.c"],
+            depends=depends,
+            libraries=libraries + ["advapi32", "cx_Logging"],
+        )
+        extensions.append(service)
         # build utility module
         util_module = Extension(
             "cx_Freeze.util", ["source/util.c"], libraries=libraries
