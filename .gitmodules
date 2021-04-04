@@ -1,4 +1,0 @@
-[submodule "cx_Logging"]
-	path = cx_Logging
-	url = https://github.com/anthony-tuininga/cx_Logging.git
-	branch = master
