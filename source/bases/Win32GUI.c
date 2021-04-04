@@ -4,9 +4,9 @@
 //-----------------------------------------------------------------------------
 
 #define PY_SSIZE_T_CLEAN
-
 #include <Python.h>
 #include <locale.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shlwapi.h>
 
