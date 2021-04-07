@@ -5,6 +5,7 @@ Distutils script for cx_Freeze.
 from setuptools import setup, Extension
 import distutils.command.build_ext
 from distutils.sysconfig import get_config_var
+import glob
 import os
 import subprocess
 import sys
@@ -39,6 +40,19 @@ class build_ext(distutils.command.build_ext.build_ext):
         extra_args = ext.extra_link_args or []
         if WIN32:
             compiler_type = self.compiler.compiler_type
+            # support for delay load [windows]
+            for arg in extra_args[:]:
+                if arg.startswith("/DELAYLOAD:"):
+                    lib_name = arg[len("/DELAYLOAD:") :]
+                    extra_args.remove(arg)
+                    if compiler_type == "msvc":
+                        dll_path = self._get_dll_path(lib_name)
+                        dll_name = os.path.basename(dll_path)
+                        extra_args.append(f"/DELAYLOAD:{dll_name}")
+                        if lib_name not in libraries:
+                            libraries.append(lib_name)
+                        if "delayimp" not in libraries:
+                            libraries.append("delayimp")
             if compiler_type == "msvc":
                 extra_args.append("/MANIFEST")
             elif compiler_type == "mingw32":
@@ -86,6 +100,17 @@ class build_ext(distutils.command.build_ext.build_ext):
             return filename
         exe_extension = self.compiler.exe_extension or ""
         return filename[: -len(get_config_var("EXT_SUFFIX"))] + exe_extension
+
+    def _get_dll_path(self, name):
+        """find the dll by name, priority by extension"""
+        paths = [path for path in sys.path if os.path.isdir(path)]
+        dll_path = None
+        for path in paths:
+            for dll_path in glob.glob(os.path.join(path, f"{name}*.pyd")):
+                return dll_path
+            for dll_path in glob.glob(os.path.join(path, f"{name}*.dll")):
+                return dll_path
+        return f"{name}.dll"
 
 
 def get_cx_logging_h_dir():
