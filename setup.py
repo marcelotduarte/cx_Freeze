@@ -88,18 +88,11 @@ class build_ext(distutils.command.build_ext.build_ext):
         return filename[: -len(get_config_var("EXT_SUFFIX"))] + exe_extension
 
 
-def fix_cx_logging():
-    from urllib.request import urlopen
-
-    source_url = (
-        "https://raw.githubusercontent.com/anthony-tuininga/cx_Logging"
-        "/master/src/cx_Logging.h"
-    )
+def get_cx_logging_h_dir():
     target_path = os.path.join(sys.exec_prefix, "Include", "cx_Logging.h")
-    if not os.path.exists(target_path):
-        os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        with urlopen(source_url) as source, open(target_path, "w+b") as target:
-            target.write(source.read())
+    if os.path.exists(target_path):
+        return os.path.dirname(target_path)
+    return os.path.join(os.path.dirname(__file__), "source", "bases")
 
 
 if __name__ == "__main__":
@@ -124,11 +117,11 @@ if __name__ == "__main__":
             libraries=libraries + ["user32"],
         )
         extensions.append(gui)
-        fix_cx_logging()
         service = Extension(
             "cx_Freeze.bases.Win32Service",
             ["source/bases/Win32Service.c"],
             depends=depends,
+            include_dirs=[get_cx_logging_h_dir()],
             libraries=libraries + ["advapi32", "cx_Logging"],
         )
         extensions.append(service)
