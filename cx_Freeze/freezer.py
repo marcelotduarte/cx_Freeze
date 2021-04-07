@@ -4,6 +4,7 @@ Base class for freezing scripts into executables.
 
 from distutils.dist import DistributionMetadata
 import distutils.sysconfig
+import distutils.util
 from importlib.util import MAGIC_NUMBER
 import marshal
 import os
@@ -544,7 +545,10 @@ class Freezer:
 
         # starts in a clean directory
         if self.targetdir is None:
-            self.targetdir = os.path.abspath("dist")
+            platform = distutils.util.get_platform()
+            ver_major, ver_minor = sys.version_info[0:2]
+            dir_name = f"exe.{platform}-{ver_major}.{ver_minor}"
+            self.targetdir = os.path.abspath(os.path.join("build", dir_name))
         if os.path.isdir(self.targetdir):
 
             def onerror(*args):
