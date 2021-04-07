@@ -12,6 +12,7 @@
 // where <dir> refers to the directory in which the executable is found
 #if defined(MS_WINDOWS)
     #define CX_PATH_FORMAT              "%ls\\lib\\library.zip;%ls\\lib"
+    #define CX_LIB                      L"lib"
 #else
     #define CX_PATH_FORMAT              "%ls/lib/library.zip:%ls/lib"
 #endif
@@ -19,6 +20,9 @@
 // global variables (used for simplicity)
 static wchar_t g_ExecutableName[MAXPATHLEN + 1];
 static wchar_t g_ExecutableDirName[MAXPATHLEN + 1];
+#if defined(MS_WINDOWS)
+static wchar_t g_LibDirName[MAXPATHLEN + 1];
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -28,6 +32,7 @@ static wchar_t g_ExecutableDirName[MAXPATHLEN + 1];
 // is searched to locate the full path of the executable. After that, on
 // platforms other than Windows links are followed in order to find the actual
 // executable path.
+// On Windows platform, the DLL search path is changed here.
 //-----------------------------------------------------------------------------
 static int SetExecutableName(const wchar_t *wargv0)
 {
@@ -37,6 +42,11 @@ static int SetExecutableName(const wchar_t *wargv0)
     memcpy(g_ExecutableDirName, g_ExecutableName,
             (MAXPATHLEN + 1) * sizeof(wchar_t));
     PathRemoveFileSpecW(g_ExecutableDirName);
+
+    // set lib directory as default for dll search
+    PathCombineW(g_LibDirName, g_ExecutableDirName, CX_LIB);
+    if (!SetDllDirectoryW(g_LibDirName))
+        return FatalError("Unable to change DLL search path!");
 
 #else
 
@@ -49,7 +59,7 @@ static int SetExecutableName(const wchar_t *wargv0)
     char *argv0;
 
     argv0 = Py_EncodeLocale(wargv0, NULL);
-     if (!argv0)
+    if (!argv0)
         return FatalError("Unable to convert argument to bytes!");
 
     // check to see if path contains a separator
