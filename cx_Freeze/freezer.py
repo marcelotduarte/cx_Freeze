@@ -341,7 +341,7 @@ class Freezer:
         because they are part of a package which requires independent
         installation anyway."""
         if sys.platform == "win32":
-            return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
+            return ["comctl32.dll", "oci.dll"]
         return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _GetDefaultBinIncludes(self):

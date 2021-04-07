@@ -185,7 +185,8 @@ if __name__ == "__main__":
             ["source/bases/Win32Service.c"],
             depends=depends,
             include_dirs=[get_cx_logging_h_dir()],
-            libraries=libraries + ["advapi32", "cx_Logging"],
+            extra_link_args=["/DELAYLOAD:cx_Logging"],
+            libraries=libraries + ["advapi32"],
         )
         extensions.append(service)
         # build utility module
