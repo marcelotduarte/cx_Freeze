@@ -3,6 +3,7 @@ cxfreeze command line tool
 """
 
 import argparse
+import distutils.sysconfig
 import os
 import sys
 
@@ -69,13 +70,17 @@ def prepare_parser():
         "(rooted in the directory in which the cx_Freeze package is found) "
         "will be searched for a file matching the name",
     )
+    platform = distutils.util.get_platform()
+    ver_major, ver_minor = sys.version_info[0:2]
+    dir_name = f"exe.{platform}-{ver_major}.{ver_minor}"
     parser.add_argument(
         "--target-dir",
         "--install-dir",
         dest="target_dir",
+        default=os.path.abspath(os.path.join("build", dir_name)),
         metavar="DIR",
         help="the directory in which to place the target file and any "
-        "dependent files",
+        "dependent files (default: %(default)s)",
     )
     parser.add_argument(
         "--target-name",
