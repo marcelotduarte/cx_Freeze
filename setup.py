@@ -4,6 +4,7 @@ Distutils script for cx_Freeze.
 
 from setuptools import setup, Extension
 import distutils.command.build_ext
+import distutils.util
 from distutils.sysconfig import get_config_var
 import glob
 import os
@@ -53,6 +54,12 @@ class build_ext(distutils.command.build_ext.build_ext):
                             libraries.append(lib_name)
                         if "delayimp" not in libraries:
                             libraries.append("delayimp")
+                    elif compiler_type == "mingw32":
+                        if lib_name in libraries:
+                            libraries.remove(lib_name)
+                        lib_dir, library = self._dlltool_delay_load(lib_name)
+                        libraries.append(library)
+                        library_dirs.append(lib_dir)
             if compiler_type == "msvc":
                 extra_args.append("/MANIFEST")
             elif compiler_type == "mingw32":
@@ -111,6 +118,37 @@ class build_ext(distutils.command.build_ext.build_ext):
             for dll_path in glob.glob(os.path.join(path, f"{name}*.dll")):
                 return dll_path
         return f"{name}.dll"
+
+    def _dlltool_delay_load(self, name):
+        """Get the delay load library to use with mingw32 gcc compiler"""
+        platform = distutils.util.get_platform()
+        ver_major, ver_minor = sys.version_info[0:2]
+        dir_name = f"libdl.{platform}-{ver_major}.{ver_minor}"
+        library_dir = os.path.join(self.build_temp, dir_name)
+        print("library_dir", library_dir)
+        os.makedirs(library_dir, exist_ok=True)
+        # Use gendef and dlltool to generate the delay library
+        dll_path = self._get_dll_path(name)
+        def_name = os.path.join(library_dir, f"{name}.def")
+        def_data = subprocess.check_output(["gendef", "-", dll_path])
+        with open(def_name, "wb") as def_file:
+            def_file.write(def_data)
+        lib_path = os.path.join(library_dir, f"lib{name}.a")
+        dlb_path = os.path.join(library_dir, f"lib{name}-dl.a")
+        subprocess.check_call(
+            [
+                "dlltool",
+                "--input-def",
+                def_name,
+                "--dllname",
+                dll_path,
+                "--output-lib",
+                lib_path,
+                "--output-delaylib",
+                dlb_path,
+            ]
+        )
+        return library_dir, f"{name}-dl"
 
 
 def get_cx_logging_h_dir():
