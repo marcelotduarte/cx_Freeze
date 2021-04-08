@@ -18,11 +18,11 @@ from typing import Any, Dict, List, Optional
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
-from .constantesmodule import ConstantsModule
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
+from .module import ConstantsModule
 
 if sys.platform == "linux":
     from .patchelf import Patchelf
@@ -65,7 +65,7 @@ class Freezer:
         zipExcludePackages: Optional[List[str]] = None,
     ):
         self.executables = list(executables)
-        self.constantsModule = constantsModule or ConstantsModule()
+        self.constants_module = constantsModule or ConstantsModule()
         self.includes = list(includes or [])
         self.excludes = list(excludes or [])
         self.packages = set(list(packages or []))
@@ -463,7 +463,7 @@ class Freezer:
             self.zipIncludeAllPackages,
             self.zipExcludePackages,
             self.zipIncludePackages,
-            self.constantsModule,
+            self.constants_module,
             self.zipIncludes,
         )
         finder.SetOptimizeFlag(self.optimize_flag)
@@ -611,7 +611,8 @@ class Freezer:
                 )
 
     def _WriteModules(self, filename, finder):
-        self.constantsModule.create(finder)
+        finder.IncludeFile(*self.constants_module.create(finder.modules))
+
         modules = [
             m for m in finder.modules if m.name not in self.excludeModules
         ]

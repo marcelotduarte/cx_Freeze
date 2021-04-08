@@ -12,7 +12,7 @@ The project's code layout
   * ``hooks.py`` - A collection of functions which are triggered automatically
     by ``finder.py`` when certain packages are included or not found.
   * ``macdist.py`` - Extends distutils to build macOS dmg or app blundle.
-  * ``module.py`` - Base class for modules.
+  * ``module.py`` - Base class for Module and ConstantsModule.
   * ``windist.py`` - Extends distutils to build Windows installer packages.
 
 * ``source/`` (C files)

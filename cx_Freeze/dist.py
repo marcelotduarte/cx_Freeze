@@ -13,8 +13,8 @@ import sys
 import warnings
 
 from .common import normalize_to_list
-from .constantesmodule import ConstantsModule
 from .freezer import Freezer
+from .module import ConstantsModule
 
 if sys.platform == "win32":
     from .windist import bdist_msi
