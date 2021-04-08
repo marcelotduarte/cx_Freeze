@@ -125,7 +125,6 @@ class build_ext(distutils.command.build_ext.build_ext):
         ver_major, ver_minor = sys.version_info[0:2]
         dir_name = f"libdl.{platform}-{ver_major}.{ver_minor}"
         library_dir = os.path.join(self.build_temp, dir_name)
-        print("library_dir", library_dir)
         os.makedirs(library_dir, exist_ok=True)
         # Use gendef and dlltool to generate the delay library
         dll_path = self._get_dll_path(name)
