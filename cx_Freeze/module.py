@@ -111,7 +111,7 @@ class ConstantsModule:
         release_string: Optional[str] = None,
         copyright_string: Optional[str] = None,
         module_name: str = "BUILD_CONSTANTS",
-        time_format: str = "%B %d, %Y %H:%M:%S",
+        time_format: str = "%m %d, %Y %H:%M:%S",
         constants: Optional[List[str]] = None,
     ):
         self.module_name: str = module_name
