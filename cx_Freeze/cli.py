@@ -7,10 +7,13 @@ import distutils.sysconfig
 import os
 import sys
 
-import cx_Freeze
-from cx_Freeze.common import normalize_to_list
+import importlib_metadata
+from .common import normalize_to_list
+from .executable import Executable
+from .freezer import Freezer
 
 __all__ = ["main"]
+__version__ = importlib_metadata.version("cx_Freeze")
 
 DESCRIPTION = """
 Freeze a Python script and all of its referenced modules to a base \
@@ -19,7 +22,7 @@ installation.
 """
 
 VERSION = f"""
-%(prog)s {cx_Freeze.__version__}
+%(prog)s {__version__}
 Copyright (c) 2020-2021 Marcelo Duarte. All rights reserved.
 Copyright (c) 2007-2020 Anthony Tuininga. All rights reserved.
 Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.
@@ -232,7 +235,7 @@ def parse_command_line(parser):
 def main():
     args = parse_command_line(prepare_parser())
     executables = [
-        cx_Freeze.Executable(
+        Executable(
             args.script,
             args.init_script,
             args.base_name,
@@ -240,7 +243,7 @@ def main():
             args.icon,
         )
     ]
-    freezer = cx_Freeze.Freezer(
+    freezer = Freezer(
         executables,
         includes=args.includes,
         excludes=args.excludes,
