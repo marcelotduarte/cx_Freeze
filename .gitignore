@@ -12,3 +12,5 @@ output.log
 __pycache__
 *.pyc
 sample.xlsx
+dump.sql
+
