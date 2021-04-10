@@ -242,17 +242,20 @@ class Freezer:
         )
 
         # Ensure the copy of default python libraries
-        python_libs = tuple(self._GetDefaultBinIncludes())
-        dependent_files = set()
-        dependent_files.update(self._GetDependentFiles(exe.base))
+        dependent_files = set(self._GetDependentFiles(exe.base))
         if not dependent_files:
             dependent_files.update(self._GetDependentFiles(sys.executable))
-        if not dependent_files:
-            for name in python_libs:
-                source_dir = os.path.dirname(exe.base)
-                source = os.path.join(source_dir, name)
+        python_libs = tuple(self._GetDefaultBinIncludes())
+        python_dirs = set([sys.base_exec_prefix, sys.exec_prefix]) # Win
+        python_dirs.add(sysconfig.get_config_var("srcdir")) # Linux
+        for file in dependent_files:
+            python_dirs.add(os.path.dirname(file))
+        for name in python_libs:
+            for python_dir in python_dirs:
+                source = os.path.join(python_dir, name)
                 if os.path.isfile(source):
                     dependent_files.add(source)
+                    break
         if not dependent_files:
             print("*** WARNING *** shared libraries not found:", python_libs)
 
