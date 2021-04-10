@@ -164,6 +164,6 @@ class ConstantsModule:
         for name in names:
             value = self.values[name]
             source_parts.append(f"{name} = {value!r}")
-        with open(self.module_path, "w") as file:
+        with open(self.module_path, "w", encoding="UTF-8") as file:
             file.write("\n".join(source_parts))
         return self.module_path, self.module_name
