@@ -626,9 +626,13 @@ class ModuleFinder:
         self.exclude_dependent_files[filename] = None
 
     def ExcludeModule(self, name: str) -> None:
-        """Exclude the named module from the resulting frozen executable."""
-        self.excludes[name] = None
-        self._modules[name] = None
+        """Exclude the named module and its submodules from the resulting frozen executable."""
+        modules_to_exclude = [name] + [
+            mod for mod in self._modules if mod.startswith(f"{name}.")
+        ]
+        for m in modules_to_exclude:
+            self.excludes[m] = None
+            self._modules[m] = None
 
     def IncludeFile(self, path: str, name: Optional[str] = None) -> Module:
         """Include the named file as a module in the frozen executable."""
