@@ -4,6 +4,7 @@ Base class for freezing scripts into executables.
 
 from distutils.dist import DistributionMetadata
 import distutils.sysconfig
+import distutils.util
 from importlib.util import MAGIC_NUMBER
 import marshal
 import os
@@ -17,11 +18,11 @@ from typing import Any, Dict, List, Optional
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
-from .constantesmodule import ConstantsModule
 from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
+from .module import ConstantsModule
 
 if sys.platform == "linux":
     from .patchelf import Patchelf
@@ -64,7 +65,7 @@ class Freezer:
         zipExcludePackages: Optional[List[str]] = None,
     ):
         self.executables = list(executables)
-        self.constantsModule = constantsModule or ConstantsModule()
+        self.constants_module = constantsModule or ConstantsModule()
         self.includes = list(includes or [])
         self.excludes = list(excludes or [])
         self.packages = set(list(packages or []))
@@ -116,6 +117,9 @@ class Freezer:
         includeMode=False,
         machOReference: Optional[MachOReference] = None,
     ):
+        if not self._ShouldCopyFile(source):
+            return
+
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
         norm_target_name = os.path.basename(normalizedTarget)
@@ -238,17 +242,20 @@ class Freezer:
         )
 
         # Ensure the copy of default python libraries
-        python_libs = tuple(self._GetDefaultBinIncludes())
-        dependent_files = set()
-        dependent_files.update(self._GetDependentFiles(exe.base))
+        dependent_files = set(self._GetDependentFiles(exe.base))
         if not dependent_files:
             dependent_files.update(self._GetDependentFiles(sys.executable))
-        if not dependent_files:
-            for name in python_libs:
-                source_dir = os.path.dirname(exe.base)
-                source = os.path.join(source_dir, name)
+        python_libs = tuple(self._GetDefaultBinIncludes())
+        python_dirs = set([sys.base_exec_prefix, sys.exec_prefix]) # Win
+        python_dirs.add(sysconfig.get_config_var("srcdir")) # Linux
+        for file in dependent_files:
+            python_dirs.add(os.path.dirname(file))
+        for name in python_libs:
+            for python_dir in python_dirs:
+                source = os.path.join(python_dir, name)
                 if os.path.isfile(source):
                     dependent_files.add(source)
+                    break
         if not dependent_files:
             print("*** WARNING *** shared libraries not found:", python_libs)
 
@@ -337,7 +344,7 @@ class Freezer:
         because they are part of a package which requires independent
         installation anyway."""
         if sys.platform == "win32":
-            return ["comctl32.dll", "oci.dll", "cx_Logging.pyd"]
+            return ["comctl32.dll", "oci.dll"]
         return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _GetDefaultBinIncludes(self):
@@ -447,12 +454,6 @@ class Freezer:
                         dependentFile = dependentFile[:pos].strip()
                     if dependentFile:
                         dependentFiles.append(dependentFile)
-
-            dependentFiles = [
-                os.path.normcase(f)
-                for f in dependentFiles
-                if self._ShouldCopyFile(f)
-            ]
             self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
@@ -465,7 +466,7 @@ class Freezer:
             self.zipIncludeAllPackages,
             self.zipExcludePackages,
             self.zipIncludePackages,
-            self.constantsModule,
+            self.constants_module,
             self.zipIncludes,
         )
         finder.SetOptimizeFlag(self.optimize_flag)
@@ -547,7 +548,10 @@ class Freezer:
 
         # starts in a clean directory
         if self.targetdir is None:
-            self.targetdir = os.path.abspath("dist")
+            platform = distutils.util.get_platform()
+            ver_major, ver_minor = sys.version_info[0:2]
+            dir_name = f"exe.{platform}-{ver_major}.{ver_minor}"
+            self.targetdir = os.path.abspath(os.path.join("build", dir_name))
         if os.path.isdir(self.targetdir):
 
             def onerror(*args):
@@ -565,11 +569,12 @@ class Freezer:
         self.binExcludes = [os.path.normcase(name) for name in filenames]
 
         paths = list(self.binPathIncludes or [])
+        paths += [path for path in self.path if os.path.isdir(path)]
         self.binPathIncludes = [os.path.normcase(name) for name in paths]
 
         paths = list(self.binPathExcludes or [])
         paths += self._GetDefaultBinPathExcludes()
-        self.binPathExcludes = [os.path.normcase(n) for n in paths]
+        self.binPathExcludes = [os.path.normcase(name) for name in paths]
 
         # control runtime files
         self.runtime_files = set()
@@ -609,7 +614,8 @@ class Freezer:
                 )
 
     def _WriteModules(self, filename, finder):
-        self.constantsModule.create(finder)
+        finder.IncludeFile(*self.constants_module.create(finder.modules))
+
         modules = [
             m for m in finder.modules if m.name not in finder.excludes
         ]

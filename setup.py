@@ -4,7 +4,9 @@ Distutils script for cx_Freeze.
 
 from setuptools import setup, Extension
 import distutils.command.build_ext
+import distutils.util
 from distutils.sysconfig import get_config_var
+import glob
 import os
 import subprocess
 import sys
@@ -39,6 +41,25 @@ class build_ext(distutils.command.build_ext.build_ext):
         extra_args = ext.extra_link_args or []
         if WIN32:
             compiler_type = self.compiler.compiler_type
+            # support for delay load [windows]
+            for arg in extra_args[:]:
+                if arg.startswith("/DELAYLOAD:"):
+                    lib_name = arg[len("/DELAYLOAD:") :]
+                    extra_args.remove(arg)
+                    if compiler_type == "msvc":
+                        dll_path = self._get_dll_path(lib_name)
+                        dll_name = os.path.basename(dll_path)
+                        extra_args.append(f"/DELAYLOAD:{dll_name}")
+                        if lib_name not in libraries:
+                            libraries.append(lib_name)
+                        if "delayimp" not in libraries:
+                            libraries.append("delayimp")
+                    elif compiler_type == "mingw32":
+                        if lib_name in libraries:
+                            libraries.remove(lib_name)
+                        lib_dir, library = self._dlltool_delay_load(lib_name)
+                        libraries.append(library)
+                        library_dirs.append(lib_dir)
             if compiler_type == "msvc":
                 extra_args.append("/MANIFEST")
             elif compiler_type == "mingw32":
@@ -87,36 +108,53 @@ class build_ext(distutils.command.build_ext.build_ext):
         exe_extension = self.compiler.exe_extension or ""
         return filename[: -len(get_config_var("EXT_SUFFIX"))] + exe_extension
 
+    def _get_dll_path(self, name):
+        """find the dll by name, priority by extension"""
+        paths = [path for path in sys.path if os.path.isdir(path)]
+        dll_path = None
+        for path in paths:
+            for dll_path in glob.glob(os.path.join(path, f"{name}*.pyd")):
+                return dll_path
+            for dll_path in glob.glob(os.path.join(path, f"{name}*.dll")):
+                return dll_path
+        return f"{name}.dll"
 
-def find_cx_logging():
-    cxfreeze_dir = os.path.dirname(os.path.abspath(__file__))
-    logging_dir = os.path.join(cxfreeze_dir, "cx_Logging")
-    try:
-        subprocess.run(
-            ["git", "submodule", "init", "cx_Logging"], cwd=cxfreeze_dir
+    def _dlltool_delay_load(self, name):
+        """Get the delay load library to use with mingw32 gcc compiler"""
+        platform = distutils.util.get_platform()
+        ver_major, ver_minor = sys.version_info[0:2]
+        dir_name = f"libdl.{platform}-{ver_major}.{ver_minor}"
+        library_dir = os.path.join(self.build_temp, dir_name)
+        os.makedirs(library_dir, exist_ok=True)
+        # Use gendef and dlltool to generate the delay library
+        dll_path = self._get_dll_path(name)
+        def_name = os.path.join(library_dir, f"{name}.def")
+        def_data = subprocess.check_output(["gendef", "-", dll_path])
+        with open(def_name, "wb") as def_file:
+            def_file.write(def_data)
+        lib_path = os.path.join(library_dir, f"lib{name}.a")
+        dlb_path = os.path.join(library_dir, f"lib{name}-dl.a")
+        subprocess.check_call(
+            [
+                "dlltool",
+                "--input-def",
+                def_name,
+                "--dllname",
+                dll_path,
+                "--output-lib",
+                lib_path,
+                "--output-delaylib",
+                dlb_path,
+            ]
         )
-        subprocess.run(
-            ["git", "submodule", "update", "cx_Logging"], cwd=cxfreeze_dir
-        )
-    except (FileNotFoundError, subprocess.SubprocessError):
-        pass
-    if not os.path.exists(logging_dir):
-        return None, None
-    platform = distutils.util.get_platform()
-    ver_major, ver_minor = sys.version_info[0:2]
-    sub_dir = f"implib.{platform}-{ver_major}.{ver_minor}"
-    import_library_dir = os.path.join(logging_dir, "build", sub_dir)
-    include_dir = os.path.join(logging_dir, "src")
-    if not os.path.exists(import_library_dir):
-        try:
-            subprocess.run(
-                [sys.executable, "setup.py", "build"], cwd=logging_dir
-            )
-        except (FileNotFoundError, subprocess.SubprocessError):
-            pass
-    if not os.path.exists(import_library_dir):
-        return None, None
-    return include_dir, import_library_dir
+        return library_dir, f"{name}-dl"
+
+
+def get_cx_logging_h_dir():
+    target_path = os.path.join(sys.exec_prefix, "Include", "cx_Logging.h")
+    if os.path.exists(target_path):
+        return os.path.dirname(target_path)
+    return os.path.join(os.path.dirname(__file__), "source", "bases")
 
 
 if __name__ == "__main__":
@@ -141,17 +179,15 @@ if __name__ == "__main__":
             libraries=libraries + ["user32"],
         )
         extensions.append(gui)
-        include_dir, library_dir = find_cx_logging()
-        if include_dir is not None:
-            service = Extension(
-                "cx_Freeze.bases.Win32Service",
-                ["source/bases/Win32Service.c"],
-                depends=depends,
-                library_dirs=[library_dir],
-                libraries=libraries + ["advapi32", "cx_Logging"],
-                include_dirs=[include_dir],
-            )
-            extensions.append(service)
+        service = Extension(
+            "cx_Freeze.bases.Win32Service",
+            ["source/bases/Win32Service.c"],
+            depends=depends,
+            include_dirs=[get_cx_logging_h_dir()],
+            extra_link_args=["/DELAYLOAD:cx_Logging"],
+            libraries=libraries + ["advapi32"],
+        )
+        extensions.append(service)
         # build utility module
         util_module = Extension(
             "cx_Freeze.util", ["source/util.c"], libraries=libraries

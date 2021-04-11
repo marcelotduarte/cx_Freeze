@@ -13,8 +13,8 @@ import sys
 import warnings
 
 from .common import normalize_to_list
-from .constantesmodule import ConstantsModule
 from .freezer import Freezer
+from .module import ConstantsModule
 
 if sys.platform == "win32":
     from .windist import bdist_msi
@@ -66,10 +66,9 @@ class build(distutils.command.build.build):
     def finalize_options(self):
         distutils.command.build.build.finalize_options(self)
         if self.build_exe is None:
-            dir_name = "exe.{}-{}".format(
-                distutils.util.get_platform(),
-                sys.version[0:3],
-            )
+            platform = distutils.util.get_platform()
+            ver_major, ver_minor = sys.version_info[0:2]
+            dir_name = f"exe.{platform}-{ver_major}.{ver_minor}"
             self.build_exe = os.path.join(self.build_base, dir_name)
 
 
