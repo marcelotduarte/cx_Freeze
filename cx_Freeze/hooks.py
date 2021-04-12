@@ -1061,6 +1061,11 @@ def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
     copy_qt_plugins("printsupport", finder, qtcore)
 
 
+def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
+    """The pyqtgraph package must be loaded as a package."""
+    finder.IncludePackage("pyqtgraph")
+
+
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     """
     The reportlab module loads a submodule rl_settings via exec so force
