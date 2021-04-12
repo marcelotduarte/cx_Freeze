@@ -542,6 +542,12 @@ def load_lxml(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("lxml._elementpath")
 
 
+def load_llvmlite(finder: ModuleFinder, module: Module) -> None:
+    """The llvmlite must be loaded as package."""
+    finder.IncludePackage("llvmlite")
+    finder.ExcludeModule("llvmlite.tests")
+
+
 def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
     """The matplotlib package requires mpl-data subdirectory."""
     data_path = os.path.join(module.path[0], "mpl-data")
