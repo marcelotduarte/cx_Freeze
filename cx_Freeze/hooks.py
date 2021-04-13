@@ -825,6 +825,11 @@ def load_pygments(finder: ModuleFinder, module: Module) -> None:
     finder.IncludePackage("pygments.formatters")
 
 
+def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
+    for mod in ("datetime", "decimal", "hashlib", "locale", "uuid"):
+        finder.IncludeModule(mod)
+
+
 def load_pytest(finder: ModuleFinder, module: Module) -> None:
     pytest = __import__("pytest")
     for mod in pytest.freeze_includes():
