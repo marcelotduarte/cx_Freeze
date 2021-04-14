@@ -47,6 +47,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     title = "[ProductName] Setup"
     modeless = 1
     modal = 3
+    _binary_columns = {
+        'Binary': 1,
+        'Icon': 1,
+        'Patch': 4,
+        'SFPCatalog': 1,
+        'MsiDigitalCertificate': 1,
+        'MsiPatchHeaders': 1,
+    }
 
     def add_config(self, fullname):
         if self.add_to_path:
@@ -126,6 +134,12 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                     ],
                 )
         for tableName, data in self.data.items():
+            col = self._binary_columns.get(tableName)
+            if col is not None:
+                data = [
+                    row[:col] + [msilib.Binary(row[col])] + row[col + 1:]
+                    for row in data
+                ]
             msilib.add_data(self.db, tableName, data)
 
         # If provided, add data to MSI's summary information stream
