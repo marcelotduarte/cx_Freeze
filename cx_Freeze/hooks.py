@@ -826,11 +826,193 @@ def load_pygments(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pyodbc module implicitly imports others modules;
+    make sure this happens.
+    """
     for mod in ("datetime", "decimal", "hashlib", "locale", "uuid"):
         finder.IncludeModule(mod)
 
 
+# cache the QtCore module
+_qtcore = None
+
+
+def _qt_implementation(module: Module) -> Tuple[str, Any]:
+    """Helper function to get name (PyQt5) and the QtCore module."""
+    global _qtcore
+    name = module.name.split(".")[0]
+    if _qtcore is None:
+        try:
+            _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
+        except RuntimeError:
+            print(
+                "WARNING: Tried to load multiple incompatible Qt wrappers. "
+                "Some incorrect files may be copied."
+            )
+    return name, _qtcore
+
+
+def copy_qt_plugins(plugins, finder, qtcore):
+    """Helper function to find and copy Qt plugins."""
+
+    # Qt Plugins can either be in a plugins directory next to the Qt libraries,
+    # or in other locations listed by QCoreApplication.libraryPaths()
+    dir0 = os.path.join(os.path.dirname(qtcore.__file__), "plugins")
+    for libpath in qtcore.QCoreApplication.libraryPaths() + [dir0]:
+        sourcepath = os.path.join(str(libpath), plugins)
+        if os.path.exists(sourcepath):
+            finder.IncludeFiles(sourcepath, plugins)
+
+
+def sip_module_name(qtcore) -> str:
+    """
+    Returns the name of the sip module to import.
+    (As of 5.11, the distributed wheels no longer provided for the sip module
+    outside of the PyQt5 namespace).
+    """
+    version_string = qtcore.PYQT_VERSION_STR
+    try:
+        pyqt_version_ints = tuple(int(c) for c in version_string.split("."))
+        if pyqt_version_ints >= (5, 11):
+            return "PyQt5.sip"
+    except Exception:
+        pass
+    return "sip"
+
+
+def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
+    """
+    In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
+    be present in the build directory inside a folder phonon_backend.
+    """
+    if module.in_file_system:
+        return
+    _, qtcore = _qt_implementation(module)
+    if WIN32:
+        copy_qt_plugins("phonon_backend", finder, qtcore)
+
+
+def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
+    """
+    The PyQt5.Qt module is an extension module which imports a number of
+    other modules and injects their namespace into its own. It seems a
+    foolish way of doing things but perhaps there is some hidden advantage
+    to this technique over pure Python; ignore the absence of some of
+    the modules since not every installation includes all of them.
+    """
+    if module.in_file_system:
+        return
+    name, _ = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtCore")
+    finder.IncludeModule(f"{name}.QtGui")
+    for mod in (
+        "_qt",
+        "QtSvg",
+        "Qsci",
+        "QtAssistant",
+        "QtNetwork",
+        "QtOpenGL",
+        "QtScript",
+        "QtSql",
+        "QtSvg",
+        "QtTest",
+        "QtXml",
+    ):
+        try:
+            finder.IncludeModule(f"{name}.{mod}")
+        except ImportError:
+            pass
+
+
+def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
+    """
+    The PyQt5.QtCore module implicitly imports the sip module and,
+    depending on configuration, the PyQt5._qt module.
+    """
+    if module.in_file_system:
+        return
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(sip_module_name(qtcore))
+    try:
+        finder.IncludeModule(f"{name}._qt")
+    except ImportError:
+        pass
+
+
+def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
+    """
+    The uic module makes use of "plugins" that need to be read directly and
+    cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
+    also implicity loaded.
+    """
+    if module.in_file_system:
+        return
+    name, _ = _qt_implementation(module)
+    source_dir = os.path.join(module.path[0], "widget-plugins")
+    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
+    finder.IncludeModule(f"{name}.QtNetwork")
+    try:
+        finder.IncludeModule(f"{name}.QtWebKit")
+    except ImportError:
+        pass
+
+
+def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
+    """
+    There is a chance that GUI will use some image formats
+    add the image format plugins.
+    """
+    if module.in_file_system:
+        return
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtCore")
+    copy_qt_plugins("imageformats", finder, qtcore)
+    # On Qt5, we need the platform plugins. For simplicity, we just copy
+    # any that are installed.
+    copy_qt_plugins("platforms", finder, qtcore)
+
+
+def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    name, qtcore = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtCore")
+    finder.IncludeModule(f"{name}.QtMultimediaWidgets")
+    copy_qt_plugins("mediaservice", finder, qtcore)
+
+
+def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    _, qtcore = _qt_implementation(module)
+    copy_qt_plugins("printsupport", finder, qtcore)
+
+
+def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    name, _ = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtNetwork")
+    finder.IncludeModule(f"{name}.QtGui")
+
+
+def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
+    if module.in_file_system:
+        return
+    finder.IncludeModule("PyQt5.QtGui")
+
+
+def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
+    """The pyqtgraph package must be loaded as a package."""
+    finder.IncludePackage("pyqtgraph")
+
+
 def load_pytest(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pytest package implicitly imports others modules;
+    make sure this happens.
+    """
     pytest = __import__("pytest")
     for mod in pytest.freeze_includes():
         finder.IncludeModule(mod)
@@ -895,186 +1077,6 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
         os.path.join("lib", os.path.basename(pywintypes.__file__)),
         copy_dependent_files=False,
     )
-
-
-# cache the QtCore module
-_qtcore = None
-
-
-def _qt_implementation(module: Module) -> Tuple[str, Any]:
-    """Helper function to get name (PyQt5) and the QtCore module."""
-    global _qtcore
-    name = module.name.split(".")[0]
-    if _qtcore is None:
-        try:
-            _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
-        except RuntimeError:
-            print(
-                "WARNING: Tried to load multiple incompatible Qt wrappers. "
-                "Some incorrect files may be copied."
-            )
-    return name, _qtcore
-
-
-def copy_qt_plugins(plugins, finder, qtcore):
-    """Helper function to find and copy Qt plugins."""
-
-    # Qt Plugins can either be in a plugins directory next to the Qt libraries,
-    # or in other locations listed by QCoreApplication.libraryPaths()
-    dir0 = os.path.join(os.path.dirname(qtcore.__file__), "plugins")
-    for libpath in qtcore.QCoreApplication.libraryPaths() + [dir0]:
-        sourcepath = os.path.join(str(libpath), plugins)
-        if os.path.exists(sourcepath):
-            finder.IncludeFiles(sourcepath, plugins)
-
-
-def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
-    """
-    In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
-    be present in the build directory inside a folder phonon_backend.
-    """
-    if module.in_file_system:
-        return
-    _, qtcore = _qt_implementation(module)
-    if WIN32:
-        copy_qt_plugins("phonon_backend", finder, qtcore)
-
-
-def sip_module_name(qtcore) -> str:
-    """
-    Returns the name of the sip module to import.
-    (As of 5.11, the distributed wheels no longer provided for the sip module
-    outside of the PyQt5 namespace).
-    """
-    version_string = qtcore.PYQT_VERSION_STR
-    try:
-        pyqt_version_ints = tuple(int(c) for c in version_string.split("."))
-        if pyqt_version_ints >= (5, 11):
-            return "PyQt5.sip"
-    except Exception:
-        pass
-    return "sip"
-
-
-def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
-    """
-    The PyQt5.QtCore module implicitly imports the sip module and,
-    depending on configuration, the PyQt5._qt module.
-    """
-    if module.in_file_system:
-        return
-    name, qtcore = _qt_implementation(module)
-    finder.IncludeModule(sip_module_name(qtcore))
-    try:
-        finder.IncludeModule(f"{name}._qt")
-    except ImportError:
-        pass
-
-
-def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
-    """
-    The PyQt5.Qt module is an extension module which imports a number of
-    other modules and injects their namespace into its own. It seems a
-    foolish way of doing things but perhaps there is some hidden advantage
-    to this technique over pure Python; ignore the absence of some of
-    the modules since not every installation includes all of them.
-    """
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtCore")
-    finder.IncludeModule(f"{name}.QtGui")
-    for mod in (
-        "_qt",
-        "QtSvg",
-        "Qsci",
-        "QtAssistant",
-        "QtNetwork",
-        "QtOpenGL",
-        "QtScript",
-        "QtSql",
-        "QtSvg",
-        "QtTest",
-        "QtXml",
-    ):
-        try:
-            finder.IncludeModule(f"{name}.{mod}")
-        except ImportError:
-            pass
-
-
-def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
-    """
-    The uic module makes use of "plugins" that need to be read directly and
-    cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
-    also implicity loaded.
-    """
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
-    source_dir = os.path.join(module.path[0], "widget-plugins")
-    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
-    finder.IncludeModule(f"{name}.QtNetwork")
-    try:
-        finder.IncludeModule(f"{name}.QtWebKit")
-    except ImportError:
-        pass
-
-
-def _QtGui(finder, module, version_str):
-    name, qtcore = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtCore")
-    copy_qt_plugins("imageformats", finder, qtcore)
-    if version_str >= "5":
-        # On Qt5, we need the platform plugins. For simplicity, we just copy
-        # any that are installed.
-        copy_qt_plugins("platforms", finder, qtcore)
-
-
-def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
-    """
-    There is a chance that GUI will use some image formats
-    add the image format plugins.
-    """
-    if module.in_file_system:
-        return
-    _, qtcore = _qt_implementation(module)
-    _QtGui(finder, module, qtcore.QT_VERSION_STR)
-
-
-def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    finder.IncludeModule("PyQt5.QtGui")
-
-
-def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
-    finder.IncludeModule(f"{name}.QtGui")
-
-
-def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    name, qtcore = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtCore")
-    finder.IncludeModule(f"{name}.QtMultimediaWidgets")
-    copy_qt_plugins("mediaservice", finder, qtcore)
-
-
-def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    _, qtcore = _qt_implementation(module)
-    copy_qt_plugins("printsupport", finder, qtcore)
-
-
-def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
-    """The pyqtgraph package must be loaded as a package."""
-    finder.IncludePackage("pyqtgraph")
 
 
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:
