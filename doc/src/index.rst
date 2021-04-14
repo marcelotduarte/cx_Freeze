@@ -12,7 +12,7 @@ itself works on.
 
    * - cx_Freeze version
      - Python version supported
-   * - cx_Freeze 6.4, 6.5
+   * - cx_Freeze 6.4, 6.5, 6.6
      - Python 3.6 to 3.9
    * - cx_Freeze 6.2, 6.3
      - Python 3.5.2 to 3.8

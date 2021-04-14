@@ -4,10 +4,10 @@ Frequently Asked Questions
 Problems with running frozen programs
 -------------------------------------
 
-A common problem is that **cx_Freeze** hasn't automatically detected that a file
-needs to be copied. Modules that your code imports are detected, but if they're
-dynamically loaded - e.g. by a plugin system - you have to tell **cx_Freeze**
-about them. This is easy using a :doc:`setup script <distutils>`:
+A common problem is that **cx_Freeze** hasn't automatically detected that a
+file needs to be copied. Modules that your code imports are detected, but if
+they're dynamically loaded - e.g. by a plugin system - you have to tell
+**cx_Freeze** about them. This is easy using a :doc:`setup script <distutils>`:
 
 * For Python code, specify the module names in the ``includes`` or ``packages``
   options.
