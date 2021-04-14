@@ -246,8 +246,8 @@ class Freezer:
         if not dependent_files:
             dependent_files.update(self._GetDependentFiles(sys.executable))
         python_libs = tuple(self._GetDefaultBinIncludes())
-        python_dirs = set([sys.base_exec_prefix, sys.exec_prefix]) # Win
-        python_dirs.add(sysconfig.get_config_var("srcdir")) # Linux
+        python_dirs = {sys.base_exec_prefix, sys.exec_prefix}  # Win
+        python_dirs.add(sysconfig.get_config_var("srcdir"))  # Linux
         for file in dependent_files:
             python_dirs.add(os.path.dirname(file))
         for name in python_libs:
@@ -280,10 +280,11 @@ class Freezer:
             else:
                 target = os.path.join(target_dir, os.path.basename(source))
             if sys.platform == "darwin":
-                # this recovers the cached MachOReference pointers to the files found
-                # by the _GetDependentFiles calls above. If one is found, pass into _CopyFile.
-                # We need to do this so the file knows what file referenced it, and can therefore
-                # calculate the appropriate rpath.
+                # this recovers the cached MachOReference pointers to the files
+                # found by the _GetDependentFiles calls above. If one is found,
+                # pass into _CopyFile.
+                # We need to do this so the file knows what file referenced it,
+                # and can therefore calculate the appropriate rpath.
                 # (We only cache one reference.)
                 cachedReference = self.darwinTracker.getCachedReferenceTo(
                     sourcePath=source
@@ -402,16 +403,17 @@ class Freezer:
                     try:
                         dependentFiles = winutil.GetDependentFiles(path)
                     except winutil.BindError as exc:
-                        # Sometimes this gets called when path is not actually a
-                        # library See issue 88
+                        # Sometimes this gets called when path is not actually
+                        # a library (See issue 88).
                         print("error during GetDependentFiles() of ", end="")
                         print(f"{path!r}: {exc!s}")
                     os.environ["PATH"] = origPath
             elif sys.platform == "darwin":
-                # if darwinFile is None (which means that _GetDependentFiles is being called
-                # outside of _CopyFile -- e.g., one of the preliminary calls in _FreezeExecutable),
-                # create a temporary DarwinFile object for the path, just so we can read
-                # its dependencies
+                # if darwinFile is None (which means that _GetDependentFiles is
+                # being called outside of _CopyFile -- e.g., one of the
+                # preliminary calls in _FreezeExecutable), create a temporary
+                # DarwinFile object for the path, just so we can read its
+                # dependencies
                 if darwinFile is None:
                     darwinFile = DarwinFile(
                         originalFilePath=path, referencingFile=None
@@ -420,7 +422,8 @@ class Freezer:
 
                 # cache the MachOReferences to the dependencies, so they can be
                 # called up later in _CopyFile if copying a dependency without
-                # an explicit reference provided (to assist in resolving @rpaths)
+                # an explicit reference provided
+                # (to assist in resolving @rpaths)
                 for reference in darwinFile.getMachOReferenceList():
                     if reference.isResolved():
                         self.darwinTracker.cacheReferenceTo(
@@ -500,11 +503,12 @@ class Freezer:
         return filename
 
     def _ShouldCopyFile(self, path):
-        """Return true if the file should be copied to the target machine. This
-        is done by checking the binPathIncludes, binPathExcludes,
-        binIncludes and binExcludes configuration variables using first the
-        full file name, then just the base file name, then the file name
-        without any version numbers.
+        """
+        Return true if the file should be copied to the target machine. This is
+        done by checking the binPathIncludes, binPathExcludes, binIncludes and
+        binExcludes configuration variables using first the full file name,
+        then just the base file name, then the file name without any version
+        numbers.
 
         Files are included unless specifically excluded but inclusions take
         precedence over exclusions."""
@@ -616,9 +620,7 @@ class Freezer:
     def _WriteModules(self, filename, finder):
         finder.IncludeFile(*self.constants_module.create(finder.modules))
 
-        modules = [
-            m for m in finder.modules if m.name not in finder.excludes
-        ]
+        modules = [m for m in finder.modules if m.name not in finder.excludes]
         modules.sort(key=lambda m: m.name)
 
         if not self.silent:
@@ -671,8 +673,11 @@ class Freezer:
                     )
 
                     # remove the subfolders which belong to excluded modules
-                    excludedFolders = [m[len(module.name) + 1:].replace(".", os.sep)
-                                       for m in self.finder.excludes if m.split(".")[0] == parts[0]]
+                    excludedFolders = [
+                        m[len(module.name) + 1 :].replace(".", os.sep)
+                        for m in finder.excludes
+                        if m.split(".")[0] == parts[0]
+                    ]
                     for folder in excludedFolders:
                         folderToRemove = os.path.join(targetPackageDir, folder)
                         if os.path.isdir(folderToRemove):

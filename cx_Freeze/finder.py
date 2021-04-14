@@ -34,6 +34,8 @@ __all__ = ["Module", "ModuleFinder"]
 
 
 class ModuleFinder:
+    """ModuleFinder base class."""
+
     def __init__(
         self,
         include_files: Optional[List[str]] = None,
@@ -431,7 +433,9 @@ class ModuleFinder:
                 )
             except SyntaxError:
                 logging.debug("Invalid syntax in [%s]", name)
-                raise ImportError(f"Invalid syntax in {path}", name=name)
+                raise ImportError(
+                    f"Invalid syntax in {path}", name=name
+                ) from None
         elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
             logging.debug("Adding module [%s] [BYTECODE]", name)
             # Load Python bytecode
@@ -620,19 +624,25 @@ class ModuleFinder:
         self.aliases[name] = alias_for
 
     def AddConstant(self, name: str, value: str) -> None:
+        """
+        Makes available a constant in the module BUILD_CONSTANTS which is used
+        in the initscripts.
+        """
         self.constants_module.values[name] = value
 
     def ExcludeDependentFiles(self, filename: str) -> None:
         self.exclude_dependent_files[filename] = None
 
     def ExcludeModule(self, name: str) -> None:
-        """Exclude the named module and its submodules from the resulting frozen executable."""
+        """
+        Exclude the named module and its submodules from the resulting frozen
+        executable."""
         modules_to_exclude = [name] + [
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
-        for m in modules_to_exclude:
-            self.excludes[m] = None
-            self._modules[m] = None
+        for mod in modules_to_exclude:
+            self.excludes[mod] = None
+            self._modules[mod] = None
 
     def IncludeFile(self, path: str, name: Optional[str] = None) -> Module:
         """Include the named file as a module in the frozen executable."""
