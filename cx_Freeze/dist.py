@@ -144,7 +144,15 @@ class build_exe(distutils.core.Command):
             "and place in the file system instead (or * for all) "
             "[default: *]",
         ),
-        ("silent", "s", "suppress all output except warnings"),
+        (
+            "silent=",
+            "s",
+            "suppress output from build_exe command.  "
+            "level 0: get all messages; [default]"
+            "level 1: suppress information messages, but still get warnings; [default if flag specified with no specific level]"
+            "level 2: suppress missing missing-module warnings "
+            "level 3: suppress all warning messages"
+        ),
     ]
     boolean_options = ["no-compress", "include_msvcr", "silent"]
 
@@ -220,8 +228,14 @@ class build_exe(distutils.core.Command):
         self.set_undefined_options("build", ("build_exe", "build_exe"))
         self.optimize = int(self.optimize)
 
-        if self.silent is None:
-            self.silent = False
+        if self.silent is None: self.silent = 0
+        elif self.silent is False: self.silent = 0
+        elif self.silent is True: self.silent = 1
+        elif isinstance(self.silent, int): pass
+        elif isinstance(self.silent, str):
+            try: self.silent = int(self.silent)
+            except ValueError: self.silent = 1
+        else: self.silent = 1
 
         # Make sure all options of multiple values are lists
         for option in self.list_options:
@@ -252,7 +266,7 @@ class build_exe(distutils.core.Command):
             binIncludes=self.bin_includes,
             binExcludes=self.bin_excludes,
             zipIncludes=self.zip_includes,
-            silent=self.silent,
+            silentLevel=self.silent,
             binPathIncludes=self.bin_path_includes,
             binPathExcludes=self.bin_path_excludes,
             metadata=metadata,

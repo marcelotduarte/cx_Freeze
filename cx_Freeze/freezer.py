@@ -58,7 +58,7 @@ class Freezer:
         binPathExcludes: Optional[List] = None,
         includeFiles: Optional[List] = None,
         zipIncludes: Optional[List] = None,
-        silent: bool = False,
+        silentLevel: int = 0,
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
@@ -81,7 +81,7 @@ class Freezer:
         self.binPathExcludes = binPathExcludes
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
-        self.silent = silent
+        self.silentLevel = silentLevel
         self.metadata = metadata
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
@@ -90,12 +90,14 @@ class Freezer:
     def _AddVersionResource(self, exe):
         warning_msg = "*** WARNING *** unable to create version resource"
         if version_stamp is None:
-            print(warning_msg)
-            print("install pywin32 extensions first")
+            if self.silentLevel < 3:
+                print(warning_msg)
+                print("install pywin32 extensions first")
             return
         if not self.metadata.version:
-            print(warning_msg)
-            print("version must be specified")
+            if self.silentLevel < 3:
+                print(warning_msg)
+                print("version must be specified")
             return
         filename = os.path.join(self.targetdir, exe.target_name)
         versionInfo = VersionInfo(
@@ -149,7 +151,7 @@ class Freezer:
             return
         targetdir = os.path.dirname(target)
         self._CreateDirectory(targetdir)
-        if not self.silent:
+        if self.silentLevel < 1:
             print(f"copying {source} -> {target}")
         shutil.copyfile(source, target)
         shutil.copystat(source, target)
@@ -229,7 +231,7 @@ class Freezer:
                         self.patchelf.set_rpath(target, rpath)
 
     def _CreateDirectory(self, path: str):
-        if not self.silent and not os.path.isdir(path):
+        if (self.silentLevel < 1) and not os.path.isdir(path):
             print("creating directory %s" % path)
         os.makedirs(path, exist_ok=True)
 
@@ -257,7 +259,8 @@ class Freezer:
                     dependent_files.add(source)
                     break
         if not dependent_files:
-            print("*** WARNING *** shared libraries not found:", python_libs)
+            if self.silentLevel < 3:
+                print("*** WARNING *** shared libraries not found:", python_libs)
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
@@ -317,17 +320,19 @@ class Freezer:
                 try:
                     winutil.AddIcon(target_path, exe.icon)
                 except RuntimeError as exc:
-                    print("*** WARNING ***", exc)
+                    if self.silentLevel < 3:
+                        print("*** WARNING ***", exc)
                 except OSError as exc:
                     if "\\WindowsApps\\" in sys.base_prefix:
-                        print(
-                            "*** WARNING *** Because of restrictions on "
-                            "Microsoft Store apps, Python scripts may not "
-                            "have full write access to built executable.\n"
-                            "You will need to install the full installer.\n"
-                            "The following error was returned:"
-                        )
-                        print(exc)
+                        if self.silentLevel < 3:
+                            print(
+                                "*** WARNING *** Because of restrictions on "
+                                "Microsoft Store apps, Python scripts may not "
+                                "have full write access to built executable.\n"
+                                "You will need to install the full installer.\n"
+                                "The following error was returned:"
+                            )
+                            print(exc)
                     else:
                         raise
             else:
@@ -405,8 +410,9 @@ class Freezer:
                     except winutil.BindError as exc:
                         # Sometimes this gets called when path is not actually
                         # a library (See issue 88).
-                        print("error during GetDependentFiles() of ", end="")
-                        print(f"{path!r}: {exc!s}")
+                        if self.silentLevel < 3:
+                            print("error during GetDependentFiles() of ", end="")
+                            print(f"{path!r}: {exc!s}")
                     os.environ["PATH"] = origPath
             elif sys.platform == "darwin":
                 # if darwinFile is None (which means that _GetDependentFiles is
@@ -448,7 +454,8 @@ class Freezer:
                         filename = parts[0]
                         if filename not in self.linkerWarnings:
                             self.linkerWarnings[filename] = None
-                            print("WARNING: cannot find %s" % filename)
+                            if self.silentLevel < 3:
+                                print("WARNING: cannot find %s" % filename)
                         continue
                     if dependentFile.startswith("("):
                         continue
@@ -623,9 +630,10 @@ class Freezer:
         modules = [m for m in finder.modules if m.name not in finder.excludes]
         modules.sort(key=lambda m: m.name)
 
-        if not self.silent:
+        if self.silentLevel < 1:
             self._PrintReport(filename, modules)
-        finder.ReportMissingModules()
+        if self.silentLevel < 2:
+            finder.ReportMissingModules()
 
         targetdir = os.path.dirname(filename)
         self._CreateDirectory(targetdir)
@@ -664,7 +672,7 @@ class Freezer:
                 targetPackageDir = os.path.join(targetdir, *parts)
                 sourcePackageDir = os.path.dirname(module.file)
                 if not os.path.exists(targetPackageDir):
-                    if not self.silent:
+                    if self.silentLevel<1:
                         print("Copying data from package", module.name + "...")
                     shutil.copytree(
                         sourcePackageDir,
@@ -681,7 +689,7 @@ class Freezer:
                     for folder in excludedFolders:
                         folderToRemove = os.path.join(targetPackageDir, folder)
                         if os.path.isdir(folderToRemove):
-                            if not self.silent:
+                            if self.silentLevel<1:
                                 print("Removing", folderToRemove + "...")
                             shutil.rmtree(folderToRemove)
 
