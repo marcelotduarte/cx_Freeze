@@ -237,6 +237,12 @@ class bdist_mac(Command):
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
 
+        # Specify that bundle is an application bundle
+        contents["CFBundlePackageType"] = "APPL"
+
+        # Cause application to run in high-resolution mode by default
+        contents["NSHighResolutionCapable"] = "True"
+
         # add custom items to the plist file
         for key, value in self.plist_items:
             contents[key] = value
