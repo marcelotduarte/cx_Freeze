@@ -232,16 +232,15 @@ class bdist_mac(Command):
                 "CFBundleIconFile": "icon.icns",
                 "CFBundleDevelopmentRegion": "English",
                 "CFBundleIdentifier": self.bundle_name,
+                # Specify that bundle is an application bundle
+                "CFBundlePackageType": "APPL",
+                # Cause application to run in high-resolution mode by default
+                # (Without this, applications run from application bundle may be pixelated)
+                "NSHighResolutionCapable": "True"
             }
 
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
-
-        # Specify that bundle is an application bundle
-        contents["CFBundlePackageType"] = "APPL"
-
-        # Cause application to run in high-resolution mode by default
-        contents["NSHighResolutionCapable"] = "True"
 
         # add custom items to the plist file
         for key, value in self.plist_items:
