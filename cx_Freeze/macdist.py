@@ -232,6 +232,11 @@ class bdist_mac(Command):
                 "CFBundleIconFile": "icon.icns",
                 "CFBundleDevelopmentRegion": "English",
                 "CFBundleIdentifier": self.bundle_name,
+                # Specify that bundle is an application bundle
+                "CFBundlePackageType": "APPL",
+                # Cause application to run in high-resolution mode by default
+                # (Without this, applications run from application bundle may be pixelated)
+                "NSHighResolutionCapable": "True"
             }
 
         # Ensure CFBundleExecutable is set correctly
