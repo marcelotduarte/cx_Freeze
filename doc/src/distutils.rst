@@ -275,6 +275,12 @@ command:
        upgrade code prior to the installation of this one; the valid format for
        a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
        Refer to `Windows GUID <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
+   * - extensions
+     - list of dictionaries specifying the extensions that the installed program
+       handles. Each extension needs to specify at least the extension, a verb,
+       and an executable. Additional allowed keys are `argument` to specify
+       the invocation of the executable, `mime` for the extension’s mime type,
+       and `context` for the context menu text.
 
 For example:
 
