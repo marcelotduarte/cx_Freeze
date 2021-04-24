@@ -189,7 +189,7 @@ It can be further customized:
        3 - also suppress all other warning messages.
 
 .. versionchanged:: 6.7
-    Added multiple levels for ``silent`` option.
+    Added new ``silent_level`` option.
 
 
 install
