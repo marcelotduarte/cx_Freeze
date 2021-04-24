@@ -137,7 +137,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             col = self._binary_columns.get(tableName)
             if col is not None:
                 data = [
-                    row[:col] + [msilib.Binary(row[col])] + row[col + 1:]
+                    (*row[:col], msilib.Binary(row[col]), *row[col + 1:])
                     for row in data
                 ]
             msilib.add_data(self.db, tableName, data)
