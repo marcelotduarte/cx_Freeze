@@ -14,7 +14,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
@@ -58,7 +58,7 @@ class Freezer:
         binPathExcludes: Optional[List] = None,
         includeFiles: Optional[List] = None,
         zipIncludes: Optional[List] = None,
-        silent: int = 0,
+        silent: Union[bool,int] = 0,
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
@@ -81,7 +81,10 @@ class Freezer:
         self.binPathExcludes = binPathExcludes
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
-        self.silent = silent
+        if isinstance(silent, bool):
+            if silent: self.silent = 1
+            else: self.silent = 0
+        else: self.silent = silent
         self.metadata = metadata
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
