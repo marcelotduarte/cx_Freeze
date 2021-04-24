@@ -58,7 +58,7 @@ class Freezer:
         binPathExcludes: Optional[List] = None,
         includeFiles: Optional[List] = None,
         zipIncludes: Optional[List] = None,
-        silentLevel: int = 0,
+        silent: int = 0,
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
@@ -81,7 +81,7 @@ class Freezer:
         self.binPathExcludes = binPathExcludes
         self.includeFiles = process_path_specs(includeFiles)
         self.zipIncludes = process_path_specs(zipIncludes)
-        self.silentLevel = silentLevel
+        self.silent = silent
         self.metadata = metadata
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
@@ -90,12 +90,12 @@ class Freezer:
     def _AddVersionResource(self, exe):
         warning_msg = "*** WARNING *** unable to create version resource"
         if version_stamp is None:
-            if self.silentLevel < 3:
+            if self.silent < 3:
                 print(warning_msg)
                 print("install pywin32 extensions first")
             return
         if not self.metadata.version:
-            if self.silentLevel < 3:
+            if self.silent < 3:
                 print(warning_msg)
                 print("version must be specified")
             return
@@ -151,7 +151,7 @@ class Freezer:
             return
         targetdir = os.path.dirname(target)
         self._CreateDirectory(targetdir)
-        if self.silentLevel < 1:
+        if self.silent < 1:
             print(f"copying {source} -> {target}")
         shutil.copyfile(source, target)
         shutil.copystat(source, target)
@@ -231,7 +231,7 @@ class Freezer:
                         self.patchelf.set_rpath(target, rpath)
 
     def _CreateDirectory(self, path: str):
-        if (self.silentLevel < 1) and not os.path.isdir(path):
+        if (self.silent < 1) and not os.path.isdir(path):
             print("creating directory %s" % path)
         os.makedirs(path, exist_ok=True)
 
@@ -259,7 +259,7 @@ class Freezer:
                     dependent_files.add(source)
                     break
         if not dependent_files:
-            if self.silentLevel < 3:
+            if self.silent < 3:
                 print("*** WARNING *** shared libraries not found:", python_libs)
 
         # Search the C runtimes, using the directory of the python libraries
@@ -320,11 +320,11 @@ class Freezer:
                 try:
                     winutil.AddIcon(target_path, exe.icon)
                 except RuntimeError as exc:
-                    if self.silentLevel < 3:
+                    if self.silent < 3:
                         print("*** WARNING ***", exc)
                 except OSError as exc:
                     if "\\WindowsApps\\" in sys.base_prefix:
-                        if self.silentLevel < 3:
+                        if self.silent < 3:
                             print(
                                 "*** WARNING *** Because of restrictions on "
                                 "Microsoft Store apps, Python scripts may not "
@@ -410,7 +410,7 @@ class Freezer:
                     except winutil.BindError as exc:
                         # Sometimes this gets called when path is not actually
                         # a library (See issue 88).
-                        if self.silentLevel < 3:
+                        if self.silent < 3:
                             print("error during GetDependentFiles() of ", end="")
                             print(f"{path!r}: {exc!s}")
                     os.environ["PATH"] = origPath
@@ -454,7 +454,7 @@ class Freezer:
                         filename = parts[0]
                         if filename not in self.linkerWarnings:
                             self.linkerWarnings[filename] = None
-                            if self.silentLevel < 3:
+                            if self.silent < 3:
                                 print("WARNING: cannot find %s" % filename)
                         continue
                     if dependentFile.startswith("("):
@@ -630,9 +630,9 @@ class Freezer:
         modules = [m for m in finder.modules if m.name not in finder.excludes]
         modules.sort(key=lambda m: m.name)
 
-        if self.silentLevel < 1:
+        if self.silent < 1:
             self._PrintReport(filename, modules)
-        if self.silentLevel < 2:
+        if self.silent < 2:
             finder.ReportMissingModules()
 
         targetdir = os.path.dirname(filename)
@@ -672,7 +672,7 @@ class Freezer:
                 targetPackageDir = os.path.join(targetdir, *parts)
                 sourcePackageDir = os.path.dirname(module.file)
                 if not os.path.exists(targetPackageDir):
-                    if self.silentLevel<1:
+                    if self.silent<1:
                         print("Copying data from package", module.name + "...")
                     shutil.copytree(
                         sourcePackageDir,
@@ -689,7 +689,7 @@ class Freezer:
                     for folder in excludedFolders:
                         folderToRemove = os.path.join(targetPackageDir, folder)
                         if os.path.isdir(folderToRemove):
-                            if self.silentLevel<1:
+                            if self.silent<1:
                                 print("Removing", folderToRemove + "...")
                             shutil.rmtree(folderToRemove)
 

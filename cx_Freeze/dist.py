@@ -272,7 +272,7 @@ class build_exe(distutils.core.Command):
             binIncludes=self.bin_includes,
             binExcludes=self.bin_excludes,
             zipIncludes=self.zip_includes,
-            silentLevel=self.silent_setting,
+            silent=self.silent_setting,
             binPathIncludes=self.bin_path_includes,
             binPathExcludes=self.bin_path_excludes,
             metadata=metadata,
