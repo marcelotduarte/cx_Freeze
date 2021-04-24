@@ -179,10 +179,12 @@ It can be further customized:
        all packages should be placed in the file system and excluded from the
        zip file (the default)
    * - silent (-s)
+     - suppress all output except warnings (equivalent to silent_level=1)
+   * - silent_level
      - suppress output from freeze process; can provide a value to specify
        what messages should be suppressed, with the possible values being:
-       0 - do not suppress any output [default if flag not set];
-       1 - suppress information messages [default if flag set with no specific level];
+       0 - do not suppress any output [default];
+       1 - suppress information messages;
        2 - also suppress missing-module warning messages;
        3 - also suppress all other warning messages.
 
