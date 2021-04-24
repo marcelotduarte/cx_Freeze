@@ -144,7 +144,16 @@ class build_exe(distutils.core.Command):
             "and place in the file system instead (or * for all) "
             "[default: *]",
         ),
-        ("silent", "s", "suppress all output except warnings"),
+        ("silent", "s", "suppress all output except warnings (equivalent to --silent-level=1)"),
+        (
+            "silent-level=",
+            None,
+            "suppress output from build_exe command.  "
+            "level 0: get all messages; [default]"
+            "level 1: suppress information messages, but still get warnings; (equivalent to --silent)"
+            "level 2: suppress missing missing-module warnings "
+            "level 3: suppress all warning messages"
+        ),
     ]
     boolean_options = ["no-compress", "include_msvcr", "silent"]
 
@@ -215,13 +224,24 @@ class build_exe(distutils.core.Command):
         self.path = None
         self.include_msvcr = None
         self.silent = None
+        self.silent_level = None
 
     def finalize_options(self):
         self.set_undefined_options("build", ("build_exe", "build_exe"))
         self.optimize = int(self.optimize)
 
-        if self.silent is None:
-            self.silent = False
+        self.silent_setting = 0  # the degree of silencing, set from either the silent or silent-level
+                                 # option, as appropriate
+        if self.silent is not None and self.silent:
+            self.silent_setting = 1
+
+        if self.silent_level is False: self.silent_setting = 0
+        elif self.silent_level is True: self.silent_setting = 1
+        elif isinstance(self.silent_level, int): self.silent_setting = self.silent_level
+        elif isinstance(self.silent_level, str):
+            try: self.silent_setting = int(self.silent_level)
+            except ValueError: self.silent_setting = 1
+        else: self.silent_setting = 1
 
         # Make sure all options of multiple values are lists
         for option in self.list_options:
@@ -252,7 +272,7 @@ class build_exe(distutils.core.Command):
             binIncludes=self.bin_includes,
             binExcludes=self.bin_excludes,
             zipIncludes=self.zip_includes,
-            silent=self.silent,
+            silent=self.silent_setting,
             binPathIncludes=self.bin_path_includes,
             binPathExcludes=self.bin_path_excludes,
             metadata=metadata,
