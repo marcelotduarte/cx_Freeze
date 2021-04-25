@@ -240,11 +240,11 @@ class build_exe(distutils.core.Command):
 
         freeze_class: Type[Freezer]
         if sys.platform == "win32":
-            freeze_class = Freezer
+            freeze_class = WinFreezer
         elif sys.platform == "darwin":
-            freeze_class = Freezer
+            freeze_class = DarwinFreezer
         elif sys.platform == "linux":
-            freeze_class = Freezer
+            freeze_class = LinuxFreezer
         else:
             raise Exception(f'Unknown platform: {sys.platform}')
 

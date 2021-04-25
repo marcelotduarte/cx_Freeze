@@ -96,26 +96,7 @@ class Freezer(ABC):
         return
 
     def _AddVersionResource(self, exe):
-        warning_msg = "*** WARNING *** unable to create version resource"
-        if version_stamp is None:
-            print(warning_msg)
-            print("install pywin32 extensions first")
-            return
-        if not self.metadata.version:
-            print(warning_msg)
-            print("version must be specified")
-            return
-        filename = os.path.join(self.targetdir, exe.target_name)
-        versionInfo = VersionInfo(
-            self.metadata.version,
-            comments=self.metadata.long_description,
-            description=self.metadata.description,
-            company=self.metadata.author,
-            product=self.metadata.name,
-            copyright=exe.copyright,
-            trademarks=exe.trademarks,
-        )
-        version_stamp(filename, versionInfo)
+        return
 
     def _CopyFile(
         self,
@@ -165,76 +146,24 @@ class Freezer(ABC):
             shutil.copymode(source, target)
         self.files_copied.add(normalizedTarget)
 
-        newDarwinFile = None
-        if sys.platform == "darwin":
-            # The file was not previously copied, so need to create a
-            # DarwinFile file object to represent the file being copied.
-            referencingFile = None
-            if machOReference is not None:
-                referencingFile = machOReference.sourceFile
-            newDarwinFile = DarwinFile(
-                originalFilePath=source, referencingFile=referencingFile
-            )
-            newDarwinFile.setBuildPath(normalizedTarget)
-            if machOReference is not None:
-                machOReference.setTargetFile(darwinFile=newDarwinFile)
-            self.darwinTracker.recordCopiedFile(
-                targetPath=normalizedTarget, darwinFile=newDarwinFile
-            )
+        # handle post-copy tasks, including copying dependencies
+        self._PostCopy(
+            source=source, target=target,
+            normalizedSource=normalizedSource,
+            normalizedTarget=normalizedTarget,
+            copyDependentFiles=copyDependentFiles,
+            includeMode=includeMode,
+            machOReference=machOReference)
 
-        if (
-            copyDependentFiles
-            and source not in self.finder.exclude_dependent_files
-        ):
-            # Always copy dependent files on root directory
-            # to allow to set relative reference
-            if sys.platform == "darwin":
-                targetdir = self.targetdir
-                for dependent_file in self._GetDependentFiles(
-                    source, darwinFile=newDarwinFile
-                ):
-                    target = os.path.join(
-                        targetdir, os.path.basename(dependent_file)
-                    )
-                    self._CopyFile(
-                        dependent_file,
-                        target,
-                        copyDependentFiles=True,
-                        machOReference=newDarwinFile.getMachOReferenceForPath(
-                            path=dependent_file
-                        ),
-                    )
-            elif sys.platform == "win32":
-                for dependent_file in self._GetDependentFiles(source):
-                    target = os.path.join(
-                        targetdir, os.path.basename(dependent_file)
-                    )
-                    self._CopyFile(dependent_file, target, copyDependentFiles)
-            else:
-                source_dir = os.path.dirname(source)
-                library_dir = os.path.join(self.targetdir, "lib")
-                fix_rpath = set()
-                for dependent_file in self._GetDependentFiles(source):
-                    dep_base = os.path.basename(dependent_file)
-                    dep_abs = os.path.abspath(dependent_file)
-                    dep_rel = os.path.relpath(dep_abs, source_dir)
-                    if targetdir == library_dir:
-                        while dep_rel.startswith(os.pardir + os.sep):
-                            dep_rel = dep_rel[len(os.pardir + os.sep) :]
-                    dep_libs = dep_rel[: -(len(dep_base) + 1)]
-                    if dep_libs:
-                        fix_rpath.add(dep_libs)
-                    dependent_target = os.path.join(targetdir, dep_rel)
-                    self._CopyFile(
-                        dependent_file,
-                        dependent_target,
-                        copyDependentFiles,
-                    )
-                if fix_rpath:
-                    has_rpath = self.patchelf.get_rpath(target)
-                    rpath = ":".join([f"$ORIGIN/{r}" for r in fix_rpath])
-                    if has_rpath != rpath:
-                        self.patchelf.set_rpath(target, rpath)
+    @abstractmethod
+    def _PostCopy(self,
+                  source, target,
+                  normalizedSource,
+                  normalizedTarget,
+                  copyDependentFiles,
+                  includeMode=False,
+                  machOReference: Optional[MachOReference] = None):
+        return
 
     def _CreateDirectory(self, path: str):
         if not self.silent and not os.path.isdir(path):
@@ -320,32 +249,19 @@ class Freezer(ABC):
             os.chmod(target_path, mode | stat.S_IWUSR)
 
         # Copy icon
-        if exe.icon is not None:
-            if sys.platform == "win32":
-                try:
-                    winutil.AddIcon(target_path, exe.icon)
-                except RuntimeError as exc:
-                    print("*** WARNING ***", exc)
-                except OSError as exc:
-                    if "\\WindowsApps\\" in sys.base_prefix:
-                        print(
-                            "*** WARNING *** Because of restrictions on "
-                            "Microsoft Store apps, Python scripts may not "
-                            "have full write access to built executable.\n"
-                            "You will need to install the full installer.\n"
-                            "The following error was returned:"
-                        )
-                        print(exc)
-                    else:
-                        raise
-            else:
-                target_icon = os.path.join(
-                    self.targetdir, os.path.basename(exe.icon)
-                )
-                self._CopyFile(exe.icon, target_icon, copyDependentFiles=False)
+        self._CopyIcon(exe=exe, target_dir=target_dir,
+                           target_path=target_path)
 
-        if self.metadata is not None and sys.platform == "win32":
+        if self.metadata is not None:
             self._AddVersionResource(exe)
+
+    def _CopyIcon(self, exe, target_dir, target_path):
+        if exe.icon is None: return
+        target_icon = os.path.join(
+            self.targetdir, os.path.basename(exe.icon)
+        )
+        self._CopyFile(exe.icon, target_icon, copyDependentFiles=False)
+        return
 
     def _GetDefaultBinExcludes(self):
         """Return the file names of libraries that need not be included because
@@ -796,10 +712,6 @@ class Freezer(ABC):
         self.files_copied = set()
         self.linkerWarnings = {}
 
-        self.darwinTracker = None  # type: Optional[DarwinFileTracker]
-        if sys.platform == "darwin":
-            self.darwinTracker = DarwinFileTracker()
-
         self.finder: ModuleFinder = self._GetModuleFinder()
 
         # Add the executables to target
@@ -842,23 +754,171 @@ class Freezer(ABC):
                     fullname,
                     copyDependentFiles=True,
                 )
-        # do a final pass to clean up dependency references in Mach-O files.
-        if sys.platform == "darwin":
-            self.darwinTracker.finalizeReferences()
+
+        # do any platform-specific post-Freeze work
+        self._PostFreeze()
+
+    def _PostFreeze(self):
+        return
 
 class WinFreezer(Freezer):
     def _PlatformInit(self):
         return
 
+    def _AddVersionResource(self, exe):
+        warning_msg = "*** WARNING *** unable to create version resource"
+        if version_stamp is None:
+            print(warning_msg)
+            print("install pywin32 extensions first")
+            return
+        if not self.metadata.version:
+            print(warning_msg)
+            print("version must be specified")
+            return
+        filename = os.path.join(self.targetdir, exe.target_name)
+        versionInfo = VersionInfo(
+            self.metadata.version,
+            comments=self.metadata.long_description,
+            description=self.metadata.description,
+            company=self.metadata.author,
+            product=self.metadata.name,
+            copyright=exe.copyright,
+            trademarks=exe.trademarks,
+        )
+        version_stamp(filename, versionInfo)
+
+    def _CopyIcon(self, exe, target_dir, target_path):
+        if exe.icon is None: return
+        try:
+            winutil.AddIcon(target_path, exe.icon)
+        except RuntimeError as exc:
+            print("*** WARNING ***", exc)
+        except OSError as exc:
+            if "\\WindowsApps\\" in sys.base_prefix:
+                print(
+                    "*** WARNING *** Because of restrictions on "
+                    "Microsoft Store apps, Python scripts may not "
+                    "have full write access to built executable.\n"
+                    "You will need to install the full installer.\n"
+                    "The following error was returned:"
+                )
+                print(exc)
+            else:
+                raise
+        return
+
+    def _PostCopy(self,
+                  source,
+                  target,
+                  normalizedSource,
+                  normalizedTarget,
+                  copyDependentFiles,
+                  includeMode=False,
+                  machOReference: Optional[MachOReference] = None):
+        if (copyDependentFiles
+                and source not in self.finder.exclude_dependent_files):
+
+            targetdir = os.path.dirname(target)
+            for dependent_file in self._GetDependentFiles(source):
+                target = os.path.join(
+                    targetdir, os.path.basename(dependent_file)
+                )
+                self._CopyFile(dependent_file, target, copyDependentFiles)
+        return
 
 
 class DarwinFreezer(Freezer):
     def _PlatformInit(self):
+        self.darwinTracker : Optional[DarwinFileTracker] = None
+        self.darwinTracker = DarwinFileTracker()
         return
 
+    def _PostFreeze(self):
+        self.darwinTracker.finalizeReferences()
+        return
 
+    def _PostCopy(self,
+                  source,
+                  target,
+                  normalizedSource,
+                  normalizedTarget,
+                  copyDependentFiles,
+                  includeMode=False,
+                  machOReference: Optional[MachOReference] = None):
+        # The file was not previously copied, so need to create a
+        # DarwinFile file object to represent the file being copied.
+        newDarwinFile = None
+
+        referencingFile = None
+        if machOReference is not None:
+            referencingFile = machOReference.sourceFile
+        newDarwinFile = DarwinFile(
+            originalFilePath=source, referencingFile=referencingFile
+        )
+        newDarwinFile.setBuildPath(normalizedTarget)
+        if machOReference is not None:
+            machOReference.setTargetFile(darwinFile=newDarwinFile)
+        self.darwinTracker.recordCopiedFile(
+            targetPath=normalizedTarget, darwinFile=newDarwinFile
+        )
+        if (copyDependentFiles
+           and source not in self.finder.exclude_dependent_files):
+            # Always copy dependent files on root directory
+            # to allow to set relative reference
+            for dependent_file in self._GetDependentFiles(
+                    source, darwinFile=newDarwinFile
+            ):
+                targetdir = self.targetdir
+                target = os.path.join(
+                    targetdir, os.path.basename(dependent_file)
+                )
+                self._CopyFile(
+                    dependent_file,
+                    target,
+                    copyDependentFiles=True,
+                    machOReference=newDarwinFile.getMachOReferenceForPath(
+                        path=dependent_file
+                    ),
+                )
+        return
 
 class LinuxFreezer(Freezer):
     def _PlatformInit(self):
         return
 
+    def _PostCopy(self,
+                  source,
+                  target,
+                  normalizedSource,
+                  normalizedTarget,
+                  copyDependentFiles,
+                  includeMode=False,
+                  machOReference: Optional[MachOReference] = None):
+        if (copyDependentFiles
+                and source not in self.finder.exclude_dependent_files):
+            targetdir = self.targetdir
+            source_dir = os.path.dirname(source)
+            library_dir = os.path.join(self.targetdir, "lib")
+            fix_rpath = set()
+            for dependent_file in self._GetDependentFiles(source):
+                dep_base = os.path.basename(dependent_file)
+                dep_abs = os.path.abspath(dependent_file)
+                dep_rel = os.path.relpath(dep_abs, source_dir)
+                if targetdir == library_dir:
+                    while dep_rel.startswith(os.pardir + os.sep):
+                        dep_rel = dep_rel[len(os.pardir + os.sep):]
+                dep_libs = dep_rel[: -(len(dep_base) + 1)]
+                if dep_libs:
+                    fix_rpath.add(dep_libs)
+                dependent_target = os.path.join(targetdir, dep_rel)
+                self._CopyFile(
+                    dependent_file,
+                    dependent_target,
+                    copyDependentFiles,
+                )
+            if fix_rpath:
+                has_rpath = self.patchelf.get_rpath(target)
+                rpath = ":".join([f"$ORIGIN/{r}" for r in fix_rpath])
+                if has_rpath != rpath:
+                    self.patchelf.set_rpath(target, rpath)
+        return
