@@ -40,6 +40,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         ("product-code=", None, "product code to use"),
         ("install-icon=", None, "icon path to add/remove programs "),
         ("all-users=", None, "installation for all users (or just me)"),
+        ('extensions=', None, 'Extensions for which to register Verbs'),
     ]
     x = y = 50
     width = 370
@@ -47,6 +48,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     title = "[ProductName] Setup"
     modeless = 1
     modal = 3
+    _binary_columns = {
+        'Binary': 1,
+        'Icon': 1,
+        'Patch': 4,
+        'SFPCatalog': 1,
+        'MsiDigitalCertificate': 1,
+        'MsiPatchHeaders': 1,
+    }
 
     def add_config(self, fullname):
         if self.add_to_path:
@@ -126,6 +135,12 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                     ],
                 )
         for tableName, data in self.data.items():
+            col = self._binary_columns.get(tableName)
+            if col is not None:
+                data = [
+                    (*row[:col], msilib.Binary(row[col]), *row[col + 1:])
+                    for row in data
+                ]
             msilib.add_data(self.db, tableName, data)
 
         # If provided, add data to MSI's summary information stream
@@ -296,7 +311,21 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         while todo:
             dir = todo.pop()
             for file in os.listdir(dir.absolute):
-                if os.path.isdir(os.path.join(dir.absolute, file)):
+                sep_comp = self.separate_components.get(os.path.relpath(
+                    os.path.join(dir.absolute, file),
+                    self.bdist_dir,
+                ))
+                if sep_comp is not None:
+                    restore_component = dir.component
+                    dir.start_component(
+                        component=sep_comp,
+                        flags=0,
+                        feature=f,
+                        keyfile=file,
+                    )
+                    dir.add_file(file)
+                    dir.component = restore_component
+                elif os.path.isdir(os.path.join(dir.absolute, file)):
                     newDir = msilib.Directory(
                         db,
                         cab,
@@ -746,6 +775,12 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         )
         button.event("EndDialog", "Exit")
 
+    def _append_to_data(self, table, *line):
+        rows = self.data.setdefault(table, [])
+        line = tuple(line)
+        if line not in rows:
+            rows.append(line)
+
     def finalize_options(self):
         distutils.command.bdist_msi.bdist_msi.finalize_options(self)
         name = self.distribution.get_name()
@@ -773,6 +808,94 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             self.data = {}
         if not isinstance(self.summary_data, dict):
             self.summary_data = {}
+        self.separate_components = {}
+        for n, executable in enumerate(self.distribution.executables):
+            base_name = os.path.basename(executable.target_name)
+            # Trying to make these names unique from any directory name
+            self.separate_components[base_name] = msilib.make_id(
+                '_cx_executable{}_{}'.format(n, executable)
+            )
+        if self.extensions is None:
+            self.extensions = []
+        for extension in self.extensions:
+            try:
+                ext = extension['extension']
+                verb = extension['verb']
+                executable = extension['executable']
+            except KeyError:
+                raise ValueError('Each extension must have at least \
+                                  extension, verb, and executable')
+            try:
+                component = self.separate_components[executable]
+            except KeyError:
+                raise ValueError("Executable must be the base target name \
+                                  of one of the distribution's executables")
+            progid = msilib.make_id('{}.{}.{}'.format(
+                self.distribution.get_name(),
+                os.path.splitext(executable)[0],
+                self.distribution.get_version(),
+            ))
+            mime = extension.get('mime', None)
+            argument = extension.get('argument', None)  # "%1" a better default?
+            context = extension.get(
+                'context',
+                '{} {}'.format(self.distribution.get_fullname(), verb),
+            )
+            # Add rows via self.data to safely ignore duplicates
+            self._append_to_data('ProgId',
+                progid,
+                None,
+                None,
+                self.distribution.get_description(),
+                None,
+                None,
+            )
+            self._append_to_data('Extension',
+                ext,
+                component,
+                progid,
+                mime,
+                'default',
+            )
+            self._append_to_data('Verb',
+                ext,
+                verb,
+                0,
+                context,
+                argument,
+            )
+            if mime is not None:
+                self._append_to_data('MIME',
+                    mime,
+                    ext,
+                    'None',
+                )
+            # Registry entries that allow proper display of the app in menu
+            self._append_to_data('Registry',
+                '{}-name'.format(progid),
+                -1,
+                r'Software\Classes\{}'.format(progid),
+                'FriendlyAppName',
+                self.distribution.get_name(),
+                component,
+            )
+            self._append_to_data('Registry',
+                '{}-verb-{}'.format(progid, verb),
+                -1,
+                r'Software\Classes\{}\shell\{}'.format(progid, verb),
+                'FriendlyAppName',
+                self.distribution.get_name(),
+                component,
+            )
+            self._append_to_data('Registry',
+                '{}-author'.format(progid),
+                -1,
+                r'Software\Classes\{}\Application'.format(progid),
+                'ApplicationCompany',
+                self.distribution.get_author(),
+                component,
+            )
+
 
     def initialize_options(self):
         distutils.command.bdist_msi.bdist_msi.initialize_options(self)
@@ -787,6 +910,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.summary_data = None
         self.install_icon = None
         self.all_users = False
+        self.extensions = None
 
     def run(self):
         if not self.skip_build:
