@@ -41,6 +41,19 @@ __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
 
 class Freezer(ABC):
+    def __new__(cls, *args, **kwargs):
+        # create instance of appropriate sub-class, depending on the platform.
+        instance: Freezer
+        if sys.platform == "win32":
+            instance =  super().__new__(WinFreezer)
+        elif sys.platform == "darwin":
+            instance =  super().__new__(DarwinFreezer)
+        elif sys.platform == "linux":
+            instance =  super().__new__(LinuxFreezer)
+        else:
+            raise Exception(f'Unknown platform: {sys.platform}')
+        return instance
+
     def __init__(
         self,
         executables: List["Executable"],

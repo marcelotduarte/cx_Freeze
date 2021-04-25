@@ -238,17 +238,7 @@ class build_exe(distutils.core.Command):
                 "namespace-packages is obsolete and will be removed in the next version"
             )
 
-        freeze_class: Type[Freezer]
-        if sys.platform == "win32":
-            freeze_class = WinFreezer
-        elif sys.platform == "darwin":
-            freeze_class = DarwinFreezer
-        elif sys.platform == "linux":
-            freeze_class = LinuxFreezer
-        else:
-            raise Exception(f'Unknown platform: {sys.platform}')
-
-        freezer: Freezer = freeze_class(
+        freezer: Freezer = Freezer(
             self.distribution.executables,
             constants_module,
             self.includes,
