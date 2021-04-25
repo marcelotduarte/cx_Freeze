@@ -267,49 +267,27 @@ class Freezer(ABC):
         """Return the file names of libraries that need not be included because
         they would normally be expected to be found on the target system or
         because they are part of a package which requires independent
-        installation anyway."""
-        if sys.platform == "win32":
-            return ["comctl32.dll", "oci.dll"]
+        installation anyway.
+        (overridden on Windows)"""
         return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _GetDefaultBinIncludes(self):
         """Return the file names of libraries which must be included for the
-        frozen executable to work."""
+        frozen executable to work.
+        (overriden on Windows)"""
         python_shared_libs = []
-        if sys.platform == "win32":
-            if sysconfig.get_platform() == "mingw":
-                name = distutils.sysconfig.get_config_var("INSTSONAME")
-                if name:
-                    python_shared_libs.append(name.replace(".dll.a", ".dll"))
-            else:
-                python_shared_libs += [
-                    "python%s.dll" % sys.version_info[0],
-                    "python%s%s.dll" % sys.version_info[:2],
-                ]
-        else:
-            name = distutils.sysconfig.get_config_var("INSTSONAME")
-            if name:
-                python_shared_libs.append(self._RemoveVersionNumbers(name))
+        name = distutils.sysconfig.get_config_var("INSTSONAME")
+        if name:
+            python_shared_libs.append(self._RemoveVersionNumbers(name))
         return python_shared_libs
 
+    @abstractmethod
     def _GetDefaultBinPathExcludes(self):
         """Return the paths of directories which contain files that should not
         be included, generally because they contain standard system
-        libraries."""
-        if sys.platform == "win32":
-            systemDir = winutil.GetSystemDir()
-            windowsDir = winutil.GetWindowsDir()
-            return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
-        if sys.platform == "darwin":
-            return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
-        return [
-            "/lib",
-            "/lib32",
-            "/lib64",
-            "/usr/lib",
-            "/usr/lib32",
-            "/usr/lib64",
-        ]
+        libraries.
+        (Overridden on Windows and Darwin)"""
+        return []
 
     def _GetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
         """Return the file's dependencies using platform-specific tools (the
@@ -317,71 +295,11 @@ class Freezer(ABC):
         limit this list by the exclusion lists as needed"""
         path = os.path.normcase(path)
         dependentFiles = self.dependentFiles.get(path, [])
-        if not dependentFiles:
-            if sys.platform == "win32":
-                if path.endswith((".exe", ".dll", ".pyd")):
-                    origPath = os.environ["PATH"]
-                    os.environ["PATH"] = (
-                        origPath + os.pathsep + os.pathsep.join(sys.path)
-                    )
-                    try:
-                        dependentFiles = winutil.GetDependentFiles(path)
-                    except winutil.BindError as exc:
-                        # Sometimes this gets called when path is not actually
-                        # a library (See issue 88).
-                        print("error during GetDependentFiles() of ", end="")
-                        print(f"{path!r}: {exc!s}")
-                    os.environ["PATH"] = origPath
-            elif sys.platform == "darwin":
-                # if darwinFile is None (which means that _GetDependentFiles is
-                # being called outside of _CopyFile -- e.g., one of the
-                # preliminary calls in _FreezeExecutable), create a temporary
-                # DarwinFile object for the path, just so we can read its
-                # dependencies
-                if darwinFile is None:
-                    darwinFile = DarwinFile(
-                        originalFilePath=path, referencingFile=None
-                    )
-                dependentFiles = darwinFile.getDependentFilePaths()
+        if dependentFiles is not None:
+            return dependentFiles
 
-                # cache the MachOReferences to the dependencies, so they can be
-                # called up later in _CopyFile if copying a dependency without
-                # an explicit reference provided
-                # (to assist in resolving @rpaths)
-                for reference in darwinFile.getMachOReferenceList():
-                    if reference.isResolved():
-                        self.darwinTracker.cacheReferenceTo(
-                            sourcePath=reference.resolvedReferencePath,
-                            machOReference=reference,
-                        )
-            else:
-                if not os.access(path, os.X_OK):
-                    self.dependentFiles[path] = []
-                    return []
-                command = f"ldd {path!r}"
-                splitString = " => "
-                dependentFileIndex = 1
-                for line in os.popen(command):
-                    parts = line.expandtabs().strip().split(splitString)
-                    if len(parts) != 2:
-                        continue
-                    dependentFile = parts[dependentFileIndex].strip()
-                    if dependentFile == os.path.basename(path):
-                        continue
-                    if dependentFile in ("not found", "(file not found)"):
-                        filename = parts[0]
-                        if filename not in self.linkerWarnings:
-                            self.linkerWarnings[filename] = None
-                            print("WARNING: cannot find %s" % filename)
-                        continue
-                    if dependentFile.startswith("("):
-                        continue
-                    pos = dependentFile.find(" (")
-                    if pos >= 0:
-                        dependentFile = dependentFile[:pos].strip()
-                    if dependentFile:
-                        dependentFiles.append(dependentFile)
-            self.dependentFiles[path] = dependentFiles
+        dependentFiles = self._PlatformGetDependentFiles(path, darwinFile)
+        self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
     def _GetModuleFinder(self) -> ModuleFinder:
@@ -470,9 +388,6 @@ class Freezer(ABC):
         return True
 
     def _VerifyConfiguration(self):
-        # starts external component
-        if sys.platform == "linux":
-            self.patchelf = Patchelf()
 
         # starts in a clean directory
         if self.targetdir is None:
@@ -505,15 +420,10 @@ class Freezer(ABC):
         self.binPathExcludes = [os.path.normcase(name) for name in paths]
 
         # control runtime files
+        #TODO: Consider if we can put this data only in WinFreezer
         self.runtime_files = set()
         self.runtime_files_to_dup = set()
-        if sys.platform == "win32":
-            if self.include_msvcr:
-                self.runtime_files.update(winmsvcr.FILES)
-                self.runtime_files_to_dup.update(winmsvcr.FILES_TO_DUPLICATE)
-            else:
-                # just put on the exclusion list
-                self.binExcludes.extend(winmsvcr.FILES)
+        self._PlatformSetRuntimeFiles()
 
         for source, target in self.includeFiles + self.zipIncludes:
             if not os.path.exists(source):
@@ -540,6 +450,10 @@ class Freezer(ABC):
                     f"package {name!r} cannot be both included and "
                     "excluded from zip file"
                 )
+
+    def _PlatformSetRuntimeFiles(self):
+        return
+
 
     def _WriteModules(self, filename, finder):
         finder.IncludeFile(*self.constants_module.create(finder.modules))
@@ -708,7 +622,7 @@ class Freezer(ABC):
                 os.environ["PATH"] = origPath
 
     def Freeze(self):
-        self.dependentFiles = {}  # type: Dict[Any, List]
+        self.dependentFiles: Dict[Any, List] = {}
         self.files_copied = set()
         self.linkerWarnings = {}
 
@@ -826,6 +740,52 @@ class WinFreezer(Freezer):
                 self._CopyFile(dependent_file, target, copyDependentFiles)
         return
 
+    def _GetDefaultBinExcludes(self):
+        return ["comctl32.dll", "oci.dll"]
+
+    def _GetDefaultBinIncludes(self):
+        python_shared_libs = []
+        if sysconfig.get_platform() == "mingw":
+            name = distutils.sysconfig.get_config_var("INSTSONAME")
+            if name:
+                python_shared_libs.append(name.replace(".dll.a", ".dll"))
+        else:
+            python_shared_libs += [
+                "python%s.dll" % sys.version_info[0],
+                "python%s%s.dll" % sys.version_info[:2],
+            ]
+        return python_shared_libs
+
+    def _GetDefaultBinPathExcludes(self):
+        systemDir = winutil.GetSystemDir()
+        windowsDir = winutil.GetWindowsDir()
+        return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
+
+    def _PlatformGetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+        if path.endswith((".exe", ".dll", ".pyd")):
+            origPath = os.environ["PATH"]
+            os.environ["PATH"] = (
+                    origPath + os.pathsep + os.pathsep.join(sys.path)
+            )
+            try:
+                dependentFiles = winutil.GetDependentFiles(path)
+            except winutil.BindError as exc:
+                # Sometimes this gets called when path is not actually
+                # a library (See issue 88).
+                print("error during GetDependentFiles() of ", end="")
+                print(f"{path!r}: {exc!s}")
+            os.environ["PATH"] = origPath
+        return dependentFiles
+
+    def _PlatformSetRuntimeFiles(self):
+        if self.include_msvcr:
+            self.runtime_files.update(winmsvcr.FILES)
+            self.runtime_files_to_dup.update(winmsvcr.FILES_TO_DUPLICATE)
+        else:
+            # just put on the exclusion list
+            self.binExcludes.extend(winmsvcr.FILES)
+        return
+
 
 class DarwinFreezer(Freezer):
     def _PlatformInit(self):
@@ -845,6 +805,8 @@ class DarwinFreezer(Freezer):
                   copyDependentFiles,
                   includeMode=False,
                   machOReference: Optional[MachOReference] = None):
+        # TODO: remove need for machOReference
+
         # The file was not previously copied, so need to create a
         # DarwinFile file object to represent the file being copied.
         newDarwinFile = None
@@ -882,8 +844,37 @@ class DarwinFreezer(Freezer):
                 )
         return
 
+    def _GetDefaultBinPathExcludes(self):
+        return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
+
+    def _PlatformGetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+        # TODO: remove the need for darwinFile parameter
+        # if darwinFile is None (which means that _GetDependentFiles is
+        # being called outside of _CopyFile -- e.g., one of the
+        # preliminary calls in _FreezeExecutable), create a temporary
+        # DarwinFile object for the path, just so we can read its
+        # dependencies
+        if darwinFile is None:
+            darwinFile = DarwinFile(
+                originalFilePath=path, referencingFile=None
+            )
+        dependentFiles = darwinFile.getDependentFilePaths()
+
+        # cache the MachOReferences to the dependencies, so they can be
+        # called up later in _CopyFile if copying a dependency without
+        # an explicit reference provided
+        # (to assist in resolving @rpaths)
+        for reference in darwinFile.getMachOReferenceList():
+            if reference.isResolved():
+                self.darwinTracker.cacheReferenceTo(
+                    sourcePath=reference.resolvedReferencePath,
+                    machOReference=reference,
+                )
+        return dependentFiles
+
 class LinuxFreezer(Freezer):
     def _PlatformInit(self):
+        self.patchelf = Patchelf()
         return
 
     def _PostCopy(self,
@@ -894,6 +885,7 @@ class LinuxFreezer(Freezer):
                   copyDependentFiles,
                   includeMode=False,
                   machOReference: Optional[MachOReference] = None):
+        # TODO: remove useages of source/target (only use normalied paths)
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
             targetdir = self.targetdir
@@ -922,3 +914,43 @@ class LinuxFreezer(Freezer):
                 if has_rpath != rpath:
                     self.patchelf.set_rpath(target, rpath)
         return
+
+    def _GetDefaultBinPathExcludes(self):
+        return [
+            "/lib",
+            "/lib32",
+            "/lib64",
+            "/usr/lib",
+            "/usr/lib32",
+            "/usr/lib64",
+        ]
+
+    def _PlatformGetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+        dependentFiles = []
+        if not os.access(path, os.X_OK):
+            self.dependentFiles[path] = []
+            return []
+        command = f"ldd {path!r}"
+        splitString = " => "
+        dependentFileIndex = 1
+        for line in os.popen(command):
+            parts = line.expandtabs().strip().split(splitString)
+            if len(parts) != 2:
+                continue
+            dependentFile = parts[dependentFileIndex].strip()
+            if dependentFile == os.path.basename(path):
+                continue
+            if dependentFile in ("not found", "(file not found)"):
+                filename = parts[0]
+                if filename not in self.linkerWarnings:
+                    self.linkerWarnings[filename] = None
+                    print("WARNING: cannot find %s" % filename)
+                continue
+            if dependentFile.startswith("("):
+                continue
+            pos = dependentFile.find(" (")
+            if pos >= 0:
+                dependentFile = dependentFile[:pos].strip()
+            if dependentFile:
+                dependentFiles.append(dependentFile)
+        return dependentFiles
