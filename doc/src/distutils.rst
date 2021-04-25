@@ -260,7 +260,8 @@ command:
    * - data
      - dictionary of arbitrary MSI data indexed by table name; for each table,
        a list of tuples should be provided, representing the rows that should
-       be added to the table
+       be added to the table. For binary values (e.g. Icon.Data), pass the path
+       to the file containing the data.
    * - summary_data
      - dictionary of data to include in MSI summary information stream
        (allowable keys are "author", "comments", "keywords")
