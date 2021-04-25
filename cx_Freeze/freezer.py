@@ -2,6 +2,7 @@
 Base class for freezing scripts into executables.
 """
 
+from abc import ABC, abstractmethod
 from distutils.dist import DistributionMetadata
 import distutils.sysconfig
 import distutils.util
@@ -39,7 +40,7 @@ if sys.platform == "win32":
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
 
-class Freezer:
+class Freezer(ABC):
     def __init__(
         self,
         executables: List["Executable"],
@@ -86,6 +87,13 @@ class Freezer:
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
         self._VerifyConfiguration()
+        self._PlatformInit()
+        return
+
+    @abstractmethod
+    def _PlatformInit(self):
+        """Platform specific intialization."""
+        return
 
     def _AddVersionResource(self, exe):
         warning_msg = "*** WARNING *** unable to create version resource"
@@ -837,3 +845,20 @@ class Freezer:
         # do a final pass to clean up dependency references in Mach-O files.
         if sys.platform == "darwin":
             self.darwinTracker.finalizeReferences()
+
+class WinFreezer(Freezer):
+    def _PlatformInit(self):
+        return
+
+
+
+class DarwinFreezer(Freezer):
+    def _PlatformInit(self):
+        return
+
+
+
+class LinuxFreezer(Freezer):
+    def _PlatformInit(self):
+        return
+

@@ -10,10 +10,11 @@ import distutils.util
 import distutils.version
 import os
 import sys
+from typing import Type
 import warnings
 
 from .common import normalize_to_list
-from .freezer import Freezer
+from .freezer import Freezer, WinFreezer, DarwinFreezer, LinuxFreezer
 from .module import ConstantsModule
 
 if sys.platform == "win32":
@@ -236,7 +237,18 @@ class build_exe(distutils.core.Command):
             warnings.warn(
                 "namespace-packages is obsolete and will be removed in the next version"
             )
-        freezer = Freezer(
+
+        freeze_class: Type[Freezer]
+        if sys.platform == "win32":
+            freeze_class = Freezer
+        elif sys.platform == "darwin":
+            freeze_class = Freezer
+        elif sys.platform == "linux":
+            freeze_class = Freezer
+        else:
+            raise Exception(f'Unknown platform: {sys.platform}')
+
+        freezer: Freezer = freeze_class(
             self.distribution.executables,
             constants_module,
             self.includes,
