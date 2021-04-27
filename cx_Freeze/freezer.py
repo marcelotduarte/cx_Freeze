@@ -103,12 +103,6 @@ class Freezer(ABC):
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
         self._VerifyConfiguration()
-        self._PlatformInit()
-        return
-
-    @abstractmethod
-    def _PlatformInit(self):
-        """Platform specific intialization."""
         return
 
     def _AddVersionResource(self, exe):
@@ -693,7 +687,8 @@ class Freezer(ABC):
         return
 
 class WinFreezer(Freezer):
-    def _PlatformInit(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         return
 
     def _AddVersionResource(self, exe):
@@ -811,7 +806,8 @@ class WinFreezer(Freezer):
 
 
 class DarwinFreezer(Freezer):
-    def _PlatformInit(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.darwinTracker : Optional[DarwinFileTracker] = None
         self.darwinTracker = DarwinFileTracker()
         return
@@ -896,7 +892,8 @@ class DarwinFreezer(Freezer):
         return dependentFiles
 
 class LinuxFreezer(Freezer):
-    def _PlatformInit(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.patchelf = Patchelf()
         return
 
