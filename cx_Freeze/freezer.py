@@ -305,7 +305,7 @@ class Freezer(ABC):
         imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
         limit this list by the exclusion lists as needed"""
         path = os.path.normcase(path)
-        dependentFiles = self.dependentFiles.get(path, [])
+        dependentFiles = self.dependentFiles.get(path, None)
         if dependentFiles is not None:
             return dependentFiles
 
