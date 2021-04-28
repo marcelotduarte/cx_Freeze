@@ -69,11 +69,14 @@ class Module:
         files = [file for file in files if file.match("*.dist-info/*")]
         if files:
             for file in files:
+                src_path = file.locate()
+                if not src_path.exists():
+                    continue
                 dist_path = os.path.join(
                     self.rootcachedir.name, os.path.normpath(file.as_posix())
                 )
                 os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-                shutil.copyfile(str(file.locate()), dist_path)
+                shutil.copyfile(src_path, dist_path)
                 self.dist_files.append(file.as_posix())
 
     def __repr__(self) -> str:
