@@ -271,21 +271,11 @@ class Freezer(ABC):
         (Overridden on Windows and Darwin)"""
         return []
 
-    def _GetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
+    @abstractmethod
+    def _GetDependentFiles(self, path: str) -> List[str]:
         """Return the file's dependencies using platform-specific tools (the
         imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
-        limit this list by the exclusion lists as needed"""
-        path = os.path.normcase(path)
-        dependentFiles = self.dependentFiles.get(path, None)
-        if dependentFiles is not None:
-            return dependentFiles
-
-        dependentFiles = self._PlatformGetDependentFiles(path, darwinFile)
-        self.dependentFiles[path] = dependentFiles
-        return dependentFiles
-
-    @abstractmethod
-    def _PlatformGetDependentFiles(self, path: str, darwinFile: Optional[DarwinFile]) -> List[str]:
+        limit this list by the exclusion lists as needed.  (Implemented separately for each platform.)"""
         return []
 
     def _GetModuleFinder(self) -> ModuleFinder:
@@ -764,21 +754,12 @@ class WinFreezer(Freezer):
         windowsDir = winutil.GetWindowsDir()
         return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
 
-    def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
-        search_dirs = set()
-        for filename in dependent_files:
-            search_dirs.add(os.path.dirname(filename))
-        for filename in self.runtime_files:
-            for search_dir in search_dirs:
-                filepath = os.path.join(search_dir, filename)
-                if os.path.exists(filepath):
-                    dependent_files.add(filepath)
-        return
+    def _GetDependentFiles(self, path) -> List[str]:
+        path = os.path.normcase(path)
+        dependentFiles = self.dependentFiles.get(path, None)
+        if dependentFiles is not None:
+            return dependentFiles
 
-    def _PlatformExecutableDependencyDir(self) -> str:
-        return self.targetdir
-
-    def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         dependentFiles: List[str] = []
         if path.endswith((".exe", ".dll", ".pyd")):
             origPath = os.environ["PATH"]
@@ -794,7 +775,22 @@ class WinFreezer(Freezer):
                     print("error during GetDependentFiles() of ", end="")
                     print(f"{path!r}: {exc!s}")
             os.environ["PATH"] = origPath
+        self.dependentFiles[path] = dependentFiles
         return dependentFiles
+
+    def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
+        search_dirs = set()
+        for filename in dependent_files:
+            search_dirs.add(os.path.dirname(filename))
+        for filename in self.runtime_files:
+            for search_dir in search_dirs:
+                filepath = os.path.join(search_dir, filename)
+                if os.path.exists(filepath):
+                    dependent_files.add(filepath)
+        return
+
+    def _PlatformExecutableDependencyDir(self) -> str:
+        return self.targetdir
 
     def _PlatformSetRuntimeFiles(self):
         if self.include_msvcr:
@@ -824,6 +820,7 @@ class DarwinFreezer(Freezer):
                       copyDependentFiles,
                       includeMode=False,
                       machOReference: Optional[MachOReference] = None):
+
         # The file was not previously copied, so need to create a
         # DarwinFile file object to represent the file being copied.
         newDarwinFile = None
@@ -831,12 +828,14 @@ class DarwinFreezer(Freezer):
         referencingFile = None
         if machOReference is not None:
             referencingFile = machOReference.sourceFile
+
         newDarwinFile = DarwinFile(
             originalFilePath=source, referencingFile=referencingFile
         )
         newDarwinFile.setBuildPath(normalizedTarget)
         if machOReference is not None:
             machOReference.setTargetFile(darwinFile=newDarwinFile)
+
         self.darwinTracker.recordCopiedFile(
             targetPath=normalizedTarget, darwinFile=newDarwinFile
         )
@@ -914,9 +913,10 @@ class DarwinFreezer(Freezer):
     def _CopyTopDependency(self, source: str, target: str):
         """Called for copying certain top dependencies.  We need this as a separaet function
         so that it can be overriden on Darwin."""
+
         # this recovers the cached MachOReference pointers to the files
-        # found by the _GetDependentFiles calls above. If one is found,
-        # pass into _CopyFile.
+        # found by the _GetDependentFiles calls made previously (if any).
+        # If one is found, pass into _CopyFile.
         # We need to do this so the file knows what file referenced it,
         # and can therefore calculate the appropriate rpath.
         # (We only cache one reference.)
@@ -935,10 +935,12 @@ class DarwinFreezer(Freezer):
     def _GetDefaultBinPathExcludes(self):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
-    def _PlatformExecutableDependencyDir(self) -> str:
-        return os.path.join(self.targetdir, "lib")
+    def _GetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
+        path = os.path.normcase(path)
+        dependentFiles = self.dependentFiles.get(path, None)
+        if dependentFiles is not None:
+            return dependentFiles
 
-    def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         # if darwinFile is None (which means that _GetDependentFiles is
         # being called outside of _CopyFile -- e.g., one of the
         # preliminary calls in _FreezeExecutable), create a temporary
@@ -960,7 +962,11 @@ class DarwinFreezer(Freezer):
                     sourcePath=reference.resolvedReferencePath,
                     machOReference=reference,
                 )
+        self.dependentFiles[path] = dependentFiles
         return dependentFiles
+
+    def _PlatformExecutableDependencyDir(self) -> str:
+        return os.path.join(self.targetdir, "lib")
 
 class LinuxFreezer(Freezer):
     def __init__(self, *args, **kwargs):
@@ -975,7 +981,7 @@ class LinuxFreezer(Freezer):
                       normalizedTarget,
                       copyDependentFiles,
                       includeMode=False):
-        # TODO: remove useages of source/target (only use normalied paths)
+        # TODO: remove usages of source/target (only use normalied paths)
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
             targetdir = self.targetdir
@@ -1015,10 +1021,12 @@ class LinuxFreezer(Freezer):
             "/usr/lib64",
         ]
 
-    def _PlatformExecutableDependencyDir(self) -> str:
-        return os.path.join(self.targetdir, "lib")
+    def _GetDependentFiles(self, path) -> List[str]:
+        path = os.path.normcase(path)
+        dependentFiles = self.dependentFiles.get(path, None)
+        if dependentFiles is not None:
+            return dependentFiles
 
-    def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         dependentFiles = []
         if not os.access(path, os.X_OK):
             self.dependentFiles[path] = []
@@ -1047,4 +1055,9 @@ class LinuxFreezer(Freezer):
                 dependentFile = dependentFile[:pos].strip()
             if dependentFile:
                 dependentFiles.append(dependentFile)
+        self.dependentFiles[path] = dependentFiles
         return dependentFiles
+
+    def _PlatformExecutableDependencyDir(self) -> str:
+        return os.path.join(self.targetdir, "lib")
+
