@@ -10,11 +10,10 @@ import distutils.util
 import distutils.version
 import os
 import sys
-from typing import Type
 import warnings
 
 from .common import normalize_to_list
-from .freezer import Freezer, WinFreezer, DarwinFreezer, LinuxFreezer
+from .freezer import Freezer
 from .module import ConstantsModule
 
 if sys.platform == "win32":

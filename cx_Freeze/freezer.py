@@ -15,7 +15,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Set, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
@@ -121,18 +121,9 @@ class Freezer(ABC):
 
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
-        norm_target_name = os.path.basename(normalizedTarget)
 
         # fix the target path for C runtime files
-        if norm_target_name in self.runtime_files:
-            target_name = os.path.basename(target)
-            target = os.path.join(self.targetdir, "lib", target_name)
-            # vcruntime140.dll must be in the root and in the lib directory
-            if norm_target_name in self.runtime_files_to_dup:
-                self.runtime_files_to_dup.remove(norm_target_name)
-                self._CopyFile(source, target, copyDependentFiles=False)
-                target = os.path.join(self.targetdir, target_name)
-            normalizedTarget = os.path.normcase(os.path.normpath(target))
+        normalizedTarget = self._CopyFileNameHook(source=source, normalizedTarget=normalizedTarget)
 
         if normalizedTarget in self.files_copied:
             if sys.platform == "darwin" and (machOReference is not None):
@@ -157,7 +148,7 @@ class Freezer(ABC):
         self.files_copied.add(normalizedTarget)
 
         # handle post-copy tasks, including copying dependencies
-        self._PostCopy(
+        self._PostCopyHook(
             source=source, target=target,
             normalizedSource=normalizedSource,
             normalizedTarget=normalizedTarget,
@@ -165,14 +156,17 @@ class Freezer(ABC):
             includeMode=includeMode,
             machOReference=machOReference)
 
+    def _CopyFileNameHook(self, source: str, normalizedTarget: str) -> str:
+        return normalizedTarget
+
     @abstractmethod
-    def _PostCopy(self,
-                  source, target,
-                  normalizedSource,
-                  normalizedTarget,
-                  copyDependentFiles,
-                  includeMode=False,
-                  machOReference: Optional[MachOReference] = None):
+    def _PostCopyHook(self,
+                      source, target,
+                      normalizedSource,
+                      normalizedTarget,
+                      copyDependentFiles,
+                      includeMode=False,
+                      machOReference: Optional[MachOReference] = None):
         return
 
     def _CreateDirectory(self, path: str):
@@ -209,24 +203,16 @@ class Freezer(ABC):
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
-        if sys.platform == "win32" and self.runtime_files:
-            search_dirs = set()
-            for filename in dependent_files:
-                search_dirs.add(os.path.split(filename)[0])
-            for filename in self.runtime_files:
-                for search_dir in search_dirs:
-                    filepath = os.path.join(search_dir, filename)
-                    if os.path.exists(filepath):
-                        dependent_files.add(filepath)
+        self._PlatformAddRuntimeFiles(dependent_files=dependent_files)
 
         # Always copy the dynamic libraries into lib folder
-        target_dir = os.path.join(self.targetdir, "lib")
+        target_lib_dir = os.path.join(self.targetdir, "lib")
         for source in dependent_files:
             # but python dlls should be copied within the executable
             if sys.platform == "win32" and source.endswith(python_libs):
                 target = os.path.join(self.targetdir, os.path.basename(source))
             else:
-                target = os.path.join(target_dir, os.path.basename(source))
+                target = os.path.join(target_lib_dir, os.path.basename(source))
             if sys.platform == "darwin":
                 # this recovers the cached MachOReference pointers to the files
                 # found by the _GetDependentFiles calls above. If one is found,
@@ -260,13 +246,19 @@ class Freezer(ABC):
             os.chmod(target_path, mode | stat.S_IWUSR)
 
         # Copy icon
-        self._CopyIcon(exe=exe, target_dir=target_dir,
+        self._CopyIcon(exe=exe, target_dir=target_lib_dir,
                            target_path=target_path)
 
         if self.metadata is not None:
             self._AddVersionResource(exe)
 
+    def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
+        """Override with platform specific files to add runtime libraries to the list of
+        dependent_files calculated in _FreezeExecutable."""
+        return
+
     def _CopyIcon(self, exe, target_dir, target_path):
+        """Copy icon into application.  (Overridden on Windows)."""
         if exe.icon is None: return
         target_icon = os.path.join(
             self.targetdir, os.path.basename(exe.icon)
@@ -300,7 +292,7 @@ class Freezer(ABC):
         (Overridden on Windows and Darwin)"""
         return []
 
-    def _GetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+    def _GetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         """Return the file's dependencies using platform-specific tools (the
         imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
         limit this list by the exclusion lists as needed"""
@@ -312,6 +304,10 @@ class Freezer(ABC):
         dependentFiles = self._PlatformGetDependentFiles(path, darwinFile)
         self.dependentFiles[path] = dependentFiles
         return dependentFiles
+
+    @abstractmethod
+    def _PlatformGetDependentFiles(self, path: str, darwinFile: Optional[DarwinFile]) -> List[str]:
+        return []
 
     def _GetModuleFinder(self) -> ModuleFinder:
         finder = ModuleFinder(
@@ -430,9 +426,6 @@ class Freezer(ABC):
         self.binPathExcludes = [os.path.normcase(name) for name in paths]
 
         # control runtime files
-        #TODO: Consider if we can put this data only in WinFreezer
-        self.runtime_files = set()
-        self.runtime_files_to_dup = set()
         self._PlatformSetRuntimeFiles()
 
         for source, target in self.includeFiles + self.zipIncludes:
@@ -681,14 +674,16 @@ class Freezer(ABC):
                 )
 
         # do any platform-specific post-Freeze work
-        self._PostFreeze()
+        self._PostFreezeHook()
 
-    def _PostFreeze(self):
+    def _PostFreezeHook(self):
         return
 
 class WinFreezer(Freezer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.runtime_files = set()
+        self.runtime_files_to_dup = set()
         return
 
     def _AddVersionResource(self, exe):
@@ -738,14 +733,27 @@ class WinFreezer(Freezer):
                 raise
         return
 
-    def _PostCopy(self,
-                  source,
-                  target,
-                  normalizedSource,
-                  normalizedTarget,
-                  copyDependentFiles,
-                  includeMode=False,
-                  machOReference: Optional[MachOReference] = None):
+    def _CopyFileNameHook(self, source: str, normalizedTarget: str) -> str:
+        norm_target_name = os.path.basename(normalizedTarget)
+        if norm_target_name in self.runtime_files:
+            target_name = os.path.basename(normalizedTarget)
+            target = os.path.join(self.targetdir, "lib", target_name)
+            # vcruntime140.dll must be in the root and in the lib directory
+            if norm_target_name in self.runtime_files_to_dup:
+                self.runtime_files_to_dup.remove(norm_target_name)
+                self._CopyFile(source, target, copyDependentFiles=False)
+                target = os.path.join(self.targetdir, target_name)
+            normalizedTarget = os.path.normcase(os.path.normpath(target))
+        return normalizedTarget
+
+    def _PostCopyHook(self,
+                      source,
+                      target,
+                      normalizedSource,
+                      normalizedTarget,
+                      copyDependentFiles,
+                      includeMode=False,
+                      machOReference: Optional[MachOReference] = None):
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
 
@@ -778,7 +786,19 @@ class WinFreezer(Freezer):
         windowsDir = winutil.GetWindowsDir()
         return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
 
-    def _PlatformGetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+    def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
+        search_dirs = set()
+        for filename in dependent_files:
+            search_dirs.add(os.path.dirname(filename))
+        for filename in self.runtime_files:
+            for search_dir in search_dirs:
+                filepath = os.path.join(search_dir, filename)
+                if os.path.exists(filepath):
+                    dependent_files.add(filepath)
+        return
+
+    def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
+        dependentFiles: List[str] = []
         if path.endswith((".exe", ".dll", ".pyd")):
             origPath = os.environ["PATH"]
             os.environ["PATH"] = (
@@ -804,7 +824,6 @@ class WinFreezer(Freezer):
             self.binExcludes.extend(winmsvcr.FILES)
         return
 
-
 class DarwinFreezer(Freezer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -812,18 +831,18 @@ class DarwinFreezer(Freezer):
         self.darwinTracker = DarwinFileTracker()
         return
 
-    def _PostFreeze(self):
+    def _PostFreezeHook(self):
         self.darwinTracker.finalizeReferences()
         return
 
-    def _PostCopy(self,
-                  source,
-                  target,
-                  normalizedSource,
-                  normalizedTarget,
-                  copyDependentFiles,
-                  includeMode=False,
-                  machOReference: Optional[MachOReference] = None):
+    def _PostCopyHook(self,
+                      source,
+                      target,
+                      normalizedSource,
+                      normalizedTarget,
+                      copyDependentFiles,
+                      includeMode=False,
+                      machOReference: Optional[MachOReference] = None):
         # TODO: remove need for machOReference
 
         # The file was not previously copied, so need to create a
@@ -866,7 +885,7 @@ class DarwinFreezer(Freezer):
     def _GetDefaultBinPathExcludes(self):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
-    def _PlatformGetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+    def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         # TODO: remove the need for darwinFile parameter
         # if darwinFile is None (which means that _GetDependentFiles is
         # being called outside of _CopyFile -- e.g., one of the
@@ -897,14 +916,14 @@ class LinuxFreezer(Freezer):
         self.patchelf = Patchelf()
         return
 
-    def _PostCopy(self,
-                  source,
-                  target,
-                  normalizedSource,
-                  normalizedTarget,
-                  copyDependentFiles,
-                  includeMode=False,
-                  machOReference: Optional[MachOReference] = None):
+    def _PostCopyHook(self,
+                      source,
+                      target,
+                      normalizedSource,
+                      normalizedTarget,
+                      copyDependentFiles,
+                      includeMode=False,
+                      machOReference: Optional[MachOReference] = None):
         # TODO: remove useages of source/target (only use normalied paths)
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
@@ -945,7 +964,7 @@ class LinuxFreezer(Freezer):
             "/usr/lib64",
         ]
 
-    def _PlatformGetDependentFiles(self, path, darwinFile: DarwinFile = None) -> List:
+    def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         dependentFiles = []
         if not os.access(path, os.X_OK):
             self.dependentFiles[path] = []
