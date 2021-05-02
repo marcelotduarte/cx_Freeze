@@ -114,7 +114,6 @@ class Freezer(ABC):
         target,
         copyDependentFiles,
         includeMode=False,
-        machOReference: Optional[MachOReference] = None,
     ):
         if not self._ShouldCopyFile(source):
             return
@@ -126,14 +125,6 @@ class Freezer(ABC):
         normalizedTarget = self._CopyFileNameHook(source=source, normalizedTarget=normalizedTarget)
 
         if normalizedTarget in self.files_copied:
-            if sys.platform == "darwin" and (machOReference is not None):
-                # If file was already copied, and we are following a reference
-                # from a DarwinFile, then we need to tell the reference where
-                # the file was copied to (so the reference can later be updated).
-                copiedDarwinFile = self.darwinTracker.getDarwinFile(
-                    sourcePath=normalizedSource, targetPath=normalizedTarget
-                )
-                machOReference.setTargetFile(darwinFile=copiedDarwinFile)
             return
         if normalizedSource == normalizedTarget:
             return
@@ -153,8 +144,8 @@ class Freezer(ABC):
             normalizedSource=normalizedSource,
             normalizedTarget=normalizedTarget,
             copyDependentFiles=copyDependentFiles,
-            includeMode=includeMode,
-            machOReference=machOReference)
+            includeMode=includeMode
+        )
 
     def _CopyFileNameHook(self, source: str, normalizedTarget: str) -> str:
         return normalizedTarget
@@ -165,8 +156,7 @@ class Freezer(ABC):
                       normalizedSource,
                       normalizedTarget,
                       copyDependentFiles,
-                      includeMode=False,
-                      machOReference: Optional[MachOReference] = None):
+                      includeMode=False):
         return
 
     def _CreateDirectory(self, path: str):
@@ -205,35 +195,11 @@ class Freezer(ABC):
         # and the directories of the base executable
         self._PlatformAddRuntimeFiles(dependent_files=dependent_files)
 
-        # Always copy the dynamic libraries into lib folder
-        target_lib_dir = os.path.join(self.targetdir, "lib")
         for source in dependent_files:
-            # but python dlls should be copied within the executable
-            if sys.platform == "win32" and source.endswith(python_libs):
-                target = os.path.join(self.targetdir, os.path.basename(source))
-            else:
-                target = os.path.join(target_lib_dir, os.path.basename(source))
-            if sys.platform == "darwin":
-                # this recovers the cached MachOReference pointers to the files
-                # found by the _GetDependentFiles calls above. If one is found,
-                # pass into _CopyFile.
-                # We need to do this so the file knows what file referenced it,
-                # and can therefore calculate the appropriate rpath.
-                # (We only cache one reference.)
-                cachedReference = self.darwinTracker.getCachedReferenceTo(
-                    sourcePath=source
-                )
-                self._CopyFile(
-                    source,
-                    target,
-                    copyDependentFiles=True,
-                    includeMode=True,
-                    machOReference=cachedReference,
-                )
-            else:
-                self._CopyFile(
-                    source, target, copyDependentFiles=True, includeMode=True
-                )
+            # Store dynamic libraries in appropriate location for platform
+            target = os.path.join(self._PlatformExecutableDependencyDir(), os.path.basename(source))
+            self._CopyTopDependency(source=source, target=target)
+
         target_path = os.path.join(self.targetdir, exe.target_name)
         self._CopyFile(
             exe.base,
@@ -246,6 +212,7 @@ class Freezer(ABC):
             os.chmod(target_path, mode | stat.S_IWUSR)
 
         # Copy icon
+        target_lib_dir = os.path.join(self.targetdir, "lib")
         self._CopyIcon(exe=exe, target_dir=target_lib_dir,
                            target_path=target_path)
 
@@ -255,6 +222,18 @@ class Freezer(ABC):
     def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
         """Override with platform specific files to add runtime libraries to the list of
         dependent_files calculated in _FreezeExecutable."""
+        return
+
+    @abstractmethod
+    def _PlatformExecutableDependencyDir(self) -> str:
+        """Returns the directory where the dependencies of the executable should be
+        stored (just for certain dependenceis found in _FreezeExecutable"""
+        return ""
+
+    def _CopyTopDependency(self, source: str, target:str):
+        """Called for copying certain top dependencies in _FreezeExecutable.  We need this as
+        a separate method so that it can be overriden on Darwin."""
+        self._CopyFile( source, target, copyDependentFiles=True, includeMode=True )
         return
 
     def _CopyIcon(self, exe, target_dir, target_path):
@@ -752,8 +731,7 @@ class WinFreezer(Freezer):
                       normalizedSource,
                       normalizedTarget,
                       copyDependentFiles,
-                      includeMode=False,
-                      machOReference: Optional[MachOReference] = None):
+                      includeMode=False):
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
 
@@ -796,6 +774,9 @@ class WinFreezer(Freezer):
                 if os.path.exists(filepath):
                     dependent_files.add(filepath)
         return
+
+    def _PlatformExecutableDependencyDir(self) -> str:
+        return self.targetdir
 
     def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         dependentFiles: List[str] = []
@@ -843,8 +824,6 @@ class DarwinFreezer(Freezer):
                       copyDependentFiles,
                       includeMode=False,
                       machOReference: Optional[MachOReference] = None):
-        # TODO: remove need for machOReference
-
         # The file was not previously copied, so need to create a
         # DarwinFile file object to represent the file being copied.
         newDarwinFile = None
@@ -872,7 +851,7 @@ class DarwinFreezer(Freezer):
                 target = os.path.join(
                     targetdir, os.path.basename(dependent_file)
                 )
-                self._CopyFile(
+                self._CopyFileRecursion(
                     dependent_file,
                     target,
                     copyDependentFiles=True,
@@ -882,11 +861,84 @@ class DarwinFreezer(Freezer):
                 )
         return
 
+    def _CopyFileRecursion(
+        self,
+        source,
+        target,
+        copyDependentFiles,
+        includeMode=False,
+        machOReference: Optional[MachOReference] = None,
+    ):
+        """This is essentially the same as Freezer._CopyFile, except that it also takes a machOReference
+        parameter.  Used when recursing to dependencies of a file on Darwin."""
+        if not self._ShouldCopyFile(source):
+            return
+
+        normalizedSource = os.path.normcase(os.path.normpath(source))
+        normalizedTarget = os.path.normcase(os.path.normpath(target))
+
+        # fix the target path for C runtime files
+        normalizedTarget = self._CopyFileNameHook(source=source, normalizedTarget=normalizedTarget)
+
+        if normalizedTarget in self.files_copied:
+            if machOReference is not None:
+                # If file was already copied, and we are following a reference
+                # from a DarwinFile, then we need to tell the reference where
+                # the file was copied to (so the reference can later be updated).
+                copiedDarwinFile = self.darwinTracker.getDarwinFile(
+                    sourcePath=normalizedSource, targetPath=normalizedTarget
+                )
+                machOReference.setTargetFile(darwinFile=copiedDarwinFile)
+            return
+        if normalizedSource == normalizedTarget:
+            return
+        targetdir = os.path.dirname(target)
+        self._CreateDirectory(targetdir)
+        if self.silent < 1:
+            print(f"copying {source} -> {target}")
+        shutil.copyfile(source, target)
+        shutil.copystat(source, target)
+        if includeMode:
+            shutil.copymode(source, target)
+        self.files_copied.add(normalizedTarget)
+
+        # handle post-copy tasks, including copying dependencies
+        self._PostCopyHook(
+            source=source, target=target,
+            normalizedSource=normalizedSource,
+            normalizedTarget=normalizedTarget,
+            copyDependentFiles=copyDependentFiles,
+            includeMode=includeMode,
+            machOReference=machOReference)
+
+    def _CopyTopDependency(self, source: str, target: str):
+        """Called for copying certain top dependencies.  We need this as a separaet function
+        so that it can be overriden on Darwin."""
+        # this recovers the cached MachOReference pointers to the files
+        # found by the _GetDependentFiles calls above. If one is found,
+        # pass into _CopyFile.
+        # We need to do this so the file knows what file referenced it,
+        # and can therefore calculate the appropriate rpath.
+        # (We only cache one reference.)
+        cachedReference = self.darwinTracker.getCachedReferenceTo(
+            sourcePath=source
+        )
+        self._CopyFileRecursion(
+            source,
+            target,
+            copyDependentFiles=True,
+            includeMode=True,
+            machOReference=cachedReference,
+        )
+        return
+
     def _GetDefaultBinPathExcludes(self):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
+    def _PlatformExecutableDependencyDir(self) -> str:
+        return os.path.join(self.targetdir, "lib")
+
     def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
-        # TODO: remove the need for darwinFile parameter
         # if darwinFile is None (which means that _GetDependentFiles is
         # being called outside of _CopyFile -- e.g., one of the
         # preliminary calls in _FreezeExecutable), create a temporary
@@ -922,8 +974,7 @@ class LinuxFreezer(Freezer):
                       normalizedSource,
                       normalizedTarget,
                       copyDependentFiles,
-                      includeMode=False,
-                      machOReference: Optional[MachOReference] = None):
+                      includeMode=False):
         # TODO: remove useages of source/target (only use normalied paths)
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
@@ -963,6 +1014,9 @@ class LinuxFreezer(Freezer):
             "/usr/lib32",
             "/usr/lib64",
         ]
+
+    def _PlatformExecutableDependencyDir(self) -> str:
+        return os.path.join(self.targetdir, "lib")
 
     def _PlatformGetDependentFiles(self, path, darwinFile: Optional[DarwinFile] = None) -> List[str]:
         dependentFiles = []
