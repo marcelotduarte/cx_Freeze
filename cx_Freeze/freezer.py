@@ -48,10 +48,8 @@ class Freezer(ABC):
             instance =  super().__new__(WinFreezer)
         elif sys.platform == "darwin":
             instance =  super().__new__(DarwinFreezer)
-        elif sys.platform == "linux":
+        else:  # assume any other platform would be handled by LinuxFreezer
             instance =  super().__new__(LinuxFreezer)
-        else:
-            raise Exception(f'Unknown platform: {sys.platform}')
         return instance
 
     def __init__(
