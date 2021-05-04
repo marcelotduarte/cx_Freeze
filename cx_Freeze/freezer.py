@@ -191,7 +191,7 @@ class Freezer(ABC):
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
-        self._PlatformAddRuntimeFiles(dependent_files=dependent_files)
+        self._PlatformAddExtraExecutableDependencies(dependent_files=dependent_files)
 
         for source in dependent_files:
             # Store dynamic libraries in appropriate location for platform
@@ -217,7 +217,7 @@ class Freezer(ABC):
         if self.metadata is not None:
             self._AddVersionResource(exe)
 
-    def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
+    def _PlatformAddExtraExecutableDependencies(self, dependent_files: Set[str]):
         """Override with platform specific files to add runtime libraries to the list of
         dependent_files calculated in _FreezeExecutable."""
         return
@@ -392,9 +392,6 @@ class Freezer(ABC):
         paths += self._GetDefaultBinPathExcludes()
         self.binPathExcludes = [os.path.normcase(name) for name in paths]
 
-        # control runtime files
-        self._PlatformSetRuntimeFiles()
-
         for source, target in self.includeFiles + self.zipIncludes:
             if not os.path.exists(source):
                 raise ConfigError(f"cannot find file/directory named {source}")
@@ -420,10 +417,6 @@ class Freezer(ABC):
                     f"package {name!r} cannot be both included and "
                     "excluded from zip file"
                 )
-
-    def _PlatformSetRuntimeFiles(self):
-        return
-
 
     def _WriteModules(self, filename, finder):
         finder.IncludeFile(*self.constants_module.create(finder.modules))
@@ -649,8 +642,11 @@ class Freezer(ABC):
 class WinFreezer(Freezer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # deal with C-runtime files
         self.runtime_files = set()
         self.runtime_files_to_dup = set()
+        self._SetRuntimeFiles()
         return
 
     def _AddVersionResource(self, exe):
@@ -776,7 +772,7 @@ class WinFreezer(Freezer):
         self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
-    def _PlatformAddRuntimeFiles(self, dependent_files: Set[str]):
+    def _PlatformAddExtraExecutableDependencies(self, dependent_files: Set[str]):
         search_dirs = set()
         for filename in dependent_files:
             search_dirs.add(os.path.dirname(filename))
@@ -790,7 +786,7 @@ class WinFreezer(Freezer):
     def _PlatformExecutableDependencyDir(self) -> str:
         return self.targetdir
 
-    def _PlatformSetRuntimeFiles(self):
+    def _SetRuntimeFiles(self):
         if self.include_msvcr:
             self.runtime_files.update(winmsvcr.FILES)
             self.runtime_files_to_dup.update(winmsvcr.FILES_TO_DUPLICATE)
