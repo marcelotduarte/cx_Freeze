@@ -102,7 +102,7 @@ static int SetExecutableName(const wchar_t *wargv0)
     wname = Py_DecodeLocale(tempname, NULL);
     if (!wname)
         return FatalError("Unable to convert path to string!");
-    memcpy(g_ExecutableName, wname, (MAXPATHLEN + 1) * sizeof(wchar_t));
+    wcscpy(g_ExecutableName, wname);
     PyMem_RawFree(wname);
 
     // get directory from executable name
@@ -113,7 +113,7 @@ static int SetExecutableName(const wchar_t *wargv0)
     wname = Py_DecodeLocale(tempname, NULL);
     if (!wname)
         return FatalError("Unable to convert path to string!");
-    memcpy(g_ExecutableDirName, wname, (MAXPATHLEN + 1) * sizeof(wchar_t));
+    wcscpy(g_ExecutableDirName, wname);
     PyMem_RawFree(wname);
 #endif
 
