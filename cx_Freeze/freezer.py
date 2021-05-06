@@ -978,7 +978,7 @@ class LinuxFreezer(Freezer):
         # TODO: remove usages of source/target (only use normalied paths)
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
-            targetdir = self.targetdir
+            targetdir = os.path.dirname(target)
             source_dir = os.path.dirname(source)
             library_dir = os.path.join(self.targetdir, "lib")
             fix_rpath = set()
