@@ -211,9 +211,7 @@ class Freezer(ABC):
             os.chmod(target_path, mode | stat.S_IWUSR)
 
         # Copy icon
-        target_lib_dir = os.path.join(self.targetdir, "lib")
-        self._CopyIcon(exe=exe, target_dir=target_lib_dir,
-                           target_path=target_path)
+        self._CopyIcon(exe=exe, target_path=target_path)
 
         if self.metadata is not None:
             self._AddVersionResource(exe)
@@ -235,7 +233,7 @@ class Freezer(ABC):
         self._CopyFile( source, target, copyDependentFiles=True, includeMode=True )
         return
 
-    def _CopyIcon(self, exe, target_dir, target_path):
+    def _CopyIcon(self, exe, target_path):
         """Copy icon into application.  (Overridden on Windows)."""
         if exe.icon is None: return
         target_icon = os.path.join(
@@ -675,7 +673,7 @@ class WinFreezer(Freezer):
         )
         version_stamp(filename, versionInfo)
 
-    def _CopyIcon(self, exe, target_dir, target_path):
+    def _CopyIcon(self, exe, target_path):
         if exe.icon is None: return
         try:
             winutil.AddIcon(target_path, exe.icon)
