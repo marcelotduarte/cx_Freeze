@@ -15,7 +15,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import Any, Dict, List, Set, Optional, Union
+from typing import Any, Dict, List, Set, Tuple, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
@@ -119,8 +119,8 @@ class Freezer(ABC):
         normalizedSource = os.path.normcase(os.path.normpath(source))
         normalizedTarget = os.path.normcase(os.path.normpath(target))
 
-        # fix the target path for C runtime files
-        normalizedTarget = self._CopyFileNameHook(source=source, normalizedTarget=normalizedTarget)
+        # fix the target path for C runtime files (should do nothing on Darwin...)
+        trarget, normalizedTarget = self._CopyFileNameHook(source=source, target=target, normalizedTarget=normalizedTarget)
 
         if normalizedTarget in self.files_copied:
             return
@@ -145,8 +145,9 @@ class Freezer(ABC):
             includeMode=includeMode
         )
 
-    def _CopyFileNameHook(self, source: str, normalizedTarget: str) -> str:
-        return normalizedTarget
+    def _CopyFileNameHook(self, source: str, target: str, normalizedTarget: str) -> Tuple[str,str]:
+        # by default, do nothing and pass through the paths
+        return target, normalizedTarget
 
     @abstractmethod
     def _PostCopyHook(self,
@@ -696,10 +697,13 @@ class WinFreezer(Freezer):
                 raise
         return
 
-    def _CopyFileNameHook(self, source: str, normalizedTarget: str) -> str:
+    def _CopyFileNameHook(self, source: str, target: str, normalizedTarget: str) -> Tuple[str, str]:
+        """Adjusts target and normalizedTarget strings in certain cases related to
+        C runtime libraries on Windows. And also triggers an additional copy
+        for files in self.runtime_files_to_dup."""
         norm_target_name = os.path.basename(normalizedTarget)
         if norm_target_name in self.runtime_files:
-            target_name = os.path.basename(normalizedTarget)
+            target_name = os.path.basename(target)
             target = os.path.join(self.targetdir, "lib", target_name)
             # vcruntime140.dll must be in the root and in the lib directory
             if norm_target_name in self.runtime_files_to_dup:
@@ -707,7 +711,7 @@ class WinFreezer(Freezer):
                 self._CopyFile(source, target, copyDependentFiles=False)
                 target = os.path.join(self.targetdir, target_name)
             normalizedTarget = os.path.normcase(os.path.normpath(target))
-        return normalizedTarget
+        return target, normalizedTarget
 
     def _PostCopyHook(self,
                       source,
@@ -871,7 +875,7 @@ class DarwinFreezer(Freezer):
         normalizedTarget = os.path.normcase(os.path.normpath(target))
 
         # fix the target path for C runtime files
-        normalizedTarget = self._CopyFileNameHook(source=source, normalizedTarget=normalizedTarget)
+        target, normalizedTarget = self._CopyFileNameHook(source=source, target=target, normalizedTarget=normalizedTarget)
 
         if normalizedTarget in self.files_copied:
             if machOReference is not None:
