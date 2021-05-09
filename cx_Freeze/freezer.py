@@ -120,7 +120,7 @@ class Freezer(ABC):
         normalizedTarget = os.path.normcase(os.path.normpath(target))
 
         # fix the target path for C runtime files (should do nothing on Darwin...)
-        trarget, normalizedTarget = self._CopyFileNameHook(source=source, target=target, normalizedTarget=normalizedTarget)
+        target, normalizedTarget = self._CopyFileNameHook(source=source, target=target, normalizedTarget=normalizedTarget)
 
         if normalizedTarget in self.files_copied:
             return
@@ -196,8 +196,7 @@ class Freezer(ABC):
 
         for source in dependent_files:
             # Store dynamic libraries in appropriate location for platform
-            target = os.path.join(self._PlatformExecutableDependencyDir(), os.path.basename(source))
-            self._CopyTopDependency(source=source, target=target)
+            self._CopyTopDependency(source=source)
 
         target_path = os.path.join(self.targetdir, exe.target_name)
         self._CopyFile(
@@ -222,15 +221,8 @@ class Freezer(ABC):
         return
 
     @abstractmethod
-    def _PlatformExecutableDependencyDir(self) -> str:
-        """Returns the directory where the dependencies of the executable should be
-        stored (just for certain dependenceis found in _FreezeExecutable"""
-        return ""
-
-    def _CopyTopDependency(self, source: str, target:str):
-        """Called for copying certain top dependencies in _FreezeExecutable.  We need this as
-        a separate method so that it can be overriden on Darwin."""
-        self._CopyFile( source, target, copyDependentFiles=True, includeMode=True )
+    def _CopyTopDependency(self, source: str):
+        """Called for copying certain top dependencies in _FreezeExecutable."""
         return
 
     def _CopyIcon(self, exe, target_path):
@@ -711,6 +703,13 @@ class WinFreezer(Freezer):
             normalizedTarget = os.path.normcase(os.path.normpath(target))
         return target, normalizedTarget
 
+    def _CopyTopDependency(self, source: str):
+        """Called for copying certain top dependencies in _FreezeExecutable.  We need this as
+        a separate method so that it can be overridden on Darwin and Windows."""
+        target = os.path.join( self.targetdir, os.path.basename(source))  # top dependencies do not go into lib on windows.
+        self._CopyFile( source, target, copyDependentFiles=True, includeMode=True )
+        return
+
     def _PostCopyHook(self,
                       source,
                       target,
@@ -784,9 +783,6 @@ class WinFreezer(Freezer):
                 if os.path.exists(filepath):
                     dependent_files.add(filepath)
         return
-
-    def _PlatformExecutableDependencyDir(self) -> str:
-        return self.targetdir
 
     def _SetRuntimeFiles(self):
         if self.include_msvcr:
@@ -906,9 +902,11 @@ class DarwinFreezer(Freezer):
             includeMode=includeMode,
             machOReference=machOReference)
 
-    def _CopyTopDependency(self, source: str, target: str):
-        """Called for copying certain top dependencies.  We need this as a separaet function
-        so that it can be overriden on Darwin."""
+    def _CopyTopDependency(self, source: str):
+        """Called for copying certain top dependencies.  We need this as a separate function
+        so that it can be overridden on Darwin (to interact with the DarwinTools system)."""
+
+        target = os.path.join( os.path.join(self.targetdir, "lib"), os.path.basename(source))
 
         # this recovers the cached MachOReference pointers to the files
         # found by the _GetDependentFiles calls made previously (if any).
@@ -961,8 +959,6 @@ class DarwinFreezer(Freezer):
         self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
-    def _PlatformExecutableDependencyDir(self) -> str:
-        return os.path.join(self.targetdir, "lib")
 
 class LinuxFreezer(Freezer):
     def __init__(self, *args, **kwargs):
@@ -1005,6 +1001,12 @@ class LinuxFreezer(Freezer):
                 rpath = ":".join([f"$ORIGIN/{r}" for r in fix_rpath])
                 if has_rpath != rpath:
                     self.patchelf.set_rpath(target, rpath)
+        return
+
+    def _CopyTopDependency(self, source: str):
+        """Called for copying certain top dependencies in _FreezeExecutable."""
+        target = os.path.join( os.path.join(self.targetdir, "lib"), os.path.basename(source))
+        self._CopyFile( source, target, copyDependentFiles=True, includeMode=True )
         return
 
     def _GetDefaultBinPathExcludes(self):
@@ -1053,7 +1055,3 @@ class LinuxFreezer(Freezer):
                 dependentFiles.append(dependentFile)
         self.dependentFiles[path] = dependentFiles
         return dependentFiles
-
-    def _PlatformExecutableDependencyDir(self) -> str:
-        return os.path.join(self.targetdir, "lib")
-
