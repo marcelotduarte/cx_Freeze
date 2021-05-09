@@ -973,7 +973,6 @@ class LinuxFreezer(Freezer):
                       normalizedTarget,
                       copyDependentFiles,
                       includeMode=False):
-        # TODO: remove usages of source/target (only use normalied paths)
         if (copyDependentFiles
                 and source not in self.finder.exclude_dependent_files):
             targetdir = os.path.dirname(target)
