@@ -236,7 +236,7 @@ class bdist_mac(Command):
                 "CFBundlePackageType": "APPL",
                 # Cause application to run in high-resolution mode by default
                 # (Without this, applications run from application bundle may be pixelated)
-                "NSHighResolutionCapable": "True"
+                "NSHighResolutionCapable": "True",
             }
 
         # Ensure CFBundleExecutable is set correctly

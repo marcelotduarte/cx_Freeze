@@ -17,10 +17,10 @@ executables = [Executable("hello.py")]
 bdist_msi_options = {
     "data": {
         "ProgId": [
-            ('Prog.Id', None, None, 'This is a description', 'IconId', None),
+            ("Prog.Id", None, None, "This is a description", "IconId", None),
         ],
         "Icon": [
-            ('IconId', 'icon.ico'),
+            ("IconId", "icon.ico"),
         ],
     },
 }
