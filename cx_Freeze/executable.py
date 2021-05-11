@@ -5,6 +5,7 @@ Module for the Executable base class.
 import os
 import string
 import sys
+import sysconfig
 from typing import Optional
 
 from .common import get_resource_file_path, validate_args
@@ -79,10 +80,14 @@ class Executable:
     @base.setter
     def base(self, name: Optional[str]):
         name = name or "Console"
-        ext = ".exe" if sys.platform == "win32" else ""
-        self._base = get_resource_file_path("bases", name, ext)
+        py_version_nodot = sysconfig.get_config_var("py_version_nodot")
+        platform_nodot = sysconfig.get_platform().replace(".", "")
+        name_plat = f"{name}-cp{py_version_nodot}-{platform_nodot}"
+        exe_extension = ".exe" if sys.platform == "win32" else ""
+        self._base = get_resource_file_path("bases", name_plat, exe_extension)
         if self._base is None:
             raise ConfigError(f"no base named {name!r}")
+        self._ext = exe_extension
 
     @property
     def init_module_name(self) -> str:
@@ -135,22 +140,15 @@ class Executable:
     def target_name(self, name: Optional[str]):
         if name is None:
             name = os.path.splitext(os.path.basename(self.main_script))[0]
-            ext = os.path.splitext(self.base)[1]
         else:
             if name != os.path.basename(name):
                 raise ConfigError(
                     "target_name should only be the name, for example: "
                     f"{os.path.basename(name)}"
                 )
-            if sys.platform == "win32":
-                if name.endswith(".exe"):
-                    name, ext = os.path.splitext(name)
-                else:
-                    ext = ".exe"
-            else:
-                ext = ""
+            if sys.platform == "win32" and name.endswith(".exe"):
+                name = os.path.splitext(name)[0]
         self._name = name
-        self._ext = ext
         name = name.partition(".")[0]
         if not name.isidentifier():
             for invalid in STRINGREPLACE:
