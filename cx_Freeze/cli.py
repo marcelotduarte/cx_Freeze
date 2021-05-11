@@ -243,7 +243,7 @@ def main():
             args.icon,
         )
     ]
-    freezer = Freezer(
+    freezer: Freezer = Freezer(
         executables,
         includes=args.includes,
         excludes=args.excludes,

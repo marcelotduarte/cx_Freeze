@@ -11,29 +11,63 @@
 
 from cx_Freeze import setup, Executable
 
-executables = [Executable('hello.py')]
+executables = [Executable("hello.py")]
 
 bdist_msi_options = {
-    'extensions': [
+    "extensions": [
         # open / print / view text files
-        {'extension': 'txt', 'verb': 'open', 'executable': 'hello.exe', 'context': 'Edit with hello.py'},
-        {'extension': 'txt', 'verb': 'print', 'executable': 'hello.exe', 'context': 'Print with hello.py', 'argument': '--print "%1"'},
-        {'extension': 'txt', 'verb': 'view', 'executable': 'hello.exe', 'context': 'View with hello.py', 'argument': '--read-only "%1"'},
+        {
+            "extension": "txt",
+            "verb": "open",
+            "executable": "hello.exe",
+            "context": "Edit with hello.py",
+        },
+        {
+            "extension": "txt",
+            "verb": "print",
+            "executable": "hello.exe",
+            "context": "Print with hello.py",
+            "argument": '--print "%1"',
+        },
+        {
+            "extension": "txt",
+            "verb": "view",
+            "executable": "hello.exe",
+            "context": "View with hello.py",
+            "argument": '--read-only "%1"',
+        },
         # open / print / view log files
-        {'extension': 'log', 'verb': 'open', 'executable': 'hello.exe', 'context': 'Edit with hello.py'},
-        {'extension': 'log', 'verb': 'print', 'executable': 'hello.exe', 'context': 'Print with hello.py', 'argument': '--print "%1"'},
-        {'extension': 'log', 'verb': 'view', 'executable': 'hello.exe', 'context': 'View with hello.py', 'argument': '--read-only "%1"'},
+        {
+            "extension": "log",
+            "verb": "open",
+            "executable": "hello.exe",
+            "context": "Edit with hello.py",
+        },
+        {
+            "extension": "log",
+            "verb": "print",
+            "executable": "hello.exe",
+            "context": "Print with hello.py",
+            "argument": '--print "%1"',
+        },
+        {
+            "extension": "log",
+            "verb": "view",
+            "executable": "hello.exe",
+            "context": "View with hello.py",
+            "argument": '--read-only "%1"',
+        },
     ],
 }
 
 setup(
-    name='Hello Program',
-    version='0.1',
-    author='cx_Freeze',
-    description='Sample cx_Freeze script to test MSI extension registration',
+    name="Hello Program",
+    version="0.1",
+    author="cx_Freeze",
+    description="Sample cx_Freeze script to test MSI extension registration",
     executables=executables,
     options={
-        'build_exe': {'excludes': ['tkinter']},
-        'bdist_msi': bdist_msi_options,
+        "build_exe": {"excludes": ["tkinter"]},
+        "bdist_msi": bdist_msi_options,
     },
 )
