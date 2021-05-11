@@ -1,10 +1,10 @@
 import distutils.command.bdist_msi
 import distutils.errors
-import distutils.util
 import importlib
 import msilib
 import os
 import re
+import sysconfig
 
 __all__ = ["bdist_msi"]
 
@@ -786,7 +786,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         name = self.distribution.get_name()
         fullname = self.distribution.get_fullname()
         if self.initial_target_dir is None:
-            if distutils.util.get_platform() == "win-amd64":
+            if sysconfig.get_platform() == "win-amd64":
                 programFilesFolder = "ProgramFiles64Folder"
             else:
                 programFilesFolder = "ProgramFilesFolder"
@@ -796,7 +796,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if self.target_name is None:
             self.target_name = fullname
         if not self.target_name.lower().endswith(".msi"):
-            platform = distutils.util.get_platform().replace("win-", "")
+            platform = sysconfig.get_platform().replace("win-", "")
             self.target_name = f"{self.target_name}-{platform}.msi"
         if not os.path.isabs(self.target_name):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
