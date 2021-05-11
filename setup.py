@@ -2,15 +2,15 @@
 Distutils script for cx_Freeze.
 """
 
-from setuptools import setup, Extension
-import setuptools.command.build_ext
-import distutils.util
-from distutils.sysconfig import get_config_var
 import glob
 import os
 import subprocess
 import sys
 import sysconfig
+from sysconfig import get_config_var
+
+from setuptools import setup, Extension
+import setuptools.command.build_ext
 
 WIN32 = sys.platform == "win32"
 
@@ -68,9 +68,9 @@ class build_ext(setuptools.command.build_ext.build_ext):
                 extra_args.append("-municode")
         else:
             library_dirs.append(get_config_var("LIBPL"))
-            abiflags = getattr(sys, "abiflags", "")
-            ver_major, ver_minor = sys.version_info[0:2]
-            libraries.append(f"python{ver_major}.{ver_minor}{abiflags}")
+            abiflags = get_config_var("abiflags")
+            python_version = sysconfig.get_python_version()
+            libraries.append(f"python{python_version}{abiflags}")
             if get_config_var("LINKFORSHARED") and sys.platform != "darwin":
                 extra_args.extend(get_config_var("LINKFORSHARED").split())
             if get_config_var("LIBS"):
@@ -126,9 +126,9 @@ class build_ext(setuptools.command.build_ext.build_ext):
 
     def _dlltool_delay_load(self, name):
         """Get the delay load library to use with mingw32 gcc compiler"""
-        platform = distutils.util.get_platform()
-        ver_major, ver_minor = sys.version_info[0:2]
-        dir_name = f"libdl.{platform}-{ver_major}.{ver_minor}"
+        platform = sysconfig.get_platform()
+        python_version = sysconfig.get_python_version()
+        dir_name = f"libdl.{platform}-{python_version}"
         library_dir = os.path.join(self.build_temp, dir_name)
         os.makedirs(library_dir, exist_ok=True)
         # Use gendef and dlltool to generate the delay library

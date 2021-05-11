@@ -3,7 +3,7 @@ Implements a new `Patchelf` interface to create an abstraction for patching
 ELF files.
 """
 
-from distutils.spawn import find_executable
+from shutil import which
 from subprocess import check_call, check_output, CalledProcessError
 import re
 
@@ -48,7 +48,7 @@ def _verify_patchelf() -> None:
     checks for the required version, and throws an exception if a proper
     version can't be found. Otherwise, silence is golden.
     """
-    if not find_executable("patchelf"):
+    if not which("patchelf"):
         raise ValueError("Cannot find required utility `patchelf` in PATH")
     try:
         version = check_output(["patchelf", "--version"]).decode("utf-8")

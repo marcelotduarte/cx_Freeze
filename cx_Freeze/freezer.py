@@ -4,8 +4,6 @@ Base class for freezing scripts into executables.
 
 from abc import ABC, abstractmethod
 from distutils.dist import DistributionMetadata
-import distutils.sysconfig
-import distutils.util
 from importlib.util import MAGIC_NUMBER
 import marshal
 import os
@@ -247,7 +245,7 @@ class Freezer(ABC):
         frozen executable to work.
         (overriden on Windows)"""
         python_shared_libs = []
-        name = distutils.sysconfig.get_config_var("INSTSONAME")
+        name = sysconfig.get_config_var("INSTSONAME")
         if name:
             python_shared_libs.append(self._RemoveVersionNumbers(name))
         return python_shared_libs
@@ -355,9 +353,9 @@ class Freezer(ABC):
     def _VerifyConfiguration(self):
         # starts in a clean directory
         if self.targetdir is None:
-            platform = distutils.util.get_platform()
-            ver_major, ver_minor = sys.version_info[0:2]
-            dir_name = f"exe.{platform}-{ver_major}.{ver_minor}"
+            platform = sysconfig.get_platform()
+            python_version = sysconfig.get_python_version()
+            dir_name = f"exe.{platform}-{python_version}"
             self.targetdir = os.path.abspath(os.path.join("build", dir_name))
         if os.path.isdir(self.targetdir):
 
@@ -734,7 +732,7 @@ class WinFreezer(Freezer):
     def _GetDefaultBinIncludes(self):
         python_shared_libs = []
         if sysconfig.get_platform() == "mingw":
-            name = distutils.sysconfig.get_config_var("INSTSONAME")
+            name = sysconfig.get_config_var("INSTSONAME")
             if name:
                 python_shared_libs.append(name.replace(".dll.a", ".dll"))
         else:

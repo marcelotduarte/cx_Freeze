@@ -6,10 +6,10 @@ import distutils.dir_util
 import distutils.dist
 import distutils.errors
 import distutils.log
-import distutils.util
 import distutils.version
 import os
 import sys
+import sysconfig
 import warnings
 
 from .common import normalize_to_list
@@ -66,9 +66,9 @@ class build(distutils.command.build.build):
     def finalize_options(self):
         distutils.command.build.build.finalize_options(self)
         if self.build_exe is None:
-            platform = distutils.util.get_platform()
-            ver_major, ver_minor = sys.version_info[0:2]
-            dir_name = f"exe.{platform}-{ver_major}.{ver_minor}"
+            platform = sysconfig.get_platform()
+            python_version = sysconfig.get_python_version()
+            dir_name = f"exe.{platform}-{python_version}"
             self.build_exe = os.path.join(self.build_base, dir_name)
 
 
