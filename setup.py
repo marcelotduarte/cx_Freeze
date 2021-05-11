@@ -3,13 +3,14 @@ Distutils script for cx_Freeze.
 """
 
 from setuptools import setup, Extension
-import distutils.command.build_ext
+import setuptools.command.build_ext
 import distutils.util
 from distutils.sysconfig import get_config_var
 import glob
 import os
 import subprocess
 import sys
+import sysconfig
 
 WIN32 = sys.platform == "win32"
 
@@ -17,7 +18,7 @@ if sys.version_info < (3, 6, 0):
     sys.exit("Python3 versions lower than 3.6.0 are not supported.")
 
 
-class build_ext(distutils.command.build_ext.build_ext):
+class build_ext(setuptools.command.build_ext.build_ext):
     def build_extension(self, ext):
         if "bases" not in ext.name:
             super().build_extension(ext)
@@ -32,10 +33,7 @@ class build_ext(distutils.command.build_ext.build_ext):
             depends=ext.depends,
         )
         filename = os.path.splitext(self.get_ext_filename(ext.name))[0]
-        if self.inplace:
-            fullname = os.path.join(os.path.dirname(__file__), filename)
-        else:
-            fullname = os.path.join(self.build_lib, filename)
+        fullname = os.path.join(self.build_lib, filename)
         library_dirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extra_args = ext.extra_link_args or []
@@ -102,14 +100,21 @@ class build_ext(distutils.command.build_ext.build_ext):
         )
 
     def get_ext_filename(self, ext_name):
-        filename = super().get_ext_filename(ext_name)
         if ext_name.endswith("util"):
-            return filename
-        exe_extension = self.compiler.exe_extension or ""
-        return filename[: -len(get_config_var("EXT_SUFFIX"))] + exe_extension
+            return super().get_ext_filename(ext_name)
+        # Examples of returned names:
+        # Console-cp37-win32.exe, Console-cp39-win-amd64.exe,
+        # Console-cp38-linux-x86_64
+        ext_path = ext_name.split(".")
+        py_version_nodot = sysconfig.get_config_var("py_version_nodot")
+        platform_nodot = sysconfig.get_platform().replace(".", "")
+        name_suffix = f"-cp{py_version_nodot}-{platform_nodot}"
+        exe_extension = ".exe" if WIN32 else ""
+        return os.path.join(*ext_path) + name_suffix + exe_extension
 
-    def _get_dll_path(self, name):
-        """find the dll by name, priority by extension"""
+    @staticmethod
+    def _get_dll_path(name):
+        """Find the dll by name, priority by extension."""
         paths = [path for path in sys.path if os.path.isdir(path)]
         dll_path = None
         for path in paths:
