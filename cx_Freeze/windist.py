@@ -1,3 +1,4 @@
+import distutils.command.bdist_msi
 import distutils.errors
 import importlib
 import msilib
@@ -327,13 +328,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                     dir.add_file(file)
                     dir.component = restore_component
                 elif os.path.isdir(os.path.join(dir.absolute, file)):
+                    short_file = dir.make_short(file)
                     newDir = msilib.Directory(
-                        db,
-                        cab,
-                        dir,
-                        file,
-                        file,
-                        "{}|{}".format(dir.make_short(file), file),
+                        db, cab, dir, file, file, f"{short_file}|{file}"
                     )
                     todo.append(newDir)
                 else:
@@ -843,13 +840,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 )
             )
             mime = extension.get("mime", None)
-            argument = extension.get(
-                "argument", None
-            )  # "%1" a better default?
-            context = extension.get(
-                "context",
-                f"{self.distribution.get_fullname()} {verb}",
-            )
+            # "%1" a better default for argument?
+            argument = extension.get("argument", None)
+            context = extension.get("context", f"{fullname} {verb}")
             # Add rows via self.data to safely ignore duplicates
             self._append_to_data(
                 "ProgId",
