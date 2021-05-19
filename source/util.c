@@ -102,13 +102,13 @@ static BOOL __stdcall BindStatusRoutine(
 //   Return the data for the given file.
 //-----------------------------------------------------------------------------
 static int GetFileData(
-    const char *fileName,               // name of file to read
+    LPCWSTR filename,                   // name of file to read
     char **data)                        // pointer to data (OUT)
 {
     DWORD numberOfBytesRead, dataSize;
     HANDLE file;
 
-    file = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, NULL,
+    file = CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL,
             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE)
         return -1;
@@ -175,7 +175,9 @@ static PyObject *ExtAddIcon(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    char *executableName, *iconName, *data, *iconData;
+    char *data, *iconData;
+    PyObject *executable, *icon;
+    LPWSTR executableName, iconName;
     GRPICONDIR *groupIconDir;
     DWORD resourceSize;
     ICONDIR *iconDir;
@@ -183,30 +185,53 @@ static PyObject *ExtAddIcon(
     HANDLE handle;
     int i;
 
-    if (!PyArg_ParseTuple(args, "ss", &executableName, &iconName))
-        return NULL;
+    succeeded = TRUE;
+    handle = NULL;
+    data = NULL;
+    groupIconDir = NULL;
+    executableName = NULL;
+    iconName = NULL;
+
+    if (!PyArg_ParseTuple(args, "UU", &executable, &icon)) {
+        succeeded = FALSE;
+        PyErr_Format(
+            PyExc_RuntimeError, "Invalid parameters."
+        );
+    }
+
+    if (succeeded) {
+        executableName = (LPWSTR)PyUnicode_AsWideCharString(executable, NULL);
+        iconName = (LPWSTR)PyUnicode_AsWideCharString(icon, NULL);
+        if (!executableName || !iconName) {
+            succeeded = FALSE;
+            PyErr_NoMemory();
+        }
+    }
 
     // begin updating the executable
-    handle = BeginUpdateResource(executableName, FALSE);
-    if (!handle) {
-        PyErr_SetExcFromWindowsErrWithFilename(PyExc_WindowsError,
-                GetLastError(), executableName);
-        return NULL;
+    if (succeeded) {
+        handle = BeginUpdateResourceW(executableName, FALSE);
+        if (!handle) {
+            succeeded = FALSE;
+            PyErr_SetExcFromWindowsErrWithFilenameObject(
+                PyExc_WindowsError, GetLastError(), executable
+            );
+        }
     }
 
     // first attempt to get the data from the icon file
-    data = NULL;
-    succeeded = TRUE;
-    groupIconDir = NULL;
-    if (GetFileData(iconName, &data) < 0)
-        succeeded = FALSE;
+    if (succeeded) {
+        if (GetFileData(iconName, &data) < 0)
+            succeeded = FALSE;
+    }
 
     // check for valid icon
     if (succeeded) {
         iconDir = (ICONDIR*) data;
         if (iconDir->idType != 1) {
-            PyErr_Format(PyExc_RuntimeError,
-                "Icon filename '%s' has invalid type.", iconName);
+            PyErr_Format(
+                PyExc_RuntimeError, "Icon filename '%S' has invalid type.", icon
+            );
             succeeded = FALSE;
         }
     }
@@ -227,7 +252,8 @@ static PyObject *ExtAddIcon(
         for (i = 0; i < iconDir->idCount; i++) {
             iconData = &data[iconDir->idEntries[i].dwImageOffset];
             resourceSize = iconDir->idEntries[i].dwBytesInRes;
-            succeeded = UpdateResource(handle, RT_ICON, MAKEINTRESOURCE(i + 1),
+            succeeded = UpdateResource(handle, RT_ICON,
+                    MAKEINTRESOURCE(i + 1),
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), iconData,
                     resourceSize);
             if (!succeeded)
@@ -236,15 +262,22 @@ static PyObject *ExtAddIcon(
     }
 
     // finish writing the resource (or discarding the changes upon an error)
-    if (!EndUpdateResource(handle, !succeeded)) {
-        if (succeeded) {
-            succeeded = FALSE;
-            PyErr_SetExcFromWindowsErrWithFilename(PyExc_WindowsError,
-                    GetLastError(), executableName);
+    if (handle) {
+        if (!EndUpdateResourceW(handle, !succeeded)) {
+            if (succeeded) {
+                succeeded = FALSE;
+                PyErr_SetExcFromWindowsErrWithFilenameObject(
+                    PyExc_WindowsError, GetLastError(), executable
+                );
+            }
         }
     }
 
     // clean up
+    if (executableName)
+        PyMem_Free(executableName);
+    if (iconName)
+        PyMem_Free(iconName);
     if (groupIconDir)
         PyMem_Free(groupIconDir);
     if (data)
