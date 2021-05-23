@@ -633,11 +633,11 @@ class WinFreezer(Freezer):
         self._set_runtime_files()
 
     def _add_resources(self, exe: Executable) -> None:
-        target_path = os.path.join(self.targetdir, exe.target_name)
+        target_path: str = os.path.join(self.targetdir, exe.target_name)
 
         # Add version resource
         if self.metadata is not None:
-            warning_msg = "*** WARNING *** unable to create version resource"
+            warning_msg = "Warning: unable to create version resource"
             if version_stamp is None:
                 if self.silent < 3:
                     print(warning_msg)
@@ -662,16 +662,21 @@ class WinFreezer(Freezer):
         if exe.icon is not None:
             try:
                 winutil.AddIcon(target_path, exe.icon)
-            except (MemoryError, RuntimeError, OSError) as exc:
+            except (MemoryError, RuntimeError) as exc:
                 if self.silent < 3:
                     print("Warning:", exc)
-                    if "\\WindowsApps\\" in sys.base_prefix:
+            except OSError as exc:
+                if "\\WindowsApps\\" in sys.base_prefix:
+                    if self.silent < 3:
+                        print("Warning:", exc)
                         print(
-                            "Warning: Because of restrictions on "
-                            "Microsoft Store apps, Python scripts may not "
-                            "have full write access to built executable.\n"
+                            "Warning: Because of restrictions on Microsoft "
+                            "Store apps, Python scripts may not have full "
+                            "write access to built executable. "
                             "You will need to install the full installer."
                         )
+                else:
+                    raise
         return
 
     def _copy_top_dependency(self, source: str):
