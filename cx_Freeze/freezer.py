@@ -109,11 +109,7 @@ class Freezer(ABC):
         return
 
     def _copy_file(
-        self,
-        source,
-        target,
-        copy_dependent_files,
-        include_mode=False
+        self, source, target, copy_dependent_files, include_mode=False
     ):
         if not self._should_copy_file(source):
             return
@@ -227,9 +223,7 @@ class Freezer(ABC):
         if self.metadata is not None:
             self._AddVersionResource(exe)
 
-    def _platform_add_extra_dependencies(
-        self, dependent_files: Set[str]
-    ):
+    def _platform_add_extra_dependencies(self, dependent_files: Set[str]):
         """Override with platform specific files to add runtime libraries to
         the list of dependent_files calculated in _freeze_executable."""
         return
@@ -531,7 +525,9 @@ class Freezer(ABC):
                     parts.pop()
                     parts.append(os.path.basename(module.file))
                     target_name = os.path.join(targetdir, *parts)
-                    self._copy_file(module.file,target_name,copy_dependent_files=True)
+                    self._copy_file(
+                        module.file, target_name, copy_dependent_files=True
+                    )
                 else:
                     if module.path is not None:
                         parts.append("__init__")
@@ -579,11 +575,7 @@ class Freezer(ABC):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._copy_file(
-                    module.file,
-                    target,
-                    copy_dependent_files=True
-                )
+                self._copy_file(module.file, target, copy_dependent_files=True)
             finally:
                 os.environ["PATH"] = origPath
 
@@ -622,17 +614,13 @@ class Freezer(ABC):
                         source_path = os.path.join(path, filename)
                         target_path = os.path.join(fulltargetdir, filename)
                         self._copy_file(
-                            source_path,
-                            target_path,
-                            copy_dependent_files=True
+                            source_path, target_path, copy_dependent_files=True
                         )
             else:
                 # Copy regular files.
                 fullname = os.path.join(targetdir, target_filename)
                 self._copy_file(
-                    source_filename,
-                    fullname,
-                    copy_dependent_files=True
+                    source_filename, fullname, copy_dependent_files=True
                 )
 
         # do any platform-specific post-Freeze work
@@ -770,7 +758,7 @@ class WinFreezer(Freezer):
         windowsDir = winutil.GetWindowsDir()
         return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
 
-    def _get_dependent_files(self, path:str) -> List[str]:
+    def _get_dependent_files(self, path: str) -> List[str]:
         path = os.path.normcase(path)
         dependentFiles = self.dependentFiles.get(path, None)
         if dependentFiles is not None:
@@ -794,9 +782,7 @@ class WinFreezer(Freezer):
         self.dependentFiles[path] = dependentFiles
         return dependentFiles
 
-    def _platform_add_extra_dependencies(
-        self, dependent_files: Set[str]
-    ):
+    def _platform_add_extra_dependencies(self, dependent_files: Set[str]):
         search_dirs = set()
         for filename in dependent_files:
             search_dirs.add(os.path.dirname(filename))
@@ -960,7 +946,7 @@ class DarwinFreezer(Freezer):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
     def _get_dependent_files(
-        self, path:str, darwinFile: Optional["DarwinFile"] = None
+        self, path: str, darwinFile: Optional["DarwinFile"] = None
     ) -> List[str]:
         path = os.path.normcase(path)
         dependentFiles = self.dependentFiles.get(path, None)
@@ -1026,9 +1012,7 @@ class LinuxFreezer(Freezer):
                     fix_rpath.add(dep_libs)
                 dependent_target = os.path.join(targetdir, dep_rel)
                 self._copy_file(
-                    dependent_file,
-                    dependent_target,
-                    copy_dependent_files
+                    dependent_file, dependent_target, copy_dependent_files
                 )
             if fix_rpath:
                 has_rpath = self.patchelf.get_rpath(target)
