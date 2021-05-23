@@ -430,6 +430,108 @@ static PyObject *ExtGetWindowsDir(
 
 
 //-----------------------------------------------------------------------------
+// ExtUpdateCheckSum()
+//   Update the CheckSum into the specified executable.
+//-----------------------------------------------------------------------------
+static PyObject *ExtUpdateCheckSum(
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
+{
+    PyObject *executable, *results, *value;
+    wchar_t *filename;
+    HANDLE fhandle, fmap = NULL;
+    PVOID mmap = NULL;
+    DWORD filesize, header_sum, check_sum, last_error = 0;
+    PIMAGE_NT_HEADERS headers;
+    BOOL succeeded = TRUE;
+
+    if (!PyArg_ParseTuple(args, "U", &executable)) {
+        PyErr_Format(
+            PyExc_RuntimeError, "Invalid parameter."
+        );
+        return NULL;
+    }
+
+    filename = PyUnicode_AsWideCharString(executable, NULL);
+    if (!filename) {
+        return PyErr_NoMemory();
+    }
+
+    fhandle = CreateFileW((LPWSTR) filename,
+                          GENERIC_READ | GENERIC_WRITE,
+                          FILE_SHARE_READ,
+                          NULL,
+                          OPEN_EXISTING,
+                          FILE_ATTRIBUTE_NORMAL,
+                          NULL);
+    if (fhandle == INVALID_HANDLE_VALUE) {
+        succeeded = FALSE;
+        last_error = GetLastError();
+    }
+    if (succeeded) {
+        filesize = GetFileSize(fhandle, NULL);
+        if (filesize == INVALID_FILE_SIZE) {
+            succeeded = FALSE;
+            last_error = GetLastError();
+        }
+    }
+    if (succeeded) {
+        fmap = CreateFileMapping(fhandle, NULL, PAGE_READWRITE, 0, 0, NULL);
+        if (!fmap) {
+            succeeded = FALSE;
+            last_error = GetLastError();
+        }
+    }
+    if (succeeded) {
+        mmap = MapViewOfFile(fmap, FILE_MAP_WRITE, 0, 0, 0);
+        if (mmap == NULL) {
+            succeeded = FALSE;
+            last_error = GetLastError();
+        }
+    }
+    if (succeeded) {
+        headers = CheckSumMappedFile(mmap, filesize, &header_sum, &check_sum);
+        if (headers == NULL) {
+            succeeded = FALSE;
+            last_error = GetLastError();
+        } else if (header_sum != 0 && header_sum != check_sum) {
+            headers->OptionalHeader.CheckSum = check_sum;
+        }
+    }
+
+    // clean up
+    if (mmap)
+        UnmapViewOfFile(mmap);
+    if (fmap)
+        CloseHandle(fmap);
+    if (fhandle)
+        CloseHandle(fhandle);
+    if (filename)
+        PyMem_Free(filename);
+    if (!succeeded) {
+        PyErr_SetExcFromWindowsErrWithFilenameObject(
+            PyExc_WindowsError, last_error, executable
+        );
+        return NULL;
+    }
+
+    // return a Tuple[int, int] (so we can check the values)
+    results = PyTuple_New(2);
+    if (results) {
+        value = PyLong_FromLong(header_sum);
+        if (value)
+            PyTuple_SET_ITEM(results, 0, value);
+        value = PyLong_FromLong(check_sum);
+        if (value)
+            PyTuple_SET_ITEM(results, 1, value);
+        return results;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
+//-----------------------------------------------------------------------------
 // Methods
 //-----------------------------------------------------------------------------
 static PyMethodDef g_ModuleMethods[] = {
@@ -441,6 +543,7 @@ static PyMethodDef g_ModuleMethods[] = {
     { "GetDependentFiles", ExtGetDependentFiles, METH_VARARGS },
     { "GetSystemDir", ExtGetSystemDir, METH_NOARGS },
     { "GetWindowsDir", ExtGetWindowsDir, METH_NOARGS },
+    { "UpdateCheckSum", ExtUpdateCheckSum, METH_VARARGS },
 #endif
     { NULL }
 };

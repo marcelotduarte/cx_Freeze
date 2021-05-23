@@ -677,7 +677,13 @@ class WinFreezer(Freezer):
                         )
                 else:
                     raise
-        return
+
+        # Update the PE checksum (or fix it in case it is zero)
+        try:
+            winutil.UpdateCheckSum(target_path)
+        except (MemoryError, RuntimeError, OSError) as exc:
+            if self.silent < 3:
+                print("Warning:", exc)
 
     def _copy_top_dependency(self, source: str):
         """Called for copying certain top dependencies in _freeze_executable.
