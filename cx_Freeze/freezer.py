@@ -105,8 +105,13 @@ class Freezer(ABC):
         self.zipExcludePackages = zipExcludePackages
         self._verify_configuration()
 
-    def _AddVersionResource(self, exe):
-        return
+    def _add_resources(self, exe: Executable) -> None:
+        """Add resources for an executable, platform dependent."""
+        # Copy icon into application. (Overridden on Windows)
+        if exe.icon is None:
+            return
+        target_icon = os.path.join(self.targetdir, os.path.basename(exe.icon))
+        self._copy_file(exe.icon, target_icon, copy_dependent_files=False)
 
     def _copy_file(
         self, source, target, copy_dependent_files, include_mode=False
@@ -217,11 +222,8 @@ class Freezer(ABC):
             mode = os.stat(target_path).st_mode
             os.chmod(target_path, mode | stat.S_IWUSR)
 
-        # Copy icon
-        self._CopyIcon(exe=exe, target_path=target_path)
-
-        if self.metadata is not None:
-            self._AddVersionResource(exe)
+        # Add resources like version metadata and icon
+        self._add_resources(exe)
 
     def _platform_add_extra_dependencies(self, dependent_files: Set[str]):
         """Override with platform specific files to add runtime libraries to
@@ -231,15 +233,6 @@ class Freezer(ABC):
     @abstractmethod
     def _copy_top_dependency(self, source: str):
         """Called for copying certain top dependencies in _freeze_executable."""
-        return
-
-    def _CopyIcon(self, exe, target_path):
-        """Copy icon into application.  (Overridden on Windows)."""
-        if exe.icon is None:
-            return
-        target_icon = os.path.join(self.targetdir, os.path.basename(exe.icon))
-        self._copy_file(exe.icon, target_icon, copy_dependent_files=False)
-        return
 
     def _default_bin_excludes(self):
         """Return the file names of libraries that need not be included because
@@ -639,52 +632,51 @@ class WinFreezer(Freezer):
         self.runtime_files_to_dup = set()
         self._set_runtime_files()
 
-    def _AddVersionResource(self, exe):
-        warning_msg = "*** WARNING *** unable to create version resource"
-        if version_stamp is None:
-            if self.silent < 3:
-                print(warning_msg)
-                print("install pywin32 extensions first")
-            return
-        if not self.metadata.version:
-            if self.silent < 3:
-                print(warning_msg)
-                print("version must be specified")
-            return
+    def _add_resources(self, exe: Executable) -> None:
+        target_path: str = os.path.join(self.targetdir, exe.target_name)
 
-        filename = os.path.join(self.targetdir, exe.target_name)
-        versionInfo = VersionInfo(
-            self.metadata.version,
-            comments=self.metadata.long_description,
-            description=self.metadata.description,
-            company=self.metadata.author,
-            product=self.metadata.name,
-            copyright=exe.copyright,
-            trademarks=exe.trademarks,
-        )
-        version_stamp(filename, versionInfo)
-
-    def _CopyIcon(self, exe, target_path):
-        if exe.icon is None:
-            return
-        try:
-            winutil.AddIcon(target_path, exe.icon)
-        except RuntimeError as exc:
-            if self.silent < 3:
-                print("*** WARNING ***", exc)
-        except OSError as exc:
-            if "\\WindowsApps\\" in sys.base_prefix:
+        # Add version resource
+        if self.metadata is not None:
+            warning_msg = "Warning: unable to create version resource"
+            if version_stamp is None:
                 if self.silent < 3:
-                    print(
-                        "*** WARNING *** Because of restrictions on "
-                        "Microsoft Store apps, Python scripts may not "
-                        "have full write access to built executable.\n"
-                        "You will need to install the full installer.\n"
-                        "The following error was returned:"
-                    )
-                    print(exc)
+                    print(warning_msg)
+                    print("install pywin32 extensions first")
+            elif not self.metadata.version:
+                if self.silent < 3:
+                    print(warning_msg)
+                    print("version must be specified")
             else:
-                raise
+                versionInfo = VersionInfo(
+                    self.metadata.version,
+                    comments=self.metadata.long_description,
+                    description=self.metadata.description,
+                    company=self.metadata.author,
+                    product=self.metadata.name,
+                    copyright=exe.copyright,
+                    trademarks=exe.trademarks,
+                )
+                version_stamp(target_path, versionInfo)
+
+        # Add icon
+        if exe.icon is not None:
+            try:
+                winutil.AddIcon(target_path, exe.icon)
+            except (MemoryError, RuntimeError) as exc:
+                if self.silent < 3:
+                    print("Warning:", exc)
+            except OSError as exc:
+                if "\\WindowsApps\\" in sys.base_prefix:
+                    if self.silent < 3:
+                        print("Warning:", exc)
+                        print(
+                            "Warning: Because of restrictions on Microsoft "
+                            "Store apps, Python scripts may not have full "
+                            "write access to built executable. "
+                            "You will need to install the full installer."
+                        )
+                else:
+                    raise
         return
 
     def _copy_top_dependency(self, source: str):
