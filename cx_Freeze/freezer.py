@@ -114,17 +114,17 @@ class Freezer(ABC):
         if not self._should_copy_file(source):
             return
 
-        normalizedSource = os.path.normcase(os.path.normpath(source))
-        normalizedTarget = os.path.normcase(os.path.normpath(target))
+        # handle pre-copy tasks, normally on the target path
+        (
+            source,
+            target,
+            normalized_source,
+            normalized_target,
+        ) = self._pre_copy_hook(source, target)
 
-        # fix the target path for C runtime files (should do nothing on Darwin)
-        target, normalizedTarget = self._CopyFileNameHook(
-            source=source, target=target, normalizedTarget=normalizedTarget
-        )
-
-        if normalizedTarget in self.files_copied:
+        if normalized_target in self.files_copied:
             return
-        if normalizedSource == normalizedTarget:
+        if normalized_source == normalized_target:
             return
         targetdir = os.path.dirname(target)
         self._create_directory(targetdir)
@@ -134,31 +134,31 @@ class Freezer(ABC):
         shutil.copystat(source, target)
         if include_mode:
             shutil.copymode(source, target)
-        self.files_copied.add(normalizedTarget)
+        self.files_copied.add(normalized_target)
 
         # handle post-copy tasks, including copying dependencies
         self._post_copy_hook(
-            source=source,
-            target=target,
-            normalizedSource=normalizedSource,
-            normalizedTarget=normalizedTarget,
+            source,
+            target,
+            normalized_source,
+            normalized_target,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
         )
 
-    def _CopyFileNameHook(
-        self, source: str, target: str, normalizedTarget: str
-    ) -> Tuple[str, str]:
-        # by default, do nothing and pass through the paths
-        return target, normalizedTarget
+    @abstractmethod
+    def _pre_copy_hook(
+        self, source: str, target: str
+    ) -> Tuple[str, str, str, str]:
+        """Prepare the source and target paths and a normalized version."""
 
     @abstractmethod
     def _post_copy_hook(
         self,
         source,
         target,
-        normalizedSource,
-        normalizedTarget,
+        normalized_source,
+        normalized_target,
         copy_dependent_files,
         include_mode=False,
     ):
@@ -687,24 +687,6 @@ class WinFreezer(Freezer):
                 raise
         return
 
-    def _CopyFileNameHook(
-        self, source: str, target: str, normalizedTarget: str
-    ) -> Tuple[str, str]:
-        """Adjusts target and normalizedTarget strings in certain cases related
-        to C runtime libraries on Windows. And also triggers an additional copy
-        for files in self.runtime_files_to_dup."""
-        norm_target_name = os.path.basename(normalizedTarget)
-        if norm_target_name in self.runtime_files:
-            target_name = os.path.basename(target)
-            target = os.path.join(self.targetdir, "lib", target_name)
-            # vcruntime140.dll must be in the root and in the lib directory
-            if norm_target_name in self.runtime_files_to_dup:
-                self.runtime_files_to_dup.remove(norm_target_name)
-                self._copy_file(source, target, copy_dependent_files=False)
-                target = os.path.join(self.targetdir, target_name)
-            normalizedTarget = os.path.normcase(os.path.normpath(target))
-        return target, normalizedTarget
-
     def _copy_top_dependency(self, source: str):
         """Called for copying certain top dependencies in _freeze_executable.
         We need this as a separate method so that it can be overridden on
@@ -716,12 +698,35 @@ class WinFreezer(Freezer):
             source, target, copy_dependent_files=True, include_mode=True
         )
 
+    def _pre_copy_hook(
+        self, source: str, target: str
+    ) -> Tuple[str, str, str, str]:
+        """Prepare the source and target paths and a normalized version.
+        Adjust the target of C runtime libraries and triggers an additional
+        copy for files in self.runtime_files_to_dup."""
+        normalized_source = os.path.normcase(os.path.normpath(source))
+        normalized_target = os.path.normcase(os.path.normpath(target))
+
+        # fix the target path for C runtime files
+        norm_target_name = os.path.basename(normalized_target)
+        if norm_target_name in self.runtime_files:
+            target_name = os.path.basename(target)
+            target = os.path.join(self.targetdir, "lib", target_name)
+
+            # vcruntime140.dll must be in the root and in the lib directory
+            if norm_target_name in self.runtime_files_to_dup:
+                self.runtime_files_to_dup.remove(norm_target_name)
+                self._copy_file(source, target, copy_dependent_files=False)
+                target = os.path.join(self.targetdir, target_name)
+            normalized_target = os.path.normcase(os.path.normpath(target))
+        return source, target, normalized_source, normalized_target
+
     def _post_copy_hook(
         self,
         source,
         target,
-        normalizedSource,
-        normalizedTarget,
+        normalized_source,
+        normalized_target,
         copy_dependent_files,
         include_mode=False,
     ):
@@ -810,12 +815,20 @@ class DarwinFreezer(Freezer):
     def _post_freeze_hook(self):
         self.darwinTracker.finalizeReferences()
 
+    def _pre_copy_hook(
+        self, source: str, target: str
+    ) -> Tuple[str, str, str, str]:
+        """Prepare the source and target paths and a normalized version."""
+        normalized_source = os.path.normcase(os.path.normpath(source))
+        normalized_target = os.path.normcase(os.path.normpath(target))
+        return source, target, normalized_source, normalized_target
+
     def _post_copy_hook(
         self,
         source,
         target,
-        normalizedSource,
-        normalizedTarget,
+        normalized_source,
+        normalized_target,
         copy_dependent_files,
         include_mode=False,
         machOReference: Optional["MachOReference"] = None,
@@ -832,12 +845,12 @@ class DarwinFreezer(Freezer):
         newDarwinFile = DarwinFile(
             originalFilePath=source, referencingFile=referencingFile
         )
-        newDarwinFile.setBuildPath(normalizedTarget)
+        newDarwinFile.setBuildPath(normalized_target)
         if machOReference is not None:
             machOReference.setTargetFile(darwinFile=newDarwinFile)
 
         self.darwinTracker.recordCopiedFile(
-            targetPath=normalizedTarget, darwinFile=newDarwinFile
+            targetPath=normalized_target, darwinFile=newDarwinFile
         )
         if (
             copy_dependent_files
@@ -875,25 +888,25 @@ class DarwinFreezer(Freezer):
         if not self._should_copy_file(source):
             return
 
-        normalizedSource = os.path.normcase(os.path.normpath(source))
-        normalizedTarget = os.path.normcase(os.path.normpath(target))
+        # handle pre-copy tasks, normally on the target path
+        (
+            source,
+            target,
+            normalized_source,
+            normalized_target,
+        ) = self._pre_copy_hook(source, target)
 
-        # fix the target path for C runtime files
-        target, normalizedTarget = self._CopyFileNameHook(
-            source=source, target=target, normalizedTarget=normalizedTarget
-        )
-
-        if normalizedTarget in self.files_copied:
+        if normalized_target in self.files_copied:
             if machOReference is not None:
                 # If file was already copied, and we are following a reference
                 # from a DarwinFile, then we need to tell the reference where
                 # the file was copied to (so the reference can later be updated).
                 copiedDarwinFile = self.darwinTracker.getDarwinFile(
-                    sourcePath=normalizedSource, targetPath=normalizedTarget
+                    sourcePath=normalized_source, targetPath=normalized_target
                 )
                 machOReference.setTargetFile(darwinFile=copiedDarwinFile)
             return
-        if normalizedSource == normalizedTarget:
+        if normalized_source == normalized_target:
             return
         targetdir = os.path.dirname(target)
         self._create_directory(targetdir)
@@ -903,14 +916,14 @@ class DarwinFreezer(Freezer):
         shutil.copystat(source, target)
         if include_mode:
             shutil.copymode(source, target)
-        self.files_copied.add(normalizedTarget)
+        self.files_copied.add(normalized_target)
 
         # handle post-copy tasks, including copying dependencies
         self._post_copy_hook(
-            source=source,
-            target=target,
-            normalizedSource=normalizedSource,
-            normalizedTarget=normalizedTarget,
+            source,
+            target,
+            normalized_source,
+            normalized_target,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
             machOReference=machOReference,
@@ -983,12 +996,20 @@ class LinuxFreezer(Freezer):
         super().__init__(*args, **kwargs)
         self.patchelf = Patchelf()
 
+    def _pre_copy_hook(
+        self, source: str, target: str
+    ) -> Tuple[str, str, str, str]:
+        """Prepare the source and target paths and a normalized version."""
+        normalized_source = os.path.normpath(source)
+        normalized_target = os.path.normpath(target)
+        return source, target, normalized_source, normalized_target
+
     def _post_copy_hook(
         self,
         source,
         target,
-        normalizedSource,
-        normalizedTarget,
+        normalized_source,
+        normalized_target,
         copy_dependent_files,
         include_mode=False,
     ):
