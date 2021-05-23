@@ -17,14 +17,11 @@ from typing import Any, Dict, List, Set, Tuple, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
-from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule
 
-if sys.platform == "linux":
-    from .patchelf import Patchelf
 if sys.platform == "win32":
     from . import winmsvcr
     from . import util as winutil
@@ -34,6 +31,11 @@ if sys.platform == "win32":
         from win32verstamp import stamp as version_stamp
     except:
         version_stamp = None
+elif sys.platform == "darwin":
+    from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
+else:
+    from .patchelf import Patchelf
+
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
@@ -52,8 +54,8 @@ class Freezer(ABC):
 
     def __init__(
         self,
-        executables: List["Executable"],
-        constantsModule: Optional["ConstantsModule"] = None,
+        executables: List[Executable],
+        constantsModule: Optional[ConstantsModule] = None,
         includes: Optional[List[str]] = None,
         excludes: Optional[List[str]] = None,
         packages: Optional[List[str]] = None,
@@ -836,7 +838,7 @@ class DarwinFreezer(Freezer):
         normalizedTarget,
         copyDependentFiles,
         includeMode=False,
-        machOReference: Optional[MachOReference] = None,
+        machOReference: Optional["MachOReference"] = None,
     ):
 
         # The file was not previously copied, so need to create a
@@ -885,7 +887,7 @@ class DarwinFreezer(Freezer):
         target,
         copyDependentFiles,
         includeMode=False,
-        machOReference: Optional[MachOReference] = None,
+        machOReference: Optional["MachOReference"] = None,
     ):
         """This is essentially the same as Freezer._CopyFile, except that it
         also takes a machOReference parameter. Used when recursing to
@@ -964,7 +966,7 @@ class DarwinFreezer(Freezer):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
     def _GetDependentFiles(
-        self, path, darwinFile: Optional[DarwinFile] = None
+        self, path, darwinFile: Optional["DarwinFile"] = None
     ) -> List[str]:
         path = os.path.normcase(path)
         dependentFiles = self.dependentFiles.get(path, None)
