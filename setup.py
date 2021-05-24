@@ -1,5 +1,12 @@
 """
-Distutils script for cx_Freeze.
+Setuptools script for cx_Freeze.
+
+Use one of the following commands to install:
+    pip install .
+    python setup.py build install
+Use one of the following commands to use the development mode:
+    pip install -e .
+    python setup.py develop
 """
 
 import glob
@@ -9,7 +16,7 @@ import sys
 import sysconfig
 from sysconfig import get_config_var
 
-from setuptools import setup, Extension
+from setuptools import setup, Command, Extension
 import setuptools.command.build_ext
 
 WIN32 = sys.platform == "win32"
@@ -85,10 +92,10 @@ class build_ext(setuptools.command.build_ext.build_ext):
             if "--with-lto" in get_config_var("CONFIG_ARGS"):
                 extra_args.append("-flto")
                 extra_args.append("-Wl,-export_dynamic")
-            else:
+            if sys.platform != "darwin":
                 extra_args.append("-s")
-            extra_args.append("-Wl,-rpath,$ORIGIN/lib")
-            extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
+                extra_args.append("-Wl,-rpath,$ORIGIN/lib")
+                extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
         self.compiler.link_executable(
             objects,
             fullname,
@@ -154,12 +161,31 @@ class build_ext(setuptools.command.build_ext.build_ext):
         )
         return library_dir, f"{name}-dl"
 
+    def run(self):
+        self.run_command("install_include")
+        super().run()
 
-def get_cx_logging_h_dir():
-    target_path = os.path.join(sys.exec_prefix, "Include", "cx_Logging.h")
-    if os.path.exists(target_path):
-        return os.path.dirname(target_path)
-    return os.path.join(os.path.dirname(__file__), "source", "bases")
+
+class install_include(Command):
+    def initialize_options(self):
+        self.install_dir = None
+        self.outfiles = []
+
+    def finalize_options(self):
+        self.set_undefined_options(
+            "install",
+            ("install_data", "install_dir"),
+        )
+
+    def run(self):
+        if WIN32:
+            target_dir = os.path.join(self.install_dir, "include")
+            target_file_name = os.path.join(target_dir, "cx_Logging.h")
+            if os.path.isfile(target_file_name):
+                return
+            self.mkpath(target_dir)
+            self.copy_file("source\\bases\\cx_Logging.h", target_file_name)
+            self.outfiles.append(target_file_name)
 
 
 if __name__ == "__main__":
@@ -188,7 +214,6 @@ if __name__ == "__main__":
             "cx_Freeze.bases.Win32Service",
             ["source/bases/Win32Service.c"],
             depends=depends,
-            include_dirs=[get_cx_logging_h_dir()],
             extra_link_args=["/DELAYLOAD:cx_Logging"],
             libraries=libraries + ["advapi32"],
         )
@@ -208,7 +233,7 @@ if __name__ == "__main__":
         package_data.append(f"initscripts/{filename}")
 
     setup(
-        cmdclass={"build_ext": build_ext},
+        cmdclass={"build_ext": build_ext, "install_include": install_include},
         options={"install": {"optimize": 1}},
         ext_modules=extensions,
         packages=["cx_Freeze"],
