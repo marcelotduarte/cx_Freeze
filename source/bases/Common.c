@@ -11,10 +11,10 @@
 // this consists of <dir>/lib/library.zip and <dir>/lib
 // where <dir> refers to the directory in which the executable is found
 #if defined(MS_WINDOWS)
-    #define CX_PATH_FORMAT              "%ls\\lib\\library.zip;%ls\\lib"
+    #define CX_PATH_FORMAT              L"%ls\\lib\\library.zip;%ls\\lib"
     #define CX_LIB                      L"lib"
 #else
-    #define CX_PATH_FORMAT              "%ls/lib/library.zip:%ls/lib"
+    #define CX_PATH_FORMAT              L"%ls/lib/library.zip:%ls/lib"
 #endif
 
 // global variables (used for simplicity)
@@ -127,7 +127,6 @@ static int SetExecutableName(const wchar_t *wargv0)
 //-----------------------------------------------------------------------------
 static int InitializePython(int argc, wchar_t **argv)
 {
-    char *path;
     wchar_t *wpath;
     size_t size;
 
@@ -136,16 +135,12 @@ static int InitializePython(int argc, wchar_t **argv)
         return -1;
 
     // create sys.path
-    size = sizeof(g_ExecutableDirName) * 2 + strlen(CX_PATH_FORMAT) + 1;
-    path = PyMem_RawMalloc(sizeof(char) * size);
-    if (!path)
-        return FatalError("Out of memory creating sys.path!");
-    PyOS_snprintf(path, size, CX_PATH_FORMAT,
-                  g_ExecutableDirName, g_ExecutableDirName);
-    wpath = Py_DecodeLocale(path, NULL);
-    PyMem_RawFree(path);
+    size = wcslen(g_ExecutableDirName) * 2 + wcslen(CX_PATH_FORMAT) + 1;
+    wpath = PyMem_RawMalloc(sizeof(wchar_t) * size);
     if (!wpath)
-        return FatalError("Unable to convert path to string!");
+        return FatalError("Out of memory creating sys.path!");
+    swprintf(wpath, size, CX_PATH_FORMAT,
+             g_ExecutableDirName, g_ExecutableDirName);
 
     // initialize Python
     Py_NoSiteFlag = 1;
