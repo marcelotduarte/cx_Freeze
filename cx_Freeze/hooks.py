@@ -818,6 +818,22 @@ def load_pycparser(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("pycparser.yacctab")
 
 
+def load_pydantic(finder: ModuleFinder, module: Module) -> None:
+    """
+    The pydantic package is compiled by Cython (and the imports are hidden).
+    """
+    finder.IncludeModule("colorsys")
+    finder.IncludeModule("dataclasses") # support in v 1.7+
+    finder.IncludeModule("datetime")
+    finder.IncludeModule("decimal")
+    finder.IncludeModule("functools")
+    finder.IncludeModule("ipaddress")
+    finder.IncludePackage("json")
+    finder.IncludeModule("pathlib")
+    finder.IncludeModule("typing_extensions") # support in v 1.8
+    finder.IncludeModule("uuid")
+
+
 def load_pygments(finder: ModuleFinder, module: Module) -> None:
     """The pygments package dynamically load styles."""
     finder.IncludePackage("pygments.styles")
