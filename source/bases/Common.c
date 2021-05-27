@@ -39,8 +39,7 @@ static int SetExecutableName(const wchar_t *wargv0)
 #ifdef MS_WINDOWS
     if (!GetModuleFileNameW(NULL, g_ExecutableName, MAXPATHLEN + 1))
         return FatalError("Unable to get executable name!");
-    memcpy(g_ExecutableDirName, g_ExecutableName,
-            (MAXPATHLEN + 1) * sizeof(wchar_t));
+    wcscpy(g_ExecutableDirName, g_ExecutableName);
     PathRemoveFileSpecW(g_ExecutableDirName);
 
     // set lib directory as default for dll search
@@ -52,7 +51,7 @@ static int SetExecutableName(const wchar_t *wargv0)
 
     char executableName[PATH_MAX + 1], *path, *ptr, *tempPtr;
     char tempname[MAXPATHLEN + 1];
-    wchar_t *wname;
+    wchar_t *wname, *wptr;
     size_t size, argv0Size;
     struct stat statData;
     int found = 0;
@@ -63,7 +62,7 @@ static int SetExecutableName(const wchar_t *wargv0)
         return FatalError("Unable to convert argument to bytes!");
 
     // check to see if path contains a separator
-    if (strchr(argv0, SEP)) {
+    if (wcschr(wargv0, SEP)) {
         strcpy(executableName, argv0);
 
     // if not, check the PATH environment variable
@@ -103,16 +102,12 @@ static int SetExecutableName(const wchar_t *wargv0)
     if (!wname)
         return FatalError("Unable to convert path to string!");
     wcscpy(g_ExecutableName, wname);
-    PyMem_RawFree(wname);
 
     // get directory from executable name
-    ptr = strrchr(tempname, SEP);
-    if (!ptr)
+    wptr = wcsrchr(wname, SEP);
+    if (!wptr)
         return FatalError("Unable to calculate directory of executable!");
-    *ptr = '\0';
-    wname = Py_DecodeLocale(tempname, NULL);
-    if (!wname)
-        return FatalError("Unable to convert path to string!");
+    *wptr = '\0';
     wcscpy(g_ExecutableDirName, wname);
     PyMem_RawFree(wname);
 #endif
