@@ -4,9 +4,8 @@
 //-----------------------------------------------------------------------------
 
 #define PY_SSIZE_T_CLEAN
-
 #include <Python.h>
-#ifdef MS_WINDOWS
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <imagehlp.h>
@@ -49,17 +48,13 @@ typedef struct {
     WORD idCount;                       // How many images?
     GRPICONDIRENTRY idEntries[0];       // An entry for each image
 } GRPICONDIR;
-#endif
 
 //-----------------------------------------------------------------------------
 // Globals
 //-----------------------------------------------------------------------------
-#ifdef MS_WINDOWS
 static PyObject *g_BindErrorException = NULL;
 static PyObject *g_ImageNames = NULL;
-#endif
 
-#ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
 // BindStatusRoutine()
 //   Called by BindImageEx() at various points. This is used to determine the
@@ -102,31 +97,36 @@ static BOOL __stdcall BindStatusRoutine(
 //   Return the data for the given file.
 //-----------------------------------------------------------------------------
 static int GetFileData(
-    LPCWSTR filename,                   // name of file to read
+    wchar_t *filename,                  // name of file to read
     char **data)                        // pointer to data (OUT)
 {
-    DWORD numberOfBytesRead, dataSize;
-    HANDLE file;
+    DWORD bytesread, filesize;
+    HANDLE fhandle;
 
-    file = CreateFileW(filename, GENERIC_READ, FILE_SHARE_READ, NULL,
-            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE)
+    fhandle = CreateFileW((LPCWSTR) filename,
+                          GENERIC_READ,
+                          FILE_SHARE_READ,
+                          NULL,
+                          OPEN_EXISTING,
+                          FILE_ATTRIBUTE_NORMAL,
+                          NULL);
+    if (fhandle == INVALID_HANDLE_VALUE)
         return -1;
-    dataSize = GetFileSize(file, NULL);
-    if (dataSize == INVALID_FILE_SIZE) {
-        CloseHandle(file);
+    filesize = GetFileSize(fhandle, NULL);
+    if (filesize == INVALID_FILE_SIZE) {
+        CloseHandle(fhandle);
         return -1;
     }
-    *data = PyMem_Malloc(dataSize);
+    *data = PyMem_Malloc(filesize);
     if (!*data) {
-        CloseHandle(file);
+        CloseHandle(fhandle);
         return -1;
     }
-    if (!ReadFile(file, *data, dataSize, &numberOfBytesRead, NULL)) {
-        CloseHandle(file);
+    if (!ReadFile(fhandle, *data, filesize, &bytesread, NULL)) {
+        CloseHandle(fhandle);
         return -1;
     }
-    CloseHandle(file);
+    CloseHandle(fhandle);
     return 0;
 }
 
@@ -176,8 +176,8 @@ static PyObject *ExtAddIcon(
     PyObject *args)                     // arguments
 {
     char *data, *iconData;
+    wchar_t *executable_name, *icon_name;
     PyObject *executable, *icon;
-    LPWSTR executableName, iconName;
     GRPICONDIR *groupIconDir;
     DWORD resourceSize;
     ICONDIR *iconDir;
@@ -189,8 +189,8 @@ static PyObject *ExtAddIcon(
     handle = NULL;
     data = NULL;
     groupIconDir = NULL;
-    executableName = NULL;
-    iconName = NULL;
+    executable_name = NULL;
+    icon_name = NULL;
 
     if (!PyArg_ParseTuple(args, "UU", &executable, &icon)) {
         succeeded = FALSE;
@@ -200,9 +200,9 @@ static PyObject *ExtAddIcon(
     }
 
     if (succeeded) {
-        executableName = (LPWSTR)PyUnicode_AsWideCharString(executable, NULL);
-        iconName = (LPWSTR)PyUnicode_AsWideCharString(icon, NULL);
-        if (!executableName || !iconName) {
+        executable_name = PyUnicode_AsWideCharString(executable, NULL);
+        icon_name = PyUnicode_AsWideCharString(icon, NULL);
+        if (!executable_name || !icon_name) {
             succeeded = FALSE;
             PyErr_NoMemory();
         }
@@ -210,7 +210,7 @@ static PyObject *ExtAddIcon(
 
     // begin updating the executable
     if (succeeded) {
-        handle = BeginUpdateResourceW(executableName, FALSE);
+        handle = BeginUpdateResourceW(executable_name, FALSE);
         if (!handle) {
             succeeded = FALSE;
             PyErr_SetExcFromWindowsErrWithFilenameObject(
@@ -221,13 +221,13 @@ static PyObject *ExtAddIcon(
 
     // first attempt to get the data from the icon file
     if (succeeded) {
-        if (GetFileData(iconName, &data) < 0)
+        if (GetFileData(icon_name, &data) < 0)
             succeeded = FALSE;
     }
 
     // check for valid icon
     if (succeeded) {
-        iconDir = (ICONDIR*) data;
+        iconDir = (ICONDIR *) data;
         if (iconDir->idType != 1) {
             PyErr_Format(
                 PyExc_RuntimeError, "Icon filename '%S' has invalid type.", icon
@@ -274,10 +274,10 @@ static PyObject *ExtAddIcon(
     }
 
     // clean up
-    if (executableName)
-        PyMem_Free(executableName);
-    if (iconName)
-        PyMem_Free(iconName);
+    if (executable_name)
+        PyMem_Free(executable_name);
+    if (icon_name)
+        PyMem_Free(icon_name);
     if (groupIconDir)
         PyMem_Free(groupIconDir);
     if (data)
@@ -311,7 +311,7 @@ static PyObject *ExtBeginUpdateResource(
                 GetLastError(), fileName);
         return NULL;
     }
-    return PyLong_FromLongLong(handle);
+    return PyLong_FromVoidPtr(handle);
 }
 
 
@@ -326,10 +326,13 @@ static PyObject *ExtUpdateResource(
     int resourceType, resourceId, resourceDataSize;
     char *resourceData;
     HANDLE handle;
+    PyObject *handle_obj;
 
-    if (!PyArg_ParseTuple(args, "iiis#", &handle, &resourceType, &resourceId,
-            &resourceData, &resourceDataSize))
+    if (!PyArg_ParseTuple(args, "Oiis#", &handle_obj,
+                          &resourceType, &resourceId,
+                          &resourceData, &resourceDataSize))
         return NULL;
+    handle = PyLong_AsVoidPtr(handle_obj);
     if (!UpdateResource(handle, MAKEINTRESOURCE(resourceType),
             MAKEINTRESOURCE(resourceId),
             MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), resourceData,
@@ -353,10 +356,12 @@ static PyObject *ExtEndUpdateResource(
 {
     BOOL discardChanges;
     HANDLE handle;
+    PyObject *handle_obj;
 
     discardChanges = FALSE;
-    if (!PyArg_ParseTuple(args, "i|i", &handle, &discardChanges))
+    if (!PyArg_ParseTuple(args, "O|i", &handle_obj, &discardChanges))
         return NULL;
+    handle = PyLong_AsVoidPtr(handle_obj);
     if (!EndUpdateResource(handle, discardChanges)) {
         PyErr_SetExcFromWindowsErr(PyExc_WindowsError, GetLastError());
         return NULL;
@@ -404,9 +409,10 @@ static PyObject *ExtGetSystemDir(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments (ignored)
 {
-    OLECHAR dir[MAX_PATH + 1];
-    if (GetSystemDirectoryW(dir, sizeof(dir)))
-        return PyUnicode_FromWideChar(dir, -1);
+    wchar_t dir_name[MAX_PATH + 1];
+
+    if (GetSystemDirectoryW(dir_name, sizeof(dir_name)))
+        return PyUnicode_FromWideChar(dir_name, -1);
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
@@ -420,13 +426,13 @@ static PyObject *ExtGetWindowsDir(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments (ignored)
 {
-    OLECHAR dir[MAX_PATH + 1];
-    if (GetWindowsDirectoryW(dir, sizeof(dir)))
-        return PyUnicode_FromWideChar(dir, -1);
+    wchar_t dir_name[MAX_PATH + 1];
+
+    if (GetWindowsDirectoryW(dir_name, sizeof(dir_name)))
+        return PyUnicode_FromWideChar(dir_name, -1);
     PyErr_SetExcFromWindowsErr(PyExc_RuntimeError, GetLastError());
     return NULL;
 }
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -437,7 +443,7 @@ static PyObject *ExtUpdateCheckSum(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    PyObject *executable, *results, *value;
+    PyObject *executable, *results;
     wchar_t *filename;
     HANDLE fhandle, fmap = NULL;
     PVOID mmap = NULL;
@@ -457,7 +463,7 @@ static PyObject *ExtUpdateCheckSum(
         return PyErr_NoMemory();
     }
 
-    fhandle = CreateFileW((LPWSTR) filename,
+    fhandle = CreateFileW((LPCWSTR) filename,
                           GENERIC_READ | GENERIC_WRITE,
                           FILE_SHARE_READ,
                           NULL,
@@ -516,16 +522,9 @@ static PyObject *ExtUpdateCheckSum(
     }
 
     // return a Tuple[int, int] (so we can check the values)
-    results = PyTuple_New(2);
-    if (results) {
-        value = PyLong_FromLong(header_sum);
-        if (value)
-            PyTuple_SET_ITEM(results, 0, value);
-        value = PyLong_FromLong(check_sum);
-        if (value)
-            PyTuple_SET_ITEM(results, 1, value);
+    results = Py_BuildValue("(ii)", header_sum, check_sum);
+    if (results)
         return results;
-    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -535,16 +534,14 @@ static PyObject *ExtUpdateCheckSum(
 // Methods
 //-----------------------------------------------------------------------------
 static PyMethodDef g_ModuleMethods[] = {
-#ifdef MS_WINDOWS
+    { "AddIcon", ExtAddIcon, METH_VARARGS },
     { "BeginUpdateResource", ExtBeginUpdateResource, METH_VARARGS },
     { "UpdateResource", ExtUpdateResource, METH_VARARGS },
     { "EndUpdateResource", ExtEndUpdateResource, METH_VARARGS },
-    { "AddIcon", ExtAddIcon, METH_VARARGS },
     { "GetDependentFiles", ExtGetDependentFiles, METH_VARARGS },
     { "GetSystemDir", ExtGetSystemDir, METH_NOARGS },
     { "GetWindowsDir", ExtGetWindowsDir, METH_NOARGS },
     { "UpdateCheckSum", ExtUpdateCheckSum, METH_VARARGS },
-#endif
     { NULL }
 };
 
@@ -575,13 +572,11 @@ PyMODINIT_FUNC PyInit_util(void)
     module = PyModule_Create(&g_ModuleDef);
     if (!module)
         return NULL;
-#ifdef MS_WINDOWS
     g_BindErrorException = PyErr_NewException("cx_Freeze.util.BindError",
             NULL, NULL);
     if (!g_BindErrorException)
         return NULL;
     if (PyModule_AddObject(module, "BindError", g_BindErrorException) < 0)
         return NULL;
-#endif
     return module;
 }
