@@ -443,7 +443,7 @@ static PyObject *ExtUpdateCheckSum(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    PyObject *executable, *results, *value;
+    PyObject *executable, *results;
     wchar_t *filename;
     HANDLE fhandle, fmap = NULL;
     PVOID mmap = NULL;
