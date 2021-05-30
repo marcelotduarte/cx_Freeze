@@ -1035,7 +1035,7 @@ class LinuxFreezer(Freezer):
                 )
             if fix_rpath:
                 has_rpath = self.patchelf.get_rpath(target)
-                rpath = ":".join([f"$ORIGIN/{r}" for r in fix_rpath])
+                rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
                 if has_rpath != rpath:
                     self.patchelf.set_rpath(target, rpath)
 

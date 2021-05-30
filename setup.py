@@ -107,11 +107,11 @@ class build_ext(setuptools.command.build_ext.build_ext):
         )
 
     def copy_extensions_to_source(self):
-        build_py = self.get_finalized_command('build_py')
+        build_py = self.get_finalized_command("build_py")
         for ext in self.extensions:
             fullname = self.get_ext_fullname(ext.name)
-            modpath = fullname.split('.')
-            package = '.'.join(modpath[:-1])
+            modpath = fullname.split(".")
+            package = ".".join(modpath[:-1])
             package_dir = build_py.get_package_dir(package)
             self.mkpath(package_dir)
         super().copy_extensions_to_source()

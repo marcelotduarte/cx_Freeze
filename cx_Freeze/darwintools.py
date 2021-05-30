@@ -158,7 +158,7 @@ class DarwinFile:
             l.append(f"   {rp}")
         l.append("Loaded libraries:")
         for rp in self.libraryPathResolution:
-            l.append("   {} -> {}".format(rp, self.libraryPathResolution[rp]))
+            l.append(f"   {rp} -> {self.libraryPathResolution[rp]}")
         return "\n".join(l)
 
     def fileReferenceDepth(self) -> int:

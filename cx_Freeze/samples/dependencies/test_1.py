@@ -21,7 +21,7 @@ dependencies_to_check = [
     os.path.join(sys.base_prefix, "python.exe"),
     os.path.join(
         sys.base_prefix,
-        "python{}{}.dll".format(sys.version_info[0], sys.version_info[1]),
+        f"python{sys.version_info[0]}{sys.version_info[1]}.dll",
     ),
     sys.executable,
     os.path.join(dlls, "_ctypes.pyd"),
