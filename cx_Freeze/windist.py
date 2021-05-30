@@ -130,7 +130,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                             None,
                             None,
                             None,
-                            None,
+                            "TARGETDIR",
                         )
                     ],
                 )
