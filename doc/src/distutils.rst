@@ -13,10 +13,10 @@ something like this:
     from cx_Freeze import setup, Executable
 
     # Dependencies are automatically detected, but it might need fine tuning.
+    # "packages": ["os"] is used as example only
     build_exe_options = {"packages": ["os"], "excludes": ["tkinter"]}
 
-    # GUI applications require a different base on Windows (the default is for
-    # a console application).
+    # base="Win32GUI" should be used only for Windows GUI app
     base = None
     if sys.platform == "win32":
         base = "Win32GUI"
@@ -66,7 +66,7 @@ To specify options in the script, use underscores in the name. For example:
 
     setup(
          #...
-          options = {'build_exe': {'init_script':'Console'}}
+          options = {"build_exe": {"init_script": "Console"}}
          )
 
 To specify the same options on the command line, use dashes, like this:
@@ -297,13 +297,61 @@ For example:
 
   .. code-block:: python
 
-    'bdist_msi': {
-        'upgrade_code': "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
-        'add_to_path': True,
-        'environment_variables': [
-            ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
-        ]
+    directory_table = [
+        ("ProgramMenuFolder", "TARGETDIR", "."),
+        ("MyProgramMenu", "ProgramMenuFolder", "MYPROG~1|My Program"),
+    ]
+
+    msi_data = {
+        "Directory": directory_table,
+        "ProgId": [
+            ("Prog.Id", None, None, "This is a description", "IconId", None),
+        ],
+        "Icon": [
+            ("IconId", "icon.ico"),
+        ],
     }
+
+    bdist_msi_options = {
+        "add_to_path": True,
+        "data": msi_data,
+        "environment_variables": [
+            ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
+        ],
+        "upgrade_code": "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
+    }
+
+    build_exe_options = {"excludes": ["tkinter"], "include_msvcr": True}
+
+    executables = [
+        Executable(
+            "hello.py",
+            copyright="Copyright (C) 2021 cx_Freeze",
+            base=base,
+            icon="icon.ico",
+            shortcutName="My Program Name",
+            shortcutDir="MyProgramMenu",
+        ),
+    ],
+
+    setup(
+        name="hello",
+        version="0.1",
+        description="Sample cx_Freeze script to test MSI arbitrary data stream",
+        executables=executables,
+        options={
+            "build_exe": build_exe_options,
+            "bdist_msi": bdist_msi_options,
+        },
+    )
+
+Samples:
+There are more examples in the ``samples/`` directory of `the source
+<https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples>`_.
+
+
+More information:
+`Windows Installer <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
 
 
 bdist_rpm
