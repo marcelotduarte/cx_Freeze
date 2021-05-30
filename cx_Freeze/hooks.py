@@ -823,14 +823,14 @@ def load_pydantic(finder: ModuleFinder, module: Module) -> None:
     The pydantic package is compiled by Cython (and the imports are hidden).
     """
     finder.IncludeModule("colorsys")
-    finder.IncludeModule("dataclasses") # support in v 1.7+
+    finder.IncludeModule("dataclasses")  # support in v 1.7+
     finder.IncludeModule("datetime")
     finder.IncludeModule("decimal")
     finder.IncludeModule("functools")
     finder.IncludeModule("ipaddress")
     finder.IncludePackage("json")
     finder.IncludeModule("pathlib")
-    finder.IncludeModule("typing_extensions") # support in v 1.8
+    finder.IncludeModule("typing_extensions")  # support in v 1.8
     finder.IncludeModule("uuid")
 
 

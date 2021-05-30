@@ -938,7 +938,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         author = metadata.author or metadata.maintainer or "UNKNOWN"
         version = metadata.get_version()
         sversion = ".".join(
-            [str(x) for x in distutils.version.LooseVersion(version).version]
+            str(x) for x in distutils.version.LooseVersion(version).version
         )
 
         # msilib is reloaded in order to reset the "_directories" global member

@@ -21,7 +21,7 @@ base = "Console"
 if sys.platform == "win32":
     base = "Win32GUI"
 
-dir_name = "zip.{}-{}".format(distutils.util.get_platform(), sys.version[0:3])
+dir_name = f"zip.{distutils.util.get_platform()}-{sys.version[0:3]}"
 build_exe_dir = os.path.join("build", dir_name)
 
 options = {

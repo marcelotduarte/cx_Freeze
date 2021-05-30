@@ -13,9 +13,7 @@ import os
 
 from cx_Freeze import setup, Executable
 
-dir_name = "exe.{}-{}.zip".format(
-    distutils.util.get_platform(), sys.version[0:3]
-)
+dir_name = f"exe.{distutils.util.get_platform()}-{sys.version[0:3]}.zip"
 build_exe = os.path.join("build", dir_name)
 
 setup(
