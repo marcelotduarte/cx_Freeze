@@ -7,7 +7,7 @@ BUILDDIR      = ../build/doc
 
 .PHONY: html
 html:
-	pip install --upgrade --upgrade-strategy=eager sphinx
+	pip install --upgrade "sphinx < 4"
 	@$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: epub
@@ -20,7 +20,7 @@ pdf:
 
 .PHONY: test
 test:
-	firefox $(BUILDDIR)/html/index.html &
+	(cd $(BUILDDIR)/html && firefox index.html &)
 
 .PHONY: clean
 clean:
