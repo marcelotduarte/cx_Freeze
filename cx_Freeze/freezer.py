@@ -84,7 +84,7 @@ class Freezer(ABC):
         self.replacePaths = list(replacePaths or [])
         self.compress = True if compress is None else compress
         self.optimize_flag = optimizeFlag
-        self.path = sys.path if path is None else path
+        self.path = path
         self.include_msvcr = includeMSVCR
         self.targetdir = targetDir
         self.binIncludes = binIncludes
@@ -378,12 +378,15 @@ class Freezer(ABC):
         self.binExcludes = [os.path.normcase(name) for name in filenames]
 
         paths = list(self.binPathIncludes or [])
-        paths += [path for path in self.path if os.path.isdir(path)]
-        self.binPathIncludes = [os.path.normcase(name) for name in paths]
+        self.binPathIncludes = [
+            os.path.normcase(name) for name in paths if os.path.isdir(name)
+        ]
 
         paths = list(self.binPathExcludes or [])
         paths += self._default_bin_path_excludes()
-        self.binPathExcludes = [os.path.normcase(name) for name in paths]
+        self.binPathExcludes = [
+            os.path.normcase(name) for name in paths if os.path.isdir(name)
+        ]
 
         for source, target in self.includeFiles + self.zipIncludes:
             if not os.path.exists(source):
