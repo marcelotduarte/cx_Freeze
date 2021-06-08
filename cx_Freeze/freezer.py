@@ -1020,6 +1020,8 @@ class LinuxFreezer(Freezer):
             library_dir = os.path.join(self.targetdir, "lib")
             fix_rpath = set()
             for dependent_file in self._get_dependent_files(source):
+                if not self._should_copy_file(dependent_file):
+                    continue
                 dep_base = os.path.basename(dependent_file)
                 dep_abs = os.path.abspath(dependent_file)
                 dep_rel = os.path.relpath(dep_abs, source_dir)
