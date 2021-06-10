@@ -91,9 +91,19 @@ the standard set of options for the command:
 
    * - option name
      - description
-   * - build_exe (-b)
+   * - .. option:: build_exe
      - directory for built executables and dependent files, defaults to a
        directory of the form ``build/exe.[platform identifier].[python version]``
+
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py build --help
+    Options for 'build' command:
+      --build-exe        build directory for executables
+      --compiler (-c)    specify the compiler type
+      --help-compiler    list available compilers
 
 .. _distutils_build_exe:
 
@@ -109,78 +119,78 @@ It can be further customized:
 
    * - option name
      - description
-   * - build_exe (-b)
+   * - .. option:: build_exe
      - directory for built executables and dependent files, defaults to
        the value of the "build_exe" option on the build command (see
        above); note that using this option (instead of the corresponding
        option on the build command) may break bdist_msi, bdist_mac, and
        other commands
-   * - optimize (-o)
+   * - .. option:: optimize
      - optimization level, one of 0 (disabled), 1 or 2
-   * - excludes (-e)
+   * - .. option:: excludes
      - comma separated list of names of modules to exclude
-   * - includes (-e)
+   * - .. option:: includes
      - comma separated list of names of modules to include
-   * - packages (-p)
+   * - .. option:: packages
      - comma separated list of packages to include, which includes all
        submodules in the package
-   * - replace_paths
+   * - .. option:: replace_paths
      - Modify filenames attached to code objects, which appear in tracebacks.
        Pass a comma separated list of paths in the form <search>=<replace>.
        The value * in the search portion will match the directory containing
        the entire package, leaving just the relative path to the module.
-   * - path
+   * - .. option:: path
      - comma separated list of paths to search; the default value is sys.path
-   * - no_compress
+   * - .. option:: no_compress
      - create a zipfile with no compression
-   * - constants
+   * - .. option:: constants
      - comma separated list of constant values to include in the constants
        module called BUILD_CONSTANTS in the form <name>=<value>
-   * - include_files
+   * - .. option:: include_files
      - list containing files to be copied to the target directory; it is
        expected that this list will contain strings or 2-tuples for the source
        and destination; the source can be a file or a directory (in which case
        the tree is copied except for .svn and CVS directories); the target must
        not be an absolute path
-   * - include_msvcr
+   * - .. option:: include_msvcr
      - include the Microsoft Visual C runtime DLLs without needing the
        redistributable package installed
-   * - zip_includes
+   * - .. option:: zip_includes
      - list containing files to be included in the zip file directory; it is
        expected that this list will contain strings or 2-tuples for the source
        and destination
-   * - bin_includes
+   * - .. option:: bin_includes
      - list of names of files to include when determining dependencies of
        binary files that would normally be excluded; note that version numbers
        that normally follow the shared object extension are stripped prior
        to performing the comparison
-   * - bin_excludes
+   * - .. option:: bin_excludes
      - list of names of files to exclude when determining dependencies of
        binary files that would normally be included; note that version numbers
        that normally follow the shared object extension are stripped prior to
        performing the comparison
-   * - bin_path_includes
+   * - .. option:: bin_path_includes
      - list of paths from which to include files when determining dependencies
        of binary files
-   * - bin_path_excludes
+   * - .. option:: bin_path_excludes
      - list of paths from which to exclude files when determining dependencies
        of binary files
-   * - zip_include_packages
+   * - .. option:: zip_include_packages
      - list of packages which should be included in the zip file; the default
        is for all packages to be placed in the file system, not the zip file;
        those packages which are known to work well inside a zip file can be
        included if desired; use * to specify that all packages should be
        included in the zip file
-   * - zip_exclude_packages
+   * - .. option:: zip_exclude_packages
      - list of packages which should be excluded from the zip file and placed
        in the file system instead; the default is for all packages to be placed
        in the file system since a number of packages assume that is where they
        are found and will fail when placed in a zip file; use * to specify that
        all packages should be placed in the file system and excluded from the
        zip file (the default)
-   * - silent (-s)
+   * - .. option:: silent
      - suppress all output except warnings (equivalent to silent_level=1)
-   * - silent_level
+   * - .. option:: silent_level
      - suppress output from freeze process; can provide a value to specify
        what messages should be suppressed, with the possible values being:
        0 - do not suppress any output [default];
@@ -190,6 +200,51 @@ It can be further customized:
 
 .. versionchanged:: 6.7
     Added new ``silent_level`` option.
+
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py build_exe --help
+    Options for 'build_exe' command:
+    --build-exe (-b)        directory for built executables
+    --optimize (-O)         optimization level: -O1 for "python -O", -O2 for
+                            "python -OO" and -O0 to disable [default: -O0]
+    --excludes (-e)         comma-separated list of modules to exclude
+    --includes (-i)         comma-separated list of modules to include
+    --packages (-p)         comma-separated list of packages to include
+    --namespace-packages    [DEPRECATED]
+    --replace-paths         comma-separated list of paths to replace in included
+                            modules
+    --path                  comma-separated list of paths to search
+    --no-compress           create a zipfile with no compression
+    --constants             comma-separated list of constants to include
+    --include-files (-f)    list of tuples of additional files to include in
+                            distribution
+    --include-msvcr         include the Microsoft Visual C runtime files
+    --zip-includes          list of tuples of additional files to include in zip
+                            file
+    --bin-includes          list of names of files to include when determining
+                            dependencies
+    --bin-excludes          list of names of files to exclude when determining
+                            dependencies
+    --bin-path-includes     list of paths from which to include files when
+                            determining dependencies
+    --bin-path-excludes     list of paths from which to exclude files when
+                            determining dependencies
+    --zip-include-packages  comma-separated list of packages to include in the
+                            zip file (or * for all) [default: none]
+    --zip-exclude-packages  comma-separated list of packages to exclude from the
+                            zip file and place in the file system instead (or *
+                            for all) [default: *]
+    --silent (-s)           suppress all output except warnings (equivalent to
+                            --silent-level=1)
+    --silent-level          suppress output from build_exe command.  level 0:
+                            get all messages; [default]level 1: suppress
+                            information messages, but still get warnings;
+                            (equivalent to --silent)level 2: suppress missing
+                            missing-module warnings level 3: suppress all
+                            warning messages
 
 
 install
@@ -205,7 +260,7 @@ the standard set of options for the command:
 
    * - option name
      - description
-   * - install_exe
+   * - .. option:: install_exe
      - directory for installed executables and dependent files
 
 
@@ -222,18 +277,29 @@ or RPM packages. It can be further customized:
 
    * - option name
      - description
-   * - install_dir (-d)
+   * - .. option:: install_dir
      - directory to install executables to; this defaults to a subdirectory
        called <name>-<version> in the "Program Files" directory on Windows and
        <prefix>/lib on other platforms; on platforms other than Windows
        symbolic links are also created in <prefix>/bin for each executable.
-   * - build_dir (-b)
+   * - .. option:: build_dir
      - build directory (where to install from); this defaults to the build_dir
        from the build command
-   * - force (-f)
+   * - .. option:: force
      - force installation, overwriting existing files
-   * - skip_build
+   * - .. option:: skip_build
      - skip the build steps
+
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py install_exe --help
+    Options for 'install_exe' command:
+      --install-dir (-d)  directory to install executables to
+      --build-dir (-b)    build directory (where to install from)
+      --force (-f)        force installation (overwrite existing files)
+      --skip-build        skip the build steps
 
 
 bdist_msi
@@ -250,48 +316,54 @@ command:
 
    * - option_name
      - description
-   * - add_to_path
+   * - .. option:: add_to_path
      - add the target directory to the PATH environment variable; the default
        value is True if there are any console based executables and False
        otherwise
-   * - all_users
+   * - .. option:: all_users
      - perform installation for all users; the default value is False and
        results in an installation for just the installing user
-   * - data
+   * - .. option:: data
      - dictionary of arbitrary MSI data indexed by table name; for each table,
        a list of tuples should be provided, representing the rows that should
        be added to the table. For binary values (e.g. Icon.Data), pass the path
        to the file containing the data.
-   * - summary_data
+   * - .. option:: summary_data
      - dictionary of data to include in MSI summary information stream
        (allowable keys are "author", "comments", "keywords")
-   * - directories
+   * - .. option:: directories
      - list of directories that should be created during installation
-   * - environment_variables
+   * - .. option:: environment_variables
      - list of environment variables that should be added to the system during
        installation
-   * - initial_target_dir
+   * - .. option:: initial_target_dir
      - defines the initial target directory supplied to the user during
        installation
-   * - install_icon
+   * - .. option:: install_icon
      - path of icon to use for the add/remove programs window that pops up
        during installation
-   * - product_code
+   * - .. option:: product_code
      - define the product code for the package that is created
-   * - target_name
+   * - .. option:: target_name
      - specifies the name of the file that is to be created
-   * - upgrade_code
+   * - .. option:: upgrade_code
      - define the GUID of the upgrade code for the package that is created;
        this is used to force removal of any packages created with the same
        upgrade code prior to the installation of this one; the valid format for
        a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
        Refer to `Windows GUID <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
-   * - extensions
+   * - .. option:: extensions
      - list of dictionaries specifying the extensions that the installed program
        handles. Each extension needs to specify at least the extension, a verb,
        and an executable. Additional allowed keys are `argument` to specify
        the invocation of the executable, `mime` for the extension’s mime type,
        and `context` for the context menu text.
+
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py bdist_msi --help
 
 For example:
 
@@ -374,41 +446,41 @@ bundle (a .app directory).
 
    * - option_name
      - description
-   * - iconfile
+   * - .. option:: iconfile
      - Path to an icns icon file for the application. This will be copied into
        the bundle.
-   * - qt_menu_nib
+   * - .. option:: qt_menu_nib
      - Path to the qt-menu.nib file for Qt applications. By default, it will be
        auto-detected.
-   * - bundle_name
+   * - .. option:: bundle_name
      - File name for the bundle application without the .app extension.
-   * - plist_items
+   * - .. option:: plist_items
      - A list of key-value pairs (type: List[Tuple[str, str]]) to be added to
        the app bundle Info.plist file.  Overrides any specific entries set by
        custom_info_plist or be default.
-   * - custom_info_plist
+   * - .. option:: custom_info_plist
      - File to be used as the Info.plist in the app bundle. If not specified, A
        basic Info.plist will be generated by default, which specifies
        CFBundleIconFile, CFBundleDevelopmentRegion, CFBundleIdentifier,
        CFBundlePackageType, and NSHighResolutionCapable.
-   * - include_frameworks
+   * - .. option:: include_frameworks
      - A list of Framework directories to include in the app bundle.
-   * - include_resources
+   * - .. option:: include_resources
      - A list of tuples of additional files to include in the app bundle's
        resources directory, with the first element being the source, and second
        the destination file or directory name.
-   * - codesign_identity
+   * - .. option:: codesign_identity
      - The identity of the key to be used to sign the app bundle.
-   * - codesign_entitlements
+   * - .. option:: codesign_entitlements
      - The path to an entitlements file to use for your application's code
        signature.
-   * - codesign_deep
+   * - .. option:: codesign_deep
      - Boolean for whether to codesign using the --deep option.
-   * - codesign_resource_rules
+   * - .. option:: codesign_resource_rules
      - Plist file to be passed to codesign's --resource-rules option.
-   * - absolute_reference_path
+   * - .. option:: absolute_reference_path
      - Path to use for all referenced libraries instead of @executable_path
-   * - rpath_lib_folder
+   * - .. option:: rpath_lib_folder
      - **DEPRECATED**. Will be removed in next version. (Formerly replaced
        @rpath with given folder for any files.)
 
@@ -432,6 +504,12 @@ bundle (a .app directory).
 .. versionchanged:: 6.5
     Deprecated the ``rpath_lib_folder`` option.
 
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py bdist_mac --help
+
 
 bdist_dmg
 `````````
@@ -446,18 +524,24 @@ installation.
 
    * - option_name
      - description
-   * - volume_label
+   * - .. option:: volume_label
      - Volume label of the DMG disk image
-   * - applications_shortcut
+   * - .. option:: applications_shortcut
      - Boolean for whether to include shortcut to Applications in the DMG disk
        image
-   * - silent (-s)
+   * - .. option:: silent (-s)
      - suppress all output except warnings
 
 .. versionadded:: 4.3
 
 .. versionchanged:: 4.3.2
     Added the ``applications_shortcut`` option.
+
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py bdist_dmg --help
 
 
 cx_Freeze.Executable
