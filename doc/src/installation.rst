@@ -42,7 +42,26 @@ To install patchelf in debian/ubuntu:
 
   .. code-block:: console
 
-    sudo apt install patchelf
+    sudo apt-get install patchelf
+
+To install patchelf in fedora:
+
+  .. code-block:: console
+
+    dnf install patchelf
+
+Or install patchelf from
+`sources <https://github.com/NixOS/patchelf#compiling-and-testing>`_:
+
+  .. code-block:: console
+
+    git clone -b 0.12 --single-branch https://github.com/NixOS/patchelf.git
+    cd patchelf
+    ./bootstrap.sh
+    ./configure
+    make
+    sudo make install
+
 
 Pipenv
 ------
