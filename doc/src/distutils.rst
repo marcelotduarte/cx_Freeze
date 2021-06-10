@@ -66,17 +66,15 @@ To specify options in the script, use underscores in the name. For example:
 
     setup(
          #...
-          options = {"build_exe": {"init_script": "Console"}}
+          options = {"build_exe": {"zip_include_packages": ["encodings"]}}
          )
 
 To specify the same options on the command line, use dashes, like this:
 
   .. code-block:: console
 
-    python setup.py build_exe --init-script Console
+    python setup.py build_exe --zip-include-packages=encodings
 
-Some options also have a short form to use on the command line. These are given
-in brackets below.
 
 build
 `````
