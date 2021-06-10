@@ -349,7 +349,8 @@ command:
        this is used to force removal of any packages created with the same
        upgrade code prior to the installation of this one; the valid format for
        a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
-       Refer to `Windows GUID <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
+       Refer to `Windows GUID
+       <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
    * - .. option:: extensions
      - list of dictionaries specifying the extensions that the installed program
        handles. Each extension needs to specify at least the extension, a verb,
@@ -421,7 +422,8 @@ There are more examples in the ``samples/`` directory of `the source
 
 
 More information:
-`Windows Installer <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
+`Windows Installer
+<https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
 
 
 bdist_rpm
@@ -479,20 +481,8 @@ bundle (a .app directory).
    * - .. option:: absolute_reference_path
      - Path to use for all referenced libraries instead of @executable_path
    * - .. option:: rpath_lib_folder
-     - **DEPRECATED**. Will be removed in next version. (Formerly replaced
+     - [DEPRECATED]. Will be removed in next version. (Formerly replaced
        @rpath with given folder for any files.)
-
-.. versionadded:: 4.3
-
-.. versionchanged:: 4.3.2
-    Added the ``iconfile`` and ``bundle_name`` options.
-
-.. versionchanged:: 4.3.3
-    Added the ``include_frameworks``, ``custom_info_plist``,
-    ``codesign_identity`` and ``codesign_entitlements`` options.
-
-.. versionchanged:: 4.3.4
-    Added the ``codesign_deep`` and ``codesign_resource_rules`` options.
 
 .. versionchanged:: 6.0
     Added the ``environment_variables``, ``include_resources``,
@@ -529,11 +519,6 @@ installation.
        image
    * - .. option:: silent (-s)
      - suppress all output except warnings
-
-.. versionadded:: 4.3
-
-.. versionchanged:: 4.3.2
-    Added the ``applications_shortcut`` option.
 
 This is the equivalent help to specify the same options on the command line:
 
