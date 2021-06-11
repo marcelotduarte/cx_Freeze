@@ -113,24 +113,26 @@ class build_exe(distutils.core.Command):
         (
             "bin-includes",
             None,
-            "list of names of files to include when determining dependencies",
+            "list of names of files to include when determining "
+            "dependencies of binary files",
         ),
         (
             "bin-excludes",
             None,
-            "list of names of files to exclude when determining dependencies",
+            "list of names of files to exclude when determining "
+            "dependencies of binary files",
         ),
         (
             "bin-path-includes",
             None,
             "list of paths from which to include files when determining "
-            "dependencies",
+            "dependencies of binary files",
         ),
         (
             "bin-path-excludes",
             None,
             "list of paths from which to exclude files when determining "
-            "dependencies",
+            "dependencies of binary files",
         ),
         (
             "zip-include-packages=",
@@ -154,12 +156,12 @@ class build_exe(distutils.core.Command):
         (
             "silent-level=",
             None,
-            "suppress output from build_exe command.  "
-            "level 0: get all messages; [default]"
-            "level 1: suppress information messages, but still get warnings; "
-            "(equivalent to --silent)"
-            "level 2: suppress missing missing-module warnings "
-            "level 3: suppress all warning messages",
+            "suppress output from build_exe command."
+            " level 0: get all messages; [default]"
+            " level 1: suppress information messages, but still get warnings;"
+            " (equivalent to --silent)"
+            " level 2: suppress missing missing-module warnings"
+            " level 3: suppress all warning messages",
         ),
     ]
     boolean_options = ["no-compress", "include_msvcr", "silent"]
