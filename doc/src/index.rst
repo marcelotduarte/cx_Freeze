@@ -8,20 +8,26 @@ itself works on.
 
 .. list-table::
    :header-rows: 1
-   :widths: 200 600
+   :widths: 300 300 200
 
    * - cx_Freeze version
-     - Python version supported
-   * - cx_Freeze 6.4, 6.5, 6.6
+     - Python version
+     - Status
+   * - cx_Freeze 6.4 to 6.7
      - Python 3.6 to 3.9
+     - supported
    * - cx_Freeze 6.2, 6.3
      - Python 3.5.2 to 3.8
+     - unsupported
    * - cx_Freeze 6.1
      - Python 3.5.0 to 3.8
+     - unsupported
    * - cx_Freeze 6.0
      - Python 3.5.0 to 3.7
+     - unsupported
    * - cx_Freeze 5.1.1
      - Python 2.7
+     - unsupported
 
 **cx_Freeze** is distributed under an open-source :ref:`license <license>` (the PSF license).
 

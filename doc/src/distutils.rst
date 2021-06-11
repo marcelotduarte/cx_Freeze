@@ -86,6 +86,7 @@ the standard set of options for the command:
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option name
      - description
@@ -114,6 +115,7 @@ It can be further customized:
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option name
      - description
@@ -193,13 +195,14 @@ It can be further customized:
    * - .. option:: silent_level
      - suppress output from freeze process; can provide a value to specify
        what messages should be suppressed, with the possible values being:
-       0 - do not suppress any output [default];
-       1 - suppress information messages;
-       2 - also suppress missing-module warning messages;
-       3 - also suppress all other warning messages.
 
-.. versionchanged:: 6.7
-    Added new ``silent_level`` option.
+       0. do not suppress any output [default];
+       1. suppress information messages;
+       2. also suppress missing-module warning messages;
+       3. also suppress all other warning messages.
+
+.. versionadded:: 6.7
+    ``silent_level`` option.
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -256,6 +259,7 @@ the standard set of options for the command:
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option name
      - description
@@ -273,6 +277,7 @@ or RPM packages. It can be further customized:
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option name
      - description
@@ -312,6 +317,7 @@ command:
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option_name
      - description
@@ -422,9 +428,8 @@ There are more examples in the ``samples/`` directory of `the source
 <https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples>`_.
 
 
-More information:
-`Windows Installer
-<https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
+.. seealso:: `Windows Installer
+   <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
 
 
 bdist_rpm
@@ -444,6 +449,7 @@ bundle (a .app directory).
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option_name
      - description
@@ -485,13 +491,15 @@ bundle (a .app directory).
      - [DEPRECATED]. Will be removed in next version. (Formerly replaced
        @rpath with given folder for any files.)
 
-.. versionchanged:: 6.0
-    Added the ``environment_variables``, ``include_resources``,
-    ``absolute_reference_path`` and ``rpath_lib_folder`` options. Replaced the
-    ``compressed`` option with the ``no_compress`` option.
+.. versionadded:: 6.0
+    ``environment_variables``, ``include_resources``,
+    ``absolute_reference_path`` and ``rpath_lib_folder`` options.
 
-.. versionchanged:: 6.5
-    Deprecated the ``rpath_lib_folder`` option.
+.. versionchanged:: 6.0
+   Replaced the ``compressed`` option with the ``no_compress`` option.
+
+.. deprecated:: 6.5
+    ``rpath_lib_folder`` option.
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -510,6 +518,7 @@ installation.
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - option_name
      - description
@@ -539,6 +548,7 @@ constructor are as follows:
 .. list-table::
    :header-rows: 1
    :widths: 200 600
+   :width: 100%
 
    * - argument name
      - description
@@ -579,7 +589,8 @@ constructor are as follows:
 .. versionchanged:: 6.5
     Arguments are all snake_case (camelCase are still valid up to 7.0)
 
-Note:
+.. note::
+
    #. ``setup`` accepts a list of `Executable`
    #. target_name has been extended to support version, like:
       target_name="Hello-1.0"
