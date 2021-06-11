@@ -158,15 +158,17 @@ It can be further customized:
        expected that this list will contain strings or 2-tuples for the source
        and destination
    * - .. option:: bin_includes
-     - list of names of files to include when determining dependencies of
-       binary files that would normally be excluded; note that version numbers
-       that normally follow the shared object extension are stripped prior
-       to performing the comparison
+     - list of files to include when determining dependencies of binary files
+       that would normally be excluded, using first the full file name, then
+       just the base file name, then the file name without any version numbers
+       (the version numbers that normally follow the shared object extension
+       are stripped prior to performing the comparison)
    * - .. option:: bin_excludes
-     - list of names of files to exclude when determining dependencies of
-       binary files that would normally be included; note that version numbers
-       that normally follow the shared object extension are stripped prior to
-       performing the comparison
+     - list of files to exclude when determining dependencies of binary files
+       that would normally be included, using first the full file name, then
+       just the base file name, then the file name without any version numbers
+       (the version numbers that normally follow the shared object extension
+       are stripped prior to performing the comparison)
    * - .. option:: bin_path_includes
      - list of paths from which to include files when determining dependencies
        of binary files
@@ -222,28 +224,27 @@ This is the equivalent help to specify the same options on the command line:
     --include-msvcr         include the Microsoft Visual C runtime files
     --zip-includes          list of tuples of additional files to include in zip
                             file
-    --bin-includes          list of names of files to include when determining
-                            dependencies
-    --bin-excludes          list of names of files to exclude when determining
-                            dependencies
-    --bin-path-includes     list of paths from which to include files when
-                            determining dependencies
-    --bin-path-excludes     list of paths from which to exclude files when
-                            determining dependencies
-    --zip-include-packages  comma-separated list of packages to include in the
-                            zip file (or * for all) [default: none]
-    --zip-exclude-packages  comma-separated list of packages to exclude from the
-                            zip file and place in the file system instead (or *
-                            for all) [default: *]
-    --silent (-s)           suppress all output except warnings (equivalent to
-                            --silent-level=1)
-    --silent-level          suppress output from build_exe command.  level 0:
-                            get all messages; [default]level 1: suppress
-                            information messages, but still get warnings;
-                            (equivalent to --silent)level 2: suppress missing
-                            missing-module warnings level 3: suppress all
-                            warning messages
-
+      --bin-includes          list of names of files to include when determining
+                              dependencies of binary files
+      --bin-excludes          list of names of files to exclude when determining
+                              dependencies of binary files
+      --bin-path-includes     list of paths from which to include files when
+                              determining dependencies of binary files
+      --bin-path-excludes     list of paths from which to exclude files when
+                              determining dependencies of binary files
+      --zip-include-packages  comma-separated list of packages to include in the
+                              zip file (or * for all) [default: none]
+      --zip-exclude-packages  comma-separated list of packages to exclude from the
+                              zip file and place in the file system instead (or *
+                              for all) [default: *]
+      --silent (-s)           suppress all output except warnings (equivalent to
+                              --silent-level=1)
+      --silent-level          suppress output from build_exe command. level 0: get
+                              all messages; [default] level 1: suppress
+                              information messages, but still get warnings;
+                              (equivalent to --silent) level 2: suppress missing
+                              missing-module warnings level 3: suppress all
+                              warning messages
 
 install
 ```````
