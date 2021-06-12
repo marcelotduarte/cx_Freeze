@@ -1158,6 +1158,12 @@ def load_scipy_sparse_linalg_dsolve_linsolve(
     module.ignore_names.add("scikits.umfpack")
 
 
+def load_scipy_spatial_transform(finder: ModuleFinder, module: Module) -> None:
+    """The scipy.spatial.transform must be loaded as a package."""
+    finder.IncludePackage("scipy.spatial.transform")
+    finder.ExcludeModule("scipy.spatial.transform.tests")
+
+
 def load_scipy_special(finder: ModuleFinder, module: Module) -> None:
     """The scipy.special must be loaded as a package."""
     finder.IncludePackage("scipy.special")
