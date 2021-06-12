@@ -778,6 +778,11 @@ def load_PIL(finder: ModuleFinder, module: Module) -> None:
     finder.IncludePackage("PIL")
 
 
+def load_plotly(finder: ModuleFinder, module: Module) -> None:
+    """The plotly must be loaded as a package."""
+    finder.IncludePackage("plotly")
+
+
 def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     """
     The pkg_resources must be loaded as a package;
