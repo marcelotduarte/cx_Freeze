@@ -1167,6 +1167,34 @@ def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
     module.global_names.add("gammaln")
 
 
+def load_skimage(finder: ModuleFinder, module: Module) -> None:
+    """The skimage package."""
+    finder.IncludePackage("skimage.io")
+    # exclude all tests
+    finder.ExcludeModule("skimage.color.tests")
+    finder.ExcludeModule("skimage.data.tests")
+    finder.ExcludeModule("skimage.draw.tests")
+    finder.ExcludeModule("skimage.exposure.tests")
+    finder.ExcludeModule("skimage.feature.tests")
+    finder.ExcludeModule("skimage.filters.tests")
+    finder.ExcludeModule("skimage.graph.tests")
+    finder.ExcludeModule("skimage.io.tests")
+    finder.ExcludeModule("skimage.measure.tests")
+    finder.ExcludeModule("skimage.metrics.tests")
+    finder.ExcludeModule("skimage.morphology.tests")
+    finder.ExcludeModule("skimage.restoration.tests")
+    finder.ExcludeModule("skimage.segmentation.tests")
+    finder.ExcludeModule("skimage._shared.tests")
+    finder.ExcludeModule("skimage.transform.tests")
+    finder.ExcludeModule("skimage.util.tests")
+    finder.ExcludeModule("skimage.viewer.tests")
+
+
+def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
+    """The skimage.feature.orb_cy is a extension that load a module."""
+    finder.IncludeModule("skimage.feature._orb_descriptor_positions")
+
+
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
     """
     The setuptools must be loaded as a package, to prevent it to break in the
