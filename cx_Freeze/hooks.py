@@ -1153,6 +1153,12 @@ def load_scipy_sparse_linalg_dsolve_linsolve(
     module.ignore_names.add("scikits.umfpack")
 
 
+def load_scipy_spatial_transform(finder: ModuleFinder, module: Module) -> None:
+    """The scipy.spatial.transform must be loaded as a package."""
+    finder.IncludePackage("scipy.spatial.transform")
+    finder.ExcludeModule("scipy.spatial.transform.tests")
+
+
 def load_scipy_special(finder: ModuleFinder, module: Module) -> None:
     """The scipy.special must be loaded as a package."""
     finder.IncludePackage("scipy.special")
@@ -1165,6 +1171,11 @@ def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
     in order to avoid spurious errors about missing modules.
     """
     module.global_names.add("gammaln")
+
+
+def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
+    """The skimage.feature.orb_cy is a extension that load a module."""
+    finder.IncludeModule("skimage.feature._orb_descriptor_positions")
 
 
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
