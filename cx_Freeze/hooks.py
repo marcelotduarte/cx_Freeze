@@ -1173,11 +1173,6 @@ def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
     module.global_names.add("gammaln")
 
 
-def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
-    """The skimage.feature.orb_cy is a extension that load a module."""
-    finder.IncludeModule("skimage.feature._orb_descriptor_positions")
-
-
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
     """
     The setuptools must be loaded as a package, to prevent it to break in the
