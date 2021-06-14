@@ -256,9 +256,13 @@ class Freezer(ABC):
     def _default_bin_path_excludes(self):
         """Return the paths of directories which contain files that should not
         be included, generally because they contain standard system
-        libraries.
-        (Overridden on Windows and Darwin)"""
+        libraries."""
         return []
+
+    @abstractmethod
+    def _default_bin_path_includes(self) -> List[str]:
+        """Return the paths of directories which contain files that should
+        be included."""
 
     @abstractmethod
     def _get_dependent_files(self, path: str) -> List[str]:
@@ -378,6 +382,7 @@ class Freezer(ABC):
         self.binExcludes = [os.path.normcase(name) for name in filenames]
 
         paths = list(self.binPathIncludes or [])
+        paths += self._default_bin_path_includes()
         self.binPathIncludes = [
             os.path.normcase(name) for name in paths if os.path.isdir(name)
         ]
@@ -764,6 +769,16 @@ class WinFreezer(Freezer):
         windowsDir = winutil.GetWindowsDir()
         return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
 
+    def _default_bin_path_includes(self) -> List[str]:
+        paths = set(sys.path)
+        # force some paths for conda systems
+        paths.add(os.path.join(sys.prefix, "DLLs"))
+        paths.add(os.path.join(sys.prefix, "Library", "bin"))
+        # do the same for msys2, mingw32/64
+        paths.add(sysconfig.get_config_var("DESTSHARED"))
+        # return only valid paths
+        return [path for path in paths if path and os.path.isdir(path)]
+
     def _get_dependent_files(self, path: str) -> List[str]:
         path = os.path.normcase(path)
         dependentFiles = self.dependentFiles.get(path, None)
@@ -959,6 +974,9 @@ class DarwinFreezer(Freezer):
     def _default_bin_path_excludes(self):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
+    def _default_bin_path_includes(self) -> List[str]:
+        return [sysconfig.get_config_var("DESTSHARED")]
+
     def _get_dependent_files(
         self, path: str, darwinFile: Optional["DarwinFile"] = None
     ) -> List[str]:
@@ -1062,6 +1080,10 @@ class LinuxFreezer(Freezer):
             "/usr/lib32",
             "/usr/lib64",
         ]
+
+    def _default_bin_path_includes(self) -> List[str]:
+        # add the stdlib/lib-dynload directory
+        return [sysconfig.get_config_var("DESTSHARED")]
 
     def _get_dependent_files(self, path: str) -> List[str]:
         path = os.path.normcase(path)
