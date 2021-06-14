@@ -32,6 +32,11 @@ In a virtual environment, install by issuing the command:
 pip install --upgrade cx_Freeze
 ```
 
+To install beta versions:
+```
+pip install --upgrade cx_Freeze --pre
+```
+
 Please check the installation in documentation for requirements.
 
 # Documentation
