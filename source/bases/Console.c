@@ -100,6 +100,9 @@ int main(int argc, char **argv)
     }
     wargv2[argc] = wargv[argc] = NULL;
 
+    // global pointer to argv[0] for use in SetExecutableName()
+    g_argv0 = argv[0];
+
     // initialize Python
     if (status == 0) {
         status = InitializePython(argc, wargv);
