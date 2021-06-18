@@ -159,22 +159,32 @@ static int InitializePython(int argc, wchar_t **argv)
 //-----------------------------------------------------------------------------
 static int ExecuteScript(void)
 {
-    PyObject *module, *function, *result;
+    PyObject *module, *function_init, *result_init, *function_run, *result_run;
 
     module = PyImport_ImportModule("__startup__");
     if (!module)
         return FatalScriptError();
 
-    function = PyObject_GetAttrString(module, "run");
-    if (!function)
+    function_init = PyObject_GetAttrString(module, "init");
+    if (!function_init)
         return FatalScriptError();
 
-    result = PyObject_CallObject(function, NULL);
-    if (!result)
+    result_init = PyObject_CallObject(function_init, NULL);
+    if (!result_init)
         return FatalScriptError();
 
-    Py_DECREF(result);
-    Py_DECREF(function);
+    function_run = PyObject_GetAttrString(module, "run");
+    if (!function_run)
+        return FatalScriptError();
+
+    result_run = PyObject_CallObject(function_run, NULL);
+    if (!result_run)
+        return FatalScriptError();
+
+    Py_DECREF(result_run);
+    Py_DECREF(function_run);
+    Py_DECREF(result_init);
+    Py_DECREF(function_init);
     Py_DECREF(module);
 
     return 0;

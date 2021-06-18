@@ -5,17 +5,11 @@ been initialized and another DLL of this kind has been loaded. As such it
 does not block the path unless sys.frozen is not already set.
 """
 
-import encodings
-import os
 import sys
-import warnings
 
 if not hasattr(sys, "frozen"):
     sys.frozen = True
     sys.path = sys.path[:4]
-
-os.environ["TCL_LIBRARY"] = os.path.join(DIR_NAME, "tcl")  # noqa: F821
-os.environ["TK_LIBRARY"] = os.path.join(DIR_NAME, "tk")  # noqa: F821
 
 
 def run():
