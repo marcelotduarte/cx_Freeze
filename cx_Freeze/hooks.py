@@ -585,33 +585,85 @@ def load_mkl(finder: ModuleFinder, module: Module) -> None:
     """The mkl package in conda."""
     libs_dir = os.path.join(sys.base_prefix, "Library", "bin")
     if os.path.isdir(libs_dir):
-        for dll_path in glob.glob(os.path.join(libs_dir, "mkl_*.dll")):
-            dll_name = os.path.basename(dll_path)
-            finder.IncludeFiles(dll_path, os.path.join("lib", "mkl", dll_name))
-        for dll_path in glob.glob(os.path.join(libs_dir, "libiomp*.dll")):
-            dll_name = os.path.basename(dll_path)
-            finder.IncludeFiles(dll_path, os.path.join("lib", "mkl", dll_name))
+        dest_dir = os.path.join("lib", "mkl")
+        for path in glob.glob(os.path.join(libs_dir, "mkl_*.dll")):
+            name = os.path.basename(path)
+            finder.IncludeFiles(path, os.path.join(dest_dir, name))
+        for path in glob.glob(os.path.join(libs_dir, "libiomp*.dll")):
+            name = os.path.basename(path)
+            finder.IncludeFiles(path, os.path.join(dest_dir, name))
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
-    """The numpy must be loaded as a package."""
-    finder.IncludePackage("numpy")
+    """The numpy has some fixed components; support numpy+mkl version too."""
+    finder.IncludePackage("numpy.core")
+    finder.IncludePackage("numpy.linalg")
+    finder.IncludePackage("numpy.lib")
+    finder.IncludePackage("numpy.polynomial")
+
+    if WIN32:
+        numpy_dir = module.path[0]
+
+        # include mkl files
+        libs_dir = os.path.join(numpy_dir, "DLLs")
+        if os.path.isdir(libs_dir):
+            dest_dir = os.path.join("lib", "numpy_mkl")
+            for path in glob.glob(os.path.join(libs_dir, "mkl_*.dll")):
+                name = os.path.basename(path)
+                finder.IncludeFiles(path, os.path.join(dest_dir, name))
+            for path in glob.glob(os.path.join(libs_dir, "libiomp*.dll")):
+                name = os.path.basename(path)
+                finder.IncludeFiles(path, os.path.join(dest_dir, name))
+            finder.AddConstant("MKL_PATH", dest_dir)
+            finder.ExcludeModule("numpy.DLLs")
+
+        # support for old versions
+        if not module.in_file_system:
+            # copy any file at site-packages/numpy/.libs
+            libs_dir = os.path.join(numpy_dir, ".libs")
+            if os.path.exists(libs_dir):
+                finder.IncludeFiles(libs_dir, "lib")
+
+    # exclude the tests
+    finder.ExcludeModule("numpy.compat.tests")
+    finder.ExcludeModule("numpy.core.tests")
+    finder.ExcludeModule("numpy.distutils.tests")
+    finder.ExcludeModule("numpy.f2py.tests")
+    finder.ExcludeModule("numpy.fft.tests")
+    finder.ExcludeModule("numpy.lib.tests")
+    finder.ExcludeModule("numpy.linalg.tests")
+    finder.ExcludeModule("numpy.ma.tests")
+    finder.ExcludeModule("numpy.matrixlib.tests")
+    finder.ExcludeModule("numpy.polynomial.tests")
     finder.ExcludeModule("numpy.random._examples")
-    if WIN32 and not module.in_file_system:
-        # copy any file at site-packages/numpy/.libs
-        libs_dir = os.path.join(module.path[0], ".libs")
-        if os.path.exists(libs_dir):
-            finder.IncludeFiles(libs_dir, "lib")
+    finder.ExcludeModule("numpy.random.tests")
+    # finder.ExcludeModule("numpy.testing")
+    finder.ExcludeModule("numpy.tests")
+    finder.ExcludeModule("numpy.typing.tests")
 
 
-def load_numpy_core_multiarray(finder: ModuleFinder, module: Module) -> None:
-    """
-    The numpy.core.multiarray module is an extension module and the numpy
-    module imports * from this module; define the list of global names
-    available to this module in order to avoid spurious errors about missing
-    modules.
-    """
-    module.global_names.add("arange")
+def load_numpy_core__multiarray_umath(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """Do not check dependencies already handled."""
+    if finder.constants_module.values.get("MKL_PATH"):
+        finder.ExcludeDependentFiles(module.file)
+
+
+def load_numpy_linalg__umath_linalg(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """Do not check dependencies already handled."""
+    if finder.constants_module.values.get("MKL_PATH"):
+        finder.ExcludeDependentFiles(module.file)
+
+
+def load_numpy_linalg_lapack_lite(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """Do not check dependencies already handled."""
+    if finder.constants_module.values.get("MKL_PATH"):
+        finder.ExcludeDependentFiles(module.file)
 
 
 def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
@@ -634,66 +686,6 @@ def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
             "int32",
             "number",
             "single",
-        ]
-    )
-
-
-def load_numpy_core_umath(finder: ModuleFinder, module: Module) -> None:
-    """
-    The numpy.core.umath module is an extension module and the numpy module
-    imports * from this module; define the list of global names available
-    to this module in order to avoid spurious errors about missing
-    modules.
-    """
-    module.global_names.update(
-        [
-            "add",
-            "absolute",
-            "arccos",
-            "arccosh",
-            "arcsin",
-            "arcsinh",
-            "arctan",
-            "arctanh",
-            "bitwise_and",
-            "bitwise_or",
-            "bitwise_xor",
-            "ceil",
-            "conj",
-            "conjugate",
-            "cosh",
-            "divide",
-            "fabs",
-            "floor",
-            "floor_divide",
-            "fmod",
-            "greater",
-            "hypot",
-            "invert",
-            "isfinite",
-            "isinf",
-            "isnan",
-            "less",
-            "left_shift",
-            "log",
-            "logical_and",
-            "logical_not",
-            "logical_or",
-            "logical_xor",
-            "maximum",
-            "minimum",
-            "multiply",
-            "negative",
-            "not_equal",
-            "power",
-            "remainder",
-            "right_shift",
-            "sign",
-            "sinh",
-            "sqrt",
-            "tan",
-            "tanh",
-            "true_divide",
         ]
     )
 
