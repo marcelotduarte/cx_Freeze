@@ -13,6 +13,8 @@ from importlib.machinery import (
     PathFinder,
 )
 
+import BUILD_CONSTANTS
+
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
@@ -42,14 +44,27 @@ class ExtensionFinder(PathFinder):
         return None
 
 
-sys.meta_path.append(ExtensionFinder)
+def init():
+    # update sys module
+    sys.meta_path.append(ExtensionFinder)
+    sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
+
+    # set envirnonment variables
+    for name in ("TCL_LIBRARY", "TK_LIBRARY", "PYTZ_TZDATADIR"):
+        try:
+            value = getattr(BUILD_CONSTANTS, name)
+        except AttributeError:
+            pass
+        else:
+            os.environ[name] = os.path.join(frozen_dir, value)
+
+    # fix PATH for anaconda/miniconda and msys2/mingw
+    if sys.platform == "win32":
+        add_to_path = os.path.join(frozen_dir, "lib")
+        os.environ["PATH"] = add_to_path + ";" + os.environ["PATH"]
 
 
 def run():
-    # fix PATH for anaconda/miniconda
-    if sys.platform == "win32":
-        add_to_path = os.path.join(os.path.dirname(sys.executable), "lib")
-        os.environ["PATH"] = add_to_path + ";" + os.environ["PATH"]
     # get the real name of __init__ script
     # basically, the basename of executable plus __init__
     # but can be renamed when only one executable exists
@@ -62,7 +77,7 @@ def run():
             name = name.replace(ch, "_")
     name = os.path.normcase(name)
     try:
-        module = __import__(name + "__init__")
+        module_init = __import__(name + "__init__")
     except ModuleNotFoundError:
         files = []
         for k in __loader__._files:
@@ -77,5 +92,5 @@ def run():
                 "renaming is not allowed."
             ) from None
         name = files[0]
-        module = __import__(name + "__init__")
-    module.run()
+        module_init = __import__(name + "__init__")
+    module_init.run(name + "__main__")
