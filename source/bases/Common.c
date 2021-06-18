@@ -22,6 +22,8 @@ static wchar_t g_ExecutableName[MAXPATHLEN + 1];
 static wchar_t g_ExecutableDirName[MAXPATHLEN + 1];
 #if defined(MS_WINDOWS)
 static wchar_t g_LibDirName[MAXPATHLEN + 1];
+#else
+static char *g_argv0;
 #endif
 
 
@@ -34,7 +36,7 @@ static wchar_t g_LibDirName[MAXPATHLEN + 1];
 // executable path.
 // On Windows platform, the DLL search path is changed here.
 //-----------------------------------------------------------------------------
-static int SetExecutableName(const wchar_t *wargv0)
+static int SetExecutableName(void)
 {
 #ifdef MS_WINDOWS
     if (!GetModuleFileNameW(NULL, g_ExecutableName, MAXPATHLEN + 1))
@@ -48,22 +50,16 @@ static int SetExecutableName(const wchar_t *wargv0)
         return FatalError("Unable to change DLL search path!");
 
 #else
-
     char executableName[PATH_MAX + 1], *path, *ptr, *tempPtr;
     char tempname[MAXPATHLEN + 1];
     wchar_t *wname, *wptr;
     size_t size, argv0Size;
     struct stat statData;
     int found = 0;
-    char *argv0;
-
-    argv0 = Py_EncodeLocale(wargv0, NULL);
-    if (!argv0)
-        return FatalError("Unable to convert argument to bytes!");
 
     // check to see if path contains a separator
-    if (wcschr(wargv0, SEP)) {
-        strcpy(executableName, argv0);
+    if (strchr(g_argv0, SEP)) {
+        strcpy(executableName, g_argv0);
 
     // if not, check the PATH environment variable
     } else {
@@ -71,7 +67,7 @@ static int SetExecutableName(const wchar_t *wargv0)
         if (!path)
             return FatalError("PATH environment variable not defined!");
         ptr = path;
-        argv0Size = strlen(argv0);
+        argv0Size = strlen(g_argv0);
         while (1) {
             tempPtr = strchr(ptr, DELIM);
             size = (tempPtr) ? (size_t) (tempPtr - ptr) : strlen(ptr);
@@ -79,7 +75,7 @@ static int SetExecutableName(const wchar_t *wargv0)
                 strncpy(executableName, ptr, PATH_MAX + 1);
                 executableName[size] = SEP;
                 executableName[size + 1] = '\0';
-                strcat(executableName, argv0);
+                strcat(executableName, g_argv0);
                 if (stat(executableName, &statData) == 0 &&
                         S_ISREG(statData.st_mode) &&
                         (statData.st_mode & 0111)) {
@@ -126,7 +122,7 @@ static int InitializePython(int argc, wchar_t **argv)
     size_t size;
 
     // determine executable name
-    if (SetExecutableName(argv[0]) < 0)
+    if (SetExecutableName() < 0)
         return -1;
 
     // create sys.path
