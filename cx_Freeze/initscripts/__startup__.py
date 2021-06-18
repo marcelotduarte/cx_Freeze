@@ -61,7 +61,15 @@ def init():
     # fix PATH for anaconda/miniconda and msys2/mingw
     if sys.platform == "win32":
         add_to_path = os.path.join(frozen_dir, "lib")
-        os.environ["PATH"] = add_to_path + ";" + os.environ["PATH"]
+        os.environ["PATH"] = add_to_path + os.path.pathsep + os.environ["PATH"]
+
+    # fix PATH for numpy+mkl
+    if hasattr(BUILD_CONSTANTS, "MKL_PATH"):
+        mkl_path = os.path.join(frozen_dir, BUILD_CONSTANTS.MKL_PATH)
+        try:
+            os.add_dll_directory(mkl_path)
+        except AttributeError:
+            os.environ["PATH"] += os.path.pathsep + mkl_path
 
 
 def run():
