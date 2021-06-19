@@ -510,14 +510,6 @@ def load_gtk__gtk(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("pangocairo")
 
 
-def load_hashlib(finder: ModuleFinder, module: Module) -> None:
-    """
-    hashlib's fallback modules don't exist if the equivalent OpenSSL
-    algorithms are loaded from _hashlib, so we can ignore the error.
-    """
-    module.ignore_names.update(["_md5", "_sha", "_sha256", "_sha512"])
-
-
 def load_h5py(finder: ModuleFinder, module: Module) -> None:
     """h5py module has a number of implicit imports"""
     finder.IncludeModule("h5py.defs")
@@ -530,6 +522,23 @@ def load_h5py(finder: ModuleFinder, module: Module) -> None:
         pass
     finder.IncludeModule("h5py._errors")
     finder.IncludeModule("h5py.h5ac")
+
+
+def load_h5py_wrapper(finder: ModuleFinder, module: Module) -> None:
+    """h5py_wrapper module requires pytest-runner"""
+    finder.IncludeModule("ptr")
+
+
+def load_hashlib(finder: ModuleFinder, module: Module) -> None:
+    """hashlib's fallback modules don't exist if the equivalent OpenSSL
+    algorithms are loaded from _hashlib, so we can ignore the error."""
+    module.ignore_names.update(["_md5", "_sha", "_sha256", "_sha512"])
+
+
+def load_hdfdict(finder: ModuleFinder, module: Module) -> None:
+    """hdfdict module requires h5py_wrapper and PyYAML"""
+    finder.IncludeModule("h5py_wrapper")
+    finder.IncludeModule("yaml")
 
 
 def load_idna(finder: ModuleFinder, module: Module) -> None:
