@@ -216,6 +216,11 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("_cffi_backend")
 
 
+def load_boto(finder: ModuleFinder, module: Module) -> None:
+    """the boto package uses 'six' fake modules."""
+    finder.ExcludeModule("boto.vendored.six.moves")
+
+
 def load_cElementTree(finder: ModuleFinder, module: Module) -> None:
     """
     The cElementTree module implicitly loads the elementtree.ElementTree
@@ -781,6 +786,7 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     dynamically loaded modules in subpackages is growing.
     """
     finder.IncludePackage("pkg_resources")
+    finder.ExcludeModule("pkg_resources.extern")
 
 
 def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
@@ -1236,6 +1242,11 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
             )
         finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
     finder.IncludePackage("sqlite3")
+
+
+def load_six(finder: ModuleFinder, module: Module) -> None:
+    """the six module creates fake modules."""
+    finder.ExcludeModule("six.moves")
 
 
 def load_ssl(finder: ModuleFinder, module: Module) -> None:
