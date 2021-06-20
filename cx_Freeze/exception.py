@@ -21,3 +21,7 @@ class ConfigError(Exception):
 
 class DarwinException(Exception):
     pass
+
+
+class FileTrackerException(Exception):
+    pass
