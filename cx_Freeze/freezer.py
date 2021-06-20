@@ -105,7 +105,7 @@ class Freezer(ABC):
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
         self._verify_configuration()
-        # TODO: provide a real callback function
+        # TODO: provide a real callback function, if we will use the _file_tracker for copying files
         self._file_tracker = FileTracker(copy_check_callback=lambda x: True)
 
     def _add_resources(self, exe: Executable) -> None:
@@ -124,10 +124,15 @@ class Freezer(ABC):
                           copy_dependent_files=False, include_mode=False,
                           prioritize_links=False,
                           doCopy:bool=True):
-        # TODO: can remove force_write_access and relative_source from FileTracker code.
+
+        if not self._should_copy_file(from_path):
+            return
+
         if doCopy:
             self._copy_file(source=from_path, target=os.path.join(self.targetdir, to_relative_path),
                         copy_dependent_files=copy_dependent_files, include_mode=include_mode)
+        # TODO: can remove force_write_access and relative_source from FileTracker code.
+
         self._file_tracker.mark_file(
             original_file_path=from_path,to_rel_path=to_relative_path,
             copy_links=copy_dependent_files, include_mode=include_mode,
@@ -442,6 +447,49 @@ class Freezer(ABC):
                     "excluded from zip file"
                 )
 
+    IGNORE_PATS =  ignorePatterns = shutil.ignore_patterns(
+            "*.py", "*.pyc", "*.pyo", "__pycache__"
+    )
+
+    def _record_copy_tree(self, sourceDir: str, rel_targetDir: str):
+        """Copy contents of sourceDir to the relative location rel_targetDir. Replacement for shutil.copytree
+        that goes file-by-file, so that we can record individual files in FileTracker object."""
+
+        # TODO: get this method working with COPY_FILES = True
+
+        # COPY_FILES determines whether this function should also copy files.  If this is True, then the
+        # shutil.copytree in _write_modules should be commented-out.
+        # (But relying on this method for file copying on Darwin can result in additional libraries being recorded
+        # in the DarwinTracker and therefore needing their dynamic reference resolved.  That can raise problems if
+        # some of the extra (but unneeded) problems have dynamic link resolution problems.  Hopefully that gets fixed
+        # one FileTracker is doing the resolutions.)
+        COPY_FILES = False
+
+        for dirpath, dirnames, filenames in os.walk(sourceDir):
+            # remove ignored directories, so they are not recursively entered.
+            dirsToIgnore = Freezer.IGNORE_PATS(dirpath, dirnames)
+            for d in dirsToIgnore: dirnames.remove(d)
+
+            filesToIgnore = Freezer.IGNORE_PATS(dirpath, filenames)
+            goodFiles = [c for c in filenames if c not in filesToIgnore]
+            rel_src = os.path.relpath(dirpath, sourceDir)
+
+            if COPY_FILES:
+                # ensure that target directory created (even if ignore all files in it.)
+                targetDirPath = self._make_target_path(os.path.join(rel_targetDir, rel_src))
+                os.makedirs(targetDirPath, exist_ok=True)
+
+            for fn in goodFiles:
+                rel_target = os.path.join(rel_targetDir, rel_src, fn)
+                source = os.path.join(sourceDir, dirpath,fn)
+                # print(f"   src: {source} ->\n     rel_targ: {rel_target}")
+                self._record_file_copy(from_path=source,to_relative_path=rel_target,
+                                       copy_dependent_files=False,
+                                       doCopy=COPY_FILES,
+                                       )
+                pass
+        return
+
     def _write_modules(self, zip_filename, finder):
         """
         :param zip_filename: The path to the zip file that will contain zip-included modules.
@@ -492,18 +540,18 @@ class Freezer(ABC):
             ):
                 parts = module.name.split(".")
                 targetPackageDir = os.path.join(target_zip_dir, *parts)
+                rel_targetDir = os.path.relpath(targetPackageDir, self.targetdir)
                 sourcePackageDir = os.path.dirname(module.file)
                 if not os.path.exists(targetPackageDir):
                     if self.silent < 1:
                         print("Copying data from package", module.name + "...")
-                    # TODO: create a function to copy tree file-by-file (so each file can be entered into FileTracker
-                    #  Can use os.walk to walk the directory.  if top_down=True, then can edit directory lists in place
-                    #  to control which subdirectories are recursed into
+                    # TODO: consider removing this call when ._record_copy_tree fully working.
                     shutil.copytree(
                         sourcePackageDir,
                         targetPackageDir,
                         ignore=ignorePatterns,
                     )
+                    self._record_copy_tree(sourceDir=sourcePackageDir, rel_targetDir=rel_targetDir)
 
                     # remove the subfolders which belong to excluded modules
                     excludedFolders = [

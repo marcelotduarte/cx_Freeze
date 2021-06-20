@@ -81,11 +81,9 @@ class RealFileObject(FileObject):
         self.include_mode = include_mode
         self.relative_source = relative_source
 
-        self.darwin_file_data = None
-        if sys.platform == "darwin":
-            self.darwin_file_data = DarwinFileData(originalFilePath=self.original_file_path,
-                                                   linkedFrom=None if (self.linking_file is None) else self.linking_file.darwin_file_data,
-                                                   strictRPath=False)
+        # for speed, the darwin_file_data is created lazily, if/when it is needed to evaluate links.
+        self.darwin_file_data: Optional[DarwinFileData] = None
+
         return
 
     def __str__(self):
@@ -108,6 +106,12 @@ class RealFileObject(FileObject):
 
     def get_linked_paths(self) -> List[str]:
         if sys.platform == "darwin":
+            if self.darwin_file_data is None:
+                self.darwin_file_data = DarwinFileData(
+                    originalFilePath=self.original_file_path,
+                    linkedFrom=None if (
+                            self.linking_file is None) else self.linking_file.darwin_file_data,
+                    strictRPath=False)
             return self.darwin_file_data.getResolvedPaths()
         elif sys.platform == "win32":
             #TODO: Complete this code for Windows / Linux (move over code from Freezer _GetDependentFiles)
