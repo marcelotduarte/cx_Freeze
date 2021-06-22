@@ -19,18 +19,21 @@ import zipfile
 from .common import get_resource_file_path, process_path_specs
 from .exception import ConfigError
 from .executable import Executable
-from .filetracker import FileTracker
+from .filetracker import FileTracker, BaseReason, ReasonProtocol, FileObject
 from .finder import ModuleFinder
 from .module import ConstantsModule
 
 if sys.platform == "win32":
-    from . import winmsvcr
-    from . import util as winutil
-    from .winversioninfo import VersionInfo
+    try:
+        from . import winmsvcr
+        from . import util as winutil
+        from .winversioninfo import VersionInfo
+    except ImportError as e:
+        raise e
 
     try:
         from win32verstamp import stamp as version_stamp
-    except:
+    except ImportError:
         version_stamp = None
 elif sys.platform == "darwin":
     from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
@@ -115,33 +118,59 @@ class Freezer(ABC):
             return
         rel_target = os.path.basename(exe.icon)
         # target_icon = os.path.join(self.targetdir, os.path.basename(exe.icon))
-        self._record_file_copy(from_path=exe.icon, to_relative_path=rel_target, copy_dependent_files=False)
+        self._record_file_copy(from_path=exe.icon, to_relative_path=rel_target,
+                               reason=BaseReason("Adding icon resource."),
+                               copy_dependent_files=False)
 
     def _make_target_path(self, rel_path: str):
         return os.path.join(self.targetdir, rel_path)
 
     def _record_file_copy(self, from_path: str, to_relative_path: str,
+                          reason: ReasonProtocol,
                           copy_dependent_files=False, include_mode=False,
                           prioritize_links=False,
-                          doCopy:bool=True):
+                          doCopy:bool=True) -> Optional[FileObject]:
+
+        # The normal way that file copying work is that:
+        #  1) program calls _record_file_copy -- that adds file to the tracker, and creates the reason for any recursively added files ("recursion_reason")
+        #  2) _record_file_copy calls _copy_file to do the actual copying (supplying the recursion_reason)
+        #  3) _copy_file calls _post_copy_hook to recursively add dependencies (supplying recursion_reason as the reason)
+        #  4) _post_copy_hook calls _record_file_copy on each recursively added file
+
+        # on Darwin it works slightly differently
+        #  _record_file_copy -> _copy_file -> _post_copy_hook -> _copy_file_recursion (as sell as a call to _record_file_copy to add to Tracker, with doCopy=False) -> _post_copy_hook -> (etc.)
+        #  (This will ultimately get fixed up in the Darwin code).
 
         if not self._should_copy_file(from_path):
-            return
+            return None
 
-        if doCopy:
-            self._copy_file(source=from_path, target=os.path.join(self.targetdir, to_relative_path),
-                        copy_dependent_files=copy_dependent_files, include_mode=include_mode)
         # TODO: can remove force_write_access and relative_source from FileTracker code.
 
-        self._file_tracker.mark_file(
+        fobj = self._file_tracker.mark_file(
             original_file_path=from_path,to_rel_path=to_relative_path,
+            reason=reason,
             copy_links=copy_dependent_files, include_mode=include_mode,
             prioritize_links=prioritize_links
         )
-        return
+
+        recursion_reason = fobj.get_reason_for_links()
+
+        if doCopy:
+            self._copy_file(
+                source=from_path,
+                target=os.path.join(self.targetdir, to_relative_path),
+                recursion_reason=recursion_reason,
+                copy_dependent_files=copy_dependent_files, include_mode=include_mode
+            )
+
+        return fobj
 
     def _copy_file(
-        self, source, target, copy_dependent_files, include_mode=False
+            self,
+            source, target,
+            recursion_reason: ReasonProtocol,
+            copy_dependent_files,
+            include_mode=False
     ):
         if not self._should_copy_file(source):
             return
@@ -174,6 +203,7 @@ class Freezer(ABC):
             target,
             normalized_source,
             normalized_target,
+            reason=recursion_reason,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
         )
@@ -191,6 +221,7 @@ class Freezer(ABC):
         target,
         normalized_source,
         normalized_target,
+        reason: ReasonProtocol,
         copy_dependent_files,
         include_mode=False,
     ):
@@ -243,6 +274,7 @@ class Freezer(ABC):
         self._record_file_copy(
             from_path=exe.base,
             to_relative_path=exe.target_name,
+            reason=BaseReason("Including launcher bootstrap."),
             copy_dependent_files=False,
             include_mode=True
         )
@@ -451,7 +483,7 @@ class Freezer(ABC):
             "*.py", "*.pyc", "*.pyo", "__pycache__"
     )
 
-    def _record_copy_tree(self, sourceDir: str, rel_targetDir: str):
+    def _record_tree_copy(self, sourceDir: str, rel_targetDir: str, reason: ReasonProtocol):
         """Copy contents of sourceDir to the relative location rel_targetDir. Replacement for shutil.copytree
         that goes file-by-file, so that we can record individual files in FileTracker object."""
 
@@ -463,7 +495,15 @@ class Freezer(ABC):
         # in the DarwinTracker and therefore needing their dynamic reference resolved.  That can raise problems if
         # some of the extra (but unneeded) problems have dynamic link resolution problems.  Hopefully that gets fixed
         # one FileTracker is doing the resolutions.)
-        COPY_FILES = False
+        COPY_FILES_SEPARATELY = False
+
+        if not COPY_FILES_SEPARATELY:
+            shutil.copytree(
+                sourceDir,
+                self._make_target_path(rel_targetDir),
+                ignore=Freezer.IGNORE_PATS,
+            )
+
 
         for dirpath, dirnames, filenames in os.walk(sourceDir):
             # remove ignored directories, so they are not recursively entered.
@@ -474,7 +514,7 @@ class Freezer(ABC):
             goodFiles = [c for c in filenames if c not in filesToIgnore]
             rel_src = os.path.relpath(dirpath, sourceDir)
 
-            if COPY_FILES:
+            if COPY_FILES_SEPARATELY:
                 # ensure that target directory created (even if ignore all files in it.)
                 targetDirPath = self._make_target_path(os.path.join(rel_targetDir, rel_src))
                 os.makedirs(targetDirPath, exist_ok=True)
@@ -485,7 +525,8 @@ class Freezer(ABC):
                 # print(f"   src: {source} ->\n     rel_targ: {rel_target}")
                 self._record_file_copy(from_path=source,to_relative_path=rel_target,
                                        copy_dependent_files=False,
-                                       doCopy=COPY_FILES,
+                                       reason=reason,
+                                       doCopy=COPY_FILES_SEPARATELY,
                                        )
                 pass
         return
@@ -546,12 +587,13 @@ class Freezer(ABC):
                     if self.silent < 1:
                         print("Copying data from package", module.name + "...")
                     # TODO: consider removing this call when ._record_copy_tree fully working.
-                    shutil.copytree(
-                        sourcePackageDir,
-                        targetPackageDir,
-                        ignore=ignorePatterns,
-                    )
-                    self._record_copy_tree(sourceDir=sourcePackageDir, rel_targetDir=rel_targetDir)
+                    # shutil.copytree(
+                    #     sourcePackageDir,
+                    #     targetPackageDir,
+                    #     ignore=ignorePatterns,
+                    # )
+                    self._record_tree_copy(sourceDir=sourcePackageDir, rel_targetDir=rel_targetDir,
+                                           reason=BaseReason(f"Data included from module: {module.name}"))
 
                     # remove the subfolders which belong to excluded modules
                     excludedFolders = [
@@ -607,6 +649,7 @@ class Freezer(ABC):
                     rel_target = os.path.join(*parts)
                     self._record_file_copy(
                         from_path=module.file, to_relative_path=rel_target,
+                        reason=BaseReason(f"Non-data from module {module.name} included in file system."),
                         copy_dependent_files=True
                     )
                 else:
@@ -661,6 +704,7 @@ class Freezer(ABC):
                 self._record_file_copy(
                     from_path=module.file,
                     to_relative_path=rel_target,
+                    reason=BaseReason(f"Non-data from module {module.name} not included in file system."),
                     copy_dependent_files=True
                 )
             finally:
@@ -705,6 +749,7 @@ class Freezer(ABC):
                         self._record_file_copy(
                             from_path=source_path,
                             to_relative_path=rel_target,
+                            reason=BaseReason("File in directory specified in include_files."),
                             copy_dependent_files=True
                         )
             else:
@@ -715,6 +760,7 @@ class Freezer(ABC):
                 self._record_file_copy(
                     from_path=source_filename,
                     to_relative_path=rel_target,
+                    reason=BaseReason("File specified in include_files."),
                     copy_dependent_files=True
                 )
 
@@ -800,6 +846,7 @@ class WinFreezer(Freezer):
         self._record_file_copy(
             from_path=source,
             to_relative_path=rel_target,
+            reason=BaseReason("Copied top dependency."),
             copy_dependent_files=True,
             include_mode=True
         )
@@ -827,6 +874,7 @@ class WinFreezer(Freezer):
                 self._record_file_copy(
                     from_path=source,
                     to_relative_path=rel_target,
+                    reason=BaseReason("Specially handled c runtime tile."),
                     copy_dependent_files=False
                 )
                 target = os.path.join(self.targetdir, target_name)
@@ -840,6 +888,7 @@ class WinFreezer(Freezer):
         normalized_source,
         normalized_target,
         copy_dependent_files,
+        reason: ReasonProtocol,
         include_mode=False,
     ):
         if (
@@ -856,6 +905,7 @@ class WinFreezer(Freezer):
                 self._record_file_copy(
                     from_path=dependent_file,
                     to_relative_path=rel_target,
+                    reason=reason,
                     copy_dependent_files=copy_dependent_files
                 )
 
@@ -956,6 +1006,7 @@ class DarwinFreezer(Freezer):
         target,
         normalized_source,
         normalized_target,
+        reason: ReasonProtocol,
         copy_dependent_files,
         include_mode=False,
         machOReference: Optional["MachOReference"] = None,
@@ -992,17 +1043,25 @@ class DarwinFreezer(Freezer):
                 #     self.targetdir, os.path.basename(dependent_file)
                 # )
                 rel_target = os.path.basename(dependent_file)
+
+                # doCopy = False, because _copy_file_recursion being handled separately (below)
+                fobj = self._record_file_copy(from_path=dependent_file, to_relative_path=rel_target,
+                                       reason=reason,
+                                       copy_dependent_files=True, doCopy=False)
+
+                if fobj is not None: recursion_reason = fobj.get_reason_for_links()
+                else: recursion_reason = BaseReason("[!!! - should not see this, would only arise if file should not be copied]")
+
                 self._copy_file_recursion(
                     dependent_file,
                     self._make_target_path(rel_target),
+                    recursion_reason=recursion_reason,
                     copy_dependent_files=True,
                     machOReference=newDarwinFile.getMachOReferenceForPath(
                         path=dependent_file
                     ),
                 )
-                # doCopy = False, because _copy_file_recursion being handled separately (above)
-                self._record_file_copy(from_path=dependent_file, to_relative_path=rel_target,
-                                       copy_dependent_files=True, doCopy=False)
+
 
 
 
@@ -1010,6 +1069,7 @@ class DarwinFreezer(Freezer):
         self,
         source,
         target,
+        recursion_reason: ReasonProtocol,
         copy_dependent_files,
         include_mode=False,
         machOReference: Optional["MachOReference"] = None,
@@ -1056,6 +1116,7 @@ class DarwinFreezer(Freezer):
             target,
             normalized_source,
             normalized_target,
+            reason=recursion_reason,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
             machOReference=machOReference,
@@ -1080,14 +1141,18 @@ class DarwinFreezer(Freezer):
             sourcePath=source
         )
         rel_target = os.path.relpath(target, self.targetdir)
+
+        reason = BaseReason(f"Including top dependency: {source}")
         self._copy_file_recursion(
             source,
             self._make_target_path(rel_target),
+            recursion_reason=reason,
             copy_dependent_files=True,
             include_mode=True,
             machOReference=cachedReference,
         )
         self._record_file_copy(from_path=source, to_relative_path=rel_target,
+                               reason=reason,
                                copy_dependent_files=True, include_mode=True,
                                doCopy=False)
 
@@ -1149,6 +1214,7 @@ class LinuxFreezer(Freezer):
         target,
         normalized_source,
         normalized_target,
+        reason: ReasonProtocol,
         copy_dependent_files,
         include_mode=False,
     ):
@@ -1179,6 +1245,7 @@ class LinuxFreezer(Freezer):
                 self._record_file_copy(
                     from_path=dependent_file,
                     to_relative_path=rel_target,
+                    reason=reason,
                     copy_dependent_files=copy_dependent_files
                 )
             if fix_rpath:
@@ -1197,6 +1264,7 @@ class LinuxFreezer(Freezer):
         self._record_file_copy(
             from_path=source,
             to_relative_path=rel_target,
+            reason=BaseReason("Including top dependency: {source}"),
             copy_dependent_files=True,
             include_mode=True,
         )

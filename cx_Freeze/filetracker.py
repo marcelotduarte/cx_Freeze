@@ -14,19 +14,90 @@ from .darwintools2 import DarwinFileData
 
 WEAK_WARNING = True
 
-class CopyReason(ABC):
-    def __init__(self, explanation: str, priorReason: Optional["CopyReason"]=None):
-        self.explanation = explanation
-        self.priorReason = priorReason
-        return
+
+class ReasonProtocol(ABC):
+
+    @abstractmethod
+    def this_reason_string(self) -> str:
+        return ""
+
+    def full_reason_string(self) -> str:
+        l = []
+        curReason = self
+        n = 1
+        while curReason is not None:
+            l.append(f"  {n:>2}) {curReason.this_reason_string()}")
+            curReason = curReason.get_prior_reason()
+            n += 1
+            pass
+        return "\n".join(l)
+
+    def get_prior_reason(self) -> Optional["ReasonProtocol"]:
+        return None
+
+    def get_reason_depth(self) -> int:
+        curReason: "ReasonProtocol" = self
+        n = 0
+        while curReason is not None:
+            curReason = curReason.get_prior_reason()
+            n += 1
+        return n
+
+class BaseReason(ReasonProtocol):
+    def __init__(self, text: str):
+        self.text = text
+
+    def this_reason_string(self) -> str:
+        return self.text
+
+
+class LinkReason(ReasonProtocol):
+    def __init__(self, fobj: "FileObject", prior_reason: ReasonProtocol):
+        self.file_object: "FileObject" = fobj
+        self.prior_reason = prior_reason
+
+    def this_reason_string(self) -> str:
+        return f"Linked from file: {self.file_object}"
+
+    def get_prior_reason(self) -> Optional["ReasonProtocol"]:
+        return self.prior_reason
 
 class FileObject(ABC):
-    def __init__(self, target_rel_paths: List[str] = None):
+    """Abstract object representing a file included in frozen application.  Can also be used as a
+    ReasonProtocol object, for files dynamically linked from this file."""
+    def __init__(self,
+                 reason: ReasonProtocol,
+                 target_rel_paths: List[str] = None,
+                 ):
         if target_rel_paths is None:
             self.target_rel_paths: List[str] = []
         else:
             self.target_rel_paths = target_rel_paths
+
+        if reason is None:
+            raise FileTrackerException("Reason must be provided for inclusion of each File Object.")
+        if not isinstance(reason, ReasonProtocol):
+            raise FileTrackerException(f"Bad reason object given: {repr(reason)}")
+
+        self.reason_to_include: ReasonProtocol = reason
+        self.reason_for_links = LinkReason(fobj=self, prior_reason=self.reason_to_include)
         return
+
+    @abstractmethod
+    def get_reason_name(self) -> str:
+        """Returns a string identifying this file in reasons."""
+        return ""
+
+    def get_inclusion_reason(self) -> ReasonProtocol:
+        """Returns the ReasonProtocol object explaining why file included."""
+        return self.reason_to_include
+
+    def get_inclusion_reason_string(self) -> str:
+        """Returns a string explaining why this file was included."""
+        return self.reason_to_include.full_reason_string()
+
+    def get_reason_for_links(self) -> ReasonProtocol:
+        return self.reason_for_links
 
     def add_target_rel_path(self, path: str):
         if path in self.target_rel_paths:
@@ -57,14 +128,17 @@ class RealFileObject(FileObject):
     """Represents a real file that should be copied into frozen application."""
     def __init__(self,
                  original_file_path: str,
+                 reason: ReasonProtocol,
                  target_rel_paths: Optional[List[str]] = None,
                  linking_file: Optional["RealFileObject"] = None,
                  copy_links: bool = False,
                  include_mode: bool = False,
                  force_write_access: bool = False,
-                 relative_source: bool = False):
+                 relative_source: bool = False,
+                 ):
         """
         :param original_file_path: Path to source file.
+        :param reason: The reason that this file is included in the
         :param target_rel_paths: List of relative paths where file should be copied (relative to the dest_root specified at the time of copying).
         :param linking_file: the real file that this file is linked to from (used to resolve rpaths on Darwin, and for reporting of why files added)
         :param copy_links: If True, also find and copy dynamic libraries linked by the file.
@@ -72,7 +146,7 @@ class RealFileObject(FileObject):
         :param force_write_access: If True, forces write access on copied file. (overrides include_mode)
         :param relative_source: If True, then (on Linux only), any dependencies of the file that are in a subdirectory of the directory containing this file, will be placed in the same position relative to this file.
         """
-        super().__init__(target_rel_paths=target_rel_paths)
+        super().__init__(target_rel_paths=target_rel_paths, reason=reason)
         self.original_file_path = original_file_path
         self.linking_file: Optional[RealFileObject] = linking_file
         self.copy_links = copy_links
@@ -91,6 +165,10 @@ class RealFileObject(FileObject):
 
     def __repr__(self) -> str:
         return str(self)
+
+    def get_reason_name(self) -> str:
+        """Returns a string identifying this file in reasons."""
+        return f"Dynamnically linked from: {self.original_file_path}"
 
     def provide_linking_file(self, linking_file: "RealFileObject"):
         """If no linking file currently specified, use the specified file as the source link."""
@@ -142,13 +220,22 @@ class RealFileObject(FileObject):
 
 class VirtualFileObject(FileObject):
     """Represents a file that should be created in frozen application, with specified content."""
-    def __init__(self, data: bytes, target_rel_paths: Optional[List[str]]):
-        super().__init__(target_rel_paths=target_rel_paths)
+    def __init__(self,
+                 data: bytes,
+                 reason: ReasonProtocol,
+                 target_rel_paths: Optional[List[str]],
+                 ):
+        super().__init__(target_rel_paths=target_rel_paths, reason=reason)
         self.data: bytes = data
         return
 
     def __str__(self):
         return f"<VirtualFile {len(self.data)} bytes -> {self.target_rel_paths}>"
+
+    def get_reason_name(self) -> str:
+        """Returns a string identifying this file in reasons."""
+        return f"Dynamnically linked from file dynamically created at: {self.target_rel_paths}"
+
 
     def copy_to(self, dest_root:str):
         """
@@ -213,18 +300,21 @@ class FileTracker:
     def mark_file(self,
                   original_file_path: str,
                   to_rel_path: Optional[str],
+                  reason: ReasonProtocol,
                   copy_links: bool = False,
                   force_write_access: bool = False,
                   include_mode: bool = False,
                   relative_source: bool = False,
-                  prioritize_links: bool = False):
+                  prioritize_links: bool = False,
+                  ) -> FileObject:
         """Mark that file at fromLocation should be copied to toLocation in the
-        target directory.
+        target directory.  Returns the FileObject created to represent the file.
         :param original_file_path: The full path to the source file.
         :param to_rel_path: The relative path in the target directory (can be None, if we do not actually want to copy
                             this file, and just want to copy its links.
         :param copy_links: If True, files dynamically linked from this file are copied
         :param prioritize_links: If True, prioritize checking links for this file (do it before unprioritized files).
+        :param reason: If specified, a ReasonProtocol object specifying why the file is being included.
         """
         # TODO: what was the point of this?
         if os.path.basename(original_file_path).startswith("Python"):
@@ -248,7 +338,7 @@ class FileTracker:
                 realfile.copy_links = True
             if prioritize_links:
                 self.queue_for_links_check(realfile)
-            return
+            return realfile
 
         if to_rel_path in self.source_for_target_path:
             msg = f"Attempting to copying second file to same " + \
@@ -260,7 +350,10 @@ class FileTracker:
         if to_rel_path is None: target_paths = []
         else: target_paths = [to_rel_path]
 
+        # if reason is None: reason = BaseReason("No reason specified (?)")
+
         realfile = RealFileObject(original_file_path=normalized_source,
+                                  reason=reason,
                                   target_rel_paths=target_paths,
                                   copy_links=copy_links,
                                   force_write_access=force_write_access,
@@ -272,11 +365,17 @@ class FileTracker:
             self.source_for_target_path[to_rel_path] = realfile
         if prioritize_links:
             self.queue_for_links_check(realfile)
-        return
 
-    def mark_file_to_create(self, to_rel_path: str, data: bytes):
+        return realfile
+
+    def mark_file_to_create(self,
+                            to_rel_path: str,
+                            data: bytes,
+                            reason: ReasonProtocol,
+                            ) -> FileObject:
         """
-        Record that a file should be created at a specified location with specified contents.
+        Record that a file should be created at a specified location with specified contents. Returns FileObject
+        representing the created file.
         """
         to_rel_path = _norm_path(to_rel_path)
         if to_rel_path in self.source_for_target_path:
@@ -284,11 +383,14 @@ class FileTracker:
             raise FileTrackerException("Attempting to create second file a location "
                                   f'\n target: {to_rel_path}')
 
-        fobj = VirtualFileObject(target_rel_paths=[to_rel_path],
+        # if reason is None: reason = BaseReason("No reason specified (?)")
+
+        fobj = VirtualFileObject(reason=reason,
+                                 target_rel_paths=[to_rel_path],
                                  data = data)
         self.all_files.append(fobj)
         self.source_for_target_path[to_rel_path] = fobj
-        return
+        return fobj
 
     def add_links(self):
         """Go through files marked to have links copied, and determine and
