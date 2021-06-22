@@ -159,7 +159,7 @@ class Freezer(ABC):
             self._copy_file(
                 source=from_path,
                 target=os.path.join(self.targetdir, to_relative_path),
-                recursion_reason=recursion_reason,
+                reason_for_dependencies=recursion_reason,
                 copy_dependent_files=copy_dependent_files, include_mode=include_mode
             )
 
@@ -168,7 +168,7 @@ class Freezer(ABC):
     def _copy_file(
             self,
             source, target,
-            recursion_reason: ReasonProtocol,
+            reason_for_dependencies: ReasonProtocol,
             copy_dependent_files,
             include_mode=False
     ):
@@ -203,7 +203,7 @@ class Freezer(ABC):
             target,
             normalized_source,
             normalized_target,
-            reason=recursion_reason,
+            reason=reason_for_dependencies,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
         )
@@ -1055,7 +1055,7 @@ class DarwinFreezer(Freezer):
                 self._copy_file_recursion(
                     dependent_file,
                     self._make_target_path(rel_target),
-                    recursion_reason=recursion_reason,
+                    reason_for_dependences=recursion_reason,
                     copy_dependent_files=True,
                     machOReference=newDarwinFile.getMachOReferenceForPath(
                         path=dependent_file
@@ -1069,7 +1069,7 @@ class DarwinFreezer(Freezer):
         self,
         source,
         target,
-        recursion_reason: ReasonProtocol,
+        reason_for_dependences: ReasonProtocol,
         copy_dependent_files,
         include_mode=False,
         machOReference: Optional["MachOReference"] = None,
@@ -1116,7 +1116,7 @@ class DarwinFreezer(Freezer):
             target,
             normalized_source,
             normalized_target,
-            reason=recursion_reason,
+            reason=reason_for_dependences,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
             machOReference=machOReference,
@@ -1146,7 +1146,7 @@ class DarwinFreezer(Freezer):
         self._copy_file_recursion(
             source,
             self._make_target_path(rel_target),
-            recursion_reason=reason,
+            reason_for_dependences=reason,
             copy_dependent_files=True,
             include_mode=True,
             machOReference=cachedReference,
