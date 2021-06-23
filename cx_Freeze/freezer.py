@@ -29,7 +29,7 @@ if sys.platform == "win32":
 
     try:
         from win32verstamp import stamp as version_stamp
-    except:
+    except ImportError:
         version_stamp = None
 elif sys.platform == "darwin":
     from .darwintools import DarwinFile, MachOReference, DarwinFileTracker

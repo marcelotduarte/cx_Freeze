@@ -226,7 +226,7 @@ class build_exe(distutils.core.Command):
         for option in self.list_options:
             setattr(self, option, [])
 
-        self.zip_exclude_packages = "*"
+        self.zip_exclude_packages = ["*"]
         self.optimize = 0
         self.build_exe = None
         self.no_compress = False
