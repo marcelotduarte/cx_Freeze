@@ -105,7 +105,11 @@ class ModuleFinder:
         module = self._modules.get(name)
         if module is None:
             module = Module(
-                name, path, file_name, parent, rootcachedir=self.dist_cachedir
+                name,
+                path,
+                file_name,
+                parent,
+                rootcachedir=self.dist_cachedir.name,
             )
             self._modules[name] = module
             self.modules.append(module)

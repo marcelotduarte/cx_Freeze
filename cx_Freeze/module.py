@@ -5,11 +5,12 @@ Base class for module.
 import datetime
 from keyword import iskeyword
 import os
+from pathlib import Path
 import shutil
 import socket
 from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import importlib_metadata
 
@@ -17,6 +18,16 @@ from .exception import ConfigError
 
 
 __all__ = ["ConstantsModule", "Module"]
+
+
+class DistributionCache(importlib_metadata.PathDistribution):
+    """Cache the distribution package."""
+
+    @staticmethod
+    def at(path):
+        return DistributionCache(Path(path))
+
+    at.__doc__ = importlib_metadata.PathDistribution.at.__doc__
 
 
 class Module:
@@ -31,23 +42,34 @@ class Module:
         file_name: Optional[str] = None,
         parent: Optional["Module"] = None,
         *,
-        rootcachedir: TemporaryDirectory,
+        rootcachedir: Union[str, Path],
     ):
         self.name: str = name
         self.path: Optional[str] = path
         self.file: Optional[str] = file_name
         self.parent: Optional["Module"] = parent
-        self.rootcachedir = rootcachedir
+        self.rootcachedir: Path = Path(rootcachedir)
         self.code: Optional[CodeType] = None
-        self.dist_files: List[str] = []
+        self.distribution: Optional[DistributionCache] = None
         self.exclude_names: Set[str] = set()
         self.global_names: Set[str] = set()
         self.ignore_names: Set[str] = set()
         self.in_import: bool = True
         self.source_is_zip_file: bool = False
         self._in_file_system: bool = True
-        # dist-info files (metadata)
-        self._cache_dist_info(name)
+        # cache the dist-info files (metadata)
+        self.update_distribution(name)
+
+    def update_distribution(self, name: str) -> None:
+        """Update the distribution cache. This method may be used to when the
+        name of the distribution is different of the import name.
+
+        Example: ModuleFinder detects the name yaml (the package name), but
+        the distribution name is PyYAML. So, a hook can use this method.
+        """
+        dist = self._cache_dist_info(name)
+        if dist is None:
+            return
         try:
             requires = importlib_metadata.requires(name)
         except importlib_metadata.PackageNotFoundError:
@@ -56,28 +78,29 @@ class Module:
             for req in requires:
                 req_name = req.partition(" ")[0]
                 self._cache_dist_info(req_name)
+        self.distribution = dist
 
-    def _cache_dist_info(self, package_name) -> None:
-        """Cache the dist-info files."""
+    def _cache_dist_info(self, name: str) -> Optional[DistributionCache]:
+        """Cache the dist-info files in a temporary directory."""
+        dist_dir = None
         try:
-            files = importlib_metadata.files(package_name)
+            files = importlib_metadata.files(name) or []
         except importlib_metadata.PackageNotFoundError:
-            files = None
-        if files is None:
-            return
+            files = []
         # select only dist-info files
         files = [file for file in files if file.match("*.dist-info/*")]
-        if files:
-            for file in files:
-                src_path = file.locate()
-                if not src_path.exists():
-                    continue
-                dist_path = os.path.join(
-                    self.rootcachedir.name, os.path.normpath(file.as_posix())
-                )
-                os.makedirs(os.path.dirname(dist_path), exist_ok=True)
-                shutil.copyfile(src_path, dist_path)
-                self.dist_files.append(file.as_posix())
+        for file in files:
+            src_path = file.locate()
+            if not src_path.exists():
+                continue
+            dst_path = self.rootcachedir / file.as_posix()
+            if dist_dir is None:
+                dist_dir = dst_path.parent
+                dist_dir.mkdir(exist_ok=True)
+            shutil.copy2(src_path, dst_path)
+        if dist_dir is None:
+            return None
+        return DistributionCache.at(dist_dir)
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]
