@@ -1,5 +1,7 @@
 import glob
+from importlib.machinery import EXTENSION_SUFFIXES
 import os
+from pathlib import Path
 import sys
 import sysconfig
 from typing import Any, Optional, Tuple
@@ -598,46 +600,45 @@ def _get_data_path():
 
 def load_mkl(finder: ModuleFinder, module: Module) -> None:
     """The mkl package in conda."""
-    libs_dir = os.path.join(sys.base_prefix, "Library", "bin")
-    if os.path.isdir(libs_dir):
+    libs_dir = Path(sys.base_prefix) / "Library" / "bin"
+    if libs_dir.is_dir():
         dest_dir = os.path.join("lib", "mkl")
-        for path in glob.glob(os.path.join(libs_dir, "mkl_*.dll")):
-            name = os.path.basename(path)
-            finder.IncludeFiles(path, os.path.join(dest_dir, name))
-        for path in glob.glob(os.path.join(libs_dir, "libiomp*.dll")):
-            name = os.path.basename(path)
-            finder.IncludeFiles(path, os.path.join(dest_dir, name))
+        for path in libs_dir.glob("mkl_*.dll"):
+            finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
+        for path in libs_dir.glob("lib*.dll"):
+            finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
-    """The numpy has some fixed components; support numpy+mkl version too."""
-    finder.IncludePackage("numpy.core")
-    finder.IncludePackage("numpy.linalg")
-    finder.IncludePackage("numpy.lib")
-    finder.IncludePackage("numpy.polynomial")
+    """"The numpy must be loaded as a package; support for pypi version and
+    numpy+mkl version (tested with 1.19.5+mkl and 1.20.3+mkl."""
+    finder.IncludePackage("numpy")
 
     if WIN32:
-        numpy_dir = module.path[0]
+        numpy_dir = Path(module.path[0])
 
         # include mkl files
-        libs_dir = os.path.join(numpy_dir, "DLLs")
-        if os.path.isdir(libs_dir):
+        libs_dir = numpy_dir / "DLLs"
+        if libs_dir.is_dir():
             dest_dir = os.path.join("lib", "numpy_mkl")
-            for path in glob.glob(os.path.join(libs_dir, "mkl_*.dll")):
-                name = os.path.basename(path)
-                finder.IncludeFiles(path, os.path.join(dest_dir, name))
-            for path in glob.glob(os.path.join(libs_dir, "libiomp*.dll")):
-                name = os.path.basename(path)
-                finder.IncludeFiles(path, os.path.join(dest_dir, name))
+            for path in libs_dir.glob("mkl_*.dll"):
+                finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
+            for path in libs_dir.glob("lib*.dll"):
+                finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
             finder.AddConstant("MKL_PATH", dest_dir)
             finder.ExcludeModule("numpy.DLLs")
 
-        # support for old versions
+            # do not check dependencies already handled
+            extension = EXTENSION_SUFFIXES[0]
+            for path in numpy_dir.rglob(f"*{extension}"):
+                finder.ExcludeDependentFiles(str(path))
+
+        # support for old versions (numpy <= 1.18.2)
         if not module.in_file_system:
             # copy any file at site-packages/numpy/.libs
-            libs_dir = os.path.join(numpy_dir, ".libs")
-            if os.path.exists(libs_dir):
-                finder.IncludeFiles(libs_dir, "lib")
+            libs_dir = numpy_dir / ".libs"
+            if libs_dir.is_dir():
+                finder.IncludeFiles(str(libs_dir), "lib")
 
     # exclude the tests
     finder.ExcludeModule("numpy.compat.tests")
@@ -652,33 +653,8 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.ExcludeModule("numpy.polynomial.tests")
     finder.ExcludeModule("numpy.random._examples")
     finder.ExcludeModule("numpy.random.tests")
-    # finder.ExcludeModule("numpy.testing")
     finder.ExcludeModule("numpy.tests")
     finder.ExcludeModule("numpy.typing.tests")
-
-
-def load_numpy_core__multiarray_umath(
-    finder: ModuleFinder, module: Module
-) -> None:
-    """Do not check dependencies already handled."""
-    if finder.constants_module.values.get("MKL_PATH"):
-        finder.ExcludeDependentFiles(module.file)
-
-
-def load_numpy_linalg__umath_linalg(
-    finder: ModuleFinder, module: Module
-) -> None:
-    """Do not check dependencies already handled."""
-    if finder.constants_module.values.get("MKL_PATH"):
-        finder.ExcludeDependentFiles(module.file)
-
-
-def load_numpy_linalg_lapack_lite(
-    finder: ModuleFinder, module: Module
-) -> None:
-    """Do not check dependencies already handled."""
-    if finder.constants_module.values.get("MKL_PATH"):
-        finder.ExcludeDependentFiles(module.file)
 
 
 def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
