@@ -79,6 +79,7 @@ class Freezer(ABC):
         includeMSVCR: bool = False,
         zipIncludePackages: Optional[List[str]] = None,
         zipExcludePackages: Optional[List[str]] = None,
+        whyReport: bool = False,
     ):
         self.executables = list(executables)
         self.constants_module = constantsModule or ConstantsModule()
@@ -107,6 +108,7 @@ class Freezer(ABC):
         self.metadata = metadata
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
+        self.why_report = whyReport
         self._verify_configuration()
         # TODO: provide a real callback function, if we will use the _file_tracker for copying files
         self._file_tracker = FileTracker(copy_check_callback=lambda x: True)
@@ -119,7 +121,7 @@ class Freezer(ABC):
         rel_target = os.path.basename(exe.icon)
         # target_icon = os.path.join(self.targetdir, os.path.basename(exe.icon))
         self._record_file_copy(from_path=exe.icon, to_relative_path=rel_target,
-                               reason=BaseReason("Adding icon resource."),
+                               reason=BaseReason(f"Included as icon resource: {exe.icon}"),
                                copy_dependent_files=False)
 
     def _make_target_path(self, rel_path: str):
@@ -274,7 +276,7 @@ class Freezer(ABC):
         self._record_file_copy(
             from_path=exe.base,
             to_relative_path=exe.target_name,
-            reason=BaseReason("Including launcher bootstrap."),
+            reason=BaseReason(f"Included launcher bootstrap: {exe.base}"),
             copy_dependent_files=False,
             include_mode=True
         )
@@ -593,7 +595,7 @@ class Freezer(ABC):
                     #     ignore=ignorePatterns,
                     # )
                     self._record_tree_copy(sourceDir=sourcePackageDir, rel_targetDir=rel_targetDir,
-                                           reason=BaseReason(f"Data included from module: {module.name}"))
+                                           reason=BaseReason(f"Included data from module: {module.name}"))
 
                     # remove the subfolders which belong to excluded modules
                     excludedFolders = [
@@ -649,7 +651,7 @@ class Freezer(ABC):
                     rel_target = os.path.join(*parts)
                     self._record_file_copy(
                         from_path=module.file, to_relative_path=rel_target,
-                        reason=BaseReason(f"Non-data from module {module.name} included in file system."),
+                        reason=BaseReason(f"File from module {module.name} (module included in file system)."),
                         copy_dependent_files=True
                     )
                 else:
@@ -704,7 +706,7 @@ class Freezer(ABC):
                 self._record_file_copy(
                     from_path=module.file,
                     to_relative_path=rel_target,
-                    reason=BaseReason(f"Non-data from module {module.name} not included in file system."),
+                    reason=BaseReason(f"File from module {module.name} (module not included in file system)."),
                     copy_dependent_files=True
                 )
             finally:
@@ -749,7 +751,7 @@ class Freezer(ABC):
                         self._record_file_copy(
                             from_path=source_path,
                             to_relative_path=rel_target,
-                            reason=BaseReason("File in directory specified in include_files."),
+                            reason=BaseReason(f"File in directory specified in include_files ({source_filename})."),
                             copy_dependent_files=True
                         )
             else:
@@ -760,12 +762,16 @@ class Freezer(ABC):
                 self._record_file_copy(
                     from_path=source_filename,
                     to_relative_path=rel_target,
-                    reason=BaseReason("File specified in include_files."),
+                    reason=BaseReason(f"File specified in include_files ({source_filename})."),
                     copy_dependent_files=True
                 )
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
+
+        # if requested, print out a report of why files included
+        if self.why_report:
+            self._file_tracker.print_reasons_report()
 
     def _post_freeze_hook(self):
         return
@@ -846,7 +852,7 @@ class WinFreezer(Freezer):
         self._record_file_copy(
             from_path=source,
             to_relative_path=rel_target,
-            reason=BaseReason("Copied top dependency."),
+            reason=BaseReason(f"Copied top dependency ({source})."),
             copy_dependent_files=True,
             include_mode=True
         )
@@ -874,7 +880,7 @@ class WinFreezer(Freezer):
                 self._record_file_copy(
                     from_path=source,
                     to_relative_path=rel_target,
-                    reason=BaseReason("Specially handled c runtime tile."),
+                    reason=BaseReason(f"Special duplication of c runtime file ({norm_target_name})."),
                     copy_dependent_files=False
                 )
                 target = os.path.join(self.targetdir, target_name)
@@ -1143,18 +1149,24 @@ class DarwinFreezer(Freezer):
         rel_target = os.path.relpath(target, self.targetdir)
 
         reason = BaseReason(f"Including top dependency: {source}")
+        fobj = self._record_file_copy(
+            from_path=source, to_relative_path=rel_target,
+            reason=reason,
+            copy_dependent_files=True, include_mode=True,
+            doCopy=False)
+
+        if fobj is not None: recursion_reason = fobj.get_reason_for_links()
+        else: recursion_reason = BaseReason(f"Dependency for top dependency file: {source}")
+
         self._copy_file_recursion(
             source,
             self._make_target_path(rel_target),
-            reason_for_dependences=reason,
+            reason_for_dependences=recursion_reason,
             copy_dependent_files=True,
             include_mode=True,
             machOReference=cachedReference,
         )
-        self._record_file_copy(from_path=source, to_relative_path=rel_target,
-                               reason=reason,
-                               copy_dependent_files=True, include_mode=True,
-                               doCopy=False)
+
 
     def _default_bin_path_excludes(self):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
@@ -1264,7 +1276,7 @@ class LinuxFreezer(Freezer):
         self._record_file_copy(
             from_path=source,
             to_relative_path=rel_target,
-            reason=BaseReason("Including top dependency: {source}"),
+            reason=BaseReason(f"Including top dependency: {source}"),
             copy_dependent_files=True,
             include_mode=True,
         )

@@ -1,4 +1,4 @@
-import os, shutil, stat, sys
+import os, shutil, stat, sys, textwrap
 from abc import ABC, abstractmethod
 from collections import deque
 from typing import Tuple, List, Dict, Iterator, Optional, Deque, Callable
@@ -21,12 +21,15 @@ class ReasonProtocol(ABC):
     def this_reason_string(self) -> str:
         return ""
 
+    def __str__(self) -> str:
+        return self.full_reason_string()
+
     def full_reason_string(self) -> str:
         l = []
         curReason = self
         n = 1
         while curReason is not None:
-            l.append(f"  {n:>2}) {curReason.this_reason_string()}")
+            l.append(f"{n:>2}) {curReason.this_reason_string()}")
             curReason = curReason.get_prior_reason()
             n += 1
             pass
@@ -267,11 +270,41 @@ class FileTracker:
         return
 
     def print_copy_report(self):
+        """Print a list of files copied into frozen application."""
         source_paths = list(self.real_files.keys())
         source_paths.sort()
         print("Source files copied:")
         for p in source_paths:
             print(f'  {p}')
+        return
+
+    def print_reasons_report(self):
+        """Print a list of files copied into frozen application, as well as the reason that each file was included."""
+        print("Reasons for including files:")
+        n = 1
+        REPORT_INDENT = 6
+        wrapper = textwrap.TextWrapper(
+            initial_indent=" " * REPORT_INDENT,
+            width=100,
+            subsequent_indent=" " * (REPORT_INDENT+3))
+        def print_reasons(fobj: FileObject):
+            reason_string = fobj.get_inclusion_reason().full_reason_string()
+            reason_paras = reason_string.split("\n")
+            for para in reason_paras:
+                lines = wrapper.wrap(para)
+                for line in lines: print(line)
+            return
+
+        for fobj in self.all_files:
+            if isinstance(fobj, RealFileObject):
+                print(f"   ({n:<5}) {fobj.original_file_path}:")
+                print_reasons(fobj)
+            elif isinstance(fobj, VirtualFileObject):
+                print(f"   ({n:<5}) Created file -> {fobj.target_rel_paths}:")
+                print_reasons(fobj)
+            else:
+                print("f  Unknown file type (?): {fobj}")
+            n += 1
         return
 
     def file_is_marked_to_copy(self, source_path: str) -> bool:
