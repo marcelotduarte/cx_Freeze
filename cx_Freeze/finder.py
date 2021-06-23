@@ -38,7 +38,7 @@ class ModuleFinder:
 
     def __init__(
         self,
-        include_files: Optional[List[str]] = None,
+        include_files: Optional[List[Tuple[str,str]]] = None,
         excludes: Optional[List[str]] = None,
         path: Optional[str] = None,
         replace_paths: Optional[List[str]] = None,
@@ -46,7 +46,7 @@ class ModuleFinder:
         zip_exclude_packages: Optional[List[str]] = None,
         zip_include_packages: Optional[List[str]] = None,
         constants_module=None,
-        zip_includes: Optional[List[str]] = None,
+        zip_includes: Optional[List[Tuple[str,str]]] = None,
     ):
         self.include_files = include_files or []
         self.excludes = dict.fromkeys(excludes or [])
