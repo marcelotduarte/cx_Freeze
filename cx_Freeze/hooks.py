@@ -530,7 +530,8 @@ def load_h5py(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_h5py_wrapper(finder: ModuleFinder, module: Module) -> None:
-    """h5py_wrapper module requires pytest-runner"""
+    """h5py_wrapper module requires future and pytest-runner"""
+    finder.IncludeModule("future")
     finder.IncludeModule("ptr")
 
 
@@ -543,7 +544,7 @@ def load_hashlib(finder: ModuleFinder, module: Module) -> None:
 def load_hdfdict(finder: ModuleFinder, module: Module) -> None:
     """hdfdict module requires h5py_wrapper and PyYAML"""
     finder.IncludeModule("h5py_wrapper")
-    finder.IncludeModule("yaml")
+    finder.IncludePackage("yaml")
 
 
 def load_idna(finder: ModuleFinder, module: Module) -> None:
@@ -795,7 +796,6 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     dynamically loaded modules in subpackages is growing.
     """
     finder.IncludePackage("pkg_resources")
-    finder.ExcludeModule("pkg_resources.extern")
 
 
 def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
@@ -810,6 +810,11 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
 def load_pty(finder: ModuleFinder, module: Module) -> None:
     """The sgi module is not needed for this module to function."""
     module.ignore_names.add("sgi")
+
+
+def load_ptr(finder: ModuleFinder, module: Module) -> None:
+    """pytest-runner requires its metadata"""
+    module.update_distribution("pytest-runner")
 
 
 def load_pycountry(finder: ModuleFinder, module: Module) -> None:
@@ -1430,6 +1435,11 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
     xml.etree.ElementTree module; make sure this happens.
     """
     finder.IncludeModule("xml.etree.ElementTree")
+
+
+def load_yaml(finder: ModuleFinder, module: Module) -> None:
+    """PyYAML requires its metadata"""
+    module.update_distribution("PyYAML")
 
 
 def load_zmq(finder: ModuleFinder, module: Module) -> None:
