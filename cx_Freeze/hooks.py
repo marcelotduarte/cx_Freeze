@@ -1166,6 +1166,12 @@ def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
     module.global_names.add("gammaln")
 
 
+def load_scipy_stats(finder: ModuleFinder, module: Module) -> None:
+    """The scipy.stats must be loaded as a package."""
+    finder.IncludePackage("scipy.stats")
+    finder.ExcludeModule("scipy.stats.tests")
+
+
 def load_skimage(finder: ModuleFinder, module: Module) -> None:
     """The skimage package."""
     finder.IncludePackage("skimage.io")
