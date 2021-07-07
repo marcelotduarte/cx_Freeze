@@ -547,11 +547,17 @@ class Freezer(ABC):
                 outFile.writestr(zinfo, data)
 
         # put the distribution files metadata in the zip file
-        dist_cachedir = finder.dist_cachedir.name
-        for dirpath, _, filenames in os.walk(dist_cachedir):
-            basedir = dirpath[len(dist_cachedir) + 1 :].replace("\\", "/")
-            for name in filenames:
-                outFile.write(os.path.join(dirpath, name), f"{basedir}/{name}")
+        dist_cachedir = None
+        for module in modules:
+            if module.distribution:
+                dist_cachedir = module.distribution.locate_file(".")
+                break
+        if dist_cachedir is not None:
+            pos = len(dist_cachedir.as_posix()) + 1
+            for name in dist_cachedir.rglob("*"):
+                if name.is_dir():
+                    continue
+                outFile.write(name, name.as_posix()[pos:])
 
         # write any files to the zip file that were requested specially
         for source_filename, target_filename in finder.zip_includes:

@@ -38,7 +38,7 @@ class ModuleFinder:
 
     def __init__(
         self,
-        include_files: Optional[List[Tuple[str,str]]] = None,
+        include_files: Optional[List[Tuple[str, str]]] = None,
         excludes: Optional[List[str]] = None,
         path: Optional[str] = None,
         replace_paths: Optional[List[str]] = None,
@@ -46,7 +46,7 @@ class ModuleFinder:
         zip_exclude_packages: Optional[List[str]] = None,
         zip_include_packages: Optional[List[str]] = None,
         constants_module=None,
-        zip_includes: Optional[List[Tuple[str,str]]] = None,
+        zip_includes: Optional[List[Tuple[str, str]]] = None,
     ):
         self.include_files = include_files or []
         self.excludes = dict.fromkeys(excludes or [])
@@ -66,7 +66,6 @@ class ModuleFinder:
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
         self._hooks.initialize(self)
-        self.dist_cachedir = TemporaryDirectory(prefix="cxfreeze")
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
@@ -104,13 +103,7 @@ class ModuleFinder:
         """
         module = self._modules.get(name)
         if module is None:
-            module = Module(
-                name,
-                path,
-                file_name,
-                parent,
-                rootcachedir=self.dist_cachedir.name,
-            )
+            module = Module(name, path, file_name, parent)
             self._modules[name] = module
             self.modules.append(module)
             if name in self._bad_modules:

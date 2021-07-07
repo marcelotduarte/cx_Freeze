@@ -2,6 +2,7 @@
 Base class for module.
 """
 
+from contextlib import suppress
 import datetime
 from keyword import iskeyword
 import os
@@ -10,7 +11,7 @@ import shutil
 import socket
 from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple
 
 import importlib_metadata
 
@@ -23,11 +24,46 @@ __all__ = ["ConstantsModule", "Module"]
 class DistributionCache(importlib_metadata.PathDistribution):
     """Cache the distribution package."""
 
+    _cachedir = TemporaryDirectory(prefix="cxfreeze-")
+
     @staticmethod
     def at(path):
         return DistributionCache(Path(path))
 
     at.__doc__ = importlib_metadata.PathDistribution.at.__doc__
+
+    @classmethod
+    def from_name(cls, name):
+        distribution = super().from_name(name)
+        # Cache dist-info files in a temporary directory
+        temp_dir = Path(cls._cachedir.name)
+        dist_dir = None
+        files = distribution.files or []
+        prep = importlib_metadata.Prepared(distribution.name)
+        normalized = prep.normalized
+        legacy_normalized = prep.legacy_normalized
+        for file in files:
+            # only existing dist-info files
+            if (
+                not file.match(f"{name}-*.dist-info/*")
+                and not file.match(f"{distribution.name}-*.dist-info/*")
+                and not file.match(f"{normalized}-*.dist-info/*")
+                and not file.match(f"{legacy_normalized}-*.dist-info/*")
+            ):
+                continue
+            src_path = file.locate()
+            if not src_path.exists():
+                continue
+            dst_path = temp_dir / file.as_posix()
+            if dist_dir is None:
+                dist_dir = dst_path.parent
+                dist_dir.mkdir(exist_ok=True)
+            shutil.copy2(src_path, dst_path)
+        if dist_dir is None:
+            raise importlib_metadata.PackageNotFoundError(name)
+        return cls.at(dist_dir)
+
+    from_name.__doc__ = importlib_metadata.PathDistribution.from_name.__doc__
 
 
 class Module:
@@ -41,14 +77,11 @@ class Module:
         path: Optional[str] = None,
         file_name: Optional[str] = None,
         parent: Optional["Module"] = None,
-        *,
-        rootcachedir: Union[str, Path],
     ):
         self.name: str = name
         self.path: Optional[str] = path
         self.file: Optional[str] = file_name
         self.parent: Optional["Module"] = parent
-        self.rootcachedir: Path = Path(rootcachedir)
         self.code: Optional[CodeType] = None
         self.distribution: Optional[DistributionCache] = None
         self.exclude_names: Set[str] = set()
@@ -61,46 +94,27 @@ class Module:
         self.update_distribution(name)
 
     def update_distribution(self, name: str) -> None:
-        """Update the distribution cache. This method may be used to when the
-        name of the distribution is different of the import name.
+        """Update the distribution cache based on its name.
+        This method may be used to link an distribution's name to a module.
 
-        Example: ModuleFinder detects the name yaml (the package name), but
-        the distribution name is PyYAML. So, a hook can use this method.
+        Example: ModuleFinder cannot detects the distribution of _cffi_backend
+        but in a hook we can link it to 'cffi'.
         """
-        dist = self._cache_dist_info(name)
-        if dist is None:
+        try:
+            distribution = DistributionCache.from_name(name)
+        except importlib_metadata.PackageNotFoundError:
+            distribution = None
+        if distribution is None:
             return
         try:
-            requires = importlib_metadata.requires(name)
+            requires = importlib_metadata.requires(distribution.name) or []
         except importlib_metadata.PackageNotFoundError:
-            requires = None
-        if requires is not None:
-            for req in requires:
-                req_name = req.partition(" ")[0]
-                self._cache_dist_info(req_name)
-        self.distribution = dist
-
-    def _cache_dist_info(self, name: str) -> Optional[DistributionCache]:
-        """Cache the dist-info files in a temporary directory."""
-        dist_dir = None
-        try:
-            files = importlib_metadata.files(name) or []
-        except importlib_metadata.PackageNotFoundError:
-            files = []
-        # select only dist-info files
-        files = [file for file in files if file.match("*.dist-info/*")]
-        for file in files:
-            src_path = file.locate()
-            if not src_path.exists():
-                continue
-            dst_path = self.rootcachedir / file.as_posix()
-            if dist_dir is None:
-                dist_dir = dst_path.parent
-                dist_dir.mkdir(exist_ok=True)
-            shutil.copy2(src_path, dst_path)
-        if dist_dir is None:
-            return None
-        return DistributionCache.at(dist_dir)
+            requires = []
+        for req in requires:
+            req_name = req.partition(" ")[0]
+            with suppress(importlib_metadata.PackageNotFoundError):
+                DistributionCache.from_name(req_name)
+        self.distribution = distribution
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]
