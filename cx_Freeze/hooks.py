@@ -1413,11 +1413,6 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("xml.etree.ElementTree")
 
 
-def load_yaml(finder: ModuleFinder, module: Module) -> None:
-    """PyYAML requires its metadata"""
-    module.update_distribution("PyYAML")
-
-
 def load_zmq(finder: ModuleFinder, module: Module) -> None:
     """
     The zmq package loads zmq.backend.cython dynamically and links
