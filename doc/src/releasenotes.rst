@@ -4,6 +4,65 @@ Release notes
 6.x releases
 ############
 
+Version 6.7 (July 2021)
+-----------------------
+
+#)  Improvements, refactor and bugfix for all systems:
+	- Implemented multi levels for build_exe silent option (:pull:`883`)
+	- Corrected silent_level to default to 0 (to agree with documentation) (:pull:`1046`)
+	- Split up Freezer object (:pull:`1035`)
+	- Ignores nonexistent files in dist-info (:pull:`1038`, :issue:`1034`)
+	- Use setuptools build_ext to compile base executables and with names that dependes on python version and platform (:pull:`1054`)
+	- Use sysconfig and others instead of some distutils modules (:pull:`1055`)
+	- Handle the pre-copy task with the _pre_copy_hook method in the freezer (:pull:`1069`)
+	- New method to handle platform dependent resources in the freezer (:pull:`1070`)
+	- Minor tweaks to tidy up the code (:pull:`1079`)
+	- Use wchar if possible. (:pull:`1080`)
+	- Create cx_Freeze/bases if it doesn't exist (:pull:`1082`)
+	- Use option blocks in the docs and add command line help from commands (:pull:`1097`)
+	- Use a valid example in docs (:pull:`1098`)
+	- Cleanup versionchanged; limit to 6.0+ (:pull:`1099`)
+	- Improve the text of build_exe bin_* (:pull:`1100`)
+	- Use of some Sphinx features to organize a bit (:pull:`1102`)
+	- Implement Freeze._default_bin_path_includes for all platforms (:pull:`1108`)
+	- Move some code to startup to unify the use of environ (:pull:`1112`)
+	- Small changes to resolve code warnings (:pull:`1122`)
+	- New method Module.update_distribution to update the cached distribution for the frozen executable (:pull:`1123`)
+	- Implement DistributionCache.from_name (:pull:`1135`)
+	- Use of black and pyupgrade (:pull:`1056`, :pull:`1085`, :pull:`1086`, :pull:`1086`, :pull:`1057`)
+	- Use pep8 names in private functions in freezer  (:pull:`1068`)
+#)  Linux:
+	- Fix the support for unix-like systems (:pull:`1067`, :issue:`1061`)
+	- check in advance whether the dependency should be copied to avoid changing the rpath unnecessarily. (:pull:`1091`, :issue:`1048`)
+	- Fix issue with strip in bdist_rpm (:pull:`1092`, :issue:`1048`)
+	- Improve installation docs for linux (:pull:`1095`)
+	- Fix a buffer overflow introduced in :pull:`872` (:pull:`1047`)
+	- Fix another flaw introduced in :pull:`872` (:pull:`1111`)
+	- Fix regression introduced in :pull:`995` (and (:pull:`985`)) (:pull:`1090`, :issue:`1029`)
+#)  macOS:
+	- Added CFBundlePackageType and NSHighResolutionCapable by default to Info.plist of Darwin bundles (:pull:`1031`, :issue:`239`)
+#)  Windows:
+	- Transform filename to msilib.Binary for binary data (:pull:`1024`, :issue:`1019`)
+	- Add extension registration on Windows (:pull:`1032`)
+	- Support for icons with non-ascii names (:pull:`1066`)
+	- New C function to update the PE checksum (or fix it in case it is zero) (:pull:`1071`, :issue:`315`, :issue:`1059`)
+	- Use setuptools command to install a include file (:pull:`1072`)
+	- Fix the support for non-ascii names in windows (:pull:`1077`, :issue:`835`)
+	- PyEval_InitThreads is unecessary in py37+ and is deprecated in py39 (:pull:`1081`)
+	- Set working directory in the Desktop shortcut (:pull:`1083`, :issue:`48`, :issue:`623`)
+	- Improve documentation about bdist_msi (:pull:`1084`, :issue:`48`)
+#)  New or improved hooks for:
+	- pydantic (:pull:`1074`, :issue:`1052`)
+	- scikit-image (skimage) (:pull:`1104`, :issue:`1101`)
+	- plotly (:pull:`1105`, :issue:`1101`)
+	- scipy (versions 1.6.3 to 1.7.0) (:pull:`1106`, :pull:`1134`, :issue:`1101`, :issue:`1129`)
+	- numpy and numpy+mkl (versions 1.19.5 to 1.21.0) (:pull:`1113`, :pull:`1125`, :issue:`739`, :issue:`1110`)
+	- six (:pull:`1115`)
+	- hdfdict, h5py_wrapper and pytest-runner (:pull:`1116`, :pull:`1124`, :issue:`1118`)
+#)  Samples:
+	- pydantic (:pull:`1074`)
+	- pythonnet-demo (python.NET sample based on it's demo) (:pull:`1088`, :issue:`1049`)
+
 Version 6.6 (April 2021)
 ------------------------
 
