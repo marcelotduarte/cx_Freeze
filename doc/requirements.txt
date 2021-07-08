@@ -1,1 +1,1 @@
-sphinx < 4
+sphinx==3.5.4
