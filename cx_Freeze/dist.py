@@ -163,6 +163,11 @@ class build_exe(distutils.core.Command):
             " level 2: suppress missing missing-module warnings"
             " level 3: suppress all warning messages",
         ),
+        (
+            "why-report",
+            None,
+            "Print out a report explaining why each file has been included in the frozen executable."
+        ),
     ]
     boolean_options = ["no-compress", "include_msvcr", "silent"]
 
@@ -234,6 +239,7 @@ class build_exe(distutils.core.Command):
         self.include_msvcr = None
         self.silent = None
         self.silent_level = None
+        self.why_report = False
 
     def finalize_options(self):
         self.set_undefined_options("build", ("build_exe", "build_exe"))
@@ -298,6 +304,7 @@ class build_exe(distutils.core.Command):
             metadata=metadata,
             zipIncludePackages=self.zip_include_packages,
             zipExcludePackages=self.zip_exclude_packages,
+            whyReport=self.why_report
         )
 
         # keep freezer around so that its data case be used in bdist_mac phase
