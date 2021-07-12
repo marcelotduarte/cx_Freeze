@@ -19,6 +19,7 @@ from setuptools import setup, Command, Extension
 import setuptools.command.build_ext
 
 WIN32 = sys.platform == "win32"
+DARWIN = sys.platform == "darwin"
 
 if sys.version_info < (3, 6, 0):
     sys.exit("Python3 versions lower than 3.6.0 are not supported.")
@@ -76,7 +77,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
             library_dirs.append(get_config_var("LIBPL"))
             abiflags = get_config_var("abiflags")
             libraries.append(f"python{get_python_version()}{abiflags}")
-            if get_config_var("LINKFORSHARED") and sys.platform != "darwin":
+            if get_config_var("LINKFORSHARED") and not DARWIN:
                 extra_args.extend(get_config_var("LINKFORSHARED").split())
             if get_config_var("LIBS"):
                 extra_args.extend(get_config_var("LIBS").split())
@@ -86,11 +87,10 @@ class build_ext(setuptools.command.build_ext.build_ext):
                 extra_args.extend(get_config_var("BASEMODLIBS").split())
             if get_config_var("LOCALMODLIBS"):
                 extra_args.extend(get_config_var("LOCALMODLIBS").split())
-            # fix a bug using macOS on Github Actions
-            if "--with-lto" in get_config_var("CONFIG_ARGS"):
-                extra_args.append("-flto")
+            if DARWIN:
+                # macOS on Github Actions
                 extra_args.append("-Wl,-export_dynamic")
-            if sys.platform != "darwin":
+            else:
                 extra_args.append("-s")
                 extra_args.append("-Wl,-rpath,$ORIGIN/lib")
                 extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
