@@ -8,7 +8,6 @@ import importlib.machinery
 import logging
 import os
 import sys
-from tempfile import TemporaryDirectory
 from types import CodeType
 from typing import Any, Dict, List, Optional, Tuple, Union
 import opcode

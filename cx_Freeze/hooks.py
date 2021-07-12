@@ -610,8 +610,8 @@ def load_mkl(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
-    """"The numpy must be loaded as a package; support for pypi version and
-    numpy+mkl version (tested with 1.19.5+mkl and 1.20.3+mkl."""
+    """The numpy must be loaded as a package; support for pypi version and
+    numpy+mkl version (tested with 1.19.5+mkl, 1.20.3+mkl and 1.21.0+mkl."""
     finder.IncludePackage("numpy")
 
     if WIN32:

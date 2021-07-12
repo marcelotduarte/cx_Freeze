@@ -13,8 +13,7 @@ import glob
 import os
 import subprocess
 import sys
-import sysconfig
-from sysconfig import get_config_var
+from sysconfig import get_config_var, get_platform, get_python_version
 
 from setuptools import setup, Command, Extension
 import setuptools.command.build_ext
@@ -76,8 +75,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
         else:
             library_dirs.append(get_config_var("LIBPL"))
             abiflags = get_config_var("abiflags")
-            python_version = sysconfig.get_python_version()
-            libraries.append(f"python{python_version}{abiflags}")
+            libraries.append(f"python{get_python_version()}{abiflags}")
             if get_config_var("LINKFORSHARED") and sys.platform != "darwin":
                 extra_args.extend(get_config_var("LINKFORSHARED").split())
             if get_config_var("LIBS"):
@@ -123,8 +121,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
         # Console-cp37-win32.exe, Console-cp39-win-amd64.exe,
         # Console-cp38-linux-x86_64
         ext_path = ext_name.split(".")
-        py_version_nodot = sysconfig.get_config_var("py_version_nodot")
-        platform_nodot = sysconfig.get_platform().replace(".", "")
+        py_version_nodot = get_config_var("py_version_nodot")
+        platform_nodot = get_platform().replace(".", "")
         name_suffix = f"-cp{py_version_nodot}-{platform_nodot}"
         exe_extension = ".exe" if WIN32 else ""
         return os.path.join(*ext_path) + name_suffix + exe_extension
@@ -143,9 +141,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
 
     def _dlltool_delay_load(self, name):
         """Get the delay load library to use with mingw32 gcc compiler"""
-        platform = sysconfig.get_platform()
-        python_version = sysconfig.get_python_version()
-        dir_name = f"libdl.{platform}-{python_version}"
+        dir_name = f"libdl.{get_platform()}-{get_python_version()}"
         library_dir = os.path.join(self.build_temp, dir_name)
         os.makedirs(library_dir, exist_ok=True)
         # Use gendef and dlltool to generate the delay library
