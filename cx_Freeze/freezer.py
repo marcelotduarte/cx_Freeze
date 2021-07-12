@@ -1070,9 +1070,7 @@ class LinuxFreezer(Freezer):
 
     def _copy_top_dependency(self, source: str):
         """Called for copying certain top dependencies in _freeze_executable."""
-        target = os.path.join(
-            os.path.join(self.targetdir, "lib"), os.path.basename(source)
-        )
+        target = os.path.join(self.targetdir, "lib", os.path.basename(source))
         self._copy_file(
             source, target, copy_dependent_files=True, include_mode=True
         )
