@@ -10,7 +10,6 @@ def getQtPluginIncludes(pluginList: List[str]) -> List[Tuple[str, str]]:
     includes = []
     for ppath in pluginList:
         includes.append(_getInclude(ppath))
-        pass
     return includes
 
 
@@ -22,7 +21,6 @@ def _getInclude(pluginPath: str) -> Tuple[str, str]:
     else:
         # search site packages locations to see if we can find required .dll
         packagesDirs = site.getsitepackages()
-        pass
     for pdir in packagesDirs:
         testPath = os.path.join(
             pdir, os.path.join("PyQt5", "Qt", "plugins", pluginPath)
@@ -33,7 +31,6 @@ def _getInclude(pluginPath: str) -> Tuple[str, str]:
             foundPath = testPath
             # print("DLL Found")
             break
-        pass
     if foundPath is None:
         print(f"Error, could not find: {pluginPath}")
         sys.exit(1)
