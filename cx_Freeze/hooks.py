@@ -255,6 +255,11 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
         finder.ZipIncludeFiles(cacert, target)
 
 
+def load__cffi_backend(finder: ModuleFinder, module: Module) -> None:
+    """Add the cffi metadata for _cffi_backend module."""
+    module.update_distribution("cffi")
+
+
 def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
     """The cffi.cparser module can use a extension if present."""
     try:
@@ -266,7 +271,7 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
-    """The google.crc32c module requires _cffi_backend module"""
+    """The google.crc32c module requires _cffi_backend module."""
     finder.IncludeModule("_cffi_backend")
 
 
@@ -285,17 +290,14 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
 def load_cryptography_hazmat_bindings__openssl(
     finder: ModuleFinder, module: Module
 ) -> None:
-    """The cryptography module requires the cffi module"""
-    finder.IncludeModule("cffi")
+    """The cryptography module requires the _cffi_backend module."""
+    finder.IncludeModule("_cffi_backend")
 
 
 def load_cryptography_hazmat_bindings__padding(
     finder: ModuleFinder, module: Module
 ) -> None:
-    """
-    The cryptography module requires the _cffi_backend module
-    (loaded implicitly).
-    """
+    """The cryptography module requires the _cffi_backend module."""
     finder.IncludeModule("_cffi_backend")
 
 
