@@ -503,6 +503,20 @@ def load_glib(finder: ModuleFinder, module: Module) -> None:
     )
 
 
+def load_googleapiclient(finder: ModuleFinder, module: Module) -> None:
+    """Add the googleapiclient metadata for googleapiclient package."""
+    module.update_distribution("google_api_python_client")
+
+
+def load_googleapiclient_discovery(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """The googleapiclient.discovery module needs discovery_cache subpackage
+    in file system."""
+    discovery_cache = finder.IncludePackage("googleapiclient.discovery_cache")
+    discovery_cache.in_file_system = True
+
+
 def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
     """The google.cloud.storage package always uses the parent module."""
     finder.IncludePackage("google.cloud")
