@@ -890,6 +890,36 @@ def sip_module_name(qtcore) -> str:
     return "sip"
 
 
+def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
+    """Inject code in PyQt5 init to locate and load plugins."""
+    if module.code is None:
+        return
+    # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the
+    # libraryPaths returns empty. Prior to this version, this doesn't happen.
+    # However, this hack will be used to workaround issues with anaconda and/or
+    # with the use of zip_include_packages too.
+    name, _ = _qt_implementation(module)
+    with open(module.file) as fp:
+        code_string = fp.read()
+    code_string += f"""
+# cx_Freeze patch start
+import os, sys
+from .QtCore import QCoreApplication
+
+executable_dir = os.path.dirname(sys.executable)
+pyqt5_root_dir = os.path.join(executable_dir, "lib", "{name}")
+plugins_dir = os.path.join(pyqt5_root_dir, "Qt5", "plugins")  # 5.15.4
+if not os.path.isdir(plugins_dir):
+    plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")  # olders
+library_paths = [os.path.normcase(p) for p in QApplication.libraryPaths()]
+if os.path.normcase(plugins_dir) not in library_paths:
+    library_paths = QApplication.libraryPaths() + [plugins_dir]
+    QApplication.setLibraryPaths(library_paths)
+# cx_Freeze patch end
+"""
+    module.code = compile(code_string, module.file, "exec")
+
+
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
     """
     In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
@@ -1009,7 +1039,8 @@ def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
 def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system:
         return
-    finder.IncludeModule("PyQt5.QtGui")
+    name, _ = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtGui")
 
 
 def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
