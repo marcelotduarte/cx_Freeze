@@ -7,6 +7,7 @@ from importlib.abc import ExecutionLoader
 import importlib.machinery
 import logging
 import os
+from pathlib import Path
 import sys
 from types import CodeType
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -626,8 +627,8 @@ class ModuleFinder:
         """
         self.constants_module.values[name] = value
 
-    def ExcludeDependentFiles(self, filename: str) -> None:
-        self.exclude_dependent_files[filename] = None
+    def ExcludeDependentFiles(self, filename: Union[Path, str]) -> None:
+        self.exclude_dependent_files[str(filename)] = None
 
     def ExcludeModule(self, name: str) -> None:
         """
@@ -640,22 +641,26 @@ class ModuleFinder:
             self.excludes[mod] = None
             self._modules[mod] = None
 
-    def IncludeFile(self, path: str, name: Optional[str] = None) -> Module:
+    def IncludeFile(
+        self, path: Union[Path, str], name: Optional[str] = None
+    ) -> Module:
         """Include the named file as a module in the frozen executable."""
         if name is None:
-            name = os.path.splitext(os.path.basename(path))[0]
+            name = Path(path).stem
         deferred_imports: DeferredList = []
-        module = self._load_module(name, path, deferred_imports)
+        module = self._load_module(name, str(path), deferred_imports)
         self._import_deferred_imports(deferred_imports)
         return module
 
     def IncludeFiles(
         self,
-        source_path: str,
-        target_path: str,
+        source_path: Union[Path, str],
+        target_path: Union[Path, str],
         copy_dependent_files: bool = True,
     ) -> None:
         """Include the files in the given directory in the target build."""
+        source_path = str(source_path)
+        target_path = str(target_path)
         self.include_files.append((source_path, target_path))
         if not copy_dependent_files:
             self.ExcludeDependentFiles(source_path)
@@ -709,8 +714,10 @@ class ModuleFinder:
             self.optimize_flag = optimize_flag
         return previous
 
-    def ZipIncludeFiles(self, source_path, target_path):
-        """
-        Include files or all of the files in a directory to the zip file.
-        """
+    def ZipIncludeFiles(
+        self, source_path: Union[Path, str], target_path: Union[Path, str]
+    ) -> None:
+        """Include files or all of the files in a directory to the zip file."""
+        source_path = str(source_path)
+        target_path = str(target_path)
         self.zip_includes.append((source_path, target_path))
