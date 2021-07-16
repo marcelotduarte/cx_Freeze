@@ -1,5 +1,5 @@
 import glob
-from importlib.machinery import EXTENSION_SUFFIXES
+from importlib.machinery import EXTENSION_SUFFIXES, ModuleSpec
 import os
 from pathlib import Path
 import sys
@@ -871,7 +871,7 @@ def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
 _qtcore = None
 
 
-def _qt_implementation(module: Module) -> Tuple[str, Any]:
+def _qt_implementation(module: Module) -> Tuple[str, ModuleSpec]:
     """Helper function to get name (PyQt5) and the QtCore module."""
     global _qtcore
     name = module.name.split(".")[0]
@@ -879,14 +879,12 @@ def _qt_implementation(module: Module) -> Tuple[str, Any]:
         try:
             _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
         except RuntimeError:
-            print(
-                "WARNING: Tried to load multiple incompatible Qt wrappers. "
-                "Some incorrect files may be copied."
-            )
+            print("WARNING: Tried to load multiple incompatible Qt ", end="")
+            print("wrappers. Some incorrect files may be copied.")
     return name, _qtcore
 
 
-def copy_qt_plugins(plugins, finder, qtcore):
+def copy_qt_plugins(plugins: str, finder: ModuleFinder, qtcore: ModuleSpec):
     """Helper function to find and copy Qt plugins."""
 
     # Qt Plugins can either be in a plugins directory next to the Qt libraries,
@@ -898,12 +896,10 @@ def copy_qt_plugins(plugins, finder, qtcore):
             finder.IncludeFiles(sourcepath, plugins)
 
 
-def sip_module_name(qtcore) -> str:
-    """
-    Returns the name of the sip module to import.
+def sip_module_name(qtcore: ModuleSpec) -> str:
+    """Returns the name of the sip module to import.
     (As of 5.11, the distributed wheels no longer provided for the sip module
-    outside of the PyQt5 namespace).
-    """
+    outside of the PyQt5 namespace)."""
     version_string = qtcore.PYQT_VERSION_STR
     try:
         pyqt_version_ints = tuple(int(c) for c in version_string.split("."))
@@ -935,20 +931,18 @@ pyqt5_root_dir = os.path.join(executable_dir, "lib", "{name}")
 plugins_dir = os.path.join(pyqt5_root_dir, "Qt5", "plugins")  # 5.15.4
 if not os.path.isdir(plugins_dir):
     plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")  # olders
-library_paths = [os.path.normcase(p) for p in QApplication.libraryPaths()]
+library_paths = [os.path.normcase(p) for p in QCoreApplication.libraryPaths()]
 if os.path.normcase(plugins_dir) not in library_paths:
-    library_paths = QApplication.libraryPaths() + [plugins_dir]
-    QApplication.setLibraryPaths(library_paths)
+    library_paths = QCoreApplication.libraryPaths() + [plugins_dir]
+    QCoreApplication.setLibraryPaths(library_paths)
 # cx_Freeze patch end
 """
     module.code = compile(code_string, module.file, "exec")
 
 
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
-    """
-    In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
-    be present in the build directory inside a folder phonon_backend.
-    """
+    """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
+    be present in the build directory inside a folder phonon_backend."""
     if module.in_file_system:
         return
     _, qtcore = _qt_implementation(module)
@@ -957,13 +951,11 @@ def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
-    """
-    The PyQt5.Qt module is an extension module which imports a number of
+    """The PyQt5.Qt module is an extension module which imports a number of
     other modules and injects their namespace into its own. It seems a
     foolish way of doing things but perhaps there is some hidden advantage
     to this technique over pure Python; ignore the absence of some of
-    the modules since not every installation includes all of them.
-    """
+    the modules since not every installation includes all of them."""
     if module.in_file_system:
         return
     name, _ = _qt_implementation(module)
@@ -989,10 +981,8 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
-    """
-    The PyQt5.QtCore module implicitly imports the sip module and,
-    depending on configuration, the PyQt5._qt module.
-    """
+    """The PyQt5.QtCore module implicitly imports the sip module and,
+    depending on configuration, the PyQt5._qt module."""
     if module.in_file_system:
         return
     name, qtcore = _qt_implementation(module)
@@ -1004,11 +994,9 @@ def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
-    """
-    The uic module makes use of "plugins" that need to be read directly and
+    """The uic module makes use of "plugins" that need to be read directly and
     cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
-    also implicity loaded.
-    """
+    also implicity loaded."""
     if module.in_file_system:
         return
     name, _ = _qt_implementation(module)
@@ -1022,10 +1010,8 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
-    """
-    There is a chance that GUI will use some image formats
-    add the image format plugins.
-    """
+    """There is a chance that GUI will use some image formats
+    add the image format plugins."""
     if module.in_file_system:
         return
     name, qtcore = _qt_implementation(module)
