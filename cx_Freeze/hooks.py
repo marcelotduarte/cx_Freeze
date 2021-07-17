@@ -1,10 +1,10 @@
 import glob
-from importlib.machinery import EXTENSION_SUFFIXES, ModuleSpec
+from importlib.machinery import EXTENSION_SUFFIXES
 import os
 from pathlib import Path
 import sys
 import sysconfig
-from typing import Any, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from .common import code_object_replace
 from .finder import ModuleFinder
@@ -867,47 +867,70 @@ def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
         finder.IncludeModule(mod)
 
 
-# cache the QtCore module
-_qtcore = None
+# cache the QtCore library paths
+_qtcore_library_paths = []
 
 
-def _qt_implementation(module: Module) -> Tuple[str, ModuleSpec]:
-    """Helper function to get name (PyQt5) and the QtCore module."""
-    global _qtcore
-    name = module.name.split(".")[0]
-    if _qtcore is None:
-        try:
-            _qtcore = __import__(name, fromlist=["QtCore"]).QtCore
-        except RuntimeError:
-            print("WARNING: Tried to load multiple incompatible Qt ", end="")
-            print("wrappers. Some incorrect files may be copied.")
-    return name, _qtcore
+def _qt_implementation(module: Module) -> str:
+    """Helper function to get the name of the Qt implementation (PyQt5)."""
+    return module.name.split(".")[0]
 
 
-def copy_qt_plugins(plugins: str, finder: ModuleFinder, qtcore: ModuleSpec):
-    """Helper function to find and copy Qt plugins."""
-
-    # Qt Plugins can either be in a plugins directory next to the Qt libraries,
-    # or in other locations listed by QCoreApplication.libraryPaths()
-    dir0 = os.path.join(os.path.dirname(qtcore.__file__), "plugins")
-    for libpath in qtcore.QCoreApplication.libraryPaths() + [dir0]:
-        sourcepath = os.path.join(str(libpath), plugins)
-        if os.path.exists(sourcepath):
-            finder.IncludeFiles(sourcepath, plugins)
-
-
-def sip_module_name(qtcore: ModuleSpec) -> str:
-    """Returns the name of the sip module to import.
-    (As of 5.11, the distributed wheels no longer provided for the sip module
-    outside of the PyQt5 namespace)."""
-    version_string = qtcore.PYQT_VERSION_STR
+def _qt_library_paths(name: str) -> List[str]:
+    global _qtcore_library_paths
+    if _qtcore_library_paths:
+        return _qtcore_library_paths
     try:
-        pyqt_version_ints = tuple(int(c) for c in version_string.split("."))
-        if pyqt_version_ints >= (5, 11):
-            return "PyQt5.sip"
-    except Exception:
-        pass
-    return "sip"
+        qtcore = __import__(name, fromlist=["QtCore"]).QtCore
+    except RuntimeError:
+        print("WARNING: Tried to load multiple incompatible Qt ", end="")
+        print("wrappers. Some incorrect files may be copied.")
+        qtcore = None
+    else:
+        _qtcore_library_paths = [
+            Path(p) for p in qtcore.QCoreApplication.libraryPaths()
+        ]
+    if not _qtcore_library_paths:
+        # check the common location for conda
+        plugins_path = Path(sys.base_prefix, "Library", "plugins")
+        if plugins_path.exists():
+            _qtcore_library_paths.append(plugins_path)
+        elif qtcore:
+            # use a hack
+            app = qtcore.QCoreApplication([])
+            _qtcore_library_paths = [Path(p) for p in app.libraryPaths()]
+    if not _qtcore_library_paths and qtcore:
+        # Qt Plugins can be in a plugins directory next to the Qt libraries
+        pyqt5_root_dir = Path(qtcore.__file__).parent
+        _qtcore_library_paths.append(pyqt5_root_dir / "plugins")
+        _qtcore_library_paths.append(pyqt5_root_dir / "Qt5" / "plugins")
+        _qtcore_library_paths.append(pyqt5_root_dir / "Qt" / "plugins")
+    return _qtcore_library_paths
+
+
+def get_qt_plugins_paths(name: str, plugins: str) -> List[Tuple[str, str]]:
+    """Helper function to get a list of source and target paths of Qt plugins,
+    indicated to be used in include_files."""
+    include_files = []
+    for library_dir in _qt_library_paths(name):
+        if library_dir.parts[-1] != "plugins":
+            continue
+        source_path = library_dir / plugins
+        if not source_path.exists():
+            continue
+        if source_path.parts[-4] == name:
+            target_path = Path("lib").joinpath(*source_path.parts[-4:])
+        else:
+            # fallback plugins path to be used by load_PyQt5.
+            target_path = Path("lib") / name / "Qt" / "plugins" / plugins
+        include_files.append((source_path, target_path))
+    return include_files
+
+
+def copy_qt_plugins(name: str, plugins: str, finder: ModuleFinder) -> None:
+    """Helper function to find and copy Qt plugins."""
+    for source_path, target_path in get_qt_plugins_paths(name, plugins):
+        finder.IncludeFiles(source_path, target_path)
 
 
 def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
@@ -918,7 +941,7 @@ def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
     # libraryPaths returns empty. Prior to this version, this doesn't happen.
     # However, this hack will be used to workaround issues with anaconda and/or
     # with the use of zip_include_packages too.
-    name, _ = _qt_implementation(module)
+    name = _qt_implementation(module)
     with open(module.file) as fp:
         code_string = fp.read()
     code_string += f"""
@@ -943,11 +966,9 @@ if os.path.normcase(plugins_dir) not in library_paths:
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
     """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
     be present in the build directory inside a folder phonon_backend."""
-    if module.in_file_system:
-        return
-    _, qtcore = _qt_implementation(module)
     if WIN32:
-        copy_qt_plugins("phonon_backend", finder, qtcore)
+        name = _qt_implementation(module)
+        copy_qt_plugins(name, "phonon_backend", finder)
 
 
 def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
@@ -956,9 +977,7 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
     foolish way of doing things but perhaps there is some hidden advantage
     to this technique over pure Python; ignore the absence of some of
     the modules since not every installation includes all of them."""
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
+    name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtCore")
     finder.IncludeModule(f"{name}.QtGui")
     for mod in (
@@ -983,10 +1002,11 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
 def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
     """The PyQt5.QtCore module implicitly imports the sip module and,
     depending on configuration, the PyQt5._qt module."""
-    if module.in_file_system:
-        return
-    name, qtcore = _qt_implementation(module)
-    finder.IncludeModule(sip_module_name(qtcore))
+    name = _qt_implementation(module)
+    try:
+        finder.IncludeModule(f"{name}.sip")  # PyQt5 >= 5.11
+    except ImportError:
+        finder.IncludeModule("sip")
     try:
         finder.IncludeModule(f"{name}._qt")
     except ImportError:
@@ -997,59 +1017,47 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
     """The uic module makes use of "plugins" that need to be read directly and
     cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
     also implicity loaded."""
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
-    source_dir = os.path.join(module.path[0], "widget-plugins")
-    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
+    name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtNetwork")
     try:
         finder.IncludeModule(f"{name}.QtWebKit")
     except ImportError:
         pass
+    source_dir = os.path.join(module.path[0], "widget-plugins")
+    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
 
 
 def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that GUI will use some image formats
     add the image format plugins."""
-    if module.in_file_system:
-        return
-    name, qtcore = _qt_implementation(module)
+    name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtCore")
-    copy_qt_plugins("imageformats", finder, qtcore)
+    copy_qt_plugins(name, "imageformats", finder)
     # On Qt5, we need the platform plugins. For simplicity, we just copy
     # any that are installed.
-    copy_qt_plugins("platforms", finder, qtcore)
+    copy_qt_plugins(name, "platforms", finder)
 
 
 def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    name, qtcore = _qt_implementation(module)
+    name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtCore")
     finder.IncludeModule(f"{name}.QtMultimediaWidgets")
-    copy_qt_plugins("mediaservice", finder, qtcore)
+    copy_qt_plugins(name, "mediaservice", finder)
 
 
 def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    _, qtcore = _qt_implementation(module)
-    copy_qt_plugins("printsupport", finder, qtcore)
+    name = _qt_implementation(module)
+    copy_qt_plugins(name, "printsupport", finder)
 
 
 def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
+    name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtNetwork")
     finder.IncludeModule(f"{name}.QtGui")
 
 
 def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
-    if module.in_file_system:
-        return
-    name, _ = _qt_implementation(module)
+    name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtGui")
 
 
