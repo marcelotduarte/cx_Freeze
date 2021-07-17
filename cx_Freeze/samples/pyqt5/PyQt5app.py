@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+"""A simple script to demonstrate PyQt5."""
 
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget
@@ -7,4 +7,4 @@ app = QApplication(sys.argv)
 window = QWidget()
 window.setWindowTitle("Simple")
 window.show()
-app.exec_()
+sys.exit(app.exec_())
