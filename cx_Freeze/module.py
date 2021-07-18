@@ -80,7 +80,7 @@ class Module:
         parent: Optional["Module"] = None,
     ):
         self.name: str = name
-        self.path: Optional[str] = [str(p) for p in path] if path else None
+        self.path: Optional[List[Path]] = [Path(p) for p in path] if path else None
         self.file = file_name
         self.parent: Optional["Module"] = parent
         self.code: Optional[CodeType] = None

@@ -581,7 +581,7 @@ class Freezer(ABC):
         for module, target in filesToCopy:
             try:
                 if module.parent is not None:
-                    path = os.pathsep.join([origPath] + module.parent.path)
+                    path = os.pathsep.join([origPath] + [str(p) for p in module.parent.path])
                     os.environ["PATH"] = path
                 self._copy_file(str(module.file), target, copy_dependent_files=True)
             finally:

@@ -588,10 +588,10 @@ def load_llvmlite(finder: ModuleFinder, module: Module) -> None:
 
 def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
     """The matplotlib package requires mpl-data subdirectory."""
-    data_path = os.path.join(module.path[0], "mpl-data")
-    target_path = os.path.join("lib", module.name, "mpl-data")
+    data_path = module.path[0] / "mpl-data"
+    target_path = Path("lib", module.name, "mpl-data")
     # After matplotlib 3.4 mpl-data is guaranteed to be a subdirectory.
-    if not os.path.isdir(data_path):
+    if not data_path.is_dir():
         data_path = __import__("matplotlib").get_data_path()
         need_patch = True
     else:
@@ -604,7 +604,7 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
         return
     CODE_STR = f"""
 def _get_data_path():
-    return os.path.join(os.path.dirname(sys.executable), "{target_path}")
+    return os.path.join(os.path.dirname(sys.executable), "{target_path!s}")
 """
     for code_str in [CODE_STR, CODE_STR.replace("_get_data_", "get_data_")]:
         new_code = compile(code_str, str(module.file), "exec")
@@ -636,7 +636,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.IncludePackage("numpy")
 
     if WIN32:
-        numpy_dir = Path(module.path[0])
+        numpy_dir = module.path[0]
 
         # include mkl files
         libs_dir = numpy_dir / "DLLs"
@@ -652,14 +652,14 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
             # do not check dependencies already handled
             extension = EXTENSION_SUFFIXES[0]
             for path in numpy_dir.rglob(f"*{extension}"):
-                finder.ExcludeDependentFiles(str(path))
+                finder.ExcludeDependentFiles(path)
 
         # support for old versions (numpy <= 1.18.2)
         if not module.in_file_system:
             # copy any file at site-packages/numpy/.libs
             libs_dir = numpy_dir / ".libs"
             if libs_dir.is_dir():
-                finder.IncludeFiles(str(libs_dir), "lib")
+                finder.IncludeFiles(libs_dir, "lib")
 
     # exclude the tests
     finder.ExcludeModule("numpy.compat.tests")
@@ -800,8 +800,8 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
     The postgresql.lib module requires the libsys.sql file to be included
     so make sure that file is included.
     """
-    filename = os.path.join(module.path[0], "libsys.sql")
-    finder.IncludeFiles(filename, os.path.basename(filename))
+    filename = "libsys.sql"
+    finder.IncludeFiles(module.path[0] / filename, filename)
 
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
@@ -1019,7 +1019,7 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
         finder.IncludeModule(f"{name}.QtWebKit")
     except ImportError:
         pass
-    source_dir = os.path.join(module.path[0], "widget-plugins")
+    source_dir = module.path[0] / "widget-plugins"
     finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
 
 
@@ -1093,28 +1093,26 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
     The pytz module requires timezone data to be found in a known directory
     or in the zip file where the package is written.
     """
-    target_path = os.path.join("lib", "pytz", "zoneinfo")
-    data_path = os.path.join(module.path[0], "zoneinfo")
-    if not os.path.isdir(data_path):
+    target_path = Path("lib", "pytz", "zoneinfo")
+    data_path = module.path[0] / "zoneinfo"
+    if not data_path.is_dir():
         # Fedora (and possibly other systems) use a separate location to
         # store timezone data so look for that here as well
         pytz = __import__("pytz")
-        data_path = (
+        data_path = Path(
             getattr(pytz, "_tzinfo_dir", None)
             or os.getenv("PYTZ_TZDATADIR")
             or "/usr/share/zoneinfo"
         )
-        if data_path.endswith(os.sep):
-            data_path = data_path[:-1]
-        if os.path.isdir(data_path):
-            finder.AddConstant("PYTZ_TZDATADIR", target_path)
-    if os.path.isdir(data_path):
+        if data_path.is_dir():
+            finder.AddConstant("PYTZ_TZDATADIR", str(target_path))
+    if data_path.is_dir():
         if module.in_file_system:
             finder.IncludeFiles(
                 data_path, target_path, copy_dependent_files=False
             )
         else:
-            finder.ZipIncludeFiles(data_path, "pytz/zoneinfo")
+            finder.ZipIncludeFiles(data_path, Path("pytz", "zoneinfo"))
 
 
 def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
@@ -1397,7 +1395,7 @@ def load_win32com(finder: ModuleFinder, module: Module) -> None:
     the sibling directory called win32comext; simulate that by changing the
     search path in a similar fashion here.
     """
-    module.path.append(str(module.file.parent.parent / "win32comext"))
+    module.path.append(module.file.parent.parent / "win32comext")
 
 
 def load_win32file(finder: ModuleFinder, module: Module) -> None:
@@ -1417,7 +1415,7 @@ def load_wx_lib_pubsub_core(finder: ModuleFinder, module: Module) -> None:
     that this only works if the import of wx.lib.pubsub.setupkwargs
     occurs first.
     """
-    module.path.insert(0, str(module.file.parent / "kwargs"))
+    module.path.insert(0, module.file.parent / "kwargs")
 
 
 def load_Xlib_display(finder: ModuleFinder, module: Module) -> None:
@@ -1472,17 +1470,15 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
         # For pyzmq 22 the libzmq dependencies are located in
         # site-packages/pyzmq.libs
         libzmq_folder = "pyzmq.libs"
-        libs_dir = os.path.join(os.path.dirname(module.path[0]), libzmq_folder)
-        if os.path.exists(libs_dir):
-            finder.IncludeFiles(libs_dir, os.path.join("lib", libzmq_folder))
+        libs_dir = module.path[0].parent / libzmq_folder
+        if libs_dir.exists():
+            finder.IncludeFiles(libs_dir, Path("lib", libzmq_folder))
             return
         # Include the bundled libzmq library, if it exists
         try:
             libzmq = __import__("zmq", fromlist=["libzmq"]).libzmq
-            filename = os.path.basename(libzmq.__file__)
-            finder.IncludeFiles(
-                os.path.join(module.path[0], filename), filename
-            )
+            filename = Path(libzmq.__file__).name
+            finder.IncludeFiles(module.path[0] / filename, filename)
         except (ImportError, AttributeError):
             pass  # assume libzmq is not bundled
 
@@ -1504,7 +1500,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     if tzdata.in_file_system:
         finder.IncludeFiles(
             tzdata.path[0],
-            os.path.join("lib", "tzdata"),
+            Path("lib", "tzdata"),
             copy_dependent_files=False,
         )
     else:
