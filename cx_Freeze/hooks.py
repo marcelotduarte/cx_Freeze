@@ -1,4 +1,3 @@
-import glob
 from importlib.machinery import EXTENSION_SUFFIXES
 import os
 from pathlib import Path
@@ -258,9 +257,8 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
         if sys.version_info < (3, 7):
             module.in_file_system = True
             return
-        cacert = __import__("certifi").where()
-        target = "certifi/" + os.path.basename(cacert)
-        finder.ZipIncludeFiles(cacert, target)
+        cacert = Path(__import__("certifi").where())
+        finder.ZipIncludeFiles(cacert, Path("certifi", cacert.name))
 
 
 def load__cffi_backend(finder: ModuleFinder, module: Module) -> None:
@@ -378,8 +376,8 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
     """
     if WIN32 and sys.version_info >= (3, 8) and not MINGW:
         dll_name = "libffi-7.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+        dll_path = Path(sys.base_prefix, "DLLs", dll_name)
+        finder.IncludeFiles(dll_path, Path("lib", dll_name))
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
@@ -620,14 +618,14 @@ def _get_data_path():
 
 
 def load_mkl(finder: ModuleFinder, module: Module) -> None:
-    """The mkl package in conda."""
-    libs_dir = Path(sys.base_prefix) / "Library" / "bin"
+    """The mkl-service package in conda."""
+    libs_dir = Path(sys.base_prefix, "Library", "bin")
     if libs_dir.is_dir():
-        dest_dir = os.path.join("lib", "mkl")
+        dest_dir = Path("lib", "mkl")
         for path in libs_dir.glob("mkl_*.dll"):
-            finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
+            finder.IncludeFiles(path, dest_dir / path.name)
         for path in libs_dir.glob("lib*.dll"):
-            finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
+            finder.IncludeFiles(path, dest_dir / path.name)
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
@@ -641,12 +639,12 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
         # include mkl files
         libs_dir = numpy_dir / "DLLs"
         if libs_dir.is_dir():
-            dest_dir = os.path.join("lib", "numpy_mkl")
+            dest_dir = Path("lib", "numpy_mkl")
             for path in libs_dir.glob("mkl_*.dll"):
-                finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
+                finder.IncludeFiles(path, dest_dir / path.name)
             for path in libs_dir.glob("lib*.dll"):
-                finder.IncludeFiles(path, os.path.join(dest_dir, path.name))
-            finder.AddConstant("MKL_PATH", dest_dir)
+                finder.IncludeFiles(path, dest_dir / path.name)
+            finder.AddConstant("MKL_PATH", str(dest_dir))
             finder.ExcludeModule("numpy.DLLs")
 
             # do not check dependencies already handled
@@ -1081,10 +1079,11 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     the target directory.
     """
     pythoncom = __import__("pythoncom")
+    filename = Path(pythoncom.__file__)
     finder.IncludeFiles(
-        pythoncom.__file__,
-        os.path.join("lib", os.path.basename(pythoncom.__file__)),
-        copy_dependent_files=False,
+        filename,
+        Path("lib", filename.name),
+        copy_dependent_files=False
     )
 
 
@@ -1124,10 +1123,11 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     target directory.
     """
     pywintypes = __import__("pywintypes")
+    filename = Path(pywintypes.__file__)
     finder.IncludeFiles(
-        pywintypes.__file__,
-        os.path.join("lib", os.path.basename(pywintypes.__file__)),
-        copy_dependent_files=False,
+        filename,
+        Path("lib", filename.name),
+        copy_dependent_files=False
     )
 
 
@@ -1274,12 +1274,10 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
     """
     if WIN32 and not MINGW:
         dll_name = "sqlite3.dll"
-        dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-        if not os.path.exists(dll_path):
-            dll_path = os.path.join(
-                sys.base_prefix, "Library", "bin", dll_name
-            )
-        finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+        dll_path = Path(sys.base_prefix, "DLLs", dll_name)
+        if not dll_path.exists():
+            dll_path = Path(sys.base_prefix, "Library", "bin", dll_name)
+        finder.IncludeFiles(dll_path, Path("lib", dll_name))
     finder.IncludePackage("sqlite3")
 
 
@@ -1295,11 +1293,9 @@ def load_ssl(finder: ModuleFinder, module: Module) -> None:
     """
     if WIN32 and sys.version_info >= (3, 7) and not MINGW:
         for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
-            for dll_path in glob.glob(
-                os.path.join(sys.base_prefix, "DLLs", dll_search)
-            ):
-                dll_name = os.path.basename(dll_path)
-                finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+            libs_dir = Path(sys.base_prefix, "DLLs")
+            for dll_path in libs_dir.glob(dll_search):
+                finder.IncludeFiles(dll_path, Path("lib", dll_path.name))
 
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
@@ -1344,16 +1340,16 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
                 lib_texts = os.environ[env_name]
             except KeyError:
                 if MINGW:
-                    lib_texts = os.path.join(sys.base_prefix, "lib", dir_name)
+                    lib_texts = Path(sys.base_prefix, "lib", dir_name)
                 else:
-                    lib_texts = os.path.join(sys.base_prefix, "tcl", dir_name)
-            target_path = os.path.join("lib", "tkinter", dir_name)
-            finder.AddConstant(env_name, target_path)
+                    lib_texts = Path(sys.base_prefix, "tcl", dir_name)
+            target_path = Path("lib", "tkinter", dir_name)
+            finder.AddConstant(env_name, str(target_path))
             finder.IncludeFiles(lib_texts, target_path)
             if not MINGW:
                 dll_name = dir_name.replace(".", "") + "t.dll"
-                dll_path = os.path.join(sys.base_prefix, "DLLs", dll_name)
-                finder.IncludeFiles(dll_path, os.path.join("lib", dll_name))
+                dll_path = Path(sys.base_prefix, "DLLs", dll_name)
+                finder.IncludeFiles(dll_path, Path("lib", dll_name))
 
 
 def load_twisted_conch_ssh_transport(
@@ -1501,7 +1497,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
         finder.IncludeFiles(
             tzdata.path[0],
             Path("lib", "tzdata"),
-            copy_dependent_files=False,
+            copy_dependent_files=False
         )
     else:
         finder.ZipIncludeFiles(tzdata.path[0], "tzdata")
