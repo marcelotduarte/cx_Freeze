@@ -7,6 +7,7 @@ from distutils.dist import DistributionMetadata
 from importlib.util import MAGIC_NUMBER
 import marshal
 import os
+from pathlib import Path
 import shutil
 import stat
 import struct
@@ -300,7 +301,7 @@ class Freezer(ABC):
                 print("P", end="")
             else:
                 print("m", end="")
-            print(" {:<25} {}\n".format(module.name, module.file or ""))
+            print(f" {module.name:<25} {(module.file or '')!s}\n")
 
     @staticmethod
     def _remove_version_numbers(filename):
@@ -464,14 +465,14 @@ class Freezer(ABC):
                 and module.file is not None
             ):
                 parts = module.name.split(".")
-                targetPackageDir = os.path.join(targetdir, *parts)
-                sourcePackageDir = os.path.dirname(module.file)
-                if not os.path.exists(targetPackageDir):
+                target_package_dir = Path(targetdir).joinpath(*parts)
+                source_package_dir = module.file.parent
+                if not target_package_dir.exists():
                     if self.silent < 1:
                         print("Copying data from package", module.name + "...")
                     shutil.copytree(
-                        sourcePackageDir,
-                        targetPackageDir,
+                        source_package_dir,
+                        target_package_dir,
                         ignore=ignorePatterns,
                     )
 
@@ -482,11 +483,11 @@ class Freezer(ABC):
                         if m.split(".")[0] == parts[0]
                     ]
                     for folder in excludedFolders:
-                        folderToRemove = os.path.join(targetPackageDir, folder)
-                        if os.path.isdir(folderToRemove):
+                        folder_to_remove = target_package_dir / folder
+                        if folder_to_remove.is_dir():
                             if self.silent < 1:
-                                print("Removing", folderToRemove + "...")
-                            shutil.rmtree(folderToRemove)
+                                print("Removing", folder_to_remove + "...")
+                            shutil.rmtree(folder_to_remove)
 
             # if an extension module is found in a package that is to be
             # included in a zip file, copy the actual file to the build
@@ -498,7 +499,7 @@ class Freezer(ABC):
                 and not include_in_file_system
             ):
                 parts = module.name.split(".")[:-1]
-                parts.append(os.path.basename(module.file))
+                parts.append(module.file.name)
                 target = os.path.join(targetdir, ".".join(parts))
                 filesToCopy.append((module, target))
 
@@ -506,8 +507,8 @@ class Freezer(ABC):
             # size; it is not actually used for anything except determining if
             # the file is up to date so we can safely set this value to zero
             if module.code is not None:
-                if module.file is not None and os.path.exists(module.file):
-                    st = os.stat(module.file)
+                if module.file is not None and module.file.exists():
+                    st = module.file.stat()
                     mtime = int(st.st_mtime)
                     size = st.st_size & 0xFFFFFFFF
                 else:
@@ -524,10 +525,10 @@ class Freezer(ABC):
                 parts = module.name.split(".")
                 if module.code is None:
                     parts.pop()
-                    parts.append(os.path.basename(module.file))
+                    parts.append(module.file.name)
                     target_name = os.path.join(targetdir, *parts)
                     self._copy_file(
-                        module.file, target_name, copy_dependent_files=True
+                        str(module.file), target_name, copy_dependent_files=True
                     )
                 else:
                     if module.path is not None:
@@ -582,7 +583,7 @@ class Freezer(ABC):
                 if module.parent is not None:
                     path = os.pathsep.join([origPath] + module.parent.path)
                     os.environ["PATH"] = path
-                self._copy_file(module.file, target, copy_dependent_files=True)
+                self._copy_file(str(module.file), target, copy_dependent_files=True)
             finally:
                 os.environ["PATH"] = origPath
 

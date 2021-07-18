@@ -288,11 +288,8 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
     The pythonnet package (imported as 'clr') needs Python.Runtime.dll
     in runtime.
     """
-    module_dir = os.path.dirname(module.file)
     dll_name = "Python.Runtime.dll"
-    finder.IncludeFiles(
-        os.path.join(module_dir, dll_name), os.path.join("lib", dll_name)
-    )
+    finder.IncludeFiles(module.file.parent / dll_name, Path("lib", dll_name))
 
 
 def load_cryptography_hazmat_bindings__openssl(
@@ -362,7 +359,7 @@ def pycryptodome_filename(dir_comps, filename):
     return os.path.join(root_lib, ".".join(dir_comps))
 """
     if not module.in_file_system and module.code is not None:
-        new_code = compile(PYCRYPTODOME_CODE_STR, module.file, "exec")
+        new_code = compile(PYCRYPTODOME_CODE_STR, str(module.file), "exec")
         co_func = new_code.co_consts[2]
         name = co_func.co_name
         code = module.code
@@ -610,7 +607,7 @@ def _get_data_path():
     return os.path.join(os.path.dirname(sys.executable), "{target_path}")
 """
     for code_str in [CODE_STR, CODE_STR.replace("_get_data_", "get_data_")]:
-        new_code = compile(code_str, module.file, "exec")
+        new_code = compile(code_str, str(module.file), "exec")
         co_func = new_code.co_consts[0]
         name = co_func.co_name
         code = module.code
@@ -942,8 +939,7 @@ def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
     # However, this hack will be used to workaround issues with anaconda and/or
     # with the use of zip_include_packages too.
     name = _qt_implementation(module)
-    with open(module.file) as fp:
-        code_string = fp.read()
+    code_string = module.file.read_text()
     code_string += f"""
 # cx_Freeze patch start
 import os, sys
@@ -960,7 +956,7 @@ if os.path.normcase(plugins_dir) not in library_paths:
     QCoreApplication.setLibraryPaths(library_paths)
 # cx_Freeze patch end
 """
-    module.code = compile(code_string, module.file, "exec")
+    module.code = compile(code_string, str(module.file), "exec")
 
 
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
@@ -1401,8 +1397,7 @@ def load_win32com(finder: ModuleFinder, module: Module) -> None:
     the sibling directory called win32comext; simulate that by changing the
     search path in a similar fashion here.
     """
-    base_dir = os.path.dirname(os.path.dirname(module.file))
-    module.path.append(os.path.join(base_dir, "win32comext"))
+    module.path.append(str(module.file.parent.parent / "win32comext"))
 
 
 def load_win32file(finder: ModuleFinder, module: Module) -> None:
@@ -1422,8 +1417,7 @@ def load_wx_lib_pubsub_core(finder: ModuleFinder, module: Module) -> None:
     that this only works if the import of wx.lib.pubsub.setupkwargs
     occurs first.
     """
-    dir_name = os.path.dirname(module.file)
-    module.path.insert(0, os.path.join(dir_name, "kwargs"))
+    module.path.insert(0, str(module.file.parent / "kwargs"))
 
 
 def load_Xlib_display(finder: ModuleFinder, module: Module) -> None:
