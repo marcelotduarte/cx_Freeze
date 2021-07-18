@@ -118,7 +118,7 @@ class ModuleFinder:
             ):
                 module.in_file_system = False
         if module.path is None and path is not None:
-            module.path = path
+            module.path = [Path(p) for p in path]
         if module.file is None and file_name is not None:
             module.file = file_name
         return module
@@ -353,7 +353,7 @@ class ModuleFinder:
     def _load_module(
         self,
         name: str,
-        path: Union[str, List[str]],
+        path: Union[str, List[str], List[Path]],
         deferred_imports: DeferredList,
         parent: Optional[Module] = None,
     ) -> Optional[Module]:
@@ -376,6 +376,7 @@ class ModuleFinder:
                 loader = None
         else:
             # Find modules to load
+            path = [str(p) for p in path]
             try:
                 # It's recommended to clear the caches first.
                 importlib.machinery.PathFinder.invalidate_caches()
