@@ -376,7 +376,8 @@ class ModuleFinder:
                 loader = None
         else:
             # Find modules to load
-            path = [str(p) for p in path]
+            if path:
+                path = [str(p) for p in path]
             try:
                 # It's recommended to clear the caches first.
                 importlib.machinery.PathFinder.invalidate_caches()
