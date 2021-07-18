@@ -507,21 +507,26 @@ class ModuleFinder:
         if code is None:
             code = module.code
         # Prepare the new filename.
-        new_filename = original_filename = os.path.normpath(code.co_filename)
+        original_filename = Path(code.co_filename)
         for search_value, replace_value in self.replace_paths:
             if search_value == "*":
                 if top_level_module.file is None:
                     continue
-                search_value = os.path.dirname(top_level_module.file)
                 if top_level_module.path:
-                    search_value = os.path.dirname(search_value)
-                if search_value:
-                    search_value = search_value + os.path.sep
-            if original_filename.startswith(search_value):
-                new_filename = (
-                    replace_value + original_filename[len(search_value) :]
-                )
+                    search_dir = top_level_module.file.parent.parent
+                else:
+                    search_dir = top_level_module.file.parent
+            else:
+                search_dir = Path(search_value)
+            try:
+                new_filename = original_filename.relative_to(search_dir)
+            except ValueError:
+                pass
+            else:
+                new_filename = replace_value / new_filename
                 break
+        else:
+            new_filename = original_filename
 
         # Run on subordinate code objects from function & class definitions.
         consts = list(code.co_consts)
@@ -532,7 +537,7 @@ class ModuleFinder:
                 )
 
         return code_object_replace(
-            code, co_consts=consts, co_filename=new_filename
+            code, co_consts=consts, co_filename=str(new_filename)
         )
 
     def _run_hook(self, hook: str, module_name: str, *args) -> None:
