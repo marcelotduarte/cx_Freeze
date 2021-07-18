@@ -11,7 +11,7 @@ import shutil
 import socket
 from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import importlib_metadata
 
@@ -70,17 +70,18 @@ class Module:
     """
     The Module class.
     """
+    _file: Optional[Path]
 
     def __init__(
         self,
         name: str,
-        path: Optional[str] = None,
-        file_name: Optional[str] = None,
+        path: Optional[List[Union[Path, str]]] = None,
+        file_name: Optional[Union[Path, str]] = None,
         parent: Optional["Module"] = None,
     ):
         self.name: str = name
-        self.path: Optional[str] = path
-        self.file: Optional[str] = file_name
+        self.path: Optional[str] = [str(p) for p in path] if path else None
+        self.file = file_name
         self.parent: Optional["Module"] = parent
         self.code: Optional[CodeType] = None
         self.distribution: Optional[DistributionCache] = None
@@ -92,6 +93,14 @@ class Module:
         self._in_file_system: bool = True
         # cache the dist-info files (metadata)
         self.update_distribution(name)
+
+    @property
+    def file(self) -> Optional[Path]:
+        return self._file
+
+    @file.setter
+    def file(self, file_name: Optional[Union[Path, str]]):
+        self._file = Path(file_name) if file_name else None
 
     def update_distribution(self, name: str) -> None:
         """Update the distribution cache based on its name.
@@ -126,10 +135,8 @@ class Module:
 
     @property
     def in_file_system(self) -> bool:
-        """
-        Returns a boolean indicating if the module will be stored in the
-        file system or not.
-        """
+        """Returns a boolean indicating if the module will be stored in the
+        file system or not."""
         if self.parent is not None:
             return self.parent.in_file_system
         if self.path is None or self.file is None:
@@ -188,11 +195,11 @@ class ConstantsModule:
                 continue
             if module.source_is_zip_file:
                 continue
-            if not os.path.exists(module.file):
+            if not module.file.exists():
                 raise ConfigError(
-                    f"No file named {module.file} (for module {module.name})"
+                    f"No file named {module.file!s} (for module {module.name})"
                 )
-            timestamp = os.stat(module.file).st_mtime
+            timestamp = module.file.stat().st_mtime
             source_timestamp = max(source_timestamp, timestamp)
         stamp = datetime.datetime.fromtimestamp(source_timestamp)
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
