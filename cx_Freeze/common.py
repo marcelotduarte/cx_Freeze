@@ -11,7 +11,9 @@ import warnings
 from .exception import ConfigError
 
 
-def get_resource_file_path(dirname: Union[str, Path], name: Union[str, Path], ext: str) -> Optional[Path]:
+def get_resource_file_path(
+    dirname: Union[str, Path], name: Union[str, Path], ext: str
+) -> Optional[Path]:
     """
     Return the path to a resource file shipped with cx_Freeze.
 
