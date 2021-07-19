@@ -171,24 +171,19 @@ class ModuleFinder:
         suffixes = importlib.machinery.all_suffixes()
 
         for path in module.path:
-            try:
-                filenames = os.listdir(path)
-            except OSError:
-                continue
-
-            for filename in filenames:
-                fullname = os.path.join(path, filename)
-                if os.path.isdir(fullname):
-                    init_file = os.path.join(fullname, "__init__.py")
-                    if not os.path.exists(init_file):
+            for fullname in path.iterdir():
+                if fullname.is_dir():
+                    init_file = fullname / "__init__.py"
+                    if not init_file.exists():
                         continue
-                    name = filename
+                    name = fullname.name
                 else:
                     # We need to run through these in order to correctly pick
-                    # up PEP 3149 library names (e.g. .cpython-32mu.so).
+                    # up PEP 3149 library names
+                    # (e.g. .cpython-39-x86_64-linux-gnu.so).
                     for suffix in suffixes:
-                        if filename.endswith(suffix):
-                            name = filename[: -len(suffix)]
+                        if fullname.name.endswith(suffix):
+                            name = fullname.name[: -len(suffix)]
 
                             # Skip modules whose names appear to contain '.',
                             # as we may be using the wrong suffix, and even if
