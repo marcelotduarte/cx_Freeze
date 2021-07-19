@@ -563,18 +563,16 @@ class Freezer(ABC):
                 outFile.write(name, name.as_posix()[pos:])
 
         # write any files to the zip file that were requested specially
-        for source_filename, target_filename in finder.zip_includes:
-            if os.path.isdir(source_filename):
-                for dirPath, _, filenames in os.walk(source_filename):
-                    basePath = dirPath[len(source_filename) :]
-                    targetPath = target_filename + basePath.replace("\\", "/")
-                    for name in filenames:
-                        outFile.write(
-                            os.path.join(dirPath, name),
-                            targetPath + "/" + name,
-                        )
+        for source_path, target_path in finder.zip_includes:
+            if source_path.is_dir():
+                pos = len(source_path.as_posix()) + 1
+                for source_filename in source_path.rglob("*"):
+                    if source_filename.is_dir():
+                        continue
+                    target = target_path / source_filename.as_posix()[pos:]
+                    outFile.write(source_filename, target)
             else:
-                outFile.write(source_filename, target_filename)
+                outFile.write(source_path, target_path.as_posix())
 
         outFile.close()
 
