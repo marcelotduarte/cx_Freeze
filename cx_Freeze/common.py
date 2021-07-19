@@ -3,6 +3,7 @@ This module contains utility functions shared between cx_Freeze modules.
 """
 
 import os.path
+from pathlib import Path
 import types
 from typing import List, Tuple, Optional, Union
 import warnings
@@ -10,22 +11,20 @@ import warnings
 from .exception import ConfigError
 
 
-def get_resource_file_path(dirname: str, name: str, ext: str) -> str:
+def get_resource_file_path(dirname: Union[str, Path], name: Union[str, Path], ext: str) -> Optional[Path]:
     """
     Return the path to a resource file shipped with cx_Freeze.
 
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
-    if os.path.isabs(name):
-        return name
-    name = os.path.normcase(name)
-    full_dir = os.path.join(os.path.dirname(__file__), dirname)
-    if os.path.isdir(full_dir):
-        for filename in os.listdir(full_dir):
-            base_name, base_ext = os.path.splitext(os.path.normcase(filename))
-            if name == base_name and ext == base_ext:
-                return os.path.join(full_dir, filename)
+    pname = Path(name)
+    if pname.is_absolute():
+        return pname
+    pname = Path(__file__).resolve().parent / dirname / pname.with_suffix(ext)
+    if pname.exists():
+        return pname
+    return None
 
 
 def normalize_to_list(
