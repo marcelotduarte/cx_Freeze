@@ -1081,9 +1081,7 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     pythoncom = __import__("pythoncom")
     filename = Path(pythoncom.__file__)
     finder.IncludeFiles(
-        filename,
-        Path("lib", filename.name),
-        copy_dependent_files=False
+        filename, Path("lib", filename.name), copy_dependent_files=False
     )
 
 
@@ -1125,9 +1123,7 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     pywintypes = __import__("pywintypes")
     filename = Path(pywintypes.__file__)
     finder.IncludeFiles(
-        filename,
-        Path("lib", filename.name),
-        copy_dependent_files=False
+        filename, Path("lib", filename.name), copy_dependent_files=False
     )
 
 
@@ -1495,9 +1491,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     tzdata.in_file_system = module.in_file_system
     if tzdata.in_file_system:
         finder.IncludeFiles(
-            tzdata.path[0],
-            Path("lib", "tzdata"),
-            copy_dependent_files=False
+            tzdata.path[0], Path("lib", "tzdata"), copy_dependent_files=False
         )
     else:
         finder.ZipIncludeFiles(tzdata.path[0], "tzdata")
