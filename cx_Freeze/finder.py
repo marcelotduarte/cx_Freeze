@@ -7,7 +7,7 @@ from importlib.abc import ExecutionLoader
 import importlib.machinery
 import logging
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import sys
 from types import CodeType
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -29,6 +29,8 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 DeferredList = List[Tuple[Module, Module, List[str]]]
+IncludesList = List[Tuple[Union[str, Path], Union[str, Path]]]
+ZipIncludesList = List[Tuple[Path, PurePosixPath]]
 
 __all__ = ["Module", "ModuleFinder"]
 
@@ -46,7 +48,7 @@ class ModuleFinder:
         zip_exclude_packages: Optional[List[str]] = None,
         zip_include_packages: Optional[List[str]] = None,
         constants_module=None,
-        zip_includes: Optional[List[Tuple[str, str]]] = None,
+        zip_includes: Optional[IncludesList] = None,
     ):
         self.include_files = include_files or []
         self.excludes = dict.fromkeys(excludes or [])
@@ -57,7 +59,10 @@ class ModuleFinder:
         self.zip_exclude_packages = zip_exclude_packages or []
         self.zip_include_packages = zip_include_packages or []
         self.constants_module = constants_module
-        self.zip_includes = zip_includes or []
+        self.zip_includes: ZipIncludesList = []
+        if zip_includes is not None:
+            for source_path, target_path in zip_includes:
+                self.ZipIncludeFiles(source_path, target_path)
         self.modules = []
         self.aliases = {}
         self.exclude_dependent_files = {}
@@ -717,9 +722,11 @@ class ModuleFinder:
         return previous
 
     def ZipIncludeFiles(
-        self, source_path: Union[Path, str], target_path: Union[Path, str]
+        self,
+        source_path: Union[str, Path],
+        target_path: Union[str, Path, PurePosixPath],
     ) -> None:
         """Include files or all of the files in a directory to the zip file."""
-        source_path = str(source_path)
-        target_path = str(target_path)
+        source_path = Path(source_path)
+        target_path = PurePosixPath(target_path)
         self.zip_includes.append((source_path, target_path))
