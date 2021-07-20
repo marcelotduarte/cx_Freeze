@@ -2,13 +2,17 @@
 This module contains utility functions shared between cx_Freeze modules.
 """
 
-import os.path
-from pathlib import Path
+from pathlib import Path, PurePath
 import types
 from typing import List, Tuple, Optional, Union
 import warnings
 
 from .exception import ConfigError
+
+IncludesList = List[
+    Union[str, Path, Tuple[Union[str, Path], Optional[Union[str, Path]]]]
+]
+InternalIncludesList = List[Tuple[Path, PurePath]]
 
 
 def get_resource_file_path(
@@ -46,9 +50,7 @@ def normalize_to_list(
     return normalized_value
 
 
-def process_path_specs(
-    specs: Optional[List[Union[str, Tuple[str, str]]]]
-) -> List[Tuple[str, str]]:
+def process_path_specs(specs: Optional[IncludesList]) -> InternalIncludesList:
     """
     Prepare paths specified as config.
 
@@ -61,24 +63,23 @@ def process_path_specs(
     """
     if specs is None:
         specs = []
-    processed_specs: List[Tuple[str, str]] = []
+    processed_specs: InternalIncludesList = []
     for spec in specs:
         if not isinstance(spec, (list, tuple)):
             source = spec
             target = None
         elif len(spec) != 2:
-            raise ConfigError(
-                "path spec must be a list or tuple of length two"
-            )
+            error = "path spec must be a list or tuple of length two"
+            raise ConfigError(error)
         else:
             source, target = spec
-        source = os.path.normpath(source)
-        if not target:
-            target = os.path.basename(source)
-        elif os.path.isabs(target):
-            raise ConfigError(
-                "target path for include file may not be an absolute path"
-            )
+        source = Path(source)
+        if not source.exists():
+            raise ConfigError(f"cannot find file/directory named {source!s}")
+        target = PurePath(target or source.name)
+        if target.is_absolute():
+            error = f"target path named {target!s} cannot be absolute"
+            raise ConfigError(error)
         processed_specs.append((source, target))
     return processed_specs
 

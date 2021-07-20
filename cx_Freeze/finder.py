@@ -7,14 +7,15 @@ from importlib.abc import ExecutionLoader
 import importlib.machinery
 import logging
 import os
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePath
 import sys
 from types import CodeType
 from typing import Any, Dict, List, Optional, Tuple, Union
 import opcode
 
-from .common import code_object_replace
-from .module import Module
+from .common import code_object_replace, process_path_specs
+from .common import IncludesList, InternalIncludesList
+from .module import ConstantsModule, Module
 
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
@@ -29,8 +30,6 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 DeferredList = List[Tuple[Module, Module, List[str]]]
-IncludesList = List[Tuple[Union[str, Path], Union[str, Path]]]
-ZipIncludesList = List[Tuple[Path, PurePosixPath]]
 
 __all__ = ["Module", "ModuleFinder"]
 
@@ -40,17 +39,19 @@ class ModuleFinder:
 
     def __init__(
         self,
-        include_files: Optional[List[Tuple[str, str]]] = None,
+        include_files: Optional[IncludesList] = None,
         excludes: Optional[List[str]] = None,
-        path: Optional[str] = None,
-        replace_paths: Optional[List[str]] = None,
+        path: Optional[List[str]] = None,
+        replace_paths: Optional[List[Tuple[str, str]]] = None,
         zip_include_all_packages: bool = False,
         zip_exclude_packages: Optional[List[str]] = None,
         zip_include_packages: Optional[List[str]] = None,
-        constants_module=None,
+        constants_module: Optional[ConstantsModule] = None,
         zip_includes: Optional[IncludesList] = None,
     ):
-        self.include_files = include_files or []
+        self.include_files: InternalIncludesList = process_path_specs(
+            include_files
+        )
         self.excludes = dict.fromkeys(excludes or [])
         self.optimize_flag = 0
         self.path = path or sys.path
@@ -59,10 +60,9 @@ class ModuleFinder:
         self.zip_exclude_packages = zip_exclude_packages or []
         self.zip_include_packages = zip_include_packages or []
         self.constants_module = constants_module
-        self.zip_includes: ZipIncludesList = []
-        if zip_includes is not None:
-            for source_path, target_path in zip_includes:
-                self.ZipIncludeFiles(source_path, target_path)
+        self.zip_includes: InternalIncludesList = process_path_specs(
+            zip_includes
+        )
         self.modules = []
         self.aliases = {}
         self.exclude_dependent_files = {}
@@ -666,9 +666,9 @@ class ModuleFinder:
         copy_dependent_files: bool = True,
     ) -> None:
         """Include the files in the given directory in the target build."""
-        source_path = str(source_path)
-        target_path = str(target_path)
-        self.include_files.append((source_path, target_path))
+        self.include_files.extend(
+            process_path_specs([(source_path, target_path)])
+        )
         if not copy_dependent_files:
             self.ExcludeDependentFiles(source_path)
 
@@ -724,9 +724,9 @@ class ModuleFinder:
     def ZipIncludeFiles(
         self,
         source_path: Union[str, Path],
-        target_path: Union[str, Path, PurePosixPath],
+        target_path: Optional[Union[str, Path, PurePath]],
     ) -> None:
         """Include files or all of the files in a directory to the zip file."""
-        source_path = Path(source_path)
-        target_path = PurePosixPath(target_path)
-        self.zip_includes.append((source_path, target_path))
+        self.zip_includes.extend(
+            process_path_specs([(source_path, target_path)])
+        )

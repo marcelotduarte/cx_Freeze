@@ -613,7 +613,7 @@ class Freezer(ABC):
                 # Copy directories by recursing into them.
                 # Can't use shutil.copytree because we may need dependencies
                 for path, dirnames, filenames in os.walk(source_filename):
-                    short_path = path[len(source_filename) + 1 :]
+                    short_path = path[len(str(source_filename)) + 1 :]
                     if ".svn" in dirnames:
                         dirnames.remove(".svn")
                     if "CVS" in dirnames:
