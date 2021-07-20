@@ -65,7 +65,7 @@ class Freezer(ABC):
         compress: bool = True,
         optimizeFlag: int = 0,
         path: Optional[List[str]] = None,
-        targetDir: Optional[str] = None,
+        targetDir: Optional[Union[str, Path]] = None,
         binIncludes: Optional[List] = None,
         binExcludes: Optional[List] = None,
         binPathIncludes: Optional[List] = None,
@@ -88,7 +88,7 @@ class Freezer(ABC):
         self.optimize_flag = optimizeFlag
         self.path = path
         self.include_msvcr = includeMSVCR
-        self.targetdir: Path = Path(targetDir) if targetDir else None
+        self.targetdir = targetDir
         self.binIncludes = binIncludes
         self.binExcludes = binExcludes
         self.binPathIncludes = binPathIncludes
@@ -110,6 +110,29 @@ class Freezer(ABC):
         self.zipIncludePackages = zipIncludePackages
         self.zipExcludePackages = zipExcludePackages
         self._verify_configuration()
+
+    @property
+    def targetdir(self) -> Path:
+        return self._targetdir
+
+    @targetdir.setter
+    def targetdir(self, path: Optional[Union[str, Path]]):
+        if path is None:
+            platform = sysconfig.get_platform()
+            python_version = sysconfig.get_python_version()
+            dir_name = f"exe.{platform}-{python_version}"
+            path = Path("build", dir_name).resolve()
+        else:
+            path = Path(path)
+        if path.is_dir():
+            # starts in a clean directory
+
+            def onerror(*args):
+                raise ConfigError("the build directory cannot be cleaned")
+
+            shutil.rmtree(path, onerror=onerror)
+
+        self._targetdir = path
 
     def _add_resources(self, exe: Executable) -> None:
         """Add resources for an executable, platform dependent."""
@@ -179,7 +202,7 @@ class Freezer(ABC):
         if isinstance(path, str):
             path = Path(path)
         if not path.is_dir():
-            if (self.silent < 1):
+            if self.silent < 1:
                 print(f"creating directory {path!s}")
             path.mkdir(parents=True, exist_ok=True)
 
@@ -300,6 +323,9 @@ class Freezer(ABC):
             finder.IncludePackage(name)
         return finder
 
+    def _post_freeze_hook(self):
+        return
+
     def _print_report(self, filename: Path, modules: List[Module]) -> None:
         print(f"writing zip file {filename!s}\n")
         print("  {:<25} {}".format("Name", "File"))
@@ -312,7 +338,7 @@ class Freezer(ABC):
             print(f" {module.name:<25} {(module.file or '')!s}")
 
     @staticmethod
-    def _remove_version_numbers(filename):
+    def _remove_version_numbers(filename: str):
         tweaked = False
         parts = filename.split(".")
         while parts:
@@ -368,19 +394,6 @@ class Freezer(ABC):
         return True
 
     def _verify_configuration(self):
-        # starts in a clean directory
-        if self.targetdir is None:
-            platform = sysconfig.get_platform()
-            python_version = sysconfig.get_python_version()
-            dir_name = f"exe.{platform}-{python_version}"
-            self.targetdir = Path("build", dir_name).resolve()
-        if self.targetdir.is_dir():
-
-            def onerror(*args):
-                raise ConfigError("the build directory cannot be cleaned")
-
-            shutil.rmtree(self.targetdir, onerror=onerror)
-
         # verify and normalize names and paths
         filenames = list(self.binIncludes or [])
         filenames += self._default_bin_includes()
@@ -636,9 +649,6 @@ class Freezer(ABC):
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
-
-    def _post_freeze_hook(self):
-        return
 
 
 class WinFreezer(Freezer):
