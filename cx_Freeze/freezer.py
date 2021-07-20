@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Set, Tuple, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
+from .common import IncludesList, InternalIncludesList
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
@@ -69,8 +70,8 @@ class Freezer(ABC):
         binExcludes: Optional[List] = None,
         binPathIncludes: Optional[List] = None,
         binPathExcludes: Optional[List] = None,
-        includeFiles: Optional[List] = None,
-        zipIncludes: Optional[List] = None,
+        includeFiles: Optional[IncludesList] = None,
+        zipIncludes: Optional[IncludesList] = None,
         silent: Union[bool, int] = 0,
         metadata: Optional[DistributionMetadata] = None,
         includeMSVCR: bool = False,
@@ -92,8 +93,12 @@ class Freezer(ABC):
         self.binExcludes = binExcludes
         self.binPathIncludes = binPathIncludes
         self.binPathExcludes = binPathExcludes
-        self.includeFiles = process_path_specs(includeFiles)
-        self.zipIncludes = process_path_specs(zipIncludes)
+        self.include_files: InternalIncludesList = process_path_specs(
+            includeFiles
+        )
+        self.zip_includes: InternalIncludesList = process_path_specs(
+            zipIncludes
+        )
         if isinstance(silent, bool):
             if silent:
                 self.silent = 1
@@ -275,7 +280,7 @@ class Freezer(ABC):
 
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
-            self.includeFiles,
+            self.include_files,
             self.excludes,
             self.path,
             self.replacePaths,
@@ -283,7 +288,7 @@ class Freezer(ABC):
             self.zipExcludePackages,
             self.zipIncludePackages,
             self.constants_module,
-            self.zipIncludes,
+            self.zip_includes,
         )
         finder.SetOptimizeFlag(self.optimize_flag)
         for name in self.includes:
@@ -393,12 +398,6 @@ class Freezer(ABC):
         self.binPathExcludes = [
             os.path.normcase(name) for name in paths if os.path.isdir(name)
         ]
-
-        for source, target in self.includeFiles + self.zipIncludes:
-            if not os.path.exists(source):
-                raise ConfigError(f"cannot find file/directory named {source}")
-            if os.path.isabs(target):
-                raise ConfigError("target file/directory cannot be absolute")
 
         if self.zipIncludePackages is None and self.zipExcludePackages is None:
             self.zipIncludePackages = []
@@ -596,7 +595,8 @@ class Freezer(ABC):
         self.files_copied = set()
         self.linkerWarnings = {}
 
-        self.finder: ModuleFinder = self._get_module_finder()
+        finder: ModuleFinder = self._get_module_finder()
+        self.finder: ModuleFinder = finder
 
         # Add the executables to target
         for executable in self.executables:
@@ -606,33 +606,30 @@ class Freezer(ABC):
         targetdir = self.targetdir
         ziptargetdir = os.path.join(targetdir, "lib")
         filename = os.path.join(ziptargetdir, "library.zip")
-        self._write_modules(filename, self.finder)
+        self._write_modules(filename, finder)
 
-        for source_filename, target_filename in self.finder.include_files:
-            if os.path.isdir(source_filename):
+        for source_path, target_path in finder.include_files:
+            if source_path.is_dir():
                 # Copy directories by recursing into them.
                 # Can't use shutil.copytree because we may need dependencies
-                for path, dirnames, filenames in os.walk(source_filename):
-                    short_path = path[len(str(source_filename)) + 1 :]
-                    if ".svn" in dirnames:
-                        dirnames.remove(".svn")
-                    if "CVS" in dirnames:
-                        dirnames.remove("CVS")
-                    fulltargetdir = os.path.join(
-                        targetdir, target_filename, short_path
+                target_base = targetdir / target_path
+                for name in source_path.rglob("*"):
+                    if name.is_dir():
+                        continue
+                    if ".svn" in name.parents:
+                        continue
+                    if "CVS" in name.parents:
+                        continue
+                    fulltarget = target_base / name.relative_to(source_path)
+                    self._create_directory(str(fulltarget.parent))
+                    self._copy_file(
+                        name, fulltarget, copy_dependent_files=True
                     )
-                    self._create_directory(fulltargetdir)
-                    for filename in filenames:
-                        source_path = os.path.join(path, filename)
-                        target_path = os.path.join(fulltargetdir, filename)
-                        self._copy_file(
-                            source_path, target_path, copy_dependent_files=True
-                        )
             else:
                 # Copy regular files.
-                fullname = os.path.join(targetdir, target_filename)
+                fulltarget = targetdir / target_path
                 self._copy_file(
-                    source_filename, fullname, copy_dependent_files=True
+                    source_path, fulltarget, copy_dependent_files=True
                 )
 
         # do any platform-specific post-Freeze work
