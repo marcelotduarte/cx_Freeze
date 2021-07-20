@@ -22,7 +22,7 @@ from .common import IncludesList, InternalIncludesList
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
-from .module import ConstantsModule
+from .module import ConstantsModule, Module
 
 if sys.platform == "win32":
     from . import winmsvcr
@@ -88,7 +88,7 @@ class Freezer(ABC):
         self.optimize_flag = optimizeFlag
         self.path = path
         self.include_msvcr = includeMSVCR
-        self.targetdir = targetDir
+        self.targetdir: Path = Path(targetDir) if targetDir else None
         self.binIncludes = binIncludes
         self.binExcludes = binExcludes
         self.binPathIncludes = binPathIncludes
@@ -175,10 +175,13 @@ class Freezer(ABC):
     ):
         return
 
-    def _create_directory(self, path: str):
-        if (self.silent < 1) and not os.path.isdir(path):
-            print("creating directory %s" % path)
-        os.makedirs(path, exist_ok=True)
+    def _create_directory(self, path: Union[str, Path]):
+        if isinstance(path, str):
+            path = Path(path)
+        if not path.is_dir():
+            if (self.silent < 1):
+                print(f"creating directory {path!s}")
+            path.mkdir(parents=True, exist_ok=True)
 
     def _freeze_executable(self, exe: Executable):
         finder: ModuleFinder = self.finder
@@ -297,8 +300,8 @@ class Freezer(ABC):
             finder.IncludePackage(name)
         return finder
 
-    def _print_report(self, filename, modules):
-        print("writing zip file %s\n" % filename)
+    def _print_report(self, filename: Path, modules: List[Module]) -> None:
+        print(f"writing zip file {filename!s}\n")
         print("  {:<25} {}".format("Name", "File"))
         print("  {:<25} {}".format("----", "----"))
         for module in modules:
@@ -306,7 +309,7 @@ class Freezer(ABC):
                 print("P", end="")
             else:
                 print("m", end="")
-            print(f" {module.name:<25} {(module.file or '')!s}\n")
+            print(f" {module.name:<25} {(module.file or '')!s}")
 
     @staticmethod
     def _remove_version_numbers(filename):
@@ -370,8 +373,8 @@ class Freezer(ABC):
             platform = sysconfig.get_platform()
             python_version = sysconfig.get_python_version()
             dir_name = f"exe.{platform}-{python_version}"
-            self.targetdir = os.path.abspath(os.path.join("build", dir_name))
-        if os.path.isdir(self.targetdir):
+            self.targetdir = Path("build", dir_name).resolve()
+        if self.targetdir.is_dir():
 
             def onerror(*args):
                 raise ConfigError("the build directory cannot be cleaned")
@@ -419,7 +422,7 @@ class Freezer(ABC):
                     "excluded from zip file"
                 )
 
-    def _write_modules(self, filename, finder):
+    def _write_modules(self, filename: Path, finder: ModuleFinder):
         finder.IncludeFile(*self.constants_module.create(finder.modules))
 
         modules = [m for m in finder.modules if m.name not in finder.excludes]
@@ -430,8 +433,8 @@ class Freezer(ABC):
         if self.silent < 2:
             finder.ReportMissingModules()
 
-        targetdir = os.path.dirname(filename)
-        self._create_directory(targetdir)
+        target_lib_dir = filename.parent
+        self._create_directory(target_lib_dir)
 
         # Prepare zip file
         if self.compress:
@@ -464,7 +467,7 @@ class Freezer(ABC):
                 and module.file is not None
             ):
                 parts = module.name.split(".")
-                target_package_dir = Path(targetdir).joinpath(*parts)
+                target_package_dir = target_lib_dir.joinpath(*parts)
                 source_package_dir = module.file.parent
                 if not target_package_dir.exists():
                     if self.silent < 1:
@@ -499,7 +502,7 @@ class Freezer(ABC):
             ):
                 parts = module.name.split(".")[:-1]
                 parts.append(module.file.name)
-                target = os.path.join(targetdir, ".".join(parts))
+                target = str(target_lib_dir / ".".join(parts))
                 filesToCopy.append((module, target))
 
             # starting with Python 3.3 the pyc file format contains the source
@@ -525,7 +528,7 @@ class Freezer(ABC):
                 if module.code is None:
                     parts.pop()
                     parts.append(module.file.name)
-                    target_name = os.path.join(targetdir, *parts)
+                    target_name = str(target_lib_dir.joinpath(*parts))
                     self._copy_file(
                         str(module.file),
                         target_name,
@@ -534,17 +537,17 @@ class Freezer(ABC):
                 else:
                     if module.path is not None:
                         parts.append("__init__")
-                    target_name = os.path.join(targetdir, *parts) + ".pyc"
-                    with open(target_name, "wb") as fp:
-                        fp.write(data)
+                    target_name = target_lib_dir.joinpath(*parts)
+                    target_name = target_name.with_suffix(".pyc")
+                    target_name.write_bytes(data)
 
             # otherwise, write to the zip file
             elif module.code is not None:
                 zipTime = time.localtime(mtime)[:6]
-                filename = "/".join(module.name.split("."))
+                target_name = "/".join(module.name.split("."))
                 if module.path:
-                    filename += "/__init__"
-                zinfo = zipfile.ZipInfo(filename + ".pyc", zipTime)
+                    target_name += "/__init__"
+                zinfo = zipfile.ZipInfo(target_name + ".pyc", zipTime)
                 zinfo.compress_type = compress_type
                 outFile.writestr(zinfo, data)
 
@@ -604,9 +607,8 @@ class Freezer(ABC):
 
         # Write the modules
         targetdir = self.targetdir
-        ziptargetdir = os.path.join(targetdir, "lib")
-        filename = os.path.join(ziptargetdir, "library.zip")
-        self._write_modules(filename, finder)
+        library_zip = targetdir / "lib" / "library.zip"
+        self._write_modules(library_zip, finder)
 
         for source_path, target_path in finder.include_files:
             if source_path.is_dir():
@@ -621,7 +623,7 @@ class Freezer(ABC):
                     if "CVS" in name.parents:
                         continue
                     fulltarget = target_base / name.relative_to(source_path)
-                    self._create_directory(str(fulltarget.parent))
+                    self._create_directory(fulltarget.parent)
                     self._copy_file(
                         name, fulltarget, copy_dependent_files=True
                     )
@@ -649,7 +651,7 @@ class WinFreezer(Freezer):
         self._set_runtime_files()
 
     def _add_resources(self, exe: Executable) -> None:
-        target_path: str = os.path.join(self.targetdir, exe.target_name)
+        target_path: str = str(self.targetdir / exe.target_name)
 
         # Add version resource
         if self.metadata is not None:
@@ -1046,7 +1048,7 @@ class LinuxFreezer(Freezer):
         ):
             targetdir = os.path.dirname(target)
             source_dir = os.path.dirname(source)
-            library_dir = os.path.join(self.targetdir, "lib")
+            library_dir = str(self.targetdir / "lib")
             fix_rpath = set()
             for dependent_file in self._get_dependent_files(source):
                 if not self._should_copy_file(dependent_file):
