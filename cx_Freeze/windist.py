@@ -120,7 +120,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                     [
                         (
                             "S_APP_%s" % index,
-                            executable.shortcut_dir,
+                            str(executable.shortcut_dir),
                             executable.shortcut_name,
                             "TARGETDIR",
                             "[TARGETDIR]%s" % baseName,

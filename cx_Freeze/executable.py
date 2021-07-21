@@ -24,22 +24,15 @@ class Executable:
     Base Executable class.
     """
 
-    _base: Path
-    _init_script: Path
-    _main_script: Path
-    _internal_name: str
-    _name: str
-    _ext: str
-
     def __init__(
         self,
         script: Union[str, Path],
         init_script: Optional[Union[str, Path]] = None,
         base: Optional[Union[str, Path]] = None,
         target_name: Optional[str] = None,
-        icon: Optional[str] = None,
+        icon: Optional[Union[str, Path]] = None,
         shortcut_name: Optional[str] = None,
-        shortcut_dir: Optional[str] = None,
+        shortcut_dir: Optional[Union[str, Path]] = None,
         copyright: Optional[str] = None,
         trademarks: Optional[str] = None,
         *,
@@ -86,10 +79,26 @@ class Executable:
         platform_nodot = sysconfig.get_platform().replace(".", "")
         name_plat = f"{name}-cp{py_version_nodot}-{platform_nodot}"
         exe_extension = ".exe" if sys.platform == "win32" else ""
-        self._base = get_resource_file_path("bases", name_plat, exe_extension)
+        self._base: Path = get_resource_file_path(
+            "bases", name_plat, exe_extension
+        )
         if self._base is None:
             raise ConfigError(f"no base named {name!r}")
-        self._ext = exe_extension
+        self._ext: str = exe_extension
+
+    @property
+    def icon(self) -> str:
+        """
+
+        :return: the path of the icon
+        :rtype: Path
+
+        """
+        return self._icon
+
+    @icon.setter
+    def icon(self, name: Optional[Union[str, Path]]):
+        self._icon: Path = Path(name) if name else None
 
     @property
     def init_module_name(self) -> str:
@@ -114,7 +123,9 @@ class Executable:
     @init_script.setter
     def init_script(self, name: Optional[Union[str, Path]]):
         name = name or "Console"
-        self._init_script = get_resource_file_path("initscripts", name, ".py")
+        self._init_script: Path = get_resource_file_path(
+            "initscripts", name, ".py"
+        )
         if self._init_script is None:
             raise ConfigError(f"no init_script named {name}")
 
@@ -131,8 +142,8 @@ class Executable:
     @property
     def main_script(self) -> Path:
         """
-        :return: the name of the main script that will be executed
-        after the init script
+        :return: the path of the file containing the script which is to be
+        frozen
         :rtype: Path
 
         """
@@ -140,7 +151,36 @@ class Executable:
 
     @main_script.setter
     def main_script(self, name: Union[str, Path]):
-        self._main_script = Path(name)
+        self._main_script: Path = Path(name)
+
+    @property
+    def shortcut_name(self) -> str:
+        """
+        :return: the name to give a shortcut for the executable when included
+        in an MSI package (Windows only).
+        :rtype: str
+
+        """
+        return self._shortcut_name
+
+    @shortcut_name.setter
+    def shortcut_name(self, name: str):
+        self._shortcut_name: str = name
+
+    @property
+    def shortcut_dir(self) -> Path:
+        """
+        :return: tthe directory in which to place the shortcut when being
+        installed by an MSI package; see the MSI Shortcut table documentation
+        for more information on what values can be placed here (Windows only).
+        :rtype: Path
+
+        """
+        return self._shortcut_dir
+
+    @shortcut_dir.setter
+    def shortcut_dir(self, name: Union[str, Path]):
+        self._shortcut_dir: Path = Path(name) if name else None
 
     @property
     def target_name(self) -> str:
@@ -165,7 +205,7 @@ class Executable:
                 )
             if sys.platform == "win32" and pathname.suffix.lower() == ".exe":
                 name = pathname.stem
-        self._name = name
+        self._name: str = name
         name = name.partition(".")[0]
         if not name.isidentifier():
             for invalid in STRINGREPLACE:
@@ -173,4 +213,4 @@ class Executable:
         name = os.path.normcase(name)
         if not name.isidentifier():
             raise ConfigError(f"Invalid name for target_name ({self._name!r})")
-        self._internal_name = name
+        self._internal_name: str = name
