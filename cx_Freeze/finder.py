@@ -10,7 +10,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 from types import CodeType
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import opcode
 
 from .common import code_object_replace, process_path_specs
@@ -65,7 +65,7 @@ class ModuleFinder:
         )
         self.modules = []
         self.aliases = {}
-        self.exclude_dependent_files = {}
+        self.exclude_dependent_files: Set[Path] = set()
         self._modules: Dict[str, Any] = dict.fromkeys(excludes or [])
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
@@ -635,7 +635,7 @@ class ModuleFinder:
         self.constants_module.values[name] = value
 
     def ExcludeDependentFiles(self, filename: Union[Path, str]) -> None:
-        self.exclude_dependent_files[str(filename)] = None
+        self.exclude_dependent_files.add(Path(filename))
 
     def ExcludeModule(self, name: str) -> None:
         """
