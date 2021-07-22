@@ -14,7 +14,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import Any, Dict, List, Set, Tuple, Optional, Union
+from typing import Dict, List, Set, Tuple, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
@@ -139,7 +139,7 @@ class Freezer(ABC):
         # Copy icon into application. (Overridden on Windows)
         if exe.icon is None:
             return
-        target_icon = self.targetdir / os.path.basename(exe.icon)
+        target_icon = self.targetdir / exe.icon.name
         self._copy_file(exe.icon, target_icon, copy_dependent_files=False)
 
     def _copy_file(
@@ -211,7 +211,7 @@ class Freezer(ABC):
         if not dependent_files:
             dependent_files.update(self._get_dependent_files(sys.executable))
         python_libs = tuple(self._default_bin_includes())
-        python_dirs = {Path(sys.base_exec_prefix), Path(sys.exec_prefix)}  # Win
+        python_dirs = {Path(sys.base_exec_prefix), Path(sys.exec_prefix)}
         python_dirs.add(Path(sysconfig.get_config_var("srcdir")))  # Linux
         for file in dependent_files:
             python_dirs.add(file.parent)
@@ -403,11 +403,15 @@ class Freezer(ABC):
 
         paths = list(self.bin_path_includes or [])
         paths += self._default_bin_path_includes()
-        self.bin_path_includes = [name for name in paths if Path(name).is_dir()]
+        self.bin_path_includes = [
+            name for name in paths if Path(name).is_dir()
+        ]
 
         paths = list(self.bin_path_excludes or [])
         paths += self._default_bin_path_excludes()
-        self.bin_path_excludes = [name for name in paths if Path(name).is_dir()]
+        self.bin_path_excludes = [
+            name for name in paths if Path(name).is_dir()
+        ]
 
         if self.zipIncludePackages is None and self.zipExcludePackages is None:
             self.zipIncludePackages = []
