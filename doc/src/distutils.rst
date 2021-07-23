@@ -211,44 +211,47 @@ This is the equivalent help to specify the same options on the command line:
 
     python setup.py build_exe --help
     Options for 'build_exe' command:
-    --build-exe (-b)        directory for built executables
+    --build-exe (-b)        directory for built executables and dependent files
     --optimize (-O)         optimization level: -O1 for "python -O", -O2 for
                             "python -OO" and -O0 to disable [default: -O0]
     --excludes (-e)         comma-separated list of modules to exclude
     --includes (-i)         comma-separated list of modules to include
-    --packages (-p)         comma-separated list of packages to include
+    --packages (-p)         comma-separated list of packages to include, which
+                            includes all submodules in the package
     --namespace-packages    [DEPRECATED]
     --replace-paths         comma-separated list of paths to replace in included
-                            modules
+                            modules, using the form <search>=<replace>
     --path                  comma-separated list of paths to search
     --no-compress           create a zipfile with no compression
     --constants             comma-separated list of constants to include
+    --bin-includes          list of files to include when determining
+                            dependencies of binary files that would normally be
+                            excluded
+    --bin-excludes          list of files to exclude when determining
+                            dependencies of binary files that would normally be
+                            included
+    --bin-path-includes     list of paths from which to include files when
+                            determining dependencies of binary files
+    --bin-path-excludes     list of paths from which to exclude files when
+                            determining dependencies of binary files
     --include-files (-f)    list of tuples of additional files to include in
                             distribution
-    --include-msvcr         include the Microsoft Visual C runtime files
     --zip-includes          list of tuples of additional files to include in zip
                             file
-      --bin-includes          list of names of files to include when determining
-                              dependencies of binary files
-      --bin-excludes          list of names of files to exclude when determining
-                              dependencies of binary files
-      --bin-path-includes     list of paths from which to include files when
-                              determining dependencies of binary files
-      --bin-path-excludes     list of paths from which to exclude files when
-                              determining dependencies of binary files
-      --zip-include-packages  comma-separated list of packages to include in the
-                              zip file (or * for all) [default: none]
-      --zip-exclude-packages  comma-separated list of packages to exclude from the
-                              zip file and place in the file system instead (or *
-                              for all) [default: *]
-      --silent (-s)           suppress all output except warnings (equivalent to
-                              --silent-level=1)
-      --silent-level          suppress output from build_exe command. level 0: get
-                              all messages; [default] level 1: suppress
-                              information messages, but still get warnings;
-                              (equivalent to --silent) level 2: suppress missing
-                              missing-module warnings level 3: suppress all
-                              warning messages
+    --zip-include-packages  comma-separated list of packages to include in the
+                            zip file (or * for all) [default: none]
+    --zip-exclude-packages  comma-separated list of packages to exclude from the
+                            zip file and place in the file system instead (or *
+                            for all) [default: *]
+    --silent (-s)           suppress all output except warnings (equivalent to
+                            --silent-level=1)
+    --silent-level          suppress output from build_exe command. level 0: get
+                            all messages; [default] level 1: suppress
+                            information messages, but still get warnings;
+                            (equivalent to --silent) level 2: suppress missing
+                            missing-module warnings level 3: suppress all
+                            warning messages
+    --include-msvcr         include the Microsoft Visual C runtime files
 
 install
 ```````
