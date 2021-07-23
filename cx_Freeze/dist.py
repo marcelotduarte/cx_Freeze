@@ -76,7 +76,11 @@ class build(distutils.command.build.build):
 class build_exe(distutils.core.Command):
     description = "build executables from Python scripts"
     user_options = [
-        ("build-exe=", "b", "directory for built executables"),
+        (
+            "build-exe=",
+            "b",
+            "directory for built executables and dependent files",
+        ),
         (
             "optimize=",
             "O",
@@ -85,42 +89,33 @@ class build_exe(distutils.core.Command):
         ),
         ("excludes=", "e", "comma-separated list of modules to exclude"),
         ("includes=", "i", "comma-separated list of modules to include"),
-        ("packages=", "p", "comma-separated list of packages to include"),
+        (
+            "packages=",
+            "p",
+            "comma-separated list of packages to include, "
+            "which includes all submodules in the package",
+        ),
         ("namespace-packages=", None, "[DEPRECATED]"),
         (
             "replace-paths=",
             None,
-            "comma-separated list of paths to replace in included modules",
+            "comma-separated list of paths to replace in included modules, "
+            "using the form <search>=<replace>",
         ),
         ("path=", None, "comma-separated list of paths to search"),
         ("no-compress", None, "create a zipfile with no compression"),
         ("constants=", None, "comma-separated list of constants to include"),
         (
-            "include-files=",
-            "f",
-            "list of tuples of additional files to include in distribution",
-        ),
-        (
-            "include-msvcr=",
-            None,
-            "include the Microsoft Visual C runtime files",
-        ),
-        (
-            "zip-includes=",
-            None,
-            "list of tuples of additional files to include in zip file",
-        ),
-        (
             "bin-includes",
             None,
-            "list of names of files to include when determining "
-            "dependencies of binary files",
+            "list of files to include when determining "
+            "dependencies of binary files that would normally be excluded",
         ),
         (
             "bin-excludes",
             None,
-            "list of names of files to exclude when determining "
-            "dependencies of binary files",
+            "list of files to exclude when determining "
+            "dependencies of binary files that would normally be included",
         ),
         (
             "bin-path-includes",
@@ -133,6 +128,16 @@ class build_exe(distutils.core.Command):
             None,
             "list of paths from which to exclude files when determining "
             "dependencies of binary files",
+        ),
+        (
+            "include-files=",
+            "f",
+            "list of tuples of additional files to include in distribution",
+        ),
+        (
+            "zip-includes=",
+            None,
+            "list of tuples of additional files to include in zip file",
         ),
         (
             "zip-include-packages=",
@@ -162,6 +167,11 @@ class build_exe(distutils.core.Command):
             " (equivalent to --silent)"
             " level 2: suppress missing missing-module warnings"
             " level 3: suppress all warning messages",
+        ),
+        (
+            "include-msvcr=",
+            None,
+            "include the Microsoft Visual C runtime files",
         ),
     ]
     boolean_options = ["no-compress", "include_msvcr", "silent"]

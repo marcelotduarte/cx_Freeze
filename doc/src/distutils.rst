@@ -128,37 +128,25 @@ It can be further customized:
    * - .. option:: optimize
      - optimization level, one of 0 (disabled), 1 or 2
    * - .. option:: excludes
-     - comma separated list of names of modules to exclude
+     - comma-separated list of names of modules to exclude
    * - .. option:: includes
-     - comma separated list of names of modules to include
+     - comma-separated list of names of modules to include
    * - .. option:: packages
-     - comma separated list of packages to include, which includes all
+     - comma-separated list of packages to include, which includes all
        submodules in the package
    * - .. option:: replace_paths
-     - Modify filenames attached to code objects, which appear in tracebacks.
-       Pass a comma separated list of paths in the form <search>=<replace>.
-       The value * in the search portion will match the directory containing
-       the entire package, leaving just the relative path to the module.
+     - comma-separated list of paths to replace in the code object of
+       included modules, using the form <search>=<replace>; search can be *
+       which means all paths not already specified, leaving just the
+       relative path to the module; multiple values are separated by the
+       standard path separator
    * - .. option:: path
-     - comma separated list of paths to search; the default value is sys.path
+     - comma-separated list of paths to search; the default value is sys.path
    * - .. option:: no_compress
      - create a zipfile with no compression
    * - .. option:: constants
-     - comma separated list of constant values to include in the constants
+     - comma-separated list of constant values to include in the constants
        module called BUILD_CONSTANTS in the form <name>=<value>
-   * - .. option:: include_files
-     - list containing files to be copied to the target directory; it is
-       expected that this list will contain strings or 2-tuples for the source
-       and destination; the source can be a file or a directory (in which case
-       the tree is copied except for .svn and CVS directories); the target must
-       not be an absolute path
-   * - .. option:: include_msvcr
-     - include the Microsoft Visual C runtime DLLs without needing the
-       redistributable package installed
-   * - .. option:: zip_includes
-     - list containing files to be included in the zip file directory; it is
-       expected that this list will contain strings or 2-tuples for the source
-       and destination
    * - .. option:: bin_includes
      - list of files to include when determining dependencies of binary files
        that would normally be excluded, using first the full file name, then
@@ -177,6 +165,16 @@ It can be further customized:
    * - .. option:: bin_path_excludes
      - list of paths from which to exclude files when determining dependencies
        of binary files
+   * - .. option:: include_files
+     - list containing files to be copied to the target directory; it is
+       expected that this list will contain strings or 2-tuples for the source
+       and destination; the source can be a file or a directory (in which case
+       the tree is copied except for .svn and CVS directories); the target must
+       not be an absolute path
+   * - .. option:: zip_includes
+     - list containing files to be included in the zip file directory; it is
+       expected that this list will contain strings or 2-tuples for the source
+       and destination
    * - .. option:: zip_include_packages
      - list of packages which should be included in the zip file; the default
        is for all packages to be placed in the file system, not the zip file;
@@ -200,6 +198,9 @@ It can be further customized:
        1. suppress information messages;
        2. also suppress missing-module warning messages;
        3. also suppress all other warning messages.
+   * - .. option:: include_msvcr
+     - include the Microsoft Visual C runtime files without needing the
+       redistributable package installed
 
 .. versionadded:: 6.7
     ``silent_level`` option.
