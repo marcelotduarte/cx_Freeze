@@ -59,13 +59,13 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
 
     def add_config(self, fullname):
         if self.add_to_path:
-            p = "Path"
+            path = "Path"
             if self.all_users:
-                p = "=-*" + p
+                path = "=-*" + path
             msilib.add_data(
                 self.db,
                 "Environment",
-                [("E_PATH", p, r"[~];[TARGETDIR]", "TARGETDIR")],
+                [("E_PATH", path, r"[~];[TARGETDIR]", "TARGETDIR")],
             )
         if self.directories:
             msilib.add_data(self.db, "Directory", self.directories)
@@ -108,22 +108,22 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 ("ProgressDlg", None, 1280),
             ],
         )
-        for index, executable in enumerate(self.distribution.executables):
+        for idx, executable in enumerate(self.distribution.executables):
             if (
                 executable.shortcut_name is not None
                 and executable.shortcut_dir is not None
             ):
-                baseName = os.path.basename(executable.target_name)
+                base_name = os.path.basename(executable.target_name)
                 msilib.add_data(
                     self.db,
                     "Shortcut",
                     [
                         (
-                            "S_APP_%s" % index,
+                            f"S_APP_{idx}",
                             str(executable.shortcut_dir),
                             executable.shortcut_name,
                             "TARGETDIR",
-                            "[TARGETDIR]%s" % baseName,
+                            f"[TARGETDIR]{base_name}",
                             None,
                             None,
                             None,
@@ -134,14 +134,14 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                         )
                     ],
                 )
-        for tableName, data in self.data.items():
-            col = self._binary_columns.get(tableName)
+        for table_name, data in self.data.items():
+            col = self._binary_columns.get(table_name)
             if col is not None:
                 data = [
                     (*row[:col], msilib.Binary(row[col]), *row[col + 1 :])
                     for row in data
                 ]
-            msilib.add_data(self.db, tableName, data)
+            msilib.add_data(self.db, table_name, data)
 
         # If provided, add data to MSI's summary information stream
         if len(self.summary_data) > 0:
@@ -151,20 +151,20 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                         f"Unknown key provided in summary-data: {k!r}"
                     )
 
-            summaryInfo = self.db.GetSummaryInformation(5)
+            summary_info = self.db.GetSummaryInformation(5)
             if "author" in self.summary_data:
-                summaryInfo.SetProperty(
+                summary_info.SetProperty(
                     msilib.PID_AUTHOR, self.summary_data["author"]
                 )
             if "comments" in self.summary_data:
-                summaryInfo.SetProperty(
+                summary_info.SetProperty(
                     msilib.PID_COMMENTS, self.summary_data["comments"]
                 )
             if "keywords" in self.summary_data:
-                summaryInfo.SetProperty(
+                summary_info.SetProperty(
                     msilib.PID_KEYWORDS, self.summary_data["keywords"]
                 )
-            summaryInfo.Persist()
+            summary_info.Persist()
 
     def add_cancel_dialog(self):
         dialog = msilib.Dialog(
@@ -219,7 +219,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             ("Retry", 198),
         ]:
             button = dialog.pushbutton(text[0], x, 72, 81, 21, 3, text, None)
-            button.event("EndDialog", "Error%s" % text)
+            button.event("EndDialog", f"Error{text}")
 
     def add_exit_dialog(self):
         dialog = distutils.command.bdist_msi.PyDialog(
@@ -293,7 +293,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
     def add_files(self):
         db = self.db
         cab = msilib.CAB("distfiles")
-        f = msilib.Feature(
+        feature = msilib.Feature(
             db,
             "default",
             "Default Feature",
@@ -301,7 +301,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             1,
             directory="TARGETDIR",
         )
-        f.set_current()
+        feature.set_current()
         rootdir = os.path.abspath(self.bdist_dir)
         root = msilib.Directory(
             db, cab, None, rootdir, "TARGETDIR", "SourceDir"
@@ -309,32 +309,32 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         db.Commit()
         todo = [root]
         while todo:
-            dir = todo.pop()
-            for file in os.listdir(dir.absolute):
+            directory = todo.pop()
+            for file in os.listdir(directory.absolute):
                 sep_comp = self.separate_components.get(
                     os.path.relpath(
-                        os.path.join(dir.absolute, file),
+                        os.path.join(directory.absolute, file),
                         self.bdist_dir,
                     )
                 )
                 if sep_comp is not None:
-                    restore_component = dir.component
-                    dir.start_component(
+                    restore_component = directory.component
+                    directory.start_component(
                         component=sep_comp,
                         flags=0,
-                        feature=f,
+                        feature=feature,
                         keyfile=file,
                     )
-                    dir.add_file(file)
-                    dir.component = restore_component
-                elif os.path.isdir(os.path.join(dir.absolute, file)):
-                    short_file = dir.make_short(file)
-                    newDir = msilib.Directory(
-                        db, cab, dir, file, file, f"{short_file}|{file}"
+                    directory.add_file(file)
+                    directory.component = restore_component
+                elif os.path.isdir(os.path.join(directory.absolute, file)):
+                    short_file = directory.make_short(file)
+                    new_dir = msilib.Directory(
+                        db, cab, directory, file, file, f"{short_file}|{file}"
                     )
-                    todo.append(newDir)
+                    todo.append(new_dir)
                 else:
-                    dir.add_file(file)
+                    directory.add_file(file)
         cab.commit(db)
 
     def add_files_in_use_dialog(self):
@@ -373,8 +373,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             3,
             "The following applications are using files that need to be "
             "updated by this setup. Close these applications and then "
-            "click Retry to continue the installation or Cancel to exit "
-            "it.",
+            "click Retry to continue the installation or Cancel to exit it.",
         )
         dialog.control(
             "List",
@@ -572,7 +571,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if metadata.url:
             props.append(("ARPURLINFOABOUT", metadata.url))
         if self.upgrade_code is not None:
-            if not is_valid_GUID(self.upgrade_code):
+            if not _is_valid_guid(self.upgrade_code):
                 raise ValueError("upgrade-code must be in valid GUID format")
             props.append(("UpgradeCode", self.upgrade_code.upper()))
         if self.install_icon:
@@ -785,10 +784,10 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         fullname = self.distribution.get_fullname()
         if self.initial_target_dir is None:
             if sysconfig.get_platform() == "win-amd64":
-                programFilesFolder = "ProgramFiles64Folder"
+                program_files_folder = "ProgramFiles64Folder"
             else:
-                programFilesFolder = "ProgramFilesFolder"
-            self.initial_target_dir = fr"[{programFilesFolder}]\{name}"
+                program_files_folder = "ProgramFilesFolder"
+            self.initial_target_dir = fr"[{program_files_folder}]\{name}"
         if self.add_to_path is None:
             self.add_to_path = False
         if self.target_name is None:
@@ -807,11 +806,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if not isinstance(self.summary_data, dict):
             self.summary_data = {}
         self.separate_components = {}
-        for n, executable in enumerate(self.distribution.executables):
+        for idx, executable in enumerate(self.distribution.executables):
             base_name = os.path.basename(executable.target_name)
             # Trying to make these names unique from any directory name
             self.separate_components[base_name] = msilib.make_id(
-                f"_cx_executable{n}_{executable}"
+                f"_cx_executable{idx}_{executable}"
             )
         if self.extensions is None:
             self.extensions = []
@@ -982,7 +981,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         self.db = None
 
 
-def is_valid_GUID(code):
+def _is_valid_guid(code):
     pattern = re.compile(
         r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$", re.IGNORECASE
     )

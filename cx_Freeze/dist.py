@@ -17,6 +17,7 @@ from .freezer import Freezer
 from .module import ConstantsModule
 
 if sys.platform == "win32":
+    import winreg
     from .windist import bdist_msi
 elif sys.platform == "darwin":
     from .macdist import bdist_dmg, bdist_mac
@@ -181,25 +182,26 @@ class build_exe(distutils.core.Command):
         if source_dir is not None:
             sys.path.insert(0, source_dir)
 
-    def build_extension(self, name, moduleName=None):
-        if moduleName is None:
-            moduleName = name
+    def build_extension(self, name, module_name=None):
+        if module_name is None:
+            module_name = name
         source_dir = getattr(self, name.lower())
         if source_dir is None:
-            return
+            return None
         orig_dir = os.getcwd()
         script_args = ["build"]
         command = self.distribution.get_command_obj("build")
         if command.compiler is not None:
-            script_args.append("--compiler=%s" % command.compiler)
+            script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
         distutils.log.info("building '%s' extension in '%s'", name, source_dir)
         distribution = distutils.core.run_setup("setup.py", script_args)
-        modules = [m for m in distribution.ext_modules if m.name == moduleName]
+        modules = [
+            m for m in distribution.ext_modules if m.name == module_name
+        ]
         if not modules:
-            message_format = "no module named '%s' in '%s'"
             raise distutils.errors.DistutilsSetupError(
-                message_format % (moduleName, source_dir)
+                "no module named '{module_name}' in '{source_dir}'"
             )
         command = distribution.get_command_obj("build_ext")
         command.ensure_finalized()
@@ -212,7 +214,9 @@ class build_exe(distutils.core.Command):
         if dir_name not in sys.path:
             sys.path.insert(0, dir_name)
         return os.path.join(
-            source_dir, command.build_lib, command.get_ext_filename(moduleName)
+            source_dir,
+            command.build_lib,
+            command.get_ext_filename(module_name),
         )
 
     def initialize_options(self):
@@ -220,17 +224,18 @@ class build_exe(distutils.core.Command):
             "excludes",
             "includes",
             "packages",
-            "namespace_packages",
             "replace_paths",
             "constants",
-            "include_files",
-            "zip_includes",
             "bin_excludes",
             "bin_includes",
             "bin_path_includes",
             "bin_path_excludes",
+            "include_files",
+            "zip_includes",
             "zip_include_packages",
             "zip_exclude_packages",
+            # DEPRECATED
+            "namespace_packages",
         ]
 
         for option in self.list_options:
@@ -297,17 +302,17 @@ class build_exe(distutils.core.Command):
             self.optimize,
             self.path,
             self.build_exe,
-            includeMSVCR=self.include_msvcr,
-            includeFiles=self.include_files,
             binIncludes=self.bin_includes,
             binExcludes=self.bin_excludes,
-            zipIncludes=self.zip_includes,
-            silent=self.silent_setting,
             binPathIncludes=self.bin_path_includes,
             binPathExcludes=self.bin_path_excludes,
-            metadata=metadata,
+            includeFiles=self.include_files,
+            zipIncludes=self.zip_includes,
             zipIncludePackages=self.zip_include_packages,
             zipExcludePackages=self.zip_exclude_packages,
+            silent=self.silent_setting,
+            metadata=metadata,
+            includeMSVCR=self.include_msvcr,
         )
 
         # keep freezer around so that its data case be used in bdist_mac phase
@@ -315,7 +320,7 @@ class build_exe(distutils.core.Command):
         freezer.Freeze()
 
     def set_source_location(self, name, *pathParts):
-        env_name = "%s_BASE" % name.upper()
+        env_name = f"{name.upper()}_BASE"
         attr_name = name.lower()
         source_dir = getattr(self, attr_name)
         if source_dir is None:
@@ -348,8 +353,6 @@ class install(distutils.command.install.install):
 
     def finalize_options(self):
         if self.prefix is None and sys.platform == "win32":
-            import winreg
-
             key = winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
                 r"Software\Microsoft\Windows\CurrentVersion",
@@ -370,7 +373,7 @@ class install(distutils.command.install.install):
             else:
                 metadata = self.distribution.metadata
                 dir_name = f"{metadata.name}-{metadata.version}"
-                self.install_exe = "$base/lib/%s" % dir_name
+                self.install_exe = f"$base/lib/{dir_name}"
 
 
 class install_exe(distutils.core.Command):

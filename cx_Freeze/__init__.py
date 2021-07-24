@@ -1,11 +1,11 @@
-import setuptools
 import sys
+import setuptools
+import importlib_metadata
 
 from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
-import importlib_metadata
 
 __all__ = [
     "bdist_rpm",
