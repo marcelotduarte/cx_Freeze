@@ -99,6 +99,7 @@ class Module:
 
     @property
     def file(self) -> Optional[Path]:
+        """Module filename"""
         return self._file
 
     @file.setter

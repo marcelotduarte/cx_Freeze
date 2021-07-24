@@ -1,3 +1,4 @@
+import collections.abc
 from importlib.machinery import EXTENSION_SUFFIXES
 import os
 from pathlib import Path
@@ -19,8 +20,6 @@ def initialize(finder: ModuleFinder) -> None:
     automatic exclusions for various platforms.
     """
     # py2 modules that have been removed or renamed in py3
-    import collections.abc
-
     for name in collections.abc.__all__:
         finder.ExcludeModule("collections." + name)
     for name in (
@@ -362,7 +361,7 @@ def pycryptodome_filename(dir_comps, filename):
         name = co_func.co_name
         code = module.code
         consts = list(code.co_consts)
-        for i in range(len(consts)):
+        for i in enumerate(consts):
             if isinstance(consts[i], type(code)) and consts[i].co_name == name:
                 consts[i] = co_func
                 break
@@ -610,7 +609,7 @@ def _get_data_path():
         name = co_func.co_name
         code = module.code
         consts = list(code.co_consts)
-        for i in range(len(consts)):
+        for i in enumerate(consts):
             if isinstance(consts[i], type(code)) and consts[i].co_name == name:
                 consts[i] = co_func
                 break
@@ -1428,7 +1427,7 @@ def load_Xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
     The Xlib.support.connect module implicitly loads a platform specific
     module; make sure this happens.
     """
-    if sys.platform.split("-")[0] == "OpenVMS":
+    if sys.platform.split("-", maxsplit=1)[0] == "OpenVMS":
         module_name = "vms_connect"
     else:
         module_name = "unix_connect"
