@@ -3,9 +3,11 @@ Implements a new `Patchelf` interface to create an abstraction for patching
 ELF files.
 """
 
+from pathlib import Path
 from shutil import which
 from subprocess import check_call, check_output, CalledProcessError
 import re
+from typing import Union
 
 
 class Patchelf:
@@ -14,32 +16,29 @@ class Patchelf:
     def __init__(self) -> None:
         _verify_patchelf()
 
-    def replace_needed(
-        self, file_name: str, so_name: str, new_so_name: str
-    ) -> None:
-        check_call(
-            ["patchelf", "--replace-needed", so_name, new_so_name, file_name]
-        )
-
-    def set_soname(self, file_name: str, new_so_name: str) -> None:
-        check_call(["patchelf", "--set-soname", new_so_name, file_name])
-
-    def set_rpath(self, file_name: str, rpath: str) -> None:
-        check_call(["patchelf", "--remove-rpath", file_name])
-        check_call(
-            ["patchelf", "--force-rpath", "--set-rpath", rpath, file_name]
-        )
-
-    def get_rpath(self, file_name: str) -> str:
+    def get_rpath(self, filename: Union[str, Path]) -> str:
+        args = ["patchelf", "--print-rpath", filename]
         try:
-            rpath = (
-                check_output(["patchelf", "--print-rpath", file_name])
-                .decode("utf-8")
-                .strip()
-            )
+            rpath = check_output(args).decode("utf-8").strip()
         except CalledProcessError:
             rpath = ""
         return rpath
+
+    def replace_needed(
+        self, filename: Union[str, Path], so_name: str, new_so_name: str
+    ) -> None:
+        args = ["patchelf", "--replace-needed", so_name, new_so_name, filename]
+        check_call(args)
+
+    def set_rpath(self, filename: Union[str, Path], rpath: str) -> None:
+        args = ["patchelf", "--remove-rpath", filename]
+        check_call(args)
+        args = ["patchelf", "--force-rpath", "--set-rpath", rpath, filename]
+        check_call(args)
+
+    def set_soname(self, filename: Union[str, Path], new_so_name: str) -> None:
+        args = ["patchelf", "--set-soname", new_so_name, filename]
+        check_call(args)
 
 
 def _verify_patchelf() -> None:

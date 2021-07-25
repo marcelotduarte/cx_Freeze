@@ -1047,10 +1047,10 @@ class LinuxFreezer(Freezer):
                     dependent_file, dependent_target, copy_dependent_files
                 )
             if fix_rpath:
-                has_rpath = self.patchelf.get_rpath(str(target))  # FIXME
+                has_rpath = self.patchelf.get_rpath(target)
                 rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
                 if has_rpath != rpath:
-                    self.patchelf.set_rpath(str(target), rpath)  # FIXME
+                    self.patchelf.set_rpath(target, rpath)
 
     def _copy_top_dependency(self, source: Path):
         """Called for copying certain top dependencies in _freeze_executable."""
