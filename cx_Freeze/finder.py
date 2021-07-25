@@ -724,7 +724,7 @@ class ModuleFinder:
     def ZipIncludeFiles(
         self,
         source_path: Union[str, Path],
-        target_path: Optional[Union[str, Path, PurePath]],
+        target_path: Optional[Union[str, Path, PurePath]] = None,
     ) -> None:
         """Include files or all of the files in a directory to the zip file."""
         self.zip_includes.extend(

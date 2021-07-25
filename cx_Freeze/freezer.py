@@ -482,7 +482,7 @@ class Freezer(ABC):
                 source_package_dir = module.file.parent
                 if not target_package_dir.exists():
                     if self.silent < 1:
-                        print("copying data from package", module.name + "...")
+                        print(f"copying data from package {module.name}...")
                     shutil.copytree(
                         source_package_dir,
                         target_package_dir,
@@ -490,16 +490,16 @@ class Freezer(ABC):
                     )
 
                     # remove the subfolders which belong to excluded modules
-                    excludedFolders = [
+                    excluded_folders = [
                         m[len(module.name) + 1 :].replace(".", os.sep)
                         for m in finder.excludes
                         if m.split(".")[0] == parts[0]
                     ]
-                    for folder in excludedFolders:
+                    for folder in excluded_folders:
                         folder_to_remove = target_package_dir / folder
                         if folder_to_remove.is_dir():
                             if self.silent < 1:
-                                print("removing", folder_to_remove + "...")
+                                print(f"removing {folder_to_remove}...")
                             shutil.rmtree(folder_to_remove)
 
             # if an extension module is found in a package that is to be
