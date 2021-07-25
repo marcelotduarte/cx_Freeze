@@ -1033,16 +1033,15 @@ class LinuxFreezer(Freezer):
             for dependent_file in self._get_dependent_files(source):
                 if not self._should_copy_file(dependent_file):
                     continue
-                dep_base = dependent_file.name
-                dep_abs = dependent_file.resolve()
-                dep_rel = os.path.relpath(dep_abs, source_dir)
+                relative = dependent_file.relative_to(source_dir)
                 if targetdir == library_dir:
-                    while dep_rel.startswith(os.pardir + os.sep):
-                        dep_rel = dep_rel[len(os.pardir + os.sep) :]
-                dep_libs = dep_rel[: -(len(dep_base) + 1)]
-                if dep_libs:
-                    fix_rpath.add(dep_libs)
-                dependent_target = targetdir / dep_rel
+                    parts = relative.parts
+                    while parts[0] == os.pardir:
+                        parts = parts[1:]
+                    relative = Path(*parts)
+                dep_libs = str(relative.parent)
+                fix_rpath.add(dep_libs)
+                dependent_target = targetdir / relative
                 self._copy_file(
                     dependent_file, dependent_target, copy_dependent_files
                 )
