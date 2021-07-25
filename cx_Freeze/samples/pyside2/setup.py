@@ -28,7 +28,6 @@ options = {
             "http",
             "xml",
             "pydoc",
-            "pdb",
         ]
     }
 }
