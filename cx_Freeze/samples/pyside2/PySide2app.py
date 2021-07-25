@@ -1,11 +1,7 @@
-#!/usr/bin/env python
+"""A simple script to demonstrate PySide2."""
 
 import sys
 from PySide2.QtWidgets import QApplication, QWidget
-
-# import QtGui and QtCore only so that they are also frozen
-import PySide2.QtGui
-import PySide2.QtCore
 
 
 def main():
