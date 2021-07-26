@@ -928,13 +928,15 @@ def copy_qt_plugins(name: str, plugins: str, finder: ModuleFinder) -> None:
 
 
 def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
-    """Inject code in PyQt5 init to locate and load plugins."""
+    """Inject code in PyQt5/PySide2 init to locate and load plugins."""
     if module.code is None:
         return
     # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the
     # libraryPaths returns empty. Prior to this version, this doesn't happen.
     # However, this hack will be used to workaround issues with anaconda and/or
     # with the use of zip_include_packages too.
+    # With PySide2, the opposite happens. In PySide2 5.15.2, folders with non-
+    # ascii work, but in previous versions (5.15.1, 5.13.x, 5.12.0) they don't.
     name = _qt_implementation(module)
     code_string = module.file.read_text()
     code_string += f"""
@@ -944,9 +946,9 @@ from .QtCore import QCoreApplication
 
 executable_dir = os.path.dirname(sys.executable)
 pyqt5_root_dir = os.path.join(executable_dir, "lib", "{name}")
-plugins_dir = os.path.join(pyqt5_root_dir, "Qt5", "plugins")  # 5.15.4
+plugins_dir = os.path.join(pyqt5_root_dir, "Qt5", "plugins")  # PyQt5 5.15.4
 if not os.path.isdir(plugins_dir):
-    plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")  # olders
+    plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")  # others
 library_paths = [os.path.normcase(p) for p in QCoreApplication.libraryPaths()]
 if os.path.normcase(plugins_dir) not in library_paths:
     library_paths = QCoreApplication.libraryPaths() + [plugins_dir]
@@ -1006,20 +1008,6 @@ def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
         pass
 
 
-def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
-    """The uic module makes use of "plugins" that need to be read directly and
-    cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
-    also implicity loaded."""
-    name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
-    try:
-        finder.IncludeModule(f"{name}.QtWebKit")
-    except ImportError:
-        pass
-    source_dir = module.path[0] / "widget-plugins"
-    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
-
-
 def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that GUI will use some image formats
     add the image format plugins."""
@@ -1052,6 +1040,33 @@ def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
 def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtGui")
+
+
+def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
+    """The uic module makes use of "plugins" that need to be read directly and
+    cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
+    also implicity loaded."""
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtNetwork")
+    try:
+        finder.IncludeModule(f"{name}.QtWebKit")
+    except ImportError:
+        pass
+    source_dir = module.path[0] / "widget-plugins"
+    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
+
+
+# PySide2 start
+load_PySide2 = load_PyQt5
+load_PySide2_Qt = load_PyQt5_Qt
+# load_PySide2_QtCore is not necessary
+load_PySide2_QtGui = load_PyQt5_QtGui
+load_PySide2_QtMultimedia = load_PyQt5_QtMultimedia
+load_PySide2_QtPrintSupport = load_PyQt5_QtPrintSupport
+load_PySide2_QtWebKit = load_PyQt5_QtWebKit
+load_PySide2_QtWidgets = load_PyQt5_QtWidgets
+load_PySide2_uic = load_PyQt5_uic
+# PySide2 end
 
 
 def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
