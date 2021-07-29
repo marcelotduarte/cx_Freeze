@@ -10,7 +10,7 @@ from .common import code_object_replace
 from .finder import ModuleFinder
 from .module import Module
 
-MINGW = sysconfig.get_platform() == "mingw"
+MINGW = sysconfig.get_platform().startswith("mingw")
 WIN32 = sys.platform == "win32"
 
 
