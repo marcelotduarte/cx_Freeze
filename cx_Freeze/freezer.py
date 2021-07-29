@@ -24,7 +24,11 @@ from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule, Module
 
-if sys.platform == "win32":
+MINGW = sysconfig.get_platform().startswith("mingw")
+WIN32 = sys.platform == "win32"
+DARWIN = sys.platform == "darwin"
+
+if WIN32:
     from . import winmsvcr
     from . import util as winutil
     from .winversioninfo import VersionInfo
@@ -33,11 +37,10 @@ if sys.platform == "win32":
         from win32verstamp import stamp as version_stamp
     except ImportError:
         version_stamp = None
-elif sys.platform == "darwin":
+elif DARWIN:
     from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 else:
     from .patchelf import Patchelf
-
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
@@ -46,9 +49,9 @@ class Freezer(ABC):
     def __new__(cls, *args, **kwargs):
         # create instance of appropriate sub-class, depending on the platform.
         instance: Freezer
-        if sys.platform == "win32":
+        if WIN32:
             instance = super().__new__(WinFreezer)
-        elif sys.platform == "darwin":
+        elif DARWIN:
             instance = super().__new__(DarwinFreezer)
         else:  # assume any other platform would be handled by LinuxFreezer
             instance = super().__new__(LinuxFreezer)
@@ -761,7 +764,7 @@ class WinFreezer(Freezer):
 
     def _default_bin_includes(self) -> List[str]:
         python_shared_libs: List[str] = []
-        if sysconfig.get_platform() == "mingw":
+        if MINGW:
             name = sysconfig.get_config_var("INSTSONAME")
             if name:
                 python_shared_libs.append(name.replace(".dll.a", ".dll"))
