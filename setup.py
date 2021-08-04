@@ -51,9 +51,9 @@ class build_ext(setuptools.command.build_ext.build_ext):
                 if arg.startswith("/DELAYLOAD:"):
                     lib_name = arg[len("/DELAYLOAD:") :]
                     extra_args.remove(arg)
+                    dll_path = self._get_dll_path(lib_name)
+                    dll_name = os.path.basename(dll_path)
                     if compiler_type == "msvc":
-                        dll_path = self._get_dll_path(lib_name)
-                        dll_name = os.path.basename(dll_path)
                         extra_args.append(f"/DELAYLOAD:{dll_name}")
                         if lib_name not in libraries:
                             libraries.append(lib_name)
@@ -63,6 +63,10 @@ class build_ext(setuptools.command.build_ext.build_ext):
                         if lib_name in libraries:
                             libraries.remove(lib_name)
                         lib_dir, library = self._dlltool_delay_load(lib_name)
+                        for linker_option in self.compiler.linker_exe:
+                            if "clang" in linker_option:
+                                extra_args.append(f"-Wl,-delayload,{dll_name}")
+                                break
                         libraries.append(library)
                         library_dirs.append(lib_dir)
             if compiler_type == "msvc":
@@ -140,32 +144,29 @@ class build_ext(setuptools.command.build_ext.build_ext):
         return f"{name}.dll"
 
     def _dlltool_delay_load(self, name):
-        """Get the delay load library to use with mingw32 gcc compiler"""
+        """Get the delay load library to use with mingw32 gcc/clang compiler"""
         dir_name = f"libdl.{get_platform()}-{get_python_version()}"
         library_dir = os.path.join(self.build_temp, dir_name)
         os.makedirs(library_dir, exist_ok=True)
-        # Use gendef and dlltool to generate the delay library
+        # Use gendef and dlltool to generate the library (.a and .delay.a)
         dll_path = self._get_dll_path(name)
         def_name = os.path.join(library_dir, f"{name}.def")
         def_data = subprocess.check_output(["gendef", "-", dll_path])
         with open(def_name, "wb") as def_file:
             def_file.write(def_data)
         lib_path = os.path.join(library_dir, f"lib{name}.a")
-        dlb_path = os.path.join(library_dir, f"lib{name}-dl.a")
-        subprocess.check_call(
-            [
-                "dlltool",
-                "--input-def",
-                def_name,
-                "--dllname",
-                dll_path,
-                "--output-lib",
-                lib_path,
-                "--output-delaylib",
-                dlb_path,
-            ]
-        )
-        return library_dir, f"{name}-dl"
+        library = f"{name}.delay"
+        dlb_path = os.path.join(library_dir, f"lib{library}.a")
+        dlltool = ["dlltool", "-d", def_name, "-D", dll_path, "-l", lib_path]
+        output_delaylib_args = ["-y", dlb_path]
+        try:
+            # GNU binutils dlltool support --output-delaylib
+            subprocess.check_call(dlltool + output_delaylib_args)
+        except subprocess.CalledProcessError:
+            # LLVM dlltool only supports generating an import library
+            subprocess.check_call(dlltool)
+            library = name
+        return library_dir, library
 
     def run(self):
         self.run_command("install_include")
