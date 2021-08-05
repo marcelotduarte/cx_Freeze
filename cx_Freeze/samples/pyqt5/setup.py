@@ -48,7 +48,7 @@ executables = [Executable("PyQt5app.py", base=base, target_name="test_pyqt5")]
 
 setup(
     name="simple_PyQt5",
-    version="0.2",
+    version="0.3",
     description="Sample cx_Freeze PyQt5 script",
     options={
         "build_exe": build_exe_options,
