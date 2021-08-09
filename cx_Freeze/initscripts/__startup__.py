@@ -1,6 +1,7 @@
 """
-This is the first script that is run when cx_Freeze starts up. It simply
-determines the name of the initscript that is to be executed.
+This is the first script that is run when cx_Freeze starts up. It
+determines the name of the initscript that is to be executed after
+a basic initialization.
 """
 
 import os
@@ -46,10 +47,18 @@ class ExtensionFinder(PathFinder):
 
 def init():
     # update sys module
-    sys.meta_path.append(ExtensionFinder)
+    if sys.platform == "win32":
+        # for MSYS2
+        sys.path = [os.path.normpath(entry) for entry in sys.path]
+        sys.executable = os.path.normpath(sys.executable)
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
+    sys.meta_path.append(ExtensionFinder)
+    if sys.platform == "win32":
+        # fix PATH for conda managers and MSYS2
+        add_to_path = os.path.join(frozen_dir, "lib")
+        os.environ["PATH"] = add_to_path + os.path.pathsep + os.environ["PATH"]
 
-    # set envirnonment variables
+    # set environment variables
     for name in ("TCL_LIBRARY", "TK_LIBRARY", "PYTZ_TZDATADIR"):
         try:
             value = getattr(BUILD_CONSTANTS, name)
@@ -57,11 +66,6 @@ def init():
             pass
         else:
             os.environ[name] = os.path.join(frozen_dir, value)
-
-    # fix PATH for anaconda/miniconda and msys2/mingw
-    if sys.platform == "win32":
-        add_to_path = os.path.join(frozen_dir, "lib")
-        os.environ["PATH"] = add_to_path + os.path.pathsep + os.environ["PATH"]
 
     # fix PATH for numpy+mkl
     if hasattr(BUILD_CONSTANTS, "MKL_PATH"):
