@@ -13,23 +13,26 @@ subdirectory that contains the files needed to run the application
 
 import sys
 from cx_Freeze import setup, Executable
-from cx_Freeze.hooks import get_qt_plugins_paths
+try:
+    from cx_Freeze.hooks import get_qt_plugins_paths
+except ImportError:
+    include_files = []
+else:
+    # Inclusion of extra plugins (new in cx_Freeze 6.8b2)
+    # cx_Freeze imports automatically the following plugins depending of the
+    # use of some modules:
+    # imageformats - QtGui
+    # platforms - QtGui
+    # mediaservice - QtMultimedia
+    # printsupport - QtPrintSupport
+    #
+    # So, "platforms" is used here for demonstration purposes.
+    include_files = get_qt_plugins_paths("PyQt5", "platforms")
 
 # base="Win32GUI" should be used only for Windows GUI app
 base = None
 if sys.platform == "win32":
     base = "Win32GUI"
-
-# Inclusion of extra plugins
-# cx_Freeze imports automatically the following plugins depending of the use of
-# some modules:
-# imageformats - QtGui
-# platforms - QtGui
-# mediaservice - QtMultimedia
-# printsupport - QtPrintSupport
-#
-# So, "platforms" is used here for demonstration purposes.
-include_files = get_qt_plugins_paths("PyQt5", "platforms")
 
 build_exe_options = {
     "excludes": ["tkinter"],
@@ -48,7 +51,7 @@ executables = [Executable("PyQt5app.py", base=base, target_name="test_pyqt5")]
 
 setup(
     name="simple_PyQt5",
-    version="0.2",
+    version="0.3",
     description="Sample cx_Freeze PyQt5 script",
     options={
         "build_exe": build_exe_options,

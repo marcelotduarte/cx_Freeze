@@ -38,7 +38,7 @@ executables = [
 
 setup(
     name="simple_PySide2",
-    version="0.2",
+    version="0.3",
     description="Sample cx_Freeze PySide2 script",
     options=options,
     executables=executables,
