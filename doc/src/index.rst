@@ -38,7 +38,7 @@ Contents:
 
    overview.rst
    installation.rst
-   distutils.rst
+   setup_script.rst
    script.rst
    faq.rst
    releasenotes.rst

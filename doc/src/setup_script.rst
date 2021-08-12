@@ -1,9 +1,9 @@
-.. _distutils:
+.. _setup_script:
 
-distutils setup script
-======================
+setup script
+============
 
-In order to make use of distutils a setup script must be created. This is
+In order to make use of this method, a setup script must be created. This is
 called ``setup.py`` by convention, although it can have any name. It looks
 something like this:
 
@@ -40,7 +40,7 @@ The script is invoked as follows:
 
 This command will create a subdirectory called ``build`` with a further
 subdirectory starting with the letters ``exe.`` and ending with the typical
-identifier for the platform that distutils uses. This allows for multiple
+identifier for the platform and python version. This allows for multiple
 platforms to be built without conflicts.
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
@@ -52,13 +52,14 @@ includes for your application, by running the setup script as:
 
 On Mac OS X, you can use ``bdist_dmg`` to build a Mac disk image.
 
-distutils commands
-------------------
+commands
+--------
 
 cx_Freeze creates four new commands and subclasses four others in order to
-provide the ability to both build and install executables. In typical distutils
-fashion they can be provided in the setup script, on the command line or in
-a ``setup.cfg`` configuration file. They are described in further detail below.
+provide the ability to both build and install executables. In typical
+setuptools fashion they can be provided in the setup script, on the command
+line or in a ``setup.cfg`` configuration file. They are described in further
+detail below.
 
 To specify options in the script, use underscores in the name. For example:
 
@@ -104,7 +105,7 @@ This is the equivalent help to specify the same options on the command line:
       --compiler (-c)    specify the compiler type
       --help-compiler    list available compilers
 
-.. _distutils_build_exe:
+.. _cx_freeze_build_exe:
 
 build_exe
 `````````
