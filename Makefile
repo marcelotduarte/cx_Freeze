@@ -25,7 +25,7 @@ pdf:
 	make -C doc pdf
 
 .PHONY: test
-test:
+htmltest:
 	make -C doc test
 
 .PHONY: clean

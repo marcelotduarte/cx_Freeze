@@ -7,7 +7,8 @@ Problems with running frozen programs
 A common problem is that **cx_Freeze** hasn't automatically detected that a
 file needs to be copied. Modules that your code imports are detected, but if
 they're dynamically loaded - e.g. by a plugin system - you have to tell
-**cx_Freeze** about them. This is easy using a :doc:`setup script <distutils>`:
+**cx_Freeze** about them. This is easy using a
+:doc:`setup script <setup_script>`:
 
 * For Python code, specify the module names in the ``includes`` or ``packages``
   options.
@@ -24,7 +25,7 @@ error as soon as it starts.
 
 There are two ways to debug what's going on:
 
-1. Freeze your application with the ``Win32GUI`` base (see :doc:`distutils` or
+1. Freeze your application with the ``Win32GUI`` base (see :doc:`setup_script` or
    :doc:`script`). This doesn't use a console window, and reports errors in a
    dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen
@@ -50,7 +51,7 @@ Using data files
 ----------------
 
 Applications often need data files besides the code, such as icons. Using a
-:ref:`setup script <distutils>`, you can list data files or directories in the
+:ref:`setup script <setup_script>`, you can list data files or directories in the
 ``include_files`` option to ``build_exe``. They'll be copied to the build
 directory alongside the executable. Then to find them, use code like this:
 
@@ -80,7 +81,7 @@ You're responsible for checking the license conditions associated with the DLLs
 you have installed.
 
 * If your license allows you to distribute these files, specify the
-  ``include_msvcr`` option to :ref:`distutils_build_exe` to have them
+  ``include_msvcr`` option to :ref:`cx_freeze_build_exe` to have them
   distributed automatically.
 
 * If not, your users or your installer will need to install the Microsoft

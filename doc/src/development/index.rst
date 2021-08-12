@@ -37,14 +37,14 @@ written in reStructuredText. To build it locally, run:
 
 .. code-block:: console
 
-      make -C doc
+      make html
 
 The built documentation can be found in the ``build/doc/html`` folder and may
 be viewed by opening ``index.html`` within that folder.
 
 .. code-block:: console
 
-      firefox build/doc/html/index.html
+      make htmltest
 
 
 Contributing

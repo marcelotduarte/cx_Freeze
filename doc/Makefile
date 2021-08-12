@@ -20,7 +20,7 @@ pdf:
 
 .PHONY: test
 test:
-	(cd $(BUILDDIR)/html && firefox index.html &)
+	(cd $(BUILDDIR)/html && python -m webbrowser -t index.html)
 
 .PHONY: clean
 clean:

@@ -6,14 +6,14 @@ The project's code layout
 
   * ``cli.py`` - The code behind the :ref:`cxfreeze script <script>`.
   * ``dist.py`` - The classes and functions with which cx_Freeze :ref:`extends
-    distutils <distutils>`.
+    setuptools <setup_script>`.
   * ``finder.py`` - Module Finder - discovers what modules are required by the code.
   * ``freezer.py`` - The core class for freezing code.
   * ``hooks.py`` - A collection of functions which are triggered automatically
     by ``finder.py`` when certain packages are included or not found.
-  * ``macdist.py`` - Extends distutils to build macOS dmg or app blundle.
+  * ``macdist.py`` - Extends setuptools to build macOS dmg or app blundle.
   * ``module.py`` - Base class for Module and ConstantsModule.
-  * ``windist.py`` - Extends distutils to build Windows installer packages.
+  * ``windist.py`` - Extends setuptools to build Windows installer packages.
 
 * ``source/`` (C files)
 
