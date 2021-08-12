@@ -13,6 +13,7 @@ subdirectory that contains the files needed to run the application
 
 import sys
 from cx_Freeze import setup, Executable
+
 try:
     from cx_Freeze.hooks import get_qt_plugins_paths
 except ImportError:

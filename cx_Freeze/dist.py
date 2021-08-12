@@ -1,12 +1,9 @@
+import setuptools
+import setuptools.dist
 import distutils.command.bdist_rpm
 import distutils.command.build
 import distutils.command.install
-import distutils.core
-import distutils.dir_util
-import distutils.dist
-import distutils.errors
 import distutils.log
-import distutils.version
 import os
 import sys
 import sysconfig
@@ -32,10 +29,10 @@ __all__ = [
 ]
 
 
-class Distribution(distutils.dist.Distribution):
+class Distribution(setuptools.dist.Distribution):
     def __init__(self, attrs):
         self.executables = []
-        distutils.dist.Distribution.__init__(self, attrs)
+        super().__init__(attrs)
 
 
 class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
@@ -74,7 +71,7 @@ class build(distutils.command.build.build):
             self.build_exe = os.path.join(self.build_base, dir_name)
 
 
-class build_exe(distutils.core.Command):
+class build_exe(setuptools.Command):
     description = "build executables from Python scripts"
     user_options = [
         (
@@ -195,12 +192,12 @@ class build_exe(distutils.core.Command):
             script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
         distutils.log.info("building '%s' extension in '%s'", name, source_dir)
-        distribution = distutils.core.run_setup("setup.py", script_args)
+        distribution = setuptools.run_setup("setup.py", script_args)
         modules = [
             m for m in distribution.ext_modules if m.name == module_name
         ]
         if not modules:
-            raise distutils.errors.DistutilsSetupError(
+            raise setuptools.dist.DistutilsSetupError(
                 "no module named '{module_name}' in '{source_dir}'"
             )
         command = distribution.get_command_obj("build_ext")
@@ -376,7 +373,7 @@ class install(distutils.command.install.install):
                 self.install_exe = f"$base/lib/{dir_name}"
 
 
-class install_exe(distutils.core.Command):
+class install_exe(setuptools.Command):
     description = "install executables built from Python scripts"
     user_options = [
         ("install-dir=", "d", "directory to install executables to"),
@@ -447,4 +444,4 @@ def setup(**attrs):
     _AddCommandClass(command_classes, "build_exe", build_exe)
     _AddCommandClass(command_classes, "install", install)
     _AddCommandClass(command_classes, "install_exe", install_exe)
-    distutils.core.setup(**attrs)
+    setuptools.setup(**attrs)

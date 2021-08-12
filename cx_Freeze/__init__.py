@@ -1,5 +1,4 @@
 import sys
-import setuptools
 import importlib_metadata
 
 from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
