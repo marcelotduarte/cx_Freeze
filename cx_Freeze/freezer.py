@@ -318,7 +318,7 @@ class Freezer(ABC):
         return finder
 
     def _post_freeze_hook(self):
-        return
+        """Platform-specific post-Freeze work."""
 
     def _print_report(self, filename: Path, modules: List[Module]) -> None:
         print(f"writing zip file {filename!s}\n")
@@ -828,6 +828,19 @@ class WinFreezer(Freezer):
                 filepath = search_dir / filename
                 if filepath.exists():
                     dependent_files.add(filepath)
+
+    def _post_freeze_hook(self):
+        target_lib = self.targetdir / "lib"
+        # Recursing into directories to search for load order files.
+        # Some libraries use delvewheel to patch them.
+        for loader_file in target_lib.rglob(".load-order-*"):
+            load_order = loader_file.read_text().split()
+            load_dir = loader_file.parent
+            new_order = [
+                f for f in load_order if load_dir.joinpath(f).is_file()
+            ]
+            if new_order != load_order:
+                loader_file.write_text("\n".join(new_order))
 
     def _set_runtime_files(self) -> None:
         if self.include_msvcr:
