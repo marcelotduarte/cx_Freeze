@@ -1467,10 +1467,9 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_zmq(finder: ModuleFinder, module: Module) -> None:
-    """
-    The zmq package loads zmq.backend.cython dynamically and links
-    dynamically to zmq.libzmq.
-    """
+    """The zmq package loads zmq.backend.cython dynamically and links
+    dynamically to zmq.libzmq or shared lib. Tested in pyzmq 16.0.4 (py36),
+    19.0.2 (MSYS2 py39) up to 22.2.1 (from pip and from conda)."""
     finder.IncludePackage("zmq.backend.cython")
     if WIN32:
         # For pyzmq 22 the libzmq dependencies are located in
@@ -1479,14 +1478,12 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
         libs_dir = module.path[0].parent / libzmq_folder
         if libs_dir.exists():
             finder.IncludeFiles(libs_dir, Path("lib", libzmq_folder))
-            return
-        # Include the bundled libzmq library, if it exists
-        try:
-            libzmq = __import__("zmq", fromlist=["libzmq"]).libzmq
-            filename = Path(libzmq.__file__).name
-            finder.IncludeFiles(module.path[0] / filename, filename)
-        except (ImportError, AttributeError):
-            pass  # assume libzmq is not bundled
+    # Include the bundled libzmq library, if it exists
+    try:
+        finder.IncludeModule("zmq.libzmq")
+    except ImportError:
+        pass  # assume libzmq is not bundled
+    finder.ExcludeModule("zmq.tests")
 
 
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
