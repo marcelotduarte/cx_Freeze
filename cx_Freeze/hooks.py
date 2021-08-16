@@ -1490,25 +1490,33 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
-    """
-    The zoneinfo package requires timezone data, that
-    can be the in tzdata package, if installed.
-    """
-    tzdata: Optional[Module]
+    """The zoneinfo package requires timezone data, that
+    can be the in tzdata package, if installed."""
+    tzdata: Optional[Module] = None
+    tzdata_dir: Optional[Path] = None
     try:
         tzdata = finder.IncludePackage("tzdata")
+        # store tzdata along with zoneinfo
+        tzdata.in_file_system = module.in_file_system
     except ImportError:
-        tzdata = None
-    if tzdata is None:
+        zoneinfo = __import__(module.name)
+        if zoneinfo.TZPATH:
+            for path in zoneinfo.TZPATH:
+                if path.endswith("zoneinfo"):
+                    tzdata_dir = Path(path).parent
+                    break
+        if tzdata_dir:
+            finder.AddConstant("PYTHONTZPATH", "lib/tzdata/zoneinfo")
+    else:
+        tzdata_dir = tzdata.path[0]
+    if tzdata_dir is None:
         return
-    # store tzdata along with zoneinfo
-    tzdata.in_file_system = module.in_file_system
-    if tzdata.in_file_system:
+    if tzdata is None or tzdata.in_file_system:
         finder.IncludeFiles(
-            tzdata.path[0], Path("lib", "tzdata"), copy_dependent_files=False
+            tzdata_dir, Path("lib", "tzdata"), copy_dependent_files=False
         )
     else:
-        finder.ZipIncludeFiles(tzdata.path[0], "tzdata")
+        finder.ZipIncludeFiles(tzdata_dir, "tzdata")
 
 
 load_backports_zoneinfo = load_zoneinfo
