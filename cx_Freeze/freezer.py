@@ -1036,7 +1036,21 @@ class LinuxFreezer(Freezer):
             for dependent_file in self._get_dependent_files(source):
                 if not self._should_copy_file(dependent_file):
                     continue
-                relative = dependent_file.relative_to(source_dir)
+                try:
+                    relative = dependent_file.relative_to(source_dir)
+                except ValueError:
+                    print("source", source)
+                    # define a fallback and check a possible target
+                    dependent_filename = dependent_file.name
+                    dependent_target = targetdir / dependent_filename
+                    relative = Path(dependent_filename)
+                    print("relative1", relative)
+                    if dependent_target not in self.files_copied:
+                        for file in self.files_copied:
+                            if file.name == dependent_filename:
+                                relative = file.relative_to(targetdir)
+                                print("relative2", relative)
+                                break
                 if targetdir == library_dir:
                     parts = relative.parts
                     while parts[0] == os.pardir:
