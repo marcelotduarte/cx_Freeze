@@ -616,27 +616,19 @@ def _get_data_path():
         module.code = code_object_replace(code, co_consts=consts)
 
 
-def load_mkl(finder: ModuleFinder, module: Module) -> None:
-    """The mkl-service package in conda."""
-    libs_dir = Path(sys.base_prefix, "Library", "bin")
-    if libs_dir.is_dir():
-        dest_dir = Path("lib", "mkl")
-        for path in libs_dir.glob("mkl_*.dll"):
-            finder.IncludeFiles(path, dest_dir / path.name)
-        for path in libs_dir.glob("lib*.dll"):
-            finder.IncludeFiles(path, dest_dir / path.name)
-
-
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy must be loaded as a package; support for pypi version and
-    numpy+mkl version (tested with 1.19.5+mkl, 1.20.3+mkl and 1.21.0+mkl."""
+    numpy+mkl version - tested with 1.19.5+mkl, 1.20.3+mkl, 1.21.0+mkl,
+    1.21.1+mkl, 1.21.2+mkl and 1.21.2 from conda-forge."""
     finder.IncludePackage("numpy")
 
     if WIN32:
         numpy_dir = module.path[0]
-
-        # include mkl files
+        # numpy+mkl from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
         libs_dir = numpy_dir / "DLLs"
+        if not libs_dir.is_dir():
+            # numpy+mkl from conda-forge
+            libs_dir = Path(sys.base_prefix, "Library", "bin")
         if libs_dir.is_dir():
             dest_dir = Path("lib", "numpy_mkl")
             for path in libs_dir.glob("mkl_*.dll"):
