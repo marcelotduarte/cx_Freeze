@@ -1490,7 +1490,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     """The zoneinfo package requires timezone data, that
     can be the in tzdata package, if installed."""
     tzdata: Optional[Module] = None
-    tzdata_dir: Optional[Path] = None
+    source: Optional[Path] = None
     try:
         tzdata = finder.IncludePackage("tzdata")
         # store tzdata along with zoneinfo
@@ -1500,20 +1500,23 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
         if zoneinfo.TZPATH:
             for path in zoneinfo.TZPATH:
                 if path.endswith("zoneinfo"):
-                    tzdata_dir = Path(path).parent
+                    source = Path(path)
                     break
-        if tzdata_dir:
-            finder.AddConstant("PYTHONTZPATH", "lib/tzdata/zoneinfo")
-    else:
-        tzdata_dir = tzdata.path[0]
-    if tzdata_dir is None:
+        if source:
+            # without tzdata, copy only zoneinfo directory
+            # in Linux: /usr/share/zoneinfo
+            target = Path("lib", "tzdata", "zoneinfo")
+            finder.IncludeFiles(source, target, copy_dependent_files=False)
+            finder.AddConstant("PYTHONTZPATH", str(source))
+    if tzdata is None:
         return
-    if tzdata is None or tzdata.in_file_system:
-        finder.IncludeFiles(
-            tzdata_dir, Path("lib", "tzdata"), copy_dependent_files=False
-        )
+    # when the tzdata exists, copy other files in this directory
+    source = tzdata.path[0]
+    target = Path("lib", "tzdata")
+    if tzdata.in_file_system:
+        finder.IncludeFiles(source, target, copy_dependent_files=False)
     else:
-        finder.ZipIncludeFiles(tzdata_dir, "tzdata")
+        finder.ZipIncludeFiles(source, "tzdata")
 
 
 load_backports_zoneinfo = load_zoneinfo
