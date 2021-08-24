@@ -1488,7 +1488,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
         # store tzdata along with zoneinfo
         tzdata.in_file_system = module.in_file_system
     except ImportError:
-        zoneinfo = __import__(module.name)
+        zoneinfo = __import__(module.name, fromlist=["TZPATH"])
         if zoneinfo.TZPATH:
             for path in zoneinfo.TZPATH:
                 if path.endswith("zoneinfo"):
