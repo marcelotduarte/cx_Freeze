@@ -23,20 +23,17 @@ or
 Python requirements
 -------------------
 
-- cx_Logging 3.0 - installed automatically on Windows;
-- importlib-metadata - installed automatically;
-- setuptools - installing from source requires ``setuptools`` (installed
-  automatically in virtual environments).
+Python requirements are installed automatically by pip or conda.
 
-Requirement for all SO
-----------------------
+- cx_Logging >=3.0 # Windows only
+- importlib-metadata
+- setuptools
+
+Others requirements
+-------------------
 
 - C compiler - if installing from sources.
-
-Requirement for Linux
----------------------
-
-- patchelf
+- patchelf - in unix-like systems (Linux, FreeBSD, etc), except macOS.
 
 To install patchelf in debian/ubuntu:
 
@@ -76,9 +73,36 @@ Using pipenv, install or update by issuing one of the folowing commanda:
 Anaconda / Miniconda
 --------------------
 
+Directly from the conda-forge channel:
+
   .. code-block:: console
 
     conda install -c conda-forge cx_freeze
+
+If you are installing a pre-release or from sources, install the requirements
+using the same channel:
+
+- python
+- c-compiler
+- libpython-static # for python >=3.8 in linux and macOS
+- importlib-metadata
+- patchelf # optional if already installed in the Linux system
+- declare SDKROOT or CONDA_BUILD_SYSROOT # for python 3.9 in macOS
+
+A example using miniconda3:
+
+  .. code-block:: console
+
+    conda create -n cx38conda -c conda-forge python=3.8 libpython-static -y
+    conda activate cx38conda
+    conda install -c conda-forge c-compiler importlib-metadata -y
+    pip install --no-binary :all: --pre cx_Freeze -v
+
+In a macOS system, with python 3.9, in Github Actions CI, we use:
+
+  .. code-block:: console
+
+    export SDKROOT=SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
 
 Download tarball or wheels
 --------------------------
@@ -97,7 +121,7 @@ In the source directory, use one of the command:
 
   .. code-block:: console
 
-    pip install .
+    pip install -e .
 
 or
 
