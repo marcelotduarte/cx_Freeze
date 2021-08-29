@@ -86,7 +86,7 @@ class bdist_dmg(Command):
             )
 
         # Create the dmg
-        if os.spawnvp(os.P_WAIT, "hdiutil", createargs) != 0:
+        if subprocess.call(("hdiutil", createargs)) != 0:
             raise OSError("creation of the dmg failed")
 
     def run(self):
@@ -266,12 +266,11 @@ class bdist_mac(Command):
             if filename[-1:] in ("txt", "zip") or os.path.isdir(filename):
                 continue
 
-            otool = subprocess.Popen(
-                ("otool", "-L", filename), stdout=subprocess.PIPE
+            out = subprocess.check_output(
+                ("otool", "-L", filename), encoding="utf-8"
             )
-
-            for line in otool.stdout.readlines()[1:]:
-                lib = line.decode("utf-8").lstrip("\t").split(" (compat")[0]
+            for line in out.splitlines()[1:]:
+                lib = line.lstrip("\t").split(" (compat")[0]
 
                 if lib.startswith("@executable_path"):
                     replacement = lib.replace("@executable_path", path)
@@ -483,5 +482,5 @@ class bdist_mac(Command):
 
             signargs.append(self.bundleDir)
 
-            if os.spawnvp(os.P_WAIT, "codesign", signargs) != 0:
+            if subprocess.call(("codesign", signargs)) != 0:
                 raise OSError("Code signing of app bundle failed")
