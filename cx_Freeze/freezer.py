@@ -274,8 +274,10 @@ class Freezer(ABC):
         frozen executable to work.
         (overriden on Windows)"""
         python_shared_libs = []
+        # Miniconda python 3.6-3.9 linux returns a static library to indicate
+        # the usage of libpython-static (a shared library is not used).
         name = sysconfig.get_config_var("INSTSONAME")
-        if name:
+        if name and not name.endswith(".a"):
             python_shared_libs.append(self._remove_version_numbers(name))
         return python_shared_libs
 
