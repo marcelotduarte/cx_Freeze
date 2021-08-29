@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 import stat
 import struct
+import subprocess
 import sys
 import sysconfig
 import time
@@ -210,9 +211,9 @@ class Freezer(ABC):
         )
 
         # Ensure the copy of default python libraries
-        dependent_files = set(self._get_dependent_files(exe.base))
+        dependent_files = self._get_dependent_files(exe.base)
         if not dependent_files:
-            dependent_files.update(self._get_dependent_files(sys.executable))
+            dependent_files = self._get_dependent_files(Path(sys.executable))
         python_libs = tuple(self._default_bin_includes())
         python_dirs = {Path(sys.base_exec_prefix), Path(sys.exec_prefix)}
         python_dirs.add(Path(sysconfig.get_config_var("srcdir")))  # Linux
@@ -251,7 +252,7 @@ class Freezer(ABC):
         self._add_resources(exe)
 
     def _platform_add_extra_dependencies(
-        self, dependent_files: Set[str]
+        self, dependent_files: Set[Path]
     ) -> None:
         """Override with platform specific files to add runtime libraries to
         the list of dependent_files calculated in _freeze_executable."""
@@ -291,12 +292,12 @@ class Freezer(ABC):
         be included."""
 
     @abstractmethod
-    def _get_dependent_files(self, path: Union[str, Path]) -> List[Path]:
+    def _get_dependent_files(self, path: Path) -> Set[Path]:
         """Return the file's dependencies using platform-specific tools (the
         imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
         limit this list by the exclusion lists as needed.
         (Implemented separately for each platform.)"""
-        return []
+        return set()
 
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
@@ -606,7 +607,7 @@ class Freezer(ABC):
                 os.environ["PATH"] = origPath
 
     def Freeze(self):
-        self.dependent_files: Dict[Path, List[Path]] = {}
+        self.dependent_files: Dict[Path, Set[Path]] = {}
         self.files_copied: Set[Path] = set()
         self.linkerWarnings = {}
 
@@ -791,20 +792,21 @@ class WinFreezer(Freezer):
         # return only valid paths
         return [str(path) for path in paths if path.is_dir()]
 
-    def _get_dependent_files(self, path: Union[str, Path]) -> List[Path]:
-        path = Path(path)
-        dependent_files = self.dependent_files.get(path, None)
-        if dependent_files is not None:
-            return dependent_files
+    def _get_dependent_files(self, path: Path) -> Set[Path]:
+        try:
+            return self.dependent_files[path]
+        except KeyError:
+            pass
 
-        dependent_files: List[Path] = []
+        dependent_files: Set[Path] = set()
         if path.suffix.lower().endswith((".exe", ".dll", ".pyd")):
             origPath = os.environ["PATH"]
             os.environ["PATH"] = (
                 origPath + os.pathsep + os.pathsep.join(sys.path)
             )
             try:
-                dependent_files = winutil.GetDependentFiles(str(path))  # FIXME
+                # FIXME: GetDependentFiles can accept Path?
+                files: List[str] = winutil.GetDependentFiles(str(path))
             except winutil.BindError as exc:
                 # Sometimes this gets called when path is not actually
                 # a library (See issue 88).
@@ -812,13 +814,13 @@ class WinFreezer(Freezer):
                     print("error during GetDependentFiles() of ", end="")
                     print(f"{path!s}: {exc!s}")
             else:
-                dependent_files = [Path(dep) for dep in dependent_files]
+                dependent_files = {Path(dep) for dep in files}
             os.environ["PATH"] = origPath
         self.dependent_files[path] = dependent_files
         return dependent_files
 
     def _platform_add_extra_dependencies(
-        self, dependent_files: Set[str]
+        self, dependent_files: Set[Path]
     ) -> None:
         search_dirs: Set[Path] = set()
         for filename in dependent_files:
@@ -990,12 +992,12 @@ class DarwinFreezer(Freezer):
         return [sysconfig.get_config_var("DESTSHARED")]
 
     def _get_dependent_files(
-        self, path: Union[str, Path], darwinFile: Optional["DarwinFile"] = None
-    ) -> List[Path]:
-        path = Path(path)
-        dependent_files = self.dependent_files.get(path, None)
-        if dependent_files is not None:
-            return dependent_files
+        self, path: Path, darwinFile: Optional["DarwinFile"] = None
+    ) -> Set[Path]:
+        try:
+            return self.dependent_files[path]
+        except KeyError:
+            pass
 
         # if darwinFile is None (which means that _get_dependent_files is
         # being called outside of _copy_file -- e.g., one of the
@@ -1017,7 +1019,7 @@ class DarwinFreezer(Freezer):
                     sourcePath=reference.resolvedReferencePath,
                     machOReference=reference,
                 )
-        dependent_files = [Path(dep) for dep in dependent_files]
+        dependent_files = {Path(dep) for dep in dependent_files}
         self.dependent_files[path] = dependent_files
         return dependent_files
 
@@ -1099,20 +1101,20 @@ class LinuxFreezer(Freezer):
         # add the stdlib/lib-dynload directory
         return [sysconfig.get_config_var("DESTSHARED")]
 
-    def _get_dependent_files(self, path: Union[str, Path]) -> List[Path]:
-        path = Path(path)
-        dependent_files = self.dependent_files.get(path, None)
-        if dependent_files is not None:
-            return dependent_files
+    def _get_dependent_files(self, path: Path) -> Set[Path]:
+        try:
+            return self.dependent_files[path]
+        except KeyError:
+            pass
 
-        dependent_files = []
+        dependent_files: Set[Path] = set()
         if not os.access(path, os.X_OK):
-            self.dependent_files[path] = []
-            return []
-        command = f"ldd {str(path)!r}"
+            self.dependent_files[path] = dependent_files
+            return dependent_files
         splitString = " => "
         dependentFileIndex = 1
-        for line in os.popen(command):
+        out = subprocess.check_output(["ldd", path], encoding="utf-8")
+        for line in out.splitlines():
             parts = line.expandtabs().strip().split(splitString)
             if len(parts) != 2:
                 continue
@@ -1132,6 +1134,6 @@ class LinuxFreezer(Freezer):
             if pos >= 0:
                 dependent_file = dependent_file[:pos].strip()
             if dependent_file:
-                dependent_files.append(Path(dependent_file))
+                dependent_files.add(Path(dependent_file))
         self.dependent_files[path] = dependent_files
         return dependent_files
