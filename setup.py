@@ -67,7 +67,11 @@ class build_ext(setuptools.command.build_ext.build_ext):
                             if "clang" in linker_option:
                                 extra_args.append(f"-Wl,-delayload,{dll_name}")
                                 break
-                        libraries.append(library)
+                        if get_platform().startswith("mingw_i686"):  # mingw32
+                            # disable delay load to avoid a Segmentation fault
+                            libraries.append(lib_name)
+                        else:
+                            libraries.append(library)
                         library_dirs.append(lib_dir)
             if compiler_type == "msvc":
                 extra_args.append("/MANIFEST")
