@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
 import subprocess
 import stat
-from typing import List, Dict, Optional, Set, Iterable
+from typing import Dict, Iterable, List, Optional, Set, Union
 
 from .exception import DarwinException
 
@@ -75,7 +76,7 @@ class DarwinFile:
 
     def __init__(
         self,
-        originalFilePath: str,
+        originalFilePath: Union[str, Path],
         referencingFile: Optional["DarwinFile"] = None,
         strictRPath: bool = False,
     ):
@@ -310,21 +311,22 @@ class DarwinFile:
             resolvedPath = self.resolvePath(path=rawPath)
             self.libraryPathResolution[rawPath] = resolvedPath
 
-    def getDependentFilePaths(self) -> List[str]:
+    def getDependentFilePaths(self) -> Set[Path]:
         """Returns a list the available resolved paths to dependencies."""
-        dependents: List[str] = []
+        dependents: Set[Path] = set()
         for ref in self.machOReferenceForTargetPath.values():
             # skip load references that could not be resolved
             if ref.isResolved():
-                dependents.append(ref.resolvedReferencePath)
+                dependents.add(Path(ref.resolvedReferencePath))
         return dependents
 
     def getMachOReferenceList(self) -> List[MachOReference]:
         return list(self.machOReferenceForTargetPath.values())
 
-    def getMachOReferenceForPath(self, path: str) -> MachOReference:
+    def getMachOReferenceForPath(self, path: Union[str, Path]) -> MachOReference:
         """Returns the reference pointing to the specified path, baed on paths stored
         in self.machOReferenceTargetPath.  Raises Exception if not available."""
+        path = os.path.normpath(path)
         if path not in self.machOReferenceForTargetPath:
             raise DarwinException(
                 f"Path {path} is not a path referenced from DarwinFile"
@@ -508,12 +510,14 @@ class DarwinFileTracker:
             return True
         return False
 
-    def getDarwinFile(self, sourcePath: str, targetPath: str) -> DarwinFile:
+    def getDarwinFile(self, sourcePath: Union[str, Path], targetPath: Union[str, Path]) -> DarwinFile:
         """
         Gets the DarwinFile for file copied from sourcePath to targetPath.
         If either (i) nothing, or (ii) a different file has been copied to
         targetPath, raises a DarwinException.
         """
+        sourcePath=os.path.normpath(sourcePath)
+        targetPath=os.path.normpath(targetPath)
         # check that the file has been copied to
         if targetPath not in self._darwinFileForBuildPath:
             raise DarwinException(
@@ -560,8 +564,9 @@ class DarwinFileTracker:
         self._referenceCache[sourcePath] = machOReference
 
     def getCachedReferenceTo(
-        self, sourcePath: str
+        self, sourcePath: Union[str, Path]
     ) -> Optional[MachOReference]:
+        sourcePath=os.path.normpath(sourcePath)
         if sourcePath in self._referenceCache:
             return self._referenceCache[sourcePath]
         return None
