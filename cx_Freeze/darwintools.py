@@ -323,7 +323,9 @@ class DarwinFile:
     def getMachOReferenceList(self) -> List[MachOReference]:
         return list(self.machOReferenceForTargetPath.values())
 
-    def getMachOReferenceForPath(self, path: Union[str, Path]) -> MachOReference:
+    def getMachOReferenceForPath(
+        self, path: Union[str, Path]
+    ) -> MachOReference:
         """Returns the reference pointing to the specified path, baed on paths stored
         in self.machOReferenceTargetPath.  Raises Exception if not available."""
         path = os.path.normpath(path)
@@ -510,14 +512,16 @@ class DarwinFileTracker:
             return True
         return False
 
-    def getDarwinFile(self, sourcePath: Union[str, Path], targetPath: Union[str, Path]) -> DarwinFile:
+    def getDarwinFile(
+        self, sourcePath: Union[str, Path], targetPath: Union[str, Path]
+    ) -> DarwinFile:
         """
         Gets the DarwinFile for file copied from sourcePath to targetPath.
         If either (i) nothing, or (ii) a different file has been copied to
         targetPath, raises a DarwinException.
         """
-        sourcePath=os.path.normpath(sourcePath)
-        targetPath=os.path.normpath(targetPath)
+        sourcePath = os.path.normpath(sourcePath)
+        targetPath = os.path.normpath(targetPath)
         # check that the file has been copied to
         if targetPath not in self._darwinFileForBuildPath:
             raise DarwinException(
@@ -566,7 +570,7 @@ class DarwinFileTracker:
     def getCachedReferenceTo(
         self, sourcePath: Union[str, Path]
     ) -> Optional[MachOReference]:
-        sourcePath=os.path.normpath(sourcePath)
+        sourcePath = os.path.normpath(sourcePath)
         if sourcePath in self._referenceCache:
             return self._referenceCache[sourcePath]
         return None

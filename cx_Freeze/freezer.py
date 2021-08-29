@@ -91,9 +91,9 @@ class Freezer(ABC):
         self.packages: Set[str] = set(packages or [])
         self.replacePaths: List[str] = list(replacePaths or [])
         self.compress = True if compress is None else compress
-        self.optimize_flag:int = optimizeFlag
-        self.path:Optional[List[str]] = path
-        self.include_msvcr:bool = includeMSVCR
+        self.optimize_flag: int = optimizeFlag
+        self.path: Optional[List[str]] = path
+        self.include_msvcr: bool = includeMSVCR
         self.targetdir = targetDir
         self.bin_includes: Optional[List[str]] = binIncludes
         self.bin_excludes: Optional[List[str]] = binExcludes
@@ -967,9 +967,7 @@ class DarwinFreezer(Freezer):
         # We need to do this so the file knows what file referenced it,
         # and can therefore calculate the appropriate rpath.
         # (We only cache one reference.)
-        cachedReference = self.darwinTracker.getCachedReferenceTo(
-            source
-        )
+        cachedReference = self.darwinTracker.getCachedReferenceTo(source)
         self._copy_file_recursion(
             source,
             target,
