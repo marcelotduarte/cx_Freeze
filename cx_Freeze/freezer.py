@@ -623,7 +623,9 @@ class Freezer(ABC):
         library_zip = targetdir / "lib" / "library.zip"
         self._write_modules(library_zip, finder)
 
+        exclude_dependent_files = self.finder.exclude_dependent_files
         for source_path, target_path in finder.include_files:
+            copy_dependent_files = source_path not in exclude_dependent_files
             if source_path.is_dir():
                 # Copy directories by recursing into them.
                 # Can't use shutil.copytree because we may need dependencies
@@ -637,15 +639,11 @@ class Freezer(ABC):
                         continue
                     fulltarget = target_base / name.relative_to(source_path)
                     self._create_directory(fulltarget.parent)
-                    self._copy_file(
-                        name, fulltarget, copy_dependent_files=True
-                    )
+                    self._copy_file(name, fulltarget, copy_dependent_files)
             else:
                 # Copy regular files.
                 fulltarget = targetdir / target_path
-                self._copy_file(
-                    source_path, fulltarget, copy_dependent_files=True
-                )
+                self._copy_file(source_path, fulltarget, copy_dependent_files)
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
