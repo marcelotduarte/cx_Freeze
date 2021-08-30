@@ -16,30 +16,6 @@ class Patchelf:
     def __init__(self) -> None:
         _verify_patchelf()
 
-    def get_rpath(self, filename: Union[str, Path]) -> str:
-        args = ["patchelf", "--print-rpath", filename]
-        try:
-            rpath = check_output(args, encoding="utf-8").strip()
-        except CalledProcessError:
-            rpath = ""
-        return rpath
-
-    def replace_needed(
-        self, filename: Union[str, Path], so_name: str, new_so_name: str
-    ) -> None:
-        args = ["patchelf", "--replace-needed", so_name, new_so_name, filename]
-        check_call(args)
-
-    def set_rpath(self, filename: Union[str, Path], rpath: str) -> None:
-        args = ["patchelf", "--remove-rpath", filename]
-        check_call(args)
-        args = ["patchelf", "--force-rpath", "--set-rpath", rpath, filename]
-        check_call(args)
-
-    def set_soname(self, filename: Union[str, Path], new_so_name: str) -> None:
-        args = ["patchelf", "--set-soname", new_so_name, filename]
-        check_call(args)
-
     def get_needed(
         self,
         path: Union[str, Path],
@@ -76,6 +52,30 @@ class Patchelf:
             print("WARNING:", *args, "returns:")
             print(process.stderr, end="")
         return dependent_files
+
+    def get_rpath(self, filename: Union[str, Path]) -> str:
+        args = ["patchelf", "--print-rpath", filename]
+        try:
+            rpath = check_output(args, encoding="utf-8").strip()
+        except CalledProcessError:
+            rpath = ""
+        return rpath
+
+    def replace_needed(
+        self, filename: Union[str, Path], so_name: str, new_so_name: str
+    ) -> None:
+        args = ["patchelf", "--replace-needed", so_name, new_so_name, filename]
+        check_call(args)
+
+    def set_rpath(self, filename: Union[str, Path], rpath: str) -> None:
+        args = ["patchelf", "--remove-rpath", filename]
+        check_call(args)
+        args = ["patchelf", "--force-rpath", "--set-rpath", rpath, filename]
+        check_call(args)
+
+    def set_soname(self, filename: Union[str, Path], new_so_name: str) -> None:
+        args = ["patchelf", "--set-soname", new_so_name, filename]
+        check_call(args)
 
 
 def _verify_patchelf() -> None:
