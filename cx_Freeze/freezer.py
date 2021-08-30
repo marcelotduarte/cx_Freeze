@@ -1043,23 +1043,25 @@ class LinuxFreezer(Freezer):
                 try:
                     relative = dependent_file.relative_to(source_dir)
                 except ValueError:
-                    # define a fallback and check a possible target
+                    # put it in the targetdir if not already copied
                     dependent_filename = dependent_file.name
                     dependent_target = targetdir / dependent_filename
                     relative = Path(dependent_filename)
                     if dependent_target not in self.files_copied:
                         for file in self.files_copied:
                             if file.name == dependent_filename:
-                                relative = file.relative_to(targetdir)
+                                relative = file.relative_to(library_dir)
+                                dependent_target = library_dir / relative
                                 break
-                if targetdir == library_dir:
-                    parts = relative.parts
-                    while parts[0] == os.pardir:
-                        parts = parts[1:]
-                    relative = Path(*parts)
+                else:
+                    if targetdir == library_dir:
+                        parts = relative.parts
+                        while parts[0] == os.pardir:
+                            parts = parts[1:]
+                        relative = Path(*parts)
+                    dependent_target = targetdir / relative
                 dep_libs = str(relative.parent)
                 fix_rpath.add(dep_libs)
-                dependent_target = targetdir / relative
                 self._copy_file(
                     dependent_file, dependent_target, copy_dependent_files
                 )
