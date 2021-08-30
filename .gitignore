@@ -13,4 +13,5 @@ __pycache__
 *.pyc
 sample.xlsx
 dump.sql
-
+# PyCharm configuration files
+.idea
