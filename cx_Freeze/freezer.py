@@ -11,11 +11,10 @@ from pathlib import Path
 import shutil
 import stat
 import struct
-import subprocess
 import sys
 import sysconfig
 import time
-from typing import Dict, List, Set, Tuple, Optional, Union
+from typing import Any, Dict, List, Set, Tuple, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
@@ -609,7 +608,7 @@ class Freezer(ABC):
     def Freeze(self):
         self.dependent_files: Dict[Path, Set[Path]] = {}
         self.files_copied: Set[Path] = set()
-        self.linkerWarnings = {}
+        self.linker_warnings: Dict[Path, Any] = {}
 
         finder: ModuleFinder = self._get_module_finder()
         self.finder: ModuleFinder = finder
@@ -1101,29 +1100,8 @@ class LinuxFreezer(Freezer):
         if not os.access(path, os.X_OK):
             self.dependent_files[path] = dependent_files
             return dependent_files
-        splitString = " => "
-        dependentFileIndex = 1
-        out = subprocess.check_output(["ldd", path], encoding="utf-8")
-        for line in out.splitlines():
-            parts = line.expandtabs().strip().split(splitString)
-            if len(parts) != 2:
-                continue
-            dependent_file = parts[dependentFileIndex].strip()
-            if dependent_file == path.name:
-                continue
-            if dependent_file in ("not found", "(file not found)"):
-                filename = parts[0]
-                if filename not in self.linkerWarnings:
-                    self.linkerWarnings[filename] = None
-                    if self.silent < 3:
-                        print(f"WARNING: cannot find {filename!r}")
-                continue
-            if dependent_file.startswith("("):
-                continue
-            pos = dependent_file.find(" (")
-            if pos >= 0:
-                dependent_file = dependent_file[:pos].strip()
-            if dependent_file:
-                dependent_files.add(Path(dependent_file))
+        dependent_files = self.patchelf.get_needed(
+            path, self.linker_warnings, show_warnings=self.silent < 3
+        )
         self.dependent_files[path] = dependent_files
         return dependent_files
