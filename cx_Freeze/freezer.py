@@ -1096,11 +1096,7 @@ class LinuxFreezer(Freezer):
         except KeyError:
             pass
 
-        dependent_files: Set[Path] = set()
-        if not os.access(path, os.X_OK):
-            self.dependent_files[path] = dependent_files
-            return dependent_files
-        dependent_files = self.patchelf.get_needed(
+        dependent_files: Set[Path] = self.patchelf.get_needed(
             path, self.linker_warnings, show_warnings=self.silent < 3
         )
         self.dependent_files[path] = dependent_files

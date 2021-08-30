@@ -3,11 +3,16 @@ Implements a new `Patchelf` interface to create an abstraction for patching
 ELF files.
 """
 
+import os
 from pathlib import Path
 from shutil import which
 from subprocess import check_call, check_output, run, CalledProcessError, PIPE
 import re
 from typing import Any, Dict, Set, Union
+
+MAGIC_ELF = b"\x7fELF"
+NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
+NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
 
 
 class Patchelf:
@@ -16,6 +21,19 @@ class Patchelf:
     def __init__(self) -> None:
         _verify_patchelf()
 
+    def is_elf(self, path: Union[str, Path]) -> bool:
+        if isinstance(path, str):
+            path = Path(path)
+        if (
+            path.suffix in NON_ELF_EXT
+            or path.is_symlink()
+            or not path.is_file()
+        ):
+            return False
+        with open(path, "rb") as fp:
+            four_bytes = fp.read(4)
+        return bool(four_bytes == MAGIC_ELF)
+
     def get_needed(
         self,
         path: Union[str, Path],
@@ -23,6 +41,10 @@ class Patchelf:
         show_warnings: bool,
     ) -> Set[Path]:
         dependent_files: Set[Path] = set()
+        if isinstance(path, str):
+            path = Path(path)
+        if not self.is_elf(path) or not os.access(path, os.X_OK):
+            return dependent_files
         split_string = " => "
         dependent_file_index = 1
         args = ("ldd", path)
