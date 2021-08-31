@@ -869,7 +869,7 @@ class DarwinFreezer(Freezer):
         target: Path,
         copy_dependent_files: bool,
         include_mode: bool = False,
-        machOReference: Optional["MachOReference"] = None,
+        reference: Optional["MachOReference"] = None,
     ) -> None:
 
         # The file was not previously copied, so need to create a
@@ -877,17 +877,15 @@ class DarwinFreezer(Freezer):
         newDarwinFile = None
 
         referencingFile = None
-        if machOReference is not None:
-            referencingFile = machOReference.sourceFile
+        if reference is not None:
+            referencingFile = reference.source_file
 
         newDarwinFile = DarwinFile(source, referencingFile)
-        newDarwinFile.setBuildPath(os.path.normpath(target))
-        if machOReference is not None:
-            machOReference.setTargetFile(darwinFile=newDarwinFile)
+        newDarwinFile.setBuildPath(target)
+        if reference is not None:
+            reference.setTargetFile(newDarwinFile)
 
-        self.darwinTracker.recordCopiedFile(
-            targetPath=os.path.normpath(target), darwinFile=newDarwinFile
-        )
+        self.darwinTracker.recordCopiedFile(target, darwinFile=newDarwinFile)
         if (
             copy_dependent_files
             and source not in self.finder.exclude_dependent_files
@@ -903,7 +901,7 @@ class DarwinFreezer(Freezer):
                     dependent_file,
                     target,
                     copy_dependent_files=True,
-                    machOReference=newDarwinFile.getMachOReferenceForPath(
+                    reference=newDarwinFile.getMachOReferenceForPath(
                         dependent_file
                     ),
                 )
@@ -914,11 +912,11 @@ class DarwinFreezer(Freezer):
         target: Path,
         copy_dependent_files: bool,
         include_mode: bool = False,
-        machOReference: Optional["MachOReference"] = None,
+        reference: Optional["MachOReference"] = None,
     ) -> None:
         """This is essentially the same as Freezer._copy_file, except that it
-        also takes a machOReference parameter. Used when recursing to
-        dependencies of a file on Darwin."""
+        also takes a reference parameter. Used when recursing to dependencies
+        of a file on Darwin."""
         if not self._should_copy_file(source):
             return
 
@@ -926,14 +924,13 @@ class DarwinFreezer(Freezer):
         source, target = self._pre_copy_hook(source, target)
 
         if target in self.files_copied:
-            if machOReference is not None:
+            if reference is not None:
                 # If file was already copied, and we are following a reference
                 # from a DarwinFile, then we need to tell the reference where
                 # the file was copied to (so the reference can later be updated).
-                copiedDarwinFile = self.darwinTracker.getDarwinFile(
-                    source, target
+                reference.setTargetFile(
+                    self.darwinTracker.getDarwinFile(source, target)
                 )
-                machOReference.setTargetFile(copiedDarwinFile)
             return
         if source == target:
             return
@@ -952,7 +949,7 @@ class DarwinFreezer(Freezer):
             target,
             copy_dependent_files=copy_dependent_files,
             include_mode=include_mode,
-            machOReference=machOReference,
+            reference=reference,
         )
 
     def _copy_top_dependency(self, source: Path) -> None:
@@ -974,7 +971,7 @@ class DarwinFreezer(Freezer):
             target,
             copy_dependent_files=True,
             include_mode=True,
-            machOReference=cachedReference,
+            reference=cachedReference,
         )
 
     def _default_bin_path_excludes(self):
@@ -1006,8 +1003,7 @@ class DarwinFreezer(Freezer):
         for reference in darwinFile.getMachOReferenceList():
             if reference.isResolved():
                 self.darwinTracker.cacheReferenceTo(
-                    sourcePath=reference.resolvedReferencePath,
-                    machOReference=reference,
+                    reference.resolved_path, reference
                 )
         self.dependent_files[path] = dependent_files
         return dependent_files
