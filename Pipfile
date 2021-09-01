@@ -8,6 +8,7 @@ importlib_metadata = ">=3.1.1"
 
 [dev-packages]
 nose = "*"
+pygments = "*"
 
 [requires]
 python_version = "3.9"
