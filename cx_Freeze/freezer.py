@@ -658,7 +658,7 @@ class WinFreezer(Freezer):
         self._set_runtime_files()
 
     def _add_resources(self, exe: Executable) -> None:
-        target_path: str = str(self.targetdir / exe.target_name)
+        target_path: Path = self.targetdir / exe.target_name
 
         # Add version resource
         if self.metadata is not None:
@@ -681,15 +681,16 @@ class WinFreezer(Freezer):
                     copyright=exe.copyright,
                     trademarks=exe.trademarks,
                 )
-                version_stamp(target_path, versionInfo)
+                version_stamp(str(target_path), versionInfo)
 
         # Add icon
         if exe.icon is not None:
-            exe_icon: str = str(exe.icon)
-
             try:
-                winutil.AddIcon(target_path, exe_icon)
-            except (MemoryError, RuntimeError) as exc:
+                winutil.AddIcon(target_path, exe.icon)
+            except MemoryError:
+                if self.silent < 3:
+                    print("WARNING: MemoryError")
+            except RuntimeError as exc:
                 if self.silent < 3:
                     print("WARNING:", exc)
             except OSError as exc:
@@ -708,7 +709,10 @@ class WinFreezer(Freezer):
         # Update the PE checksum (or fix it in case it is zero)
         try:
             winutil.UpdateCheckSum(target_path)
-        except (MemoryError, RuntimeError, OSError) as exc:
+        except MemoryError:
+            if self.silent < 3:
+                print("WARNING: MemoryError")
+        except (RuntimeError, OSError) as exc:
             if self.silent < 3:
                 print("WARNING:", exc)
 
@@ -802,14 +806,13 @@ class WinFreezer(Freezer):
                 origPath + os.pathsep + os.pathsep.join(sys.path)
             )
             try:
-                # FIXME: GetDependentFiles can accept Path?
-                files: List[str] = winutil.GetDependentFiles(str(path))
+                files: List[str] = winutil.GetDependentFiles(path)
             except winutil.BindError as exc:
                 # Sometimes this gets called when path is not actually
                 # a library (See issue 88).
                 if self.silent < 3:
-                    print("error during GetDependentFiles() of ", end="")
-                    print(f"{path!s}: {exc!s}")
+                    print("WARNING: ignoring error during ", end="")
+                    print(f"GetDependentFiles({path}):", exc)
             else:
                 dependent_files = {Path(dep) for dep in files}
             os.environ["PATH"] = origPath

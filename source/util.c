@@ -192,7 +192,9 @@ static PyObject *ExtAddIcon(
     executable_name = NULL;
     icon_name = NULL;
 
-    if (!PyArg_ParseTuple(args, "UU", &executable, &icon)) {
+    if (!PyArg_ParseTuple(args, "O&O&",
+                          PyUnicode_FSDecoder, &executable,
+                          PyUnicode_FSDecoder, &icon)) {
         succeeded = FALSE;
         PyErr_Format(
             PyExc_RuntimeError, "Invalid parameters."
@@ -282,6 +284,8 @@ static PyObject *ExtAddIcon(
         PyMem_Free(groupIconDir);
     if (data)
         PyMem_Free(data);
+    Py_DECREF(executable);
+    Py_DECREF(icon);
     if (!succeeded)
         return NULL;
 
@@ -380,23 +384,28 @@ static PyObject *ExtGetDependentFiles(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    PyObject *results;
-    char *imageName;
+    PyObject *path, *results;
+    char *image_name;
+    Py_ssize_t len;
 
-    if (!PyArg_ParseTuple(args, "s", &imageName))
+    if (!PyArg_ParseTuple(args, "O&", PyUnicode_FSConverter, &path))
         return NULL;
+
+    PyBytes_AsStringAndSize(path, &image_name, &len);
     g_ImageNames = PyDict_New();
     if (!g_ImageNames)
         return NULL;
     if (!BindImageEx(BIND_NO_BOUND_IMPORTS | BIND_NO_UPDATE | BIND_ALL_IMAGES,
-                imageName, NULL, NULL, BindStatusRoutine)) {
+                image_name, NULL, NULL, BindStatusRoutine)) {
         Py_DECREF(g_ImageNames);
-        PyErr_SetExcFromWindowsErrWithFilename(g_BindErrorException,
-                GetLastError(), imageName);
+        PyErr_SetExcFromWindowsErrWithFilenameObject(
+            g_BindErrorException, GetLastError(), path);
+        Py_DECREF(path);
         return NULL;
     }
     results = PyDict_Keys(g_ImageNames);
     Py_DECREF(g_ImageNames);
+    Py_DECREF(path);
     return results;
 }
 
@@ -451,7 +460,7 @@ static PyObject *ExtUpdateCheckSum(
     PIMAGE_NT_HEADERS headers;
     BOOL succeeded = TRUE;
 
-    if (!PyArg_ParseTuple(args, "U", &executable)) {
+    if (!PyArg_ParseTuple(args, "O&", PyUnicode_FSDecoder, &executable)) {
         PyErr_Format(
             PyExc_RuntimeError, "Invalid parameter."
         );
@@ -518,8 +527,10 @@ static PyObject *ExtUpdateCheckSum(
         PyErr_SetExcFromWindowsErrWithFilenameObject(
             PyExc_WindowsError, last_error, executable
         );
+        Py_DECREF(executable);
         return NULL;
     }
+    Py_DECREF(executable);
 
     // return a Tuple[int, int] (so we can check the values)
     results = Py_BuildValue("(ii)", header_sum, check_sum);
