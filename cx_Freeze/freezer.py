@@ -877,18 +877,16 @@ class DarwinFreezer(Freezer):
 
         # The file was not previously copied, so need to create a
         # DarwinFile file object to represent the file being copied.
-        newDarwinFile = None
-
-        referencingFile = None
         if reference is not None:
-            referencingFile = reference.source_file
-
-        newDarwinFile = DarwinFile(source, referencingFile)
-        newDarwinFile.setBuildPath(target)
+            referencing_file = reference.source_file
+        else:
+            referencing_file = None
+        darwin_file = DarwinFile(source, referencing_file)
+        darwin_file.setBuildPath(target)
         if reference is not None:
-            reference.setTargetFile(newDarwinFile)
+            reference.setTargetFile(darwin_file)
 
-        self.darwinTracker.recordCopiedFile(target, darwinFile=newDarwinFile)
+        self.darwinTracker.recordCopiedFile(target, darwin_file)
         if (
             copy_dependent_files
             and source not in self.finder.exclude_dependent_files
@@ -896,17 +894,14 @@ class DarwinFreezer(Freezer):
             # Always copy dependent files on root directory
             # to allow to set relative reference
             targetdir = self.targetdir
-            for dependent_file in self._get_dependent_files(
-                source, darwinFile=newDarwinFile
-            ):
-                target = targetdir / dependent_file.name
+            for dependent in self._get_dependent_files(source, darwin_file):
+                target = targetdir / dependent.name
+                reference = darwin_file.getMachOReferenceForPath(dependent)
                 self._copy_file_recursion(
-                    dependent_file,
+                    dependent,
                     target,
                     copy_dependent_files=True,
-                    reference=newDarwinFile.getMachOReferenceForPath(
-                        dependent_file
-                    ),
+                    reference=reference,
                 )
 
     def _copy_file_recursion(
