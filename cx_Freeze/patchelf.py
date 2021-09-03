@@ -6,6 +6,7 @@ ELF files.
 import os
 from pathlib import Path
 from shutil import which
+import stat
 from subprocess import check_call, check_output, run, CalledProcessError, PIPE
 import re
 from typing import Any, Dict, Set, Union
@@ -86,18 +87,29 @@ class Patchelf:
     def replace_needed(
         self, filename: Union[str, Path], so_name: str, new_so_name: str
     ) -> None:
+        self._set_write_mode(filename)
         args = ["patchelf", "--replace-needed", so_name, new_so_name, filename]
         check_call(args)
 
     def set_rpath(self, filename: Union[str, Path], rpath: str) -> None:
+        self._set_write_mode(filename)
         args = ["patchelf", "--remove-rpath", filename]
         check_call(args)
         args = ["patchelf", "--force-rpath", "--set-rpath", rpath, filename]
         check_call(args)
 
     def set_soname(self, filename: Union[str, Path], new_so_name: str) -> None:
+        self._set_write_mode(filename)
         args = ["patchelf", "--set-soname", new_so_name, filename]
         check_call(args)
+
+    @staticmethod
+    def _set_write_mode(filename: Union[str, Path]) -> None:
+        if isinstance(filename, str):
+            filename = Path(filename)
+        mode = filename.stat().st_mode
+        if mode & stat.S_IWUSR == 0:
+            filename.chmod(mode | stat.S_IWUSR)
 
 
 def _verify_patchelf() -> None:

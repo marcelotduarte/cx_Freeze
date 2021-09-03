@@ -25,7 +25,7 @@ Python requirements
 
 Python requirements are installed automatically by pip or conda.
 
-- cx_Logging >=3.0 # Windows only
+- cx_Logging >=3.0 (Windows only)
 - importlib-metadata
 - setuptools
 
@@ -52,11 +52,12 @@ Or install patchelf from
 
   .. code-block:: console
 
-    git clone -b 0.12 --single-branch https://github.com/NixOS/patchelf.git
+    git clone -b 0.13 --single-branch https://github.com/NixOS/patchelf.git
     cd patchelf
     ./bootstrap.sh
     ./configure
     make
+    make check
     sudo make install
 
 
@@ -70,8 +71,8 @@ Using pipenv, install or update by issuing one of the folowing commanda:
     pipenv install cx_Freeze
     pipenv update cx_Freeze
 
-Anaconda / Miniconda
---------------------
+Miniconda3
+----------
 
 Directly from the conda-forge channel:
 
@@ -84,25 +85,23 @@ using the same channel:
 
 - python
 - c-compiler
-- libpython-static # for python >=3.8 in linux and macOS
+- libpython-static (for python >=3.8 in linux and macOS)
 - importlib-metadata
-- patchelf # optional if already installed in the Linux system
-- declare SDKROOT or CONDA_BUILD_SYSROOT # for python 3.9 in macOS
+- patchelf (optional if already installed in the Linux system)
+- declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9 in macOS)
 
-A example using miniconda3:
+A example using Miniconda3:
 
   .. code-block:: console
 
-    conda create -n cx38conda -c conda-forge python=3.8 libpython-static -y
-    conda activate cx38conda
+    # If using python 3.9 or higer in Github Actions CI, macOS, use this:
+    export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+
+    # For macOS and Linux
+    conda create -n cx39conda -c conda-forge python=3.9 libpython-static -y
+    conda activate cx39conda
     conda install -c conda-forge c-compiler importlib-metadata -y
     pip install --no-binary :all: --pre cx_Freeze -v
-
-In a macOS system, with python 3.9, in Github Actions CI, we use:
-
-  .. code-block:: console
-
-    export SDKROOT=SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
 
 Download tarball or wheels
 --------------------------
