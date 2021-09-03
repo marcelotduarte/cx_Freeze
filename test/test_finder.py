@@ -4,13 +4,14 @@ import sys
 
 test_dir = os.path.dirname(__file__)
 
-from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.finder import ModuleFinder, ConstantsModule
 
 any3 = (mock.ANY,) * 3
 
 
 def test_ScanCode():
-    mf = ModuleFinder()
+    constants = ConstantsModule()
+    mf = ModuleFinder(constants_module=constants)
     with mock.patch.object(mf, "_import_module") as _ImportModule_mock:
         _ImportModule_mock.return_value = None
         mf.IncludeFile(os.path.join(test_dir, "imports_sample.py"))
@@ -30,7 +31,8 @@ def test_ScanCode():
 
 def test_not_import_invalid_module_name():
     """testpkg1 contains not.importable.py, which shouldn't be included."""
-    mf = ModuleFinder()
+    constants = ConstantsModule()
+    mf = ModuleFinder(constants_module=constants)
     mf.path.insert(0, os.path.join(test_dir, "samples"))
 
     try:
@@ -43,13 +45,14 @@ def test_not_import_invalid_module_name():
         ), "submodules with names containing '.' should not be included"
 
     assert (
-        "invalid-identifier" in module.globalNames
+        "invalid-identifier" in module.global_names
     ), "submodules whose names contain invalid identifiers should still be imported"
 
 
 def test_invalid_syntax():
     """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
-    mf = ModuleFinder(path=[os.path.join(test_dir, "samples")] + sys.path)
+    constants = ConstantsModule()
+    mf = ModuleFinder(path=[os.path.join(test_dir, "samples")] + sys.path, constants_module=constants)
     try:
         mf.IncludeModule(
             "invalid_syntax"
