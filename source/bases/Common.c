@@ -159,33 +159,36 @@ static int InitializePython(int argc, wchar_t **argv)
 //-----------------------------------------------------------------------------
 static int ExecuteScript(void)
 {
-    PyObject *module, *function_init, *result_init, *function_run, *result_run;
+    PyObject *module, *func = NULL, *result = NULL;
 
     module = PyImport_ImportModule("__startup__");
     if (!module)
         return FatalScriptError();
 
-    function_init = PyObject_GetAttrString(module, "init");
-    if (!function_init)
+    func = PyObject_GetAttrString(module, "init");
+    if (!func) {
+        Py_DECREF(module);
         return FatalScriptError();
+    }
 
-    result_init = PyObject_CallObject(function_init, NULL);
-    if (!result_init)
+    result = PyObject_CallObject(func, NULL);
+    Py_DECREF(func);
+    if (!result) {
+        Py_DECREF(module);
         return FatalScriptError();
+    }
+    Py_DECREF(result);
 
-    function_run = PyObject_GetAttrString(module, "run");
-    if (!function_run)
-        return FatalScriptError();
-
-    result_run = PyObject_CallObject(function_run, NULL);
-    if (!result_run)
-        return FatalScriptError();
-
-    Py_DECREF(result_run);
-    Py_DECREF(function_run);
-    Py_DECREF(result_init);
-    Py_DECREF(function_init);
+    func = PyObject_GetAttrString(module, "run");
     Py_DECREF(module);
+    if (!func)
+        return FatalScriptError();
+
+    result = PyObject_CallObject(func, NULL);
+    Py_DECREF(func);
+    if (!result)
+        return FatalScriptError();
+    Py_DECREF(result);
 
     return 0;
 }
