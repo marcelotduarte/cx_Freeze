@@ -114,6 +114,7 @@ static int Service_Stop(udt_ServiceInfo* info)
 {
     PyThreadState *threadState;
     PyObject *result;
+    int ret = 0;
 
     // indicate that the service is being stopped
     if (Service_SetStatus(info, SERVICE_STOP_PENDING) < 0)
@@ -126,32 +127,34 @@ static int Service_Stop(udt_ServiceInfo* info)
 
     // create a new Python thread and acquire the global interpreter lock
     threadState = PyThreadState_New(gInterpreterState);
-    if (!threadState)
-        return LogPythonException("unable to create new thread state");
-    PyEval_AcquireThread(threadState);
+    if (threadState) {
+        PyEval_AcquireThread(threadState);
 
-    // call the "stop" method
-    result = PyObject_CallMethod(gInstance, "stop", NULL);
-    if (!result)
-        result = PyObject_CallMethod(gInstance, "Stop", NULL);
-    if (!result)
-        return LogPythonException("exception calling stop method");
-    Py_DECREF(result);
+        // call the "stop" method
+        result = PyObject_CallMethod(gInstance, "stop", NULL);
+        if (!result)
+            result = PyObject_CallMethod(gInstance, "Stop", NULL);
+        if (!result)
+            ret = LogPythonException("exception calling stop method");
+        else
+            Py_DECREF(result);
 
-    // destroy the Python thread and release the global interpreter lock
-    PyThreadState_Clear(threadState);
-    PyEval_ReleaseThread(threadState);
-    PyThreadState_Delete(threadState);
+        // destroy the Python thread and release the global interpreter lock
+        PyThreadState_Clear(threadState);
+        PyEval_ReleaseThread(threadState);
+        PyThreadState_Delete(threadState);
+    } else
+        ret = LogPythonException("unable to create new thread state");
 
     // indicate that the service has stopped
     if (Service_SetStatus(info, SERVICE_STOPPED) < 0)
-        return LogWin32Error(GetLastError(), "cannot set service as stopped");
+        ret = LogWin32Error(GetLastError(), "cannot set service as stopped");
 
     // now set the control event
     if (!SetEvent(gControlEvent))
-        return LogWin32Error(GetLastError(), "cannot set control event");
+        ret = LogWin32Error(GetLastError(), "cannot set control event");
 
-    return 0;
+    return ret;
 }
 
 
@@ -163,27 +166,33 @@ static int Service_SessionChange(DWORD sessionId, DWORD eventType)
 {
     PyThreadState *threadState;
     PyObject *result;
+    char *error_message = NULL;
 
     // create a new Python thread and acquire the global interpreter lock
     threadState = PyThreadState_New(gInterpreterState);
-    if (!threadState)
-        return LogPythonException("unable to create new thread state");
-    PyEval_AcquireThread(threadState);
+    if (threadState) {
+        PyEval_AcquireThread(threadState);
 
-    // call Python method
-    result = PyObject_CallMethod(gInstance, "session_changed", "ii",
-                                 sessionId, eventType);
-    if (!result)
-        result = PyObject_CallMethod(gInstance, "sessionChanged", "ii",
+        // call Python method
+        result = PyObject_CallMethod(gInstance, "session_changed", "ii",
                                      sessionId, eventType);
-    if (!result)
-        return LogPythonException("exception calling session_changed method");
-    Py_DECREF(result);
+        if (!result)
+            result = PyObject_CallMethod(gInstance, "sessionChanged", "ii",
+                                         sessionId, eventType);
+        if (!result)
+            error_message = "exception calling session_changed method";
+        else
+            Py_DECREF(result);
 
-    // destroy the Python thread and release the global interpreter lock
-    PyThreadState_Clear(threadState);
-    PyEval_ReleaseThread(threadState);
-    PyThreadState_Delete(threadState);
+        // destroy the Python thread and release the global interpreter lock
+        PyThreadState_Clear(threadState);
+        PyEval_ReleaseThread(threadState);
+        PyThreadState_Delete(threadState);
+    } else
+        error_message = "unable to create new thread state";
+
+    if (error_message)
+        return LogPythonException(error_message);
 
     return 0;
 }
@@ -263,8 +272,9 @@ static int Service_StartLogging(void)
 //-----------------------------------------------------------------------------
 static int Service_SetupPython(udt_ServiceInfo *info)
 {
-    PyObject *module, *serviceModule, *temp;
+    PyObject *module = NULL, *serviceModule = NULL, *temp;
     PyThreadState *threadState;
+    char *error_message = NULL;
 
     // initialize logging
     if (Service_StartLogging() < 0)
@@ -287,19 +297,25 @@ static int Service_SetupPython(udt_ServiceInfo *info)
 
     // acquire the __main__ module
     module = PyImport_ImportModule("__main__");
-    if (!module)
-        return LogPythonException("unable to import __main__");
+    if (!module) {
+        error_message = "unable to import __main__";
+        goto end;
+    }
 
     // determine name to use for the service
     info->nameFormat = PyObject_GetAttrString(module, CX_SERVICE_NAME);
-    if (!info->nameFormat)
-        return LogPythonException("cannot locate service name");
+    if (!info->nameFormat) {
+        error_message = "cannot locate service name";
+        goto end;
+    }
 
     // determine display name to use for the service
     info->displayNameFormat = PyObject_GetAttrString(module,
             CX_SERVICE_DISPLAY_NAME);
-    if (!info->displayNameFormat)
-        return LogPythonException("cannot locate service display name");
+    if (!info->displayNameFormat) {
+        error_message = "cannot locate service display name";
+        goto end;
+    }
 
     // determine description to use for the service (optional)
     info->description = PyObject_GetAttrString(module, CX_SERVICE_DESCRIPTION);
@@ -313,6 +329,7 @@ static int Service_SetupPython(udt_ServiceInfo *info)
         PyErr_Clear();
     else if (temp == Py_True)
         info->startType = SERVICE_AUTO_START;
+    Py_XDECREF(temp);
 
     // determine if service should monitor session changes (optional)
     info->sessionChanges = 0;
@@ -321,25 +338,40 @@ static int Service_SetupPython(udt_ServiceInfo *info)
         PyErr_Clear();
     else if (temp == Py_True)
         info->sessionChanges = 1;
+    Py_XDECREF(temp);
 
     // import the module which implements the service
     temp = PyObject_GetAttrString(module, CX_SERVICE_MODULE_NAME);
-    if (!temp)
-        return LogPythonException("cannot locate service module name");
+    if (!temp) {
+        error_message = "cannot locate service module name";
+        goto end;
+    }
     serviceModule = PyImport_Import(temp);
     Py_DECREF(temp);
-    if (!serviceModule)
-        return LogPythonException("cannot import service module");
+    if (!serviceModule) {
+        error_message = "cannot import service module";
+        goto end;
+    }
 
     // create an instance of the class which implements the service
     temp = PyObject_GetAttrString(module, CX_SERVICE_CLASS_NAME);
-    if (!temp)
-        return LogPythonException("cannot locate service class name");
+    if (!temp) {
+        error_message = "cannot locate service class name";
+        goto end;
+    }
     info->cls = PyObject_GetAttr(serviceModule, temp);
     Py_DECREF(temp);
-    if (!info->cls)
-        return LogPythonException("cannot get class from service module");
+    if (!info->cls) {
+        error_message = "cannot get class from service module";
+        goto end;
+    }
 
+end:
+    // cleanup
+    Py_XDECREF(module);
+    Py_XDECREF(serviceModule);
+    if (error_message)
+        return LogPythonException(error_message);
     return 0;
 }
 
@@ -468,11 +500,13 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
 //-----------------------------------------------------------------------------
 static int Service_Uninstall(wchar_t *name, int argc, wchar_t **argv)
 {
-    PyObject *fullName, *formatArgs, *nameObj;
+    PyObject *fullName = NULL, *formatArgs = NULL, *nameObj = NULL;
     wchar_t *wfullName;
-    SC_HANDLE managerHandle, serviceHandle;
+    SC_HANDLE managerHandle = NULL, serviceHandle = NULL;
     SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
+    char *error_message = NULL;
+    DWORD last_error = 0;
 
     // initialize Python
     if (InitializePython(argc, argv) < 0)
@@ -484,33 +518,56 @@ static int Service_Uninstall(wchar_t *name, int argc, wchar_t **argv)
 
     // determine name of the service
     nameObj = PyUnicode_FromWideChar(name, -1);
-    if (!nameObj)
-        return LogPythonException("cannot create service name obj");
+    if (!nameObj) {
+        error_message = "cannot create service name obj";
+        goto end;
+    }
     formatArgs = PyTuple_Pack(1, nameObj);
-    if (!formatArgs)
-        return LogPythonException("cannot create service name tuple");
-    Py_CLEAR(nameObj);
+    if (!formatArgs) {
+        error_message = "cannot create service name tuple";
+        goto end;
+    }
     fullName = PyUnicode_Format(info.nameFormat, formatArgs);
-    if (!fullName)
-        return LogPythonException("cannot create service name");
+    if (!fullName) {
+        error_message = "cannot create service name";
+        goto end;
+    }
 
     // open up service control manager
     managerHandle = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (!managerHandle)
-        return LogWin32Error(GetLastError(), "cannot open service manager");
+    if (!managerHandle) {
+        last_error = GetLastError();
+        error_message = "cannot open service manager";
+        goto end;
+    }
 
     // create service
     wfullName = PyUnicode_AsWideCharString(fullName, NULL);
     serviceHandle = OpenServiceW(managerHandle, wfullName, SERVICE_ALL_ACCESS);
     PyMem_Free(wfullName);
-    if (!serviceHandle)
-        return LogWin32Error(GetLastError(), "cannot open service");
+    if (!serviceHandle) {
+        last_error = GetLastError();
+        error_message = "cannot open service";
+        goto end;
+    }
     ControlService(serviceHandle, SERVICE_CONTROL_STOP, &statusInfo);
-    if (!DeleteService(serviceHandle))
-        return LogWin32Error(GetLastError(), "cannot delete service");
-    CloseServiceHandle(serviceHandle);
-    CloseServiceHandle(managerHandle);
-
+    if (!DeleteService(serviceHandle)) {
+        last_error = GetLastError();
+        error_message = "cannot delete service";
+        goto end;
+    }
+end:
+    if (serviceHandle)
+        CloseServiceHandle(serviceHandle);
+    if (managerHandle)
+        CloseServiceHandle(managerHandle);
+    Py_CLEAR(nameObj);
+    Py_XDECREF(formatArgs);
+    Py_XDECREF(fullName);
+    if (last_error && error_message)
+        return LogWin32Error(last_error, error_message);
+    if (error_message)
+        return LogPythonException(error_message);
     return 0;
 }
 
@@ -521,43 +578,60 @@ static int Service_Uninstall(wchar_t *name, int argc, wchar_t **argv)
 //-----------------------------------------------------------------------------
 static int Service_Run(udt_ServiceInfo *info)
 {
-    PyObject *temp, *iniFileNameObj;
+    PyObject *temp, *iniFileNameObj = NULL;
+    char *error_message = NULL;
+    DWORD last_error = 0;
 
     // create an instance of the class which implements the service
     gInstance = PyObject_CallFunctionObjArgs(info->cls, NULL);
-    if (!gInstance)
-        return LogPythonException("cannot create instance of service class");
+    if (!gInstance) {
+        error_message = "cannot create instance of service class";
+        goto end;
+    }
 
     // initialize the instance implementing the service
     LogMessageV(LOG_LEVEL_DEBUG, CX_SERVICE_INIT_MESSAGE, gIniFileName);
     iniFileNameObj = PyUnicode_FromWideChar(gIniFileName, -1);
-    if (!iniFileNameObj)
-        return LogPythonException("failed to create ini file as string");
+    if (!iniFileNameObj) {
+        error_message = "failed to create ini file as string";
+        goto end;
+    }
     temp = PyObject_CallMethod(gInstance, "initialize", "O", iniFileNameObj);
     if (!temp)
         temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
-    if (!temp)
-        return LogPythonException("failed to initialize instance properly");
-    Py_CLEAR(iniFileNameObj);
+    if (!temp) {
+        error_message = "failed to initialize instance properly";
+        goto end;
+    }
     Py_CLEAR(temp);
 
     // run the service
     LogMessage(LOG_LEVEL_INFO, "starting up service");
-    if (Service_SetStatus(info, SERVICE_RUNNING) < 0)
-        return LogWin32Error(GetLastError(), "cannot set service as started");
+    if (Service_SetStatus(info, SERVICE_RUNNING) < 0) {
+        last_error = GetLastError();
+        error_message = "cannot set service as started";
+        goto end;
+    }
     temp = PyObject_CallMethod(gInstance, "run", NULL);
     if (!temp)
         temp = PyObject_CallMethod(gInstance, "Run", NULL);
-    if (!temp)
-        return LogPythonException("exception running service");
+    if (!temp) {
+        error_message = "exception running service";
+        goto end;
+    }
     Py_DECREF(temp);
-    Py_DECREF(gInstance);
-    gInstance = NULL;
 
     // ensure that the Python interpreter lock is NOT held as otherwise
     // waiting for events will take a considerable period of time!
     PyEval_SaveThread();
 
+end:
+    Py_CLEAR(gInstance);
+    Py_CLEAR(iniFileNameObj);
+    if (last_error && error_message)
+        return LogWin32Error(last_error, error_message);
+    if (error_message)
+        return LogPythonException(error_message);
     return 0;
 }
 
