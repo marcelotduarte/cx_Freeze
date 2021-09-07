@@ -4,6 +4,98 @@ Release notes
 6.x releases
 ############
 
+Version 6.8 (September 2021)
+----------------------------
+
+#)  Improvements:
+	- Support pathlib in ModuleFinder (:pull:`1153`)
+	- Use Path in Module.file (:pull:`1158`)
+	- Use Path in _replace_paths_in_code (:pull:`1159`)
+	- Use Path in Module.path (:pull:`1160`)
+	- Convert code in hooks to use Path (:pull:`1161`)
+	- Use path.iterdir to simplify a code block (:pull:`1162`)
+	- Use Path in executable module (:pull:`1163`)
+	- Use Path in ModuleFinder.zip_includes (:pull:`1164`)
+	- Use Path in process_path_specs (:pull:`1167`)
+	- Use Path in Freezer include_files and zip_includes (:pull:`1168`)
+	- Use Path in Freezer.targetdir and some related code (:pull:`1169`)
+	- Use Path in Freezer._copy_file and almost remaining related code
+	  (:pull:`1172`)
+	- Use Path in Executable icon and shortcut_dir (:pull:`1173`)
+	- Use Set[Path] in dependent_files (:pull:`1215`)
+	- Use subprocess (:pull:`1214`)
+	- Add more options to cxfreeze script and tweak the docs (:pull:`1174`)
+
+#)  Refactor and bugfix for all systems:
+	- Remove unused and unnecessary code (:pull:`1142`)
+	- Add some old modules to exclude list (:pull:`1149`)
+	- Fix a last minute change and tweak docstrings (:pull:`1154`)
+	- Include files (from a directory) is ignoring the exclude dependencies
+	  option (:pull:`1216`)
+	- Add more typing to freeze (:pull:`1218`)
+	- Create permanent cx_Freeze/bases (:pull:`1227`)
+	- Make Freezer.targetdir a property to improve a bit (:pull:`1170`)
+	- Code analysis, pep8, f-string (:pull:`1177`)
+	- Complementary fixes (:pull:`1179`)
+	- Use setuptools instead distutils a bit more (:pull:`1195`)
+
+#)  Linux:
+	- Fix py39 in ArchLinux using lto (in a different way than mac)
+	  (:pull:`1146`, :issue:`1132`)
+	- Patchelf calls supports Path type (:pull:`1178`)
+	- Use Path (relative_to and parts) to rewrite the fix rpaths (:pull:`1181`)
+	- Complementary patch to #1181 (:pull:`1201`)
+	- Fix for Miniconda python in linux (:pull:`1219`)
+	- Implement Patchelf.get_needed (still based on ldd) (:pull:`1220`)
+	- Implement Patchelf.is_elf to optimize get_needed (:pull:`1221`)
+	- Fix dependency target and rpath settings (:pull:`1223`)
+	- Patchelf needs permission to write
+	  (:pull:`1232`, :issue:`1171`, :issue:`1197`)
+	- Disable strip with build --debug [linux] (:pull:`1235`, :issue:`1194`)
+
+#)  macOS:
+	- Use Path in darwintools and some pep8 (:pull:`1222`)
+	- Fix MachORef in macdist and add-on tweaks to #1222 (:pull:`1229`)
+
+#)  Windows:
+	- Fix compatibility with msys2 python 3.9.6 (:pull:`1182`)
+	- LLVM dlltool only supports generating an import library (:pull:`1187`)
+	- Normalize paths at startup for MSYS2 python (:pull:`1193`)
+	- Disable delay load to avoid 'Segmentation fault' in mingw 32 bits
+	  (:pull:`1217`)
+	- Support Path as parameter for some functions in C (:pull:`1225`)
+	- Add a stub interface for util module (:pull:`1226`)
+	- Recursing into directories to search for load order files (:pull:`1200`)
+	- Fix program files folder for msi using mingw and some tweaks
+	  (:pull:`1236`)
+
+#)  New or improved hooks for:
+	- _cffi_backend (cffi) (:pull:`1150`)
+	- googleapiclient (:pull:`1151`, :issue:`1147`)
+	- PyQt5 hooks (:pull:`1148`, :pull:`1155`, :pull:`1156`, :issue:`631`,
+	  :issue:`846`, :issue:`972`, :issue:`1119`)
+	- PySide2 (:pull:`1183`)
+	- tzdata, zoneinfo and backports.zoneinfo
+	  (:pull:`1198`, :pull:`1204`, :pull:`1208`)
+	- pyzmq (:pull:`1199`)
+	- numpy+mkl in conda (:pull:`1205`)
+
+#)  Samples:
+	- Fix code of some samples (:pull:`1145`)
+	- Remove outdated sample (:pull:`1157`)
+	- Improve sample to support pyzmq < 20 and timeout (:pull:`1190`)
+	- Tweak pyqt5 and pyside2 samples (:pull:`1180`)
+	- Improve PyQt5 and PySide2 samples (:pull:`1192`)
+
+#)  Documentation:
+	- Make distutils help and documentation more in line with cxfreeze script
+	  (:pull:`1175`)
+	- Update distutils build_exe help in docs (:pull:`1176`)
+	- Remove distutils references in main docs (:pull:`1196`)
+	- Better explain the miniconda installation (:pull:`1209`)
+	- Minor updates to docs (:pull:`1230`)
+
+
 Version 6.7 (July 2021)
 -----------------------
 
