@@ -1,9 +1,10 @@
 import distutils.command.bdist_msi
-import distutils.errors
+from distutils import log
 import importlib
 import msilib
 import os
 import re
+import shutil
 import sysconfig
 
 __all__ = ["bdist_msi"]
@@ -782,8 +783,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         distutils.command.bdist_msi.bdist_msi.finalize_options(self)
         name = self.distribution.get_name()
         fullname = self.distribution.get_fullname()
+        platform = sysconfig.get_platform().replace("win-amd64", "win64")
         if self.initial_target_dir is None:
-            if sysconfig.get_platform() == "win-amd64":
+            if platform == "win64" or platform.startswith("mingw_x86_64"):
                 program_files_folder = "ProgramFiles64Folder"
             else:
                 program_files_folder = "ProgramFilesFolder"
@@ -793,7 +795,6 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if self.target_name is None:
             self.target_name = fullname
         if not self.target_name.lower().endswith(".msi"):
-            platform = sysconfig.get_platform().replace("win-", "")
             self.target_name = f"{self.target_name}-{platform}.msi"
         if not os.path.isabs(self.target_name):
             self.target_name = os.path.join(self.dist_dir, self.target_name)
@@ -853,28 +854,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 None,
             )
             self._append_to_data(
-                "Extension",
-                ext,
-                component,
-                progid,
-                mime,
-                "default",
+                "Extension", ext, component, progid, mime, "default"
             )
-            self._append_to_data(
-                "Verb",
-                ext,
-                verb,
-                0,
-                context,
-                argument,
-            )
+            self._append_to_data("Verb", ext, verb, 0, context, argument)
             if mime is not None:
-                self._append_to_data(
-                    "MIME",
-                    mime,
-                    ext,
-                    "None",
-                )
+                self._append_to_data("MIME", mime, ext, "None")
             # Registry entries that allow proper display of the app in menu
             self._append_to_data(
                 "Registry",
@@ -923,10 +907,11 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         if not self.skip_build:
             self.run_command("build")
         install = self.reinitialize_command("install", reinit_subcommands=1)
-        install.prefix = self.bdist_dir
+        bdist_dir = self.bdist_dir
+        install.prefix = bdist_dir
         install.skip_build = self.skip_build
         install.warn_dir = 0
-        distutils.log.info("installing to %s", self.bdist_dir)
+        log.info(f"installing to {bdist_dir}")
         install.ensure_finalized()
         install.run()
         self.mkpath(self.dist_dir)
@@ -971,9 +956,12 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         )
 
         if not self.keep_temp:
-            distutils.dir_util.remove_tree(
-                self.bdist_dir, dry_run=self.dry_run
-            )
+            log.info(f"removing '{bdist_dir}' (and everything under it)")
+            if not self.dry_run:
+                try:
+                    shutil.rmtree(bdist_dir)
+                except OSError as exc:
+                    log.warn(f"error removing {bdist_dir}: {exc}")
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent
