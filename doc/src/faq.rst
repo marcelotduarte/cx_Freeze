@@ -7,12 +7,14 @@ Problems with running frozen programs
 A common problem is that **cx_Freeze** hasn't automatically detected that a
 file needs to be copied. Modules that your code imports are detected, but if
 they're dynamically loaded - e.g. by a plugin system - you have to tell
-**cx_Freeze** about them. This is easy using a
-:doc:`setup script <setup_script>`:
+**cx_Freeze** about them. This is easy using a :doc:`setup_script`:
 
-* For Python code, specify the module names in the ``includes`` or ``packages``
-  options.
-* List compiled libraries (.dll or .so files) in the ``include_files`` option.
+* For Python code, specify the module names in the :option:`includes` or
+  :option:`packages` options.
+* List the module's compiled libraries (.dll or .so files) in the
+  :option:`include_files` option.
+* Use :option:`bin_includes` to include dependencies of binary files that would
+  normally be excluded (a common use is to include "libffi.so").
 * Data files are a bit more complex - see :ref:`data_files`.
 
 Windows command prompt appears briefly
@@ -25,9 +27,9 @@ error as soon as it starts.
 
 There are two ways to debug what's going on:
 
-1. Freeze your application with the ``Win32GUI`` base (see :doc:`setup_script` or
-   :doc:`script`). This doesn't use a console window, and reports errors in a
-   dialog box.
+1. Freeze your application with the ``Win32GUI`` base (see :doc:`setup_script`
+   or :doc:`script`). This doesn't use a console window, and reports errors in
+   a dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen
    executable from the command line. This will let you see any error messages
    in the console.
