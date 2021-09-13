@@ -62,7 +62,7 @@ class Patchelf:
                 if filename not in linker_warnings:
                     linker_warnings[filename] = None
                     if show_warnings:
-                        print(f"WARNING: cannot find {filename!r}")
+                        print(f"WARNING: cannot find '{filename}'")
                 continue
             if dependent_file.startswith("("):
                 continue
