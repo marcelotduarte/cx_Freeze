@@ -24,12 +24,15 @@ class ReasonProtocol(ABC):
     def __str__(self) -> str:
         return self.full_reason_string()
 
+    def __hash__(self) -> int:
+        return hash(id(self))
+
     def full_reason_string(self) -> str:
         l = []
         curReason = self
         n = 1
         while curReason is not None:
-            l.append(f"{n:>2}) {curReason.this_reason_string()}")
+            l.append(f"[{n}] {curReason.this_reason_string()}")
             curReason = curReason.get_prior_reason()
             n += 1
             pass
@@ -37,6 +40,18 @@ class ReasonProtocol(ABC):
 
     def get_prior_reason(self) -> Optional["ReasonProtocol"]:
         return None
+
+    def get_reasons_list(self) -> List["ReasonProtocol"]:
+        """Returns a list of ReasonProtocol objects leading to this one."""
+        curReason = self
+        l: List["ReasonProtocol"] = []
+        while curReason is not None:
+            l.append(curReason)
+            curReason = curReason.get_prior_reason()
+            pass
+        l.reverse()
+        return l
+
 
     def get_reason_depth(self) -> int:
         curReason: "ReasonProtocol" = self
@@ -278,33 +293,73 @@ class FileTracker:
             print(f'  {p}')
         return
 
+    def get_reason_tree(self) -> Dict:
+        reason_tree = {}
+        for fobj in self.all_files:
+            file_reason = fobj.get_inclusion_reason()
+            cur_dict = reason_tree
+            l = file_reason.get_reasons_list()
+            for reason in l:
+                if reason not in cur_dict: cur_dict[reason] = {}
+                cur_dict = cur_dict[reason]
+                pass
+            if "FILES" not in cur_dict: cur_dict["FILES"] = []
+            cur_dict["FILES"].append(fobj)
+
+        return reason_tree
+
     def print_reasons_report(self):
         """Print a list of files copied into frozen application, as well as the reason that each file was included."""
         print("Reasons for including files:")
         n = 1
-        REPORT_INDENT = 6
+        REPORT_INDENT = 0
         wrapper = textwrap.TextWrapper(
             initial_indent=" " * REPORT_INDENT,
             width=100,
             subsequent_indent=" " * (REPORT_INDENT+3))
-        def print_reasons(fobj: FileObject):
-            reason_string = fobj.get_inclusion_reason().full_reason_string()
+        def print_reasons(reason: ReasonProtocol):
+            reason_string = reason.full_reason_string()
             reason_paras = reason_string.split("\n")
             for para in reason_paras:
                 lines = wrapper.wrap(para)
                 for line in lines: print(line)
             return
 
-        for fobj in self.all_files:
+        def print_file(fobj:FileObject, n:int):
             if isinstance(fobj, RealFileObject):
-                print(f"   ({n:<5}) {fobj.original_file_path}:")
-                print_reasons(fobj)
+                print(f"   ({n:<3}) {fobj.original_file_path}")
+                # print_reasons(fobj.get_inclusion_reason())
             elif isinstance(fobj, VirtualFileObject):
-                print(f"   ({n:<5}) Created file -> {fobj.target_rel_paths}:")
-                print_reasons(fobj)
+                print(f"   ({n:<3}) Created file -> {fobj.target_rel_paths}")
+                # print_reasons(fobj.get_inclusion_reason())
             else:
                 print("f  Unknown file type (?): {fobj}")
-            n += 1
+            return
+
+        # for fobj in self.all_files:
+        #     print_file(fobj=fobj,n=n)
+        #     print_reasons(reason=fobj.get_inclusion_reason())
+        #     n += 1
+
+        def reason_recursion(tree: dict):
+            for r in tree:
+                if r == "FILES": continue
+                if "FILES" in tree[r]:
+                    file_list = tree[r]["FILES"]
+                    print()
+                    print_reasons(r)
+                    n = 1
+                    for fobj in file_list:
+                        print_file(fobj, n=n)
+                        n += 1
+
+                reason_recursion(tree=tree[r])
+                pass
+            return
+
+        reason_tree = self.get_reason_tree()
+        reason_recursion(tree=reason_tree)
+
         return
 
     def file_is_marked_to_copy(self, source_path: str) -> bool:
@@ -350,10 +405,10 @@ class FileTracker:
         :param reason: If specified, a ReasonProtocol object specifying why the file is being included.
         """
         # TODO: what was the point of this?
-        if os.path.basename(original_file_path).startswith("Python"):
-            print(f'{original_file_path} -> {to_rel_path}');
-            print("Copying python")
-            # raise FileTrackerException
+        # if os.path.basename(original_file_path).startswith("Python"):
+        #     print("Copying python:")
+        #     print(f'{original_file_path} -> {to_rel_path}');
+        #     # raise FileTrackerException
 
         normalized_source = _norm_path(original_file_path)
         if to_rel_path is not None:
