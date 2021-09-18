@@ -10,6 +10,7 @@ from typing import List, Tuple
 from cx_Freeze.common import normalize_to_list
 
 from cx_Freeze.darwintools import (
+    applyAdHocSignature,
     changeLoadReference,
     DarwinFile,
     DarwinFileTracker,
@@ -289,6 +290,7 @@ class bdist_mac(Command):
                                 filename,
                             )
                         )
+            applyAdHocSignature(filename)
 
     def setRelativeReferencePaths(self, buildDir: str, binDir: str):
         """
@@ -334,6 +336,8 @@ class bdist_mac(Command):
                     newReference=exePath,
                     VERBOSE=False,
                 )
+
+            applyAdHocSignature(filePathInBinDir)
 
     def find_qt_menu_nib(self):
         """
