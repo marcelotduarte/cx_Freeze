@@ -1,4 +1,5 @@
 import os
+import sys
 import pytest
 from cx_Freeze import ModuleFinder, ConstantsModule
 
@@ -13,13 +14,21 @@ class TestModuleFinder:
     def test__add_base_modules(self):
         pass
 
-    def test_ScanCode_legacy(self, mocker, fix_test_samples_dir):
-        """ This test is an adaptation of the old `test_ScanCode` nose test """
-        any3 = (mocker.ANY,) * 3
+
+class TestModuleFinderWithConvertedNoseTests:
+    """ This class provides test cases that are conversions of the old NoseTests
+    that predated usage of the PyTest Framework"""
+
+    @pytest.fixture()
+    def fix_module_finder(self):
         constants = ConstantsModule()
         mf = ModuleFinder(constants_module=constants)
-        import_mock = mocker.patch.object(mf, "_import_module", return_value=None)
-        mf.IncludeFile(os.path.join(fix_test_samples_dir, "imports_sample.py"))
+        return mf
+
+    def test_ScanCode(self, mocker, fix_test_samples_dir, fix_module_finder):
+        any3 = (mocker.ANY,) * 3
+        import_mock = mocker.patch.object(fix_module_finder, "_import_module", return_value=None)
+        fix_module_finder.IncludeFile(os.path.join(fix_test_samples_dir, "imports_sample.py"))
         import_mock.assert_has_calls(
             [
                 mocker.call("moda", *any3),
@@ -33,34 +42,20 @@ class TestModuleFinder:
             ]
         )
 
+    def test_not_import_invalid_module_name(self, mocker, fix_test_samples_dir, fix_module_finder):
+        """ testpkg1 contains not.importable.py, which shouldn't be included."""
+        fix_module_finder.path.insert(0, fix_test_samples_dir)
+        module = fix_module_finder.IncludePackage(
+            "testpkg1"
+        )  # Threw ImportError before the bug was fixed
+        assert ("invalid-identifier" in module.global_names), \
+            "submodules whose names contain invalid identifiers should still be imported"
 
-# from unittest import mock
-# import os.path
-# import sys
-#
-# test_dir = os.path.dirname(__file__)
-#
-# from cx_Freeze.finder import ModuleFinder, ConstantsModule
-#
-# any3 = (mock.ANY,) * 3
-#
-#
-# def test_ScanCode():
-#     constants = ConstantsModule()
-#     mf = ModuleFinder(constants_module=constants)
-#     with mock.patch.object(mf, "_import_module") as _ImportModule_mock:
-#         _ImportModule_mock.return_value = None
-#         mf.IncludeFile(os.path.join(test_dir, "imports_sample.py"))
-#         _ImportModule_mock.assert_has_calls(
-#             [
-#                 mock.call("moda", *any3),
-#                 mock.call("modb", *any3),
-#                 mock.call("", *any3),
-#                 mock.call("modd", *any3),
-#                 mock.call("mode", *any3),
-#                 mock.call("modf", *any3),
-#                 mock.call("modg.submod", *any3),
-#                 mock.call("modh", *any3),
-#             ]
-#         )
-#
+    def test_invalid_syntax(self, mocker, fix_test_samples_dir):
+        """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
+        constants = ConstantsModule()
+        mf = ModuleFinder(path=[fix_test_samples_dir] + sys.path, constants_module=constants)
+        with pytest.raises(ImportError):
+            mf.IncludeModule(
+                "invalid_syntax"
+            )  # Threw SyntaxError before the bug was fixed
