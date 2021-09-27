@@ -12,16 +12,16 @@
 performance, is cross-platform and should work on any platform that Python
 itself works on.
 
-# Highlights of Version 6.2 up to 6.7:
+# Highlights of Version 6.2 up to 6.8:
+- Support for pathlib.Path
+- New or improved hooks, with emphasis on matplotlib, numpy, PyQt5 and PySide2
 - New ModuleFinder engine uses importlib.machinery
 - Refactored Freezer
 - New support for package metadata improving Module and new DitributionCache
-- Enhanced support for Python 3.8 and good support for Python 3.9
-- Inclusive support for MSYS2 and Anaconda
+- Enhanced support for Python 3.8 and Python 3.9, including MSYS2 and Anaconda distributions
 - Improvements for multiprocessing
 - Optimizations in detection and distribution of libraries
 - Integrated to setuptools and importlib-metadata
-- New or improved hooks
 - Code modernization
 - Various bug fixes.
 
