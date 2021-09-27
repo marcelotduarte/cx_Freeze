@@ -19,3 +19,4 @@ dump.sql
 # Don't allow pipenv/piplock files to be directly commited ( usage of `pip` only expected )
 *Pipfile
 *Pipfile.lock
+
