@@ -16,3 +16,7 @@ sample.xlsx
 dump.sql
 # PyCharm configuration files
 .idea
+# Don't allow pipenv/piplock files to be directly commited ( usage of `pip` only expected )
+*Pipfile
+*Pipfile.lock
+
