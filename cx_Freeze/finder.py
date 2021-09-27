@@ -686,9 +686,8 @@ class ModuleFinder:
         return module
 
     def IncludePackage(self, name: str) -> Module:
-        """
-        Include the named package and any submodules in the frozen executable.
-        """
+        """Include the named package and any submodules in the frozen
+        executable."""
         deferred_imports: DeferredList = []
         module = self._import_module(name, deferred_imports)
         if module.path:
@@ -706,10 +705,8 @@ class ModuleFinder:
                 callers = list(self._bad_modules[name].keys())
                 callers.sort()
                 print("? {} imported from {}".format(name, ", ".join(callers)))
-            print(
-                "This is not necessarily a problem - the modules "
-                "may not be needed on this platform.\n"
-            )
+            print("This is not necessarily a problem - the modules ", end="")
+            print("may not be needed on this platform.\n")
 
     def SetOptimizeFlag(self, optimize_flag: int) -> int:
         """Set a new value of optimize flag and returns the previous value."""

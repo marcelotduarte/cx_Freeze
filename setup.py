@@ -99,7 +99,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
                 # macOS on Github Actions
                 extra_args.append("-Wl,-export_dynamic")
             else:
-                extra_args.append("-s")
+                if not self.debug:
+                    extra_args.append("-s")
                 extra_args.append("-Wl,-rpath,$ORIGIN/lib")
                 extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
         self.compiler.link_executable(

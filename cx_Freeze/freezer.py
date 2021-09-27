@@ -164,7 +164,7 @@ class Freezer(ABC):
             return
         self._create_directory(target.parent)
         if self.silent < 1:
-            print(f"copying {source!s} -> {target!s}")
+            print(f"copying {source} -> {target}")
         shutil.copyfile(source, target)
         shutil.copystat(source, target)
         if include_mode:
@@ -198,7 +198,7 @@ class Freezer(ABC):
             path = Path(path)
         if not path.is_dir():
             if self.silent < 1:
-                print(f"creating directory {path!s}")
+                print(f"creating directory {path}")
             path.mkdir(parents=True, exist_ok=True)
 
     def _freeze_executable(self, exe: Executable) -> None:
@@ -321,7 +321,7 @@ class Freezer(ABC):
         """Platform-specific post-Freeze work."""
 
     def _print_report(self, filename: Path, modules: List[Module]) -> None:
-        print(f"writing zip file {filename!s}\n")
+        print(f"writing zip file {filename}\n")
         print("  {:<25} {}".format("Name", "File"))
         print("  {:<25} {}".format("----", "----"))
         for module in modules:
@@ -329,7 +329,7 @@ class Freezer(ABC):
                 print("P", end="")
             else:
                 print("m", end="")
-            print(f" {module.name:<25} {(module.file or '')!s}")
+            print(f" {module.name:<25} {module.file or ''}")
 
     @staticmethod
     def _remove_version_numbers(filename: str) -> str:
@@ -934,7 +934,7 @@ class DarwinFreezer(Freezer):
             return
         self._create_directory(target.parent)
         if self.silent < 1:
-            print(f"copying {source!s} -> {target!s}")
+            print(f"copying {source} -> {target}")
         shutil.copyfile(source, target)
         shutil.copystat(source, target)
         if include_mode:

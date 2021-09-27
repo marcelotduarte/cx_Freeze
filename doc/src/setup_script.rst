@@ -370,6 +370,12 @@ command:
        the invocation of the executable, `mime` for the extension’s mime type,
        and `context` for the context menu text.
 
+.. versionadded:: 6.7
+    ``extensions`` options.
+    
+.. note:: ``extensions`` is supported in python 3.7.4 and up.
+
+
 This is the equivalent help to specify the same options on the command line:
 
   .. code-block:: console
