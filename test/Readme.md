@@ -1,8 +1,7 @@
 ## Test Execution
 To Execute the tests in this folder do the following steps
 
-1 -  If you're using `pipenv` run `pipenv sync -d` to get developer dependancies - if not manually `pip` install the packages
-listed in the `pipfile`
+1 - Install the `dev-requirements` dependancies using `pip install -r dev-requirements.txt`
 
 2 - First install the module in development ( as seen in `setup.py`'s doc string )
 
