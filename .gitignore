@@ -16,5 +16,6 @@ sample.xlsx
 dump.sql
 # PyCharm configuration files
 .idea
-# pytest coverage report ( maybe wanted in future? )
+# pytest coverage reports ( maybe wanted in future? )
 tests/coverage_html_report
+tests/.coverage
