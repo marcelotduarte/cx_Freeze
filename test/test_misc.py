@@ -1,6 +1,6 @@
 import os.path
 import sys
-
+import tempfile
 from nose.tools import assert_raises
 
 from cx_Freeze.common import process_path_specs
@@ -11,15 +11,24 @@ rootdir = "C:\\" if sys.platform == "win32" else "/"
 
 
 def test_process_path_specs():
-    inp = [
-        os.path.join(rootdir, "foo", "bar"),
-        (os.path.join(rootdir, "foo", "qux"), os.path.join("baz", "xyz")),
-    ]
-    outp = process_path_specs(inp)
-    assert outp == [
-        (os.path.join(rootdir, "foo", "bar"), "bar"),
-        (os.path.join(rootdir, "foo", "qux"), os.path.join("baz", "xyz")),
-    ]
+    with tempfile.TemporaryDirectory() as tempdir:
+        foo_bar_path = os.path.join(tempdir, "foo", "bar").replace("\\", "/")
+        os.makedirs(foo_bar_path)
+        foo_qux_path = os.path.join(tempdir, "foo", "qux").replace("\\", "/")
+        os.makedirs(foo_qux_path)
+        input_paths = [foo_bar_path, foo_qux_path]
+        suffix_paths = ["bar", "baz/xyz"]
+        inp = [
+            foo_bar_path, (foo_qux_path, os.path.join("baz", "xyz").replace("\\", "/")),
+        ]
+        outp = process_path_specs(inp)
+        assert isinstance(outp, list)
+        assert len(outp) == len(inp)
+        for o in outp:
+            assert isinstance(o, tuple)
+            assert len(o) == 2
+            assert o[0].as_posix() in input_paths
+            assert o[1].as_posix() in suffix_paths
 
 
 def test_process_path_specs_bad():
