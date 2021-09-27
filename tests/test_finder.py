@@ -1,7 +1,9 @@
 import os
 import sys
+import shutil
+import zipfile
 import pytest
-from cx_Freeze import ModuleFinder, ConstantsModule
+from cx_Freeze import ModuleFinder, Module, ConstantsModule
 
 
 class TestModuleFinder:
@@ -16,7 +18,7 @@ class TestModuleFinder:
 
 
 class TestModuleFinderWithConvertedNoseTests:
-    """ This class provides test cases that are conversions of the old NoseTests
+    """ This class provides test cases that are conversions of the old NoseTests in `test_finder`
     that predated usage of the PyTest Framework"""
 
     @pytest.fixture()
@@ -59,3 +61,41 @@ class TestModuleFinderWithConvertedNoseTests:
             mf.IncludeModule(
                 "invalid_syntax"
             )  # Threw SyntaxError before the bug was fixed
+
+    @pytest.mark.skip("Test skipped, uncertain if no longer supported - waiting for maintainer to comment on:"
+                      "https://github.com/marcelotduarte/cx_Freeze/pull/1234")
+    def test_FindModule_from_zip(self, fix_module_finder, fix_samples_dir, tmpdir):
+        # -----------------
+        # Helper Methods from `test_zip_packages`
+        def clean_pyc_files():
+            for dirpath, dirnames, filenames in os.walk(fix_samples_dir):
+                for filename in filenames:
+                    if filename.endswith((".pyc", ".pyo")):
+                        os.unlink(os.path.join(dirpath, filename))
+                if "__pycache__" in dirnames:
+                    dirnames.remove("__pycache__")
+                    shutil.rmtree(os.path.join(dirpath, "__pycache__"))
+
+        def prepare_zip_file():
+            clean_pyc_files()
+            tmpd = tmpdir.mkdir()
+            egg = os.path.join(tmpd, "testpkg1.egg")
+            eggzip = zipfile.PyZipFile(egg, "w", zipfile.ZIP_DEFLATED)
+            eggzip.writepy(os.path.join(fix_samples_dir, "testmod1.py"))
+            eggzip.writepy(os.path.join(fix_samples_dir, "testpkg1"))
+            eggzip.close()
+            return egg
+        # End Helper Methods
+        # -----------------
+
+
+        # Original test
+        egg = prepare_zip_file()
+        try:
+            fix_module_finder.path = [egg]
+            mod = fix_module_finder._internal_import_module(
+                "testpkg1.submod", deferred_imports=[]
+            )
+            assert isinstance(mod, Module)
+        finally:
+            os.unlink(egg)

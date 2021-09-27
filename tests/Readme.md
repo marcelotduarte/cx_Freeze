@@ -12,4 +12,15 @@ Use one of the following commands to use the development mode:
     python setup.py develop
 ```
 
-3 - Call the tests with `nosetests nose`  # TODO : TechPirate - Update this line!!
+3 - If you're using `pipenv` you can run the tests and generate a coverage report by executing this command:
+```
+pipenv run python -m pytest tests -m "not long" --cov=cx_Freeze --cov-report=html
+```
+or just:
+```
+python -m pytest tests -m "not long" --cov=cx_Freeze --cov-report=html
+```
+In either case - to run a *debuggable* version of the tests omit the `--cov*` flags:
+```
+(pipenv run) python -m pytest tests -m
+```
