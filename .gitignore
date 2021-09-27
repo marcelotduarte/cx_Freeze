@@ -20,5 +20,6 @@ dump.sql
 *Pipfile
 *Pipfile.lock
 # pytest coverage reports ( maybe wanted in future? )
+/htmlcov
 tests/coverage_html_report
 tests/.coverage
