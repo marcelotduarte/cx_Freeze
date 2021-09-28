@@ -6,17 +6,6 @@ import pytest
 from cx_Freeze import ModuleFinder, Module, ConstantsModule
 
 
-class TestModuleFinder:
-
-    @pytest.mark.skip(reason="Not Implemented!")
-    def test_init_finder(self):
-        pass
-
-    @pytest.mark.skip(reason="Not Implemented!")
-    def test__add_base_modules(self):
-        pass
-
-
 class TestModuleFinderWithConvertedNoseTests:
     """ This class provides test cases that are conversions of the old NoseTests in `test_finder`
     that predated usage of the PyTest Framework"""
