@@ -1,5 +1,7 @@
-import pytest
 import sys
+import importlib
+import pytest
+import cx_Freeze
 
 
 @pytest.mark.parametrize(
@@ -12,12 +14,10 @@ import sys
 )
 def test_exposed_namespaces(mocker, platform, extra_modules):
     """ This test asserts that all the namespaces that should be exposed when `importing cx_Freeze` are available """
-
-    if "cx_Freeze" in sys.modules:  # Flush if already there ( from another test )
-        del sys.modules['cx_Freeze']
     if platform:  # Mock platform before import :)
         mocker.patch.object(sys, "platform", platform)
-    import cx_Freeze
+
+    importlib.reload(cx_Freeze)
 
     expected_namespaces = [  # This namespaces are there regardless of platform
         "bdist_rpm",
