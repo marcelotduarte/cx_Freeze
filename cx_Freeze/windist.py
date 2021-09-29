@@ -75,7 +75,9 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         # This is needed in case the AlwaysInstallElevated policy is set.
         # Otherwise installation will not end up in TARGETDIR.
         msilib.add_data(
-            self.db, "Property", [("SecureCustomProperties", "TARGETDIR;REINSTALLMODE")]
+            self.db,
+            "Property",
+            [("SecureCustomProperties", "TARGETDIR;REINSTALLMODE")],
         )
         msilib.add_data(
             self.db,

@@ -52,7 +52,10 @@ def test_not_import_invalid_module_name():
 def test_invalid_syntax():
     """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
     constants = ConstantsModule()
-    mf = ModuleFinder(path=[os.path.join(test_dir, "samples")] + sys.path, constants_module=constants)
+    mf = ModuleFinder(
+        path=[os.path.join(test_dir, "samples")] + sys.path,
+        constants_module=constants,
+    )
     try:
         mf.IncludeModule(
             "invalid_syntax"

@@ -470,13 +470,17 @@ def changeLoadReference(
 
 
 def applyAdHocSignature(fileName: str):
-    if platform.machine() != 'arm64':
+    if platform.machine() != "arm64":
         return
 
     args = (
-        'codesign', '--sign', '-', '--force',
-        '--preserve-metadata=entitlements,requirements,flags,runtime',
-        fileName)
+        "codesign",
+        "--sign",
+        "-",
+        "--force",
+        "--preserve-metadata=entitlements,requirements,flags,runtime",
+        fileName,
+    )
     if subprocess.call(args):
         # It may be a bug in Apple's codesign utility
         # The workaround is to copy the file to another inode, then move it
