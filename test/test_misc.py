@@ -19,7 +19,8 @@ def test_process_path_specs():
         input_paths = [foo_bar_path, foo_qux_path]
         suffix_paths = ["bar", "baz/xyz"]
         inp = [
-            foo_bar_path, (foo_qux_path, os.path.join("baz", "xyz").replace("\\", "/")),
+            foo_bar_path,
+            (foo_qux_path, os.path.join("baz", "xyz").replace("\\", "/")),
         ]
         outp = process_path_specs(inp)
         assert isinstance(outp, list)
