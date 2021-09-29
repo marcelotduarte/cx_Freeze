@@ -1,7 +1,10 @@
 import os
 from pathlib import Path
+import platform
 import subprocess
+import shutil
 import stat
+import tempfile
 from typing import Dict, Iterable, List, Optional, Set, Union
 
 from .exception import DarwinException
@@ -464,6 +467,25 @@ def changeLoadReference(
         ("install_name_tool", "-change", oldReference, newReference, fileName)
     )
     os.chmod(fileName, original)
+
+
+def applyAdHocSignature(fileName: str):
+    if platform.machine() != 'arm64':
+        return
+
+    args = (
+        'codesign', '--sign', '-', '--force',
+        '--preserve-metadata=entitlements,requirements,flags,runtime',
+        fileName)
+    if subprocess.call(args):
+        # It may be a bug in Apple's codesign utility
+        # The workaround is to copy the file to another inode, then move it
+        # back erasing the previous file. The sign again.
+        with tempfile.TemporaryDirectory() as dirName:
+            tempName = os.path.join(dirName, os.path.basename(fileName))
+            shutil.copy(fileName, tempName)
+            shutil.move(tempName, fileName)
+        subprocess.call(args)
 
 
 class DarwinFileTracker:
