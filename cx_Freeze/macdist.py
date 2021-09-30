@@ -87,7 +87,7 @@ class bdist_dmg(Command):
             )
 
         # Create the dmg
-        if subprocess.call(("hdiutil", createargs)) != 0:
+        if subprocess.call(createargs) != 0:
             raise OSError("creation of the dmg failed")
 
     def run(self):
@@ -487,5 +487,5 @@ class bdist_mac(Command):
 
             signargs.append(self.bundleDir)
 
-            if subprocess.call(("codesign", signargs)) != 0:
+            if subprocess.call(signargs) != 0:
                 raise OSError("Code signing of app bundle failed")
