@@ -1048,12 +1048,16 @@ class LinuxFreezer(Freezer):
                                 dependent_target = library_dir / relative
                                 break
                 else:
-                    if targetdir == library_dir:
-                        parts = relative.parts
-                        while parts[0] == os.pardir:
-                            parts = parts[1:]
-                        relative = Path(*parts)
                     dependent_target = targetdir / relative
+                    dependent_target = dependent_target.resolve()
+                    try:
+                        dependent_target.relative_to(library_dir)
+                    except ValueError:
+                        parts = list(relative.parts)
+                        while parts[0] == os.pardir:
+                            parts.pop(0)
+                        relative = Path(*parts)
+                        dependent_target = library_dir / relative
                 dep_libs = str(relative.parent)
                 fix_rpath.add(dep_libs)
                 self._copy_file(
