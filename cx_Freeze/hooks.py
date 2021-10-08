@@ -361,8 +361,8 @@ def pycryptodome_filename(dir_comps, filename):
         name = co_func.co_name
         code = module.code
         consts = list(code.co_consts)
-        for i in enumerate(consts):
-            if isinstance(consts[i], type(code)) and consts[i].co_name == name:
+        for i, c in enumerate(consts):
+            if isinstance(c, type(code)) and c.co_name == name:
                 consts[i] = co_func
                 break
         module.code = code_object_replace(code, co_consts=consts)
@@ -609,8 +609,8 @@ def _get_data_path():
         name = co_func.co_name
         code = module.code
         consts = list(code.co_consts)
-        for i in enumerate(consts):
-            if isinstance(consts[i], type(code)) and consts[i].co_name == name:
+        for i, c in enumerate(consts):
+            if isinstance(c, type(code)) and c.co_name == name:
                 consts[i] = co_func
                 break
         module.code = code_object_replace(code, co_consts=consts)
