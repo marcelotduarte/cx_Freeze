@@ -1,5 +1,4 @@
 import sys
-import types
 import importlib
 import pytest
 import cx_Freeze
@@ -15,16 +14,14 @@ import cx_Freeze
 )
 def test_exposed_namespaces(mocker, platform, extra_modules):
     """ This test asserts that all the namespaces that should be exposed when `importing cx_Freeze` are available """
-    # Mock platform specific modules so we don't get import errors due modules not being available on test device
-    platform_specific_modules = ["msilib", ]
-    for mod_name in platform_specific_modules:
-        fake_mod = types.ModuleType(mod_name)
-        sys.modules[mod_name] = fake_mod
 
     if platform:  # Mock platform before import :)
         mocker.patch.object(sys, "platform", platform)
 
-    importlib.reload(cx_Freeze)
+    try:
+        importlib.reload(cx_Freeze)
+    except ImportError:
+        pass  # Pass import errors as some modules are platform specific, we're testing what's exposed in `__all__` here
 
     expected_namespaces = [  # These namespaces are there regardless of platform
         "bdist_rpm",
