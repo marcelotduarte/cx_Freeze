@@ -383,19 +383,17 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     """
     Versions of cv2 (opencv-python) above 4.5.3 require additional
     configuration files.
+
     Additionally, on Linux the opencv_python.libs directory is not
-    copied across for versions above 4.5.3.
+    copied across for versions above 4.5.3 unless the cv2 package is
+    included.
     """
+    finder.IncludePackage('cv2')
+
     dest_dir = Path("lib", "cv2")
     cv2_dir = module.path[0]
     for path in cv2_dir.glob("config*.py"):
         finder.IncludeFiles(path, dest_dir / path.name)
-
-    opencv_lib_source_dir = Path(cv2_dir, '../opencv_python.libs')
-    if opencv_lib_source_dir.exists():
-        dest_dir_libs = Path("lib", "opencv_python.libs")
-        for path in opencv_lib_source_dir.iterdir():
-            finder.IncludeFiles(path, dest_dir_libs / path.name)
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
