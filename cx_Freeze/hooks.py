@@ -379,6 +379,23 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
         finder.IncludeFiles(dll_path, Path("lib", dll_name))
 
 
+def load_cv2(finder: ModuleFinder, module: Module) -> None:
+    """
+    Versions of cv2 (opencv-python) above 4.5.3 require additional
+    configuration files.
+
+    Additionally, on Linux the opencv_python.libs directory is not
+    copied across for versions above 4.5.3 unless the cv2 package is
+    included.
+    """
+    finder.IncludePackage('cv2')
+
+    dest_dir = Path("lib", "cv2")
+    cv2_dir = module.path[0]
+    for path in cv2_dir.glob("config*.py"):
+        finder.IncludeFiles(path, dest_dir / path.name)
+
+
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
     """
     The cx_Oracle module implicitly imports datetime; make sure this
