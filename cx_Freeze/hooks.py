@@ -370,8 +370,8 @@ def pycryptodome_filename(dir_comps, filename):
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
     """
-    In Windows, the _ctypes module in Python 3.8+ requires an additional dll
-    libffi-7.dll or libffi-8.dll to be present in the build directory.
+    In Windows, the _ctypes module in Python 3.8+ requires an additional
+    libffi dll to be present in the build directory.
     """
     if WIN32 and sys.version_info >= (3, 8) and not MINGW:
         dll_pattern = "libffi?-.dll"
