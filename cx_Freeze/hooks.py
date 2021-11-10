@@ -374,7 +374,7 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
     libffi dll to be present in the build directory.
     """
     if WIN32 and sys.version_info >= (3, 8) and not MINGW:
-        dll_pattern = "libffi*-.dll"
+        dll_pattern = "libffi-*.dll"
         dll_dir = Path(sys.base_prefix, "DLLs")
         for dll_path in dll_dir.glob(dll_pattern):
             finder.IncludeFiles(dll_path, Path("lib", dll_path.name))
