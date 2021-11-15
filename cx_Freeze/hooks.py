@@ -77,6 +77,7 @@ def initialize(finder: ModuleFinder) -> None:
     finder.ExcludeModule("Queue")
     finder.ExcludeModule("rexec")
     finder.ExcludeModule("robotparser")
+    finder.ExcluedModule("sentry_sdk")
     finder.ExcludeModule("sgmllib")
     finder.ExcludeModule("sha")
     finder.ExcludeModule("SocketServer")
@@ -1157,7 +1158,21 @@ def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     """
     finder.IncludeModule("reportlab.rl_settings")
 
-
+    
+def load_sentry(finder: ModuleFinder, module: Module) -> None:
+    """
+    The Sentry.io SDK
+    """
+    find.IncludeModule("sentry_sdk.integrations.stdlib")
+    find.IncludeModule("sentry_sdk.integrations.excepthook")
+    find.IncludeModule("sentry_sdk.integrations.dedupe")
+    find.IncludeModule("sentry_sdk.integrations.atexit")
+    find.IncludeModule("sentry_sdk.integrations.modules")
+    find.IncludeModule("sentry_sdk.integrations.argv")
+    find.IncludeModule("sentry_sdk.integrations.logging")
+    find.IncludeModule("sentry_sdk.integrations.threading")
+    
+    
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """
     The scipy module loads items within itself in a way that causes
