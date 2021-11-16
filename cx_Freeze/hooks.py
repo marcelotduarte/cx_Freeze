@@ -77,7 +77,6 @@ def initialize(finder: ModuleFinder) -> None:
     finder.ExcludeModule("Queue")
     finder.ExcludeModule("rexec")
     finder.ExcludeModule("robotparser")
-    finder.ExcluedModule("sentry_sdk")
     finder.ExcludeModule("sgmllib")
     finder.ExcludeModule("sha")
     finder.ExcludeModule("SocketServer")
@@ -1163,14 +1162,14 @@ def load_sentry(finder: ModuleFinder, module: Module) -> None:
     """
     The Sentry.io SDK
     """
-    find.IncludeModule("sentry_sdk.integrations.stdlib")
-    find.IncludeModule("sentry_sdk.integrations.excepthook")
-    find.IncludeModule("sentry_sdk.integrations.dedupe")
-    find.IncludeModule("sentry_sdk.integrations.atexit")
-    find.IncludeModule("sentry_sdk.integrations.modules")
-    find.IncludeModule("sentry_sdk.integrations.argv")
-    find.IncludeModule("sentry_sdk.integrations.logging")
-    find.IncludeModule("sentry_sdk.integrations.threading")
+    finder.IncludeModule("sentry_sdk.integrations.stdlib")
+    finder.IncludeModule("sentry_sdk.integrations.excepthook")
+    finder.IncludeModule("sentry_sdk.integrations.dedupe")
+    finder.IncludeModule("sentry_sdk.integrations.atexit")
+    finder.IncludeModule("sentry_sdk.integrations.modules")
+    finder.IncludeModule("sentry_sdk.integrations.argv")
+    finder.IncludeModule("sentry_sdk.integrations.logging")
+    finder.IncludeModule("sentry_sdk.integrations.threading")
     
     
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
