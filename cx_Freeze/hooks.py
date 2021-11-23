@@ -1158,7 +1158,21 @@ def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     """
     finder.IncludeModule("reportlab.rl_settings")
 
-
+    
+def load_sentry(finder: ModuleFinder, module: Module) -> None:
+    """
+    The Sentry.io SDK
+    """
+    finder.IncludeModule("sentry_sdk.integrations.stdlib")
+    finder.IncludeModule("sentry_sdk.integrations.excepthook")
+    finder.IncludeModule("sentry_sdk.integrations.dedupe")
+    finder.IncludeModule("sentry_sdk.integrations.atexit")
+    finder.IncludeModule("sentry_sdk.integrations.modules")
+    finder.IncludeModule("sentry_sdk.integrations.argv")
+    finder.IncludeModule("sentry_sdk.integrations.logging")
+    finder.IncludeModule("sentry_sdk.integrations.threading")
+    
+    
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """
     The scipy module loads items within itself in a way that causes
