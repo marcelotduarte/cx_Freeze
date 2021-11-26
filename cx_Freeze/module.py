@@ -71,8 +71,6 @@ class Module:
     The Module class.
     """
 
-    _file: Optional[Path]
-
     def __init__(
         self,
         name: str,
@@ -92,6 +90,7 @@ class Module:
         self.global_names: Set[str] = set()
         self.ignore_names: Set[str] = set()
         self.in_import: bool = True
+        self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
         self._in_file_system: bool = True
         # cache the dist-info files (metadata)
@@ -104,7 +103,7 @@ class Module:
 
     @file.setter
     def file(self, file_name: Optional[Union[Path, str]]):
-        self._file = Path(file_name) if file_name else None
+        self._file: Optional[Path] = Path(file_name) if file_name else None
 
     def update_distribution(self, name: str) -> None:
         """Update the distribution cache based on its name.
@@ -195,7 +194,7 @@ class ConstantsModule:
         today = datetime.datetime.today()
         source_timestamp = 0
         for module in modules:
-            if module.file is None:
+            if module.file is None or module.source_is_string:
                 continue
             if module.source_is_zip_file:
                 continue

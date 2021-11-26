@@ -359,7 +359,7 @@ class ModuleFinder:
     ) -> Optional[Module]:
         """Load the module, searching the module spec."""
         spec: Optional[importlib.machinery.ModuleSpec]
-        loader: ExecutionLoader
+        loader: Optional[ExecutionLoader] = None
         module: Module
 
         if isinstance(path, str):
@@ -372,8 +372,6 @@ class ModuleFinder:
                 loader = importlib.machinery.SourcelessFileLoader(name, path)
             elif ext in importlib.machinery.EXTENSION_SUFFIXES:
                 loader = importlib.machinery.ExtensionFileLoader(name, path)
-            else:
-                loader = None
         else:
             # Find modules to load
             if path:
@@ -407,16 +405,18 @@ class ModuleFinder:
                 return None
             # Load package or namespace package
             if spec.submodule_search_locations:
-                path_list = list(spec.submodule_search_locations)
-                module = self._add_module(name, path=path_list, parent=parent)
+                module = self._add_module(
+                    name,
+                    path=list(spec.submodule_search_locations),
+                    parent=parent,
+                )
                 if spec.origin in (None, "namespace"):
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
-                    path = os.path.join(path_list[0], "__init__.py")
-                    module.code = compile("", path, "exec")
-                    module.in_import = False
-                    return module
-                logging.debug("Adding module [%s] [PACKAGE]", name)
-                path = spec.origin  # path of __init__
+                    path = module.path[0] / "__init__.py"
+                    module.source_is_string = True
+                else:
+                    logging.debug("Adding module [%s] [PACKAGE]", name)
+                    path = spec.origin  # path of __init__.py
                 module.file = path
             else:
                 path = spec.origin
@@ -443,6 +443,8 @@ class ModuleFinder:
                 raise ImportError(f"Bad magic number in {path}", name=name)
         elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
             logging.debug("Adding module [%s] [EXTENSION]", name)
+        elif module.source_is_string:
+            module.code = compile("", path, "exec")
         else:
             raise ImportError(f"Unknown module loader in {path}", name=name)
 
