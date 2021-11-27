@@ -1011,9 +1011,22 @@ class LinuxFreezer(Freezer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patchelf = Patchelf()
+        self._symlinks: Set[Tuple[Path, str]] = set()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
-        """Prepare the source and target paths."""
+        """Prepare the source and target paths. Also, ensures that the source
+        of a symlink is copied deferring the link creation."""
+        if source.is_symlink():
+            real_source = source.resolve()
+            symlink = os.readlink(source)
+            real_target = (target.parent / symlink).resolve()
+            try:
+                real_target.relative_to(self.targetdir / "lib")
+            except ValueError:
+                symlink = real_source.name
+                real_target = target.with_name(symlink)
+            self._symlinks.add((target, symlink))
+            return real_source, real_target
         return source, target
 
     def _post_copy_hook(
@@ -1068,6 +1081,15 @@ class LinuxFreezer(Freezer):
                 rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
                 if has_rpath != rpath:
                     self.patchelf.set_rpath(target, rpath)
+
+    def _post_freeze_hook(self):
+        target: Path
+        symlink: str
+        for target, symlink in self._symlinks:
+            if self.silent < 1:
+                print(f"linking {target} -> {symlink}")
+            if not target.exists():
+                target.symlink_to(symlink)
 
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying certain top dependencies in _freeze_executable."""
