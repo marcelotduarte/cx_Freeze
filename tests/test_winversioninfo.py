@@ -4,9 +4,8 @@ from cx_Freeze.winversioninfo import VersionInfo
 
 
 class TestVersionInfo:
-
     def test___init__(self):
-        """ This method tests default value for the VersionInfo class"""
+        """This method tests default value for the VersionInfo class"""
         input_version = "9.9.9.9"
         default_version = VersionInfo(input_version)
         assert default_version.version == input_version
@@ -23,7 +22,8 @@ class TestVersionInfo:
         assert default_version.verbose is True
 
     def test___init__pads_short_versions(self):
-        """ This method tests that short versions get padded to teh expected x4 digit windows versions"""
+        """This method tests that short versions get padded to the expected x4
+        digit windows versions"""
         input_version = "9"
         default_version = VersionInfo(input_version)
         assert default_version.version == "9.0.0.0"
@@ -54,7 +54,7 @@ class TestVersionInfo:
             product=input_product,
             dll=input_dll,
             debug=input_debug,
-            verbose=input_verbose
+            verbose=input_verbose,
         )
 
         assert version_instance.version == input_version

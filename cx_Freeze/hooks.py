@@ -389,7 +389,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     copied across for versions above 4.5.3 unless the cv2 package is
     included.
     """
-    finder.IncludePackage('cv2')
+    finder.IncludePackage("cv2")
 
     dest_dir = Path("lib", "cv2")
     cv2_dir = module.path[0]
@@ -1158,7 +1158,7 @@ def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     """
     finder.IncludeModule("reportlab.rl_settings")
 
-    
+
 def load_sentry(finder: ModuleFinder, module: Module) -> None:
     """
     The Sentry.io SDK
@@ -1171,8 +1171,8 @@ def load_sentry(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("sentry_sdk.integrations.argv")
     finder.IncludeModule("sentry_sdk.integrations.logging")
     finder.IncludeModule("sentry_sdk.integrations.threading")
-    
-    
+
+
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """
     The scipy module loads items within itself in a way that causes

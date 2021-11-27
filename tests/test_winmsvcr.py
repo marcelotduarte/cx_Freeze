@@ -1,6 +1,7 @@
 import pytest
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE
 
+
 def test_FILES():
     expected = (
         # VC 2015 and 2017
