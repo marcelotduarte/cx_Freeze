@@ -412,7 +412,7 @@ class ModuleFinder:
                 )
                 if spec.origin in (None, "namespace"):
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
-                    path = module.path[0] / "__init__.py"
+                    path = str(module.path[0] / "__init__.py")
                     module.source_is_string = True
                 else:
                     logging.debug("Adding module [%s] [PACKAGE]", name)
