@@ -358,9 +358,9 @@ class ModuleFinder:
         parent: Optional[Module] = None,
     ) -> Optional[Module]:
         """Load the module, searching the module spec."""
-        spec: Optional[importlib.machinery.ModuleSpec]
+        spec: Optional[importlib.machinery.ModuleSpec] = None
         loader: Optional[ExecutionLoader] = None
-        module: Module
+        module: Optional[Module] = None
 
         if isinstance(path, str):
             # Include file as module
@@ -383,20 +383,21 @@ class ModuleFinder:
             except KeyError:
                 if parent:
                     # some packages use a directory with vendored modules
-                    # without an __init__py and are not considered namespace
+                    # without an __init__.py and are not considered namespace
                     # packages, then simulate a subpackage
-                    path = [os.path.join(path[0], name.rpartition(".")[-1])]
-                    origin = os.path.join(path[0], "__init__.py")
-                    module = self._add_module(name, path=path, parent=parent)
+                    module = self._add_module(
+                        name,
+                        path=[os.path.join(path[0], name.rpartition(".")[-1])],
+                        parent=parent,
+                    )
+                    module.source_is_string = True
                     logging.debug("Adding module [%s] [PACKAGE]", name)
-                    module.code = compile("", origin, "exec")
-                    module.in_import = False
-                    return module
-                spec = None
+                    path = os.path.join(path[0], "__init__.py")
             except Exception:
-                spec = None
-            if spec is None:
+                pass
+            if spec is None and module is None:
                 return None
+        if spec:
             # Handle special cases
             loader = spec.loader
             if loader is importlib.machinery.BuiltinImporter:
