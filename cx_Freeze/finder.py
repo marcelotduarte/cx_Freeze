@@ -2,7 +2,6 @@
 Base class for finding modules.
 """
 
-import dis
 from importlib.abc import ExecutionLoader
 import importlib.machinery
 import logging
@@ -19,6 +18,7 @@ from .module import ConstantsModule, Module
 
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
+EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
 INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
@@ -28,6 +28,8 @@ STORE_FAST = opcode.opmap["STORE_FAST"]
 STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
+HAVE_ARGUMENT = opcode.HAVE_ARGUMENT
+
 
 DeferredList = List[Tuple[Module, Module, List[str]]]
 
@@ -568,7 +570,16 @@ class ModuleFinder:
         """
         arguments = []
         imported_module = None
-        for _index, op, arg in dis._unpack_opargs(code.co_code):
+        co_code = code.co_code
+        extended_arg = 0
+        for i in range(0, len(co_code), 2):
+            op = co_code[i]
+            if op >= HAVE_ARGUMENT:
+                arg = co_code[i + 1] | extended_arg
+                extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
+            else:
+                arg = None
+                extended_arg = 0
 
             # keep track of constants (these are used for importing)
             # immediately restart loop so arguments are retained
