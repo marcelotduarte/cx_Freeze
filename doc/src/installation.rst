@@ -90,7 +90,7 @@ using the same channel:
 - patchelf (optional if already installed in the Linux system)
 - declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9 in macOS)
 
-A example using Miniconda3:
+An example using Miniconda3:
 
   .. code-block:: console
 
