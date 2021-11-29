@@ -17,8 +17,24 @@ they're dynamically loaded - e.g. by a plugin system - you have to tell
   normally be excluded (a common use is to include "libffi.so").
 * Data files are a bit more complex - see :ref:`data_files`.
 
+Specifying modules and packages
+-------------------------------
+
+The definitions of modules and packages are different. See python documentation.
+
+* |modules_link|.
+* |packages_link|.
+
+.. |modules_link| raw:: html
+
+   <a href="https://docs.python.org/3/tutorial/modules.html" target="_blank">Modules</a>
+
+.. |packages_link| raw:: html
+
+   <a href="https://docs.python.org/3/tutorial/modules.html#packages" target="_blank">Packages</a>
+
 Windows command prompt appears briefly
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 If there's a problem with your frozen application, you may see a command prompt
 window appear briefly when you try to run it, and then disappear again. This
