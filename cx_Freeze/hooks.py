@@ -427,6 +427,11 @@ def load_dummy_threading(finder: ModuleFinder, module: Module) -> None:
     finder.ExcludeModule("_dummy_threading")
 
 
+def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
+    """flask-compress requires its metadata."""
+    module.update_distribution("Flask_Compress")
+
+
 def load_ftplib(finder: ModuleFinder, module: Module) -> None:
     """
     The ftplib module attempts to import the SOCKS module; ignore this
