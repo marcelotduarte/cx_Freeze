@@ -4,13 +4,13 @@
 black:
 	pip install --upgrade black pyupgrade
 	find . -name '*.py' \
-    	! -path './test/samples/invalid_syntax.py' \
-    	! -path './cx_Freeze/samples/*/build/**.py' \
-    	-exec pyupgrade --py36-plus {} + || true
+		! -path './tests/samples/invalid_syntax.py' \
+		! -path './cx_Freeze/samples/*/build/**.py' \
+		-exec pyupgrade --py36-plus {} + || true
 	find . -name '*.py' \
-    	! -path './test/samples/invalid_syntax.py' \
-    	! -path './cx_Freeze/samples/*/build/**.py' \
-    	-exec black -l 79 -t py36 {} + || true
+		! -path './tests/samples/invalid_syntax.py' \
+		! -path './cx_Freeze/samples/*/build/**.py' \
+		-exec black -l 79 -t py36 {} + || true
 
 .PHONY: html
 html:
