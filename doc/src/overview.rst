@@ -15,10 +15,12 @@ cx_Freeze normally produces a folder containing an executable file for your
 program, along with the shared libraries (DLLs or .so files) needed to run it.
 You can make a simple Windows installer using a :ref:`setup script <setup_script>`
 with the ``bdist_msi`` option, or a Mac disk image with ``bdist_dmg``. For a
-more advanced Windows installer, use a separate tool like `Inno Setup
-<https://www.jrsoftware.org/isinfo.php>`_ to package the files cx_Freeze
-collects.
+more advanced Windows installer, use a separate tool like |Inno_Setup| to
+package the files cx_Freeze collects.
 
 Python modules for your executables are stored in a zip file. Packages are
 stored in the file system by default but can also be included in the zip file.
 
+.. |Inno_Setup| raw:: html
+
+   <a href="https://www.jrsoftware.org/isinfo.php" target="_blank">Inno Setup</a>
