@@ -58,10 +58,13 @@ makes an executable that runs on that platform. So if you want to freeze your
 programs for Windows, freeze it on Windows; if you want to run it on Macs,
 freeze it on a Mac.
 
-At a pinch, you can try to make a Windows executable using
-`Wine <https://www.winehq.org/>`_. Our experience is that you need to copy some
-files in manually after **cx_Freeze** has run to make the executable work. We
-don't recommend this option.
+At a pinch, you can try to make a Windows executable using |winehq_link|. Our
+experience is that you need to copy some files in manually after **cx_Freeze**
+has run to make the executable work. We don't recommend this option.
+
+.. |winehq_link| raw:: html
+
+   <a href="https://www.winehq.org/" target="_blank">Wine</a>
 
 .. _data_files:
 
@@ -109,8 +112,16 @@ you have installed.
   
   Download:
 
-     * `for x86 (32 bit) Windows <https://aka.ms/vs/16/release/vc_redist.x86.exe>`__
-     * `for x64 (64 bit) Windows <https://aka.ms/vs/16/release/vc_redist.x64.exe>`__
+     * |vc_redist_32|
+     * |vc_redist_64|
+
+.. |vc_redist_32| raw:: html
+
+   <a href="https://aka.ms/vs/16/release/vc_redist.x86.exe" target="_blank">for x86 (32 bit) Windows</a>
+
+.. |vc_redist_64| raw:: html
+
+   <a href="https://aka.ms/vs/16/release/vc_redist.x64.exe" target="_blank">for x64 (64 bit) Windows</a>
 
 Single-file executables
 -----------------------

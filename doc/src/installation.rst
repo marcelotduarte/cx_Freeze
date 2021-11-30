@@ -47,8 +47,11 @@ To install patchelf in fedora:
 
     dnf install patchelf
 
-Or install patchelf from
-`sources <https://github.com/NixOS/patchelf#compiling-and-testing>`_:
+Or install patchelf from |patchelf_sources|:
+
+.. |patchelf_sources| raw:: html
+
+   <a href="https://github.com/NixOS/patchelf#compiling-and-testing" target="_blank">sources</a>
 
   .. code-block:: console
 
@@ -106,15 +109,21 @@ An example using Miniconda3:
 Download tarball or wheels
 --------------------------
 
-Download directly from `PyPI <https://pypi.org/project/cx_Freeze>`_.
+Download directly from |PyPI_link|.
 
+.. |PyPI_link| raw:: html
+
+   <a href="https://pypi.org/project/cx_Freeze" target="_blank">PyPI</a>
 
 Download the source code
 ------------------------
 
-You can download and extract the source code found on
-`Github <https://github.com/marcelotduarte/cx_Freeze>`__
-to do a a manual installation.
+You can download and extract the source code found on |Github_main| to do a
+manual installation.
+
+.. |Github_main| raw:: html
+
+   <a href="https://github.com/marcelotduarte/cx_Freeze" target="_blank">Github</a>
 
 In the source directory, use one of the command:
 
@@ -129,4 +138,8 @@ or
     python setup.py develop
 
 
-Issue tracking on `Github <https://github.com/marcelotduarte/cx_Freeze/issues>`_.
+Issue tracking on |Github_issues|.
+
+.. |Github_issues| raw:: html
+
+   <a href="https://github.com/marcelotduarte/cx_Freeze/issues" target="_blank">Github</a>
