@@ -971,6 +971,8 @@ if os.path.normcase(plugins_dir) not in library_paths:
 # cx_Freeze patch end
 """
     module.code = compile(code_string, str(module.file), "exec")
+    if module.in_file_system == 0:
+        module.in_file_system = 2  # use optimized mode
 
 
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
