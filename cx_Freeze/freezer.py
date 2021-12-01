@@ -471,19 +471,24 @@ class Freezer(ABC):
             include_in_file_system = module.in_file_system
 
             # if the module refers to a package, check to see if this package
-            # should be included in the zip file or should be written to the
-            # file system; if the package should be written to the file system,
-            # any non-Python files are copied at this point if the target
-            # directory does not already exist
+            # should be written to the file system
             if (
-                include_in_file_system
+                include_in_file_system >= 1
                 and module.path is not None
                 and module.file is not None
             ):
                 parts = module.name.split(".")
                 target_package_dir = target_lib_dir.joinpath(*parts)
-                source_package_dir = module.file.parent
-                if not target_package_dir.exists():
+                if include_in_file_system == 2:
+                    # a few packages are optimized on the hooks,
+                    # so for now create the directory for this package
+                    self._create_directory(target_package_dir)
+
+                elif not target_package_dir.exists():
+                    # whether the package and its data will be written to the
+                    # file system, any non-Python files are copied at this
+                    # point if the target directory does not already exist
+                    source_package_dir = module.file.parent
                     if self.silent < 1:
                         print(f"copying data from package {module.name}...")
                     shutil.copytree(
@@ -512,7 +517,7 @@ class Freezer(ABC):
             if (
                 module.code is None
                 and module.file is not None
-                and not include_in_file_system
+                and include_in_file_system == 0
             ):
                 parts = module.name.split(".")[:-1]
                 parts.append(module.file.name)
@@ -537,7 +542,7 @@ class Freezer(ABC):
                 data = header + marshal.dumps(module.code)
 
             # if the module should be written to the file system, do so
-            if include_in_file_system and module.file is not None:
+            if include_in_file_system >= 1 and module.file is not None:
                 parts = module.name.split(".")
                 if module.code is None:
                     parts.pop()

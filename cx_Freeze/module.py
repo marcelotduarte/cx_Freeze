@@ -92,7 +92,7 @@ class Module:
         self.in_import: bool = True
         self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
-        self._in_file_system: bool = True
+        self._in_file_system: int = 1
         # cache the dist-info files (metadata)
         self.update_distribution(name)
 
@@ -137,17 +137,19 @@ class Module:
         return "<Module {}>".format(", ".join(parts))
 
     @property
-    def in_file_system(self) -> bool:
-        """Returns a boolean indicating if the module will be stored in the
-        file system or not."""
+    def in_file_system(self) -> int:
+        """Returns a value indicating where the module/package will be stored:
+            0. in zip file (not directly in file system)
+            1. in file system, package with modules and data
+            2. in file system, only detected modules."""
         if self.parent is not None:
             return self.parent.in_file_system
         if self.path is None or self.file is None:
-            return False
+            return 0
         return self._in_file_system
 
     @in_file_system.setter
-    def in_file_system(self, value) -> None:
+    def in_file_system(self, value: int) -> None:
         self._in_file_system = value
 
 
