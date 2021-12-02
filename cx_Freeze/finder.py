@@ -573,7 +573,8 @@ class ModuleFinder:
             # keep track of constants (these are used for importing)
             # immediately restart loop so arguments are retained
             if op == LOAD_CONST:
-                arguments.append(code.co_consts[arg])
+                if arg < len(code.co_consts):
+                    arguments.append(code.co_consts[arg])
                 continue
 
             # import statement: attempt to import module
