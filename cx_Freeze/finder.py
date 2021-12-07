@@ -121,7 +121,7 @@ class ModuleFinder:
                 and module.name not in self.zip_exclude_packages
                 or module.name in self.zip_include_packages
             ):
-                module.in_file_system = False
+                module.in_file_system = 0
         if module.path is None and path is not None:
             module.path = [Path(p) for p in path]
         if module.file is None and file_name is not None:
@@ -475,7 +475,7 @@ class ModuleFinder:
         # and is not defined in the module, like 'six' do
         if (
             module.parent is None
-            or module.in_file_system
+            or module.in_file_system >= 1
             or "__package__" in module.global_names
             or code is None
         ):

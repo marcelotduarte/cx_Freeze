@@ -216,7 +216,7 @@ def load_asyncio(finder: ModuleFinder, module: Module) -> None:
 def load_babel(finder: ModuleFinder, module: Module) -> None:
     """The babel must be loaded as a package, and has pickeable data."""
     finder.IncludePackage("babel")
-    module.in_file_system = True
+    module.in_file_system = 1
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
@@ -252,9 +252,9 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
     to locate the cacert.pem in zip packages.
     In previous versions, it is expected to be stored in the file system.
     """
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         if sys.version_info < (3, 7):
-            module.in_file_system = True
+            module.in_file_system = 1
             return
         cacert = Path(__import__("certifi").where())
         finder.ZipIncludeFiles(cacert, Path("certifi", cacert.name))
@@ -305,37 +305,37 @@ def load_cryptography_hazmat_bindings__padding(
 
 def load_Crypto_Cipher(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Cipher subpackage of pycryptodome package."""
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Hash(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Hash subpackage of pycryptodome package."""
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Math(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Math subpackage of pycryptodome package."""
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Protocol(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Protocol subpackage of pycryptodome package."""
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_PublicKey(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.PublicKey subpackage of pycryptodome package."""
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         finder.IncludePackage(module.name)
 
 
 def load_Crypto_Util(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Util subpackage of pycryptodome package."""
-    if not module.in_file_system:
+    if module.in_file_system == 0:
         finder.IncludePackage(module.name)
 
 
@@ -355,7 +355,7 @@ def pycryptodome_filename(dir_comps, filename):
     root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
     return os.path.join(root_lib, ".".join(dir_comps))
 """
-    if not module.in_file_system and module.code is not None:
+    if module.in_file_system == 0 and module.code is not None:
         new_code = compile(PYCRYPTODOME_CODE_STR, str(module.file), "exec")
         co_func = new_code.co_consts[2]
         name = co_func.co_name
@@ -541,7 +541,7 @@ def load_googleapiclient_discovery(
     """The googleapiclient.discovery module needs discovery_cache subpackage
     in file system."""
     discovery_cache = finder.IncludePackage("googleapiclient.discovery_cache")
-    discovery_cache.in_file_system = True
+    discovery_cache.in_file_system = 1
 
 
 def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
@@ -615,7 +615,7 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
         data_path = __import__("matplotlib").get_data_path()
         need_patch = True
     else:
-        need_patch = not module.in_file_system
+        need_patch = (module.in_file_system == 0)
     finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
     finder.IncludePackage("matplotlib")
     finder.ExcludeModule("matplotlib.tests")
@@ -667,7 +667,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
                 finder.ExcludeDependentFiles(path)
 
         # support for old versions (numpy <= 1.18.2)
-        if not module.in_file_system:
+        if module.in_file_system == 0:
             # copy any file at site-packages/numpy/.libs
             libs_dir = numpy_dir / ".libs"
             if libs_dir.is_dir():
@@ -827,12 +827,9 @@ def load_ptr(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pycountry(finder: ModuleFinder, module: Module) -> None:
-    """
-    The pycountry module has data in subdirectories.
-    """
+    """The pycountry module has data in subdirectories."""
     finder.ExcludeModule("pycountry.tests")
-    if not module.in_file_system:
-        module.in_file_system = True
+    module.in_file_system = 1
 
 
 def load_pycparser(finder: ModuleFinder, module: Module) -> None:
@@ -1133,7 +1130,7 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
         if data_path.is_dir():
             finder.AddConstant("PYTZ_TZDATADIR", str(target_path))
     if data_path.is_dir():
-        if module.in_file_system:
+        if module.in_file_system >= 1:
             finder.IncludeFiles(
                 data_path, target_path, copy_dependent_files=False
             )
@@ -1542,7 +1539,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     # when the tzdata exists, copy other files in this directory
     source = tzdata.path[0]
     target = Path("lib", "tzdata")
-    if tzdata.in_file_system:
+    if tzdata.in_file_system >= 1:
         finder.IncludeFiles(source, target, copy_dependent_files=False)
     else:
         finder.ZipIncludeFiles(source, "tzdata")
