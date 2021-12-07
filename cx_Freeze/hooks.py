@@ -924,7 +924,9 @@ def get_qt_plugins_paths(name: str, plugins: str) -> List[Tuple[str, str]]:
         source_path = library_dir / plugins
         if not source_path.exists():
             continue
-        if source_path.parts[-4] == name:
+        if source_path.parts[-3] == name:  # {name}/plugins/{plugins}
+            target_path = Path("lib").joinpath(*source_path.parts[-3:])
+        elif source_path.parts[-4] == name:  # {name}/Qt*/plugins/{plugins}
             target_path = Path("lib").joinpath(*source_path.parts[-4:])
         else:
             # fallback plugins path to be used by load_PyQt5.
@@ -968,6 +970,8 @@ if os.path.normcase(plugins_dir) not in library_paths:
 # cx_Freeze patch end
 """
     module.code = compile(code_string, str(module.file), "exec")
+    if module.in_file_system == 0:
+        module.in_file_system = 2  # use optimized mode
 
 
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
