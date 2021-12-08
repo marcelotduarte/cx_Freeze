@@ -13,6 +13,9 @@ itself works on.
    * - cx_Freeze version
      - Python version
      - Status
+   * - cx_Freeze 6.9
+     - Python 3.6 to 3.10
+     - supported
    * - cx_Freeze 6.4 to 6.8
      - Python 3.6 to 3.9
      - supported

@@ -94,7 +94,7 @@ system <https://doc.qt.io/qt-5/resources.html>`_.
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------
 
-Python 3.6-3.9 on Windows requires the Visual C++ Redistributable for Visual
+Python 3.6-3.10 on Windows requires the Visual C++ Redistributable for Visual
 Studio 2015, 2017 or 2019 (the redistributables are shared), and because of how
 this is installed, cx_Freeze doesn't automatically copy it for your application.
 

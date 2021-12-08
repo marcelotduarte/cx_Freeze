@@ -139,9 +139,9 @@ class Module:
     @property
     def in_file_system(self) -> int:
         """Returns a value indicating where the module/package will be stored:
-            0. in a zip file (not directly in the file system)
-            1. in the file system, package with modules and data
-            2. in the file system, only detected modules."""
+        0. in a zip file (not directly in the file system)
+        1. in the file system, package with modules and data
+        2. in the file system, only detected modules."""
         if self.parent is not None:
             return self.parent.in_file_system
         if self.path is None or self.file is None:
