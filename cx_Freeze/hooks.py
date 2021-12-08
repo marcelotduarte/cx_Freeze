@@ -615,7 +615,7 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
         data_path = __import__("matplotlib").get_data_path()
         need_patch = True
     else:
-        need_patch = (module.in_file_system == 0)
+        need_patch = module.in_file_system == 0
     finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
     finder.IncludePackage("matplotlib")
     finder.ExcludeModule("matplotlib.tests")
