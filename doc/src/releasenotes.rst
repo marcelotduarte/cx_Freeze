@@ -4,6 +4,58 @@ Release notes
 6.x releases
 ############
 
+Version 6.9 (December 2021)
+---------------------------
+
+#)  Improvements:
+	- Extend Module.in_file_system to support an optimized mode (:pull:`1301`)
+
+#)  Refactor and bugfix for all systems:
+	- Fix Implicit Namespace Packages (:pull:`1290`, :issue:`1276`)
+	- Extend the support for vendored subpackages (:pull:`1294`)
+	- Common: Prevent memory leaks on fail (:pull:`1245`)
+	- Merge dis._unpack_opargs into scan_code to be able to fix a bug in py310
+	  (:pull:`1306`)
+	- Fix some print and f-string (:pull:`1246`)
+	- fixing enumerations (:pull:`1263`)
+	- Fixes for the existing nose tests (:pull:`1234`)
+	- Generate `dev-requirements.txt` + improve readme for contributors wanting
+	  to run tests (:pull:`1224`)
+	- Convert existing tests to pytest + increase coverage (:pull:`1255`)
+
+#)  Linux:
+	- Fix relative path in dependencies, detected in miniconda linux
+	  (:pull:`1258`)
+	- Create symlinks in the target (:pull:`1292`, :issue:`750`)
+
+#)  macOS:
+	- fix bugs in certain subprocess calls (:pull:`1260`)
+	- Apply ad-hoc signature to modified libraries (:pull:`1251`)
+
+#)  Windows:
+	- Set REINSTALLMODE to force installing same-version executables
+	  (:pull:`1252`, :issue:`1250`)
+
+#)  New or improved hooks for:
+	- ctypes/libffi (:pull:`1279`)
+	- flask-compress (:pull:`1295`, :issue:`1273`)
+	- opencv-python (:pull:`1278`, :issue:`1275`)
+	- PyQt5 hooks (:pull:`1302`, :issue:`1261`)
+	- PySide2 - Linux only (:pull:`1302`)
+	- sentry-sdk modules (:pull:`1282`)
+
+#)  Samples:
+	- Update PyQt5 sample (:pull:`1307`)
+
+#)  Documentation:
+	- Update the FAQ (:pull:`1247`)
+	- Update msi doc (:pull:`1248`)
+	- fade to black (:pull:`1291`)
+	- docs: new item in faq (:pull:`1298`)
+	- docs: open external links in a tab (:pull:`1299`)
+	- prepare to release with python 3.10 support (:pull:`1308`)
+
+
 Version 6.8 (September 2021)
 ----------------------------
 
