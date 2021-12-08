@@ -12,7 +12,7 @@
 performance, is cross-platform and should work on any platform that Python
 itself works on.
 
-# Highlights of Version 6.2 up to 6.8:
+# Highlights of Version 6.2 up to 6.9:
 - Support for pathlib.Path
 - New or improved hooks, with emphasis on matplotlib, numpy, PyQt5 and PySide2
 - New ModuleFinder engine uses importlib.machinery
