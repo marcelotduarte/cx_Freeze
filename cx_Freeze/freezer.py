@@ -23,7 +23,7 @@ from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule, Module
-from .parser import Parser, PEParser
+from .parser import Parser, ELFParser, PEParser
 
 DARWIN = sys.platform == "darwin"
 MINGW = sysconfig.get_platform().startswith("mingw")
@@ -40,8 +40,6 @@ if WIN32:
         version_stamp = None
 elif DARWIN:
     from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
-else:
-    from .patchelf import Patchelf
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
@@ -606,7 +604,6 @@ class Freezer(ABC):
 
     def Freeze(self):
         self.files_copied: Set[Path] = set()
-        self.linker_warnings: Dict[Path, Any] = {}
 
         finder: ModuleFinder = self._get_module_finder()
         self.finder: ModuleFinder = finder
@@ -981,11 +978,10 @@ class DarwinFreezer(Freezer, Parser):
         return dependent_files
 
 
-class LinuxFreezer(Freezer, Parser):
+class LinuxFreezer(Freezer, ELFParser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        Parser.__init__(self)
-        self.patchelf = Patchelf()
+        ELFParser.__init__(self)
         self._symlinks: Set[Tuple[Path, str]] = set()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
@@ -1052,10 +1048,10 @@ class LinuxFreezer(Freezer, Parser):
                     dependent_file, dependent_target, copy_dependent_files
                 )
             if fix_rpath:
-                has_rpath = self.patchelf.get_rpath(target)
+                has_rpath = self.get_rpath(target)
                 rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
                 if has_rpath != rpath:
-                    self.patchelf.set_rpath(target, rpath)
+                    self.set_rpath(target, rpath)
 
     def _post_freeze_hook(self):
         target: Path
@@ -1086,15 +1082,3 @@ class LinuxFreezer(Freezer, Parser):
     def _default_bin_path_includes(self) -> List[str]:
         # add the stdlib/lib-dynload directory
         return [sysconfig.get_config_var("DESTSHARED")]
-
-    def get_dependent_files(self, path: Path) -> Set[Path]:
-        try:
-            return self.dependent_files[path]
-        except KeyError:
-            pass
-
-        dependent_files: Set[Path] = self.patchelf.get_needed(
-            path, self.linker_warnings, show_warnings=self.silent < 3
-        )
-        self.dependent_files[path] = dependent_files
-        return dependent_files
