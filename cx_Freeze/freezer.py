@@ -23,7 +23,7 @@ from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule, Module
-from .parser import Parser
+from .parser import Parser, PEParser
 
 DARWIN = sys.platform == "darwin"
 MINGW = sysconfig.get_platform().startswith("mingw")
@@ -646,10 +646,10 @@ class Freezer(ABC):
         self._post_freeze_hook()
 
 
-class WinFreezer(Freezer, Parser):
+class WinFreezer(Freezer, PEParser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        Parser.__init__(self)
+        PEParser.__init__(self)
 
         # deal with C-runtime files
         self.runtime_files: Set[str] = set()
@@ -791,32 +791,6 @@ class WinFreezer(Freezer, Parser):
             paths.add(Path(sysconfig.get_config_var("DESTSHARED")))
         # return only valid paths
         return [str(path) for path in paths if path.is_dir()]
-
-    def get_dependent_files(self, path: Path) -> Set[Path]:
-        try:
-            return self.dependent_files[path]
-        except KeyError:
-            pass
-
-        dependent_files: Set[Path] = set()
-        if path.suffix.lower().endswith((".exe", ".dll", ".pyd")):
-            origPath = os.environ["PATH"]
-            os.environ["PATH"] = (
-                origPath + os.pathsep + os.pathsep.join(sys.path)
-            )
-            try:
-                files: List[str] = winutil.GetDependentFiles(path)
-            except winutil.BindError as exc:
-                # Sometimes this gets called when path is not actually
-                # a library (See issue 88).
-                if self.silent < 3:
-                    print("WARNING: ignoring error during ", end="")
-                    print(f"GetDependentFiles({path}):", exc)
-            else:
-                dependent_files = {Path(dep) for dep in files}
-            os.environ["PATH"] = origPath
-        self.dependent_files[path] = dependent_files
-        return dependent_files
 
     def _platform_add_extra_dependencies(
         self, dependent_files: Set[Path]
