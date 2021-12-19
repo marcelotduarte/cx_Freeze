@@ -23,6 +23,7 @@ from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule, Module
+from .parser import Parser
 
 DARWIN = sys.platform == "darwin"
 MINGW = sysconfig.get_platform().startswith("mingw")
@@ -210,9 +211,9 @@ class Freezer(ABC):
         )
 
         # Ensure the copy of default python libraries
-        dependent_files = self._get_dependent_files(exe.base)
+        dependent_files = self.get_dependent_files(exe.base)
         if not dependent_files:
-            dependent_files = self._get_dependent_files(Path(sys.executable))
+            dependent_files = self.get_dependent_files(Path(sys.executable))
         python_libs = tuple(self._default_bin_includes())
         python_dirs = {Path(sys.base_exec_prefix), Path(sys.exec_prefix)}
         python_dirs.add(Path(sysconfig.get_config_var("srcdir")))  # Linux
@@ -290,13 +291,6 @@ class Freezer(ABC):
     def _default_bin_path_includes(self) -> List[str]:
         """Return the paths of directories which contain files that should
         be included."""
-
-    @abstractmethod
-    def _get_dependent_files(self, path: Path) -> Set[Path]:
-        """Return the file's dependencies using platform-specific tools (the
-        imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
-        limit this list by the exclusion lists as needed.
-        (Implemented separately for each platform.)"""
 
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
@@ -611,7 +605,6 @@ class Freezer(ABC):
                 os.environ["PATH"] = origPath
 
     def Freeze(self):
-        self.dependent_files: Dict[Path, Set[Path]] = {}
         self.files_copied: Set[Path] = set()
         self.linker_warnings: Dict[Path, Any] = {}
 
@@ -653,9 +646,10 @@ class Freezer(ABC):
         self._post_freeze_hook()
 
 
-class WinFreezer(Freezer):
+class WinFreezer(Freezer, Parser):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        Freezer.__init__(self, *args, **kwargs)
+        Parser.__init__(self)
 
         # deal with C-runtime files
         self.runtime_files: Set[str] = set()
@@ -762,7 +756,7 @@ class WinFreezer(Freezer):
         ):
 
             targetdir = target.parent
-            for dependent_file in self._get_dependent_files(source):
+            for dependent_file in self.get_dependent_files(source):
                 target = targetdir / dependent_file.name
                 self._copy_file(dependent_file, target, copy_dependent_files)
 
@@ -798,7 +792,7 @@ class WinFreezer(Freezer):
         # return only valid paths
         return [str(path) for path in paths if path.is_dir()]
 
-    def _get_dependent_files(self, path: Path) -> Set[Path]:
+    def get_dependent_files(self, path: Path) -> Set[Path]:
         try:
             return self.dependent_files[path]
         except KeyError:
@@ -858,9 +852,10 @@ class WinFreezer(Freezer):
             self.bin_excludes.extend([Path(name) for name in winmsvcr.FILES])
 
 
-class DarwinFreezer(Freezer):
+class DarwinFreezer(Freezer, Parser):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        Freezer.__init__(self, *args, **kwargs)
+        Parser.__init__(self)
         self.darwinTracker: Optional[DarwinFileTracker] = None
         self.darwinTracker = DarwinFileTracker()
 
@@ -899,7 +894,7 @@ class DarwinFreezer(Freezer):
             # Always copy dependent files on root directory
             # to allow to set relative reference
             targetdir = self.targetdir
-            for dependent in self._get_dependent_files(source, darwin_file):
+            for dependent in self.get_dependent_files(source, darwin_file):
                 target = targetdir / dependent.name
                 reference = darwin_file.getMachOReferenceForPath(dependent)
                 self._copy_file_recursion(
@@ -963,7 +958,7 @@ class DarwinFreezer(Freezer):
         target = self.targetdir / "lib" / source.name
 
         # this recovers the cached MachOReference pointers to the files
-        # found by the _get_dependent_files calls made previously (if any).
+        # found by the get_dependent_files calls made previously (if any).
         # If one is found, pass into _copy_file.
         # We need to do this so the file knows what file referenced it,
         # and can therefore calculate the appropriate rpath.
@@ -983,7 +978,7 @@ class DarwinFreezer(Freezer):
     def _default_bin_path_includes(self) -> List[str]:
         return [sysconfig.get_config_var("DESTSHARED")]
 
-    def _get_dependent_files(
+    def get_dependent_files(
         self, path: Path, darwinFile: Optional["DarwinFile"] = None
     ) -> Set[Path]:
         try:
@@ -991,7 +986,7 @@ class DarwinFreezer(Freezer):
         except KeyError:
             pass
 
-        # if darwinFile is None (which means that _get_dependent_files is
+        # if darwinFile is None (which means that get_dependent_files is
         # being called outside of _copy_file -- e.g., one of the
         # preliminary calls in _freeze_executable), create a temporary
         # DarwinFile object for the path, just so we can read its
@@ -1012,9 +1007,10 @@ class DarwinFreezer(Freezer):
         return dependent_files
 
 
-class LinuxFreezer(Freezer):
+class LinuxFreezer(Freezer, Parser):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        Freezer.__init__(self, *args, **kwargs)
+        Parser.__init__(self)
         self.patchelf = Patchelf()
         self._symlinks: Set[Tuple[Path, str]] = set()
 
@@ -1049,7 +1045,7 @@ class LinuxFreezer(Freezer):
             source_dir = source.parent
             library_dir = self.targetdir / "lib"
             fix_rpath = set()
-            for dependent_file in self._get_dependent_files(source):
+            for dependent_file in self.get_dependent_files(source):
                 if not self._should_copy_file(dependent_file):
                     continue
                 try:
@@ -1117,7 +1113,7 @@ class LinuxFreezer(Freezer):
         # add the stdlib/lib-dynload directory
         return [sysconfig.get_config_var("DESTSHARED")]
 
-    def _get_dependent_files(self, path: Path) -> Set[Path]:
+    def get_dependent_files(self, path: Path) -> Set[Path]:
         try:
             return self.dependent_files[path]
         except KeyError:
