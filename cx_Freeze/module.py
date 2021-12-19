@@ -13,8 +13,7 @@ from tempfile import TemporaryDirectory
 from types import CodeType
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-import importlib_metadata
-
+from ._compat import importlib_metadata
 from .exception import ConfigError
 
 
