@@ -7,7 +7,7 @@ import os
 import sys
 import sysconfig
 
-import importlib_metadata
+from ._compat import importlib_metadata
 from .common import normalize_to_list
 from .executable import Executable
 from .freezer import Freezer

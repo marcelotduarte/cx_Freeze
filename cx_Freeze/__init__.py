@@ -1,6 +1,6 @@
 import sys
-import importlib_metadata
 
+from ._compat import importlib_metadata
 from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
