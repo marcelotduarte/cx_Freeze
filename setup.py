@@ -192,16 +192,11 @@ class install_include(Command):
 
 if __name__ == "__main__":
     # build base executables
-    if WIN32:
-        libraries = ["imagehlp", "Shlwapi"]
-    else:
-        libraries = []
     depends = ["source/bases/Common.c"]
     console = Extension(
         "cx_Freeze.bases.Console",
         ["source/bases/Console.c"],
         depends=depends,
-        libraries=libraries,
     )
     extensions = [console]
     if WIN32:
@@ -209,7 +204,7 @@ if __name__ == "__main__":
             "cx_Freeze.bases.Win32GUI",
             ["source/bases/Win32GUI.c"],
             depends=depends,
-            libraries=libraries + ["user32"],
+            libraries=["user32"],
         )
         extensions.append(gui)
         service = Extension(
@@ -217,12 +212,14 @@ if __name__ == "__main__":
             ["source/bases/Win32Service.c"],
             depends=depends,
             extra_link_args=["/DELAYLOAD:cx_Logging"],
-            libraries=libraries + ["advapi32"],
+            libraries=["advapi32"],
         )
         extensions.append(service)
         # build utility module
         util_module = Extension(
-            "cx_Freeze.util", ["source/util.c"], libraries=libraries
+            "cx_Freeze.util",
+            ["source/util.c"],
+            libraries=["imagehlp", "shlwapi"],
         )
         extensions.append(util_module)
 
