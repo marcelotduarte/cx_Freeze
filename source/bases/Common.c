@@ -38,21 +38,29 @@ static char *g_argv0;
 //-----------------------------------------------------------------------------
 static int SetExecutableName(void)
 {
+    wchar_t *wptr;
 #ifdef MS_WINDOWS
     if (!GetModuleFileNameW(NULL, g_ExecutableName, MAXPATHLEN + 1))
         return FatalError("Unable to get executable name!");
+
+    // get directory from executable name
     wcscpy(g_ExecutableDirName, g_ExecutableName);
-    PathRemoveFileSpecW(g_ExecutableDirName);
+    wptr = wcsrchr(g_ExecutableDirName, SEP);
+    if (!wptr)
+        return FatalError("Unable to calculate directory of executable!");
+    *wptr = '\0';
 
     // set lib directory as default for dll search
-    PathCombineW(g_LibDirName, g_ExecutableDirName, CX_LIB);
+    wcscpy(g_LibDirName, g_ExecutableDirName);
+    wcscat(g_LibDirName, L"\\");
+    wcscat(g_LibDirName, CX_LIB);
     if (!SetDllDirectoryW(g_LibDirName))
         return FatalError("Unable to change DLL search path!");
 
 #else
     char executableName[PATH_MAX + 1], *path, *ptr, *tempPtr;
     char tempname[MAXPATHLEN + 1];
-    wchar_t *wname, *wptr;
+    wchar_t *wname;
     size_t size, argv0Size;
     struct stat statData;
     int found = 0;
