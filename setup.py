@@ -11,6 +11,7 @@ Use one of the following commands to use the development mode:
 
 import glob
 import os
+from shutil import which
 import subprocess
 import sys
 from sysconfig import get_config_var, get_platform, get_python_version
@@ -146,13 +147,15 @@ class build_ext(setuptools.command.build_ext.build_ext):
         # Use gendef and dlltool to generate the library (.a and .delay.a)
         dll_path = self._get_dll_path(name)
         def_name = os.path.join(library_dir, f"{name}.def")
-        def_data = subprocess.check_output(["gendef", "-", dll_path])
+        gendef_exe = which("gendef")
+        def_data = subprocess.check_output([gendef_exe, "-", dll_path])
         with open(def_name, "wb") as def_file:
             def_file.write(def_data)
         lib_path = os.path.join(library_dir, f"lib{name}.a")
         library = f"{name}.delay"
         dlb_path = os.path.join(library_dir, f"lib{library}.a")
-        dlltool = ["dlltool", "-d", def_name, "-D", dll_path, "-l", lib_path]
+        dlltool_exe = os.path.join(os.path.dirname(gendef_exe), "dlltool.exe")
+        dlltool = [dlltool_exe, "-d", def_name, "-D", dll_path, "-l", lib_path]
         output_delaylib_args = ["-y", dlb_path]
         try:
             # GNU binutils dlltool support --output-delaylib
