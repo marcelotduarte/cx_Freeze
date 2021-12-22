@@ -26,9 +26,9 @@ NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
 class Parser(ABC):
     """`Parser` interface."""
 
-    def __init__(self) -> None:
+    def __init__(self, silent: int = 0) -> None:
         self.dependent_files: Dict[Path, Set[Path]] = {}
-        self.silent: int = 0
+        self._silent: int = silent
 
     @abstractmethod
     def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
@@ -64,7 +64,7 @@ class PEParser(Parser):
         except BindError as exc:
             # Sometimes this gets called when path is not actually
             # a library (See issue 88).
-            if self.silent < 3:
+            if self._silent < 3:
                 print("WARNING: ignoring error during ", end="")
                 print(f"GetDependentFiles({path}):", exc)
         else:
@@ -78,8 +78,8 @@ class ELFParser(Parser):
     """`ELFParser` is based on the logic around invoking `patchelf` and
     `ldd`."""
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, silent: int = 0) -> None:
+        super().__init__(silent)
         self.linker_warnings: Dict[Path, Any] = {}
         _verify_patchelf()
 
@@ -121,7 +121,7 @@ class ELFParser(Parser):
                 filename = parts[0]
                 if filename not in self.linker_warnings:
                     self.linker_warnings[filename] = None
-                    if self.silent < 3:
+                    if self._silent < 3:
                         print(f"WARNING: cannot find '{filename}'")
                 continue
             if dependent_file.startswith("("):
@@ -131,7 +131,7 @@ class ELFParser(Parser):
                 dependent_file = dependent_file[:pos].strip()
             if dependent_file:
                 dependent_files.add(Path(dependent_file))
-        if process.returncode and self.silent < 3:
+        if process.returncode and self._silent < 3:
             print("WARNING:", *args, "returns:")
             print(process.stderr, end="")
         self.dependent_files[path] = dependent_files
