@@ -14,7 +14,7 @@ import struct
 import sys
 import sysconfig
 import time
-from typing import Any, Dict, List, Set, Tuple, Optional, Union
+from typing import List, Set, Tuple, Optional, Union
 import zipfile
 
 from .common import get_resource_file_path, process_path_specs
@@ -646,7 +646,7 @@ class Freezer(ABC):
 class WinFreezer(Freezer, PEParser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        PEParser.__init__(self)
+        PEParser.__init__(self, self.silent)
 
         # deal with C-runtime files
         self.runtime_files: Set[str] = set()
@@ -826,7 +826,7 @@ class WinFreezer(Freezer, PEParser):
 class DarwinFreezer(Freezer, Parser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        Parser.__init__(self)
+        Parser.__init__(self, self.silent)
         self.darwinTracker: Optional[DarwinFileTracker] = None
         self.darwinTracker = DarwinFileTracker()
 
@@ -981,7 +981,7 @@ class DarwinFreezer(Freezer, Parser):
 class LinuxFreezer(Freezer, ELFParser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        ELFParser.__init__(self)
+        ELFParser.__init__(self, self.silent)
         self._symlinks: Set[Tuple[Path, str]] = set()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
