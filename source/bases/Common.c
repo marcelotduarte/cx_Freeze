@@ -148,11 +148,7 @@ static int InitializePython(int argc, wchar_t **argv)
     Py_SetProgramName(g_ExecutableName);
     Py_SetPath(wpath);
     Py_Initialize();
-#ifdef MS_WINDOWS
-    PySys_SetArgv(argc, argv);
-#else
     PySys_SetArgvEx(argc, argv, 0);
-#endif
 
     PyMem_RawFree(wpath);
 
