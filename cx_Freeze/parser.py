@@ -58,7 +58,7 @@ class PEParser(Parser):
         if not self.is_PE(path):
             return dependent_files
         orig_path = os.environ["PATH"]
-        os.environ["PATH"] = orig_path + os.pathsep + os.pathsep.join(sys.path)
+        os.environ["PATH"] = os.pathsep.join(sys.path) + os.pathsep + orig_path
         try:
             files: List[str] = GetDependentFiles(path)
         except BindError as exc:
