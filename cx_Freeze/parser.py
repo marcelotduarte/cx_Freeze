@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Set, Union
 WIN32 = sys.platform == "win32"
 
 if WIN32:
+    import lief
     from .util import BindError, GetDependentFiles
 
 PE_EXT = (".exe", ".dll", ".pyd")
@@ -72,6 +73,26 @@ class PEParser(Parser):
         os.environ["PATH"] = orig_path
         self.dependent_files[path] = dependent_files
         return dependent_files
+
+    def write_manifest(self, path: Union[str, Path], manifest: str) -> None:
+        if isinstance(path, str):
+            path = Path(path)
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        try:
+            binary = lief.parse(str(path))
+            resources_manager = binary.resources_manager
+            resources_manager.manifest = manifest
+            builder = lief.PE.Builder(binary)
+            builder.build_resources(True)
+            builder.build()
+            tmp_path = path.with_suffix(".tmp")
+            builder.write(str(tmp_path))
+        except lief.exception as exc:
+            raise RuntimeError(exc) from None
+        if not tmp_path.is_file():
+            raise FileNotFoundError(tmp_path)
+        tmp_path.replace(path)
 
 
 class ELFParser(Parser):

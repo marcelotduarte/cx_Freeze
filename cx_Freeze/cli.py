@@ -75,6 +75,13 @@ def prepare_parser():
         "(ignored by Python app from Microsoft Store)",
     )
     parser.add_argument(
+        "--manifest",
+        dest="manifest",
+        metavar="NAME",
+        help="name of manifest which should be included in the executable "
+        "itself on Windows (ignored by Python app from Microsoft Store)",
+    )
+    parser.add_argument(
         "--shortcut-name",
         dest="shortcut_name",
         metavar="NAME",
@@ -324,6 +331,7 @@ def main():
             args.shortcut_dir,
             args.copyright,
             args.trademarks,
+            args.manifest,
         )
     ]
     freezer: Freezer = Freezer(
