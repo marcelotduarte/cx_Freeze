@@ -657,11 +657,17 @@ class WinFreezer(Freezer, PEParser):
         target_path: Path = self.targetdir / exe.target_name
 
         # Change the manifest
-        if exe.manifest is not None:
+        manifest: Optional[str] = exe.manifest
+        if manifest is not None or exe.uac_admin:
             if self.silent < 1:
-                print(f"writing manifest {exe.manifest} -> {target_path}")
+                print(f"writing manifest -> {target_path}")
             try:
-                self.write_manifest(target_path, exe.manifest.read_text())
+                if exe.uac_admin:
+                    manifest = manifest or self.read_manifest(target_path)
+                    manifest = manifest.replace(
+                        "asInvoker", "requireAdministrator"
+                    )
+                self.write_manifest(target_path, manifest)
             except FileNotFoundError as exc:
                 if self.silent < 3:
                     print("WARNING:", exc)

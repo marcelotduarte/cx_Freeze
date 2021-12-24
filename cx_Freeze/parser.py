@@ -74,6 +74,19 @@ class PEParser(Parser):
         self.dependent_files[path] = dependent_files
         return dependent_files
 
+    def read_manifest(self, path: Union[str, Path]) -> str:
+        if isinstance(path, str):
+            path = Path(path)
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        try:
+            binary = lief.parse(str(path))
+            resources_manager = binary.resources_manager
+            manifest = resources_manager.manifest
+        except lief.exception as exc:
+            raise RuntimeError(exc) from None
+        return manifest
+
     def write_manifest(self, path: Union[str, Path], manifest: str) -> None:
         if isinstance(path, str):
             path = Path(path)
