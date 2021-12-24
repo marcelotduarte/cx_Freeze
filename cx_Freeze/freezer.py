@@ -656,6 +656,19 @@ class WinFreezer(Freezer, PEParser):
     def _add_resources(self, exe: Executable) -> None:
         target_path: Path = self.targetdir / exe.target_name
 
+        # Change the manifest
+        if exe.manifest is not None:
+            if self.silent < 1:
+                print(f"writing manifest {exe.manifest} -> {target_path}")
+            try:
+                self.write_manifest(target_path, exe.manifest.read_text())
+            except FileNotFoundError as exc:
+                if self.silent < 3:
+                    print("WARNING:", exc)
+            except RuntimeError as exc:
+                if self._silent < 3:
+                    print(f"WARNING: error parsing {target_path}:", exc)
+
         # Add version resource
         if self.metadata is not None:
             warning_msg = "WARNING: unable to create version resource"
