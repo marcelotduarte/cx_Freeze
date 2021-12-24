@@ -79,7 +79,14 @@ def prepare_parser():
         dest="manifest",
         metavar="NAME",
         help="name of manifest which should be included in the executable "
-        "itself on Windows (ignored by Python app from Microsoft Store)",
+        "itself (Windows only - ignored by Python app from Microsoft Store)",
+    )
+    parser.add_argument(
+        "--uac-admin",
+        action="store_true",
+        dest="uac_admin",
+        help="creates a manifest for an application that will request elevation"
+        " (Windows only - ignored by Python app from Microsoft Store)",
     )
     parser.add_argument(
         "--shortcut-name",
@@ -332,6 +339,7 @@ def main():
             args.copyright,
             args.trademarks,
             args.manifest,
+            args.uac_admin,
         )
     ]
     freezer: Freezer = Freezer(

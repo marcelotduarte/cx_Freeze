@@ -36,6 +36,7 @@ class Executable:
         copyright: Optional[str] = None,
         trademarks: Optional[str] = None,
         manifest: Optional[Union[str, Path]] = None,
+        uac_admin: bool = False,
         *,
         initScript: Optional[str] = None,
         targetName: Optional[str] = None,
@@ -60,6 +61,7 @@ class Executable:
         self.copyright = copyright
         self.trademarks = trademarks
         self.manifest = manifest
+        self.uac_admin = uac_admin
 
     def __repr__(self):
         return f"<Executable script={self.main_script}>"
@@ -156,18 +158,23 @@ class Executable:
         self._main_script: Path = Path(name)
 
     @property
-    def manifest(self) -> Optional[Path]:
+    def manifest(self) -> Optional[str]:
         """
-        :return: the path of the file containing the manifest which is to be
-        included in the frozen executable
-        :rtype: Path
+        :return: the XML schema of the manifest which is to be included in the
+        frozen executable
+        :rtype: str
 
         """
         return self._manifest
 
     @manifest.setter
     def manifest(self, name: Optional[Union[str, Path]]) -> None:
-        self._manifest: Optional[Path] = Path(name) if name else None
+        self._manifest: Optional[str] = None
+        if name is None:
+            return
+        if isinstance(name, str):
+            name = Path(name)
+        self._manifest = name.read_text()
 
     @property
     def shortcut_name(self) -> str:
