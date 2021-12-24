@@ -672,7 +672,7 @@ class WinFreezer(Freezer, PEParser):
                 if self.silent < 3:
                     print("WARNING:", exc)
             except RuntimeError as exc:
-                if self._silent < 3:
+                if self.silent < 3:
                     print(f"WARNING: error parsing {target_path}:", exc)
 
         # Add version resource

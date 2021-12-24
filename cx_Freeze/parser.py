@@ -15,7 +15,10 @@ from typing import Any, Dict, List, Set, Union
 WIN32 = sys.platform == "win32"
 
 if WIN32:
-    import lief
+    try:
+        import lief
+    except ImportError:
+        lief = None
     from .util import BindError, GetDependentFiles
 
 PE_EXT = (".exe", ".dll", ".pyd")
@@ -79,6 +82,8 @@ class PEParser(Parser):
             path = Path(path)
         if not path.is_file():
             raise FileNotFoundError(path)
+        if lief is None:
+            raise RuntimeError("lief is not installed")
         try:
             binary = lief.parse(str(path))
             resources_manager = binary.resources_manager
@@ -92,6 +97,8 @@ class PEParser(Parser):
             path = Path(path)
         if not path.is_file():
             raise FileNotFoundError(path)
+        if lief is None:
+            raise RuntimeError("lief is not installed")
         try:
             binary = lief.parse(str(path))
             resources_manager = binary.resources_manager
