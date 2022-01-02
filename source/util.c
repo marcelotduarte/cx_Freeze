@@ -300,17 +300,26 @@ static PyObject *ExtBeginUpdateResource(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    BOOL deleteExistingResources;
-    char *fileName;
+    BOOL delete_existing_resources = TRUE;
     HANDLE handle;
+    wchar_t *filename;
+    PyObject *filename_obj;
 
-    deleteExistingResources = TRUE;
-    if (!PyArg_ParseTuple(args, "s|i", &fileName, &deleteExistingResources))
+    if (!PyArg_ParseTuple(args, "O&|i",
+        PyUnicode_FSDecoder, &filename_obj, &delete_existing_resources)) {
+        PyErr_Format(PyExc_RuntimeError, "Invalid parameters.");
         return NULL;
-    handle = BeginUpdateResource(fileName, deleteExistingResources);
+    }
+
+    filename = PyUnicode_AsWideCharString(filename_obj, NULL);
+    if (!filename)
+        return PyErr_NoMemory();
+
+    handle = BeginUpdateResourceW(filename, delete_existing_resources);
     if (!handle) {
-        PyErr_SetExcFromWindowsErrWithFilename(PyExc_WindowsError,
-                GetLastError(), fileName);
+        PyErr_SetExcFromWindowsErrWithFilenameObject(
+            PyExc_WindowsError, GetLastError(), filename_obj
+        );
         return NULL;
     }
     return PyLong_FromVoidPtr(handle);
@@ -325,20 +334,25 @@ static PyObject *ExtUpdateResource(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    int resourceType, resourceId, resourceDataSize;
-    char *resourceData;
-    HANDLE handle;
+    int resource_type, resource_id;
+    Py_ssize_t resource_data_size;
+    char *resource_data;
     PyObject *handle_obj;
 
     if (!PyArg_ParseTuple(args, "Oiis#", &handle_obj,
-                          &resourceType, &resourceId,
-                          &resourceData, &resourceDataSize))
+                          &resource_type, &resource_id,
+                          &resource_data, &resource_data_size)) {
+        PyErr_Format(PyExc_RuntimeError, "Invalid parameters.");
         return NULL;
-    handle = PyLong_AsVoidPtr(handle_obj);
-    if (!UpdateResource(handle, MAKEINTRESOURCE(resourceType),
-            MAKEINTRESOURCE(resourceId),
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), resourceData,
-            resourceDataSize)) {
+    }
+
+    if (!UpdateResourceW(
+            PyLong_AsVoidPtr(handle_obj),
+            MAKEINTRESOURCEW(resource_type),
+            MAKEINTRESOURCEW(resource_id),
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+            (LPVOID) resource_data,
+            (DWORD) resource_data_size)) {
         PyErr_SetExcFromWindowsErr(PyExc_WindowsError, GetLastError());
         return NULL;
     }
@@ -357,13 +371,14 @@ static PyObject *ExtEndUpdateResource(
     PyObject *args)                     // arguments
 {
     BOOL discard_changes = FALSE;
-    HANDLE handle;
     PyObject *handle_obj;
 
-    if (!PyArg_ParseTuple(args, "O|i", &handle_obj, &discard_changes))
+    if (!PyArg_ParseTuple(args, "O|i", &handle_obj, &discard_changes)) {
+        PyErr_Format(PyExc_RuntimeError, "Invalid parameters.");
         return NULL;
-    handle = PyLong_AsVoidPtr(handle_obj);
-    if (!EndUpdateResource(handle, discard_changes)) {
+    }
+
+    if (!EndUpdateResourceW(PyLong_AsVoidPtr(handle_obj), discard_changes)) {
         PyErr_SetExcFromWindowsErr(PyExc_WindowsError, GetLastError());
         return NULL;
     }
