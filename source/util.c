@@ -67,21 +67,21 @@ static BOOL __stdcall BindStatusRoutine(
     ULONG_PTR virtualAddress,           // computed virtual address
     ULONG_PTR parameter)                // parameter (value depends on reason)
 {
-    char imagePath[MAX_PATH + 1];
-    char fileName[MAX_PATH + 1];
+    char image_path[MAX_PATH + 1];
+    char filename[MAX_PATH + 1];
 
     switch (reason) {
         case BindImportModule:
-            strcpy(imagePath, imageName);
-            PathRemoveFileSpec(imagePath);
-            if (!SearchPath(imagePath, dllName, NULL, sizeof(fileName),
-                    fileName, NULL)) {
-                if (!SearchPath(NULL, dllName, NULL, sizeof(fileName),
-                        fileName, NULL))
+            strcpy(image_path, imageName);
+            PathRemoveFileSpec(image_path);
+            if (!SearchPath(
+                image_path, dllName, NULL, sizeof(filename), filename, NULL)) {
+                if (!SearchPath(
+                    NULL, dllName, NULL, sizeof(filename), filename, NULL))
                     return FALSE;
             }
             Py_INCREF(Py_None);
-            if (PyDict_SetItemString(g_ImageNames, fileName, Py_None) < 0)
+            if (PyDict_SetItemString(g_ImageNames, filename, Py_None) < 0)
                 return FALSE;
             break;
         default:
@@ -136,34 +136,34 @@ static int GetFileData(
 //   Return the group icon resource given the icon file data.
 //-----------------------------------------------------------------------------
 static GRPICONDIR *CreateGroupIconResource(
-    ICONDIR *iconDir,                   // icon information
-    DWORD *resourceSize)                // size of resource (OUT)
+    ICONDIR *icon_dir,                  // icon information
+    DWORD *resource_size)               // size of resource (OUT)
 {
-    GRPICONDIR *groupIconDir;
+    GRPICONDIR *grp_icon_dir;
     int i;
 
-    *resourceSize = sizeof(GRPICONDIR) +
-            sizeof(GRPICONDIRENTRY) * iconDir->idCount;
-    groupIconDir = PyMem_Malloc(*resourceSize);
-    if (!groupIconDir)
+    *resource_size = sizeof(GRPICONDIR) +
+            sizeof(GRPICONDIRENTRY) * icon_dir->idCount;
+    grp_icon_dir = PyMem_Malloc(*resource_size);
+    if (!grp_icon_dir)
         return NULL;
-    groupIconDir->idReserved = iconDir->idReserved;
-    groupIconDir->idType = iconDir->idType;
-    groupIconDir->idCount = iconDir->idCount;
-    for (i = 0; i < iconDir->idCount; i++) {
-        groupIconDir->idEntries[i].bWidth = iconDir->idEntries[i].bWidth;
-        groupIconDir->idEntries[i].bHeight = iconDir->idEntries[i].bHeight;
-        groupIconDir->idEntries[i].bColorCount =
-                iconDir->idEntries[i].bColorCount;
-        groupIconDir->idEntries[i].bReserved = iconDir->idEntries[i].bReserved;
-        groupIconDir->idEntries[i].wPlanes = iconDir->idEntries[i].wPlanes;
-        groupIconDir->idEntries[i].wBitCount = iconDir->idEntries[i].wBitCount;
-        groupIconDir->idEntries[i].dwBytesInRes =
-                iconDir->idEntries[i].dwBytesInRes;
-        groupIconDir->idEntries[i].nID = i + 1;
+    grp_icon_dir->idReserved = icon_dir->idReserved;
+    grp_icon_dir->idType = icon_dir->idType;
+    grp_icon_dir->idCount = icon_dir->idCount;
+    for (i = 0; i < icon_dir->idCount; i++) {
+        grp_icon_dir->idEntries[i].bWidth = icon_dir->idEntries[i].bWidth;
+        grp_icon_dir->idEntries[i].bHeight = icon_dir->idEntries[i].bHeight;
+        grp_icon_dir->idEntries[i].bColorCount =
+                icon_dir->idEntries[i].bColorCount;
+        grp_icon_dir->idEntries[i].bReserved = icon_dir->idEntries[i].bReserved;
+        grp_icon_dir->idEntries[i].wPlanes = icon_dir->idEntries[i].wPlanes;
+        grp_icon_dir->idEntries[i].wBitCount = icon_dir->idEntries[i].wBitCount;
+        grp_icon_dir->idEntries[i].dwBytesInRes =
+                icon_dir->idEntries[i].dwBytesInRes;
+        grp_icon_dir->idEntries[i].nID = i + 1;
     }
 
-    return groupIconDir;
+    return grp_icon_dir;
 }
 
 
@@ -175,12 +175,12 @@ static PyObject *ExtAddIcon(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    char *data, *iconData;
+    char *data, *icon_data;
     wchar_t *executable_name, *icon_name;
     PyObject *executable, *icon;
-    GRPICONDIR *groupIconDir;
-    DWORD resourceSize;
-    ICONDIR *iconDir;
+    GRPICONDIR *grp_icon_dir;
+    DWORD resource_size;
+    ICONDIR *icon_dir;
     BOOL succeeded;
     HANDLE handle;
     int i;
@@ -188,7 +188,7 @@ static PyObject *ExtAddIcon(
     succeeded = TRUE;
     handle = NULL;
     data = NULL;
-    groupIconDir = NULL;
+    grp_icon_dir = NULL;
     executable_name = NULL;
     icon_name = NULL;
 
@@ -196,9 +196,7 @@ static PyObject *ExtAddIcon(
                           PyUnicode_FSDecoder, &executable,
                           PyUnicode_FSDecoder, &icon)) {
         succeeded = FALSE;
-        PyErr_Format(
-            PyExc_RuntimeError, "Invalid parameters."
-        );
+        PyErr_Format(PyExc_RuntimeError, "Invalid parameters.");
     }
 
     if (succeeded) {
@@ -229,8 +227,8 @@ static PyObject *ExtAddIcon(
 
     // check for valid icon
     if (succeeded) {
-        iconDir = (ICONDIR *) data;
-        if (iconDir->idType != 1) {
+        icon_dir = (ICONDIR *) data;
+        if (icon_dir->idType != 1) {
             PyErr_Format(
                 PyExc_RuntimeError, "Icon filename '%S' has invalid type.", icon
             );
@@ -240,24 +238,24 @@ static PyObject *ExtAddIcon(
 
     // next, attempt to add a group icon resource
     if (succeeded) {
-        groupIconDir = CreateGroupIconResource(iconDir, &resourceSize);
-        if (groupIconDir)
+        grp_icon_dir = CreateGroupIconResource(icon_dir, &resource_size);
+        if (grp_icon_dir)
             succeeded = UpdateResource(handle, RT_GROUP_ICON,
                     MAKEINTRESOURCE(1),
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
-                    groupIconDir, resourceSize);
+                    grp_icon_dir, resource_size);
         else succeeded = FALSE;
     }
 
     // next, add each icon as a resource
     if (succeeded) {
-        for (i = 0; i < iconDir->idCount; i++) {
-            iconData = &data[iconDir->idEntries[i].dwImageOffset];
-            resourceSize = iconDir->idEntries[i].dwBytesInRes;
+        for (i = 0; i < icon_dir->idCount; i++) {
+            icon_data = &data[icon_dir->idEntries[i].dwImageOffset];
+            resource_size = icon_dir->idEntries[i].dwBytesInRes;
             succeeded = UpdateResource(handle, RT_ICON,
                     MAKEINTRESOURCE(i + 1),
-                    MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), iconData,
-                    resourceSize);
+                    MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), icon_data,
+                    resource_size);
             if (!succeeded)
                 break;
         }
@@ -280,8 +278,8 @@ static PyObject *ExtAddIcon(
         PyMem_Free(executable_name);
     if (icon_name)
         PyMem_Free(icon_name);
-    if (groupIconDir)
-        PyMem_Free(groupIconDir);
+    if (grp_icon_dir)
+        PyMem_Free(grp_icon_dir);
     if (data)
         PyMem_Free(data);
     Py_DECREF(executable);
@@ -358,15 +356,14 @@ static PyObject *ExtEndUpdateResource(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    BOOL discardChanges;
+    BOOL discard_changes = FALSE;
     HANDLE handle;
     PyObject *handle_obj;
 
-    discardChanges = FALSE;
-    if (!PyArg_ParseTuple(args, "O|i", &handle_obj, &discardChanges))
+    if (!PyArg_ParseTuple(args, "O|i", &handle_obj, &discard_changes))
         return NULL;
     handle = PyLong_AsVoidPtr(handle_obj);
-    if (!EndUpdateResource(handle, discardChanges)) {
+    if (!EndUpdateResource(handle, discard_changes)) {
         PyErr_SetExcFromWindowsErr(PyExc_WindowsError, GetLastError());
         return NULL;
     }
@@ -388,13 +385,16 @@ static PyObject *ExtGetDependentFiles(
     char *image_name;
     Py_ssize_t len;
 
-    if (!PyArg_ParseTuple(args, "O&", PyUnicode_FSConverter, &path))
+    if (!PyArg_ParseTuple(args, "O&", PyUnicode_FSConverter, &path)) {
+        PyErr_Format(PyExc_RuntimeError, "Invalid parameter.");
         return NULL;
+    }
 
     PyBytes_AsStringAndSize(path, &image_name, &len);
     g_ImageNames = PyDict_New();
     if (!g_ImageNames)
-        return NULL;
+        return PyErr_NoMemory();
+
     if (!BindImageEx(BIND_NO_BOUND_IMPORTS | BIND_NO_UPDATE | BIND_ALL_IMAGES,
                 image_name, NULL, NULL, BindStatusRoutine)) {
         Py_DECREF(g_ImageNames);
@@ -461,16 +461,13 @@ static PyObject *ExtUpdateCheckSum(
     BOOL succeeded = TRUE;
 
     if (!PyArg_ParseTuple(args, "O&", PyUnicode_FSDecoder, &executable)) {
-        PyErr_Format(
-            PyExc_RuntimeError, "Invalid parameter."
-        );
+        PyErr_Format(PyExc_RuntimeError, "Invalid parameter.");
         return NULL;
     }
 
     filename = PyUnicode_AsWideCharString(executable, NULL);
-    if (!filename) {
+    if (!filename)
         return PyErr_NoMemory();
-    }
 
     fhandle = CreateFileW((LPCWSTR) filename,
                           GENERIC_READ | GENERIC_WRITE,
