@@ -33,11 +33,6 @@ if WIN32:
     from . import winmsvcr
     from . import util as winutil
     from .winversioninfo import VersionInfo
-
-    try:
-        from win32verstamp import stamp as version_stamp
-    except ImportError:
-        version_stamp = None
 elif DARWIN:
     from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 
@@ -677,17 +672,12 @@ class WinFreezer(Freezer, PEParser):
 
         # Add version resource
         if self.metadata is not None:
-            warning_msg = "WARNING: unable to create version resource"
-            if version_stamp is None:
+            warning_msg = "WARNING: unable to create version resource:"
+            if not self.metadata.version:
                 if self.silent < 3:
-                    print(warning_msg)
-                    print("install pywin32 extensions first")
-            elif not self.metadata.version:
-                if self.silent < 3:
-                    print(warning_msg)
-                    print("version must be specified")
+                    print(warning_msg, "version must be specified")
             else:
-                versionInfo = VersionInfo(
+                version = VersionInfo(
                     self.metadata.version,
                     comments=self.metadata.long_description,
                     description=self.metadata.description,
@@ -696,7 +686,11 @@ class WinFreezer(Freezer, PEParser):
                     copyright=exe.copyright,
                     trademarks=exe.trademarks,
                 )
-                version_stamp(str(target_path), versionInfo)
+                try:
+                    version.stamp(target_path)
+                except (FileNotFoundError, RuntimeError) as exc:
+                    if self.silent < 3:
+                        print(warning_msg, exc)
 
         # Add icon
         if exe.icon is not None:
