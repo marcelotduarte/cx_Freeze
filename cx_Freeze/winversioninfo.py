@@ -2,6 +2,7 @@
 Module for the VersionInfo base class.
 """
 
+import argparse
 from pathlib import Path
 from typing import Optional, Union
 
@@ -54,3 +55,28 @@ class VersionInfo:
             raise RuntimeError("install pywin32 extensions first")
 
         version_stamp(str(path), self)
+
+
+if __name__ == "__main__":
+    # simple test
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        metavar="NAME",
+        help="the name of the file (.dll, .pyd or .exe) to test version stamp",
+    )
+    args = parser.parse_args()
+    if args.filename is None:
+        parser.error("filename must be specified")
+
+    version = VersionInfo(
+        "0.1",
+        comments="cx_Freeze comments",
+        description="cx_Freeze description",
+        company="cx_Freeze company",
+        product="cx_Freeze product",
+        copyright="(c) 2022, cx_Freeze",
+        trademarks="cx_Freeze (TM)",
+    )
+    version.stamp(args.filename)
