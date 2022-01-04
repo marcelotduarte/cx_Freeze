@@ -218,13 +218,16 @@ if __name__ == "__main__":
             libraries=["advapi32"],
         )
         extensions.append(service)
-        # build utility module
+        # build extension modules
         util_module = Extension(
             "cx_Freeze.util",
             ["source/util.c"],
             libraries=["imagehlp", "shlwapi"],
         )
-        extensions.append(util_module)
+        ldd_module = Extension(
+            "cx_Freeze.ldd", ["source/ldd.c"], libraries=libraries
+        )
+        extensions.extend([util_module, ldd_module])
 
     # define package data
     package_data = []
