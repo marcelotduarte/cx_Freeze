@@ -685,6 +685,7 @@ class WinFreezer(Freezer, PEParser):
                     product=self.metadata.name,
                     copyright=exe.copyright,
                     trademarks=exe.trademarks,
+                    verbose=bool(self.silent < 1),
                 )
                 try:
                     version.stamp(target_path)
