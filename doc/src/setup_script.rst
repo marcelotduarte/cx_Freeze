@@ -371,7 +371,7 @@ command:
        and `context` for the context menu text.
 
 .. versionadded:: 6.7
-    ``extensions`` options.
+    ``extensions`` option.
     
 .. note:: ``extensions`` is supported in python 3.7.4 and up.
 
@@ -583,6 +583,12 @@ constructor are as follows:
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
        (ignored in Microsoft Store Python app)
+   * - manifest
+     - name of manifest which should be included in the executable itself
+       (Windows only - ignored by Python app from Microsoft Store)
+   * - uac-admin
+     - creates a manifest for an application that will request elevation
+       (Windows only - ignored by Python app from Microsoft Store)
    * - shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
        package (Windows only).
@@ -596,6 +602,9 @@ constructor are as follows:
    * - trademarks
      - the trademarks value to include in the version resource associated with
        the executable (Windows only).
+
+.. versionadded:: 6.10
+    ``manifest`` and ``uac-admin`` options.
 
 .. versionchanged:: 6.5
     Arguments are all snake_case (camelCase are still valid up to 7.0)
