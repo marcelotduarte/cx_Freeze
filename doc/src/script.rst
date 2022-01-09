@@ -52,6 +52,16 @@ Further customization can be done using the following options:
     on Windows or placed in the target directory for other platforms
     (ignored by Python app from Microsoft Store)
 
+.. option:: --manifest NAME
+
+    the name of manifest which should be included in the executable itself
+    (Windows only - ignored by Python app from Microsoft Store)
+
+.. option:: --uac-admin
+
+    creates a manifest for an application that will request elevation
+    (Windows only - ignored by Python app from Microsoft Store)
+
 .. option:: --shortcut-name NAME
 
     the name to give a shortcut for the executable when included in
