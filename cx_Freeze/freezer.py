@@ -227,8 +227,14 @@ class Freezer(ABC):
         self._platform_add_extra_dependencies(dependent_files)
 
         for source in dependent_files:
-            # Store dynamic libraries in appropriate location for platform
+            # Store dynamic libraries in appropriate location for platform.
             self._copy_top_dependency(source)
+            # Once copied, it should be deleted from the list to ensure
+            # it will not be copied again.
+            name = Path(source.name)
+            if name in self.bin_includes:
+                self.bin_includes.remove(name)
+                self.bin_excludes.append(name)
 
         target_path = self.targetdir / exe.target_name
         self._copy_file(
@@ -730,7 +736,8 @@ class WinFreezer(Freezer, PEParser):
         """Called for copying certain top dependencies in _freeze_executable.
         We need this as a separate method so that it can be overridden on
         Darwin and Windows."""
-        # top dependencies do not go into lib on windows.
+        # top dependencies do not go into lib on windows, but the C runtimes
+        # can be handled in _copy_file/_pre_copy_hook
         target = self.targetdir / source.name
         self._copy_file(
             source, target, copy_dependent_files=True, include_mode=True
