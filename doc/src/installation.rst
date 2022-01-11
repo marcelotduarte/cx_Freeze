@@ -25,44 +25,44 @@ Python requirements
 
 Python requirements are installed automatically by pip or conda.
 
-- cx_Logging >=3.0 (Windows only)
-- importlib-metadata
-- setuptools
+  .. code-block:: console
 
-Others requirements
--------------------
+   C compiler                  (required if installing from sources)
+   cx_Logging >=3.0            (Windows only)
+   importlib-metadata >= 4.8.3 (Python < 3.10)
+   lief >= 0.11.5              (Windows only)
+   setuptools
+   patchelf >= 0.12            (Linux)
 
-- C compiler - if installing from sources.
-- patchelf - in unix-like systems (Linux, FreeBSD, etc), except macOS.
+.. note:: Patchelf
 
-To install patchelf in debian/ubuntu:
+ patchelf is used in Linux and unix-like systems (FreeBSD, etc), except macOS.
+ In Linux, cx_Freeze 6.10 installs it using new wheels available on
+ |PyPI_link_patchelf|.
+
+ .. |PyPI_link_patchelf| raw:: html
+
+   <a href="https://pypi.org/project/patchelf/" target="_blank">PyPI</a>
+
+ If you have any trouble with it, use the old method:
+
+ To install patchelf in debian/ubuntu:
 
   .. code-block:: console
 
     sudo apt-get install patchelf
 
-To install patchelf in fedora:
+ To install patchelf in fedora:
 
   .. code-block:: console
 
     dnf install patchelf
 
-Or install patchelf from |patchelf_sources|:
+ Or install patchelf from |patchelf_sources|
 
-.. |patchelf_sources| raw:: html
+ .. |patchelf_sources| raw:: html
 
    <a href="https://github.com/NixOS/patchelf#compiling-and-testing" target="_blank">sources</a>
-
-  .. code-block:: console
-
-    git clone -b 0.13 --single-branch https://github.com/NixOS/patchelf.git
-    cd patchelf
-    ./bootstrap.sh
-    ./configure
-    make
-    make check
-    sudo make install
-
 
 Pipenv
 ------
@@ -86,12 +86,15 @@ Directly from the conda-forge channel:
 If you are installing a pre-release or from sources, install the requirements
 using the same channel:
 
-- python
-- c-compiler
-- libpython-static (for python >=3.8 in linux and macOS)
-- importlib-metadata
-- patchelf (optional if already installed in the Linux system)
-- declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9 in macOS)
+  .. code-block:: console
+
+   python
+   c-compiler
+   libpython-static (for python >=3.8 in linux and macOS)
+   importlib-metadata
+   py-lief (Windows)
+   patchelf (Linux)
+   declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9+ in macOS)
 
 An example using Miniconda3:
 
@@ -103,7 +106,7 @@ An example using Miniconda3:
     # For macOS and Linux
     conda create -n cx39conda -c conda-forge python=3.9 libpython-static -y
     conda activate cx39conda
-    conda install -c conda-forge c-compiler importlib-metadata -y
+    conda install -c conda-forge c-compiler importlib-metadata patchelf -y
     pip install --no-binary :all: --pre cx_Freeze -v
 
 Download tarball or wheels
