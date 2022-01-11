@@ -29,7 +29,8 @@ class FilePath(Path):
         with contextlib.suppress(OSError):
             return super().replace(target)
         shutil.copyfile(self, target)
-        self.unlink(missing_ok=True)
+        with contextlib.suppress(FileNotFoundError):
+            self.unlink()
         return self.__class__(target)
 
 
