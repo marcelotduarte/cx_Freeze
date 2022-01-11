@@ -2,8 +2,11 @@
 This module contains utility functions shared between cx_Freeze modules.
 """
 
+import contextlib
 from pathlib import Path, PurePath
+import shutil
 import types
+from tempfile import TemporaryDirectory
 from typing import List, Tuple, Optional, Union
 import warnings
 
@@ -13,6 +16,37 @@ IncludesList = List[
     Union[str, Path, Tuple[Union[str, Path], Optional[Union[str, Path]]]]
 ]
 InternalIncludesList = List[Tuple[Path, PurePath]]
+
+
+class FilePath(Path):
+    """Subclass of concrete Path to be used in TemporaryPath."""
+
+    _flavour = type(Path())._flavour
+
+    def replace(self, target):
+        """Rename this path to the target path, overwriting if that path
+        exists. Extended to support move between file systems."""
+        with contextlib.suppress(OSError):
+            return super().replace(target)
+        shutil.copyfile(self, target)
+        self.unlink(missing_ok=True)
+        return self.__class__(target)
+
+
+class TemporaryPath(TemporaryDirectory):
+    """Create and return a Path-like temporary directory."""
+
+    def __init__(self, filename=None, suffix=None, prefix=None, dir=None):
+        super().__init__(suffix, prefix or "cxfreeze-", dir)
+        if filename:
+            if Path(filename).parent.name:
+                raise ValueError("filename cannot contain directory")
+            self.path = FilePath(self.name, filename)
+        else:
+            self.path = FilePath(self.name)
+
+    def __enter__(self):
+        return self.path
 
 
 def get_resource_file_path(
