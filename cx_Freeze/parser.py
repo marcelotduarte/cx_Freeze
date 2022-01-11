@@ -6,11 +6,13 @@ from abc import ABC, abstractmethod
 import os
 from pathlib import Path
 import re
-from shutil import which
+import shutil
 import stat
 from subprocess import check_call, check_output, run, CalledProcessError, PIPE
 import sys
 from typing import Any, Dict, List, Set, Union
+
+from .common import TemporaryPath
 
 WIN32 = sys.platform == "win32"
 
@@ -78,14 +80,13 @@ class PEParser(Parser):
         return dependent_files
 
     def read_manifest(self, path: Union[str, Path]) -> str:
-        if isinstance(path, str):
-            path = Path(path)
-        if not path.is_file():
-            raise FileNotFoundError(path)
         if lief is None:
             raise RuntimeError("lief is not installed")
+        if isinstance(path, str):
+            path = Path(path)
+        with path.open("rb", buffering=0) as raw:
+            binary = lief.PE.parse(raw, path.name)
         try:
-            binary = lief.parse(str(path))
             resources_manager = binary.resources_manager
             manifest = resources_manager.manifest
         except lief.exception as exc:
@@ -93,26 +94,23 @@ class PEParser(Parser):
         return manifest
 
     def write_manifest(self, path: Union[str, Path], manifest: str) -> None:
-        if isinstance(path, str):
-            path = Path(path)
-        if not path.is_file():
-            raise FileNotFoundError(path)
         if lief is None:
             raise RuntimeError("lief is not installed")
+        if isinstance(path, str):
+            path = Path(path)
+        with path.open("rb", buffering=0) as raw:
+            binary = lief.PE.parse(raw, path.name)
         try:
-            binary = lief.parse(str(path))
             resources_manager = binary.resources_manager
             resources_manager.manifest = manifest
             builder = lief.PE.Builder(binary)
             builder.build_resources(True)
             builder.build()
-            tmp_path = path.with_suffix(".tmp")
-            builder.write(str(tmp_path))
+            with TemporaryPath("temp.exe") as tmp_path:
+                builder.write(str(tmp_path))
+                tmp_path.replace(path)
         except lief.exception as exc:
             raise RuntimeError(exc) from None
-        if not tmp_path.is_file():
-            raise FileNotFoundError(tmp_path)
-        tmp_path.replace(path)
 
 
 class ELFParser(Parser):
@@ -218,7 +216,7 @@ def _verify_patchelf() -> None:
     """This function looks for the ``patchelf`` external binary in the PATH,
     checks for the required version, and throws an exception if a proper
     version can't be found. Otherwise, silence is golden."""
-    if not which("patchelf"):
+    if not shutil.which("patchelf"):
         raise ValueError("Cannot find required utility `patchelf` in PATH")
     try:
         version = check_output(["patchelf", "--version"], encoding="utf-8")
