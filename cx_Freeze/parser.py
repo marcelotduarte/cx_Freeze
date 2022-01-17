@@ -14,19 +14,27 @@ from typing import Any, Dict, List, Set, Union
 
 from .common import TemporaryPath
 
-WIN32 = sys.platform == "win32"
+try:
+    import lief
+except ImportError:
+    lief = None
+else:
+    lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
 
-if WIN32:
-    try:
-        import lief
-    except ImportError:
-        lief = None
-    from .util import BindError, GetDependentFiles
+try:
+    from cx_Freeze import util
+except ImportError:
+    util = None
 
 PE_EXT = (".exe", ".dll", ".pyd")
 MAGIC_ELF = b"\x7fELF"
 NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
 NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
+
+# The default is to use lief if it is installed.
+# To disable the experimental feature in Windows:
+# set CX_FREEZE_BIND=imagehlp
+LIEF_ENABLED = os.environ.get("CX_FREEZE_BIND", "lief") == "lief" and lief
 
 
 class Parser(ABC):
@@ -45,7 +53,9 @@ class Parser(ABC):
 
 
 class PEParser(Parser):
-    """`PEParser` is based on the cx_Freeze.util extension module."""
+    """`PEParser` is based on the `lief` package. The use of LIEF is
+    experimental. If it is not installed or disabled use the old friend
+    `cx_Freeze.util` extension module."""
 
     def is_PE(self, path: Union[str, Path]) -> bool:
         """Determines whether the file is a PE file."""
@@ -53,21 +63,28 @@ class PEParser(Parser):
             path = Path(path)
         return path.suffix.lower().endswith(PE_EXT) and path.is_file()
 
-    def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
-        if isinstance(path, str):
-            path = Path(path)
-        try:
-            return self.dependent_files[path]
-        except KeyError:
-            pass
+    def _get_dependent_files_lief(self, path: Path) -> Set[Path]:
         dependent_files: Set[Path] = set()
-        if not self.is_PE(path):
-            return dependent_files
+        orig_path = os.environ["PATH"]
+        with path.open("rb", buffering=0) as raw:
+            binary = lief.PE.parse(raw, path.name)
+        if binary and binary.has_imports:
+            search_path = sys.path + orig_path.split(os.pathsep)
+            for library in binary.imports:
+                for directory in search_path:
+                    library_path = Path(directory, library.name)
+                    if library_path.is_file():
+                        dependent_files.add(library_path)
+                        break
+        return dependent_files
+
+    def _get_dependent_files_imagehlp(self, path: Path) -> Set[Path]:
+        dependent_files: Set[Path] = set()
         orig_path = os.environ["PATH"]
         os.environ["PATH"] = os.pathsep.join(sys.path) + os.pathsep + orig_path
         try:
-            files: List[str] = GetDependentFiles(path)
-        except BindError as exc:
+            files: List[str] = util.GetDependentFiles(path)
+        except util.BindError as exc:
             # Sometimes this gets called when path is not actually
             # a library (See issue 88).
             if self._silent < 3:
@@ -76,6 +93,22 @@ class PEParser(Parser):
         else:
             dependent_files = {Path(dep) for dep in files}
         os.environ["PATH"] = orig_path
+        return dependent_files
+
+    def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
+        if isinstance(path, str):
+            path = Path(path)
+        try:
+            return self.dependent_files[path]
+        except KeyError:
+            pass
+        if not self.is_PE(path):
+            return set()
+        dependent_files: Set[Path]
+        if LIEF_ENABLED:
+            dependent_files = self._get_dependent_files_lief(path)
+        else:
+            dependent_files = self._get_dependent_files_imagehlp(path)
         self.dependent_files[path] = dependent_files
         return dependent_files
 
