@@ -10,11 +10,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-try:
-    import importlib.metadata as importlib_metadata
-except ImportError:
-    import importlib_metadata
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -47,14 +42,14 @@ master_doc = "index"
 
 # General information about the project.
 project = "cx_Freeze"
-copyright = "2021, Marcelo Duarte"
+copyright = "2022, Marcelo Duarte"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = importlib_metadata.version(project)
+version = __import__(project).version.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 

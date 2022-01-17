@@ -1,10 +1,10 @@
 import sys
 
-from ._compat import importlib_metadata
 from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
+from .version import __version__
 
 __all__ = [
     "bdist_rpm",
@@ -19,6 +19,7 @@ __all__ = [
     "Freezer",
     "Module",
     "ModuleFinder",
+    "__version__",
 ]
 
 if sys.platform == "win32":
@@ -29,7 +30,3 @@ elif sys.platform == "darwin":
     from .macdist import bdist_dmg, bdist_mac
 
     __all__.extend(["bdist_dmg", "bdist_mac"])
-
-__version__ = importlib_metadata.version("cx_Freeze")
-version = __version__
-__all__.extend(["__version__", "version"])
