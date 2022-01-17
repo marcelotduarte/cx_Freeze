@@ -31,8 +31,12 @@ WIN32 = sys.platform == "win32"
 
 if WIN32:
     from . import winmsvcr
-    from . import util as winutil
     from .winversioninfo import VersionInfo
+
+    try:
+        from .util import AddIcon, GetWindowsDir, GetSystemDir, UpdateCheckSum
+    except ImportError:
+        pass
 elif DARWIN:
     from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
 
@@ -702,7 +706,7 @@ class WinFreezer(Freezer, PEParser):
         # Add icon
         if exe.icon is not None:
             try:
-                winutil.AddIcon(target_path, exe.icon)
+                AddIcon(target_path, exe.icon)
             except MemoryError:
                 if self.silent < 3:
                     print("WARNING: MemoryError")
@@ -724,7 +728,7 @@ class WinFreezer(Freezer, PEParser):
 
         # Update the PE checksum (or fix it in case it is zero)
         try:
-            winutil.UpdateCheckSum(target_path)
+            UpdateCheckSum(target_path)
         except MemoryError:
             if self.silent < 3:
                 print("WARNING: MemoryError")
@@ -795,8 +799,8 @@ class WinFreezer(Freezer, PEParser):
         return python_shared_libs
 
     def _default_bin_path_excludes(self) -> List[str]:
-        systemDir = winutil.GetSystemDir()
-        windowsDir = winutil.GetWindowsDir()
+        systemDir = GetSystemDir()
+        windowsDir = GetWindowsDir()
         return [windowsDir, systemDir, os.path.join(windowsDir, "WinSxS")]
 
     def _default_bin_path_includes(self) -> List[str]:
