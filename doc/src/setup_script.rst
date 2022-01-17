@@ -415,7 +415,7 @@ For example:
     executables = [
         Executable(
             "hello.py",
-            copyright="Copyright (C) 2021 cx_Freeze",
+            copyright="Copyright (C) 2022 cx_Freeze",
             base=base,
             icon="icon.ico",
             shortcutName="My Program Name",

@@ -7,13 +7,12 @@ import os
 import sys
 import sysconfig
 
-from ._compat import importlib_metadata
 from .common import normalize_to_list
 from .executable import Executable
 from .freezer import Freezer
+from .version import __version__
 
 __all__ = ["main"]
-__version__ = importlib_metadata.version("cx_Freeze")
 
 DESCRIPTION = """
 Freeze a Python script and all of its referenced modules to a base \
@@ -23,7 +22,7 @@ installation.
 
 VERSION = f"""
 %(prog)s {__version__}
-Copyright (c) 2020-2021 Marcelo Duarte. All rights reserved.
+Copyright (c) 2020-2022 Marcelo Duarte. All rights reserved.
 Copyright (c) 2007-2020 Anthony Tuininga. All rights reserved.
 Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.
 """
