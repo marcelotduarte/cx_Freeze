@@ -5,15 +5,14 @@ Base class for module.
 from contextlib import suppress
 import datetime
 from keyword import iskeyword
-import os
 from pathlib import Path
 import shutil
 import socket
-from tempfile import TemporaryDirectory
 from types import CodeType
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 from ._compat import importlib_metadata
+from .common import TemporaryPath
 from .exception import ConfigError
 
 
@@ -23,7 +22,7 @@ __all__ = ["ConstantsModule", "Module"]
 class DistributionCache(importlib_metadata.PathDistribution):
     """Cache the distribution package."""
 
-    _cachedir = TemporaryDirectory(prefix="cxfreeze-")
+    _cachedir = TemporaryPath()
 
     @staticmethod
     def at(path):
@@ -35,7 +34,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
     def from_name(cls, name):
         distribution = super().from_name(name)
         # Cache dist-info files in a temporary directory
-        temp_dir = Path(cls._cachedir.name)
+        temp_dir = cls._cachedir.path
         dist_dir = None
         files = distribution.files or []
         prep = importlib_metadata.Prepared(distribution.name)
@@ -184,10 +183,9 @@ class ConstantsModule:
                         f"Invalid constant name in ConstantsModule ({name!r})"
                     )
                 self.values[name] = value
-        self._dir: TemporaryDirectory = TemporaryDirectory(prefix="cxfreeze")
-        self.module_path: str = os.path.join(self._dir.name, "constants.py")
+        self.module_path: TemporaryPath = TemporaryPath("constants.py")
 
-    def create(self, modules: List[Module]) -> Tuple[str, str]:
+    def create(self, modules: List[Module]) -> Tuple[Path, str]:
         """
         Create the module which consists of declaration statements for each
         of the values.
@@ -215,6 +213,5 @@ class ConstantsModule:
         for name in names:
             value = self.values[name]
             source_parts.append(f"{name} = {value!r}")
-        with open(self.module_path, "w", encoding="UTF-8") as file:
-            file.write("\n".join(source_parts))
-        return self.module_path, self.module_name
+        self.module_path.path.write_text("\n".join(source_parts))
+        return self.module_path.path, self.module_name
