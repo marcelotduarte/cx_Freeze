@@ -7,10 +7,7 @@ black:
 		! -path './tests/samples/invalid_syntax.py' \
 		! -path './cx_Freeze/samples/*/build/**.py' \
 		-exec pyupgrade --py36-plus {} + || true
-	find . -name '*.py' \
-		! -path './tests/samples/invalid_syntax.py' \
-		! -path './cx_Freeze/samples/*/build/**.py' \
-		-exec black -l 79 -t py36 {} + || true
+	black . -v || true
 
 .PHONY: html
 html:
