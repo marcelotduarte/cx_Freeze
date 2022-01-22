@@ -1,0 +1,16 @@
+[build-system]
+requires = [
+    "setuptools >= 46.4.0",
+    "wheel >= 0.36.2",
+    "cx-logging >= 3.0 ; sys_platform == 'win32'",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 79
+target-version = ['py36']
+exclude = 'tests/samples/invalid_syntax.py'
+
+[tool.pylint.format]
+max-line-length = 79
+
