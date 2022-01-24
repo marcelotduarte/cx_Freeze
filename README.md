@@ -13,6 +13,12 @@
 performance, is cross-platform and should work on any platform that Python
 itself works on.
 
+# Highlights of Version 6.10:
+- Support Application Manifests in Windows: manifest and uac-admin
+- EXPERIMENTAL New dependency resolver on Windows
+- EXPERIMENTAL Support for Apple Silicon using miniforge (conda-forge)
+- Bug fixes and improvements
+
 # Highlights of Version 6.2 up to 6.9:
 - Support for pathlib.Path
 - New or improved hooks, with emphasis on matplotlib, numpy, PyQt5 and PySide2
