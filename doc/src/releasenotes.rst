@@ -4,6 +4,65 @@ Release notes
 6.x releases
 ############
 
+Version 6.10 (January 2022)
+---------------------------
+
+#)  Improvements:
+	- Implements Parser interface to create an abstraction to parse binary
+	  files (:pull:`1313`)
+	- Implements basic PEParser interface (:pull:`1314`)
+	- Helper to create and return a Path-like temporary directory
+	  (:pull:`1338`)
+	- Use build and tweak requirements (:pull:`1343`)
+	- Add a basic pyproject.toml for build and tools (:pull:`1355`)
+
+#)  Refactor and bugfix for all systems:
+	- importlib.metadata is no longer provisional in Python 3.10 (:pull:`1316`)
+	- Add a new _compat module (:pull:`1317`)
+	- Prioritize importlib_metadata in versions lower than 3.10 (:pull:`1353`)
+	- Fix an overwrite of silent variable in parser (:pull:`1322`)
+	- Copy top dependencies only once (:pull:`1336`, :issue:`1304`,
+	  :issue:`1333`)
+	- Change the place to set version and set new year (:pull:`1350`)
+	- Add more files to the source distribution (:pull:`1349`)
+	- Minor tweaks in setup.cfg and add a missing version.py (:pull:`1351`)
+	- Avoid error when cx_Freeze.util is not build yet (:pull:`1352`)
+	- Use helper TemporaryPath in module (:pull:`1354`)
+
+#)  Linux:
+	- Implements ELFParser interface merging patchelf (:pull:`1315`)
+	- Use PyPI patchelf rather than installed by OS (:pull:`1341`)
+
+#)  Windows:
+	- Drop references to shlwapi.dll on Windows to improve performance
+	  (:pull:`1318`)
+	- Use the dlltool provided in the same directory as gendef (:pull:`1319`)
+	- Update manifest.txt to match python.manifest (:pull:`1320`)
+	- Search dlls in sys.path, then in the path [windows] (:pull:`1323`)
+	- Use PySys_SetArgvEx in windows too. (:pull:`1324`)
+	- Add lief as dependency for windows (:pull:`1325`)
+	- Support Application Manifests in Windows (:pull:`1326`, :issue:`385`,
+	  :issue:`997`, :issue:`1305`)
+	- Creates a manifest for an application that will request elevation
+	  (:pull:`1327`, :issue:`1188`)
+	- Ignore when lief is not available/installed, like in MSYS2 (:pull:`1328`)
+	- util: style changes (:pull:`1329`)
+	- Support Path in BeginUpdateResource and fix UpdateResource (:pull:`1330`)
+	- Move version stamp to winversioninfo module (:pull:`1331`)
+	- Add a simple test to winversioninfo (:pull:`1332`)
+	- Implement version stamp [windows][experimental] (:pull:`1334`)
+	- Workaround a bug in lief with utf-8 filenames [windows] (:pull:`1339`)
+	- Use lief to detect dependencies [windows][experimental] (:pull:`1344`,
+	  :issue:`665`)
+
+#)  Samples:
+	- Extend the 'icon' sample to use an admin manifest (:pull:`1340`)
+
+#)  Documentation:
+	- Documentation for manifest and uac-admin options (:pull:`1337`)
+	- Update docs for patchelf (:pull:`1342`)
+
+
 Version 6.9 (December 2021)
 ---------------------------
 

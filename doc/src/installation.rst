@@ -74,8 +74,8 @@ Using pipenv, install or update by issuing one of the folowing commanda:
     pipenv install cx_Freeze
     pipenv update cx_Freeze
 
-Miniconda3
-----------
+Miniconda3 or Miniforge3
+------------------------
 
 Directly from the conda-forge channel:
 
