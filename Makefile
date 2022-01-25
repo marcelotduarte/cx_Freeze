@@ -7,11 +7,19 @@ black:
 		! -path './tests/samples/invalid_syntax.py' \
 		! -path './cx_Freeze/samples/*/build/**.py' \
 		-exec pyupgrade --py36-plus {} + || true
-	black . -v || true
+	black . || true
+
+.PHONY: clean
+clean:
+	make -C doc clean
 
 .PHONY: html
 html:
 	make -C doc html
+
+.PHONY: htmltest
+htmltest:
+	make -C doc test
 
 .PHONY: epub
 epub:
@@ -21,10 +29,12 @@ epub:
 pdf:
 	make -C doc pdf
 
-.PHONY: test
-htmltest:
-	make -C doc test
+.PHONY: tests
+tests:
+	python -m pytest
 
-.PHONY: clean
-clean:
-	make -C doc clean
+.PHONY: cov
+cov:
+	python -m pytest -m "not long" --cov="cx_Freeze" --cov-report=html
+	python -m webbrowser -t ./htmlcov/index.html
+

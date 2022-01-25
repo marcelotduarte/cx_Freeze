@@ -6,7 +6,7 @@ Use one of the following commands to install:
     python setup.py build install
 Use one of the following commands to use the development mode:
     pip install -e .
-    python setup.py develop
+    python setup.py develop -U
 """
 
 import glob

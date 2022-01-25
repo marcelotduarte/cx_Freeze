@@ -17,8 +17,8 @@ class TestVersionInfo:
         assert default_version.copyright is None
         assert default_version.trademarks is None
         assert default_version.product is None
-        assert default_version.dll is False
-        assert default_version.debug is False
+        assert default_version.dll is None
+        assert default_version.debug is None
         assert default_version.verbose is True
 
     def test___init__pads_short_versions(self):
@@ -44,8 +44,8 @@ class TestVersionInfo:
 
         version_instance = VersionInfo(
             version=input_version,
-            internalName=input_internal_name,
-            originalFileName=input_original_filename,
+            internal_name=input_internal_name,
+            original_filename=input_original_filename,
             comments=input_comments,
             company=input_company,
             description=input_description,
