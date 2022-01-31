@@ -1,5 +1,5 @@
-from datetime import datetime
 import sys
+from datetime import datetime
 
 print("Hello from cx_Freeze")
 print(f"The current date is {datetime.today():%B %d, %Y %H:%M:%S}\n")

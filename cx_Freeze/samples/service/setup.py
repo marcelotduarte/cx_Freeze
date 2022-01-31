@@ -10,7 +10,7 @@ of the same service code -- for example for accessing different databases or
 using different configuration files.
 """
 
-from cx_Freeze import setup, Executable
+from cx_Freeze import Executable, setup
 
 options = {
     "build_exe": {

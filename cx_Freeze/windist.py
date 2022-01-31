@@ -1,13 +1,14 @@
 import distutils.command.bdist_msi
-from distutils import log
 import importlib
 import msilib
 import os
 import re
 import shutil
 import sysconfig
+import winreg
+from distutils import log
 
-__all__ = ["bdist_msi"]
+__all__ = ["bdist_msi", "winreg"]
 
 # force the remove existing products action to happen first since Windows
 # installer appears to be braindead and doesn't handle files shared between

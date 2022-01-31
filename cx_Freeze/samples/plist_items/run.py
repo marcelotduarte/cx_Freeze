@@ -1,9 +1,12 @@
 # Code to test that the plist_items option is working correctly.
 
-import setuptools
 import distutils.core
-import os, platform, sys
-from data import TEST_KEY, TEST_VALUE, BUILD_DIR, BUNDLE_NAME
+import os
+import platform
+import sys
+
+import setuptools
+from data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
 
 if platform.system() != "Darwin":
     print("Test only applies to Darwin.")

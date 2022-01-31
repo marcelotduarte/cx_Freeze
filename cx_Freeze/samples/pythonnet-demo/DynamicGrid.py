@@ -1,13 +1,14 @@
-import clr
 import sys
+
+import clr
 
 if sys.platform.lower() not in ["cli", "win32"]:
     print("only windows is supported for wpf")
 clr.AddReference(r"wpf\PresentationFramework")
 from System.IO import StreamReader
-from System.Windows.Markup import XamlReader
-from System.Threading import Thread, ThreadStart, ApartmentState
+from System.Threading import ApartmentState, Thread, ThreadStart
 from System.Windows import Application, Window
+from System.Windows.Markup import XamlReader
 
 
 class MyWindow(Window):

@@ -3,12 +3,12 @@ This module contains utility functions shared between cx_Freeze modules.
 """
 
 import contextlib
-from pathlib import Path, PurePath
 import shutil
 import types
-from tempfile import TemporaryDirectory
-from typing import List, Tuple, Optional, Union
 import warnings
+from pathlib import Path, PurePath
+from tempfile import TemporaryDirectory
+from typing import List, Optional, Tuple, Union
 
 from .exception import ConfigError
 

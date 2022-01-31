@@ -4,15 +4,15 @@ and is cross-platform.
 """
 import sys
 
-from .dist import build, build_exe, bdist_rpm, install, install_exe, setup
+from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
 
 __all__ = [
+    "bdist_rpm",
     "build",
     "build_exe",
-    "bdist_rpm",
     "install",
     "install_exe",
     "setup",

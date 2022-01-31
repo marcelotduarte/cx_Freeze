@@ -1,6 +1,8 @@
-import sys
 import importlib
+import sys
+
 import pytest
+
 import cx_Freeze
 
 

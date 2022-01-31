@@ -1,4 +1,3 @@
 print("importing pkg1")
 
-from . import sub1
-from . import pkg2
+from . import pkg2, sub1

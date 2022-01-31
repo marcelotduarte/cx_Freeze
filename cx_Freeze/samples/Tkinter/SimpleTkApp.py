@@ -1,4 +1,4 @@
-from tkinter import Tk, Label, Button, BOTTOM
+from tkinter import BOTTOM, Button, Label, Tk
 
 root = Tk()
 root.title("Button")

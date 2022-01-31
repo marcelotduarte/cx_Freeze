@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 from struct import calcsize, pack
-from typing import List, Tuple, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 try:
     from win32verstamp import stamp as version_stamp

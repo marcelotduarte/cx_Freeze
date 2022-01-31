@@ -8,8 +8,9 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-from cx_Freeze import setup, Executable
-from data import TEST_KEY, TEST_VALUE, BUILD_DIR, BUNDLE_NAME
+from data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
+
+from cx_Freeze import Executable, setup
 
 executables = [Executable("hello.py")]
 

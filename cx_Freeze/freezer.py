@@ -2,28 +2,32 @@
 Base class for freezing scripts into executables.
 """
 
-from abc import ABC, abstractmethod
-from distutils.dist import DistributionMetadata
-from importlib.util import MAGIC_NUMBER
 import marshal
 import os
-from pathlib import Path
 import shutil
 import stat
 import struct
 import sys
 import sysconfig
 import time
-from typing import List, Set, Tuple, Optional, Union
 import zipfile
+from abc import ABC, abstractmethod
+from distutils.dist import DistributionMetadata
+from importlib.util import MAGIC_NUMBER
+from pathlib import Path
+from typing import List, Optional, Set, Tuple, Union
 
-from .common import get_resource_file_path, process_path_specs
-from .common import IncludesList, InternalIncludesList
+from .common import (
+    IncludesList,
+    InternalIncludesList,
+    get_resource_file_path,
+    process_path_specs,
+)
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule, Module
-from .parser import Parser, ELFParser, PEParser
+from .parser import ELFParser, Parser, PEParser
 
 DARWIN = sys.platform == "darwin"
 MINGW = sysconfig.get_platform().startswith("mingw")
@@ -34,11 +38,11 @@ if WIN32:
     from .winversioninfo import VersionInfo
 
     try:
-        from .util import AddIcon, GetWindowsDir, GetSystemDir, UpdateCheckSum
+        from .util import AddIcon, GetSystemDir, GetWindowsDir, UpdateCheckSum
     except ImportError:
         pass
 elif DARWIN:
-    from .darwintools import DarwinFile, MachOReference, DarwinFileTracker
+    from .darwintools import DarwinFile, DarwinFileTracker, MachOReference
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 

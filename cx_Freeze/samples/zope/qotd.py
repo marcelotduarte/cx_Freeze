@@ -4,8 +4,8 @@
 A simple Quote of the Day server
 """
 
-from twisted.internet.protocol import Protocol, Factory
 from twisted.internet import reactor
+from twisted.internet.protocol import Factory, Protocol
 
 
 class QOTD(Protocol):

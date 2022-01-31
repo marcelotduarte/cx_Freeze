@@ -6,7 +6,6 @@ SWF = clr.AddReference("System.Windows.Forms")
 print(SWF.Location)
 import System
 import System.Windows.Forms as WinForms
-
 from System.IO import File
 from System.Text import Encoding
 from System.Threading import ApartmentState, Thread, ThreadStart

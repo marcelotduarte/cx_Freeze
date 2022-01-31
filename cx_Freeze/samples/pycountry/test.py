@@ -4,6 +4,7 @@ Sample to test the 'pycountry' hook
 """
 
 import gettext
+
 import pycountry
 
 print("countries:", len(pycountry.countries))

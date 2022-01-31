@@ -9,10 +9,10 @@ This version requires the zoneinfo in the zip file
 # subdirectory that contains the files needed to run the script without Python
 
 import distutils
-import sys
 import os
+import sys
 
-from cx_Freeze import setup, Executable
+from cx_Freeze import Executable, setup
 
 dir_name = f"exe.{distutils.util.get_platform()}-{sys.version[0:3]}.zip"
 build_exe = os.path.join("build", dir_name)

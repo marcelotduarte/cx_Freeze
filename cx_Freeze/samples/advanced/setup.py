@@ -10,7 +10,8 @@
 # subdirectory that contains the files needed to run the script without Python
 
 import sys
-from cx_Freeze import setup, Executable
+
+from cx_Freeze import Executable, setup
 
 options = {
     "build_exe": {

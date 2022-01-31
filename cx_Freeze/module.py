@@ -2,19 +2,18 @@
 Base class for module.
 """
 
-from contextlib import suppress
 import datetime
-from keyword import iskeyword
-from pathlib import Path
 import shutil
 import socket
+from contextlib import suppress
+from keyword import iskeyword
+from pathlib import Path
 from types import CodeType
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 from ._compat import importlib_metadata
 from .common import TemporaryPath
 from .exception import ConfigError
-
 
 __all__ = ["ConstantsModule", "Module"]
 

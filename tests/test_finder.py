@@ -1,9 +1,11 @@
 import os
-import sys
 import shutil
+import sys
 import zipfile
+
 import pytest
-from cx_Freeze import ModuleFinder, Module, ConstantsModule
+
+from cx_Freeze import ConstantsModule, Module, ModuleFinder
 
 
 class TestModuleFinderWithConvertedNoseTests:

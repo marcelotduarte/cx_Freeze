@@ -1,6 +1,7 @@
 """A simple script to show some values of a font in matplotlib."""
 
 from pathlib import Path
+
 import matplotlib as mpl
 from matplotlib.afm import AFM
 

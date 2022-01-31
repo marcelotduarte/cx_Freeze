@@ -5,7 +5,7 @@ import clr
 SWF = clr.AddReference("System.Windows.Forms")
 print(SWF.Location)
 import System.Windows.Forms as WinForms
-from System.Drawing import Size, Point
+from System.Drawing import Point, Size
 
 
 class HelloApp(WinForms.Form):

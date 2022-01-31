@@ -1,14 +1,13 @@
 import os
-from pathlib import Path
 import platform
-import subprocess
 import shutil
 import stat
+import subprocess
 import tempfile
+from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Set, Union
 
 from .exception import DarwinException
-
 
 # In a MachO file, need to deal specially with links that use @executable_path,
 # @loader_path, @rpath

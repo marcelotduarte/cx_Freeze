@@ -1,4 +1,5 @@
 import pytest
+
 from cx_Freeze.exception import ConfigError, DarwinException
 
 

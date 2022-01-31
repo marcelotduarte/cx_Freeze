@@ -2,20 +2,24 @@
 Base class for finding modules.
 """
 
-from importlib.abc import ExecutionLoader
 import importlib.machinery
 import logging
 import os
-from pathlib import Path, PurePath
 import sys
+from importlib.abc import ExecutionLoader
+from pathlib import Path, PurePath
 from types import CodeType
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
 import opcode
 
-from .common import code_object_replace, process_path_specs
-from .common import IncludesList, InternalIncludesList
+from .common import (
+    IncludesList,
+    InternalIncludesList,
+    code_object_replace,
+    process_path_specs,
+)
 from .module import ConstantsModule, Module
-
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
 EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]

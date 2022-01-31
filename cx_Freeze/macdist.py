@@ -1,19 +1,17 @@
-from distutils.core import Command
 import os
 import plistlib
 import shutil
 import subprocess
 import warnings
-
+from distutils.core import Command
 from typing import List, Tuple
 
 from cx_Freeze.common import normalize_to_list
-
 from cx_Freeze.darwintools import (
-    applyAdHocSignature,
-    changeLoadReference,
     DarwinFile,
     DarwinFileTracker,
+    applyAdHocSignature,
+    changeLoadReference,
 )
 
 __all__ = ["bdist_dmg", "bdist_mac"]

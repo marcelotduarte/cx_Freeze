@@ -1,7 +1,8 @@
-import time
 import sys
-import zmq
+import time
 from contextlib import AbstractContextManager
+
+import zmq
 
 
 class ignore(AbstractContextManager):

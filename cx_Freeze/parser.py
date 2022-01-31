@@ -2,14 +2,14 @@
 Implements `Parser` interface to create an abstraction to parse binary files.
 """
 
-from abc import ABC, abstractmethod
 import os
-from pathlib import Path
 import re
 import shutil
 import stat
-from subprocess import check_call, check_output, run, CalledProcessError, PIPE
 import sys
+from abc import ABC, abstractmethod
+from pathlib import Path
+from subprocess import PIPE, CalledProcessError, check_call, check_output, run
 from typing import Any, Dict, List, Set, Union
 
 from .common import TemporaryPath

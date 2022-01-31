@@ -1,4 +1,5 @@
 import pytest
+
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from datetime import datetime
 import sys
+from datetime import datetime
 
 print("Hello from cx_Freeze")
 print(
