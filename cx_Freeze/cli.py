@@ -7,10 +7,10 @@ import os
 import sys
 import sysconfig
 
+from . import __version__
 from .common import normalize_to_list
 from .executable import Executable
 from .freezer import Freezer
-from .version import __version__
 
 __all__ = ["main"]
 

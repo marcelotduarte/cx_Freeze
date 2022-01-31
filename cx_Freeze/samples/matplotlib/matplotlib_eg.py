@@ -1,13 +1,13 @@
 """A simple script to demonstrate matplotlib."""
 
-from numpy import arange, sin, pi
 import matplotlib
+from numpy import arange, pi, sin
 
 matplotlib.use("WXAgg")
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx
-from matplotlib.figure import Figure
 import wx
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 class CanvasFrame(wx.Frame):

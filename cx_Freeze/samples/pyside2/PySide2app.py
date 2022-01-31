@@ -1,8 +1,9 @@
 """A simple script to demonstrate PySide2."""
 
 import sys
+
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QWidget, QLabel
+from PySide2.QtWidgets import QApplication, QLabel, QWidget
 
 
 def main():

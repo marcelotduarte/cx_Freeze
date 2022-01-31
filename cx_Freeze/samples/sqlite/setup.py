@@ -5,7 +5,7 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-from cx_Freeze import setup, Executable
+from cx_Freeze import Executable, setup
 
 setup(
     name="test_sqlite3",

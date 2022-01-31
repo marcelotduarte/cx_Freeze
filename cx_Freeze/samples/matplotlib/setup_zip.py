@@ -15,7 +15,8 @@
 import distutils
 import os
 import sys
-from cx_Freeze import setup, Executable
+
+from cx_Freeze import Executable, setup
 
 base = "Console"
 if sys.platform == "win32":

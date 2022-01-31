@@ -1,9 +1,9 @@
 import collections.abc
-from importlib.machinery import EXTENSION_SUFFIXES
 import os
-from pathlib import Path
 import sys
 import sysconfig
+from importlib.machinery import EXTENSION_SUFFIXES
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 from .common import code_object_replace

@@ -1,5 +1,5 @@
-import setuptools
-import setuptools.dist
+import setuptools  # isort:skip
+import setuptools.dist  # isort:skip
 import distutils.command.bdist_rpm
 import distutils.command.build
 import distutils.command.install
@@ -14,8 +14,7 @@ from .freezer import Freezer
 from .module import ConstantsModule
 
 if sys.platform == "win32":
-    import winreg
-    from .windist import bdist_msi
+    from .windist import bdist_msi, winreg
 elif sys.platform == "darwin":
     from .macdist import bdist_dmg, bdist_mac
 

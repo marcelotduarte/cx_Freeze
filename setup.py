@@ -11,13 +11,13 @@ Use one of the following commands to use the development mode:
 
 import glob
 import os
-from shutil import which
 import subprocess
 import sys
+from shutil import which
 from sysconfig import get_config_var, get_platform, get_python_version
 
-from setuptools import setup, Command, Extension
 import setuptools.command.build_ext
+from setuptools import Command, Extension, setup
 
 WIN32 = sys.platform == "win32"
 DARWIN = sys.platform == "darwin"

@@ -6,7 +6,6 @@ SWF = clr.AddReference("System.Windows.Forms")
 print(SWF.Location)
 import System
 import System.Windows.Forms as WinForms
-
 from System.Drawing import Color
 
 

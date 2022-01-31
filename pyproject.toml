@@ -8,8 +8,13 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 79
-target-version = ['py36']
-exclude = 'tests/samples/invalid_syntax.py'
+target-version = ["py36"]
+exclude = "tests/samples/invalid_syntax.py"
+
+[tool.isort]
+profile = "black"
+line_length = 79
+skip_gitignore = true
 
 [tool.pylint.format]
 max-line-length = 79

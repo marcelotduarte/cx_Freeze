@@ -12,7 +12,7 @@ subdirectory that contains the files needed to run the application
 
 import sys
 
-from cx_Freeze import setup, Executable
+from cx_Freeze import Executable, setup
 
 base = None
 if sys.platform == "win32":

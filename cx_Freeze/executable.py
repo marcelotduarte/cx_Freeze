@@ -3,10 +3,10 @@ Module for the Executable base class.
 """
 
 import os
-from pathlib import Path
 import string
 import sys
 import sysconfig
+from pathlib import Path
 from typing import Optional, Union
 
 from .common import get_resource_file_path, validate_args
