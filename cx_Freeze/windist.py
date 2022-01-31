@@ -801,7 +801,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 program_files_folder = "ProgramFiles64Folder"
             else:
                 program_files_folder = "ProgramFilesFolder"
-            self.initial_target_dir = fr"[{program_files_folder}]\{name}"
+            self.initial_target_dir = rf"[{program_files_folder}]\{name}"
         if self.add_to_path is None:
             self.add_to_path = False
         if self.target_name is None:
@@ -876,7 +876,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 "Registry",
                 f"{progid}-name",
                 -1,
-                fr"Software\Classes\{progid}",
+                rf"Software\Classes\{progid}",
                 "FriendlyAppName",
                 self.distribution.get_name(),
                 component,
@@ -885,7 +885,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 "Registry",
                 f"{progid}-verb-{verb}",
                 -1,
-                fr"Software\Classes\{progid}\shell\{verb}",
+                rf"Software\Classes\{progid}\shell\{verb}",
                 "FriendlyAppName",
                 self.distribution.get_name(),
                 component,
@@ -894,7 +894,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
                 "Registry",
                 f"{progid}-author",
                 -1,
-                fr"Software\Classes\{progid}\Application",
+                rf"Software\Classes\{progid}\Application",
                 "ApplicationCompany",
                 self.distribution.get_author(),
                 component,
