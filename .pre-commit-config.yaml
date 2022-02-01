@@ -15,7 +15,6 @@ repos:
   - id: debug-statements
   - id: end-of-file-fixer
   - id: mixed-line-ending
-  - id: requirements-txt-fixer
   - id: trailing-whitespace
 
 - repo: https://github.com/PyCQA/isort
@@ -34,13 +33,16 @@ repos:
   - id: pyupgrade
     args: [--py36-plus]
 
-- repo: https://github.com/pycqa/flake8
+- repo: https://github.com/PyCQA/flake8
   rev: 4.0.1
   hooks:
   - id: flake8
 
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v0.920
+- repo: https://github.com/PyCQA/pylint
+  rev: v2.12.2
   hooks:
-  - id: mypy
-    args: [--show-error-codes]
+    - id: pylint
+      name: pylint
+      entry: pylint
+      language: system
+      types: [python]
