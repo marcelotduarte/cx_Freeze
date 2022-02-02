@@ -1,6 +1,4 @@
-"""
-This module contains utility functions shared between cx_Freeze modules.
-"""
+"""This module contains utility functions shared between cx_Freeze modules."""
 
 import contextlib
 import shutil
@@ -21,7 +19,7 @@ InternalIncludesList = List[Tuple[Path, PurePath]]
 class FilePath(Path):
     """Subclass of concrete Path to be used in TemporaryPath."""
 
-    _flavour = type(Path())._flavour
+    _flavour = type(Path())._flavour  # pylint: disable=E1101,W0212
 
     def replace(self, target):
         """Rename this path to the target path, overwriting if that path
@@ -37,7 +35,9 @@ class FilePath(Path):
 class TemporaryPath(TemporaryDirectory):
     """Create and return a Path-like temporary directory."""
 
-    def __init__(self, filename=None, suffix=None, prefix=None, dir=None):
+    def __init__(
+        self, filename=None, suffix=None, prefix=None, dir=None
+    ):  # pylint: disable=W0622
         super().__init__(suffix, prefix or "cxfreeze-", dir)
         if filename:
             if Path(filename).parent.name:

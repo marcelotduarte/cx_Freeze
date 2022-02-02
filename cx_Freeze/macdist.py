@@ -344,9 +344,7 @@ class bdist_mac(Command):
         """
         if self.qt_menu_nib:
             return self.qt_menu_nib
-        elif any(
-            n.startswith("PyQt4.QtCore") for n in os.listdir(self.binDir)
-        ):
+        if any(n.startswith("PyQt4.QtCore") for n in os.listdir(self.binDir)):
             from PyQt4 import QtCore
         elif any(
             n.startswith("PySide.QtCore") for n in os.listdir(self.binDir)

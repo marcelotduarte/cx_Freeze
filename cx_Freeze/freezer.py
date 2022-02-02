@@ -1,6 +1,4 @@
-"""
-Base class for freezing scripts into executables.
-"""
+"""Base class for freezing scripts into executables."""
 
 import marshal
 import os

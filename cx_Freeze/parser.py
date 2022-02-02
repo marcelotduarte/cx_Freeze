@@ -1,6 +1,5 @@
-"""
-Implements `Parser` interface to create an abstraction to parse binary files.
-"""
+"""Implements `Parser` interface to create an abstraction to parse binary
+files."""
 
 import os
 import re

@@ -341,7 +341,8 @@ class MachOCommand:
 
     @staticmethod
     def _getMachOCommands(path: Path) -> List["MachOCommand"]:
-        """Returns a list of load commands in the specified file, using otool."""
+        """Returns a list of load commands in the specified file, using
+        otool."""
         shell_command = ("otool", "-l", path)
         commands: List[MachOCommand] = []
         current_command_lines = None
@@ -511,7 +512,8 @@ class DarwinFileTracker:
         return iter(self._copied_file_list)
 
     def pathIsAlreadyCopiedTo(self, target_path: Path) -> bool:
-        """Check if the given targetPath has already has a file copied to it."""
+        """Check if the given target_path has already has a file copied to
+        it."""
         if target_path in self._darwin_file_for_build_path:
             return True
         return False
@@ -604,7 +606,8 @@ class DarwinFileTracker:
                             )
                     else:
                         # if reference is not resolved, look through the copied
-                        # files and try to find a candidate, and use it if found.
+                        # files and try to find a candidate, and use it if
+                        # found.
                         potential_target = self.findDarwinFileForFilename(
                             reference.raw_path
                         )

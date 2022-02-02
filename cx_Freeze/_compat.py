@@ -1,3 +1,4 @@
+"""Internal compatible module."""
 import sys
 
 if sys.version_info >= (3, 10):
