@@ -1,6 +1,4 @@
-"""
-cxfreeze command line tool
-"""
+"""cxfreeze command line tool."""
 
 import argparse
 import os
@@ -36,7 +34,8 @@ def prepare_parser():
         "script",
         nargs="?",
         metavar="SCRIPT",
-        help="the name of the file containing the script which is to be frozen",
+        help="the name of the file containing the script which is to be "
+        "frozen",
     )
     parser.add_argument(
         "--init-script",
@@ -84,8 +83,8 @@ def prepare_parser():
         "--uac-admin",
         action="store_true",
         dest="uac_admin",
-        help="creates a manifest for an application that will request elevation"
-        " (Windows only - ignored by Python app from Microsoft Store)",
+        help="creates a manifest for an application that will request eleva"
+        "tion (Windows only - ignored by Python app from Microsoft Store)",
     )
     parser.add_argument(
         "--shortcut-name",
@@ -98,9 +97,9 @@ def prepare_parser():
         "--shortcut-dir",
         dest="shortcut_dir",
         metavar="DIR",
-        help="the directory in which to place the shortcut when being "
-        "installed by an MSI package; see the MSI Shortcut table documentation "
-        "for more information on what values can be placed here (Windows only)",
+        help="the directory in which to place the shortcut when being instal"
+        "led by an MSI package; see the MSI Shortcut table documentation for "
+        "more information on what values can be placed here (Windows only)",
     )
     parser.add_argument(
         "--copyright",

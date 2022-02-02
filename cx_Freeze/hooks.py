@@ -220,7 +220,8 @@ def load_babel(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
-    """The bcrypt package requires the _cffi_backend module (loaded implicitly)"""
+    """The bcrypt package requires the _cffi_backend module
+    (loaded implicitly)"""
     finder.IncludeModule("_cffi_backend")
 
 

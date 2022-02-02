@@ -1,6 +1,4 @@
-"""
-Base class for finding modules.
-"""
+"""Base class for finding modules."""
 
 import importlib.machinery
 import logging
@@ -198,8 +196,8 @@ class ModuleFinder:
 
                             # Skip modules whose names appear to contain '.',
                             # as we may be using the wrong suffix, and even if
-                            # we're not, such module names will break the import
-                            # code.
+                            # we're not, such module names will break the
+                            # import code.
                             if "." not in name:
                                 break
 
@@ -260,8 +258,8 @@ class ModuleFinder:
             module = self._internal_import_module(name, deferred_imports)
 
         # old style relative import (regular 'import foo' in Python 2)
-        # the name given is tried in the current package, and if
-        # no match is found, sys.path is searched for a top-level module/pockage
+        # the name given is tried in the current package, and if no match
+        # is found, sys.path is searched for a top-level module/pockage
         elif relative_import_index < 0:
             parent = self._determine_parent(caller)
             if parent is not None:
@@ -471,7 +469,8 @@ class ModuleFinder:
         module.in_import = False
         return module
 
-    def _replace_package_in_code(self, module: Module) -> CodeType:
+    @staticmethod
+    def _replace_package_in_code(module: Module) -> CodeType:
         """
         Replace the value of __package__ directly in the code,
         when the module is in a package and will be stored in library.zip.
@@ -552,11 +551,10 @@ class ModuleFinder:
         )
 
     def _run_hook(self, hook: str, module_name: str, *args) -> None:
-        """
-        Run hook (load or missing) for the given module if one is present.
-        """
-        name = "{}_{}".format(hook, module_name.replace(".", "_"))
-        method = getattr(self._hooks, name, None)
+        """Run hook (load or missing) for the given module if one is
+        present."""
+        normalized_name = module_name.replace(".", "_")
+        method = getattr(self._hooks, f"{hook}_{normalized_name}", None)
         if method is not None:
             method(self, *args)
 
@@ -567,11 +565,9 @@ class ModuleFinder:
         deferred_imports: DeferredList,
         top_level: bool = True,
     ):
-        """
-        Scan code, looking for imported modules and keeping track of the
+        """Scan code, looking for imported modules and keeping track of the
         constants that have been created in order to better tell which
-        modules are truly missing.
-        """
+        modules are truly missing."""
         arguments = []
         imported_module = None
         co_code = code.co_code
@@ -653,6 +649,8 @@ class ModuleFinder:
         self.constants_module.values[name] = value
 
     def ExcludeDependentFiles(self, filename: Union[Path, str]) -> None:
+        """Exclude the dependent files of the named file from the resulting
+        frozen executable."""
         self.exclude_dependent_files.add(Path(filename))
 
     def ExcludeModule(self, name: str) -> None:
@@ -722,7 +720,7 @@ class ModuleFinder:
             for name in names:
                 callers = list(self._bad_modules[name].keys())
                 callers.sort()
-                print("? {} imported from {}".format(name, ", ".join(callers)))
+                print(f"? {name} imported from", ", ".join(callers))
             print("This is not necessarily a problem - the modules ", end="")
             print("may not be needed on this platform.\n")
 
