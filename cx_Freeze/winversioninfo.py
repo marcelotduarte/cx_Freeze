@@ -1,6 +1,4 @@
-"""
-Module for the VersionInfo base class.
-"""
+"""Module for the VersionInfo base class."""
 
 import argparse
 import json
@@ -15,7 +13,7 @@ except ImportError:
     version_stamp = None
 
 try:
-    import cx_Freeze.util as util
+    from cx_Freeze import util
 except ImportError:
     util = None
 
@@ -170,7 +168,7 @@ class VersionInfo:
         comments: Optional[str] = None,
         company: Optional[str] = None,
         description: Optional[str] = None,
-        copyright: Optional[str] = None,
+        copyright: Optional[str] = None,  # pylint: disable=W0622
         trademarks: Optional[str] = None,
         product: Optional[str] = None,
         dll: Optional[bool] = None,
@@ -297,13 +295,13 @@ if __name__ == "__main__":
         dest="as_raw",
         help="show version info as raw bytes",
     )
-    args = parser.parse_args()
-    if args.filename is None:
+    test_args = parser.parse_args()
+    if test_args.filename is None:
         parser.error("filename must be specified")
     else:
-        args.filename = Path(args.filename)
+        test_filename = Path(test_args.filename)
 
-    version = VersionInfo(
+    test_version = VersionInfo(
         "0.1",
         comments="cx_Freeze comments",
         description="cx_Freeze description",
@@ -313,8 +311,8 @@ if __name__ == "__main__":
         trademarks="cx_Freeze (TM)",
     )
 
-    if args.as_dict:
-        print(version.version_info(args.filename))
-    if args.as_raw:
-        print(version.version_info(args.filename).to_buffer().hex(":"))
-    version.stamp(args.filename)
+    if test_args.as_dict:
+        print(test_version.version_info(test_filename))
+    if test_args.as_raw:
+        print(test_version.version_info(test_filename).to_buffer().hex(":"))
+    test_version.stamp(test_filename)

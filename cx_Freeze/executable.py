@@ -1,6 +1,4 @@
-"""
-Module for the Executable base class.
-"""
+"""Module for the Executable base class."""
 
 import os
 import string
@@ -33,7 +31,7 @@ class Executable:
         icon: Optional[Union[str, Path]] = None,
         shortcut_name: Optional[str] = None,
         shortcut_dir: Optional[Union[str, Path]] = None,
-        copyright: Optional[str] = None,
+        copyright: Optional[str] = None,  # pylint: disable=W0622
         trademarks: Optional[str] = None,
         manifest: Optional[Union[str, Path]] = None,
         uac_admin: bool = False,
@@ -174,7 +172,7 @@ class Executable:
             return
         if isinstance(name, str):
             name = Path(name)
-        self._manifest = name.read_text()
+        self._manifest = name.read_text(encoding="utf-8")
 
     @property
     def shortcut_name(self) -> str:

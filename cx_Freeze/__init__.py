@@ -1,7 +1,5 @@
-"""
-Create standalone executables from Python scripts, with the same performance
-and is cross-platform.
-"""
+"""Create standalone executables from Python scripts, with the same performance
+and is cross-platform."""
 import sys
 
 from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
