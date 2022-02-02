@@ -3,7 +3,6 @@ Base class for module.
 """
 
 import datetime
-import shutil
 import socket
 from contextlib import suppress
 from keyword import iskeyword
@@ -24,43 +23,85 @@ class DistributionCache(importlib_metadata.PathDistribution):
     _cachedir = TemporaryPath()
 
     @staticmethod
-    def at(path):
+    def at(path: Union[str, Path]):
         return DistributionCache(Path(path))
 
     at.__doc__ = importlib_metadata.PathDistribution.at.__doc__
 
     @classmethod
-    def from_name(cls, name):
+    def from_name(cls, name: str):
         distribution = super().from_name(name)
+
         # Cache dist-info files in a temporary directory
-        temp_dir = cls._cachedir.path
-        dist_dir = None
-        files = distribution.files or []
-        prep = importlib_metadata.Prepared(distribution.name)
-        normalized = prep.normalized
-        legacy_normalized = prep.legacy_normalized
-        for file in files:
-            # only existing dist-info files
-            if (
-                not file.match(f"{name}-*.dist-info/*")
-                and not file.match(f"{distribution.name}-*.dist-info/*")
-                and not file.match(f"{normalized}-*.dist-info/*")
-                and not file.match(f"{legacy_normalized}-*.dist-info/*")
-            ):
-                continue
-            src_path = file.locate()
-            if not src_path.exists():
-                continue
-            dst_path = temp_dir / file.as_posix()
-            if dist_dir is None:
-                dist_dir = dst_path.parent
-                dist_dir.mkdir(exist_ok=True)
-            shutil.copy2(src_path, dst_path)
-        if dist_dir is None:
+        normalized_name = getattr(distribution, "_normalized_name", None)
+        if normalized_name is None:
+            normalized_name = importlib_metadata.Prepared.normalize(name)
+        source_path = getattr(distribution, "_path", None)
+        if source_path is None:
+            mask = f"{normalized_name}-{distribution.version}*-info"
+            source_path = list(distribution.locate_file("").glob(mask))[0]
+        if not source_path.exists():
             raise importlib_metadata.PackageNotFoundError(name)
-        return cls.at(dist_dir)
+
+        target_name = f"{normalized_name}-{distribution.version}.dist-info"
+        target_path = cls._cachedir.path / target_name
+        target_path.mkdir(exist_ok=True)
+
+        purelib = None
+        if source_path.name.endswith(".dist-info"):
+            for source in source_path.iterdir():  # type: Path
+                target = target_path / source.name
+                target.write_bytes(source.read_bytes())
+        elif source_path.is_file():
+            # old egg-info file is converted to dist-info
+            target = target_path / "METADATA"
+            target.write_bytes(source_path.read_bytes())
+            purelib = (source_path.parent / (normalized_name + ".py")).exists()
+        else:
+            # Copy minimal data from egg-info directory into dist-info
+            source = source_path / "PKG-INFO"
+            if source.is_file():
+                target = target_path / "METADATA"
+                target.write_bytes(source.read_bytes())
+            source = source_path / "top_level.txt"
+            if source.is_file():
+                target = target_path / "top_level.txt"
+                target.write_bytes(source.read_bytes())
+            purelib = not source_path.joinpath("not-zip-safe").is_file()
+
+        cls._write_wheel_distinfo(target_path, purelib)
+        cls._write_record_distinfo(target_path)
+
+        return cls.at(target_path)
 
     from_name.__doc__ = importlib_metadata.PathDistribution.from_name.__doc__
+
+    @staticmethod
+    def _write_wheel_distinfo(target_path: Path, purelib: bool):
+        """Create WHEEL if it doesn't exist"""
+        target = target_path / "WHEEL"
+        if not target.exists():
+            project = Path(__file__).parent.name
+            version = importlib_metadata.version(project)
+            root_is_purelib = "true" if purelib else "false"
+            text = [
+                "Wheel-Version: 1.0",
+                f"Generator: {project} ({version})",
+                f"Root-Is-Purelib: {root_is_purelib}",
+                "Tag: py3-none-any",
+            ]
+            target.write_text("\n".join(text))
+
+    @staticmethod
+    def _write_record_distinfo(target_path: Path):
+        """Recreate minimal RECORD file"""
+        target_name = target_path.name
+        record = []
+        for file in target_path.iterdir():
+            record.append(f"{target_name}/{file.name},,")
+        record.append(f"{target_name}/RECORD,,")
+        target = target_path / "RECORD"
+        target.write_text("\n".join(record), encoding="utf-8")
 
 
 class Module:
