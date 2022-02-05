@@ -7,6 +7,11 @@ Use one of the following commands to install:
 Use one of the following commands to use the development mode:
     pip install -e .
     python setup.py develop -U
+
+Note:
+    In setup.cfg there are four extras_require: dev, test, doc, all
+    pip install -e .[all]
+
 """
 
 import glob
