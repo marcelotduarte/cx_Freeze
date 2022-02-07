@@ -1,4 +1,4 @@
-exclude: tests/samples/invalid_syntax.py
+exclude: ^tests/samples/invalid_syntax.py|^.bumpversion.cfg
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.1.0

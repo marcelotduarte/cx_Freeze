@@ -406,6 +406,7 @@ def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule("datetime")
     finder.IncludeModule("decimal")
 
+
 def load_datetime(finder: ModuleFinder, module: Module) -> None:
     """The datetime module implicitly imports time; make sure this happens."""
     finder.IncludeModule("time")
@@ -1034,7 +1035,6 @@ def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     # any that are installed.
     copy_qt_plugins(name, "platforms", finder)
     copy_qt_plugins(name, "styles", finder)
-
 
 
 def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:

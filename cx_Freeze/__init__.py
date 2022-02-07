@@ -32,4 +32,4 @@ elif sys.platform == "darwin":
 
     __all__.extend([bdist_dmg.__name__, bdist_mac.__name__])
 
-__version__ = "6.10.0"
+__version__ = "6.11.0-dev0"
