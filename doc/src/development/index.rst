@@ -84,5 +84,5 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   
+
    code_layout.rst

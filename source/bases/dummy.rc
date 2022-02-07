@@ -2,4 +2,3 @@ STRINGTABLE
 {
     1,  "Just to ensure that buggy EndUpdateResource doesn't fall over."
 }
-

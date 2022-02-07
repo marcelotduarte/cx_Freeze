@@ -1,8 +1,8 @@
 [build-system]
 requires = [
-    "setuptools >= 51.0.0",
-    "wheel >= 0.36.2",
-    "cx-logging >= 3.0 ; sys_platform == 'win32'",
+    "setuptools>=51.0.0",
+    "wheel>=0.36.2",
+    "cx-logging>=3.0 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -23,4 +23,3 @@ max-line-length = 79
 minversion = "6.0"
 addopts = "-ra"
 testpaths = ["tests"]
-

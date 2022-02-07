@@ -56,4 +56,3 @@ License for cx_Freeze
    bound by the terms and conditions of this License Agreement.
 
 Computronix® is a registered trademark of Computronix (Canada) Ltd.
-

@@ -1,16 +1,17 @@
 # Keep this in sync with setup.cfg [options] install_requires
-cx-logging >= 3.0 ; sys_platform == "win32"
-importlib-metadata >= 4.8.3 ; python_version < "3.10"
-lief >= 0.11.5 ; sys_platform == "win32" and python_version < "3.10"
-patchelf >= 0.12 ; sys_platform == "linux"
+cx-logging>=3.0 ;sys_platform == "win32"
+importlib-metadata>=4.8.3 ;python_version < "3.10"
+lief>=0.11.5 ;sys_platform == "win32" and python_version < "3.10"
+patchelf>=0.12 ;sys_platform == "linux"
 
 # This provisional requirement doesn't exist in setup.cfg
 # It is only for Python 3.10 on Windows
 -f https://lief-project.github.io/packages/lief/
-lief >= 0.12.0.dev0 ; sys_platform == "win32" and python_version >= "3.10"
+lief>=0.12.0.dev0 ;sys_platform == "win32" and python_version >= "3.10"
 
 # Keep this in sync with setup.cfg [options.extras_require]
-bump2version >= 1.0.1
+bump2version>=1.0.1
+pre-commit>=2.17.0
 pygments==2.11.2
 pytest==6.2.5
 pytest-cov==3.0.0

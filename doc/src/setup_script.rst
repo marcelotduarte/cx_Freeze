@@ -372,7 +372,7 @@ command:
 
 .. versionadded:: 6.7
     ``extensions`` option.
-    
+
 .. note:: ``extensions`` is supported in python 3.7.4 and up.
 
 

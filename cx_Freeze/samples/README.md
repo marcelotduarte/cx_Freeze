@@ -14,4 +14,3 @@ In a virtual environment, install by issuing the command:
 ```
 pip install cx_Freeze --upgrade
 ```
-

@@ -1396,4 +1396,3 @@ Version 1.1
    exclusion of modules which will be found by the module finder but should
    not be included (--exclude-modules).
 #) Fixed typo in README.txt.
-

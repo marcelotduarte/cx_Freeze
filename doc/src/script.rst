@@ -69,7 +69,7 @@ Further customization can be done using the following options:
 
 .. option:: --shortcut-dir DIR
 
-    the directory in which to place the shortcut when being 
+    the directory in which to place the shortcut when being
     installed by an MSI package; see the MSI Shortcut table documentation
     for more information on what values can be placed here (Windows only)
 
