@@ -109,7 +109,7 @@ you have installed.
   Visual C++ Redistributable Package (a free download from Microsoft).
   It's not uncommon for this to already be present on modern computers, but
   it's not, as far as we know, part of a standard Windows installation.
-  
+
   Download:
 
      * |vc_redist_32|

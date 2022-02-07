@@ -38,4 +38,3 @@ tests:
 cov:
 	python -m pytest -m "not long" --cov="cx_Freeze" --cov-report=html
 	python -m webbrowser -t ./htmlcov/index.html
-
