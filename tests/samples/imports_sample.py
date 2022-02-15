@@ -1,11 +1,12 @@
 import moda
-import modg.submod
 from modb import b
-from mode import *
 
-from ..modf import *
 from . import modc
 from .modd import d
+
+from mode import *  # isort:skip
+from ..modf import *  # isort:skip
+import modg.submod  # isort:skip
 
 try:
     pass
