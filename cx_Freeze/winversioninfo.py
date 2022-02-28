@@ -7,6 +7,8 @@ from pathlib import Path
 from struct import calcsize, pack
 from typing import List, Optional, Tuple, Union
 
+from packaging.version import Version
+
 try:
     from win32verstamp import stamp as version_stamp
 except ImportError:
@@ -175,10 +177,7 @@ class VersionInfo:
         debug: Optional[bool] = None,
         verbose: bool = True,
     ):
-        parts = version.split(".")
-        while len(parts) < 4:
-            parts.append("0")
-        self.version: str = ".".join(parts)
+        self.version: Version = Version(version)
         self.internal_name: Optional[str] = internal_name
         self.original_filename: Optional[str] = original_filename
         self.comments: Optional[str] = comments
@@ -217,36 +216,47 @@ class VersionInfo:
             print("Stamped:", path)
 
     def version_info(self, path: Path) -> String:
-        # 0.9.0.0 -> (0, 9, 0, 0)
-        vmaj, vmin, vsub, vbuild = map(int, self.version.split("."))
+        major = self.version.major
+        minor = self.version.minor
+        micro = self.version.micro
+        build = 0
+        file_flags = 0
+        if self.debug is None or path.stem.lower().endswith("_d"):
+            file_flags += 1
+        if self.version.is_devrelease:
+            file_flags += 8
+            build = self.version.dev
+        elif self.version.is_prerelease:
+            file_flags += 2
+            build = self.version.pre[1]
+        elif self.version.is_postrelease:
+            file_flags += 0x20
+            build = self.version.post
 
         data = {
             "Comments": self.comments or "",
             "CompanyName": self.company or "",
             "FileDescription": self.description or "",
-            "FileVersion": self.version,
+            "FileVersion": self.version.base_version,
             "InternalName": self.internal_name or path.name,
             "LegalCopyright": self.copyright or "",
             "LegalTrademarks": self.trademarks or "",
             "OriginalFilename": self.original_filename or path.name,
             "ProductName": self.product or "",
-            "ProductVersion": self.version,
+            "ProductVersion": str(self.version),
         }
         is_dll = self.dll
         if is_dll is None:
             is_dll = path.suffix.lower() in (".dll", ".pyd")
-        is_debug = self.debug
-        if is_debug is None:
-            is_debug = path.stem.lower().endswith("_d")
         fixed_file_info = VS_FIXEDFILEINFO(
             VS_FFI_SIGNATURE,
             VS_FFI_STRUCVERSION,
-            (vmaj << 16) | vmin,
-            (vsub << 16) | vbuild,
-            (vmaj << 16) | vmin,
-            (vsub << 16) | vbuild,
+            (major << 16) | minor,
+            (micro << 16) | build,
+            (major << 16) | minor,
+            (micro << 16) | build,
             VS_FFI_FILEFLAGSMASK,
-            3 if is_debug else 0,
+            file_flags,
             VOS_NT_WINDOWS32,
             2 if is_dll else 1,  # VFT_DLL or VFT_APP
             0,
@@ -284,6 +294,13 @@ if __name__ == "__main__":
         help="the name of the file (.dll, .pyd or .exe) to test version stamp",
     )
     parser.add_argument(
+        "--version",
+        action="store",
+        dest="version",
+        default="0.1",
+        help="version to set as test",
+    )
+    parser.add_argument(
         "--dict",
         action="store_true",
         dest="as_dict",
@@ -302,7 +319,7 @@ if __name__ == "__main__":
         test_filename = Path(test_args.filename)
 
     test_version = VersionInfo(
-        "0.1",
+        test_args.version,
         comments="cx_Freeze comments",
         description="cx_Freeze description",
         company="cx_Freeze company",
