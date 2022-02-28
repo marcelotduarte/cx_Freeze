@@ -2,13 +2,8 @@
 
 .PHONY: black
 black:
-	pip install --upgrade black isort pyupgrade
-	find . -name '*.py' \
-		! -path './tests/samples/invalid_syntax.py' \
-		! -path './cx_Freeze/samples/*/build/**.py' \
-		-exec pyupgrade --py36-plus {} + || true
-	isort . || true
-	black . || true
+	pip install --upgrade pre-commit
+	pre-commit run -a
 
 .PHONY: clean
 clean:

@@ -1,8 +1,8 @@
-include MANIFEST.in
 include Makefile
 include requirements.txt
-include dev-requirements.txt
+include cx_Freeze/bases/README
 recursive-include cx_Freeze/initscripts *.py
-recursive-include cx_Freeze/samples *.py
-recursive-include source *.c *.h *.rc *.txt
+recursive-include cx_Freeze/samples *.py *.md *.ico *.png
 recursive-include doc *.css *.rst *.py Makefile
+recursive-include source *.c *.h *.rc *.txt
+recursive-include tests *.py *.md
