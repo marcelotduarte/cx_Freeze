@@ -1,4 +1,5 @@
 import pytest
+from packaging.version import Version
 
 from cx_Freeze.winversioninfo import VersionInfo
 
@@ -8,7 +9,7 @@ class TestVersionInfo:
         """This method tests default value for the VersionInfo class"""
         input_version = "9.9.9.9"
         default_version = VersionInfo(input_version)
-        assert default_version.version == input_version
+        assert default_version.version == Version(input_version)
         assert default_version.internal_name is None
         assert default_version.original_filename is None
         assert default_version.comments is None
@@ -26,7 +27,10 @@ class TestVersionInfo:
         digit windows versions"""
         input_version = "9"
         default_version = VersionInfo(input_version)
-        assert default_version.version == "9.0.0.0"
+        assert (
+            default_version.version.base_version
+            == Version(input_version).base_version
+        )
 
     def test___init__with_kwargs(self):
         input_version = "9.9.9.9"
@@ -57,7 +61,7 @@ class TestVersionInfo:
             verbose=input_verbose,
         )
 
-        assert version_instance.version == input_version
+        assert version_instance.version == Version(input_version)
         assert version_instance.internal_name == input_internal_name
         assert version_instance.original_filename == input_original_filename
         assert version_instance.comments == input_comments
