@@ -18,6 +18,7 @@ import glob
 import os
 import subprocess
 import sys
+from pathlib import Path
 from shutil import which
 from sysconfig import get_config_var, get_platform, get_python_version
 
@@ -123,14 +124,20 @@ class build_ext(setuptools.command.build_ext.build_ext):
         if ext_name.endswith("util"):
             return super().get_ext_filename(ext_name)
         # Examples of returned names:
-        # Console-cp37-win32.exe, Console-cp39-win-amd64.exe,
-        # Console-cp38-linux-x86_64
-        ext_path = ext_name.split(".")
-        py_version_nodot = get_config_var("py_version_nodot")
-        platform_nodot = get_platform().replace(".", "")
-        name_suffix = f"-cp{py_version_nodot}-{platform_nodot}"
-        exe_extension = ".exe" if WIN32 else ""
-        return os.path.join(*ext_path) + name_suffix + exe_extension
+        # Console-cp37-win32.exe, Console-cp39-win_amd64.exe,
+        # Console-cpython-39-x86_64-linux-gnu, Console-cpython-36m-darwin
+        ext_path = Path(*ext_name.split("."))
+        name = ext_path.name
+        if WIN32:
+            py_version_nodot = get_config_var("py_version_nodot")
+            platform_nodot = get_platform().replace(".", "").replace("-", "_")
+            soabi = f"cp{py_version_nodot}-{platform_nodot}"
+            suffix = ".exe"
+        else:
+            soabi = get_config_var("SOABI")
+            suffix = ""
+        name_base = f"{name}-{soabi}"
+        return str(ext_path.parent / (name_base + suffix))
 
     @staticmethod
     def _get_dll_path(name):

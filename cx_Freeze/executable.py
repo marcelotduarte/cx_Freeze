@@ -3,8 +3,8 @@
 import os
 import string
 import sys
-import sysconfig
 from pathlib import Path
+from sysconfig import get_config_var, get_platform
 from typing import Optional, Union
 
 from .common import get_resource_file_path, validate_args
@@ -13,6 +13,7 @@ from .exception import ConfigError
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
+WIN32 = sys.platform == "win32"
 
 __all__ = ["Executable"]
 
@@ -77,16 +78,19 @@ class Executable:
     @base.setter
     def base(self, name: Optional[Union[str, Path]]):
         name = name or "Console"
-        py_version_nodot = sysconfig.get_config_var("py_version_nodot")
-        platform_nodot = sysconfig.get_platform().replace(".", "")
-        name_plat = f"{name}-cp{py_version_nodot}-{platform_nodot}"
-        exe_extension = ".exe" if sys.platform == "win32" else ""
-        self._base: Path = get_resource_file_path(
-            "bases", name_plat, exe_extension
-        )
+        if WIN32:
+            py_version_nodot = get_config_var("py_version_nodot")
+            platform_nodot = get_platform().replace(".", "").replace("-", "_")
+            soabi = f"cp{py_version_nodot}-{platform_nodot}"
+            suffix = ".exe"
+        else:
+            soabi = get_config_var("SOABI")
+            suffix = ""
+        name_base = f"{name}-{soabi}"
+        self._base: Path = get_resource_file_path("bases", name_base, suffix)
         if self._base is None:
-            raise ConfigError(f"no base named {name!r}")
-        self._ext: str = exe_extension
+            raise ConfigError(f"no base named {name!r} ({name_base!r})")
+        self._ext: str = suffix
 
     @property
     def icon(self) -> str:
