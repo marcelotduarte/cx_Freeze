@@ -958,7 +958,7 @@ def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
     code_string += f"""
 # cx_Freeze patch start
 import os, sys
-from .QtCore import QCoreApplication
+from {name}.QtCore import QCoreApplication
 
 executable_dir = os.path.dirname(sys.executable)
 pyqt5_root_dir = os.path.join(executable_dir, "lib", "{name}")
@@ -976,6 +976,7 @@ if os.path.normcase(plugins_dir) not in library_paths:
     module.code = compile(code_string, str(module.file), "exec")
     if module.in_file_system == 0:
         module.in_file_system = 2  # use optimized mode
+    finder.IncludeModule(f"{name}.QtCore")  # imported by all modules
 
 
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
@@ -993,8 +994,6 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
     to this technique over pure Python; ignore the absence of some of
     the modules since not every installation includes all of them."""
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtCore")
-    finder.IncludeModule(f"{name}.QtGui")
     for mod in (
         "_qt",
         "QtSvg",
@@ -1014,6 +1013,11 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
             pass
 
 
+def load_PyQt5_QtCharts(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+
+
 def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
     """The PyQt5.QtCore module implicitly imports the sip module and,
     depending on configuration, the PyQt5._qt module."""
@@ -1028,11 +1032,17 @@ def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
         pass
 
 
+def load_PyQt5_QtDataVisualization(
+    finder: ModuleFinder, module: Module
+) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtGui")
+
+
 def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that GUI will use some image formats
     add the image format plugins."""
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtCore")
     copy_qt_plugins(name, "imageformats", finder)
     # On Qt5, we need the platform plugins. For simplicity, we just copy
     # any that are installed.
@@ -1040,21 +1050,80 @@ def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
     copy_qt_plugins(name, "styles", finder)
 
 
+def load_PyQt5_QtHelp(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+
+
+def load_PyQt5_QtLocation(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtPositioning")
+
+
 def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtCore")
+    finder.IncludeModule(f"{name}.QtNetwork")
     finder.IncludeModule(f"{name}.QtMultimediaWidgets")
+    copy_qt_plugins(name, "audio", finder)
     copy_qt_plugins(name, "mediaservice", finder)
+
+
+def load_PyQt5_QtMultimediaWidgets(
+    finder: ModuleFinder, module: Module
+) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.IncludeModule(f"{name}.QtMultimedia")
+
+
+def load_PyQt5_QtOpenGL(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+    copy_qt_plugins(name, "renderers", finder)
+
+
+def load_PyQt5_QtPositioning(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    copy_qt_plugins(name, "position", finder)
 
 
 def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
     copy_qt_plugins(name, "printsupport", finder)
+
+
+def load_PyQt5_QtQml(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtNetwork")
+    copy_qt_plugins(name, "qmltooling", finder)
+
+
+def load_PyQt5_QtSCriptTools(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.IncludeModule(f"{name}.QtScript")
 
 
 def load_PyQt5_QtSql(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
     copy_qt_plugins(name, "sqldrivers", finder)
+
+
+def load_PyQt5_QtSvg(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+
+
+def load_PyQt5_QtTest(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
+
+
+def load_PyQt5_QtUiTools(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtWidgets")
 
 
 def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
@@ -1063,9 +1132,19 @@ def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
     finder.IncludeModule(f"{name}.QtGui")
 
 
+def load_PyQt5_QtWebSockets(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtNetwork")
+
+
 def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     finder.IncludeModule(f"{name}.QtGui")
+
+
+def load_PyQt5_QtXmlPatterns(finder: ModuleFinder, module: Module) -> None:
+    name = _qt_implementation(module)
+    finder.IncludeModule(f"{name}.QtNetwork")
 
 
 def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
@@ -1085,12 +1164,27 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
 # PySide2 start
 load_PySide2 = load_PyQt5
 load_PySide2_Qt = load_PyQt5_Qt
-# load_PySide2_QtCore is not necessary
+load_PySide2_QtCharts = load_PyQt5_QtCharts
+# load_PySide2_QtCore does not need to map
+load_PySide2_QtDataVisualization = load_PyQt5_QtDataVisualization
 load_PySide2_QtGui = load_PyQt5_QtGui
+load_PySide2_QtHelp = load_PyQt5_QtHelp
+load_PySide2_QtLocation = load_PyQt5_QtLocation
 load_PySide2_QtMultimedia = load_PyQt5_QtMultimedia
+load_PySide2_QtMultimediaWidgets = load_PyQt5_QtMultimediaWidgets
+load_PySide2_QtOpenGL = load_PyQt5_QtOpenGL
+load_PySide2_QtPositioning = load_PyQt5_QtPositioning
 load_PySide2_QtPrintSupport = load_PyQt5_QtPrintSupport
+load_PySide2_QtQml = load_PyQt5_QtQml
+load_PySide2_QtSCriptTools = load_PyQt5_QtSCriptTools
+load_PySide2_QtSql = load_PyQt5_QtSql
+load_PySide2_QtSvg = load_PyQt5_QtSvg
+load_PySide2_QtTest = load_PyQt5_QtTest
+load_PySide2_QtUiTools = load_PyQt5_QtUiTools
 load_PySide2_QtWebKit = load_PyQt5_QtWebKit
+load_PySide2_QtWebSockets = load_PyQt5_QtWebSockets
 load_PySide2_QtWidgets = load_PyQt5_QtWidgets
+load_PySide2_QtXmlPatterns = load_PyQt5_QtXmlPatterns
 load_PySide2_uic = load_PyQt5_uic
 # PySide2 end
 
