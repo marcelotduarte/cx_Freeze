@@ -908,10 +908,10 @@ def _qt_library_paths(name: str) -> List[str]:
             _qtcore_library_paths = [Path(p) for p in app.libraryPaths()]
     if not _qtcore_library_paths and qtcore:
         # Qt Plugins can be in a plugins directory next to the Qt libraries
-        pyqt5_root_dir = Path(qtcore.__file__).parent
-        _qtcore_library_paths.append(pyqt5_root_dir / "plugins")
-        _qtcore_library_paths.append(pyqt5_root_dir / "Qt5" / "plugins")
-        _qtcore_library_paths.append(pyqt5_root_dir / "Qt" / "plugins")
+        qt_root_dir = Path(qtcore.__file__).parent
+        _qtcore_library_paths.append(qt_root_dir / "plugins")
+        _qtcore_library_paths.append(qt_root_dir / "Qt5" / "plugins")
+        _qtcore_library_paths.append(qt_root_dir / "Qt" / "plugins")
     return _qtcore_library_paths
 
 
@@ -957,20 +957,19 @@ def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
     code_string = module.file.read_text()
     code_string += f"""
 # cx_Freeze patch start
-import os, sys
+import sys
+from pathlib import Path
 from {name}.QtCore import QCoreApplication
 
-executable_dir = os.path.dirname(sys.executable)
-pyqt5_root_dir = os.path.join(executable_dir, "lib", "{name}")
-plugins_dir = os.path.join(pyqt5_root_dir, "Qt5", "plugins")  # PyQt5 5.15.4
-if not os.path.isdir(plugins_dir):
-    plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")
-if not os.path.isdir(plugins_dir):
-    plugins_dir = os.path.join(pyqt5_root_dir, "plugins")
-library_paths = [os.path.normcase(p) for p in QCoreApplication.libraryPaths()]
-if os.path.normcase(plugins_dir) not in library_paths:
-    library_paths = QCoreApplication.libraryPaths() + [plugins_dir]
-    QCoreApplication.setLibraryPaths(library_paths)
+executable_dir = Path(sys.executable).parent
+qt_root_dir = executable_dir / "lib" / "{name}"
+plugins_dir = qt_root_dir / "Qt5" / "plugins"  # PyQt5 5.15.4
+if not plugins_dir.is_dir():
+    plugins_dir = qt_root_dir / "Qt" / "plugins"
+if not plugins_dir.is_dir():
+    plugins_dir = qt_root_dir / "plugins"
+if plugins_dir.is_dir():
+    QCoreApplication.addLibraryPath(plugins_dir.as_posix())
 # cx_Freeze patch end
 """
     module.code = compile(code_string, str(module.file), "exec")
