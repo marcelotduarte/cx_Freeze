@@ -948,10 +948,11 @@ def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
         return
     # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the
     # libraryPaths returns empty. Prior to this version, this doesn't happen.
-    # However, this hack will be used to workaround issues with anaconda and/or
-    # with the use of zip_include_packages too.
-    # With PySide2, the opposite happens. In PySide2 5.15.2, folders with non-
-    # ascii work, but in previous versions (5.15.1, 5.13.x, 5.12.0) they don't.
+    # With PySide2 the same happens in some versions.
+    # So, this hack will be used to:
+    # - fix empty libraryPaths
+    # - workaround issues with anaconda
+    # - locate plugins when using zip_include_packages
     name = _qt_implementation(module)
     code_string = module.file.read_text()
     code_string += f"""
@@ -963,7 +964,9 @@ executable_dir = os.path.dirname(sys.executable)
 pyqt5_root_dir = os.path.join(executable_dir, "lib", "{name}")
 plugins_dir = os.path.join(pyqt5_root_dir, "Qt5", "plugins")  # PyQt5 5.15.4
 if not os.path.isdir(plugins_dir):
-    plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")  # others
+    plugins_dir = os.path.join(pyqt5_root_dir, "Qt", "plugins")
+if not os.path.isdir(plugins_dir):
+    plugins_dir = os.path.join(pyqt5_root_dir, "plugins")
 library_paths = [os.path.normcase(p) for p in QCoreApplication.libraryPaths()]
 if os.path.normcase(plugins_dir) not in library_paths:
     library_paths = QCoreApplication.libraryPaths() + [plugins_dir]
