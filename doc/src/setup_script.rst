@@ -22,11 +22,11 @@ something like this:
         base = "Win32GUI"
 
     setup(
-        name = "guifoo",
-        version = "0.1",
-        description = "My GUI application!",
-        options = {"build_exe": build_exe_options},
-        executables = [Executable("guifoo.py", base=base)]
+        name="guifoo",
+        version="0.1",
+        description="My GUI application!",
+        options={"build_exe": build_exe_options},
+        executables=[Executable("guifoo.py", base=base)],
     )
 
 There are more examples in the |samples| directory.
@@ -69,9 +69,9 @@ To specify options in the script, use underscores in the name. For example:
   .. code-block:: python
 
     setup(
-         #...
-          options = {"build_exe": {"zip_include_packages": ["encodings"]}}
-         )
+        # ...
+        options={"build_exe": {"zip_include_packages": ["encodings"]}}
+    )
 
 To specify the same options on the command line, use dashes, like this:
 
@@ -415,16 +415,18 @@ For example:
 
     build_exe_options = {"excludes": ["tkinter"], "include_msvcr": True}
 
-    executables = [
-        Executable(
-            "hello.py",
-            copyright="Copyright (C) 2022 cx_Freeze",
-            base=base,
-            icon="icon.ico",
-            shortcutName="My Program Name",
-            shortcutDir="MyProgramMenu",
-        ),
-    ],
+    executables = (
+        [
+            Executable(
+                "hello.py",
+                copyright="Copyright (C) 2022 cx_Freeze",
+                base=base,
+                icon="icon.ico",
+                shortcutName="My Program Name",
+                shortcutDir="MyProgramMenu",
+            ),
+        ],
+    )
 
     setup(
         name="hello",
