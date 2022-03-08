@@ -668,8 +668,10 @@ class ModuleFinder:
         self, path: Union[Path, str], name: Optional[str] = None
     ) -> Module:
         """Include the named file as a module in the frozen executable."""
+        if isinstance(path, str):
+            path = Path(path)
         if name is None:
-            name = Path(path).stem
+            name = path.name.replace("".join(path.suffixes), "")
         deferred_imports: DeferredList = []
         module = self._load_module(name, str(path), deferred_imports)
         self._import_deferred_imports(deferred_imports)
