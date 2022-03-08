@@ -29,8 +29,11 @@ something like this:
         executables = [Executable("guifoo.py", base=base)]
     )
 
-There are more examples in the ``samples/`` directory of `the source
-<https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples>`_.
+There are more examples in the |samples| directory.
+
+.. |samples| raw:: html
+
+   <a href="https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples" target="_blank">samples</a>
 
 The script is invoked as follows:
 
@@ -435,9 +438,7 @@ For example:
     )
 
 Samples:
-There are more examples in the ``samples/`` directory of `the source
-<https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples>`_.
-
+There are more examples in the |samples| directory.
 
 .. seealso:: `Windows Installer
    <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
