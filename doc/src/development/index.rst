@@ -16,8 +16,11 @@ the issue tracker.
 Setup
 -----
 
-The source code can be found on
-`Github <https://github.com/marcelotduarte/cx_Freeze>`_.
+The source code can be found on |Github_main|.
+
+.. |Github_main| raw:: html
+
+   <a href="https://github.com/marcelotduarte/cx_Freeze" target="_blank">Github</a>
 
 You can use ``git`` to clone the repository:
 

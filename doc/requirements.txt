@@ -1,2 +1,2 @@
 # Keep this in sync with setup.cfg [options.extras_require]
-sphinx==3.5.4
+sphinx==4.4.0
