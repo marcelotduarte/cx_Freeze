@@ -1,2 +1,0 @@
-# Keep this in sync with setup.cfg [options.extras_require]
-sphinx==4.4.0

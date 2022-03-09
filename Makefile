@@ -11,7 +11,7 @@ clean:
 
 .PHONY: html
 html:
-	pip install -e .[doc] --no-build-isolation
+	pip install -e .[doc]
 	make -C doc html
 
 .PHONY: htmltest
