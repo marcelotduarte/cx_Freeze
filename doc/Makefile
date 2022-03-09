@@ -7,7 +7,6 @@ BUILDDIR      = ../build/doc
 
 .PHONY: html
 html:
-	pip install --upgrade -r requirements.txt
 	@$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: epub
