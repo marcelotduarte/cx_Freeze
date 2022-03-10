@@ -1,6 +1,6 @@
 # Makefile to generate cx_Freeze documentation using Sphinx
 
-SPHINXOPTS    =
+SPHINXOPTS    = -d ../build/doc/.doctrees -j auto
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = src
 BUILDDIR      = ../build/doc

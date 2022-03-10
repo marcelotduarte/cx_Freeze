@@ -3,7 +3,7 @@
 .PHONY: black
 black:
 	pip install --upgrade pre-commit
-	pre-commit run -a
+	pre-commit run -a -v
 
 .PHONY: clean
 clean:
