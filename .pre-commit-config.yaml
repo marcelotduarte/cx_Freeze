@@ -53,3 +53,10 @@ repos:
 #      entry: pylint
 #      language: system
 #      types: [python]
+
+- repo: https://github.com/thclark/pre-commit-sphinx
+  rev: 0.0.1
+  hooks:
+  - id: build-docs
+    args: ['--cache-dir', 'build/doc/.doctrees', '--html-dir', 'build/doc/html', '--source-dir', 'doc/src']
+    language_version: python3
