@@ -35,10 +35,19 @@ repos:
   hooks:
   - id: pyupgrade
 
-#- repo: https://github.com/asottile/setup-cfg-fmt
-#  rev: v1.20.0
-#  hooks:
-#  - id: setup-cfg-fmt
+- repo: https://github.com/jazzband/pip-tools
+  rev: 6.5.1
+  hooks:
+  - id: pip-compile
+    name: pip-compile setup.py
+  - id: pip-compile
+    name: pip-compile extras_require
+    args: [--extra=dev, --extra=doc, --extra=test, -orequirements-dev.txt]
+
+- repo: https://github.com/asottile/setup-cfg-fmt
+  rev: v1.20.0
+  hooks:
+  - id: setup-cfg-fmt
 
 #- repo: https://github.com/PyCQA/flake8
 #  rev: 4.0.1

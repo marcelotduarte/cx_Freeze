@@ -1,16 +1,17 @@
 """
 Setuptools script for cx_Freeze.
 
-Use one of the following commands to install:
+Use one of the following commands to install from source:
     pip install .
     python setup.py build install
-Use one of the following commands to use the development mode:
+Use one of the following commands to install in the development mode:
     pip install -e .
     python setup.py develop -U
 
 Note:
-    In setup.cfg there are four extras_require: dev, test, doc, all
-    pip install -e .[all]
+    In setup.cfg there are three extras_require: dev, doc and test
+    The command to full development mode is:
+    pip install -e .[dev,doc,test]
 
 """
 
