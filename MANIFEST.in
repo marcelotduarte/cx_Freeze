@@ -1,5 +1,6 @@
 include Makefile
 include requirements.txt
+include requirements-dev.txt
 include cx_Freeze/bases/README
 recursive-include cx_Freeze/initscripts *.py
 recursive-include cx_Freeze/samples *.py *.md *.ico *.png
