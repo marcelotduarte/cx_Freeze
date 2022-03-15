@@ -15,13 +15,12 @@ Note:
 
 """
 
-import glob
-import os
 import subprocess
 import sys
 from pathlib import Path
 from shutil import which
 from sysconfig import get_config_var, get_platform, get_python_version
+from typing import Tuple
 
 import setuptools.command.build_ext
 from setuptools import Command, Extension, setup
@@ -47,8 +46,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
             debug=self.debug,
             depends=ext.depends,
         )
-        filename = os.path.splitext(self.get_ext_filename(ext.name))[0]
-        fullname = os.path.join(self.build_lib, filename)
+        filename = Path(self.get_ext_filename(ext.name)).with_suffix("")
+        fullname = str(Path(self.build_lib, filename))
         library_dirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extra_args = ext.extra_link_args or []
@@ -60,7 +59,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
                     lib_name = arg[len("/DELAYLOAD:") :]
                     extra_args.remove(arg)
                     dll_path = self._get_dll_path(lib_name)
-                    dll_name = os.path.basename(dll_path)
+                    dll_name = dll_path.name
                     if compiler_type == "msvc":
                         extra_args.append(f"/DELAYLOAD:{dll_name}")
                         if lib_name not in libraries:
@@ -141,33 +140,35 @@ class build_ext(setuptools.command.build_ext.build_ext):
         return str(ext_path.parent / (name_base + suffix))
 
     @staticmethod
-    def _get_dll_path(name):
-        """Find the dll by name, priority by extension."""
-        paths = [path for path in sys.path if os.path.isdir(path)]
-        dll_path = None
-        for path in paths:
-            for dll_path in glob.glob(os.path.join(path, f"{name}*.pyd")):
+    def _get_dll_path(name: str) -> Path:
+        """Find the dll by name, priority by pyd extension."""
+        pattern_pyd = f"{name}*.pyd"
+        pattern_dll = f"{name}*.dll"
+        for path in sys.path:
+            path = Path(path).resolve()
+            if not path.is_dir():
+                continue
+            for dll_path in path.glob(pattern_pyd):
                 return dll_path
-            for dll_path in glob.glob(os.path.join(path, f"{name}*.dll")):
+            for dll_path in path.glob(pattern_dll):
                 return dll_path
-        return f"{name}.dll"
+        return Path(f"{name}.dll")
 
-    def _dlltool_delay_load(self, name):
+    def _dlltool_delay_load(self, name: str) -> Tuple[str, str]:
         """Get the delay load library to use with mingw32 gcc/clang compiler"""
         dir_name = f"libdl.{get_platform()}-{get_python_version()}"
-        library_dir = os.path.join(self.build_temp, dir_name)
-        os.makedirs(library_dir, exist_ok=True)
+        library_dir = Path(self.build_temp, dir_name)
+        library_dir.mkdir(parents=True, exist_ok=True)
         # Use gendef and dlltool to generate the library (.a and .delay.a)
         dll_path = self._get_dll_path(name)
-        def_name = os.path.join(library_dir, f"{name}.def")
-        gendef_exe = which("gendef")
+        gendef_exe = Path(which("gendef"))
         def_data = subprocess.check_output([gendef_exe, "-", dll_path])
-        with open(def_name, "wb") as def_file:
-            def_file.write(def_data)
-        lib_path = os.path.join(library_dir, f"lib{name}.a")
+        def_name = library_dir / f"{name}.def"
+        def_name.write_bytes(def_data)
+        lib_path = library_dir / f"lib{name}.a"
         library = f"{name}.delay"
-        dlb_path = os.path.join(library_dir, f"lib{library}.a")
-        dlltool_exe = os.path.join(os.path.dirname(gendef_exe), "dlltool.exe")
+        dlb_path = library_dir / f"lib{library}.a"
+        dlltool_exe = gendef_exe.parent / "dlltool.exe"
         dlltool = [dlltool_exe, "-d", def_name, "-D", dll_path, "-l", lib_path]
         output_delaylib_args = ["-y", dlb_path]
         try:
@@ -177,7 +178,7 @@ class build_ext(setuptools.command.build_ext.build_ext):
             # LLVM dlltool only supports generating an import library
             subprocess.check_call(dlltool)
             library = name
-        return library_dir, library
+        return str(library_dir), library
 
     def run(self):
         self.run_command("install_include")
@@ -197,12 +198,12 @@ class install_include(Command):
 
     def run(self):
         if WIN32:
-            target_dir = os.path.join(self.install_dir, "include")
-            target_file_name = os.path.join(target_dir, "cx_Logging.h")
-            if os.path.isfile(target_file_name):
+            target = Path(self.install_dir, "include", "cx_Logging.h")
+            if target.is_file():
                 return
-            self.mkpath(target_dir)
-            self.copy_file("source\\bases\\cx_Logging.h", target_file_name)
+            self.mkpath(str(target.parent))
+            target_file_name = target.as_posix()
+            self.copy_file("source/bases/cx_Logging.h", target_file_name)
             self.outfiles.append(target_file_name)
 
 
@@ -241,11 +242,10 @@ if __name__ == "__main__":
 
     # define package data
     package_data = []
-    for filename in os.listdir(os.path.join("cx_Freeze", "initscripts")):
-        name, ext = os.path.splitext(filename)
-        if ext != ".py":
+    for file in Path("cx_Freeze", "initscripts").iterdir():
+        if file.suffix != ".py":
             continue
-        package_data.append(f"initscripts/{filename}")
+        package_data.append(f"initscripts/{file.name}")
 
     setup(
         cmdclass={"build_ext": build_ext, "install_include": install_include},
