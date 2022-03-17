@@ -3,7 +3,8 @@
 .PHONY: black
 black:
 	pip install --upgrade pre-commit
-	pre-commit run -a -v
+	pre-commit run -a -v --hook-stage manual
+	pre-commit gc
 
 .PHONY: clean
 clean:

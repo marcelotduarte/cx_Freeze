@@ -31,18 +31,9 @@ repos:
   - id: isort
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.31.0
+  rev: v2.31.1
   hooks:
   - id: pyupgrade
-
-- repo: https://github.com/jazzband/pip-tools
-  rev: 6.5.1
-  hooks:
-  - id: pip-compile
-    name: pip-compile setup.py
-  - id: pip-compile
-    name: pip-compile extras_require
-    args: [--extra=dev, --extra=doc, --extra=test, -orequirements-dev.txt]
 
 - repo: https://github.com/asottile/setup-cfg-fmt
   rev: v1.20.0
@@ -64,8 +55,16 @@ repos:
 #      types: [python]
 
 - repo: https://github.com/thclark/pre-commit-sphinx
-  rev: 0.0.1
+  rev: 0.0.3
   hooks:
   - id: build-docs
     args: ['--cache-dir', 'build/doc/.doctrees', '--html-dir', 'build/doc/html', '--source-dir', 'doc/src']
     language_version: python3
+
+- repo: local
+  hooks:
+  - id: requirements
+    name: requirements
+    language: system
+    entry: python ci/requirements.py
+    files: ^requirements.*.txt$
