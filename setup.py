@@ -90,6 +90,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
                 extra_args.append("-municode")
         else:
             library_dirs.append(get_config_var("LIBPL"))
+            if not bool(get_config_var("Py_ENABLE_SHARED")):
+                library_dirs.append(get_config_var("LIBDIR"))
             abiflags = get_config_var("abiflags")
             libraries.append(f"python{get_python_version()}{abiflags}")
             if get_config_var("LINKFORSHARED") and not DARWIN:
@@ -180,8 +182,22 @@ class build_ext(setuptools.command.build_ext.build_ext):
             library = name
         return str(library_dir), library
 
+    def _copy_libraries_to_bases(self):
+        """Copy standard libraries to cx_Freeze wheel, on posix systems, when
+        python is compiled with --disable-shared, as is done in manylinux and
+        macpython. Modules such as math, _struct and zlib, which are normally
+        built in libpython, are compiled separately."""
+        if WIN32 or bool(get_config_var("Py_ENABLE_SHARED")):
+            return
+        source_path = Path(get_config_var("DESTSHARED"))
+        target_path = f"{self.build_lib}/cx_Freeze/bases/lib-dynload"
+        self.mkpath(target_path)
+        for source in source_path.iterdir():
+            self.copy_file(source.as_posix(), target_path)
+
     def run(self):
         self.run_command("install_include")
+        self._copy_libraries_to_bases()
         super().run()
 
 
