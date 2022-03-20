@@ -6,6 +6,7 @@ import os
 import sys
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
+from sysconfig import get_config_var
 from types import CodeType
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -15,6 +16,7 @@ from .common import (
     IncludesList,
     InternalIncludesList,
     code_object_replace,
+    get_resource_file_path,
     process_path_specs,
 )
 from .module import ConstantsModule, Module
@@ -58,7 +60,7 @@ class ModuleFinder:
         )
         self.excludes = dict.fromkeys(excludes or [])
         self.optimize_flag = 0
-        self.path = path or sys.path
+        self.path: List[str] = self._set_path(path)
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
         self.zip_exclude_packages = zip_exclude_packages or []
@@ -557,6 +559,25 @@ class ModuleFinder:
         method = getattr(self._hooks, f"{hook}_{normalized_name}", None)
         if method is not None:
             method(self, *args)
+
+    def _set_path(self, path: Optional[List[str]] = None) -> Set[str]:
+        """Set the path to search for modules, and fix the path for built-in
+        modules when it differs from the running python built-in modules."""
+        path = path or sys.path
+        if path == sys.path:
+            dynload = get_resource_file_path("bases", "lib-dynload", "")
+            if dynload and dynload.is_dir():
+                # add bases/lib-dynload to the finder path
+                insert_at = 0
+                dest_shared = get_config_var("DESTSHARED")
+                if dest_shared:
+                    for i, p in enumerate(path):
+                        if p == dest_shared:
+                            insert_at = i
+                            break
+                path = path.copy()
+                path.insert(insert_at, str(dynload))
+        return path
 
     def _scan_code(
         self,
