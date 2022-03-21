@@ -2,13 +2,12 @@
 
 import importlib.machinery
 import logging
-import os
 import sys
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from sysconfig import get_config_var
 from types import CodeType
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import opcode
 
@@ -58,7 +57,7 @@ class ModuleFinder:
         self.include_files: InternalIncludesList = process_path_specs(
             include_files
         )
-        self.excludes = dict.fromkeys(excludes or [])
+        self.excludes: Dict[str, Any] = dict.fromkeys(excludes or [])
         self.optimize_flag = 0
         self.path: List[str] = self._set_path(path)
         self.replace_paths = replace_paths or []
@@ -72,7 +71,9 @@ class ModuleFinder:
         self.modules = []
         self.aliases = {}
         self.exclude_dependent_files: Set[Path] = set()
-        self._modules: Dict[str, Any] = dict.fromkeys(excludes or [])
+        self._modules: Dict[str, Optional[Module]] = dict.fromkeys(
+            excludes or []
+        )
         self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
@@ -103,8 +104,8 @@ class ModuleFinder:
     def _add_module(
         self,
         name: str,
-        path: Optional[List[str]] = None,
-        file_name: Optional[str] = None,
+        path: Optional[Sequence[Union[Path, str]]] = None,
+        file_name: Optional[Union[Path, str]] = None,
         parent: Optional[Module] = None,
     ) -> Module:
         """
@@ -306,7 +307,7 @@ class ModuleFinder:
 
     def _internal_import_module(
         self, name: str, deferred_imports: DeferredList
-    ):
+    ) -> Optional[Module]:
         """
         Internal method used for importing a module which assumes that the
         name given is an absolute name. None is returned if the module
@@ -337,6 +338,10 @@ class ModuleFinder:
             if parent_module is None:
                 return None
             path = parent_module.path
+            if path is None:
+                path = self.path
+            else:
+                path = [str(p) for p in path]
 
         if name in self.aliases:
             actual_name = self.aliases[name]
@@ -359,7 +364,7 @@ class ModuleFinder:
     def _load_module(
         self,
         name: str,
-        path: Union[str, List[str], List[Path]],
+        path: Optional[Sequence[str]],
         deferred_imports: DeferredList,
         parent: Optional[Module] = None,
     ) -> Optional[Module]:
@@ -368,44 +373,30 @@ class ModuleFinder:
         loader: Optional[ExecutionLoader] = None
         module: Optional[Module] = None
 
-        if isinstance(path, str):
-            # Include file as module
-            module = self._add_module(name, file_name=path, parent=parent)
-            ext = os.path.splitext(os.path.basename(path))[1]
-            if ext in importlib.machinery.SOURCE_SUFFIXES + [""]:
-                loader = importlib.machinery.SourceFileLoader(name, path)
-            elif ext in importlib.machinery.BYTECODE_SUFFIXES:
-                loader = importlib.machinery.SourcelessFileLoader(name, path)
-            elif ext in importlib.machinery.EXTENSION_SUFFIXES:
-                loader = importlib.machinery.ExtensionFileLoader(name, path)
-        else:
-            # Find modules to load
-            if path:
-                path = [str(p) for p in path]
-            try:
-                # It's recommended to clear the caches first.
-                importlib.machinery.PathFinder.invalidate_caches()
-                spec = importlib.machinery.PathFinder.find_spec(name, path)
-            except KeyError:
-                if parent:
-                    # some packages use a directory with vendored modules
-                    # without an __init__.py and are not considered namespace
-                    # packages, then simulate a subpackage
-                    module = self._add_module(
-                        name,
-                        path=[os.path.join(path[0], name.rpartition(".")[-1])],
-                        parent=parent,
-                    )
-                    module.source_is_string = True
-                    logging.debug("Adding module [%s] [PACKAGE]", name)
-                    path = os.path.join(path[0], "__init__.py")
-            except Exception:
-                pass
-            if spec is None and module is None:
-                return None
+        # Find modules to load
+        try:
+            # It's recommended to clear the caches first.
+            importlib.machinery.PathFinder.invalidate_caches()
+            spec = importlib.machinery.PathFinder.find_spec(name, path)
+        except KeyError:
+            if parent:
+                # some packages use a directory with vendored modules
+                # without an __init__.py and are not considered namespace
+                # packages, then simulate a subpackage
+                module = self._add_module(
+                    name,
+                    path=[Path(path[0], name.rpartition(".")[-1])],
+                    parent=parent,
+                )
+                logging.debug("Adding module [%s] [PACKAGE]", name)
+                module.file = Path(path[0], "__init__.py")
+                module.source_is_string = True
+        except Exception:
+            pass
+
         if spec:
-            # Handle special cases
             loader = spec.loader
+            # Ignore built-in importers
             if loader is importlib.machinery.BuiltinImporter:
                 return None
             if loader is importlib.machinery.FrozenImporter:
@@ -419,15 +410,28 @@ class ModuleFinder:
                 )
                 if spec.origin in (None, "namespace"):
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
-                    path = str(module.path[0] / "__init__.py")
+                    module.file = module.path[0] / "__init__.py"
                     module.source_is_string = True
                 else:
                     logging.debug("Adding module [%s] [PACKAGE]", name)
-                    path = spec.origin  # path of __init__.py
-                module.file = path
+                    module.file = spec.origin  # path of __init__.py
             else:
-                path = spec.origin
-                module = self._add_module(name, file_name=path, parent=parent)
+                module = self._add_module(
+                    name, file_name=spec.origin, parent=parent
+                )
+
+        if module is not None:
+            self._load_module_code(module, loader, deferred_imports)
+        return module
+
+    def _load_module_code(
+        self,
+        module: Module,
+        loader: Optional[ExecutionLoader],
+        deferred_imports: DeferredList,
+    ) -> Optional[Module]:
+        name = module.name
+        path = str(module.file)
 
         if isinstance(loader, importlib.machinery.SourceFileLoader):
             logging.debug("Adding module [%s] [SOURCE]", name)
@@ -469,6 +473,25 @@ class ModuleFinder:
             module.code = self._replace_package_in_code(module)
 
         module.in_import = False
+        return module
+
+    def _load_module_from_file(
+        self, name: str, filename: Path, deferred_imports: DeferredList
+    ) -> Optional[Module]:
+        """Load the module from the filename."""
+        loader: Optional[ExecutionLoader] = None
+
+        ext = filename.suffix
+        path = str(filename)
+        if ext == "" or ext in importlib.machinery.SOURCE_SUFFIXES:
+            loader = importlib.machinery.SourceFileLoader(name, path)
+        elif ext in importlib.machinery.BYTECODE_SUFFIXES:
+            loader = importlib.machinery.SourcelessFileLoader(name, path)
+        elif ext in importlib.machinery.EXTENSION_SUFFIXES:
+            loader = importlib.machinery.ExtensionFileLoader(name, path)
+
+        module = self._add_module(name, file_name=filename)
+        self._load_module_code(module, loader, deferred_imports)
         return module
 
     @staticmethod
@@ -694,7 +717,7 @@ class ModuleFinder:
         if name is None:
             name = path.name.replace("".join(path.suffixes), "")
         deferred_imports: DeferredList = []
-        module = self._load_module(name, str(path), deferred_imports)
+        module = self._load_module_from_file(name, path, deferred_imports)
         self._import_deferred_imports(deferred_imports)
         return module
 

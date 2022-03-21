@@ -8,7 +8,7 @@ from contextlib import suppress
 from keyword import iskeyword
 from pathlib import Path
 from types import CodeType
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from ._compat import importlib_metadata
 from .common import TemporaryPath
@@ -112,14 +112,14 @@ class Module:
     def __init__(
         self,
         name: str,
-        path: Optional[List[Union[Path, str]]] = None,
+        path: Optional[Sequence[Union[Path, str]]] = None,
         file_name: Optional[Union[Path, str]] = None,
         parent: Optional["Module"] = None,
     ):
         self.name: str = name
-        self.path: Optional[List[Path]] = (
-            [Path(p) for p in path] if path else None
-        )
+        self.path: Optional[List[Path]] = None
+        if path:
+            self.path = [Path(p) for p in path]
         self.file = file_name
         self.parent: Optional["Module"] = parent
         self.code: Optional[CodeType] = None
@@ -130,7 +130,7 @@ class Module:
         self.in_import: bool = True
         self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
-        self._in_file_system: int = 1
+        self.in_file_system = 1
         # cache the dist-info files (metadata)
         self.update_distribution(name)
 
@@ -188,7 +188,7 @@ class Module:
 
     @in_file_system.setter
     def in_file_system(self, value: int) -> None:
-        self._in_file_system = value
+        self._in_file_system: int = value
 
 
 class ConstantsModule:
