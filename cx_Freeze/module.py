@@ -172,7 +172,8 @@ class Module:
             parts.append(f"file={self.file!r}")
         if self.path is not None:
             parts.append(f"path={self.path!r}")
-        return "<Module {}>".format(", ".join(parts))
+        join_parts = ", ".join(parts)
+        return f"<Module {join_parts}>"
 
     @property
     def in_file_system(self) -> int:
@@ -247,11 +248,11 @@ class ConstantsModule:
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
         self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
-        source_parts = []
+        parts = []
         names = list(self.values.keys())
         names.sort()
         for name in names:
             value = self.values[name]
-            source_parts.append(f"{name} = {value!r}")
-        self.module_path.path.write_text("\n".join(source_parts))
+            parts.append(f"{name} = {value!r}")
+        self.module_path.path.write_text("\n".join(parts), encoding="utf-8")
         return self.module_path.path, self.module_name
