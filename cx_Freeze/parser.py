@@ -7,6 +7,7 @@ import shutil
 import stat
 import sys
 from abc import ABC, abstractmethod
+from contextlib import suppress
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, check_call, check_output, run
 from typing import Any, Dict, List, Set, Union
@@ -56,7 +57,8 @@ class PEParser(Parser):
     experimental. If it is not installed or disabled use the old friend
     `cx_Freeze.util` extension module."""
 
-    def is_PE(self, path: Union[str, Path]) -> bool:
+    @staticmethod
+    def is_pe(path: Union[str, Path]) -> bool:
         """Determines whether the file is a PE file."""
         if isinstance(path, str):
             path = Path(path)
@@ -97,11 +99,10 @@ class PEParser(Parser):
     def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
         if isinstance(path, str):
             path = Path(path)
-        try:
+        with suppress(KeyError):
             return self.dependent_files[path]
-        except KeyError:
-            pass
-        if not self.is_PE(path):
+
+        if not self.is_pe(path):
             return set()
         dependent_files: Set[Path]
         if LIEF_ENABLED:
@@ -154,7 +155,8 @@ class ELFParser(Parser):
         self.linker_warnings: Dict[Path, Any] = {}
         _verify_patchelf()
 
-    def is_ELF(self, path: Union[str, Path]) -> bool:
+    @staticmethod
+    def is_elf(path: Union[str, Path]) -> bool:
         if isinstance(path, str):
             path = Path(path)
         if (
@@ -163,24 +165,26 @@ class ELFParser(Parser):
             or not path.is_file()
         ):
             return False
-        with open(path, "rb") as fp:
-            four_bytes = fp.read(4)
+        with open(path, "rb") as binary:
+            four_bytes = binary.read(4)
         return bool(four_bytes == MAGIC_ELF)
 
     def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
         if isinstance(path, str):
             path = Path(path)
-        try:
+        with suppress(KeyError):
             return self.dependent_files[path]
-        except KeyError:
-            pass
+
         dependent_files: Set[Path] = set()
-        if not self.is_ELF(path) or not os.access(path, os.X_OK):
+        if not self.is_elf(path) or not os.access(path, os.X_OK):
             return dependent_files
+
         split_string = " => "
         dependent_file_index = 1
         args = ("ldd", path)
-        process = run(args, encoding="utf-8", stdout=PIPE, stderr=PIPE)
+        process = run(
+            args, check=False, stdout=PIPE, stderr=PIPE, encoding="utf-8"
+        )
         for line in process.stdout.splitlines():
             parts = line.expandtabs().strip().split(split_string)
             if len(parts) != 2:
@@ -210,11 +214,9 @@ class ELFParser(Parser):
 
     def get_rpath(self, filename: Union[str, Path]) -> str:
         args = ["patchelf", "--print-rpath", filename]
-        try:
-            rpath = check_output(args, encoding="utf-8").strip()
-        except CalledProcessError:
-            rpath = ""
-        return rpath
+        with suppress(CalledProcessError):
+            return check_output(args, encoding="utf-8").strip()
+        return ""
 
     def replace_needed(
         self, filename: Union[str, Path], so_name: str, new_so_name: str

@@ -3,6 +3,7 @@
 import importlib.machinery
 import logging
 import sys
+from contextlib import suppress
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from sysconfig import get_config_var
@@ -196,8 +197,7 @@ class ModuleFinder:
         for path in module.path:
             for fullname in path.iterdir():
                 if fullname.is_dir():
-                    init_file = fullname / "__init__.py"
-                    if not init_file.exists():
+                    if not fullname.joinpath("__init__.py").exists():
                         continue
                     name = fullname.name
                 else:
@@ -324,11 +324,9 @@ class ModuleFinder:
         name given is an absolute name. None is returned if the module
         cannot be found.
         """
-        try:
+        with suppress(KeyError):
             # Check in module cache before trying to import it again.
             return self._modules[name]
-        except KeyError:
-            pass
 
         if name in self._builtin_modules:
             module = self._add_module(name)
@@ -564,11 +562,8 @@ class ModuleFinder:
                     search_dir = top_level_module.file.parent
             else:
                 search_dir = Path(search_value)
-            try:
+            with suppress(ValueError):
                 new_filename = original_filename.relative_to(search_dir)
-            except ValueError:
-                pass
-            else:
                 new_filename = replace_value / new_filename
                 break
         else:
@@ -576,10 +571,10 @@ class ModuleFinder:
 
         # Run on subordinate code objects from function & class definitions.
         consts = list(code.co_consts)
-        for i in range(len(consts)):
-            if isinstance(consts[i], type(code)):
+        for i, const in enumerate(consts):
+            if isinstance(const, type(code)):
                 consts[i] = self._replace_paths_in_code(
-                    top_level_module, consts[i]
+                    top_level_module, const
                 )
 
         return code_object_replace(
@@ -594,7 +589,8 @@ class ModuleFinder:
         if method is not None:
             method(self, *args)
 
-    def _set_path(self, path: Optional[List[str]] = None) -> Set[str]:
+    @staticmethod
+    def _set_path(path: Optional[List[str]] = None) -> Set[str]:
         """Set the path to search for modules, and fix the path for built-in
         modules when it differs from the running python built-in modules."""
         path = path or sys.path
@@ -605,8 +601,8 @@ class ModuleFinder:
                 insert_at = 0
                 dest_shared = get_config_var("DESTSHARED")
                 if dest_shared:
-                    for i, p in enumerate(path):
-                        if p == dest_shared:
+                    for i, pth in enumerate(path):
+                        if pth == dest_shared:
                             insert_at = i
                             break
                 path = path.copy()
@@ -628,22 +624,22 @@ class ModuleFinder:
         co_code = code.co_code
         extended_arg = 0
         for i in range(0, len(co_code), 2):
-            op = co_code[i]
-            if op >= HAVE_ARGUMENT:
+            opc = co_code[i]
+            if opc >= HAVE_ARGUMENT:
                 arg = co_code[i + 1] | extended_arg
-                extended_arg = (arg << 8) if op == EXTENDED_ARG else 0
+                extended_arg = (arg << 8) if opc == EXTENDED_ARG else 0
             else:
                 arg = None
                 extended_arg = 0
 
             # keep track of constants (these are used for importing)
             # immediately restart loop so arguments are retained
-            if op == LOAD_CONST:
+            if opc == LOAD_CONST:
                 arguments.append(code.co_consts[arg])
                 continue
 
             # import statement: attempt to import module
-            if op == IMPORT_NAME:
+            if opc == IMPORT_NAME:
                 name = code.co_names[arg]
                 if len(arguments) >= 2:
                     relative_import_index, from_list = arguments[-2:]
@@ -669,12 +665,14 @@ class ModuleFinder:
 
             # import * statement: copy all global names
             elif (
-                op == IMPORT_STAR and top_level and imported_module is not None
+                opc == IMPORT_STAR
+                and top_level
+                and imported_module is not None
             ):
                 module.global_names.update(imported_module.global_names)
 
             # store operation: track only top level
-            elif top_level and op in STORE_OPS:
+            elif top_level and opc in STORE_OPS:
                 name = code.co_names[arg]
                 module.global_names.add(name)
 
