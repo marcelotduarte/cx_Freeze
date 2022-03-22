@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import opcode
 
+from ._compat import cached_property
 from .common import (
     IncludesList,
     InternalIncludesList,
@@ -74,7 +75,6 @@ class ModuleFinder:
         self._modules: Dict[str, Optional[Module]] = dict.fromkeys(
             excludes or []
         )
-        self._builtin_modules = dict.fromkeys(sys.builtin_module_names)
         self._bad_modules = {}
         self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
         self._hooks.initialize(self)
@@ -142,6 +142,17 @@ class ModuleFinder:
                 return caller
             return self._get_parent_by_name(caller.name)
         return None
+
+    @cached_property
+    def _builtin_modules(self) -> Set[str]:
+        """The built-in modules are determined based on the cx_Freeze build."""
+        builtin_modules: Set[str] = set(sys.builtin_module_names)
+        dynload = get_resource_file_path("bases", "lib-dynload", "")
+        if dynload and dynload.is_dir():
+            # discard modules that exist in bases/lib-dynload
+            for file in dynload.iterdir():
+                builtin_modules.discard(file.name.partition(".")[0])
+        return builtin_modules
 
     def _ensure_from_list(
         self,
@@ -715,7 +726,7 @@ class ModuleFinder:
         if isinstance(path, str):
             path = Path(path)
         if name is None:
-            name = path.name.replace("".join(path.suffixes), "")
+            name = path.name.partition(".")[0]
         deferred_imports: DeferredList = []
         module = self._load_module_from_file(name, path, deferred_imports)
         self._import_deferred_imports(deferred_imports)
