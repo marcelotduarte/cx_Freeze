@@ -1012,17 +1012,13 @@ class LinuxFreezer(Freezer, ELFParser):
         self._symlinks: Set[Tuple[Path, str]] = set()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
-        """Prepare the source and target paths. Also, ensures that the source
-        of a symlink is copied deferring the link creation."""
+        """Prepare the source and target paths. In addition, it ensures that
+        the source of a symbolic link is copied by deferring the creation of
+        the link."""
         if source.is_symlink():
             real_source = source.resolve()
-            symlink = os.readlink(source)
-            real_target = (target.parent / symlink).resolve()
-            try:
-                real_target.relative_to(self.targetdir / "lib")
-            except ValueError:
-                symlink = real_source.name
-                real_target = target.with_name(symlink)
+            symlink = real_source.name
+            real_target = target.with_name(symlink)
             self._symlinks.add((target, symlink))
             return real_source, real_target
         return source, target
