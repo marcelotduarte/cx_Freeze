@@ -61,7 +61,7 @@ class SetupWriter:
 
     def write(self):
         with open(self.setup_file_name, "w", encoding="UTF-8") as output:
-            w = lambda s: output.write(s + "\n")
+            w = lambda s: output.write(s + "\n")  # noqa
 
             w("from cx_Freeze import setup, Executable")
             w("")
