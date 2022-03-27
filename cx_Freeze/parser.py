@@ -65,18 +65,27 @@ class PEParser(Parser):
         return path.suffix.lower().endswith(PE_EXT) and path.is_file()
 
     def _get_dependent_files_lief(self, path: Path) -> Set[Path]:
-        dependent_files: Set[Path] = set()
-        orig_path = os.environ["PATH"]
         with path.open("rb", buffering=0) as raw:
             binary = lief.PE.parse(raw, path.name)
-        if binary and binary.has_imports:
-            search_path = sys.path + orig_path.split(os.pathsep)
-            for library in binary.imports:
-                for directory in search_path:
-                    library_path = Path(directory, library.name)
-                    if library_path.is_file():
-                        dependent_files.add(library_path)
-                        break
+        if not binary:
+            return set()
+
+        libraries: List[str] = []
+        if binary.has_imports:
+            libraries += binary.libraries
+        if getattr(binary, "has_delay_imports", False):
+            for delay_import in binary.delay_imports:
+                libraries.append(delay_import.name)
+
+        dependent_files: Set[Path] = set()
+        orig_path: List[str] = os.environ["PATH"]
+        search_path: List[str] = sys.path + orig_path.split(os.pathsep)
+        for library_name in libraries:
+            for directory in search_path:
+                library_path = Path(directory, library_name)
+                if library_path.is_file():
+                    dependent_files.add(library_path)
+                    break
         return dependent_files
 
     def _get_dependent_files_imagehlp(self, path: Path) -> Set[Path]:
@@ -96,19 +105,20 @@ class PEParser(Parser):
         os.environ["PATH"] = orig_path
         return dependent_files
 
+    if LIEF_ENABLED:
+        _get_dependent_files = _get_dependent_files_lief
+    else:
+        _get_dependent_files = _get_dependent_files_imagehlp
+
     def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
         if isinstance(path, str):
             path = Path(path)
         with suppress(KeyError):
             return self.dependent_files[path]
-
         if not self.is_pe(path):
             return set()
-        dependent_files: Set[Path]
-        if LIEF_ENABLED:
-            dependent_files = self._get_dependent_files_lief(path)
-        else:
-            dependent_files = self._get_dependent_files_imagehlp(path)
+
+        dependent_files: Set[Path] = self._get_dependent_files(path)
         self.dependent_files[path] = dependent_files
         return dependent_files
 
