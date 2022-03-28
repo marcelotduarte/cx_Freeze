@@ -1104,4 +1104,7 @@ class LinuxFreezer(Freezer, ELFParser):
 
     def _default_bin_path_includes(self) -> List[str]:
         # add the stdlib/lib-dynload directory
-        return [sysconfig.get_config_var("DESTSHARED")]
+        destlib = sysconfig.get_config_var("DESTLIB")
+        if bool(destlib):
+            return [destlib]
+        return []
