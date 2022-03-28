@@ -1,4 +1,4 @@
 print("importing pkg1.pkg2")
 
-from .. import sub4
-from . import sub3
+from .. import sub4  # noqa
+from . import sub3  # noqa

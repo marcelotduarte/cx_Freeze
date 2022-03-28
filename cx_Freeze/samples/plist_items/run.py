@@ -5,7 +5,6 @@ import os
 import platform
 import sys
 
-import setuptools
 from data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
 
 if platform.system() != "Darwin":

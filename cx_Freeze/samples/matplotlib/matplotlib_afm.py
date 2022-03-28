@@ -11,7 +11,8 @@ with afm_path.open("rb") as fh:
     afm = AFM(fh)
 print(
     "compare the results with:",
-    "https://github.com/matplotlib/matplotlib/blob/master/lib/matplotlib/afm.py",
+    "https://github.com/matplotlib/matplotlib/"
+    "blob/master/lib/matplotlib/afm.py",
 )
 print(afm.string_width_height("What the heck?"))
 print(afm.get_fontname())

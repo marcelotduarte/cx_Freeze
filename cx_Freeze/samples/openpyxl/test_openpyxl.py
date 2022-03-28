@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+"""code sample found in the openpyxl documentation"""
+# https://openpyxl.readthedocs.io/en/default.
 
-# NOTE: this code is the sample code found in the openpyxl documentation which
-# can be found at https://openpyxl.readthedocs.io/en/default.
+import datetime
 
 from openpyxl import Workbook
 
@@ -17,8 +17,6 @@ ws["A1"] = 42
 ws.append([1, 2, 3])
 
 # Python types will automatically be converted
-import datetime
-
 ws["A2"] = datetime.datetime.now()
 
 # Save the file

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-import dummypackage.dummymodule
+import dummypackage.dummymodule  # noqa
 
 print("Hi, I'm a program.")
 

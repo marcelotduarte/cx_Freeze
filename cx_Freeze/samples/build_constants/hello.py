@@ -3,6 +3,8 @@
 import sys
 from datetime import datetime
 
+import BUILD_CONSTANTS
+
 print("Hello from cx_Freeze")
 print(
     "The current date is %s\n"
@@ -11,7 +13,6 @@ print(
 
 print(f"Executable: {sys.executable!r}\n")
 
-import BUILD_CONSTANTS
 
 excludedVars = [
     "__builtins__",

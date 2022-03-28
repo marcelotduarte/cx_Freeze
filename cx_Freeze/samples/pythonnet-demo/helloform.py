@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-
 import clr
 
 SWF = clr.AddReference("System.Windows.Forms")
 print(SWF.Location)
-import System.Windows.Forms as WinForms
-from System.Drawing import Point, Size
+import System.Windows.Forms as WinForms  # noqa
+from System.Drawing import Point, Size  # noqa
 
 
 class HelloApp(WinForms.Form):

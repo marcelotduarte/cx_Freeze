@@ -1,4 +1,3 @@
-import setuptools  # isort:skip
 import distutils.core
 import sys
 

@@ -1,12 +1,13 @@
-# A very simple setup script to create a single executable, and test the BUILD_CONSTANTS functionality.
-#
-# hello.py is a very simple 'Hello, world' type script which also displays certains constants stored in
-# BUILD_CONSTANTS
-#
-# Run the build process by running the command 'python setup.py build'
-#
-# If everything works well you should find a subdirectory in the build
-# subdirectory that contains the files needed to run the script without Python
+"""A very simple setup script to create a single executable, and test the
+BUILD_CONSTANTS functionality.
+
+hello.py is a very simple 'Hello, world' type script which also displays
+certains constants stored in BUILD_CONSTANTS.
+
+Run the build process by running the command 'python setup.py build'
+
+If everything works well you should find a subdirectory in the build
+subdirectory that contains the files needed to run the script without Python"""
 
 from cx_Freeze import Executable, setup
 
