@@ -44,26 +44,25 @@ class TestModuleFinderWithConvertedNoseTests:
     ):
         """testpkg1 contains not.importable.py, which shouldn't be included."""
         fix_module_finder.path.insert(0, fix_test_samples_dir)
-        module = fix_module_finder.IncludePackage(
-            "testpkg1"
-        )  # Threw ImportError before the bug was fixed
-        assert (
-            "invalid-identifier" in module.global_names
-        ), "submodules whose names contain invalid identifiers should still be imported"
+        # Threw ImportError before the bug was fixed
+        module = fix_module_finder.IncludePackage("testpkg1")
+        assert "invalid-identifier" in module.global_names, (
+            "submodules whose names contain invalid identifiers should still "
+            "be imported"
+        )
 
     def test_invalid_syntax(self, mocker, fix_test_samples_dir):
-        """Invalid syntax (e.g. Py2 or Py3 only code) should not break freezing."""
+        """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         constants = ConstantsModule()
         mf = ModuleFinder(
             path=[fix_test_samples_dir] + sys.path, constants_module=constants
         )
         with pytest.raises(ImportError):
-            mf.IncludeModule(
-                "invalid_syntax"
-            )  # Threw SyntaxError before the bug was fixed
+            # Threw SyntaxError before the bug was fixed
+            mf.IncludeModule("invalid_syntax")
 
     @pytest.mark.skip(
-        "Test skipped, uncertain if no longer supported - waiting for maintainer to comment on:"
+        "Test skipped, uncertain if no longer supported - "
         "https://github.com/marcelotduarte/cx_Freeze/pull/1234"
     )
     def test_FindModule_from_zip(

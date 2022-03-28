@@ -1,4 +1,4 @@
-import pytest
+import pytest  # noqa
 from packaging.version import Version
 
 from cx_Freeze.winversioninfo import VersionInfo

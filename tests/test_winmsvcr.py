@@ -1,4 +1,4 @@
-import pytest
+import pytest  # noqa
 
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE
 

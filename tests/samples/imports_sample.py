@@ -1,14 +1,14 @@
-import moda
-from modb import b
+import moda  # noqa
+from modb import b  # noqa
 
-from . import modc
-from .modd import d
+from . import modc  # noqa
+from .modd import d  # noqa
 
-from mode import *  # isort:skip
-from ..modf import *  # isort:skip
-import modg.submod  # isort:skip
+from mode import *  # noqa isort:skip
+from ..modf import *  # noqa isort:skip
+import modg.submod  # noqa isort:skip
 
 try:
     pass
 finally:
-    import modh
+    import modh  # noqa
