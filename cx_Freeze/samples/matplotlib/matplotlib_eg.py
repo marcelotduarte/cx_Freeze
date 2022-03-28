@@ -4,10 +4,12 @@ import matplotlib
 from numpy import arange, pi, sin
 
 matplotlib.use("WXAgg")
-import wx
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.figure import Figure
+import wx  # noqa
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx  # noqa
+from matplotlib.backends.backend_wxagg import (  # noqa
+    FigureCanvasWxAgg as FigureCanvas,
+)
+from matplotlib.figure import Figure  # noqa
 
 
 class CanvasFrame(wx.Frame):

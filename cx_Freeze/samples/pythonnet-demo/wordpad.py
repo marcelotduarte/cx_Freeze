@@ -1,14 +1,12 @@
-#!/usr/bin/env python
-
 import clr
 
 SWF = clr.AddReference("System.Windows.Forms")
 print(SWF.Location)
-import System
-import System.Windows.Forms as WinForms
-from System.IO import File
-from System.Text import Encoding
-from System.Threading import ApartmentState, Thread, ThreadStart
+import System  # noqa
+import System.Windows.Forms as WinForms  # noqa
+from System.IO import File  # noqa
+from System.Text import Encoding  # noqa
+from System.Threading import ApartmentState, Thread, ThreadStart  # noqa
 
 
 class Wordpad(WinForms.Form):

@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 import clr
 
 SWF = clr.AddReference("System.Windows.Forms")
 print(SWF.Location)
-import System
-import System.Windows.Forms as WinForms
-from System.Drawing import Color
+import System  # noqa
+import System.Windows.Forms as WinForms  # noqa
+from System.Drawing import Color  # noqa
 
 
 class Splitter(WinForms.Form):
