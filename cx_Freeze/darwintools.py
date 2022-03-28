@@ -150,17 +150,17 @@ class DarwinFile:
             self.machOReferenceForTargetPath[dict_path] = reference
 
     def __str__(self):
-        l = []
-        # l.append("RPath Commands: {}".format(self.rpathCommands))
-        # l.append("Load commands: {}".format(self.loadCommands))
-        l.append(f"Mach-O File: {self.path}")
-        l.append("Resolved rpath:")
-        for rp in self.getRPath():
-            l.append(f"   {rp}")
-        l.append("Loaded libraries:")
-        for rp in self.libraryPathResolution:
-            l.append(f"   {rp} -> {self.libraryPathResolution[rp]}")
-        return "\n".join(l)
+        parts = []
+        # parts.append("RPath Commands: {}".format(self.rpathCommands))
+        # parts.append("Load commands: {}".format(self.loadCommands))
+        parts.append(f"Mach-O File: {self.path}")
+        parts.append("Resolved rpath:")
+        for rpath in self.getRPath():
+            parts.append(f"   {rpath}")
+        parts.append("Loaded libraries:")
+        for rpath in self.libraryPathResolution:
+            parts.append(f"   {rpath} -> {self.libraryPathResolution[rpath]}")
+        return "\n".join(parts)
 
     def fileReferenceDepth(self) -> int:
         """Returns how deep this Mach-O file is in the dynamic load order."""
@@ -173,15 +173,15 @@ class DarwinFile:
         print(f"[{self.fileReferenceDepth()}] File: {self.path}")
         print("  Commands:")
         if len(self.commands) > 0:
-            for c in self.commands:
-                print(f"    {c}")
+            for cmd in self.commands:
+                print(f"    {cmd}")
         else:
             print("    [None]")
 
         # This can be included for even more detail on the problem file.
         # print("  Load commands:")
         # if len(self.loadCommands) > 0:
-        #     for lc in self.loadCommands: print(f'    {lc}')
+        #     for cmd in self.loadCommands: print(f'    {cmd}')
         # else: print("    [None]")
 
         print("  RPath commands:")
@@ -240,8 +240,8 @@ class DarwinFile:
         )
 
     def resolveRPath(self, path: str) -> Optional[Path]:
-        for rp in self.getRPath():
-            test_path = rp / path.replace("@rpath/", "", 1)
+        for rpath in self.getRPath():
+            test_path = rpath / path.replace("@rpath/", "", 1)
             if _isMachOFile(test_path):
                 return test_path
         if not self.strict:
@@ -260,15 +260,15 @@ class DarwinFile:
             return self._rpath
         raw_paths = [c.rpath for c in self.rpathCommands]
         rpath = []
-        for rp in raw_paths:
-            test_rp = Path(rp)
+        for raw_path in raw_paths:
+            test_rp = Path(raw_path)
             if test_rp.is_absolute():
                 rpath.append(test_rp)
-            elif self.isLoaderPath(rp):
-                rpath.append(self.resolveLoader(rp).resolve())
-            elif self.isExecutablePath(rp):
-                rpath.append(self.resolveExecutable(rp).resolve())
-        rpath = [rp for rp in rpath if rp.exists()]
+            elif self.isLoaderPath(raw_path):
+                rpath.append(self.resolveLoader(raw_path).resolve())
+            elif self.isExecutablePath(raw_path):
+                rpath.append(self.resolveExecutable(raw_path).resolve())
+        rpath = [raw_path for raw_path in rpath if raw_path.exists()]
 
         if self.referencing_file is not None:
             rpath = self.referencing_file.getRPath() + rpath
@@ -293,8 +293,8 @@ class DarwinFile:
         raise DarwinException(f"Could not resolve path: {path}")
 
     def resolveLibraryPaths(self):
-        for lc in self.loadCommands:
-            raw_path = lc.load_path
+        for cmd in self.loadCommands:
+            raw_path = cmd.load_path
             resolved_path = self.resolvePath(raw_path)
             self.libraryPathResolution[raw_path] = resolved_path
 
@@ -329,12 +329,12 @@ class MachOCommand:
         self.lines = lines
 
     def displayString(self) -> str:
-        l: List[str] = []
+        parts: List[str] = []
         if len(self.lines) > 0:
-            l.append(self.lines[0].strip())
+            parts.append(self.lines[0].strip())
         if len(self.lines) > 1:
-            l.append(self.lines[1].strip())
-        return " / ".join(l)
+            parts.append(self.lines[1].strip())
+        return " / ".join(parts)
 
     def __repr__(self):
         return f"<MachOCommand ({self.displayString()})>"
@@ -433,23 +433,23 @@ def _printFile(
     for ref in darwinFile.machOReferenceForTargetPath.values():
         if not ref.is_copied:
             continue
-        mf = ref.target_file
+        file = ref.target_file
         _printFile(
-            mf,
+            file,
             seenFiles=seenFiles,
             level=level + 1,
-            noRecurse=(mf in seenFiles),
+            noRecurse=(file in seenFiles),
         )
-        seenFiles.add(mf)
+        seenFiles.add(file)
     return
 
 
 def printMachOFiles(fileList: List[DarwinFile]):
     seenFiles = set()
-    for mf in fileList:
-        if mf not in seenFiles:
-            seenFiles.add(mf)
-            _printFile(mf, seenFiles=seenFiles, level=0)
+    for file in fileList:
+        if file not in seenFiles:
+            seenFiles.add(file)
+            _printFile(file, seenFiles=seenFiles, level=0)
 
 
 def changeLoadReference(
@@ -574,9 +574,9 @@ class DarwinFileTracker:
         """Attempts to locate a copied DarwinFile with the specified filename
         and returns that. Otherwise returns None."""
         basename = Path(filename).name
-        for df in self._copied_file_list:
-            if df.path.name == basename:
-                return df
+        for file in self._copied_file_list:
+            if file.path.name == basename:
+                return file
         return None
 
     def finalizeReferences(self):

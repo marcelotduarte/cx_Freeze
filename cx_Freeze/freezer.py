@@ -264,7 +264,7 @@ class Freezer(ABC):
 
     @abstractmethod
     def _copy_top_dependency(self, source: Path) -> None:
-        """Called for copying certain top dependencies in _freeze_executable."""
+        """Called for copying the top dependencies in _freeze_executable."""
 
     def _default_bin_excludes(self) -> List[str]:
         """Return the file names of libraries that need not be included because
@@ -923,7 +923,7 @@ class DarwinFreezer(Freezer, Parser):
             if reference is not None:
                 # If file was already copied, and we are following a reference
                 # from a DarwinFile, then we need to tell the reference where
-                # the file was copied to (so the reference can later be updated).
+                # the file was copied to (the reference can later be updated).
                 reference.setTargetFile(
                     self.darwinTracker.getDarwinFile(source, target)
                 )
@@ -1090,7 +1090,7 @@ class LinuxFreezer(Freezer, ELFParser):
                 target.symlink_to(symlink)
 
     def _copy_top_dependency(self, source: Path) -> None:
-        """Called for copying certain top dependencies in _freeze_executable."""
+        """Called for copying the top dependencies in _freeze_executable."""
         target = self.targetdir / "lib" / source.name
         self._copy_file(
             source, target, copy_dependent_files=True, include_mode=True
