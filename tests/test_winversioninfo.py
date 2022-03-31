@@ -1,11 +1,12 @@
-import pytest  # noqa
+# pylint: disable=C0114,C0115,C0116
+import pytest  # pylint: disable=unused-import # noqa
 from packaging.version import Version
 
 from cx_Freeze.winversioninfo import VersionInfo
 
 
 class TestVersionInfo:
-    def test___init__(self):
+    def test___init__(self):  # pylint: disable=no-self-use
         """This method tests default value for the VersionInfo class"""
         input_version = "9.9.9.9"
         default_version = VersionInfo(input_version)
@@ -22,7 +23,7 @@ class TestVersionInfo:
         assert default_version.debug is None
         assert default_version.verbose is True
 
-    def test___init__pads_short_versions(self):
+    def test___init__pads_short_versions(self):  # pylint: disable=no-self-use
         """This method tests that short versions get padded to the expected x4
         digit windows versions"""
         input_version = "9"
@@ -32,7 +33,7 @@ class TestVersionInfo:
             == Version(input_version).base_version
         )
 
-    def test___init__with_kwargs(self):
+    def test___init__with_kwargs(self):  # pylint: disable=no-self-use
         input_version = "9.9.9.9"
         input_internal_name = "Test Internal Name"
         input_original_filename = "TestTempFileName"

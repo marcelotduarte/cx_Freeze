@@ -16,7 +16,7 @@ try:
     from functools import cached_property
 except ImportError:
 
-    class cached_property(object):
+    class cached_property(object):  # pylint: disable=C0103,R0205
         """Transform a method of a class into a property whose value is
         computed once and then cached as a normal attribute for the life of
         the instance."""

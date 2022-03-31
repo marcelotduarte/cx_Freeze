@@ -1,5 +1,6 @@
 """Create standalone executables from Python scripts, with the same performance
 and is cross-platform."""
+# pylint: disable=C0103
 import sys
 
 from .dist import bdist_rpm, build, build_exe, install, install_exe, setup

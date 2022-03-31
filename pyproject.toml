@@ -19,6 +19,18 @@ skip_gitignore = true
 [tool.pylint.format]
 max-line-length = 79
 
+[tool.pylint.messages_control]
+disable = [
+    "fixme",
+    "import-error",
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-branches",
+    "too-many-instance-attributes",
+    "too-many-locals",
+    "too-many-nested-blocks",
+]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra"

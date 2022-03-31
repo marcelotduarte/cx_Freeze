@@ -1,3 +1,4 @@
+# pylint: disable=C0114,C0115,C0116
 import importlib
 import sys
 
@@ -47,9 +48,9 @@ def test_exposed_namespaces(mocker, platform, extra_modules):
         "Module",
         "ModuleFinder",
     ]
-    for ns in expected_namespaces:
-        assert ns in dir(cx_Freeze)
+    for ens in expected_namespaces:
+        assert ens in dir(cx_Freeze)
 
     if platform:
-        for ns in extra_modules:
-            assert ns in dir(cx_Freeze)
+        for ens in extra_modules:
+            assert ens in dir(cx_Freeze)
