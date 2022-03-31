@@ -1,3 +1,4 @@
+# pylint: skip-file
 import moda  # noqa
 from modb import b  # noqa
 

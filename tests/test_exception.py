@@ -1,3 +1,4 @@
+# pylint: disable=C0114,C0115,C0116
 import pytest
 
 from cx_Freeze.exception import ConfigError, DarwinException

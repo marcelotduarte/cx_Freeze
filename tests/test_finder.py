@@ -1,3 +1,4 @@
+# pylint: disable=C0114,C0115,C0116
 import os
 import shutil
 import sys
@@ -13,12 +14,13 @@ class TestModuleFinderWithConvertedNoseTests:
     in `test_finder` that predated usage of the PyTest Framework"""
 
     @pytest.fixture()
-    def fix_module_finder(self):
+    def fix_module_finder(self):  # pylint: disable=no-self-use
         constants = ConstantsModule()
-        mf = ModuleFinder(constants_module=constants)
-        return mf
+        finder = ModuleFinder(constants_module=constants)
+        return finder
 
-    def test_ScanCode(self, mocker, fix_test_samples_dir, fix_module_finder):
+    # pylint: disable-next=no-self-use
+    def test_scan_code(self, mocker, fix_test_samples_dir, fix_module_finder):
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
             fix_module_finder, "_import_module", return_value=None
@@ -39,6 +41,7 @@ class TestModuleFinderWithConvertedNoseTests:
             ]
         )
 
+    # pylint: disable-next=unused-argument,no-self-use
     def test_not_import_invalid_module_name(
         self, mocker, fix_test_samples_dir, fix_module_finder
     ):
@@ -51,21 +54,23 @@ class TestModuleFinderWithConvertedNoseTests:
             "be imported"
         )
 
+    # pylint: disable-next=unused-argument,no-self-use
     def test_invalid_syntax(self, mocker, fix_test_samples_dir):
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         constants = ConstantsModule()
-        mf = ModuleFinder(
+        finder = ModuleFinder(
             path=[fix_test_samples_dir] + sys.path, constants_module=constants
         )
         with pytest.raises(ImportError):
             # Threw SyntaxError before the bug was fixed
-            mf.IncludeModule("invalid_syntax")
+            finder.IncludeModule("invalid_syntax")
 
     @pytest.mark.skip(
         "Test skipped, uncertain if no longer supported - "
         "https://github.com/marcelotduarte/cx_Freeze/pull/1234"
     )
-    def test_FindModule_from_zip(
+    # pylint: disable-next=no-self-use
+    def test_find_module_from_zip(
         self, fix_module_finder, fix_samples_dir, tmpdir
     ):
         # -----------------
@@ -83,10 +88,9 @@ class TestModuleFinderWithConvertedNoseTests:
             clean_pyc_files()
             tmpd = tmpdir.mkdir()
             egg = os.path.join(tmpd, "testpkg1.egg")
-            eggzip = zipfile.PyZipFile(egg, "w", zipfile.ZIP_DEFLATED)
-            eggzip.writepy(os.path.join(fix_samples_dir, "testmod1.py"))
-            eggzip.writepy(os.path.join(fix_samples_dir, "testpkg1"))
-            eggzip.close()
+            with zipfile.PyZipFile(egg, "w", zipfile.ZIP_DEFLATED) as eggzip:
+                eggzip.writepy(os.path.join(fix_samples_dir, "testmod1.py"))
+                eggzip.writepy(os.path.join(fix_samples_dir, "testpkg1"))
             return egg
 
         # End Helper Methods
@@ -96,6 +100,7 @@ class TestModuleFinderWithConvertedNoseTests:
         egg = prepare_zip_file()
         try:
             fix_module_finder.path = [egg]
+            # pylint: disable-next=protected-access
             mod = fix_module_finder._internal_import_module(
                 "testpkg1.submod", deferred_imports=[]
             )

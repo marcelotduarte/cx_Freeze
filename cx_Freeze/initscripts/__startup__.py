@@ -90,14 +90,14 @@ def run():
         name, _ = os.path.splitext(name)
     name = name.partition(".")[0]
     if not name.isidentifier():
-        for ch in STRINGREPLACE:
-            name = name.replace(ch, "_")
+        for char in STRINGREPLACE:
+            name = name.replace(char, "_")
     name = os.path.normcase(name)
     try:
         module_init = __import__(name + "__init__")
     except ModuleNotFoundError:
         files = []
-        for k in __loader__._files:
+        for k in __loader__._files:  # pylint: disable=W0212
             if k.endswith("__init__.pyc"):
                 k = k.rpartition("__init__")[0]
                 if k.isidentifier():

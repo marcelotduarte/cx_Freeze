@@ -1,9 +1,10 @@
-import pytest  # noqa
+# pylint: disable=C0114,C0115,C0116
+import pytest  # pylint: disable=unused-import # noqa
 
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE
 
 
-def test_FILES():
+def test_files():
     expected = (
         # VC 2015 and 2017
         "api-ms-win-core-console-l1-1-0.dll",
@@ -63,6 +64,6 @@ def test_FILES():
     assert expected == FILES
 
 
-def test_FILES_TO_DUPLICATE():
+def test_files_to_duplicate():
     expected = ("vcruntime140.dll",)
     assert expected == FILES_TO_DUPLICATE

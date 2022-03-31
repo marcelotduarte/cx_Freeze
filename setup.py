@@ -32,6 +32,9 @@ if sys.version_info < (3, 6, 0):
     sys.exit("Python3 versions lower than 3.6.0 are not supported.")
 
 
+# pylint: disable=C0115,C0116,C0103
+
+
 class build_ext(setuptools.command.build_ext.build_ext):
     def build_extension(self, ext):
         if "bases" not in ext.name:
@@ -122,13 +125,13 @@ class build_ext(setuptools.command.build_ext.build_ext):
             debug=self.debug,
         )
 
-    def get_ext_filename(self, ext_name):
-        if ext_name.endswith("util"):
-            return super().get_ext_filename(ext_name)
+    def get_ext_filename(self, fullname):
+        if fullname.endswith("util"):
+            return super().get_ext_filename(fullname)
         # Examples of returned names:
         # Console-cp37-win32.exe, Console-cp39-win_amd64.exe,
         # Console-cpython-39-x86_64-linux-gnu, Console-cpython-36m-darwin
-        ext_path = Path(*ext_name.split("."))
+        ext_path = Path(*fullname.split("."))
         name = ext_path.name
         if WIN32:
             py_version_nodot = get_config_var("py_version_nodot")
