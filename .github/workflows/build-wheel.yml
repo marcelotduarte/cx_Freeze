@@ -16,14 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade build setuptools
+        run: python -m pip install --upgrade pip build setuptools
       - name: Build the wheel [Python 3.6-3.9]
         if: matrix.python-version != '3.10'
         run: |
@@ -49,13 +47,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
+        uses: actions/setup-python@v3
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools
+        run: python -m pip install --upgrade pip setuptools
       - name: Download the artifact
         uses: actions/download-artifact@v2
         with:
