@@ -1,19 +1,23 @@
 # Makefile to automate some tools
 
-.PHONY: black
-black:
-	pip install --upgrade pre-commit
+.PHONY: all
+all:
 	pre-commit run -a -v --hook-stage manual
 	pre-commit gc
 
 .PHONY: clean
 clean:
+	pre-commit clean
 	make -C doc clean
+
+.PHONY: upgrade
+upgrade: clean
+	pip install -r requirements-dev.txt --upgrade
+	pip install -e .
 
 .PHONY: html
 html:
-	pip install -e .[doc]
-	make -C doc html
+	pre-commit run build-docs -a -v --hook-stage manual
 
 .PHONY: htmltest
 htmltest:
