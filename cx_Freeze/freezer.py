@@ -8,12 +8,12 @@ import struct
 import sys
 import sysconfig
 import time
-import zipfile
 from abc import ABC, abstractmethod
 from distutils.dist import DistributionMetadata
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
 from typing import List, Optional, Set, Tuple, Union
+from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
 from .common import (
     IncludesList,
@@ -450,151 +450,151 @@ class Freezer(ABC):
         self._create_directory(target_lib_dir)
 
         # Prepare zip file
-        if self.compress:
-            compress_type = zipfile.ZIP_DEFLATED
-        else:
-            compress_type = zipfile.ZIP_STORED
-        outFile = zipfile.PyZipFile(filename, "w", compress_type)
+        compress_type = ZIP_DEFLATED if self.compress else ZIP_STORED
+        with PyZipFile(filename, "w", compress_type) as outfile:
 
-        files_to_copy: List[Tuple[Module, Path]] = []
-        ignorePatterns = shutil.ignore_patterns(
-            "*.py", "*.pyc", "*.pyo", "__pycache__"
-        )
-        for module in modules:
+            files_to_copy: List[Tuple[Module, Path]] = []
+            ignorePatterns = shutil.ignore_patterns(
+                "*.py", "*.pyc", "*.pyo", "__pycache__"
+            )
 
-            # determine if the module should be written to the file system;
-            # a number of packages make the assumption that files that they
-            # require will be found in a location relative to where
-            # they are located on disk; these packages will fail with strange
-            # errors when they are written to a zip file instead
-            include_in_file_system = module.in_file_system
+            for module in modules:
 
-            # if the module refers to a package, check to see if this package
-            # should be written to the file system
-            if (
-                include_in_file_system >= 1
-                and module.path is not None
-                and module.file is not None
-            ):
-                parts = module.name.split(".")
-                target_package_dir = target_lib_dir.joinpath(*parts)
-                if include_in_file_system == 2:
-                    # a few packages are optimized on the hooks,
-                    # so for now create the directory for this package
-                    self._create_directory(target_package_dir)
+                # determine if the module should be written to the file system;
+                # a number of packages make the assumption that files that they
+                # require will be found in a location relative to where they
+                # are located on disk; these packages will fail with strange
+                # errors when they are written to a zip file instead
+                include_in_file_system = module.in_file_system
+                mod_name = module.name
+                mod_name_parts = mod_name.split(".")
 
-                elif not target_package_dir.exists():
-                    # whether the package and its data will be written to the
-                    # file system, any non-Python files are copied at this
-                    # point if the target directory does not already exist
-                    source_package_dir = module.file.parent
-                    if self.silent < 1:
-                        print(f"copying data from package {module.name}...")
-                    shutil.copytree(
-                        source_package_dir,
-                        target_package_dir,
-                        ignore=ignorePatterns,
-                    )
+                # if the module refers to a package, check to see if this
+                # package should be written to the file system
+                if (
+                    include_in_file_system >= 1
+                    and module.path is not None
+                    and module.file is not None
+                ):
+                    parts = mod_name_parts
+                    target_package_dir = target_lib_dir.joinpath(*parts)
+                    if include_in_file_system == 2:
+                        # a few packages are optimized on the hooks,
+                        # so for now create the directory for this package
+                        self._create_directory(target_package_dir)
 
-                    # remove the subfolders which belong to excluded modules
-                    excluded_folders = [
-                        m[len(module.name) + 1 :].replace(".", os.sep)
-                        for m in finder.excludes
-                        if m.split(".")[0] == parts[0]
-                    ]
-                    for folder in excluded_folders:
-                        folder_to_remove = target_package_dir / folder
-                        if folder_to_remove.is_dir():
-                            if self.silent < 1:
-                                print(f"removing {folder_to_remove}...")
-                            shutil.rmtree(folder_to_remove)
+                    elif not target_package_dir.exists():
+                        # whether the package and its data will be written to
+                        # the file system, any non-Python files are copied at
+                        # this point if the target directory does not already
+                        # exist
+                        source_package_dir = module.file.parent
+                        if self.silent < 1:
+                            print(f"copying data from package {mod_name}...")
+                        shutil.copytree(
+                            source_package_dir,
+                            target_package_dir,
+                            ignore=ignorePatterns,
+                        )
 
-            # if an extension module is found in a package that is to be
-            # included in a zip file, copy the actual file to the build
-            # directory because shared libraries cannot be loaded from a
-            # zip file
-            if (
-                module.code is None
-                and module.file is not None
-                and include_in_file_system == 0
-            ):
-                parts = module.name.split(".")[:-1]
-                parts.append(module.file.name)
-                target = target_lib_dir / ".".join(parts)
-                files_to_copy.append((module, target))
+                        # remove the subfolders which belong to excluded
+                        # modules
+                        excluded_folders = [
+                            m[len(mod_name) + 1 :].replace(".", os.sep)
+                            for m in finder.excludes
+                            if m.split(".")[0] == parts[0]
+                        ]
+                        for folder in excluded_folders:
+                            folder_to_remove = target_package_dir / folder
+                            if folder_to_remove.is_dir():
+                                if self.silent < 1:
+                                    print(f"removing {folder_to_remove}...")
+                                shutil.rmtree(folder_to_remove)
 
-            # starting with Python 3.3 the pyc file format contains the source
-            # size; it is not actually used for anything except determining if
-            # the file is up to date so we can safely set this value to zero
-            if module.code is not None:
-                if module.file is not None and module.file.exists():
-                    st = module.file.stat()
-                    mtime = int(st.st_mtime)
-                    size = st.st_size & 0xFFFFFFFF
-                else:
-                    mtime = int(time.time())
-                    size = 0
-                if sys.version_info[:2] < (3, 7):
-                    header = MAGIC_NUMBER + struct.pack("<ii", mtime, size)
-                else:
-                    header = MAGIC_NUMBER + struct.pack("<iii", 0, mtime, size)
-                data = header + marshal.dumps(module.code)
-
-            # if the module should be written to the file system, do so
-            if include_in_file_system >= 1 and module.file is not None:
-                parts = module.name.split(".")
-                if module.code is None:
-                    parts.pop()
+                # if an extension module is found in a package that is to be
+                # included in a zip file, copy the actual file to the build
+                # directory because shared libraries cannot be loaded from a
+                # zip file
+                if (
+                    module.code is None
+                    and module.file is not None
+                    and include_in_file_system == 0
+                ):
+                    parts = mod_name_parts[:-1]
                     parts.append(module.file.name)
-                    target_name = target_lib_dir.joinpath(*parts)
-                    self._copy_file(
-                        module.file,
-                        target_name,
-                        copy_dependent_files=True,
-                    )
-                else:
-                    if module.path is not None:
-                        parts.append("__init__")
-                    target_name = target_lib_dir.joinpath(*parts)
-                    target_name = target_name.with_suffix(".pyc")
-                    target_name.write_bytes(data)
+                    target = target_lib_dir / ".".join(parts)
+                    files_to_copy.append((module, target))
 
-            # otherwise, write to the zip file
-            elif module.code is not None:
-                zipTime = time.localtime(mtime)[:6]
-                target_name = "/".join(module.name.split("."))
-                if module.path:
-                    target_name += "/__init__"
-                zinfo = zipfile.ZipInfo(target_name + ".pyc", zipTime)
-                zinfo.compress_type = compress_type
-                outFile.writestr(zinfo, data)
+                # starting with Python 3.3 the pyc file format contains the
+                # source size; it is not actually used for anything except
+                # determining if the file is up to date so we can safely set
+                # this value to zero
+                if module.code is not None:
+                    if module.file is not None and module.file.exists():
+                        st = module.file.stat()
+                        mtime = int(st.st_mtime)
+                        size = st.st_size & 0xFFFFFFFF
+                    else:
+                        mtime = int(time.time())
+                        size = 0
+                    header = MAGIC_NUMBER + struct.pack("<iii", 0, mtime, size)
+                    if sys.version_info[:2] < (3, 7):
+                        header = MAGIC_NUMBER + struct.pack("<ii", mtime, size)
+                    data = header + marshal.dumps(module.code)
 
-        # put the distribution files metadata in the zip file
-        dist_cachedir = None
-        for module in modules:
-            if module.distribution:
-                dist_cachedir = module.distribution.locate_file(".")
-                break
-        if dist_cachedir is not None:
-            pos = len(dist_cachedir.as_posix()) + 1
-            for name in dist_cachedir.rglob("*"):
-                if name.is_dir():
-                    continue
-                outFile.write(name, name.as_posix()[pos:])
+                # if the module should be written to the file system, do so
+                if include_in_file_system >= 1 and module.file is not None:
+                    parts = mod_name_parts.copy()
+                    if module.code is None:
+                        parts.pop()
+                        parts.append(module.file.name)
+                        target_name = target_lib_dir.joinpath(*parts)
+                        self._copy_file(
+                            module.file,
+                            target_name,
+                            copy_dependent_files=True,
+                        )
+                    else:
+                        if module.path is not None:
+                            parts.append("__init__")
+                        target_name = target_lib_dir.joinpath(*parts)
+                        target_name = target_name.with_suffix(".pyc")
+                        target_name.write_bytes(data)
 
-        # write any files to the zip file that were requested specially
-        for source_path, target_path in finder.zip_includes:
-            if source_path.is_dir():
-                pos = len(source_path.as_posix()) + 1
-                for source_filename in source_path.rglob("*"):
-                    if source_filename.is_dir():
+                # otherwise, write to the zip file
+                elif module.code is not None:
+                    zipTime = time.localtime(mtime)[:6]
+                    target_name = "/".join(mod_name_parts)
+                    if module.path:
+                        target_name += "/__init__"
+                    zinfo = ZipInfo(target_name + ".pyc", zipTime)
+                    zinfo.compress_type = compress_type
+                    outfile.writestr(zinfo, data)
+
+            # put the distribution files metadata in the zip file
+            dist_cachedir = None
+            for module in modules:
+                if module.distribution:
+                    dist_cachedir = module.distribution.locate_file(".")
+                    break
+            if dist_cachedir is not None:
+                pos = len(dist_cachedir.as_posix()) + 1
+                for name in dist_cachedir.rglob("*"):
+                    if name.is_dir():
                         continue
-                    target = target_path / source_filename.as_posix()[pos:]
-                    outFile.write(source_filename, target)
-            else:
-                outFile.write(source_path, target_path.as_posix())
+                    outfile.write(name, name.as_posix()[pos:])
 
-        outFile.close()
+            # write any files to the zip file that were requested specially
+            for source_path, target_path in finder.zip_includes:
+                if source_path.is_dir():
+                    pos = len(source_path.as_posix()) + 1
+                    for source_filename in source_path.rglob("*"):
+                        if source_filename.is_dir():
+                            continue
+                        target = target_path / source_filename.as_posix()[pos:]
+                        outfile.write(source_filename, target)
+                else:
+                    outfile.write(source_path, target_path.as_posix())
 
         # Copy Python extension modules from the list built above.
         origPath = os.environ["PATH"]
