@@ -1,5 +1,4 @@
 --extra-index-url https://marcelotduarte.github.io/packages/
--f https://lief-project.github.io/packages/lief/
 
 
 packaging>=21.0

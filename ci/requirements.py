@@ -1,3 +1,4 @@
+"""Requirements sync."""
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -14,7 +15,6 @@ requirements_dev = root_dir / "requirements-dev.txt"
 
 contents = [
     "--extra-index-url https://marcelotduarte.github.io/packages/",
-    "-f https://lief-project.github.io/packages/lief/",
     "",
 ]
 try:
