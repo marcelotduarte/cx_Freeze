@@ -875,25 +875,36 @@ def _qt_library_paths(name: str) -> List[str]:
     return _qtcore_library_paths
 
 
+def get_qt_subdir_paths(name: str, subdir: str) -> List[Tuple[Path, Path]]:
+    """Helper function to get a list of source and target paths of Qt
+    subdirectories, indicated to be used in include_files."""
+    include_files = []
+    for library_dir in _qt_library_paths(name):
+        if library_dir.parts[-1] == "plugins":
+            library_dir = library_dir.parent
+        source_path = library_dir / subdir
+        if not source_path.exists():
+            continue
+        if library_dir.parts[-1] == name:  # {name}/{subdir}
+            target_path = Path("lib") / name / subdir
+        elif library_dir.parts[-2] == name:  # {name}/Qt*/{subdir}
+            target_path = Path("lib") / name / library_dir.parts[-1] / subdir
+        else:
+            target_path = Path("lib") / name / "Qt" / subdir
+        include_files.append((source_path, target_path))
+    return include_files
+
+
 def get_qt_plugins_paths(name: str, plugins: str) -> List[Tuple[str, str]]:
     """Helper function to get a list of source and target paths of Qt plugins,
     indicated to be used in include_files."""
-    include_files = []
-    for library_dir in _qt_library_paths(name):
-        if library_dir.parts[-1] != "plugins":
-            continue
-        source_path = library_dir / plugins
-        if not source_path.exists():
-            continue
-        if source_path.parts[-3] == name:  # {name}/plugins/{plugins}
-            target_path = Path("lib").joinpath(*source_path.parts[-3:])
-        elif source_path.parts[-4] == name:  # {name}/Qt*/plugins/{plugins}
-            target_path = Path("lib").joinpath(*source_path.parts[-4:])
-        else:
-            # fallback plugins path to be used by load_PyQt5.
-            target_path = Path("lib") / name / "Qt" / "plugins" / plugins
-        include_files.append((source_path, target_path))
-    return include_files
+    return get_qt_subdir_paths(name, str(Path("plugins", plugins)))
+
+
+def copy_qt_data(name: str, subdir: str, finder: ModuleFinder) -> None:
+    """Helper function to find and copy Qt resources, translations, etc."""
+    for source_path, target_path in get_qt_subdir_paths(name, subdir):
+        finder.IncludeFiles(source_path, target_path)
 
 
 def copy_qt_plugins(name: str, plugins: str, finder: ModuleFinder) -> None:
