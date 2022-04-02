@@ -58,7 +58,7 @@ repos:
     entry: pylint
     language: system
     types: [python]
-    files: ^tests$
+    files: ^tests$|finder.py
 
 - repo: https://github.com/thclark/pre-commit-sphinx
   rev: 0.0.3

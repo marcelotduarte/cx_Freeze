@@ -203,9 +203,9 @@ class Freezer(ABC):
 
     def _freeze_executable(self, exe: Executable) -> None:
         finder: ModuleFinder = self.finder
-        finder.IncludeFile(exe.main_script, exe.main_module_name)
-        finder.IncludeFile(exe.init_script, exe.init_module_name)
-        finder.IncludeFile(
+        finder.include_file_as_module(exe.main_script, exe.main_module_name)
+        finder.include_file_as_module(exe.init_script, exe.init_module_name)
+        finder.include_file_as_module(
             get_resource_file_path("initscripts", "__startup__", ".py")
         )
 
@@ -309,11 +309,11 @@ class Freezer(ABC):
             self.constants_module,
             self.zip_includes,
         )
-        finder.SetOptimizeFlag(self.optimize_flag)
+        finder.optimize_flag = self.optimize_flag
         for name in self.includes:
-            finder.IncludeModule(name)
+            finder.include_module(name)
         for name in self.packages:
-            finder.IncludePackage(name)
+            finder.include_package(name)
         return finder
 
     def _post_freeze_hook(self) -> None:
@@ -436,7 +436,9 @@ class Freezer(ABC):
                 )
 
     def _write_modules(self, filename: Path, finder: ModuleFinder):
-        finder.IncludeFile(*self.constants_module.create(finder.modules))
+        finder.include_file_as_module(
+            *self.constants_module.create(finder.modules)
+        )
 
         modules = [m for m in finder.modules if m.name not in finder.excludes]
         modules.sort(key=lambda m: m.name)
@@ -444,7 +446,7 @@ class Freezer(ABC):
         if self.silent < 1:
             self._print_report(filename, modules)
         if self.silent < 2:
-            finder.ReportMissingModules()
+            finder.report_missing_modules()
 
         target_lib_dir = filename.parent
         self._create_directory(target_lib_dir)
@@ -624,9 +626,9 @@ class Freezer(ABC):
         library_zip = targetdir / "lib" / "library.zip"
         self._write_modules(library_zip, finder)
 
-        exclude_dependent_files = self.finder.exclude_dependent_files
-        for source_path, target_path in finder.include_files:
-            copy_dependent_files = source_path not in exclude_dependent_files
+        excluded_dependent_files = self.finder.excluded_dependent_files
+        for source_path, target_path in finder.included_files:
+            copy_dependent_files = source_path not in excluded_dependent_files
             if source_path.is_dir():
                 # Copy directories by recursing into them.
                 # Can't use shutil.copytree because we may need dependencies
@@ -776,7 +778,7 @@ class WinFreezer(Freezer, PEParser):
     ) -> None:
         if (
             copy_dependent_files
-            and source not in self.finder.exclude_dependent_files
+            and source not in self.finder.excluded_dependent_files
         ):
 
             targetdir = target.parent
@@ -887,7 +889,7 @@ class DarwinFreezer(Freezer, Parser):
         self.darwinTracker.recordCopiedFile(target, darwin_file)
         if (
             copy_dependent_files
-            and source not in self.finder.exclude_dependent_files
+            and source not in self.finder.excluded_dependent_files
         ):
             # Always copy dependent files on root directory
             # to allow to set relative reference
@@ -1032,7 +1034,7 @@ class LinuxFreezer(Freezer, ELFParser):
     ):
         if (
             copy_dependent_files
-            and source not in self.finder.exclude_dependent_files
+            and source not in self.finder.excluded_dependent_files
         ):
             targetdir = target.parent
             source_dir = source.parent

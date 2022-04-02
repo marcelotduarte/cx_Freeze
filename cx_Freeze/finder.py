@@ -56,7 +56,7 @@ class ModuleFinder:
         constants_module: Optional[ConstantsModule] = None,
         zip_includes: Optional[IncludesList] = None,
     ):
-        self.include_files: InternalIncludesList = process_path_specs(
+        self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
         self.excludes: Dict[str, Any] = dict.fromkeys(excludes or [])
@@ -72,7 +72,7 @@ class ModuleFinder:
         )
         self.modules = []
         self.aliases = {}
-        self.exclude_dependent_files: Set[Path] = set()
+        self.excluded_dependent_files: Set[Path] = set()
         self._modules: Dict[str, Optional[Module]] = dict.fromkeys(
             excludes or []
         )
@@ -91,16 +91,16 @@ class ModuleFinder:
         When cx_Freeze is built, these modules (and modules they load) are
         included in the startup zip file.
         """
-        self.IncludeModule("traceback")
-        self.IncludeModule("warnings")
-        self.IncludeModule("unicodedata")
-        self.IncludePackage("encodings")
-        self.IncludeModule("io")
-        self.IncludeModule("os")
-        self.IncludeModule("sys")
-        self.IncludeModule("zlib")
-        self.IncludeModule("collections.abc")
-        self.IncludeModule("importlib.abc")
+        self.include_module("traceback")
+        self.include_module("warnings")
+        self.include_module("unicodedata")
+        self.include_package("encodings")
+        self.include_module("io")
+        self.include_module("os")
+        self.include_module("sys")
+        self.include_module("zlib")
+        self.include_module("collections.abc")
+        self.include_module("importlib.abc")
 
     def _add_module(
         self,
@@ -400,8 +400,6 @@ class ModuleFinder:
                 logging.debug("Adding module [%s] [PACKAGE]", name)
                 module.file = Path(path[0], "__init__.py")
                 module.source_is_string = True
-        except Exception:
-            pass
 
         if spec:
             loader = spec.loader
@@ -642,6 +640,7 @@ class ModuleFinder:
             if opc == IMPORT_NAME:
                 name = code.co_names[arg]
                 if len(arguments) >= 2:
+                    # pylint: disable-next=W0632
                     relative_import_index, from_list = arguments[-2:]
                 else:
                     relative_import_index = -1
@@ -687,29 +686,27 @@ class ModuleFinder:
                     constant, module, deferred_imports, top_level=False
                 )
 
-    def AddAlias(self, name: str, alias_for: str) -> None:
-        """
-        Add an alias for a particular module; when an attempt is made to
+    def add_alias(self, name: str, alias_for: str) -> None:
+        """Add an alias for a particular module; when an attempt is made to
         import a module using the alias name, import the actual name instead.
         """
         self.aliases[name] = alias_for
 
-    def AddConstant(self, name: str, value: str) -> None:
-        """
-        Makes available a constant in the module BUILD_CONSTANTS which is used
-        in the initscripts.
-        """
+    def add_constant(self, name: str, value: str) -> None:
+        """Makes available a constant in the module BUILD_CONSTANTS which is
+        used in the initscripts."""
         self.constants_module.values[name] = value
 
-    def ExcludeDependentFiles(self, filename: Union[Path, str]) -> None:
+    def exclude_dependent_files(self, filename: Union[Path, str]) -> None:
         """Exclude the dependent files of the named file from the resulting
         frozen executable."""
-        self.exclude_dependent_files.add(Path(filename))
+        if not isinstance(filename, Path):
+            filename = Path(filename)
+        self.excluded_dependent_files.add(filename)
 
-    def ExcludeModule(self, name: str) -> None:
-        """
-        Exclude the named module and its submodules from the resulting frozen
-        executable."""
+    def exclude_module(self, name: str) -> None:
+        """Exclude the named module and its submodules from the resulting
+        frozen executable."""
         modules_to_exclude = [name] + [
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
@@ -717,7 +714,7 @@ class ModuleFinder:
             self.excludes[mod] = None
             self._modules[mod] = None
 
-    def IncludeFile(
+    def include_file_as_module(
         self, path: Union[Path, str], name: Optional[str] = None
     ) -> Module:
         """Include the named file as a module in the frozen executable."""
@@ -730,20 +727,20 @@ class ModuleFinder:
         self._import_deferred_imports(deferred_imports)
         return module
 
-    def IncludeFiles(
+    def include_files(
         self,
         source_path: Union[Path, str],
         target_path: Union[Path, str],
         copy_dependent_files: bool = True,
     ) -> None:
         """Include the files in the given directory in the target build."""
-        self.include_files.extend(
+        self.included_files.extend(
             process_path_specs([(source_path, target_path)])
         )
         if not copy_dependent_files:
-            self.ExcludeDependentFiles(source_path)
+            self.exclude_dependent_files(source_path)
 
-    def IncludeModule(self, name: str) -> Module:
+    def include_module(self, name: str) -> Module:
         """Include the named module in the frozen executable."""
         # includes has priority over excludes
         if name in self.excludes and name in self._modules:
@@ -756,7 +753,7 @@ class ModuleFinder:
         self._import_deferred_imports(deferred_imports, skip_in_import=True)
         return module
 
-    def IncludePackage(self, name: str) -> Module:
+    def include_package(self, name: str) -> Module:
         """Include the named package and any submodules in the frozen
         executable."""
         deferred_imports: DeferredList = []
@@ -766,7 +763,7 @@ class ModuleFinder:
         self._import_deferred_imports(deferred_imports, skip_in_import=True)
         return module
 
-    def ReportMissingModules(self) -> None:
+    def report_missing_modules(self) -> None:
         """Display a list of modules that weren't found."""
         if self._bad_modules:
             print("Missing modules:")
@@ -779,17 +776,21 @@ class ModuleFinder:
             print("This is not necessarily a problem - the modules ", end="")
             print("may not be needed on this platform.\n")
 
-    def SetOptimizeFlag(self, optimize_flag: int) -> int:
-        """Set a new value of optimize flag and returns the previous value."""
-        previous = self.optimize_flag
-        # The value of optimize_flag is propagated according to the user's
-        # choice and checked in dist.py or main,py. This value is unlikely
-        # to be wrong, yet we check and ignore any divergent value.
-        if -1 <= optimize_flag <= 2:
-            self.optimize_flag = optimize_flag
-        return previous
+    @property
+    def optimize_flag(self) -> int:
+        """The value of optimize flag propagated according to the user's
+        choice."""
+        return self._optimize_flag
 
-    def ZipIncludeFiles(
+    @optimize_flag.setter
+    def optimize_flag(self, value: int):
+        # The value of optimize_flag is checked in dist.py or main,py. This
+        # value is unlikely to be wrong, yet we check and ignore any divergent
+        # value.
+        if -1 <= value <= 2:
+            self._optimize_flag = value
+
+    def zip_include_files(
         self,
         source_path: Union[str, Path],
         target_path: Optional[Union[str, Path, PurePath]] = None,

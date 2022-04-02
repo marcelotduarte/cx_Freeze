@@ -25,7 +25,7 @@ class TestModuleFinderWithConvertedNoseTests:
         import_mock = mocker.patch.object(
             fix_module_finder, "_import_module", return_value=None
         )
-        fix_module_finder.IncludeFile(
+        fix_module_finder.include_file_as_module(
             os.path.join(fix_test_samples_dir, "imports_sample.py")
         )
         import_mock.assert_has_calls(
@@ -48,7 +48,7 @@ class TestModuleFinderWithConvertedNoseTests:
         """testpkg1 contains not.importable.py, which shouldn't be included."""
         fix_module_finder.path.insert(0, fix_test_samples_dir)
         # Threw ImportError before the bug was fixed
-        module = fix_module_finder.IncludePackage("testpkg1")
+        module = fix_module_finder.include_package("testpkg1")
         assert "invalid-identifier" in module.global_names, (
             "submodules whose names contain invalid identifiers should still "
             "be imported"
@@ -63,7 +63,7 @@ class TestModuleFinderWithConvertedNoseTests:
         )
         with pytest.raises(ImportError):
             # Threw SyntaxError before the bug was fixed
-            finder.IncludeModule("invalid_syntax")
+            finder.include_module("invalid_syntax")
 
     @pytest.mark.skip(
         "Test skipped, uncertain if no longer supported - "

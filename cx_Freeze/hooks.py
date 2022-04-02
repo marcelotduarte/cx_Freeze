@@ -21,7 +21,7 @@ def initialize(finder: ModuleFinder) -> None:
     """
     # py2 modules that have been removed or renamed in py3
     for name in collections.abc.__all__:
-        finder.ExcludeModule("collections." + name)
+        finder.exclude_module("collections." + name)
     for name in (
         "Charset",
         "Encoders",
@@ -36,198 +36,198 @@ def initialize(finder: ModuleFinder) -> None:
         "base64MIME",
         "quopriMIME",
     ):
-        finder.ExcludeModule("email." + name)
-    finder.ExcludeModule("__builtin__")
-    finder.ExcludeModule("__main__")
-    finder.ExcludeModule("_winreg")
-    finder.ExcludeModule("audiodev")
-    finder.ExcludeModule("anydbm")
-    finder.ExcludeModule("BaseHTTPServer")
-    finder.ExcludeModule("Bastion")
-    finder.ExcludeModule("bsddb")
-    finder.ExcludeModule("cPickle")
-    finder.ExcludeModule("commands")
-    finder.ExcludeModule("ConfigParser")
-    finder.ExcludeModule("Cookie")
-    finder.ExcludeModule("copy_reg")
-    finder.ExcludeModule("cStringIO")
-    finder.ExcludeModule("dbhash")
-    finder.ExcludeModule("dircache")
-    finder.ExcludeModule("dl")
-    finder.ExcludeModule("dumbdbm")
-    finder.ExcludeModule("dummy_thread")
-    finder.ExcludeModule("FCNTL")
-    finder.ExcludeModule("fl")
-    finder.ExcludeModule("fm")
-    finder.ExcludeModule("fpformat")
-    finder.ExcludeModule("gl")
-    finder.ExcludeModule("gdbm")
-    finder.ExcludeModule("htmllib")
-    finder.ExcludeModule("HTMLParser")
-    finder.ExcludeModule("httplib")
-    finder.ExcludeModule("hotshot")
-    finder.ExcludeModule("ihooks")
-    finder.ExcludeModule("imputil")
-    finder.ExcludeModule("linuxaudiodev")
-    finder.ExcludeModule("md5")
-    finder.ExcludeModule("Nav")
-    finder.ExcludeModule("new")
-    finder.ExcludeModule("mutex")
-    finder.ExcludeModule("Pickle")
-    finder.ExcludeModule("Queue")
-    finder.ExcludeModule("rexec")
-    finder.ExcludeModule("robotparser")
-    finder.ExcludeModule("sgmllib")
-    finder.ExcludeModule("sha")
-    finder.ExcludeModule("SocketServer")
-    finder.ExcludeModule("statvfs")
-    finder.ExcludeModule("StringIO")
-    finder.ExcludeModule("sunaudiodev")
-    finder.ExcludeModule("thread")
-    finder.ExcludeModule("Tkinter")
-    finder.ExcludeModule("toaiff")
-    finder.ExcludeModule("urllib.quote")
-    finder.ExcludeModule("urllib.quote_plus")
-    finder.ExcludeModule("urllib.unquote")
-    finder.ExcludeModule("urllib.unquote_plus")
-    finder.ExcludeModule("urllib.urlencode")
-    finder.ExcludeModule("urllib.urlopen")
-    finder.ExcludeModule("urllib.urlretrieve")
-    finder.ExcludeModule("urllib2")
-    finder.ExcludeModule("urlparse")
-    finder.ExcludeModule("user")
-    finder.ExcludeModule("UserDict")
-    finder.ExcludeModule("UserList")
-    finder.ExcludeModule("UserString")
-    finder.ExcludeModule("whichdb")
+        finder.exclude_module("email." + name)
+    finder.exclude_module("__builtin__")
+    finder.exclude_module("__main__")
+    finder.exclude_module("_winreg")
+    finder.exclude_module("audiodev")
+    finder.exclude_module("anydbm")
+    finder.exclude_module("BaseHTTPServer")
+    finder.exclude_module("Bastion")
+    finder.exclude_module("bsddb")
+    finder.exclude_module("cPickle")
+    finder.exclude_module("commands")
+    finder.exclude_module("ConfigParser")
+    finder.exclude_module("Cookie")
+    finder.exclude_module("copy_reg")
+    finder.exclude_module("cStringIO")
+    finder.exclude_module("dbhash")
+    finder.exclude_module("dircache")
+    finder.exclude_module("dl")
+    finder.exclude_module("dumbdbm")
+    finder.exclude_module("dummy_thread")
+    finder.exclude_module("FCNTL")
+    finder.exclude_module("fl")
+    finder.exclude_module("fm")
+    finder.exclude_module("fpformat")
+    finder.exclude_module("gl")
+    finder.exclude_module("gdbm")
+    finder.exclude_module("htmllib")
+    finder.exclude_module("HTMLParser")
+    finder.exclude_module("httplib")
+    finder.exclude_module("hotshot")
+    finder.exclude_module("ihooks")
+    finder.exclude_module("imputil")
+    finder.exclude_module("linuxaudiodev")
+    finder.exclude_module("md5")
+    finder.exclude_module("Nav")
+    finder.exclude_module("new")
+    finder.exclude_module("mutex")
+    finder.exclude_module("Pickle")
+    finder.exclude_module("Queue")
+    finder.exclude_module("rexec")
+    finder.exclude_module("robotparser")
+    finder.exclude_module("sgmllib")
+    finder.exclude_module("sha")
+    finder.exclude_module("SocketServer")
+    finder.exclude_module("statvfs")
+    finder.exclude_module("StringIO")
+    finder.exclude_module("sunaudiodev")
+    finder.exclude_module("thread")
+    finder.exclude_module("Tkinter")
+    finder.exclude_module("toaiff")
+    finder.exclude_module("urllib.quote")
+    finder.exclude_module("urllib.quote_plus")
+    finder.exclude_module("urllib.unquote")
+    finder.exclude_module("urllib.unquote_plus")
+    finder.exclude_module("urllib.urlencode")
+    finder.exclude_module("urllib.urlopen")
+    finder.exclude_module("urllib.urlretrieve")
+    finder.exclude_module("urllib2")
+    finder.exclude_module("urlparse")
+    finder.exclude_module("user")
+    finder.exclude_module("UserDict")
+    finder.exclude_module("UserList")
+    finder.exclude_module("UserString")
+    finder.exclude_module("whichdb")
     # macos specfic removed in py3
     # https://docs.python.org/2.7/library/mac.html?highlight=removed
-    finder.ExcludeModule("autoGIL")
-    finder.ExcludeModule("Carbon")
-    finder.ExcludeModule("ColorPicker")
-    finder.ExcludeModule("EasyDialogs")
-    finder.ExcludeModule("findertools")
-    finder.ExcludeModule("FrameWork")
-    finder.ExcludeModule("ic")
-    finder.ExcludeModule("MacOS")
-    finder.ExcludeModule("macostools")
+    finder.exclude_module("autoGIL")
+    finder.exclude_module("Carbon")
+    finder.exclude_module("ColorPicker")
+    finder.exclude_module("EasyDialogs")
+    finder.exclude_module("findertools")
+    finder.exclude_module("FrameWork")
+    finder.exclude_module("ic")
+    finder.exclude_module("MacOS")
+    finder.exclude_module("macostools")
     # macpython removed
-    finder.ExcludeModule("aetools")
-    finder.ExcludeModule("aepack")
-    finder.ExcludeModule("aetypes")
-    finder.ExcludeModule("applesingle")
-    finder.ExcludeModule("buildtools")
-    finder.ExcludeModule("cfmfile")
-    finder.ExcludeModule("icopen")
-    finder.ExcludeModule("macerros")
-    finder.ExcludeModule("macresource")
-    finder.ExcludeModule("PixMapWrapper")
-    finder.ExcludeModule("videoreader")
-    finder.ExcludeModule("W")
+    finder.exclude_module("aetools")
+    finder.exclude_module("aepack")
+    finder.exclude_module("aetypes")
+    finder.exclude_module("applesingle")
+    finder.exclude_module("buildtools")
+    finder.exclude_module("cfmfile")
+    finder.exclude_module("icopen")
+    finder.exclude_module("macerros")
+    finder.exclude_module("macresource")
+    finder.exclude_module("PixMapWrapper")
+    finder.exclude_module("videoreader")
+    finder.exclude_module("W")
     # sgi removed
-    finder.ExcludeModule("al")
-    finder.ExcludeModule("imgfile")
-    finder.ExcludeModule("jpeg")
-    finder.ExcludeModule("cd")
-    finder.ExcludeModule("sv")
+    finder.exclude_module("al")
+    finder.exclude_module("imgfile")
+    finder.exclude_module("jpeg")
+    finder.exclude_module("cd")
+    finder.exclude_module("sv")
     # internal modules
-    finder.ExcludeModule("_frozen_importlib")
-    finder.ExcludeModule("_frozen_importlib_external")
-    finder.ExcludeModule("os.path")
+    finder.exclude_module("_frozen_importlib")
+    finder.exclude_module("_frozen_importlib_external")
+    finder.exclude_module("os.path")
     # confused names in Windows
-    finder.ExcludeModule("multiprocessing.Pool")
-    finder.ExcludeModule("multiprocessing.Process")
+    finder.exclude_module("multiprocessing.Pool")
+    finder.exclude_module("multiprocessing.Process")
     # exclusion by platform/os
     if os.name == "nt":
-        finder.ExcludeModule("fcntl")
-        finder.ExcludeModule("grp")
-        finder.ExcludeModule("pwd")
-        finder.ExcludeModule("termios")
+        finder.exclude_module("fcntl")
+        finder.exclude_module("grp")
+        finder.exclude_module("pwd")
+        finder.exclude_module("termios")
     else:
-        finder.ExcludeModule("_overlapped")
-        finder.ExcludeModule("_subprocess")
-        finder.ExcludeModule("_winapi")
-        finder.ExcludeModule("msilib")
-        finder.ExcludeModule("msvcrt")
-        finder.ExcludeModule("multiprocessing._multiprocessing")
-        finder.ExcludeModule("nt")
-        finder.ExcludeModule("nturl2path")
-        finder.ExcludeModule("pyHook")
-        finder.ExcludeModule("pythoncom")
-        finder.ExcludeModule("pywintypes")
-        finder.ExcludeModule("winerror")
-        finder.ExcludeModule("winsound")
-        finder.ExcludeModule("win32api")
-        finder.ExcludeModule("win32con")
-        finder.ExcludeModule("win32com.shell")
-        finder.ExcludeModule("win32gui")
-        finder.ExcludeModule("win32event")
-        finder.ExcludeModule("win32evtlog")
-        finder.ExcludeModule("win32evtlogutil")
-        finder.ExcludeModule("win32file")
-        finder.ExcludeModule("win32pdh")
-        finder.ExcludeModule("win32pipe")
-        finder.ExcludeModule("win32process")
-        finder.ExcludeModule("win32security")
-        finder.ExcludeModule("win32service")
-        finder.ExcludeModule("win32stat")
-        finder.ExcludeModule("win32wnet")
-        finder.ExcludeModule("winreg")
-        finder.ExcludeModule("wx.activex")
+        finder.exclude_module("_overlapped")
+        finder.exclude_module("_subprocess")
+        finder.exclude_module("_winapi")
+        finder.exclude_module("msilib")
+        finder.exclude_module("msvcrt")
+        finder.exclude_module("multiprocessing._multiprocessing")
+        finder.exclude_module("nt")
+        finder.exclude_module("nturl2path")
+        finder.exclude_module("pyHook")
+        finder.exclude_module("pythoncom")
+        finder.exclude_module("pywintypes")
+        finder.exclude_module("winerror")
+        finder.exclude_module("winsound")
+        finder.exclude_module("win32api")
+        finder.exclude_module("win32con")
+        finder.exclude_module("win32com.shell")
+        finder.exclude_module("win32gui")
+        finder.exclude_module("win32event")
+        finder.exclude_module("win32evtlog")
+        finder.exclude_module("win32evtlogutil")
+        finder.exclude_module("win32file")
+        finder.exclude_module("win32pdh")
+        finder.exclude_module("win32pipe")
+        finder.exclude_module("win32process")
+        finder.exclude_module("win32security")
+        finder.exclude_module("win32service")
+        finder.exclude_module("win32stat")
+        finder.exclude_module("win32wnet")
+        finder.exclude_module("winreg")
+        finder.exclude_module("wx.activex")
     if os.name != "posix":
-        finder.ExcludeModule("posix")
+        finder.exclude_module("posix")
     if sys.platform != "darwin":
-        finder.ExcludeModule("ctypes.macholib.dyld")
-        finder.ExcludeModule("mac")
-        finder.ExcludeModule("macpath")
-        finder.ExcludeModule("macurl2path")
-        finder.ExcludeModule("_scproxy")
+        finder.exclude_module("ctypes.macholib.dyld")
+        finder.exclude_module("mac")
+        finder.exclude_module("macpath")
+        finder.exclude_module("macurl2path")
+        finder.exclude_module("_scproxy")
     if os.name != "os2":
-        finder.ExcludeModule("os2")
-        finder.ExcludeModule("os2emxpath")
-        finder.ExcludeModule("_emx_link")
+        finder.exclude_module("os2")
+        finder.exclude_module("os2emxpath")
+        finder.exclude_module("_emx_link")
     if os.name != "ce":
-        finder.ExcludeModule("ce")
+        finder.exclude_module("ce")
     if os.name != "riscos":
-        finder.ExcludeModule("riscos")
-        finder.ExcludeModule("riscosenviron")
-        finder.ExcludeModule("riscospath")
-        finder.ExcludeModule("rourl2path")
+        finder.exclude_module("riscos")
+        finder.exclude_module("riscosenviron")
+        finder.exclude_module("riscospath")
+        finder.exclude_module("rourl2path")
     if not sys.platform.startswith("java"):
-        finder.ExcludeModule("com.sun")
-        finder.ExcludeModule("java")
-        finder.ExcludeModule("org.python")
+        finder.exclude_module("com.sun")
+        finder.exclude_module("java")
+        finder.exclude_module("org.python")
     if not sys.platform.startswith("OpenVMS"):
-        finder.ExcludeModule("vms_lib")
+        finder.exclude_module("vms_lib")
     if "__pypy__" not in sys.builtin_module_names:
-        finder.ExcludeModule("__pypy__")
+        finder.exclude_module("__pypy__")
 
 
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
     """The aiofiles must be loaded as a package."""
-    finder.IncludePackage("aiofiles")
+    finder.include_package("aiofiles")
 
 
 def load_asyncio(finder: ModuleFinder, module: Module) -> None:
     """The asyncio must be loaded as a package."""
-    finder.IncludePackage("asyncio")
+    finder.include_package("asyncio")
 
 
 def load_babel(finder: ModuleFinder, module: Module) -> None:
     """The babel must be loaded as a package, and has pickeable data."""
-    finder.IncludePackage("babel")
+    finder.include_package("babel")
     module.in_file_system = 1
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     """The bcrypt package requires the _cffi_backend module
     (loaded implicitly)"""
-    finder.IncludeModule("_cffi_backend")
+    finder.include_module("_cffi_backend")
 
 
 def load_boto(finder: ModuleFinder, module: Module) -> None:
     """the boto package uses 'six' fake modules."""
-    finder.ExcludeModule("boto.vendored.six.moves")
+    finder.exclude_module("boto.vendored.six.moves")
 
 
 def load_cElementTree(finder: ModuleFinder, module: Module) -> None:
@@ -235,7 +235,7 @@ def load_cElementTree(finder: ModuleFinder, module: Module) -> None:
     The cElementTree module implicitly loads the elementtree.ElementTree
     module; make sure this happens.
     """
-    finder.IncludeModule("elementtree.ElementTree")
+    finder.include_module("elementtree.ElementTree")
 
 
 def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
@@ -243,8 +243,8 @@ def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
     The ceODBC module implicitly imports both datetime and decimal;
     make sure this happens.
     """
-    finder.IncludeModule("datetime")
-    finder.IncludeModule("decimal")
+    finder.include_module("datetime")
+    finder.include_module("decimal")
 
 
 def load_certifi(finder: ModuleFinder, module: Module) -> None:
@@ -258,7 +258,7 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
             module.in_file_system = 1
             return
         cacert = Path(__import__("certifi").where())
-        finder.ZipIncludeFiles(cacert, Path("certifi", cacert.name))
+        finder.zip_include_files(cacert, Path("certifi", cacert.name))
 
 
 def load__cffi_backend(finder: ModuleFinder, module: Module) -> None:
@@ -271,14 +271,14 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
     try:
         cffi = __import__("cffi", fromlist=["_pycparser"])
         pycparser = getattr(cffi, "_pycparser")
-        finder.IncludeModule(pycparser.__name__)
+        finder.include_module(pycparser.__name__)
     except (ImportError, AttributeError):
-        finder.ExcludeModule("cffi._pycparser")
+        finder.exclude_module("cffi._pycparser")
 
 
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
     """The google.crc32c module requires _cffi_backend module."""
-    finder.IncludeModule("_cffi_backend")
+    finder.include_module("_cffi_backend")
 
 
 def load_clr(finder: ModuleFinder, module: Module) -> None:
@@ -287,57 +287,57 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
     in runtime.
     """
     dll_name = "Python.Runtime.dll"
-    finder.IncludeFiles(module.file.parent / dll_name, Path("lib", dll_name))
+    finder.include_files(module.file.parent / dll_name, Path("lib", dll_name))
 
 
 def load_cryptography_hazmat_bindings__openssl(
     finder: ModuleFinder, module: Module
 ) -> None:
     """The cryptography module requires the _cffi_backend module."""
-    finder.IncludeModule("_cffi_backend")
+    finder.include_module("_cffi_backend")
 
 
 def load_cryptography_hazmat_bindings__padding(
     finder: ModuleFinder, module: Module
 ) -> None:
     """The cryptography module requires the _cffi_backend module."""
-    finder.IncludeModule("_cffi_backend")
+    finder.include_module("_cffi_backend")
 
 
 def load_Crypto_Cipher(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Cipher subpackage of pycryptodome package."""
     if module.in_file_system == 0:
-        finder.IncludePackage(module.name)
+        finder.include_package(module.name)
 
 
 def load_Crypto_Hash(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Hash subpackage of pycryptodome package."""
     if module.in_file_system == 0:
-        finder.IncludePackage(module.name)
+        finder.include_package(module.name)
 
 
 def load_Crypto_Math(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Math subpackage of pycryptodome package."""
     if module.in_file_system == 0:
-        finder.IncludePackage(module.name)
+        finder.include_package(module.name)
 
 
 def load_Crypto_Protocol(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Protocol subpackage of pycryptodome package."""
     if module.in_file_system == 0:
-        finder.IncludePackage(module.name)
+        finder.include_package(module.name)
 
 
 def load_Crypto_PublicKey(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.PublicKey subpackage of pycryptodome package."""
     if module.in_file_system == 0:
-        finder.IncludePackage(module.name)
+        finder.include_package(module.name)
 
 
 def load_Crypto_Util(finder: ModuleFinder, module: Module) -> None:
     """The Crypto.Util subpackage of pycryptodome package."""
     if module.in_file_system == 0:
-        finder.IncludePackage(module.name)
+        finder.include_package(module.name)
 
 
 def load_Crypto_Util__file_system(
@@ -378,7 +378,7 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
         dll_pattern = "libffi-*.dll"
         dll_dir = Path(sys.base_prefix, "DLLs")
         for dll_path in dll_dir.glob(dll_pattern):
-            finder.IncludeFiles(dll_path, Path("lib", dll_path.name))
+            finder.include_files(dll_path, Path("lib", dll_path.name))
 
 
 def load_cv2(finder: ModuleFinder, module: Module) -> None:
@@ -390,12 +390,12 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     copied across for versions above 4.5.3 unless the cv2 package is
     included.
     """
-    finder.IncludePackage("cv2")
+    finder.include_package("cv2")
 
     dest_dir = Path("lib", "cv2")
     cv2_dir = module.path[0]
     for path in cv2_dir.glob("config*.py"):
-        finder.IncludeFiles(path, dest_dir / path.name)
+        finder.include_files(path, dest_dir / path.name)
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
@@ -403,13 +403,13 @@ def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
     The cx_Oracle module implicitly imports datetime; make sure this
     happens.
     """
-    finder.IncludeModule("datetime")
-    finder.IncludeModule("decimal")
+    finder.include_module("datetime")
+    finder.include_module("decimal")
 
 
 def load_datetime(finder: ModuleFinder, module: Module) -> None:
     """The datetime module implicitly imports time; make sure this happens."""
-    finder.IncludeModule("time")
+    finder.include_module("time")
 
 
 def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
@@ -425,7 +425,7 @@ def load_dummy_threading(finder: ModuleFinder, module: Module) -> None:
     The dummy_threading module plays games with the name of the threading
     module for its own purposes; ignore that here.
     """
-    finder.ExcludeModule("_dummy_threading")
+    finder.exclude_module("_dummy_threading")
 
 
 def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
@@ -443,7 +443,7 @@ def load_ftplib(finder: ModuleFinder, module: Module) -> None:
 
 def load_gevent(finder: ModuleFinder, module: Module) -> None:
     """The gevent must be loaded as a package."""
-    finder.IncludePackage("gevent")
+    finder.include_package("gevent")
 
 
 def load_GifImagePlugin(finder: ModuleFinder, module: Module) -> None:
@@ -541,42 +541,42 @@ def load_googleapiclient_discovery(
 ) -> None:
     """The googleapiclient.discovery module needs discovery_cache subpackage
     in file system."""
-    discovery_cache = finder.IncludePackage("googleapiclient.discovery_cache")
+    discovery_cache = finder.include_package("googleapiclient.discovery_cache")
     discovery_cache.in_file_system = 1
 
 
 def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
     """The google.cloud.storage package always uses the parent module."""
-    finder.IncludePackage("google.cloud")
+    finder.include_package("google.cloud")
 
 
 def load_gtk__gtk(finder: ModuleFinder, module: Module) -> None:
     """The gtk._gtk module has a number of implicit imports."""
-    finder.IncludeModule("atk")
-    finder.IncludeModule("cairo")
-    finder.IncludeModule("gio")
-    finder.IncludeModule("pango")
-    finder.IncludeModule("pangocairo")
+    finder.include_module("atk")
+    finder.include_module("cairo")
+    finder.include_module("gio")
+    finder.include_module("pango")
+    finder.include_module("pangocairo")
 
 
 def load_h5py(finder: ModuleFinder, module: Module) -> None:
     """h5py module has a number of implicit imports"""
-    finder.IncludeModule("h5py.defs")
-    finder.IncludeModule("h5py.utils")
-    finder.IncludeModule("h5py._proxy")
+    finder.include_module("h5py.defs")
+    finder.include_module("h5py.utils")
+    finder.include_module("h5py._proxy")
     try:
         api_gen = __import__("h5py", fromlist=["api_gen"]).api_gen
-        finder.IncludeModule(api_gen.__name__)
+        finder.include_module(api_gen.__name__)
     except (ImportError, AttributeError):
         pass
-    finder.IncludeModule("h5py._errors")
-    finder.IncludeModule("h5py.h5ac")
+    finder.include_module("h5py._errors")
+    finder.include_module("h5py.h5ac")
 
 
 def load_h5py_wrapper(finder: ModuleFinder, module: Module) -> None:
     """h5py_wrapper module requires future and pytest-runner"""
-    finder.IncludeModule("future")
-    finder.IncludeModule("ptr")
+    finder.include_module("future")
+    finder.include_module("ptr")
 
 
 def load_hashlib(finder: ModuleFinder, module: Module) -> None:
@@ -587,24 +587,24 @@ def load_hashlib(finder: ModuleFinder, module: Module) -> None:
 
 def load_hdfdict(finder: ModuleFinder, module: Module) -> None:
     """hdfdict module requires h5py_wrapper and PyYAML"""
-    finder.IncludeModule("h5py_wrapper")
-    finder.IncludePackage("yaml")
+    finder.include_module("h5py_wrapper")
+    finder.include_package("yaml")
 
 
 def load_idna(finder: ModuleFinder, module: Module) -> None:
     """The idna module implicitly loads data; make sure this happens."""
-    finder.IncludeModule("idna.idnadata")
+    finder.include_module("idna.idnadata")
 
 
 def load_lxml(finder: ModuleFinder, module: Module) -> None:
     """The lxml package uses an extension."""
-    finder.IncludeModule("lxml._elementpath")
+    finder.include_module("lxml._elementpath")
 
 
 def load_llvmlite(finder: ModuleFinder, module: Module) -> None:
     """The llvmlite must be loaded as package."""
-    finder.IncludePackage("llvmlite")
-    finder.ExcludeModule("llvmlite.tests")
+    finder.include_package("llvmlite")
+    finder.exclude_module("llvmlite.tests")
 
 
 def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
@@ -617,10 +617,10 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
         need_patch = True
     else:
         need_patch = module.in_file_system == 0
-    finder.IncludeFiles(data_path, target_path, copy_dependent_files=False)
-    finder.IncludePackage("matplotlib")
-    finder.ExcludeModule("matplotlib.tests")
-    finder.ExcludeModule("matplotlib.testing")
+    finder.include_files(data_path, target_path, copy_dependent_files=False)
+    finder.include_package("matplotlib")
+    finder.exclude_module("matplotlib.tests")
+    finder.exclude_module("matplotlib.testing")
     if not need_patch or module.code is None:
         return
     CODE_STR = f"""
@@ -644,7 +644,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy must be loaded as a package; support for pypi version and
     numpy+mkl version - tested with 1.19.5+mkl, 1.20.3+mkl, 1.21.0+mkl,
     1.21.1+mkl, 1.21.2+mkl and 1.21.2 from conda-forge."""
-    finder.IncludePackage("numpy")
+    finder.include_package("numpy")
 
     if WIN32:
         numpy_dir = module.path[0]
@@ -656,39 +656,39 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
         if libs_dir.is_dir():
             dest_dir = Path("lib", "numpy_mkl")
             for path in libs_dir.glob("mkl_*.dll"):
-                finder.IncludeFiles(path, dest_dir / path.name)
+                finder.include_files(path, dest_dir / path.name)
             for path in libs_dir.glob("lib*.dll"):
-                finder.IncludeFiles(path, dest_dir / path.name)
-            finder.AddConstant("MKL_PATH", str(dest_dir))
-            finder.ExcludeModule("numpy.DLLs")
+                finder.include_files(path, dest_dir / path.name)
+            finder.add_constant("MKL_PATH", str(dest_dir))
+            finder.exclude_module("numpy.DLLs")
 
             # do not check dependencies already handled
             extension = EXTENSION_SUFFIXES[0]
             for path in numpy_dir.rglob(f"*{extension}"):
-                finder.ExcludeDependentFiles(path)
+                finder.exclude_dependent_files(path)
 
         # support for old versions (numpy <= 1.18.2)
         if module.in_file_system == 0:
             # copy any file at site-packages/numpy/.libs
             libs_dir = numpy_dir / ".libs"
             if libs_dir.is_dir():
-                finder.IncludeFiles(libs_dir, "lib")
+                finder.include_files(libs_dir, "lib")
 
     # exclude the tests
-    finder.ExcludeModule("numpy.compat.tests")
-    finder.ExcludeModule("numpy.core.tests")
-    finder.ExcludeModule("numpy.distutils.tests")
-    finder.ExcludeModule("numpy.f2py.tests")
-    finder.ExcludeModule("numpy.fft.tests")
-    finder.ExcludeModule("numpy.lib.tests")
-    finder.ExcludeModule("numpy.linalg.tests")
-    finder.ExcludeModule("numpy.ma.tests")
-    finder.ExcludeModule("numpy.matrixlib.tests")
-    finder.ExcludeModule("numpy.polynomial.tests")
-    finder.ExcludeModule("numpy.random._examples")
-    finder.ExcludeModule("numpy.random.tests")
-    finder.ExcludeModule("numpy.tests")
-    finder.ExcludeModule("numpy.typing.tests")
+    finder.exclude_module("numpy.compat.tests")
+    finder.exclude_module("numpy.core.tests")
+    finder.exclude_module("numpy.distutils.tests")
+    finder.exclude_module("numpy.f2py.tests")
+    finder.exclude_module("numpy.fft.tests")
+    finder.exclude_module("numpy.lib.tests")
+    finder.exclude_module("numpy.linalg.tests")
+    finder.exclude_module("numpy.ma.tests")
+    finder.exclude_module("numpy.matrixlib.tests")
+    finder.exclude_module("numpy.polynomial.tests")
+    finder.exclude_module("numpy.random._examples")
+    finder.exclude_module("numpy.random.tests")
+    finder.exclude_module("numpy.tests")
+    finder.exclude_module("numpy.typing.tests")
 
 
 def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
@@ -758,7 +758,7 @@ def load_numpy_linalg(finder: ModuleFinder, module: Module) -> None:
     The numpy.linalg module implicitly loads the lapack_lite module; make
     sure this happens.
     """
-    finder.IncludeModule("numpy.linalg.lapack_lite")
+    finder.include_module("numpy.linalg.lapack_lite")
 
 
 def load_numpy_random_mtrand(finder: ModuleFinder, module: Module) -> None:
@@ -781,23 +781,23 @@ def load_Numeric(finder: ModuleFinder, module: Module) -> None:
 
 def load_pandas(finder: ModuleFinder, module: Module) -> None:
     """The pandas has dynamic imports."""
-    finder.IncludePackage("pandas._libs")
-    finder.ExcludeModule("pandas.tests")
+    finder.include_package("pandas._libs")
+    finder.exclude_module("pandas.tests")
 
 
 def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
     """The pikepdf must be loaded as a package."""
-    finder.IncludePackage("pikepdf")
+    finder.include_package("pikepdf")
 
 
 def load_PIL(finder: ModuleFinder, module: Module) -> None:
     """The Pillow must be loaded as a package."""
-    finder.IncludePackage("PIL")
+    finder.include_package("PIL")
 
 
 def load_plotly(finder: ModuleFinder, module: Module) -> None:
     """The plotly must be loaded as a package."""
-    finder.IncludePackage("plotly")
+    finder.include_package("plotly")
 
 
 def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
@@ -805,7 +805,7 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     The pkg_resources must be loaded as a package;
     dynamically loaded modules in subpackages is growing.
     """
-    finder.IncludePackage("pkg_resources")
+    finder.include_package("pkg_resources")
 
 
 def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
@@ -814,7 +814,7 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
     so make sure that file is included.
     """
     filename = "libsys.sql"
-    finder.IncludeFiles(module.path[0] / filename, filename)
+    finder.include_files(module.path[0] / filename, filename)
 
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
@@ -829,7 +829,7 @@ def load_ptr(finder: ModuleFinder, module: Module) -> None:
 
 def load_pycountry(finder: ModuleFinder, module: Module) -> None:
     """The pycountry module has data in subdirectories."""
-    finder.ExcludeModule("pycountry.tests")
+    finder.exclude_module("pycountry.tests")
     module.in_file_system = 1
 
 
@@ -838,31 +838,31 @@ def load_pycparser(finder: ModuleFinder, module: Module) -> None:
     These files are missing which causes
     permission denied issues on windows when they are regenerated.
     """
-    finder.IncludeModule("pycparser.lextab")
-    finder.IncludeModule("pycparser.yacctab")
+    finder.include_module("pycparser.lextab")
+    finder.include_module("pycparser.yacctab")
 
 
 def load_pydantic(finder: ModuleFinder, module: Module) -> None:
     """
     The pydantic package is compiled by Cython (and the imports are hidden).
     """
-    finder.IncludeModule("colorsys")
-    finder.IncludeModule("dataclasses")  # support in v 1.7+
-    finder.IncludeModule("datetime")
-    finder.IncludeModule("decimal")
-    finder.IncludeModule("functools")
-    finder.IncludeModule("ipaddress")
-    finder.IncludePackage("json")
-    finder.IncludeModule("pathlib")
-    finder.IncludeModule("typing_extensions")  # support in v 1.8
-    finder.IncludeModule("uuid")
+    finder.include_module("colorsys")
+    finder.include_module("dataclasses")  # support in v 1.7+
+    finder.include_module("datetime")
+    finder.include_module("decimal")
+    finder.include_module("functools")
+    finder.include_module("ipaddress")
+    finder.include_package("json")
+    finder.include_module("pathlib")
+    finder.include_module("typing_extensions")  # support in v 1.8
+    finder.include_module("uuid")
 
 
 def load_pygments(finder: ModuleFinder, module: Module) -> None:
     """The pygments package dynamically load styles."""
-    finder.IncludePackage("pygments.styles")
-    finder.IncludePackage("pygments.lexers")
-    finder.IncludePackage("pygments.formatters")
+    finder.include_package("pygments.styles")
+    finder.include_package("pygments.lexers")
+    finder.include_package("pygments.formatters")
 
 
 def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
@@ -871,7 +871,7 @@ def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
     make sure this happens.
     """
     for mod in ("datetime", "decimal", "hashlib", "locale", "uuid"):
-        finder.IncludeModule(mod)
+        finder.include_module(mod)
 
 
 # cache the QtCore library paths
@@ -939,7 +939,7 @@ def get_qt_plugins_paths(name: str, plugins: str) -> List[Tuple[str, str]]:
 def copy_qt_plugins(name: str, plugins: str, finder: ModuleFinder) -> None:
     """Helper function to find and copy Qt plugins."""
     for source_path, target_path in get_qt_plugins_paths(name, plugins):
-        finder.IncludeFiles(source_path, target_path)
+        finder.include_files(source_path, target_path)
 
 
 def load_PyQt5(finder: ModuleFinder, module: Module) -> None:
@@ -975,7 +975,7 @@ if plugins_dir.is_dir():
     module.code = compile(code_string, str(module.file), "exec")
     if module.in_file_system == 0:
         module.in_file_system = 2  # use optimized mode
-    finder.IncludeModule(f"{name}.QtCore")  # imported by all modules
+    finder.include_module(f"{name}.QtCore")  # imported by all modules
 
 
 def load_PyQt5_phonon(finder: ModuleFinder, module: Module) -> None:
@@ -1007,14 +1007,14 @@ def load_PyQt5_Qt(finder: ModuleFinder, module: Module) -> None:
         "QtXml",
     ):
         try:
-            finder.IncludeModule(f"{name}.{mod}")
+            finder.include_module(f"{name}.{mod}")
         except ImportError:
             pass
 
 
 def load_PyQt5_QtCharts(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
 
 
 def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
@@ -1022,11 +1022,11 @@ def load_PyQt5_QtCore(finder: ModuleFinder, module: Module) -> None:
     depending on configuration, the PyQt5._qt module."""
     name = _qt_implementation(module)
     try:
-        finder.IncludeModule(f"{name}.sip")  # PyQt5 >= 5.11
+        finder.include_module(f"{name}.sip")  # PyQt5 >= 5.11
     except ImportError:
-        finder.IncludeModule("sip")
+        finder.include_module("sip")
     try:
-        finder.IncludeModule(f"{name}._qt")
+        finder.include_module(f"{name}._qt")
     except ImportError:
         pass
 
@@ -1035,7 +1035,7 @@ def load_PyQt5_QtDataVisualization(
     finder: ModuleFinder, module: Module
 ) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtGui")
+    finder.include_module(f"{name}.QtGui")
 
 
 def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
@@ -1051,18 +1051,18 @@ def load_PyQt5_QtGui(finder: ModuleFinder, module: Module) -> None:
 
 def load_PyQt5_QtHelp(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
 
 
 def load_PyQt5_QtLocation(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtPositioning")
+    finder.include_module(f"{name}.QtPositioning")
 
 
 def load_PyQt5_QtMultimedia(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
-    finder.IncludeModule(f"{name}.QtMultimediaWidgets")
+    finder.include_module(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtMultimediaWidgets")
     copy_qt_plugins(name, "audio", finder)
     copy_qt_plugins(name, "mediaservice", finder)
 
@@ -1071,13 +1071,13 @@ def load_PyQt5_QtMultimediaWidgets(
     finder: ModuleFinder, module: Module
 ) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
-    finder.IncludeModule(f"{name}.QtMultimedia")
+    finder.include_module(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtMultimedia")
 
 
 def load_PyQt5_QtOpenGL(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
     copy_qt_plugins(name, "renderers", finder)
 
 
@@ -1088,62 +1088,62 @@ def load_PyQt5_QtPositioning(finder: ModuleFinder, module: Module) -> None:
 
 def load_PyQt5_QtPrintSupport(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
     copy_qt_plugins(name, "printsupport", finder)
 
 
 def load_PyQt5_QtQml(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtNetwork")
     copy_qt_plugins(name, "qmltooling", finder)
 
 
 def load_PyQt5_QtSCriptTools(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
-    finder.IncludeModule(f"{name}.QtScript")
+    finder.include_module(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtScript")
 
 
 def load_PyQt5_QtSql(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
     copy_qt_plugins(name, "sqldrivers", finder)
 
 
 def load_PyQt5_QtSvg(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
 
 
 def load_PyQt5_QtTest(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
 
 
 def load_PyQt5_QtUiTools(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtWidgets")
+    finder.include_module(f"{name}.QtWidgets")
 
 
 def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
-    finder.IncludeModule(f"{name}.QtGui")
+    finder.include_module(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtGui")
 
 
 def load_PyQt5_QtWebSockets(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtNetwork")
 
 
 def load_PyQt5_QtWidgets(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtGui")
+    finder.include_module(f"{name}.QtGui")
 
 
 def load_PyQt5_QtXmlPatterns(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtNetwork")
 
 
 def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
@@ -1151,13 +1151,13 @@ def load_PyQt5_uic(finder: ModuleFinder, module: Module) -> None:
     cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
     also implicity loaded."""
     name = _qt_implementation(module)
-    finder.IncludeModule(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtNetwork")
     try:
-        finder.IncludeModule(f"{name}.QtWebKit")
+        finder.include_module(f"{name}.QtWebKit")
     except ImportError:
         pass
     source_dir = module.path[0] / "widget-plugins"
-    finder.IncludeFiles(source_dir, f"{name}.uic.widget-plugins")
+    finder.include_files(source_dir, f"{name}.uic.widget-plugins")
 
 
 # PySide2 start
@@ -1190,7 +1190,7 @@ load_PySide2_uic = load_PyQt5_uic
 
 def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
     """The pyqtgraph package must be loaded as a package."""
-    finder.IncludePackage("pyqtgraph")
+    finder.include_package("pyqtgraph")
 
 
 def load_pytest(finder: ModuleFinder, module: Module) -> None:
@@ -1200,7 +1200,7 @@ def load_pytest(finder: ModuleFinder, module: Module) -> None:
     """
     pytest = __import__("pytest")
     for mod in pytest.freeze_includes():
-        finder.IncludeModule(mod)
+        finder.include_module(mod)
 
 
 def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
@@ -1213,7 +1213,7 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     """
     pythoncom = __import__("pythoncom")
     filename = Path(pythoncom.__file__)
-    finder.IncludeFiles(
+    finder.include_files(
         filename, Path("lib", filename.name), copy_dependent_files=False
     )
 
@@ -1235,14 +1235,14 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
             or "/usr/share/zoneinfo"
         )
         if data_path.is_dir():
-            finder.AddConstant("PYTZ_TZDATADIR", str(target_path))
+            finder.add_constant("PYTZ_TZDATADIR", str(target_path))
     if data_path.is_dir():
         if module.in_file_system >= 1:
-            finder.IncludeFiles(
+            finder.include_files(
                 data_path, target_path, copy_dependent_files=False
             )
         else:
-            finder.ZipIncludeFiles(data_path, Path("pytz", "zoneinfo"))
+            finder.zip_include_files(data_path, Path("pytz", "zoneinfo"))
 
 
 def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
@@ -1255,7 +1255,7 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     """
     pywintypes = __import__("pywintypes")
     filename = Path(pywintypes.__file__)
-    finder.IncludeFiles(
+    finder.include_files(
         filename, Path("lib", filename.name), copy_dependent_files=False
     )
 
@@ -1265,21 +1265,21 @@ def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     The reportlab module loads a submodule rl_settings via exec so force
     its inclusion here.
     """
-    finder.IncludeModule("reportlab.rl_settings")
+    finder.include_module("reportlab.rl_settings")
 
 
 def load_sentry(finder: ModuleFinder, module: Module) -> None:
     """
     The Sentry.io SDK
     """
-    finder.IncludeModule("sentry_sdk.integrations.stdlib")
-    finder.IncludeModule("sentry_sdk.integrations.excepthook")
-    finder.IncludeModule("sentry_sdk.integrations.dedupe")
-    finder.IncludeModule("sentry_sdk.integrations.atexit")
-    finder.IncludeModule("sentry_sdk.integrations.modules")
-    finder.IncludeModule("sentry_sdk.integrations.argv")
-    finder.IncludeModule("sentry_sdk.integrations.logging")
-    finder.IncludeModule("sentry_sdk.integrations.threading")
+    finder.include_module("sentry_sdk.integrations.stdlib")
+    finder.include_module("sentry_sdk.integrations.excepthook")
+    finder.include_module("sentry_sdk.integrations.dedupe")
+    finder.include_module("sentry_sdk.integrations.atexit")
+    finder.include_module("sentry_sdk.integrations.modules")
+    finder.include_module("sentry_sdk.integrations.argv")
+    finder.include_module("sentry_sdk.integrations.logging")
+    finder.include_module("sentry_sdk.integrations.threading")
 
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
@@ -1288,10 +1288,10 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     problems without the entire package and a number of other subpackages
     being present.
     """
-    finder.IncludePackage("scipy._lib")
-    finder.IncludePackage("scipy.misc")
+    finder.include_package("scipy._lib")
+    finder.include_package("scipy.misc")
     if WIN32:
-        finder.ExcludeModule("scipy.spatial.cKDTree")
+        finder.exclude_module("scipy.spatial.cKDTree")
 
 
 def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
@@ -1300,7 +1300,7 @@ def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
     problems without the entire package being present.
     """
     module.global_names.add("norm")
-    finder.IncludePackage("scipy.linalg")
+    finder.include_package("scipy.linalg")
 
 
 def load_scipy_linalg_interface_gen(
@@ -1315,14 +1315,14 @@ def load_scipy_linalg_interface_gen(
 
 def load_scipy_ndimage(finder: ModuleFinder, module: Module) -> None:
     """The scipy.ndimage must be loaded as a package."""
-    finder.ExcludeModule("scipy.ndimage.tests")
-    finder.IncludePackage("scipy.ndimage")
+    finder.exclude_module("scipy.ndimage.tests")
+    finder.include_package("scipy.ndimage")
 
 
 def load_scipy_sparse_csgraph(finder: ModuleFinder, module: Module) -> None:
     """The scipy.sparse.csgraph must be loaded as a package."""
-    finder.ExcludeModule("scipy.sparse.csgraph.tests")
-    finder.IncludePackage("scipy.sparse.csgraph")
+    finder.exclude_module("scipy.sparse.csgraph.tests")
+    finder.include_package("scipy.sparse.csgraph")
 
 
 def load_scipy_sparse_linalg_dsolve_linsolve(
@@ -1334,13 +1334,13 @@ def load_scipy_sparse_linalg_dsolve_linsolve(
 
 def load_scipy_spatial_transform(finder: ModuleFinder, module: Module) -> None:
     """The scipy.spatial.transform must be loaded as a package."""
-    finder.IncludePackage("scipy.spatial.transform")
-    finder.ExcludeModule("scipy.spatial.transform.tests")
+    finder.include_package("scipy.spatial.transform")
+    finder.exclude_module("scipy.spatial.transform.tests")
 
 
 def load_scipy_special(finder: ModuleFinder, module: Module) -> None:
     """The scipy.special must be loaded as a package."""
-    finder.IncludePackage("scipy.special")
+    finder.include_package("scipy.special")
 
 
 def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
@@ -1354,36 +1354,36 @@ def load_scipy_special__cephes(finder: ModuleFinder, module: Module) -> None:
 
 def load_scipy_stats(finder: ModuleFinder, module: Module) -> None:
     """The scipy.stats must be loaded as a package."""
-    finder.IncludePackage("scipy.stats")
-    finder.ExcludeModule("scipy.stats.tests")
+    finder.include_package("scipy.stats")
+    finder.exclude_module("scipy.stats.tests")
 
 
 def load_skimage(finder: ModuleFinder, module: Module) -> None:
     """The skimage package."""
-    finder.IncludePackage("skimage.io")
+    finder.include_package("skimage.io")
     # exclude all tests
-    finder.ExcludeModule("skimage.color.tests")
-    finder.ExcludeModule("skimage.data.tests")
-    finder.ExcludeModule("skimage.draw.tests")
-    finder.ExcludeModule("skimage.exposure.tests")
-    finder.ExcludeModule("skimage.feature.tests")
-    finder.ExcludeModule("skimage.filters.tests")
-    finder.ExcludeModule("skimage.graph.tests")
-    finder.ExcludeModule("skimage.io.tests")
-    finder.ExcludeModule("skimage.measure.tests")
-    finder.ExcludeModule("skimage.metrics.tests")
-    finder.ExcludeModule("skimage.morphology.tests")
-    finder.ExcludeModule("skimage.restoration.tests")
-    finder.ExcludeModule("skimage.segmentation.tests")
-    finder.ExcludeModule("skimage._shared.tests")
-    finder.ExcludeModule("skimage.transform.tests")
-    finder.ExcludeModule("skimage.util.tests")
-    finder.ExcludeModule("skimage.viewer.tests")
+    finder.exclude_module("skimage.color.tests")
+    finder.exclude_module("skimage.data.tests")
+    finder.exclude_module("skimage.draw.tests")
+    finder.exclude_module("skimage.exposure.tests")
+    finder.exclude_module("skimage.feature.tests")
+    finder.exclude_module("skimage.filters.tests")
+    finder.exclude_module("skimage.graph.tests")
+    finder.exclude_module("skimage.io.tests")
+    finder.exclude_module("skimage.measure.tests")
+    finder.exclude_module("skimage.metrics.tests")
+    finder.exclude_module("skimage.morphology.tests")
+    finder.exclude_module("skimage.restoration.tests")
+    finder.exclude_module("skimage.segmentation.tests")
+    finder.exclude_module("skimage._shared.tests")
+    finder.exclude_module("skimage.transform.tests")
+    finder.exclude_module("skimage.util.tests")
+    finder.exclude_module("skimage.viewer.tests")
 
 
 def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
     """The skimage.feature.orb_cy is a extension that load a module."""
-    finder.IncludeModule("skimage.feature._orb_descriptor_positions")
+    finder.include_module("skimage.feature._orb_descriptor_positions")
 
 
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
@@ -1391,7 +1391,7 @@ def load_setuptools(finder: ModuleFinder, module: Module) -> None:
     The setuptools must be loaded as a package, to prevent it to break in the
     future.
     """
-    finder.IncludePackage("setuptools")
+    finder.include_package("setuptools")
 
 
 def load_setuptools_extension(finder: ModuleFinder, module: Module) -> None:
@@ -1420,13 +1420,13 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
         dll_path = Path(sys.base_prefix, "DLLs", dll_name)
         if not dll_path.exists():
             dll_path = Path(sys.base_prefix, "Library", "bin", dll_name)
-        finder.IncludeFiles(dll_path, Path("lib", dll_name))
-    finder.IncludePackage("sqlite3")
+        finder.include_files(dll_path, Path("lib", dll_name))
+    finder.include_package("sqlite3")
 
 
 def load_six(finder: ModuleFinder, module: Module) -> None:
     """the six module creates fake modules."""
-    finder.ExcludeModule("six.moves")
+    finder.exclude_module("six.moves")
 
 
 def load_ssl(finder: ModuleFinder, module: Module) -> None:
@@ -1438,7 +1438,7 @@ def load_ssl(finder: ModuleFinder, module: Module) -> None:
         for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
             libs_dir = Path(sys.base_prefix, "DLLs")
             for dll_path in libs_dir.glob(dll_search):
-                finder.IncludeFiles(dll_path, Path("lib", dll_path.name))
+                finder.include_files(dll_path, Path("lib", dll_path.name))
 
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
@@ -1450,19 +1450,19 @@ def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
         if not hasattr(sys, "abiflags"):
             sys.abiflags = ""
         datafile = get_data_name()
-    finder.IncludeModule(datafile)
+    finder.include_module(datafile)
 
 
 def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
     """The tensorflow package implicitly loads some packages."""
-    finder.IncludePackage("tensorboard")
-    finder.IncludePackage("tensorflow.compiler")
-    finder.IncludePackage("tensorflow.python")
+    finder.include_package("tensorboard")
+    finder.include_package("tensorflow.compiler")
+    finder.include_package("tensorflow.python")
 
 
 def load_time(finder: ModuleFinder, module: Module) -> None:
     """The time module implicitly loads _strptime; make sure this happens."""
-    finder.IncludeModule("_strptime")
+    finder.include_module("_strptime")
 
 
 def load_tkinter(finder: ModuleFinder, module: Module) -> None:
@@ -1487,12 +1487,12 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
                 else:
                     lib_texts = Path(sys.base_prefix, "tcl", dir_name)
             target_path = Path("lib", "tkinter", dir_name)
-            finder.AddConstant(env_name, str(target_path))
-            finder.IncludeFiles(lib_texts, target_path)
+            finder.add_constant(env_name, str(target_path))
+            finder.include_files(lib_texts, target_path)
             if not MINGW:
                 dll_name = dir_name.replace(".", "") + "t.dll"
                 dll_path = Path(sys.base_prefix, "DLLs", dll_name)
-                finder.IncludeFiles(dll_path, Path("lib", dll_name))
+                finder.include_files(dll_path, Path("lib", dll_name))
 
 
 def load_twisted_conch_ssh_transport(
@@ -1502,7 +1502,7 @@ def load_twisted_conch_ssh_transport(
     The twisted.conch.ssh.transport module uses __import__ builtin to
     dynamically load different ciphers at runtime.
     """
-    finder.IncludePackage("Crypto.Cipher")
+    finder.include_package("Crypto.Cipher")
 
 
 def load_twitter(finder: ModuleFinder, module: Module) -> None:
@@ -1516,7 +1516,7 @@ def load_twitter(finder: ModuleFinder, module: Module) -> None:
 
 def load_uvloop(finder: ModuleFinder, module: Module) -> None:
     """The uvloop module implicitly loads an extension module."""
-    finder.IncludeModule("uvloop._noop")
+    finder.include_module("uvloop._noop")
 
 
 def load_win32api(finder: ModuleFinder, module: Module) -> None:
@@ -1524,8 +1524,8 @@ def load_win32api(finder: ModuleFinder, module: Module) -> None:
     The win32api module implicitly loads the pywintypes module; make sure
     this happens.
     """
-    finder.ExcludeDependentFiles(module.file)
-    finder.IncludeModule("pywintypes")
+    finder.exclude_dependent_files(module.file)
+    finder.include_module("pywintypes")
 
 
 def load_win32com(finder: ModuleFinder, module: Module) -> None:
@@ -1542,8 +1542,8 @@ def load_win32file(finder: ModuleFinder, module: Module) -> None:
     The win32file module implicitly loads the pywintypes and win32timezone
     module; make sure this happens.
     """
-    finder.IncludeModule("pywintypes")
-    finder.IncludeModule("win32timezone")
+    finder.include_module("pywintypes")
+    finder.include_module("win32timezone")
 
 
 def load_wx_lib_pubsub_core(finder: ModuleFinder, module: Module) -> None:
@@ -1562,12 +1562,12 @@ def load_Xlib_display(finder: ModuleFinder, module: Module) -> None:
     The Xlib.display module implicitly loads a number of extension modules;
     make sure this happens.
     """
-    finder.IncludeModule("Xlib.ext.xtest")
-    finder.IncludeModule("Xlib.ext.shape")
-    finder.IncludeModule("Xlib.ext.xinerama")
-    finder.IncludeModule("Xlib.ext.record")
-    finder.IncludeModule("Xlib.ext.composite")
-    finder.IncludeModule("Xlib.ext.randr")
+    finder.include_module("Xlib.ext.xtest")
+    finder.include_module("Xlib.ext.shape")
+    finder.include_module("Xlib.ext.xinerama")
+    finder.include_module("Xlib.ext.record")
+    finder.include_module("Xlib.ext.composite")
+    finder.include_module("Xlib.ext.randr")
 
 
 def load_Xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
@@ -1579,7 +1579,7 @@ def load_Xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
         module_name = "vms_connect"
     else:
         module_name = "unix_connect"
-    finder.IncludeModule(f"Xlib.support.{module_name}")
+    finder.include_module(f"Xlib.support.{module_name}")
 
 
 def load_Xlib_XK(finder: ModuleFinder, module: Module) -> None:
@@ -1587,8 +1587,8 @@ def load_Xlib_XK(finder: ModuleFinder, module: Module) -> None:
     The Xlib.XK module implicitly loads some keysymdef modules; make sure
     this happens.
     """
-    finder.IncludeModule("Xlib.keysymdef.miscellany")
-    finder.IncludeModule("Xlib.keysymdef.latin1")
+    finder.include_module("Xlib.keysymdef.miscellany")
+    finder.include_module("Xlib.keysymdef.latin1")
 
 
 def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
@@ -1596,27 +1596,27 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
     The xml.etree.cElementTree module implicitly loads the
     xml.etree.ElementTree module; make sure this happens.
     """
-    finder.IncludeModule("xml.etree.ElementTree")
+    finder.include_module("xml.etree.ElementTree")
 
 
 def load_zmq(finder: ModuleFinder, module: Module) -> None:
     """The zmq package loads zmq.backend.cython dynamically and links
     dynamically to zmq.libzmq or shared lib. Tested in pyzmq 16.0.4 (py36),
     19.0.2 (MSYS2 py39) up to 22.2.1 (from pip and from conda)."""
-    finder.IncludePackage("zmq.backend.cython")
+    finder.include_package("zmq.backend.cython")
     if WIN32:
         # For pyzmq 22 the libzmq dependencies are located in
         # site-packages/pyzmq.libs
         libzmq_folder = "pyzmq.libs"
         libs_dir = module.path[0].parent / libzmq_folder
         if libs_dir.exists():
-            finder.IncludeFiles(libs_dir, Path("lib", libzmq_folder))
+            finder.include_files(libs_dir, Path("lib", libzmq_folder))
     # Include the bundled libzmq library, if it exists
     try:
-        finder.IncludeModule("zmq.libzmq")
+        finder.include_module("zmq.libzmq")
     except ImportError:
         pass  # assume libzmq is not bundled
-    finder.ExcludeModule("zmq.tests")
+    finder.exclude_module("zmq.tests")
 
 
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
@@ -1625,7 +1625,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     tzdata: Optional[Module] = None
     source: Optional[Path] = None
     try:
-        tzdata = finder.IncludePackage("tzdata")
+        tzdata = finder.include_package("tzdata")
         # store tzdata along with zoneinfo
         tzdata.in_file_system = module.in_file_system
     except ImportError:
@@ -1639,17 +1639,17 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
             # without tzdata, copy only zoneinfo directory
             # in Linux: /usr/share/zoneinfo
             target = Path("lib", "tzdata", "zoneinfo")
-            finder.IncludeFiles(source, target, copy_dependent_files=False)
-            finder.AddConstant("PYTHONTZPATH", str(source))
+            finder.include_files(source, target, copy_dependent_files=False)
+            finder.add_constant("PYTHONTZPATH", str(source))
     if tzdata is None:
         return
     # when the tzdata exists, copy other files in this directory
     source = tzdata.path[0]
     target = Path("lib", "tzdata")
     if tzdata.in_file_system >= 1:
-        finder.IncludeFiles(source, target, copy_dependent_files=False)
+        finder.include_files(source, target, copy_dependent_files=False)
     else:
-        finder.ZipIncludeFiles(source, "tzdata")
+        finder.zip_include_files(source, "tzdata")
 
 
 load_backports_zoneinfo = load_zoneinfo
@@ -1660,7 +1660,7 @@ def load_zope_component(finder: ModuleFinder, module: Module) -> None:
     The zope.component package requires the presence of the pkg_resources
     module but it uses a dynamic, not static import to do its work.
     """
-    finder.IncludeModule("pkg_resources")
+    finder.include_module("pkg_resources")
 
 
 def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
