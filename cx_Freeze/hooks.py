@@ -834,19 +834,15 @@ def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
         finder.include_module(mod)
 
 
-# cache the QtCore library paths
-_qtcore_library_paths = []
-
-
 def _qt_implementation(module: Module) -> str:
     """Helper function to get the name of the Qt implementation (PyQt5)."""
     return module.name.split(".")[0]
 
 
 def _qt_library_paths(name: str) -> List[str]:
-    global _qtcore_library_paths
-    if _qtcore_library_paths:
-        return _qtcore_library_paths
+    """Cache the QtCore library paths."""
+    if _qt_library_paths.data:
+        return _qt_library_paths.data
     try:
         qtcore = __import__(name, fromlist=["QtCore"]).QtCore
     except RuntimeError:
@@ -854,25 +850,27 @@ def _qt_library_paths(name: str) -> List[str]:
         print("wrappers. Some incorrect files may be copied.")
         qtcore = None
     else:
-        _qtcore_library_paths = [
-            Path(p) for p in qtcore.QCoreApplication.libraryPaths()
-        ]
-    if not _qtcore_library_paths:
+        data = [Path(p) for p in qtcore.QCoreApplication.libraryPaths()]
+    if not data:
         # check the common location for conda
         plugins_path = Path(sys.base_prefix, "Library", "plugins")
         if plugins_path.exists():
-            _qtcore_library_paths.append(plugins_path)
+            data.append(plugins_path)
         elif qtcore:
             # use a hack
             app = qtcore.QCoreApplication([])
-            _qtcore_library_paths = [Path(p) for p in app.libraryPaths()]
-    if not _qtcore_library_paths and qtcore:
+            data = [Path(p) for p in app.libraryPaths()]
+    if not data and qtcore:
         # Qt Plugins can be in a plugins directory next to the Qt libraries
         qt_root_dir = Path(qtcore.__file__).parent
-        _qtcore_library_paths.append(qt_root_dir / "plugins")
-        _qtcore_library_paths.append(qt_root_dir / "Qt5" / "plugins")
-        _qtcore_library_paths.append(qt_root_dir / "Qt" / "plugins")
-    return _qtcore_library_paths
+        data.append(qt_root_dir / "plugins")
+        data.append(qt_root_dir / "Qt5" / "plugins")
+        data.append(qt_root_dir / "Qt" / "plugins")
+    _qt_library_paths.data = data
+    return data
+
+
+_qt_library_paths.data: List[Path] = []
 
 
 def get_qt_subdir_paths(name: str, subdir: str) -> List[Tuple[Path, Path]]:
