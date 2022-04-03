@@ -14,6 +14,7 @@ Note:
     pip install -e .[dev,doc,test]
 
 """
+# pylint: disable=C0115,C0116,C0103,R0915
 
 import subprocess
 import sys
@@ -30,9 +31,6 @@ DARWIN = sys.platform == "darwin"
 
 if sys.version_info < (3, 6, 0):
     sys.exit("Python3 versions lower than 3.6.0 are not supported.")
-
-
-# pylint: disable=C0115,C0116,C0103
 
 
 class build_ext(setuptools.command.build_ext.build_ext):
@@ -206,8 +204,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
 
 class install_include(Command):
     def initialize_options(self):
-        self.install_dir = None
-        self.outfiles = []
+        self.install_dir = None  # pylint: disable=W0201
+        self.outfiles = []  # pylint: disable=W0201
 
     def finalize_options(self):
         self.set_undefined_options(
