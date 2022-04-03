@@ -1,3 +1,5 @@
+"""The classes and functions with which cx_Freeze extends setuptools."""
+
 import setuptools  # isort:skip
 import setuptools.dist  # isort:skip
 import distutils.command.bdist_rpm

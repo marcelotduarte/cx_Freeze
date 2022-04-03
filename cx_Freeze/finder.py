@@ -1,4 +1,4 @@
-"""Base class for finding modules."""
+"""Module Finder - discovers what modules are required by the code."""
 
 import importlib.machinery
 import logging

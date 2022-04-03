@@ -5,15 +5,23 @@ The project's code layout
 * ``cx_Freeze/`` (Python files)
 
   * ``cli.py`` - The code behind the :ref:`cxfreeze script <script>`.
+  * ``common.py`` - Common utility functions shared between cx_Freeze modules.
   * ``dist.py`` - The classes and functions with which cx_Freeze :ref:`extends
     setuptools <setup_script>`.
-  * ``finder.py`` - Module Finder - discovers what modules are required by the code.
-  * ``freezer.py`` - The core class for freezing code.
+  * ``exception.py`` - Internal exception classes.
+  * ``executable.py`` - Module for the Executable base class.
+  * ``finder.py`` - Module Finder - discovers what modules are required by the
+    code.
+  * ``freezer.py`` - The core class for freezing scripts into executables.
   * ``hooks.py`` - A collection of functions which are triggered automatically
     by ``finder.py`` when certain packages are included or not found.
   * ``macdist.py`` - Extends setuptools to build macOS dmg or app blundle.
   * ``module.py`` - Base class for Module and ConstantsModule.
+  * ``parser.py`` - Implements `Parser` interface to create an abstraction to
+    parse binary files.
   * ``windist.py`` - Extends setuptools to build Windows installer packages.
+  * ``winmsvcr.py`` - DLL list of MSVC runtimes.
+  * ``winversioninfo.py`` - Module for the VersionInfo base class.
 
 * ``source/`` (C files)
 

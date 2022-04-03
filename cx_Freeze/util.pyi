@@ -1,3 +1,5 @@
+"""Compiled functions for cx_Freeze itself."""
+
 from pathlib import Path
 from typing import List, Optional, Union
 

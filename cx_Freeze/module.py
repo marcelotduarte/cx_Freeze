@@ -1,6 +1,4 @@
-"""
-Base class for module.
-"""
+"""Base class for Module and ConstantsModule."""
 
 import datetime
 import socket
