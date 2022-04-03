@@ -19,8 +19,31 @@ skip_gitignore = true
 [tool.pylint.format]
 max-line-length = 79
 
+[tool.pylint.master]
+ignore="""
+cli.py,
+darwintools.py,
+dist.py,
+freezer.py,
+macdist.py,
+module.py,
+parser.py,
+setupwriter.py,
+windist.py,
+winversioninfo.py
+"""
+ignore-paths = """
+^cx_Freeze/initscripts/.*.py$,
+^cx_Freeze/samples/.*.py$,
+^tests/samples/invalid_syntax.py$,
+^tests/samples/testpkg1/.*.py$,
+^doc/src/conf.py$
+"""
+py-version = 3.6
+
 [tool.pylint.messages_control]
 disable = [
+    "duplicate-code",
     "fixme",
     "import-error",
     "too-few-public-methods",
