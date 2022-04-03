@@ -1,4 +1,4 @@
-"""Module for the ConfigError exception class."""
+"""Internal exception classes."""
 
 __all__ = ["ConfigError"]
 

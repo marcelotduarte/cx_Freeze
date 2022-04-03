@@ -1,4 +1,4 @@
-"""This module contains utility functions shared between cx_Freeze modules."""
+"""Common utility functions shared between cx_Freeze modules."""
 
 import contextlib
 import shutil

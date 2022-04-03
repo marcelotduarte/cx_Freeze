@@ -1,3 +1,5 @@
+"""Extends setuptools to build Windows installer packages."""
+
 import distutils.command.bdist_msi
 import importlib
 import msilib

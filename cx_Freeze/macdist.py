@@ -1,3 +1,5 @@
+"""Extends setuptools to build macOS dmg or app blundle."""
+
 import os
 import plistlib
 import shutil
