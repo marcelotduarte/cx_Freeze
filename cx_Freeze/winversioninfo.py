@@ -47,6 +47,10 @@ else:
 
 
 class Structure:
+    """Abstract base class for structures in native byte order. Concrete
+    structure and union types must be created by subclassing one of these
+    types, and at least define a _fields class variable."""
+
     def __init__(self, *args):
         if not hasattr(self, "_fields"):
             self._fields: List[Tuple[str, str]] = []
@@ -54,21 +58,23 @@ class Structure:
             setattr(self, field, args[i])
 
     def __str__(self):
-        dump = json.dumps(self._as_dict(), indent=2)
+        dump = json.dumps(self.as_dict(), indent=2)
         return self.__class__.__name__ + ": " + dump
 
-    def _as_dict(self):
+    def as_dict(self):
+        """Return the field values as dictionary."""
         fields = {}
         for fieldname, _ in self._fields:
             data = getattr(self, fieldname)
-            if hasattr(data, "_as_dict"):
-                data = data._as_dict()
+            if hasattr(data, "as_dict"):
+                data = data.as_dict()
             elif isinstance(data, bytes):
                 data = data.decode()
             fields[fieldname] = data
         return fields
 
     def to_buffer(self):
+        """Return the field values to a buffer."""
         buffer = b""
         for fieldname, fmt in self._fields:
             data = getattr(self, fieldname)
@@ -82,7 +88,9 @@ class Structure:
         return buffer
 
 
-class VS_FIXEDFILEINFO(Structure):
+class VS_FIXEDFILEINFO(Structure):  # pylint: disable=invalid-name
+    """Version information for a Win32 file."""
+
     _fields = [
         ("dwSignature", DWORD),
         ("dwStrucVersion", DWORD),
@@ -101,9 +109,11 @@ class VS_FIXEDFILEINFO(Structure):
 
 
 class String(Structure):
+    """File version resource representation of the data."""
+
     def __init__(
         self, key: str, value: Optional[Union[int, str, Structure]] = None
-    ):
+    ):  # pylint: disable=W0231
         key = key + "\0"
         key_len = len(key)
         fields = [
@@ -137,17 +147,24 @@ class String(Structure):
             fields.append(("Value", type(value)))
 
         self._fields = fields
+        # pylint: disable-next=invalid-name
         self.wValueLength = value_len
+        # pylint: disable-next=invalid-name
         self.wType = value_type
+        # pylint: disable-next=invalid-name
         self.szKey = key
+        # pylint: disable-next=invalid-name
         self.Padding = b"\0" * pad_len
+        # pylint: disable-next=invalid-name
         self.Value = value
+        # pylint: disable-next=invalid-name
         self.wLength = (
             calcsize(WORD) * 3 + key_len + pad_len + value_size * value_len
         )
         self._children = 0
 
     def children(self, value: "String"):
+        """Represents the child String object."""
         pad_len = 4 - (self.wLength & 3)
         if 0 < pad_len < 4:
             field = f"Padding{self._children}"
@@ -162,6 +179,8 @@ class String(Structure):
 
 
 class VersionInfo:
+    """Organizes the version information (resource) data of a file."""
+
     def __init__(
         self,
         version: str,
@@ -191,6 +210,7 @@ class VersionInfo:
         self.verbose: bool = verbose
 
     def stamp(self, path: Union[str, Path]) -> None:
+        """Stamp a Win32 binary with version information."""
         if isinstance(path, str):
             path = Path(path)
         if not path.is_file():
@@ -216,6 +236,7 @@ class VersionInfo:
             print("Stamped:", path)
 
     def version_info(self, path: Path) -> String:
+        """Returns the String version info used to stamp the version."""
         major = self.version.major
         minor = self.version.minor
         micro = self.version.micro

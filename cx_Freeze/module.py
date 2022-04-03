@@ -1,5 +1,6 @@
 """Base class for Module and ConstantsModule."""
 
+import ast
 import datetime
 import socket
 from contextlib import suppress
@@ -76,7 +77,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
     @staticmethod
     def _write_wheel_distinfo(target_path: Path, purelib: bool):
-        """Create WHEEL if it doesn't exist"""
+        """Create a WHEEL file if it doesn't exist"""
         target = target_path / "WHEEL"
         if not target.exists():
             project = Path(__file__).parent.name
@@ -92,7 +93,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
     @staticmethod
     def _write_record_distinfo(target_path: Path):
-        """Recreate minimal RECORD file"""
+        """Recreate a minimal RECORD file"""
         target_name = target_path.name
         record = []
         for file in target_path.iterdir():
@@ -216,7 +217,7 @@ class ConstantsModule:
                     value = None
                 else:
                     name, string_value = parts
-                    value = eval(string_value)
+                    value = ast.literal_eval(string_value)
                 if (not name.isidentifier()) or iskeyword(name):
                     raise ConfigError(
                         f"Invalid constant name in ConstantsModule ({name!r})"
