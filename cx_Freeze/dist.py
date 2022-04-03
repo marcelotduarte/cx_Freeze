@@ -1,15 +1,19 @@
 """The classes and functions with which cx_Freeze extends setuptools."""
+# pylint: disable=C0116,C0103,W0201
 
 import setuptools  # isort:skip
 import setuptools.dist  # isort:skip
 import distutils.command.bdist_rpm
 import distutils.command.build
 import distutils.command.install
+import distutils.core
 import distutils.log
 import os
 import sys
 import sysconfig
 import warnings
+from pathlib import Path
+from typing import Optional
 
 from .common import normalize_to_list
 from .freezer import Freezer
@@ -31,17 +35,22 @@ __all__ = [
 
 
 class Distribution(setuptools.dist.Distribution):
+    """Distribution with support for executables."""
+
     def __init__(self, attrs):
         self.executables = []
         super().__init__(attrs)
 
 
 class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
+    """Create an RPM distribution."""
+
     def finalize_options(self):
         distutils.command.bdist_rpm.bdist_rpm.finalize_options(self)
         self.use_rpm_opt_flags = 1
 
     def _make_spec_file(self):
+        # pylint: disable-next=protected-access
         contents = distutils.command.bdist_rpm.bdist_rpm._make_spec_file(self)
         contents.append("%define __prelink_undo_cmd %{nil}")
         contents.append("%define __strip /bin/true")
@@ -49,6 +58,8 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 
 
 class build(distutils.command.build.build):
+    """Build everything needed to install."""
+
     user_options = distutils.command.build.build.user_options + [
         ("build-exe=", None, "build directory for executables")
     ]
@@ -73,6 +84,8 @@ class build(distutils.command.build.build):
 
 
 class build_exe(setuptools.Command):
+    """ "Build executables from Python scripts."""
+
     description = "build executables from Python scripts"
     user_options = [
         (
@@ -193,7 +206,7 @@ class build_exe(setuptools.Command):
             script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
         distutils.log.info("building '%s' extension in '%s'", name, source_dir)
-        distribution = setuptools.run_setup("setup.py", script_args)
+        distribution = distutils.core.run_setup("setup.py", script_args)
         modules = [
             m for m in distribution.ext_modules if m.name == module_name
         ]
@@ -331,6 +344,8 @@ class build_exe(setuptools.Command):
 
 
 class install(distutils.command.install.install):
+    """Install everything from build directory."""
+
     user_options = distutils.command.install.install.user_options + [
         ("install-exe=", None, "installation directory for executables")
     ]
@@ -375,6 +390,8 @@ class install(distutils.command.install.install):
 
 
 class install_exe(setuptools.Command):
+    """Install executables built from Python scripts."""
+
     description = "install executables built from Python scripts"
     user_options = [
         ("install-dir=", "d", "directory to install executables to"),
@@ -384,7 +401,7 @@ class install_exe(setuptools.Command):
     ]
 
     def initialize_options(self):
-        self.install_dir = None
+        self.install_dir: Optional[str] = None
         self.force = 0
         self.build_dir = None
         self.skip_build = None
@@ -403,21 +420,20 @@ class install_exe(setuptools.Command):
             self.run_command("build_exe")
         self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
         if sys.platform != "win32":
-            base_dir = os.path.dirname(os.path.dirname(self.install_dir))
-            bin_dir = os.path.join(base_dir, "bin")
-            if not os.path.exists(bin_dir):
-                os.makedirs(bin_dir)
-            source_dir = os.path.join(
-                "..", self.install_dir[len(base_dir) + 1 :]
-            )
+            install_dir = Path(self.install_dir)
+            base_dir = install_dir.parent.parent
+            bin_dir: Path = base_dir / "bin"
+            if not bin_dir.exists():
+                bin_dir.mkdir(parents=True)
+            source_dir = ".." / install_dir.relative_to(base_dir)
             for executable in self.distribution.executables:
-                name = os.path.basename(executable.target_name)
-                source = os.path.join(source_dir, name)
-                target = os.path.join(bin_dir, name)
-                if os.path.exists(target):
-                    os.unlink(target)
-                os.symlink(source, target)
-                self.outfiles.append(target)
+                name = executable.target_name
+                source = source_dir / name
+                target = bin_dir / name
+                if target.exists():
+                    target.unlink()
+                target.symlink_to(source)
+                self.outfiles.append(target.as_posix())
 
     def get_inputs(self):
         return self.distribution.executables or []
@@ -426,7 +442,7 @@ class install_exe(setuptools.Command):
         return self.outfiles or []
 
 
-def _AddCommandClass(command_classes, name, cls):
+def _add_command_class(command_classes, name, cls):
     if name not in command_classes:
         command_classes[name] = cls
 
@@ -435,14 +451,14 @@ def setup(**attrs):
     attrs.setdefault("distclass", Distribution)
     command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _AddCommandClass(command_classes, "bdist_msi", bdist_msi)
+        _add_command_class(command_classes, "bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
-        _AddCommandClass(command_classes, "bdist_dmg", bdist_dmg)
-        _AddCommandClass(command_classes, "bdist_mac", bdist_mac)
+        _add_command_class(command_classes, "bdist_dmg", bdist_dmg)
+        _add_command_class(command_classes, "bdist_mac", bdist_mac)
     else:
-        _AddCommandClass(command_classes, "bdist_rpm", bdist_rpm)
-    _AddCommandClass(command_classes, "build", build)
-    _AddCommandClass(command_classes, "build_exe", build_exe)
-    _AddCommandClass(command_classes, "install", install)
-    _AddCommandClass(command_classes, "install_exe", install_exe)
+        _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
+    _add_command_class(command_classes, "build", build)
+    _add_command_class(command_classes, "build_exe", build_exe)
+    _add_command_class(command_classes, "install", install)
+    _add_command_class(command_classes, "install_exe", install_exe)
     setuptools.setup(**attrs)

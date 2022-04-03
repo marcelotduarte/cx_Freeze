@@ -8,7 +8,7 @@ import struct
 import sys
 import sysconfig
 import time
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from distutils.dist import DistributionMetadata
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
@@ -45,7 +45,7 @@ elif DARWIN:
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 
 
-class Freezer(ABC):
+class Freezer:
     def __new__(cls, *args, **kwargs):
         # create instance of appropriate sub-class, depending on the platform.
         instance: Freezer

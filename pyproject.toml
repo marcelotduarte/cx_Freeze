@@ -21,9 +21,7 @@ max-line-length = 79
 
 [tool.pylint.master]
 ignore="""
-cli.py,
 darwintools.py,
-dist.py,
 freezer.py,
 macdist.py,
 parser.py,
@@ -37,7 +35,7 @@ ignore-paths = """
 ^tests/samples/testpkg1/.*.py$,
 ^doc/src/conf.py$
 """
-py-version = 3.6
+py-version = "3.6"
 
 [tool.pylint.messages_control]
 disable = [
@@ -50,6 +48,7 @@ disable = [
     "too-many-instance-attributes",
     "too-many-locals",
     "too-many-nested-blocks",
+    "wrong-import-order",
 ]
 
 [tool.pytest.ini_options]
