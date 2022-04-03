@@ -1,8 +1,8 @@
 """
-A simple setup script to create an executable using PySide2. This also
+A simple setup script to create an executable using PySide6. This also
 demonstrates how to use excludes to get minimal package size.
 
-test_pyside2.py is a very simple type of PySide2 application.
+test_pyside6.py is a very simple type of PySide6 application.
 
 Run the build process by running the command 'python setup.py build'
 
@@ -14,9 +14,7 @@ import sys
 
 from cx_Freeze import Executable, setup
 
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+base = "Win32GUI" if sys.platform == "win32" else None
 
 options = {
     "build_exe": {
@@ -32,12 +30,12 @@ options = {
     }
 }
 
-executables = [Executable("test_pyside2.py", base=base)]
+executables = [Executable("test_pyside6.py", base=base)]
 
 setup(
-    name="simple_PySide2",
-    version="0.4",
-    description="Sample cx_Freeze PySide2 script",
+    name="simple_PySide6",
+    version="0.1",
+    description="Sample cx_Freeze PySide6 script",
     options=options,
     executables=executables,
 )
