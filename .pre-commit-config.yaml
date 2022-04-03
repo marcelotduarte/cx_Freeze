@@ -2,7 +2,7 @@ exclude: |
     (?x)^(
         .bumpversion.cfg|
         tests/samples/invalid_syntax.py|
-        tests/samples/testpkg1
+        tests/samples/testpkg1/.*.py
     )$
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -58,7 +58,6 @@ repos:
     entry: pylint
     language: system
     types: [python]
-    files: ^tests$|finder.py
 
 - repo: https://github.com/thclark/pre-commit-sphinx
   rev: 0.0.3
