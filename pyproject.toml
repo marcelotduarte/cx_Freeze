@@ -26,11 +26,9 @@ darwintools.py,
 dist.py,
 freezer.py,
 macdist.py,
-module.py,
 parser.py,
 setupwriter.py,
-windist.py,
-winversioninfo.py
+windist.py
 """
 ignore-paths = """
 ^cx_Freeze/initscripts/.*.py$,
