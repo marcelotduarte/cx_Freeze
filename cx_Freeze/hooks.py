@@ -1,6 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
 certain packages are included or not found."""
-# pylint: disable=unused-argument,invalid-name
+# pylint: disable=unused-argument,invalid-name,too-many-lines
 
 import collections.abc
 import os
@@ -18,6 +18,7 @@ MINGW = sysconfig.get_platform().startswith("mingw")
 WIN32 = sys.platform == "win32"
 
 
+# pylint: disable-next=too-many-statements
 def initialize(finder: ModuleFinder) -> None:
     """Upon initialization of the finder, this routine is called to set up some
     automatic exclusions for various platforms."""
