@@ -270,6 +270,9 @@ class bdist_rpm(Command):
         self.set_undefined_options("bdist", ("dist_dir", "dist_dir"))
         self.finalize_package_data()
 
+        # cx_Freeze specific
+        self.use_rpm_opt_flags = 1
+
     def finalize_package_data(self):
         self.ensure_string("group", "Development/Libraries")
         contact = self.distribution.get_contact()
@@ -624,7 +627,10 @@ class bdist_rpm(Command):
             spec_file.extend(["", "%changelog"])
             spec_file.extend(self.changelog)
 
-        return spec_file
+        # cx_Freeze specific
+        spec_file.append("%define __prelink_undo_cmd %{nil}")
+        spec_file.append("%define __strip /bin/true")
+        return [c for c in spec_file if c != "BuildArch: noarch"]
 
     @staticmethod
     def _format_changelog(changelog):

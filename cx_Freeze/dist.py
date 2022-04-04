@@ -3,7 +3,6 @@
 
 import setuptools  # isort:skip
 import setuptools.dist  # isort:skip
-import distutils.command.bdist_rpm  # pylint: disable=W0402
 import distutils.command.build  # pylint: disable=W0402
 import distutils.command.install  # pylint: disable=W0402
 import distutils.core  # pylint: disable=W0402
@@ -15,6 +14,7 @@ import warnings
 from pathlib import Path
 from typing import Optional
 
+from .command.bdist_rpm import bdist_rpm
 from .common import normalize_to_list
 from .freezer import Freezer
 from .module import ConstantsModule
@@ -40,21 +40,6 @@ class Distribution(setuptools.dist.Distribution):
     def __init__(self, attrs):
         self.executables = []
         super().__init__(attrs)
-
-
-class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
-    """Create an RPM distribution."""
-
-    def finalize_options(self):
-        distutils.command.bdist_rpm.bdist_rpm.finalize_options(self)
-        self.use_rpm_opt_flags = 1
-
-    def _make_spec_file(self):
-        # pylint: disable-next=protected-access
-        contents = distutils.command.bdist_rpm.bdist_rpm._make_spec_file(self)
-        contents.append("%define __prelink_undo_cmd %{nil}")
-        contents.append("%define __strip /bin/true")
-        return [c for c in contents if c != "BuildArch: noarch"]
 
 
 class build(distutils.command.build.build):
