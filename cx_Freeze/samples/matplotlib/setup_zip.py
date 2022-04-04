@@ -12,17 +12,17 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the application
 
-import distutils
 import os
 import sys
+import sysconfig
 
 from cx_Freeze import Executable, setup
 
-base = "Console"
-if sys.platform == "win32":
-    base = "Win32GUI"
+base = "Win32GUI" if sys.platform == "win32" else "Console"
 
-dir_name = f"zip.{distutils.util.get_platform()}-{sys.version[0:3]}"
+platform = sysconfig.get_platform()
+python_version = sysconfig.get_python_version()
+dir_name = f"zip.{platform}-{python_version}"
 build_exe_dir = os.path.join("build", dir_name)
 
 options = {
@@ -43,7 +43,7 @@ executables = [
 
 setup(
     name="matplotlib_samples",
-    version="0.1",
+    version="0.2",
     description="Sample matplotlib script",
     executables=executables,
     options=options,

@@ -2,13 +2,13 @@
 
 import distutils.command.bdist_msi
 import importlib
+import logging
 import msilib
 import os
 import re
 import shutil
 import sysconfig
 import winreg
-from distutils import log
 
 __all__ = ["bdist_msi", "winreg"]
 
@@ -926,7 +926,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         install.prefix = bdist_dir
         install.skip_build = self.skip_build
         install.warn_dir = 0
-        log.info(f"installing to {bdist_dir}")
+        logging.info(f"installing to {bdist_dir}")
         install.ensure_finalized()
         install.run()
         self.mkpath(self.dist_dir)
@@ -971,12 +971,12 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         )
 
         if not self.keep_temp:
-            log.info(f"removing '{bdist_dir}' (and everything under it)")
+            logging.info(f"removing '{bdist_dir}' (and everything under it)")
             if not self.dry_run:
                 try:
                     shutil.rmtree(bdist_dir)
                 except OSError as exc:
-                    log.warn(f"error removing {bdist_dir}: {exc}")
+                    logging.warn(f"error removing {bdist_dir}: {exc}")
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent

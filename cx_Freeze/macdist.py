@@ -1,12 +1,15 @@
 """Extends setuptools to build macOS dmg or app blundle."""
+# pylint: disable=C0116,W0201
+# C0103
 
 import os
 import plistlib
 import shutil
 import subprocess
 import warnings
-from distutils.core import Command
 from typing import List, Tuple
+
+from setuptools import Command
 
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
@@ -20,6 +23,8 @@ __all__ = ["bdist_dmg", "bdist_mac"]
 
 
 class bdist_dmg(Command):
+    """Create a Mac DMG disk image containing the Mac application bundle."""
+
     description = (
         "create a Mac DMG disk image containing the Mac application bundle"
     )
@@ -104,7 +109,9 @@ class bdist_dmg(Command):
         self.execute(self.buildDMG, ())
 
 
-class bdist_mac(Command):
+class bdist_mac(Command):  # pylint: disable=R0902
+    """Create a Mac application bundle."""
+
     description = "create a Mac application bundle"
 
     plist_items: List[Tuple[str, str]]
@@ -226,8 +233,8 @@ class bdist_mac(Command):
         """Create the Contents/Info.plist file"""
         # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
-            with open(self.custom_info_plist, "rb") as fp:
-                contents = plistlib.load(fp)
+            with open(self.custom_info_plist, "rb") as file:
+                contents = plistlib.load(file)
         else:
             contents = {
                 "CFBundleIconFile": "icon.icns",
@@ -248,8 +255,8 @@ class bdist_mac(Command):
         for key, value in self.plist_items:
             contents[key] = value
 
-        with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as fp:
-            plistlib.dump(contents, fp)
+        with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as file:
+            plistlib.dump(contents, file)
 
     def setAbsoluteReferencePaths(self, path=None):
         """
@@ -393,7 +400,7 @@ class bdist_mac(Command):
         )
 
         # qt.conf needs to exist, but needn't have any content
-        with open(os.path.join(self.resourcesDir, "qt.conf"), "w"):
+        with open(os.path.join(self.resourcesDir, "qt.conf"), "wb"):
             pass
 
     def run(self):

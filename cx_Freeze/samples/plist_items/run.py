@@ -1,10 +1,10 @@
 # Code to test that the plist_items option is working correctly.
 
-import distutils.core
 import os
 import platform
 import sys
 
+import setuptools.sandbox
 from data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
 
 if platform.system() != "Darwin":
@@ -15,7 +15,7 @@ import plistlib
 
 print("Testing plist_items option with bdist_mac.")
 
-distutils.core.run_setup("setup.py", ["bdist_mac"])
+setuptools.sandbox.run_setup("setup.py", ["bdist_mac"])
 
 # Test that the additional keys were correctly added to the plist.
 name = os.path.join(BUILD_DIR, f"{BUNDLE_NAME}.app", "Contents", "Info.plist")
