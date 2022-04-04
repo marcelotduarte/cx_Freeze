@@ -3,11 +3,11 @@
 
 import setuptools  # isort:skip
 import setuptools.dist  # isort:skip
-import distutils.command.bdist_rpm
-import distutils.command.build
-import distutils.command.install
-import distutils.core
-import distutils.log
+import distutils.command.bdist_rpm  # pylint: disable=W0402
+import distutils.command.build  # pylint: disable=W0402
+import distutils.command.install  # pylint: disable=W0402
+import distutils.core  # pylint: disable=W0402
+import logging
 import os
 import sys
 import sysconfig
@@ -205,7 +205,7 @@ class build_exe(setuptools.Command):
         if command.compiler is not None:
             script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
-        distutils.log.info("building '%s' extension in '%s'", name, source_dir)
+        logging.info("building '%s' extension in '%s'", name, source_dir)
         distribution = distutils.core.run_setup("setup.py", script_args)
         modules = [
             m for m in distribution.ext_modules if m.name == module_name
