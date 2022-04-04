@@ -8,14 +8,15 @@ This version requires the zoneinfo in the zip file
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-import distutils
 import os
-import sys
+import sysconfig
 
 from cx_Freeze import Executable, setup
 
-dir_name = f"exe.{distutils.util.get_platform()}-{sys.version[0:3]}.zip"
-build_exe = os.path.join("build", dir_name)
+platform = sysconfig.get_platform()
+python_version = sysconfig.get_python_version()
+dir_name = f"zip.{platform}-{python_version}"
+build_exe_dir = os.path.join("build", dir_name)
 
 setup(
     name="test_tz_zip",
@@ -26,7 +27,7 @@ setup(
         "build_exe": {
             "zip_include_packages": ["*"],
             "zip_exclude_packages": [],
-            "build_exe": build_exe,
+            "build_exe": build_exe_dir,
         }
     },
 )

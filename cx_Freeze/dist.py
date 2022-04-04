@@ -84,7 +84,7 @@ class build(distutils.command.build.build):
 
 
 class build_exe(setuptools.Command):
-    """ "Build executables from Python scripts."""
+    """Build executables from Python scripts."""
 
     description = "build executables from Python scripts"
     user_options = [
