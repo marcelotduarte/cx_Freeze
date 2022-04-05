@@ -1,6 +1,5 @@
 """Extends setuptools to build Windows installer packages."""
 
-import distutils.command.bdist_msi
 import importlib
 import logging
 import msilib
@@ -9,6 +8,10 @@ import re
 import shutil
 import sysconfig
 import winreg
+
+from packaging.version import Version
+
+import cx_Freeze.command.bdist_msi
 
 __all__ = ["bdist_msi", "winreg"]
 
@@ -21,8 +24,8 @@ for index, info in enumerate(sequence):
         sequence[index] = (info[0], info[1], 1450)
 
 
-class bdist_msi(distutils.command.bdist_msi.bdist_msi):
-    user_options = distutils.command.bdist_msi.bdist_msi.user_options + [
+class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
+    user_options = cx_Freeze.command.bdist_msi.bdist_msi.user_options + [
         ("add-to-path=", None, "add target dir to PATH environment variable"),
         ("upgrade-code=", None, "upgrade code to use"),
         ("initial-target-dir=", None, "initial target directory"),
@@ -238,7 +241,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             button.event("EndDialog", f"Error{text}")
 
     def add_exit_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "ExitDialog",
             self.x,
@@ -267,7 +270,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         button.event("EndDialog", "Return")
 
     def add_fatal_error_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "FatalError",
             self.x,
@@ -354,7 +357,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         cab.commit(db)
 
     def add_files_in_use_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "FilesInUse",
             self.x,
@@ -412,7 +415,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         button.event("EndDialog", "Retry")
 
     def add_maintenance_type_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "MaintenanceTypeDlg",
             self.x,
@@ -475,7 +478,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         button.event("SpawnDialog", "CancelDlg")
 
     def add_prepare_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "PrepareDlg",
             self.x,
@@ -511,7 +514,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         button.event("SpawnDialog", "CancelDlg")
 
     def add_progress_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "ProgressDlg",
             self.x,
@@ -601,7 +604,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             )
 
     def add_select_directory_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "SelectDirectoryDlg",
             self.x,
@@ -720,7 +723,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             )
 
     def add_user_exit_dialog(self):
-        dialog = distutils.command.bdist_msi.PyDialog(
+        dialog = cx_Freeze.command.bdist_msi.PyDialog(
             self.db,
             "UserExit",
             self.x,
@@ -795,7 +798,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             rows.append(line)
 
     def finalize_options(self):
-        distutils.command.bdist_msi.bdist_msi.finalize_options(self)
+        cx_Freeze.command.bdist_msi.bdist_msi.finalize_options(self)
         name = self.distribution.get_name()
         fullname = self.distribution.get_fullname()
         platform = sysconfig.get_platform().replace("win-amd64", "win64")
@@ -904,7 +907,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             )
 
     def initialize_options(self):
-        distutils.command.bdist_msi.bdist_msi.initialize_options(self)
+        cx_Freeze.command.bdist_msi.bdist_msi.initialize_options(self)
         self.upgrade_code = None
         self.product_code = None
         self.add_to_path = None
@@ -936,9 +939,7 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
         metadata = self.distribution.metadata
         author = metadata.author or metadata.maintainer or "UNKNOWN"
         version = metadata.get_version()
-        sversion = ".".join(
-            str(x) for x in distutils.version.LooseVersion(version).version
-        )
+        base_version = Version(version).base_version
 
         # msilib is reloaded in order to reset the "_directories" global member
         # in that module.  That member is used by msilib to prevent any two
@@ -956,18 +957,18 @@ class bdist_msi(distutils.command.bdist_msi.bdist_msi):
             msilib.schema,
             self.distribution.metadata.name,
             self.product_code,
-            sversion,
+            base_version,
             author,
         )
         msilib.add_tables(self.db, msilib.sequence)
         self.add_properties()
         self.add_config(fullname)
-        self.add_upgrade_config(sversion)
+        self.add_upgrade_config(base_version)
         self.add_ui()
         self.add_files()
         self.db.Commit()
         self.distribution.dist_files.append(
-            ("bdist_msi", sversion or "any", self.target_name)
+            ("bdist_msi", base_version or "any", self.target_name)
         )
 
         if not self.keep_temp:

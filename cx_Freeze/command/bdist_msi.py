@@ -5,17 +5,17 @@
 Implements the bdist_msi command.
 """
 
+import logging
 import msilib
 import os
+import shutil
 import sys
-from distutils import log
-from distutils.core import Command
-from distutils.dir_util import remove_tree
-from distutils.errors import DistutilsOptionError
-from distutils.sysconfig import get_python_version
-from distutils.util import get_platform
-from distutils.version import StrictVersion
 from msilib import Dialog, Directory, Feature, add_data, schema, sequence, text
+from sysconfig import get_platform, get_python_version
+
+from packaging.version import Version
+from setuptools import Command
+from setuptools.errors import OptionError
 
 
 class PyDialog(Dialog):
@@ -28,7 +28,7 @@ class PyDialog(Dialog):
         default, cancel, bitmap=true)"""
         Dialog.__init__(self, *args)
         ruler = self.h - 36
-        bmwidth = 152 * ruler / 328
+        # bmwidth = 152 * ruler / 328
         # if kw.get("bitmap", True):
         #    self.bitmap("Bitmap", 0, 0, bmwidth, ruler, "PythonWin")
         self.line("BottomLine", 0, ruler, self.w, 0)
@@ -211,7 +211,7 @@ class bdist_msi(Command):
                 and self.distribution.has_ext_modules()
                 and self.target_version != short_version
             ):
-                raise DistutilsOptionError(
+                raise OptionError(
                     "target version can only be %s, or the '--skip-build'"
                     " option must be specified" % (short_version,)
                 )
@@ -225,7 +225,7 @@ class bdist_msi(Command):
         )
 
         if self.pre_install_script:
-            raise DistutilsOptionError(
+            raise OptionError(
                 "the pre-install-script feature is not yet implemented"
             )
 
@@ -234,7 +234,7 @@ class bdist_msi(Command):
                 if self.install_script == os.path.basename(script):
                     break
             else:
-                raise DistutilsOptionError(
+                raise OptionError(
                     "install_script '%s' not found in scripts"
                     % self.install_script
                 )
@@ -271,7 +271,7 @@ class bdist_msi(Command):
                 build.build_base, "lib" + plat_specifier
             )
 
-        log.info("installing to %s", self.bdist_dir)
+        logging.info("installing to %s", self.bdist_dir)
         install.ensure_finalized()
 
         # avoid warning of 'install_lib' about installing
@@ -290,15 +290,11 @@ class bdist_msi(Command):
             os.unlink(installer_name)
 
         metadata = self.distribution.metadata
-        author = metadata.author
-        if not author:
-            author = metadata.maintainer
-        if not author:
-            author = "UNKNOWN"
+        author = metadata.author or metadata.maintainer or "UNKNOWN"
         version = metadata.get_version()
         # ProductVersion must be strictly numeric
         # XXX need to deal with prerelease versions
-        sversion = "%d.%d.%d" % StrictVersion(version).version
+        base_version = Version(version).base_version
         # Prefix ProductName with Python x.y, so that
         # it sorts together with the other Python packages
         # in Add-Remove-Programs (APR)
@@ -312,7 +308,7 @@ class bdist_msi(Command):
             schema,
             product_name,
             msilib.gen_uuid(),
-            sversion,
+            base_version,
             author,
         )
         msilib.add_tables(self.db, sequence)
@@ -336,7 +332,13 @@ class bdist_msi(Command):
             self.distribution.dist_files.append(tup)
 
         if not self.keep_temp:
-            remove_tree(self.bdist_dir, dry_run=self.dry_run)
+            bdist_dir = self.bdist_dir
+            logging.info(f"removing '{bdist_dir}' (and everything under it)")
+            if not self.dry_run:
+                try:
+                    shutil.rmtree(bdist_dir)
+                except OSError as exc:
+                    logging.warn(f"error removing {bdist_dir}: {exc}")
 
     def add_files(self):
         db = self.db
@@ -383,7 +385,7 @@ class bdist_msi(Command):
                             key = seen[afile] = dir.add_file(file)
                             if file == self.install_script:
                                 if self.install_script_key:
-                                    raise DistutilsOptionError(
+                                    raise OptionError(
                                         "Multiple files with name %s" % file
                                     )
                                 self.install_script_key = "[#%s]" % key
@@ -429,7 +431,7 @@ class bdist_msi(Command):
             target_dir_prop = "TARGETDIR" + ver
             exe_prop = "PYTHON" + ver
             if msilib.Win64:
-                # type: msidbLocatorTypeRawValue + msidbLocatorType64bit
+                # Type: msidbLocatorTypeRawValue + msidbLocatorType64bit
                 Type = 2 + 16
             else:
                 Type = 2
