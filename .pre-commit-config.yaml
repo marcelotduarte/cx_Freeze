@@ -1,6 +1,7 @@
 exclude: |
     (?x)^(
         .bumpversion.cfg|
+        cx_Freeze/command/bdist_msi.py|
         tests/samples/invalid_syntax.py|
         tests/samples/testpkg1/.*.py
     )$
