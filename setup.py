@@ -268,6 +268,6 @@ if __name__ == "__main__":
         cmdclass={"build_ext": build_ext, "install_include": install_include},
         options={"install": {"optimize": 1}},
         ext_modules=extensions,
-        packages=["cx_Freeze"],
+        packages=["cx_Freeze", "cx_Freeze.command"],
         package_data={"cx_Freeze": package_data},
     )
