@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=51.0.0",
+    "setuptools>=51.0.0,<=60.10.0",
     "wheel>=0.36.2",
     "cx-logging>=3.0 ;sys_platform == 'win32'",
 ]
