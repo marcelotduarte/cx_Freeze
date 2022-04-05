@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-python@v3
     - name: Install pip dependencies
       run: |
-        python -m pip install --upgrade pip setuptools
+        python -m pip install --upgrade pip "setuptools>=51.0.0,<=60.10.0"
         python -m pip install -e .[dev,doc]
     - name: Run pre-commit
       uses: pre-commit/action@v2.0.3
