@@ -2,9 +2,7 @@
 # pylint: disable=C0116,C0103,W0201
 
 import setuptools  # isort:skip
-import setuptools.dist  # isort:skip
 import distutils.command.build  # pylint: disable=W0402
-import distutils.command.install  # pylint: disable=W0402
 import distutils.core  # pylint: disable=W0402
 import logging
 import os
@@ -14,7 +12,9 @@ import warnings
 from pathlib import Path
 from typing import Optional
 
-from .command.bdist_rpm import bdist_rpm
+import setuptools.command.install
+from setuptools.errors import SetupError
+
 from .common import normalize_to_list
 from .freezer import Freezer
 from .module import ConstantsModule
@@ -23,9 +23,10 @@ if sys.platform == "win32":
     from .windist import bdist_msi, winreg
 elif sys.platform == "darwin":
     from .macdist import bdist_dmg, bdist_mac
+else:
+    from .command.bdist_rpm import bdist_rpm
 
 __all__ = [
-    "bdist_rpm",
     "build",
     "build_exe",
     "install",
@@ -34,7 +35,7 @@ __all__ = [
 ]
 
 
-class Distribution(setuptools.dist.Distribution):
+class Distribution(setuptools.Distribution):
     """Distribution with support for executables."""
 
     def __init__(self, attrs):
@@ -196,7 +197,7 @@ class build_exe(setuptools.Command):
             m for m in distribution.ext_modules if m.name == module_name
         ]
         if not modules:
-            raise setuptools.dist.DistutilsSetupError(
+            raise SetupError(
                 "no module named '{module_name}' in '{source_dir}'"
             )
         command = distribution.get_command_obj("build_ext")
@@ -328,25 +329,27 @@ class build_exe(setuptools.Command):
                 setattr(self, attr_name, source_dir)
 
 
-class install(distutils.command.install.install):
+class install(setuptools.command.install.install):
     """Install everything from build directory."""
 
-    user_options = distutils.command.install.install.user_options + [
+    user_options = setuptools.command.install.install.user_options + [
         ("install-exe=", None, "installation directory for executables")
     ]
 
     def expand_dirs(self):
-        distutils.command.install.install.expand_dirs(self)
+        setuptools.command.install.install.expand_dirs(self)
         self._expand_attrs(["install_exe"])
 
     def get_sub_commands(self):
-        sub_commands = distutils.command.install.install.get_sub_commands(self)
+        sub_commands = setuptools.command.install.install.get_sub_commands(
+            self
+        )
         if self.distribution.executables:
             sub_commands.append("install_exe")
         return [s for s in sub_commands if s != "install_egg_info"]
 
     def initialize_options(self):
-        distutils.command.install.install.initialize_options(self)
+        setuptools.command.install.install.initialize_options(self)
         self.install_exe = None
 
     def finalize_options(self):
@@ -358,13 +361,13 @@ class install(distutils.command.install.install):
             prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
             metadata = self.distribution.metadata
             self.prefix = f"{prefix}/{metadata.name}"
-        distutils.command.install.install.finalize_options(self)
+        setuptools.command.install.install.finalize_options(self)
         self.convert_paths("exe")
         if self.root is not None:
             self.change_roots("exe")
 
     def select_scheme(self, name):
-        distutils.command.install.install.select_scheme(self, name)
+        setuptools.command.install.install.select_scheme(self, name)
         if self.install_exe is None:
             if sys.platform == "win32":
                 self.install_exe = "$base"

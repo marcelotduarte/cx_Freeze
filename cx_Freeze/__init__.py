@@ -4,13 +4,12 @@ and is cross-platform."""
 
 import sys
 
-from .dist import bdist_rpm, build, build_exe, install, install_exe, setup
+from .dist import build, build_exe, install, install_exe, setup
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
 
 __all__ = [
-    "bdist_rpm",
     "build",
     "build_exe",
     "install",
@@ -33,5 +32,9 @@ elif sys.platform == "darwin":
     from .macdist import bdist_dmg, bdist_mac
 
     __all__.extend([bdist_dmg.__name__, bdist_mac.__name__])
+else:
+    from .command.bdist_rpm import bdist_rpm
+
+    __all__.append(bdist_rpm.__name__)
 
 __version__ = "6.11.0-dev0"
