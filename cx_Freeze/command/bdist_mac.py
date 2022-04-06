@@ -20,8 +20,7 @@ from cx_Freeze.darwintools import (
 __all__ = ["BdistDMG", "BdistMac"]
 
 
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=missing-function-docstring
+# pylint: disable=attribute-defined-outside-init,missing-function-docstring
 class BdistDMG(Command):
     """Create a Mac DMG disk image containing the Mac application bundle."""
 

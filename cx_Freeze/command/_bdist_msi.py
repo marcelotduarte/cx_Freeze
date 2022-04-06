@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2005, 2006 Martin von Löwis
 # Licensed to PSF under a Contributor Agreement.
-# pylint: disable=too-many-lines
 """
 Implements the bdist_msi command.
 
@@ -23,8 +22,8 @@ from setuptools.errors import OptionError
 from ._pydialog import PyDialog
 
 
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=missing-function-docstring,invalid-name
+# pylint: disable=attribute-defined-outside-init,missing-function-docstring
+# pylint: disable=too-many-lines,invalid-name
 class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 

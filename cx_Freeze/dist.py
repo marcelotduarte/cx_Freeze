@@ -20,11 +20,11 @@ from .freezer import Freezer
 from .module import ConstantsModule
 
 if sys.platform == "win32":
-    from .command.bdist_msi import bdist_msi
+    from .command.bdist_msi import BdistMSI
 elif sys.platform == "darwin":
     from .command.bdist_mac import BdistDMG, BdistMac
 else:
-    from .command.bdist_rpm import bdist_rpm
+    from .command.bdist_rpm import BdistRPM
 
 __all__ = [
     "build",
@@ -440,12 +440,12 @@ def setup(**attrs):
     attrs.setdefault("distclass", Distribution)
     command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _add_command_class(command_classes, "bdist_msi", bdist_msi)
+        _add_command_class(command_classes, "bdist_msi", BdistMSI)
     elif sys.platform == "darwin":
         _add_command_class(command_classes, "bdist_dmg", BdistDMG)
         _add_command_class(command_classes, "bdist_mac", BdistMac)
     else:
-        _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
+        _add_command_class(command_classes, "bdist_rpm", BdistRPM)
     _add_command_class(command_classes, "build", build)
     _add_command_class(command_classes, "build_exe", build_exe)
     _add_command_class(command_classes, "install", install)

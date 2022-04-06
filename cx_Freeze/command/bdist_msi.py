@@ -10,10 +10,10 @@ import sysconfig
 
 from packaging.version import Version
 
-from ._bdist_msi import bdist_msi as bdist_msi_root
+from ._bdist_msi import bdist_msi
 from ._pydialog import PyDialog
 
-__all__ = ["bdist_msi"]
+__all__ = ["BdistMSI"]
 
 # force the remove existing products action to happen first since Windows
 # installer appears to be braindead and doesn't handle files shared between
@@ -25,11 +25,11 @@ for index, info in enumerate(sequence):
 
 
 # pylint: disable=attribute-defined-outside-init
-# pylint: disable=missing-function-docstring,invalid-name
-class bdist_msi(bdist_msi_root):
+# pylint: disable=missing-function-docstring
+class BdistMSI(bdist_msi):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
-    user_options = bdist_msi_root.user_options + [
+    user_options = bdist_msi.user_options + [
         ("add-to-path=", None, "add target dir to PATH environment variable"),
         ("upgrade-code=", None, "upgrade code to use"),
         ("initial-target-dir=", None, "initial target directory"),
@@ -232,7 +232,7 @@ class bdist_msi(bdist_msi_root):
             None,
         )
         dialog.text("ErrorText", 50, 9, 280, 48, 3, "")
-        for text, x in [
+        for text, pos in [
             ("No", 120),
             ("Yes", 240),
             ("Abort", 0),
@@ -241,7 +241,7 @@ class bdist_msi(bdist_msi_root):
             ("Ok", 159),
             ("Retry", 198),
         ]:
-            button = dialog.pushbutton(text[0], x, 72, 81, 21, 3, text, None)
+            button = dialog.pushbutton(text[0], pos, 72, 81, 21, 3, text, None)
             button.event("EndDialog", f"Error{text}")
 
     def add_exit_dialog(self):
@@ -314,10 +314,10 @@ class bdist_msi(bdist_msi_root):
         button.event("EndDialog", "Exit")
 
     def add_files(self):
-        db = self.db
+        database = self.db
         cab = msilib.CAB("distfiles")
         feature = msilib.Feature(
-            db,
+            database,
             "default",
             "Default Feature",
             "Everything",
@@ -327,9 +327,9 @@ class bdist_msi(bdist_msi_root):
         feature.set_current()
         rootdir = os.path.abspath(self.bdist_dir)
         root = msilib.Directory(
-            db, cab, None, rootdir, "TARGETDIR", "SourceDir"
+            database, cab, None, rootdir, "TARGETDIR", "SourceDir"
         )
-        db.Commit()
+        database.Commit()
         todo = [root]
         while todo:
             directory = todo.pop()
@@ -351,14 +351,14 @@ class bdist_msi(bdist_msi_root):
                     directory.add_file(file)
                     directory.component = restore_component
                 elif os.path.isdir(os.path.join(directory.absolute, file)):
-                    short_file = directory.make_short(file)
+                    sfile = directory.make_short(file)
                     new_dir = msilib.Directory(
-                        db, cab, directory, file, file, f"{short_file}|{file}"
+                        database, cab, directory, file, file, f"{sfile}|{file}"
                     )
                     todo.append(new_dir)
                 else:
                     directory.add_file(file)
-        cab.commit(db)
+        cab.commit(database)
 
     def add_files_in_use_dialog(self):
         dialog = PyDialog(
@@ -802,7 +802,7 @@ class bdist_msi(bdist_msi_root):
             rows.append(line)
 
     def finalize_options(self):
-        bdist_msi_root.finalize_options(self)
+        bdist_msi.finalize_options(self)
         name = self.distribution.get_name()
         fullname = self.distribution.get_fullname()
         platform = sysconfig.get_platform().replace("win-amd64", "win64")
@@ -908,7 +908,7 @@ class bdist_msi(bdist_msi_root):
             )
 
     def initialize_options(self):
-        bdist_msi_root.initialize_options(self)
+        bdist_msi.initialize_options(self)
         self.upgrade_code = None
         self.product_code = None
         self.add_to_path = None

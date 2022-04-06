@@ -25,16 +25,16 @@ __all__ = [
 ]
 
 if sys.platform == "win32":
-    from .command.bdist_msi import bdist_msi
+    from .command.bdist_msi import BdistMSI
 
-    __all__.append(bdist_msi.__name__)
+    __all__.append(BdistMSI.__name__)
 elif sys.platform == "darwin":
     from .command.bdist_mac import BdistDMG, BdistMac
 
     __all__.extend([BdistDMG.__name__, BdistMac.__name__])
 else:
-    from .command.bdist_rpm import bdist_rpm
+    from .command.bdist_rpm import BdistRPM
 
-    __all__.append(bdist_rpm.__name__)
+    __all__.append(BdistRPM.__name__)
 
 __version__ = "6.11.0-dev0"

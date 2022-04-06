@@ -17,10 +17,11 @@ from setuptools.errors import ExecError, FileError, OptionError, PlatformError
 # debug mode.
 DEBUG = os.environ.get("DISTUTILS_DEBUG")
 
+__all__ = ["BdistRPM"]
+
 
 # pylint: disable=attribute-defined-outside-init,missing-function-docstring
-# pylint: disable-next=invalid-name
-class bdist_rpm(Command):
+class BdistRPM(Command):
     """Create an RPM distribution."""
 
     description = "create an RPM distribution"
