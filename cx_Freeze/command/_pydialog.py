@@ -22,7 +22,7 @@ class PyDialog(Dialog):
         default,
         cancel,
         bitmap=True,
-    ):  # pylint: disable=invalid-name,too-many-arguments,W0613
+    ):  # pylint: disable=invalid-name,unused-argument
         Dialog.__init__(
             self, db, name, x, y, w, h, attr, title, first, default, cancel
         )

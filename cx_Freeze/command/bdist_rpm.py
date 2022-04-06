@@ -18,8 +18,7 @@ from setuptools.errors import ExecError, FileError, OptionError, PlatformError
 DEBUG = os.environ.get("DISTUTILS_DEBUG")
 
 
-# pylint: disable=too-many-instance-attributes,attribute-defined-outside-init
-# pylint: disable=missing-function-docstring,fixme
+# pylint: disable=attribute-defined-outside-init,missing-function-docstring
 # pylint: disable-next=invalid-name
 class bdist_rpm(Command):
     """Create an RPM distribution."""
@@ -319,7 +318,7 @@ class bdist_rpm(Command):
 
         self.ensure_string("force_arch")
 
-    def run(self):  # pylint: disable=R0912,R0914,R0915
+    def run(self):
         if DEBUG:
             print("before _get_package_data():")
             print("vendor =", self.vendor)
@@ -459,7 +458,7 @@ class bdist_rpm(Command):
     def _dist_path(self, path):
         return os.path.join(self.dist_dir, os.path.basename(path))
 
-    def _make_spec_file(self):  # pylint: disable=R0912,R0914,R0915
+    def _make_spec_file(self):
         """Generate the text of an RPM spec file and return it as a
         list of strings (one per line).
         """

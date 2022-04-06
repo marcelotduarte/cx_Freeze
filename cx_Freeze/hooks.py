@@ -18,7 +18,6 @@ MINGW = sysconfig.get_platform().startswith("mingw")
 WIN32 = sys.platform == "win32"
 
 
-# pylint: disable-next=too-many-statements
 def initialize(finder: ModuleFinder) -> None:
     """Upon initialization of the finder, this routine is called to set up some
     automatic exclusions for various platforms."""
