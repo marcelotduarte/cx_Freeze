@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 if sys.platform == "win32":
-    from .windist import bdist_msi
+    from .command.bdist_msi import bdist_msi
 
     __all__.append(bdist_msi.__name__)
 elif sys.platform == "darwin":
