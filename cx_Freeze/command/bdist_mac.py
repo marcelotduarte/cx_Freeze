@@ -1,6 +1,4 @@
 """Extends setuptools to build macOS dmg or app blundle."""
-# pylint: disable=C0116,W0201
-# C0103
 
 import os
 import plistlib
@@ -19,10 +17,12 @@ from cx_Freeze.darwintools import (
     changeLoadReference,
 )
 
-__all__ = ["bdist_dmg", "bdist_mac"]
+__all__ = ["BdistDMG", "BdistMac"]
 
 
-class bdist_dmg(Command):
+# pylint: disable=attribute-defined-outside-init
+# pylint: disable=missing-function-docstring
+class BdistDMG(Command):
     """Create a Mac DMG disk image containing the Mac application bundle."""
 
     description = (
@@ -48,22 +48,22 @@ class bdist_dmg(Command):
         if self.silent is None:
             self.silent = False
 
-    def buildDMG(self):
+    def build_dmg(self):
         # Remove DMG if it already exists
-        if os.path.exists(self.dmgName):
-            os.unlink(self.dmgName)
+        if os.path.exists(self.dmg_name):
+            os.unlink(self.dmg_name)
 
         # Make dist folder
-        self.dist_dir = os.path.join(self.buildDir, "dist")
+        self.dist_dir = os.path.join(self.build_dir, "dist")
         if os.path.exists(self.dist_dir):
             shutil.rmtree(self.dist_dir)
         self.mkpath(self.dist_dir)
 
         # Copy App Bundle
         dest_dir = os.path.join(
-            self.dist_dir, os.path.basename(self.bundleDir)
+            self.dist_dir, os.path.basename(self.bundle_dir)
         )
-        self.copy_tree(self.bundleDir, dest_dir)
+        self.copy_tree(self.bundle_dir, dest_dir)
 
         createargs = [
             "hdiutil",
@@ -76,7 +76,7 @@ class bdist_dmg(Command):
             "HFSX",
             "-format",
             "UDZO",
-            self.dmgName,
+            self.dmg_name,
             "-imagekey",
             "zlib-level=9",
             "-srcfolder",
@@ -100,16 +100,18 @@ class bdist_dmg(Command):
         self.run_command("bdist_mac")
 
         # Find the location of the application bundle and the build dir
-        self.bundleDir = self.get_finalized_command("bdist_mac").bundleDir
-        self.buildDir = self.get_finalized_command("build").build_base
+        self.bundle_dir = self.get_finalized_command("bdist_mac").bundle_dir
+        self.build_dir = self.get_finalized_command("build").build_base
 
         # Set the file name of the DMG to be built
-        self.dmgName = os.path.join(self.buildDir, self.volume_label + ".dmg")
+        self.dmg_name = os.path.join(
+            self.build_dir, self.volume_label + ".dmg"
+        )
 
-        self.execute(self.buildDMG, ())
+        self.execute(self.build_dmg, ())
 
 
-class bdist_mac(Command):  # pylint: disable=R0902
+class BdistMac(Command):
     """Create a Mac application bundle."""
 
     description = "create a Mac application bundle"
@@ -255,10 +257,10 @@ class bdist_mac(Command):  # pylint: disable=R0902
         for key, value in self.plist_items:
             contents[key] = value
 
-        with open(os.path.join(self.contentsDir, "Info.plist"), "wb") as file:
+        with open(os.path.join(self.contents_dir, "Info.plist"), "wb") as file:
             plistlib.dump(contents, file)
 
-    def setAbsoluteReferencePaths(self, path=None):
+    def set_absolute_reference_paths(self, path=None):
         """
         For all files in Contents/MacOS, set their linked library paths to be
         absolute paths using the given path instead of @executable_path.
@@ -266,10 +268,10 @@ class bdist_mac(Command):  # pylint: disable=R0902
         if not path:
             path = self.absolute_reference_path
 
-        files = os.listdir(self.binDir)
+        files = os.listdir(self.bin_dir)
 
         for filename in files:
-            filename = os.path.join(self.binDir, filename)
+            filename = os.path.join(self.bin_dir, filename)
 
             # Skip some file types
             if filename[-1:] in ("txt", "zip") or os.path.isdir(filename):
@@ -300,29 +302,29 @@ class bdist_mac(Command):  # pylint: disable=R0902
                         )
             applyAdHocSignature(filename)
 
-    def setRelativeReferencePaths(self, buildDir: str, binDir: str):
+    def set_relative_reference_paths(self, build_dir: str, bin_dir: str):
         """
         Make all the references from included Mach-O files to other included
         Mach-O files relative.
         """
-        darwinFile: DarwinFile
+        darwin_file: DarwinFile
 
-        for darwinFile in self.darwinTracker:
-            # get the relative path to darwinFile in build directory
-            relativeCopyDestination = os.path.relpath(
-                darwinFile.getBuildPath(), buildDir
+        for darwin_file in self.darwin_tracker:
+            # get the relative path to darwin_file in build directory
+            relative_copy_dest = os.path.relpath(
+                darwin_file.getBuildPath(), build_dir
             )
             # figure out directory where it will go in binary directory for
             # .app bundle, this would be the Content/MacOS subdirectory in
             # bundle.  This is the file that needs to have its dynamic load
             # references updated.
-            filePathInBinDir = os.path.join(binDir, relativeCopyDestination)
+            file_path_in_bin_dir = os.path.join(bin_dir, relative_copy_dest)
 
-            # for each file that this darwinFile references, update the
+            # for each file that this darwin_file references, update the
             # reference as necessary; if the file is copied into the binary
             # package, change the reference to be relative to @executable_path
             # (so an .app bundle will work wherever it is moved)
-            for reference in darwinFile.getMachOReferenceList():
+            for reference in darwin_file.getMachOReferenceList():
                 if not reference.is_copied:
                     # referenced file not copied -- assume this is a system
                     # file that will also be present on the user's machine,
@@ -330,22 +332,20 @@ class bdist_mac(Command):  # pylint: disable=R0902
                     continue
                 # this is the reference in the machO file that needs to be
                 # updated
-                rawPath = reference.raw_path
-                referencedDarwinFile: DarwinFile = reference.target_file
+                raw_path = reference.raw_path
+                ref_target_file: DarwinFile = reference.target_file
                 # this is where file copied in build dir
-                absoluteBuildDest = referencedDarwinFile.getBuildPath()
-                relativeBuildDest = os.path.relpath(
-                    absoluteBuildDest, buildDir
-                )
-                exePath = f"@executable_path/{relativeBuildDest}"
+                abs_build_dest = ref_target_file.getBuildPath()
+                rel_build_dest = os.path.relpath(abs_build_dest, build_dir)
+                exe_path = f"@executable_path/{rel_build_dest}"
                 changeLoadReference(
-                    filePathInBinDir,
-                    oldReference=rawPath,
-                    newReference=exePath,
+                    file_path_in_bin_dir,
+                    oldReference=raw_path,
+                    newReference=exe_path,
                     VERBOSE=False,
                 )
 
-            applyAdHocSignature(filePathInBinDir)
+            applyAdHocSignature(file_path_in_bin_dir)
 
     def find_qt_menu_nib(self):
         """
@@ -354,17 +354,18 @@ class bdist_mac(Command):  # pylint: disable=R0902
         """
         if self.qt_menu_nib:
             return self.qt_menu_nib
-        if any(n.startswith("PyQt4.QtCore") for n in os.listdir(self.binDir)):
-            from PyQt4 import QtCore
+        if any(n.startswith("PyQt4.QtCore") for n in os.listdir(self.bin_dir)):
+            name = "PyQt4"
         elif any(
-            n.startswith("PySide.QtCore") for n in os.listdir(self.binDir)
+            n.startswith("PySide.QtCore") for n in os.listdir(self.bin_dir)
         ):
-            from PySide import QtCore
+            name = "PySide"
         else:
             return None
 
+        qtcore = __import__(name, fromlist=["QtCore"]).QtCore
         libpath = str(
-            QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.LibrariesPath)
+            qtcore.QLibraryInfo.location(qtcore.QLibraryInfo.LibrariesPath)
         )
         for subpath in [
             "QtGui.framework/Resources/qt_menu.nib",
@@ -396,11 +397,11 @@ class bdist_mac(Command):  # pylint: disable=R0902
 
         # Copy qt_menu.nib
         self.copy_tree(
-            nib_locn, os.path.join(self.resourcesDir, "qt_menu.nib")
+            nib_locn, os.path.join(self.resources_dir, "qt_menu.nib")
         )
 
         # qt.conf needs to exist, but needn't have any content
-        with open(os.path.join(self.resourcesDir, "qt.conf"), "wb"):
+        with open(os.path.join(self.resources_dir, "qt.conf"), "wb"):
             pass
 
     def run(self):
@@ -411,66 +412,66 @@ class bdist_mac(Command):  # pylint: disable=R0902
         ).freezer
 
         # Define the paths within the application bundle
-        self.bundleDir = os.path.join(
+        self.bundle_dir = os.path.join(
             build.build_base, self.bundle_name + ".app"
         )
-        self.contentsDir = os.path.join(self.bundleDir, "Contents")
-        self.resourcesDir = os.path.join(self.contentsDir, "Resources")
-        self.binDir = os.path.join(self.contentsDir, "MacOS")
-        self.frameworksDir = os.path.join(self.contentsDir, "Frameworks")
+        self.contents_dir = os.path.join(self.bundle_dir, "Contents")
+        self.resources_dir = os.path.join(self.contents_dir, "Resources")
+        self.bin_dir = os.path.join(self.contents_dir, "MacOS")
+        self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
 
         # Find the executable name
         executable = self.distribution.executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
 
         # Build the app directory structure
-        self.mkpath(self.resourcesDir)
-        self.mkpath(self.binDir)
-        self.mkpath(self.frameworksDir)
+        self.mkpath(self.resources_dir)
+        self.mkpath(self.bin_dir)
+        self.mkpath(self.frameworks_dir)
 
-        self.copy_tree(build.build_exe, self.binDir)
+        self.copy_tree(build.build_exe, self.bin_dir)
 
         # Copy the icon
         if self.iconfile:
             self.copy_file(
-                self.iconfile, os.path.join(self.resourcesDir, "icon.icns")
+                self.iconfile, os.path.join(self.resources_dir, "icon.icns")
             )
 
         # Copy in Frameworks
         for framework in self.include_frameworks:
             self.copy_tree(
                 framework,
-                os.path.join(self.frameworksDir, os.path.basename(framework)),
+                os.path.join(self.frameworks_dir, os.path.basename(framework)),
             )
 
         # Copy in Resources
         for resource, destination in self.include_resources:
             if os.path.isdir(resource):
                 self.copy_tree(
-                    resource, os.path.join(self.resourcesDir, destination)
+                    resource, os.path.join(self.resources_dir, destination)
                 )
             else:
                 parent_dirs = os.path.dirname(
-                    os.path.join(self.resourcesDir, destination)
+                    os.path.join(self.resources_dir, destination)
                 )
                 os.makedirs(parent_dirs, exist_ok=True)
                 self.copy_file(
-                    resource, os.path.join(self.resourcesDir, destination)
+                    resource, os.path.join(self.resources_dir, destination)
                 )
 
         # Create the Info.plist file
         self.execute(self.create_plist, ())
 
         # Make all references to libraries relative
-        self.darwinTracker: DarwinFileTracker = freezer.darwinTracker
+        self.darwin_tracker: DarwinFileTracker = freezer.darwin_tracker
         self.execute(
-            self.setRelativeReferencePaths,
-            (os.path.abspath(build.build_exe), os.path.abspath(self.binDir)),
+            self.set_relative_reference_paths,
+            (os.path.abspath(build.build_exe), os.path.abspath(self.bin_dir)),
         )
 
         # Make library references absolute if enabled
         if self.absolute_reference_path:
-            self.execute(self.setAbsoluteReferencePaths, ())
+            self.execute(self.set_absolute_reference_paths, ())
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
@@ -491,7 +492,7 @@ class bdist_mac(Command):  # pylint: disable=R0902
                     1, "--resource-rules=" + self.codesign_resource_rules
                 )
 
-            signargs.append(self.bundleDir)
+            signargs.append(self.bundle_dir)
 
             if subprocess.call(signargs) != 0:
                 raise OSError("Code signing of app bundle failed")

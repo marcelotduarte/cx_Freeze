@@ -22,7 +22,7 @@ from .module import ConstantsModule
 if sys.platform == "win32":
     from .command.bdist_msi import bdist_msi
 elif sys.platform == "darwin":
-    from .macdist import bdist_dmg, bdist_mac
+    from .command.bdist_mac import BdistDMG, BdistMac
 else:
     from .command.bdist_rpm import bdist_rpm
 
@@ -442,8 +442,8 @@ def setup(**attrs):
     if sys.platform == "win32":
         _add_command_class(command_classes, "bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
-        _add_command_class(command_classes, "bdist_dmg", bdist_dmg)
-        _add_command_class(command_classes, "bdist_mac", bdist_mac)
+        _add_command_class(command_classes, "bdist_dmg", BdistDMG)
+        _add_command_class(command_classes, "bdist_mac", BdistMac)
     else:
         _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
     _add_command_class(command_classes, "build", build)
