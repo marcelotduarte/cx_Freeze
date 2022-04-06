@@ -4,6 +4,13 @@ The project's code layout
 
 * ``cx_Freeze/`` (Python files)
 
+  * ``command/`` - Creates or extends setuptools commands.
+
+    * ``bdist_msi.py`` - Extends setuptools to build Windows installer packages.
+    * ``bdist_rpm.py`` - Extends setuptools to create an RPM distribution.
+
+  * ``initscripts/`` - Python scripts which set up the interpreter to run from
+    frozen code, then load the code from the zip file and set it running.
   * ``cli.py`` - The code behind the :ref:`cxfreeze script <script>`.
   * ``common.py`` - Common utility functions shared between cx_Freeze modules.
   * ``dist.py`` - The classes and functions with which cx_Freeze :ref:`extends
@@ -19,7 +26,6 @@ The project's code layout
   * ``module.py`` - Base class for Module and ConstantsModule.
   * ``parser.py`` - Implements `Parser` interface to create an abstraction to
     parse binary files.
-  * ``windist.py`` - Extends setuptools to build Windows installer packages.
   * ``winmsvcr.py`` - DLL list of MSVC runtimes.
   * ``winversioninfo.py`` - Module for the VersionInfo base class.
 
@@ -33,6 +39,4 @@ The project's code layout
     :mod:`cx_Freeze.util`. Functions are used only on Windows.
 
 * ``doc/`` - The Sphinx documentation.
-* ``initscripts/`` - Python scripts which set up the interpreter to run from
-  frozen code, then load the code from the zip file and set it running.
 * ``samples/`` - Examples of using cx_Freeze with a number of common modules.
