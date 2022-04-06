@@ -21,7 +21,6 @@ format.max-line-length = 79
 master.ignore="""
 darwintools.py,
 freezer.py,
-macdist.py,
 parser.py,
 setupwriter.py
 """

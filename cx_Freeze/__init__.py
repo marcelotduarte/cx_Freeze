@@ -29,9 +29,9 @@ if sys.platform == "win32":
 
     __all__.append(bdist_msi.__name__)
 elif sys.platform == "darwin":
-    from .macdist import bdist_dmg, bdist_mac
+    from .command.bdist_mac import BdistDMG, BdistMac
 
-    __all__.extend([bdist_dmg.__name__, bdist_mac.__name__])
+    __all__.extend([BdistDMG.__name__, BdistMac.__name__])
 else:
     from .command.bdist_rpm import bdist_rpm
 

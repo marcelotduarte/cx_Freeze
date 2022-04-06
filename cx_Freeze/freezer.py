@@ -856,11 +856,11 @@ class DarwinFreezer(Freezer, Parser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
         Parser.__init__(self, self.silent)
-        self.darwinTracker: Optional[DarwinFileTracker] = None
-        self.darwinTracker = DarwinFileTracker()
+        self.darwin_tracker: Optional[DarwinFileTracker] = None
+        self.darwin_tracker = DarwinFileTracker()
 
     def _post_freeze_hook(self) -> None:
-        self.darwinTracker.finalizeReferences()
+        self.darwin_tracker.finalizeReferences()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
         """Prepare the source and target paths."""
@@ -886,7 +886,7 @@ class DarwinFreezer(Freezer, Parser):
         if reference is not None:
             reference.setTargetFile(darwin_file)
 
-        self.darwinTracker.recordCopiedFile(target, darwin_file)
+        self.darwin_tracker.recordCopiedFile(target, darwin_file)
         if (
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
@@ -927,7 +927,7 @@ class DarwinFreezer(Freezer, Parser):
                 # from a DarwinFile, then we need to tell the reference where
                 # the file was copied to (the reference can later be updated).
                 reference.setTargetFile(
-                    self.darwinTracker.getDarwinFile(source, target)
+                    self.darwin_tracker.getDarwinFile(source, target)
                 )
             return
         if source == target:
@@ -963,7 +963,7 @@ class DarwinFreezer(Freezer, Parser):
         # We need to do this so the file knows what file referenced it,
         # and can therefore calculate the appropriate rpath.
         # (We only cache one reference.)
-        cachedReference = self.darwinTracker.getCachedReferenceTo(source)
+        cachedReference = self.darwin_tracker.getCachedReferenceTo(source)
         self._copy_file_recursion(
             source,
             target,
@@ -1000,7 +1000,7 @@ class DarwinFreezer(Freezer, Parser):
         # an explicit reference provided (to assist in resolving @rpaths)
         for reference in darwinFile.getMachOReferenceList():
             if reference.isResolved():
-                self.darwinTracker.cacheReferenceTo(
+                self.darwin_tracker.cacheReferenceTo(
                     reference.resolved_path, reference
                 )
         self.dependent_files[path] = dependent_files

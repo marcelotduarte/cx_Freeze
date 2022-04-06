@@ -6,6 +6,7 @@ The project's code layout
 
   * ``command/`` - Creates or extends setuptools commands.
 
+    * ``bdist_mac.py`` - Extends setuptools to build macOS dmg or app blundle.
     * ``bdist_msi.py`` - Extends setuptools to build Windows installer packages.
     * ``bdist_rpm.py`` - Extends setuptools to create an RPM distribution.
 
@@ -22,7 +23,6 @@ The project's code layout
   * ``freezer.py`` - The core class for freezing scripts into executables.
   * ``hooks.py`` - A collection of functions which are triggered automatically
     by ``finder.py`` when certain packages are included or not found.
-  * ``macdist.py`` - Extends setuptools to build macOS dmg or app blundle.
   * ``module.py`` - Base class for Module and ConstantsModule.
   * ``parser.py`` - Implements `Parser` interface to create an abstraction to
     parse binary files.
