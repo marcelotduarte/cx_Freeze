@@ -28,7 +28,6 @@ parser.py,
 setupwriter.py
 """
 ignore-paths = """
-^cx_Freeze/initscripts/.*.py$,
 ^cx_Freeze/samples/.*.py$,
 ^tests/samples/invalid_syntax.py$,
 ^tests/samples/testpkg1/.*.py$,

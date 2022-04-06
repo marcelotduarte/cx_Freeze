@@ -22,6 +22,8 @@ STRINGREPLACE = list(
 
 
 class ExtensionFinder(PathFinder):
+    """A Finder for extension modules of packages in zip files."""
+
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):
         """
@@ -46,6 +48,8 @@ class ExtensionFinder(PathFinder):
 
 
 def init():
+    """Basic initialization of the startup script."""
+
     # update sys module
     if sys.platform == "win32":
         # for MSYS2
@@ -53,6 +57,7 @@ def init():
         sys.executable = os.path.normpath(sys.executable)
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
     sys.meta_path.append(ExtensionFinder)
+
     if sys.platform == "win32":
         # fix PATH for conda managers and MSYS2
         add_to_path = os.path.join(frozen_dir, "lib")
@@ -82,6 +87,8 @@ def init():
 
 
 def run():
+    """Determines the name of the initscript and execute it."""
+
     # get the real name of __init__ script
     # basically, the basename of executable plus __init__
     # but can be renamed when only one executable exists
