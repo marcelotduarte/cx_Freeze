@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2005, 2006 Martin von Löwis
 # Licensed to PSF under a Contributor Agreement.
+# pylint: disable=too-many-lines
 """
 Implements the bdist_msi command.
 """
@@ -17,81 +18,13 @@ from packaging.version import Version
 from setuptools import Command
 from setuptools.errors import OptionError
 
-
-class PyDialog(Dialog):
-    """Dialog class with a fixed layout: controls at the top, then a ruler,
-    then a list of buttons: back, next, cancel. Optionally a bitmap at the
-    left."""
-
-    def __init__(self, *args, **kw):
-        """Dialog(database, name, x, y, w, h, attributes, title, first,
-        default, cancel, bitmap=true)"""
-        Dialog.__init__(self, *args)
-        ruler = self.h - 36
-        # bmwidth = 152 * ruler / 328
-        # if kw.get("bitmap", True):
-        #    self.bitmap("Bitmap", 0, 0, bmwidth, ruler, "PythonWin")
-        self.line("BottomLine", 0, ruler, self.w, 0)
-
-    def title(self, title):
-        "Set the title text of the dialog at the top."
-        # name, x, y, w, h, flags=Visible|Enabled|Transparent|NoPrefix,
-        # text, in VerdanaBold10
-        self.text(
-            "Title", 15, 10, 320, 60, 0x30003, r"{\VerdanaBold10}%s" % title
-        )
-
-    def back(self, title, next, name="Back", active=1):
-        """Add a back button with a given title, the tab-next button,
-        its name in the Control table, possibly initially disabled.
-
-        Return the button, so that events can be associated"""
-        if active:
-            flags = 3  # Visible|Enabled
-        else:
-            flags = 1  # Visible
-        return self.pushbutton(
-            name, 180, self.h - 27, 56, 17, flags, title, next
-        )
-
-    def cancel(self, title, next, name="Cancel", active=1):
-        """Add a cancel button with a given title, the tab-next button,
-        its name in the Control table, possibly initially disabled.
-
-        Return the button, so that events can be associated"""
-        if active:
-            flags = 3  # Visible|Enabled
-        else:
-            flags = 1  # Visible
-        return self.pushbutton(
-            name, 304, self.h - 27, 56, 17, flags, title, next
-        )
-
-    def next(self, title, next, name="Next", active=1):
-        """Add a Next button with a given title, the tab-next button,
-        its name in the Control table, possibly initially disabled.
-
-        Return the button, so that events can be associated"""
-        if active:
-            flags = 3  # Visible|Enabled
-        else:
-            flags = 1  # Visible
-        return self.pushbutton(
-            name, 236, self.h - 27, 56, 17, flags, title, next
-        )
-
-    def xbutton(self, name, title, next, xpos):
-        """Add a button with a given title, the tab-next button,
-        its name in the Control table, giving its x position; the
-        y-position is aligned with the other buttons.
-
-        Return the button, so that events can be associated"""
-        return self.pushbutton(
-            name, int(self.w * xpos - 28), self.h - 27, 56, 17, 3, title, next
-        )
+from ._pydialog import PyDialog
 
 
+# pylint: disable=too-many-instance-attributes,attribute-defined-outside-init
+# pylint: disable=missing-function-docstring,fixme,invalid-name
 class bdist_msi(Command):
+    """Create a Microsoft Installer (.msi) binary distribution."""
 
     description = "create a Microsoft Installer (.msi) binary distribution"
 
@@ -105,18 +38,18 @@ class bdist_msi(Command):
             "plat-name=",
             "p",
             "platform name to embed in generated filenames "
-            "(default: %s)" % get_platform(),
+            f"(default: {get_platform()})",
         ),
         (
             "keep-temp",
             "k",
             "keep the pseudo-installation tree around after "
-            + "creating the distribution archive",
+            "creating the distribution archive",
         ),
         (
             "target-version=",
             None,
-            "require a specific python version" + " on the target system",
+            "require a specific python version on the target system",
         ),
         (
             "no-target-compile",
@@ -126,7 +59,7 @@ class bdist_msi(Command):
         (
             "no-target-optimize",
             "o",
-            "do not compile .py to .pyo (optimized) " "on the target system",
+            "do not compile .py to .pyo (optimized) on the target system",
         ),
         ("dist-dir=", "d", "directory to put final built distributions in"),
         (
@@ -156,28 +89,8 @@ class bdist_msi(Command):
         "skip-build",
     ]
 
-    all_versions = [
-        "2.0",
-        "2.1",
-        "2.2",
-        "2.3",
-        "2.4",
-        "2.5",
-        "2.6",
-        "2.7",
-        "2.8",
-        "2.9",
-        "3.0",
-        "3.1",
-        "3.2",
-        "3.3",
-        "3.4",
-        "3.5",
-        "3.6",
-        "3.7",
-        "3.8",
-        "3.9",
-    ]
+    all_versions = [str(i / 10) for i in range(20, 39)]  # 2.0 to 3.9
+    all_versions += ["3.10", "3.11", "3.12", "3.13"]
     other_version = "X"
 
     def initialize_options(self):
@@ -212,8 +125,8 @@ class bdist_msi(Command):
                 and self.target_version != short_version
             ):
                 raise OptionError(
-                    "target version can only be %s, or the '--skip-build'"
-                    " option must be specified" % (short_version,)
+                    f"target version can only be {short_version}, or the "
+                    "'--skip-build' option must be specified"
                 )
         else:
             self.versions = list(self.all_versions)
@@ -235,12 +148,12 @@ class bdist_msi(Command):
                     break
             else:
                 raise OptionError(
-                    "install_script '%s' not found in scripts"
-                    % self.install_script
+                    f"install_script '{self.install_script}' not found in "
+                    "scripts"
                 )
         self.install_script_key = None
 
-    def run(self):
+    def run(self):  # pylint: disable=R0912,R0914,R0915
         if not self.skip_build:
             self.run_command("build")
 
@@ -258,14 +171,14 @@ class bdist_msi(Command):
             # If we are building an installer for a Python version other
             # than the one we are currently running, then we need to ensure
             # our build_lib reflects the other Python version rather than ours.
-            # Note that for target_version!=sys.version, we must have skipped the
-            # build step, so there is no issue with enforcing the build of this
-            # version.
+            # Note that for target_version!=sys.version, we must have skipped
+            # the build step, so there is no issue with enforcing the build of
+            # this version.
             target_version = self.target_version
             if not target_version:
                 assert self.skip_build, "Should have already checked this"
-                target_version = "%d.%d" % sys.version_info[:2]
-            plat_specifier = ".{}-{}".format(self.plat_name, target_version)
+                target_version = get_python_version()
+            plat_specifier = f".{self.plat_name}-{target_version}"
             build = self.get_finalized_command("build")
             build.build_lib = os.path.join(
                 build.build_base, "lib" + plat_specifier
@@ -300,9 +213,9 @@ class bdist_msi(Command):
         # in Add-Remove-Programs (APR)
         fullname = self.distribution.get_fullname()
         if self.target_version:
-            product_name = "Python {} {}".format(self.target_version, fullname)
+            product_name = f"Python {self.target_version} {fullname}"
         else:
-            product_name = "Python %s" % (fullname)
+            product_name = f"Python {fullname}"
         self.db = msilib.init_database(
             installer_name,
             schema,
@@ -333,24 +246,24 @@ class bdist_msi(Command):
 
         if not self.keep_temp:
             bdist_dir = self.bdist_dir
-            logging.info(f"removing '{bdist_dir}' (and everything under it)")
+            logging.info("removing '%s' (and everything under it)", bdist_dir)
             if not self.dry_run:
                 try:
                     shutil.rmtree(bdist_dir)
                 except OSError as exc:
-                    logging.warn(f"error removing {bdist_dir}: {exc}")
+                    logging.warning("error removing %s: %s", bdist_dir, exc)
 
-    def add_files(self):
+    def add_files(self):  # pylint: disable=R0912,R0914
         db = self.db
         cab = msilib.CAB("distfiles")
         rootdir = os.path.abspath(self.bdist_dir)
 
         root = Directory(db, cab, None, rootdir, "TARGETDIR", "SourceDir")
-        f = Feature(
+        feat = Feature(
             db, "Python", "Python", "Everything", 0, 1, directory="TARGETDIR"
         )
 
-        items = [(f, root, "")]
+        items = [(feat, root, "")]
         for version in self.versions + [self.other_version]:
             target = "TARGETDIR" + version
             name = default = "Python" + version
@@ -359,36 +272,40 @@ class bdist_msi(Command):
                 title = "Python from another location"
                 level = 2
             else:
-                title = "Python %s from registry" % version
+                title = f"Python {version} from registry"
                 level = 1
-            f = Feature(db, name, title, desc, 1, level, directory=target)
-            dir = Directory(db, cab, root, rootdir, target, default)
-            items.append((f, dir, version))
+            feat = Feature(db, name, title, desc, 1, level, directory=target)
+            directory = Directory(db, cab, root, rootdir, target, default)
+            items.append((feat, directory, version))
         db.Commit()
 
         seen = {}
-        for feature, dir, version in items:
-            todo = [dir]
+        for feature, directory, version in items:  # pylint: disable=R1702
+            todo = [directory]
             while todo:
-                dir = todo.pop()
-                for file in os.listdir(dir.absolute):
-                    afile = os.path.join(dir.absolute, file)
+                directory = todo.pop()
+                for file in os.listdir(directory.absolute):
+                    afile = os.path.join(directory.absolute, file)
                     if os.path.isdir(afile):
-                        short = "{}|{}".format(dir.make_short(file), file)
+                        short = f"{directory.make_short(file)}|{file}"
                         default = file + version
-                        newdir = Directory(db, cab, dir, file, default, short)
+                        newdir = Directory(
+                            db, cab, directory, file, default, short
+                        )
                         todo.append(newdir)
                     else:
-                        if not dir.component:
-                            dir.start_component(dir.logical, feature, 0)
+                        if not directory.component:
+                            directory.start_component(
+                                directory.logical, feature, 0
+                            )
                         if afile not in seen:
-                            key = seen[afile] = dir.add_file(file)
+                            key = seen[afile] = directory.add_file(file)
                             if file == self.install_script:
                                 if self.install_script_key:
                                     raise OptionError(
-                                        "Multiple files with name %s" % file
+                                        f"Multiple files with name {file}"
                                     )
-                                self.install_script_key = "[#%s]" % key
+                                self.install_script_key = f"[#{key}]"
                         else:
                             key = seen[afile]
                             add_data(
@@ -397,10 +314,10 @@ class bdist_msi(Command):
                                 [
                                     (
                                         key + version,
-                                        dir.component,
+                                        directory.component,
                                         key,
                                         None,
-                                        dir.logical,
+                                        directory.logical,
                                     )
                                 ],
                             )
@@ -420,27 +337,27 @@ class bdist_msi(Command):
 
         start = 402
         for ver in self.versions:
-            install_path = r"SOFTWARE\Python\PythonCore\%s\InstallPath" % ver
-            machine_reg = "python.machine." + ver
-            user_reg = "python.user." + ver
-            machine_prop = "PYTHON.MACHINE." + ver
-            user_prop = "PYTHON.USER." + ver
-            machine_action = "PythonFromMachine" + ver
-            user_action = "PythonFromUser" + ver
-            exe_action = "PythonExe" + ver
-            target_dir_prop = "TARGETDIR" + ver
-            exe_prop = "PYTHON" + ver
+            install_path = rf"SOFTWARE\Python\PythonCore\{ver}\InstallPath"
+            machine_reg = f"python.machine.{ver}"
+            user_reg = f"python.user.{ver}"
+            machine_prop = f"PYTHON.MACHINE.{ver}"
+            user_prop = f"PYTHON.USER.{ver}"
+            machine_action = f"PythonFromMachine{ver}"
+            user_action = f"PythonFromUser{ver}"
+            exe_action = f"PythonExe{ver}"
+            target_dir_prop = f"TARGETDIR{ver}"
+            exe_prop = f"PYTHON{ver}"
             if msilib.Win64:
-                # Type: msidbLocatorTypeRawValue + msidbLocatorType64bit
-                Type = 2 + 16
+                # type_: msidbLocatorTypeRawValue + msidbLocatorType64bit
+                type_ = 2 + 16
             else:
-                Type = 2
+                type_ = 2
             add_data(
                 self.db,
                 "RegLocator",
                 [
-                    (machine_reg, 2, install_path, None, Type),
-                    (user_reg, 1, install_path, None, Type),
+                    (machine_reg, 2, install_path, None, type_),
+                    (user_reg, 1, install_path, None, type_),
                 ],
             )
             add_data(
@@ -456,19 +373,19 @@ class bdist_msi(Command):
                         machine_action,
                         51 + 256,
                         target_dir_prop,
-                        "[" + machine_prop + "]",
+                        f"[{machine_prop}]",
                     ),
                     (
                         user_action,
                         51 + 256,
                         target_dir_prop,
-                        "[" + user_prop + "]",
+                        f"[{user_prop}]",
                     ),
                     (
                         exe_action,
                         51 + 256,
                         exe_prop,
-                        "[" + target_dir_prop + "]\\python.exe",
+                        f"[{target_dir_prop}]\\python.exe",
                     ),
                 ],
             )
@@ -493,7 +410,7 @@ class bdist_msi(Command):
             add_data(
                 self.db,
                 "Condition",
-                [("Python" + ver, 0, "NOT TARGETDIR" + ver)],
+                [(f"Python{ver}", 0, f"NOT TARGETDIR{ver}")],
             )
             start += 4
             assert start < 500
@@ -502,8 +419,8 @@ class bdist_msi(Command):
         if self.install_script:
             start = 6800
             for ver in self.versions + [self.other_version]:
-                install_action = "install_script." + ver
-                exe_prop = "PYTHON" + ver
+                install_action = f"install_script.{ver}"
+                exe_prop = f"PYTHON{ver}"
                 add_data(
                     self.db,
                     "CustomAction",
@@ -512,7 +429,7 @@ class bdist_msi(Command):
                 add_data(
                     self.db,
                     "InstallExecuteSequence",
-                    [(install_action, "&Python%s=3" % ver, start)],
+                    [(install_action, f"&Python{ver}=3", start)],
                 )
                 start += 1
         # XXX pre-install scripts are currently refused in finalize_options()
@@ -520,7 +437,7 @@ class bdist_msi(Command):
         #     entries for each version as the above code does
         if self.pre_install_script:
             scriptfn = os.path.join(self.bdist_dir, "preinstall.bat")
-            with open(scriptfn, "w") as f:
+            with open(scriptfn, "w", encoding="utf-8") as file:
                 # The batch file will be executed with [PYTHON], so that %1
                 # is the path to the Python interpreter; %0 will be the path
                 # of the batch file.
@@ -529,9 +446,9 @@ class bdist_msi(Command):
                 # exit
                 # """
                 # <actual script>
-                f.write('rem ="""\n%1 %0\nexit\n"""\n')
-                with open(self.pre_install_script) as fin:
-                    f.write(fin.read())
+                file.write('rem ="""\n%1 %0\nexit\n"""\n')
+                with open(self.pre_install_script, encoding="utf-8") as fin:
+                    file.write(fin.read())
             add_data(
                 self.db, "Binary", [("PreInstall", msilib.Binary(scriptfn))]
             )
@@ -546,7 +463,7 @@ class bdist_msi(Command):
                 [("PreInstall", "NOT Installed", 450)],
             )
 
-    def add_ui(self):
+    def add_ui(self):  # pylint: disable=R0914,R0915
         db = self.db
         x = y = 50
         w = 370
@@ -556,7 +473,7 @@ class bdist_msi(Command):
         # see "Dialog Style Bits"
         modal = 3  # visible | modal
         modeless = 1  # visible
-        track_disk_space = 32
+        # track_disk_space = 32
 
         # UI customization properties
         add_data(
@@ -588,7 +505,8 @@ class bdist_msi(Command):
         )
 
         # UI Sequences, see "InstallUISequence Table", "Using a Sequence Table"
-        # Numbers indicate sequence; see sequence.py for how these action integrate
+        # Numbers indicate sequence; see sequence.py for how these action
+        # integrate
         add_data(
             db,
             "InstallUISequence",
@@ -603,7 +521,8 @@ class bdist_msi(Command):
                     "Privileged and not Windows9x and not Installed",
                     141,
                 ),
-                # In the user interface, assume all-users installation if privileged.
+                # In the user interface, assume all-users installation if
+                # privileged.
                 ("SelectFeaturesDlg", "Not Installed", 1230),
                 # XXX no support for resume installations yet
                 # ("ResumeDlg", "Installed AND (RESUME OR Preselected)", 1240),
@@ -634,8 +553,8 @@ class bdist_msi(Command):
             "Finish",
         )
         fatal.title("[ProductName] Installer ended prematurely")
-        fatal.back("< Back", "Finish", active=0)
-        fatal.cancel("Cancel", "Back", active=0)
+        fatal.backbutton("< Back", "Finish", active=0)
+        fatal.cancelbutton("Cancel", "Back", active=0)
         fatal.text(
             "Description1",
             15,
@@ -643,7 +562,9 @@ class bdist_msi(Command):
             320,
             80,
             0x30003,
-            "[ProductName] setup ended prematurely because of an error.  Your system has not been modified.  To install this program at a later time, please run the installation again.",
+            "[ProductName] setup ended prematurely because of an error."
+            "  Your system has not been modified.  To install this program "
+            "at a later time, please run the installation again.",
         )
         fatal.text(
             "Description2",
@@ -654,7 +575,7 @@ class bdist_msi(Command):
             0x30003,
             "Click the Finish button to exit the Installer.",
         )
-        c = fatal.next("Finish", "Cancel", name="Finish")
+        c = fatal.nextbutton("Finish", "Cancel", name="Finish")
         c.event("EndDialog", "Exit")
 
         user_exit = PyDialog(
@@ -671,8 +592,8 @@ class bdist_msi(Command):
             "Finish",
         )
         user_exit.title("[ProductName] Installer was interrupted")
-        user_exit.back("< Back", "Finish", active=0)
-        user_exit.cancel("Cancel", "Back", active=0)
+        user_exit.backbutton("< Back", "Finish", active=0)
+        user_exit.cancelbutton("Cancel", "Back", active=0)
         user_exit.text(
             "Description1",
             15,
@@ -680,8 +601,9 @@ class bdist_msi(Command):
             320,
             80,
             0x30003,
-            "[ProductName] setup was interrupted.  Your system has not been modified.  "
-            "To install this program at a later time, please run the installation again.",
+            "[ProductName] setup was interrupted.  Your system has not been "
+            "modified.  To install this program at a later time, please run "
+            "the installation again.",
         )
         user_exit.text(
             "Description2",
@@ -692,7 +614,7 @@ class bdist_msi(Command):
             0x30003,
             "Click the Finish button to exit the Installer.",
         )
-        c = user_exit.next("Finish", "Cancel", name="Finish")
+        c = user_exit.nextbutton("Finish", "Cancel", name="Finish")
         c.event("EndDialog", "Exit")
 
         exit_dialog = PyDialog(
@@ -709,8 +631,8 @@ class bdist_msi(Command):
             "Finish",
         )
         exit_dialog.title("Completing the [ProductName] Installer")
-        exit_dialog.back("< Back", "Finish", active=0)
-        exit_dialog.cancel("Cancel", "Back", active=0)
+        exit_dialog.backbutton("< Back", "Finish", active=0)
+        exit_dialog.cancelbutton("Cancel", "Back", active=0)
         exit_dialog.text(
             "Description",
             15,
@@ -720,7 +642,7 @@ class bdist_msi(Command):
             0x30003,
             "Click the Finish button to exit the Installer.",
         )
-        c = exit_dialog.next("Finish", "Cancel", name="Finish")
+        c = exit_dialog.nextbutton("Finish", "Cancel", name="Finish")
         c.event("EndDialog", "Return")
 
         #####################################################################
@@ -758,7 +680,9 @@ class bdist_msi(Command):
             330,
             50,
             3,
-            "The following applications are using files that need to be updated by this setup. Close these applications and then click Retry to continue the installation or Cancel to exit it.",
+            "The following applications are using files that need to be "
+            "updated by this setup. Close these applications and then click "
+            "Retry to continue the installation or Cancel to exit it.",
         )
         inuse.control(
             "List",
@@ -773,14 +697,15 @@ class bdist_msi(Command):
             None,
             None,
         )
-        c = inuse.back("Exit", "Ignore", name="Exit")
+        c = inuse.backbutton("Exit", "Ignore", name="Exit")
         c.event("EndDialog", "Exit")
-        c = inuse.next("Ignore", "Retry", name="Ignore")
+        c = inuse.nextbutton("Ignore", "Retry", name="Ignore")
         c.event("EndDialog", "Ignore")
-        c = inuse.cancel("Retry", "Exit", name="Retry")
+        c = inuse.cancelbutton("Retry", "Exit", name="Retry")
         c.event("EndDialog", "Retry")
 
-        # See "Error Dialog". See "ICE20" for the required names of the controls.
+        # See "Error Dialog". See "ICE20" for the required names of the
+        # controls.
         error = Dialog(
             db,
             "ErrorDlg",
@@ -795,7 +720,8 @@ class bdist_msi(Command):
             None,
         )
         error.text("ErrorText", 50, 9, 280, 48, 3, "")
-        # error.control("ErrorIcon", "Icon", 15, 9, 24, 24, 5242881, None, "py.ico", None, None)
+        # error.control("ErrorIcon", "Icon", 15, 9, 24, 24, 5242881, None,
+        # "py.ico", None, None)
         error.pushbutton("N", 120, 72, 81, 21, 3, "No", None).event(
             "EndDialog", "ErrorNo"
         )
@@ -862,7 +788,8 @@ class bdist_msi(Command):
             194,
             30,
             3,
-            "Please wait while the installer finishes determining your disk space requirements.",
+            "Please wait while the installer finishes determining your disk "
+            "space requirements.",
         )
         c = costing.pushbutton("Return", 102, 57, 56, 17, 3, "Return", None)
         c.event("EndDialog", "Exit")
@@ -889,16 +816,17 @@ class bdist_msi(Command):
             320,
             40,
             0x30003,
-            "Please wait while the Installer prepares to guide you through the installation.",
+            "Please wait while the Installer prepares to guide you through "
+            "the installation.",
         )
         prep.title("Welcome to the [ProductName] Installer")
         c = prep.text("ActionText", 15, 110, 320, 20, 0x30003, "Pondering...")
         c.mapping("ActionText", "Text")
         c = prep.text("ActionData", 15, 135, 320, 30, 0x30003, None)
         c.mapping("ActionData", "Text")
-        prep.back("Back", None, active=0)
-        prep.next("Next", None, active=0)
-        c = prep.cancel("Cancel", None)
+        prep.backbutton("Back", None, active=0)
+        prep.nextbutton("Next", None, active=0)
+        c = prep.cancelbutton("Cancel", None)
         c.event("SpawnDialog", "CancelDlg")
 
         #####################################################################
@@ -925,25 +853,25 @@ class bdist_msi(Command):
             300,
             20,
             3,
-            "Select the Python locations where %s should be installed."
-            % self.distribution.get_fullname(),
+            "Select the Python locations where "
+            f"{self.distribution.get_fullname()} should be installed.",
         )
 
-        seldlg.back("< Back", None, active=0)
-        c = seldlg.next("Next >", "Cancel")
+        seldlg.backbutton("< Back", None, active=0)
+        c = seldlg.nextbutton("Next >", "Cancel")
         order = 1
         c.event("[TARGETDIR]", "[SourceDir]", ordering=order)
         for version in self.versions + [self.other_version]:
             order += 1
             c.event(
                 "[TARGETDIR]",
-                "[TARGETDIR%s]" % version,
-                "FEATURE_SELECTED AND &Python%s=3" % version,
+                f"[TARGETDIR{version}]",
+                f"FEATURE_SELECTED AND &Python{version}=3",
                 ordering=order,
             )
         c.event("SpawnWaitDialog", "WaitForCostingDlg", ordering=order + 1)
         c.event("EndDialog", "Return", ordering=order + 2)
-        c = seldlg.cancel("Cancel", "Features")
+        c = seldlg.cancelbutton("Cancel", "Features")
         c.event("SpawnDialog", "CancelDlg")
 
         c = seldlg.control(
@@ -961,8 +889,8 @@ class bdist_msi(Command):
         )
         c.event("[FEATURE_SELECTED]", "1")
         ver = self.other_version
-        install_other_cond = "FEATURE_SELECTED AND &Python%s=3" % ver
-        dont_install_other_cond = "FEATURE_SELECTED AND &Python%s<>3" % ver
+        install_other_cond = f"FEATURE_SELECTED AND &Python{ver}=3"
+        dont_install_other_cond = f"FEATURE_SELECTED AND &Python{ver}<>3"
 
         c = seldlg.text(
             "Other",
@@ -1028,7 +956,8 @@ class bdist_msi(Command):
             280,
             20,
             0x30003,
-            "The disk space required for the installation of the selected features.",
+            "The disk space required for the installation of the selected "
+            "features.",
         )
         cost.text(
             "Text",
@@ -1067,8 +996,8 @@ class bdist_msi(Command):
         # find how to reset the ALLUSERS property, and how to re-run
         # FindRelatedProducts.
         # On Windows9x, the ALLUSERS property is ignored on the command line
-        # and in the Property table, but installer fails according to the documentation
-        # if a dialog attempts to set ALLUSERS.
+        # and in the Property table, but installer fails according to the
+        # documentation if a dialog attempts to set ALLUSERS.
         whichusers = PyDialog(
             db,
             "WhichUsersDlg",
@@ -1083,7 +1012,8 @@ class bdist_msi(Command):
             "Cancel",
         )
         whichusers.title(
-            "Select whether to install [ProductName] for all users of this computer."
+            "Select whether to install [ProductName] for all users of this "
+            "computer."
         )
         # A radio group with two options: allusers, justme
         g = whichusers.radiogroup(
@@ -1092,13 +1022,13 @@ class bdist_msi(Command):
         g.add("ALL", 0, 5, 150, 20, "Install for all users")
         g.add("JUSTME", 0, 25, 150, 20, "Install just for me")
 
-        whichusers.back("Back", None, active=0)
+        whichusers.backbutton("Back", None, active=0)
 
-        c = whichusers.next("Next >", "Cancel")
+        c = whichusers.nextbutton("Next >", "Cancel")
         c.event("[ALLUSERS]", "1", 'WhichUsers="ALL"', 1)
         c.event("EndDialog", "Return", ordering=2)
 
-        c = whichusers.cancel("Cancel", "AdminInstall")
+        c = whichusers.cancelbutton("Cancel", "AdminInstall")
         c.event("SpawnDialog", "CancelDlg")
 
         #####################################################################
@@ -1159,9 +1089,11 @@ class bdist_msi(Command):
         )
         c.mapping("SetProgress", "Progress")
 
-        progress.back("< Back", "Next", active=False)
-        progress.next("Next >", "Cancel", active=False)
-        progress.cancel("Cancel", "Back").event("SpawnDialog", "CancelDlg")
+        progress.backbutton("< Back", "Next", active=False)
+        progress.nextbutton("Next >", "Cancel", active=False)
+        progress.cancelbutton("Cancel", "Back").event(
+            "SpawnDialog", "CancelDlg"
+        )
 
         ###################################################################
         # Maintenance type: repair/uninstall
@@ -1203,12 +1135,12 @@ class bdist_msi(Command):
         g.add("Repair", 0, 18, 200, 17, "&Repair [ProductName]")
         g.add("Remove", 0, 36, 200, 17, "Re&move [ProductName]")
 
-        maint.back("< Back", None, active=False)
-        c = maint.next("Finish", "Cancel")
+        maint.backbutton("< Back", None, active=False)
+        c = maint.nextbutton("Finish", "Cancel")
         # Change installation: Change progress dialog to "Change", then ask
         # for feature selection
-        # c.event("[Progress1]", "Change", 'MaintenanceForm_Action="Change"', 1)
-        # c.event("[Progress2]", "changes", 'MaintenanceForm_Action="Change"', 2)
+        # c.event("[Progress1]", "Change", 'MaintenanceForm_Action="Change"',1)
+        # c.event("[Progress2]", "changes",'MaintenanceForm_Action="Change"',2)
 
         # Reinstall: Change progress dialog to "Repair", then invoke reinstall
         # Also set list of reinstalled features to "ALL"
@@ -1232,21 +1164,20 @@ class bdist_msi(Command):
 
         # Close dialog when maintenance action scheduled
         c.event("EndDialog", "Return", 'MaintenanceForm_Action<>"Change"', 20)
-        # c.event("NewDialog", "SelectFeaturesDlg", 'MaintenanceForm_Action="Change"', 21)
+        # c.event("NewDialog", "SelectFeaturesDlg",
+        # 'MaintenanceForm_Action="Change"', 21)
 
-        maint.cancel("Cancel", "RepairRadioGroup").event(
+        maint.cancelbutton("Cancel", "RepairRadioGroup").event(
             "SpawnDialog", "CancelDlg"
         )
 
     def get_installer_filename(self, fullname):
         # Factored out to allow overriding in subclasses
         if self.target_version:
-            base_name = "{}.{}-py{}.msi".format(
-                fullname,
-                self.plat_name,
-                self.target_version,
+            base_name = (
+                f"{fullname}.{self.plat_name}-py{self.target_version}.msi"
             )
         else:
-            base_name = "{}.{}.msi".format(fullname, self.plat_name)
+            base_name = f"{fullname}.{self.plat_name}.msi"
         installer_name = os.path.join(self.dist_dir, base_name)
         return installer_name

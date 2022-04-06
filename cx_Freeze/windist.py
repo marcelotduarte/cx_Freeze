@@ -24,7 +24,11 @@ for index, info in enumerate(sequence):
         sequence[index] = (info[0], info[1], 1450)
 
 
+# pylint: disable=too-many-instance-attributes,attribute-defined-outside-init
+# pylint: disable=missing-function-docstring,fixme,invalid-name
 class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
+    """Create a Microsoft Installer (.msi) binary distribution."""
+
     user_options = cx_Freeze.command.bdist_msi.bdist_msi.user_options + [
         ("add-to-path=", None, "add target dir to PATH environment variable"),
         ("upgrade-code=", None, "upgrade code to use"),
@@ -64,7 +68,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         "MsiPatchHeaders": 1,
     }
 
-    def add_config(self, fullname):
+    def add_config(self):  # pylint: disable=too-many-branches
         if self.add_to_path:
             path = "Path"
             if self.all_users:
@@ -255,8 +259,8 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             "Finish",
         )
         dialog.title("Completing the [ProductName] installer")
-        dialog.back("< Back", "Finish", active=False)
-        dialog.cancel("Cancel", "Back", active=False)
+        dialog.backbutton("< Back", "Finish", active=False)
+        dialog.cancelbutton("Cancel", "Back", active=False)
         dialog.text(
             "Description",
             15,
@@ -266,7 +270,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             0x30003,
             "Click the Finish button to exit the installer.",
         )
-        button = dialog.next("Finish", "Cancel", name="Finish")
+        button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Return")
 
     def add_fatal_error_dialog(self):
@@ -284,8 +288,8 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             "Finish",
         )
         dialog.title("[ProductName] installer ended prematurely")
-        dialog.back("< Back", "Finish", active=False)
-        dialog.cancel("Cancel", "Back", active=False)
+        dialog.backbutton("< Back", "Finish", active=False)
+        dialog.cancelbutton("Cancel", "Back", active=False)
         dialog.text(
             "Description1",
             15,
@@ -306,7 +310,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             0x30003,
             "Click the Finish button to exit the installer.",
         )
-        button = dialog.next("Finish", "Cancel", name="Finish")
+        button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Exit")
 
     def add_files(self):
@@ -407,11 +411,11 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             None,
             None,
         )
-        button = dialog.back("Exit", "Ignore", name="Exit")
+        button = dialog.backbutton("Exit", "Ignore", name="Exit")
         button.event("EndDialog", "Exit")
-        button = dialog.next("Ignore", "Retry", name="Ignore")
+        button = dialog.nextbutton("Ignore", "Retry", name="Ignore")
         button.event("EndDialog", "Ignore")
-        button = dialog.cancel("Retry", "Exit", name="Retry")
+        button = dialog.cancelbutton("Retry", "Exit", name="Retry")
         button.event("EndDialog", "Retry")
 
     def add_maintenance_type_dialog(self):
@@ -451,8 +455,8 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         )
         group.add("Repair", 0, 18, 300, 17, "&Repair [ProductName]")
         group.add("Remove", 0, 36, 300, 17, "Re&move [ProductName]")
-        dialog.back("< Back", None, active=False)
-        button = dialog.next("Finish", "Cancel")
+        dialog.backbutton("< Back", None, active=False)
+        button = dialog.nextbutton("Finish", "Cancel")
         button.event(
             "[REINSTALL]", "ALL", 'MaintenanceForm_Action="Repair"', 5
         )
@@ -474,7 +478,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         button.event(
             "EndDialog", "Return", 'MaintenanceForm_Action<>"Change"', 20
         )
-        button = dialog.cancel("Cancel", "RepairRadioGroup")
+        button = dialog.cancelbutton("Cancel", "RepairRadioGroup")
         button.event("SpawnDialog", "CancelDlg")
 
     def add_prepare_dialog(self):
@@ -508,9 +512,9 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         text.mapping("ActionText", "Text")
         text = dialog.text("ActionData", 15, 135, 320, 30, 0x30003, None)
         text.mapping("ActionData", "Text")
-        dialog.back("Back", None, active=False)
-        dialog.next("Next", None, active=False)
-        button = dialog.cancel("Cancel", None)
+        dialog.backbutton("Back", None, active=False)
+        dialog.nextbutton("Next", None, active=False)
+        button = dialog.cancelbutton("Cancel", None)
         button.event("SpawnDialog", "CancelDlg")
 
     def add_progress_dialog(self):
@@ -565,9 +569,9 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             None,
         )
         control.mapping("SetProgress", "Progress")
-        dialog.back("< Back", "Next", active=False)
-        dialog.next("Next >", "Cancel", active=False)
-        button = dialog.cancel("Cancel", "Back")
+        dialog.backbutton("< Back", "Next", active=False)
+        dialog.nextbutton("Next >", "Cancel", active=False)
+        button = dialog.cancelbutton("Cancel", "Back")
         button.event("SpawnDialog", "CancelDlg")
 
     def add_properties(self):
@@ -618,12 +622,12 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             "Cancel",
         )
         dialog.title("Select destination directory")
-        dialog.back("< Back", None, active=False)
-        button = dialog.next("Next >", "Cancel")
+        dialog.backbutton("< Back", None, active=False)
+        button = dialog.nextbutton("Next >", "Cancel")
         button.event("SetTargetPath", "TARGETDIR", ordering=1)
         button.event("SpawnWaitDialog", "WaitForCostingDlg", ordering=2)
         button.event("EndDialog", "Return", ordering=3)
-        button = dialog.cancel("Cancel", "DirectoryCombo")
+        button = dialog.cancelbutton("Cancel", "DirectoryCombo")
         button.event("SpawnDialog", "CancelDlg")
         dialog.control(
             "DirectoryCombo",
@@ -737,8 +741,8 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             "Finish",
         )
         dialog.title("[ProductName] installer was interrupted")
-        dialog.back("< Back", "Finish", active=False)
-        dialog.cancel("Cancel", "Back", active=False)
+        dialog.backbutton("< Back", "Finish", active=False)
+        dialog.cancelbutton("Cancel", "Back", active=False)
         dialog.text(
             "Description1",
             15,
@@ -759,7 +763,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
             0x30003,
             "Click the Finish button to exit the installer.",
         )
-        button = dialog.next("Finish", "Cancel", name="Finish")
+        button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Exit")
 
     def add_wait_for_costing_dialog(self):
@@ -797,6 +801,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         if line not in rows:
             rows.append(line)
 
+    # pylint: disable-next=too-many-statements,too-many-branches,R0914
     def finalize_options(self):
         cx_Freeze.command.bdist_msi.bdist_msi.finalize_options(self)
         name = self.distribution.get_name()
@@ -842,21 +847,18 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
                 raise ValueError(
                     "Each extension must have at least extension, verb, "
                     "and executable"
-                )
+                ) from None
             try:
                 component = self.separate_components[executable]
             except KeyError:
                 raise ValueError(
                     "Executable must be the base target name of one of the "
                     "distribution's executables"
-                )
-            progid = msilib.make_id(
-                "{}.{}.{}".format(
-                    self.distribution.get_name(),
-                    os.path.splitext(executable)[0],
-                    self.distribution.get_version(),
-                )
-            )
+                ) from None
+            distribution_name = self.distribution.get_name()
+            stem = os.path.splitext(executable)[0]
+            version = self.distribution.get_version()
+            progid = msilib.make_id(f"{distribution_name}.{stem}.{version}")
             mime = extension.get("mime", None)
             # "%1" a better default for argument?
             argument = extension.get("argument", None)
@@ -929,11 +931,11 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         install.prefix = bdist_dir
         install.skip_build = self.skip_build
         install.warn_dir = 0
-        logging.info(f"installing to {bdist_dir}")
+        logging.info("installing to %s", bdist_dir)
         install.ensure_finalized()
         install.run()
         self.mkpath(self.dist_dir)
-        fullname = self.distribution.get_fullname()
+        # fullname = self.distribution.get_fullname()
         if os.path.exists(self.target_name):
             os.unlink(self.target_name)
         metadata = self.distribution.metadata
@@ -962,7 +964,7 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         )
         msilib.add_tables(self.db, msilib.sequence)
         self.add_properties()
-        self.add_config(fullname)
+        self.add_config()
         self.add_upgrade_config(base_version)
         self.add_ui()
         self.add_files()
@@ -972,12 +974,12 @@ class bdist_msi(cx_Freeze.command.bdist_msi.bdist_msi):
         )
 
         if not self.keep_temp:
-            logging.info(f"removing '{bdist_dir}' (and everything under it)")
+            logging.info("removing '%s' (and everything under it)", bdist_dir)
             if not self.dry_run:
                 try:
                     shutil.rmtree(bdist_dir)
                 except OSError as exc:
-                    logging.warn(f"error removing {bdist_dir}: {exc}")
+                    logging.warning("error removing %s: %s", bdist_dir, exc)
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent
