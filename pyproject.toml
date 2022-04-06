@@ -16,27 +16,23 @@ profile = "black"
 line_length = 79
 skip_gitignore = true
 
-[tool.pylint.format]
-max-line-length = 79
-
-[tool.pylint.master]
-ignore="""
+[tool.pylint]
+format.max-line-length = 79
+master.ignore="""
 darwintools.py,
 freezer.py,
 macdist.py,
 parser.py,
 setupwriter.py
 """
-ignore-paths = """
+master.ignore-paths = """
 ^cx_Freeze/samples/.*.py$,
 ^tests/samples/invalid_syntax.py$,
 ^tests/samples/testpkg1/.*.py$,
 ^doc/src/conf.py$
 """
-py-version = "3.6"
-
-[tool.pylint.messages_control]
-disable = [
+master.py-version = "3.6"
+messages_control.disable = [
     "duplicate-code",
     "fixme",
     "import-error",
@@ -46,8 +42,10 @@ disable = [
     "too-many-instance-attributes",
     "too-many-locals",
     "too-many-nested-blocks",
+    "too-many-statements",
     "wrong-import-order",
 ]
+reports.output-format = "colorized"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

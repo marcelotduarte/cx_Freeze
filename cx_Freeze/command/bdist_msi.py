@@ -24,8 +24,8 @@ for index, info in enumerate(sequence):
         sequence[index] = (info[0], info[1], 1450)
 
 
-# pylint: disable=too-many-instance-attributes,attribute-defined-outside-init
-# pylint: disable=missing-function-docstring,fixme,invalid-name
+# pylint: disable=attribute-defined-outside-init
+# pylint: disable=missing-function-docstring,invalid-name
 class bdist_msi(bdist_msi_root):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
@@ -68,7 +68,7 @@ class bdist_msi(bdist_msi_root):
         "MsiPatchHeaders": 1,
     }
 
-    def add_config(self):  # pylint: disable=too-many-branches
+    def add_config(self):
         if self.add_to_path:
             path = "Path"
             if self.all_users:
@@ -801,7 +801,6 @@ class bdist_msi(bdist_msi_root):
         if line not in rows:
             rows.append(line)
 
-    # pylint: disable-next=too-many-statements,too-many-branches,R0914
     def finalize_options(self):
         bdist_msi_root.finalize_options(self)
         name = self.distribution.get_name()

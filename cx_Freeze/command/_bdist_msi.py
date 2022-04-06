@@ -23,8 +23,8 @@ from setuptools.errors import OptionError
 from ._pydialog import PyDialog
 
 
-# pylint: disable=too-many-instance-attributes,attribute-defined-outside-init
-# pylint: disable=missing-function-docstring,fixme,invalid-name
+# pylint: disable=attribute-defined-outside-init
+# pylint: disable=missing-function-docstring,invalid-name
 class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
@@ -155,7 +155,7 @@ class bdist_msi(Command):
                 )
         self.install_script_key = None
 
-    def run(self):  # pylint: disable=R0912,R0914,R0915
+    def run(self):
         if not self.skip_build:
             self.run_command("build")
 
@@ -255,7 +255,7 @@ class bdist_msi(Command):
                 except OSError as exc:
                     logging.warning("error removing %s: %s", bdist_dir, exc)
 
-    def add_files(self):  # pylint: disable=R0912,R0914
+    def add_files(self):
         db = self.db
         cab = msilib.CAB("distfiles")
         rootdir = os.path.abspath(self.bdist_dir)
@@ -282,7 +282,7 @@ class bdist_msi(Command):
         db.Commit()
 
         seen = {}
-        for feature, directory, version in items:  # pylint: disable=R1702
+        for feature, directory, version in items:
             todo = [directory]
             while todo:
                 directory = todo.pop()
@@ -465,7 +465,7 @@ class bdist_msi(Command):
                 [("PreInstall", "NOT Installed", 450)],
             )
 
-    def add_ui(self):  # pylint: disable=R0914,R0915
+    def add_ui(self):
         db = self.db
         x = y = 50
         w = 370
