@@ -1,4 +1,4 @@
-# pylint: disable=C0114,C0115,C0116
+# pylint: disable=C0114,C0116
 import pytest  # pylint: disable=unused-import # noqa
 
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE

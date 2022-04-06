@@ -1,4 +1,5 @@
-# pylint: disable=C0114,C0115,C0116
+"""Test ModuleFinder"""
+
 import os
 import shutil
 import sys
@@ -14,12 +15,12 @@ class TestModuleFinderWithConvertedNoseTests:
     in `test_finder` that predated usage of the PyTest Framework"""
 
     @pytest.fixture()
-    def fix_module_finder(self):  # pylint: disable=no-self-use
+    def fix_module_finder(self):  # pylint: disable=C0116,R0201
         constants = ConstantsModule()
         finder = ModuleFinder(constants_module=constants)
         return finder
 
-    # pylint: disable-next=no-self-use
+    # pylint: disable-next=C0116,R0201
     def test_scan_code(self, mocker, fix_test_samples_dir, fix_module_finder):
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
@@ -69,7 +70,7 @@ class TestModuleFinderWithConvertedNoseTests:
         "Test skipped, uncertain if no longer supported - "
         "https://github.com/marcelotduarte/cx_Freeze/pull/1234"
     )
-    # pylint: disable-next=no-self-use
+    # pylint: disable-next=C0116,R0201
     def test_find_module_from_zip(
         self, fix_module_finder, fix_samples_dir, tmpdir
     ):
