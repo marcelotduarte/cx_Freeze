@@ -4,6 +4,8 @@
 # pylint: disable=too-many-lines
 """
 Implements the bdist_msi command.
+
+Borrowed from distutils.command.bdist_msi of Python 3.8
 """
 
 import logging
