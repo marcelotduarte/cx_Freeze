@@ -5,8 +5,9 @@ and is cross-platform."""
 import sys
 
 from .command.build import Build as build
+from .command.build_exe import BuildEXE as build_exe
 from .command.install import Install as install
-from .dist import build_exe, install_exe, setup
+from .dist import install_exe, setup
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
