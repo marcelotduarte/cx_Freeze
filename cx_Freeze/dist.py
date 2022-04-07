@@ -2,34 +2,32 @@
 # pylint: disable=C0116,C0103,W0201
 
 import setuptools  # isort:skip
-import distutils.command.build  # pylint: disable=W0402
 import distutils.core  # pylint: disable=W0402
 import logging
 import os
 import sys
-import sysconfig
 import warnings
 from pathlib import Path
 from typing import Optional
 
-import setuptools.command.install
 from setuptools.errors import SetupError
 
+from .command.build import Build as build
+from .command.install import Install as install
 from .common import normalize_to_list
 from .freezer import Freezer
 from .module import ConstantsModule
 
 if sys.platform == "win32":
-    from .command.bdist_msi import BdistMSI
+    from .command.bdist_msi import BdistMSI as bdist_msi
 elif sys.platform == "darwin":
-    from .command.bdist_mac import BdistDMG, BdistMac
+    from .command.bdist_mac import BdistDMG as bdist_dmg
+    from .command.bdist_mac import BdistMac as bdist_mac
 else:
-    from .command.bdist_rpm import BdistRPM
+    from .command.bdist_rpm import BdistRPM as bdist_rpm
 
 __all__ = [
-    "build",
     "build_exe",
-    "install",
     "install_exe",
     "setup",
 ]
@@ -41,32 +39,6 @@ class Distribution(setuptools.Distribution):
     def __init__(self, attrs):
         self.executables = []
         super().__init__(attrs)
-
-
-class build(distutils.command.build.build):
-    """Build everything needed to install."""
-
-    user_options = distutils.command.build.build.user_options + [
-        ("build-exe=", None, "build directory for executables")
-    ]
-
-    def get_sub_commands(self):
-        sub_commands = distutils.command.build.build.get_sub_commands(self)
-        if self.distribution.executables:
-            sub_commands.append("build_exe")
-        return sub_commands
-
-    def initialize_options(self):
-        distutils.command.build.build.initialize_options(self)
-        self.build_exe = None
-
-    def finalize_options(self):
-        distutils.command.build.build.finalize_options(self)
-        if self.build_exe is None:
-            platform = sysconfig.get_platform()
-            python_version = sysconfig.get_python_version()
-            dir_name = f"exe.{platform}-{python_version}"
-            self.build_exe = os.path.join(self.build_base, dir_name)
 
 
 class build_exe(setuptools.Command):
@@ -329,55 +301,6 @@ class build_exe(setuptools.Command):
                 setattr(self, attr_name, source_dir)
 
 
-class install(setuptools.command.install.install):
-    """Install everything from build directory."""
-
-    user_options = setuptools.command.install.install.user_options + [
-        ("install-exe=", None, "installation directory for executables")
-    ]
-
-    def expand_dirs(self):
-        setuptools.command.install.install.expand_dirs(self)
-        self._expand_attrs(["install_exe"])
-
-    def get_sub_commands(self):
-        sub_commands = setuptools.command.install.install.get_sub_commands(
-            self
-        )
-        if self.distribution.executables:
-            sub_commands.append("install_exe")
-        return [s for s in sub_commands if s != "install_egg_info"]
-
-    def initialize_options(self):
-        setuptools.command.install.install.initialize_options(self)
-        self.install_exe = None
-
-    def finalize_options(self):
-        if self.prefix is None and sys.platform == "win32":
-            winreg = __import__("winreg")
-            key = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                r"Software\Microsoft\Windows\CurrentVersion",
-            )
-            prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
-            metadata = self.distribution.metadata
-            self.prefix = f"{prefix}/{metadata.name}"
-        setuptools.command.install.install.finalize_options(self)
-        self.convert_paths("exe")
-        if self.root is not None:
-            self.change_roots("exe")
-
-    def select_scheme(self, name):
-        setuptools.command.install.install.select_scheme(self, name)
-        if self.install_exe is None:
-            if sys.platform == "win32":
-                self.install_exe = "$base"
-            else:
-                metadata = self.distribution.metadata
-                dir_name = f"{metadata.name}-{metadata.version}"
-                self.install_exe = f"$base/lib/{dir_name}"
-
-
 class install_exe(setuptools.Command):
     """Install executables built from Python scripts."""
 
@@ -440,12 +363,12 @@ def setup(**attrs):
     attrs.setdefault("distclass", Distribution)
     command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _add_command_class(command_classes, "bdist_msi", BdistMSI)
+        _add_command_class(command_classes, "bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
-        _add_command_class(command_classes, "bdist_dmg", BdistDMG)
-        _add_command_class(command_classes, "bdist_mac", BdistMac)
+        _add_command_class(command_classes, "bdist_dmg", bdist_dmg)
+        _add_command_class(command_classes, "bdist_mac", bdist_mac)
     else:
-        _add_command_class(command_classes, "bdist_rpm", BdistRPM)
+        _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
     _add_command_class(command_classes, "build", build)
     _add_command_class(command_classes, "build_exe", build_exe)
     _add_command_class(command_classes, "install", install)
