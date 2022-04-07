@@ -1,4 +1,4 @@
-"""Implements the 'build-exe' command."""
+"""Implements the 'build_exe' command."""
 
 import distutils.core  # pylint: disable=W0402
 import logging
