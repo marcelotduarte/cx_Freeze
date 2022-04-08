@@ -17,6 +17,7 @@ __all__ = ["Build"]
 
 # pylint: disable=attribute-defined-outside-init,missing-function-docstring
 try:
+    # pylint: disable-next=deprecated-module
     from distutils.ccompiler import show_compilers
 except ImportError:
 
