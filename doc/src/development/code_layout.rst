@@ -9,8 +9,10 @@ The project's code layout
     * ``bdist_mac.py`` - Extends setuptools to build macOS dmg or app blundle.
     * ``bdist_msi.py`` - Extends setuptools to build Windows installer packages.
     * ``bdist_rpm.py`` - Extends setuptools to create an RPM distribution.
-    * ``build.py`` - Extends setuptools 'build' command.
+    * ``build.py`` - Implements the 'build' command.
+    * ``build_exe.py`` - Implements the 'build_exe' command.
     * ``install.py`` - Extends setuptools 'install' command.
+    * ``install_exe.py`` - Implements the 'install_exe' command.
 
   * ``initscripts/`` - Python scripts which set up the interpreter to run from
     frozen code, then load the code from the zip file and set it running.

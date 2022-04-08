@@ -1,7 +1,8 @@
 """Implements the 'bdist_rpm' command (create RPM source and binary
 distributions).
 
-Borrowed from distutils.command.bdist_rpm of Python 3.10
+Borrowed from distutils.command.bdist_rpm of Python 3.10 and merged with
+bdist_rpm subclass of cx_Freeze 6.10.
 """
 
 import logging
@@ -628,9 +629,10 @@ class BdistRPM(Command):
             spec_file.extend(self.changelog)
 
         # cx_Freeze specific
+        spec_file = [c for c in spec_file if c != "BuildArch: noarch"]
         spec_file.append("%define __prelink_undo_cmd %{nil}")
         spec_file.append("%define __strip /bin/true")
-        return [c for c in spec_file if c != "BuildArch: noarch"]
+        return spec_file
 
     @staticmethod
     def _format_changelog(changelog):
