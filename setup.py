@@ -28,6 +28,7 @@ from setuptools import Command, Extension, setup
 
 WIN32 = sys.platform == "win32"
 DARWIN = sys.platform == "darwin"
+IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 
 if sys.version_info < (3, 6, 0):
     sys.exit("Python3 versions lower than 3.6.0 are not supported.")
@@ -187,8 +188,8 @@ class build_ext(setuptools.command.build_ext.build_ext):
         """Copy standard libraries to cx_Freeze wheel, on posix systems, when
         python is compiled with --disable-shared, as is done in manylinux and
         macpython. Modules such as math, _struct and zlib, which are normally
-        built in libpython, are compiled separately."""
-        if WIN32 or bool(get_config_var("Py_ENABLE_SHARED")):
+        embedded in python, are compiled separately."""
+        if WIN32 or IS_CONDA or bool(get_config_var("Py_ENABLE_SHARED")):
             return
         source_path = Path(get_config_var("DESTSHARED"))
         target_path = f"{self.build_lib}/cx_Freeze/bases/lib-dynload"
