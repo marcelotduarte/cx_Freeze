@@ -26,6 +26,9 @@ class Distribution(setuptools.Distribution):
         self.executables = []
         super().__init__(attrs)
 
+    def has_executables(self):  # pylint: disable=C0116
+        return self.executables and len(self.executables) > 0
+
 
 def _add_command_class(command_classes, name, cls):
     if name not in command_classes:
