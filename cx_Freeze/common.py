@@ -37,7 +37,7 @@ class TemporaryPath(TemporaryDirectory):
 
     def __init__(
         self, filename=None, suffix=None, prefix=None, dir=None
-    ):  # pylint: disable=W0622
+    ):  # pylint: disable=redefined-builtin
         super().__init__(suffix, prefix or "cxfreeze-", dir)
         if filename:
             if Path(filename).parent.name:

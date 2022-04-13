@@ -1,4 +1,5 @@
-# pylint: disable=C0114,C0115,C0116,W0621
+"""Shared fixtures"""
+
 import os
 
 import pytest
@@ -11,6 +12,6 @@ def fix_test_dir():
 
 
 @pytest.fixture()
-def fix_test_samples_dir(fix_test_dir):
+def fix_test_samples_dir(fix_test_dir):  # pylint: disable=W0621
     """This fixture returns the samples folder for the tests"""
     return os.path.join(fix_test_dir, "samples")

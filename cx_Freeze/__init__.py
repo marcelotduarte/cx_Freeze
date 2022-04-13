@@ -1,6 +1,6 @@
 """Create standalone executables from Python scripts, with the same performance
 and is cross-platform."""
-# pylint: disable=C0103
+# pylint: disable=invalid-name
 
 import sys
 
