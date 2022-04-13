@@ -110,7 +110,7 @@ class Build(Command):
                     "using './configure --help' on your platform)"
                 )
 
-        plat_specifier = f".{platform}-{python_version}"
+        plat_specifier = f".{self.plat_name}-{python_version}"
 
         # Make it so Python 2.x and Python 2.x with --with-pydebug don't
         # share the same build directories. Doing so confuses the build

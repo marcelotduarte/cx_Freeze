@@ -204,7 +204,7 @@ class bdist_msi(Command):
             os.unlink(installer_name)
 
         metadata = self.distribution.metadata
-        author = metadata.author or metadata.maintainer or "UNKNOWN"
+        author = metadata.get_contact()
         version = metadata.get_version()
         # ProductVersion must be strictly numeric
         # XXX need to deal with prerelease versions

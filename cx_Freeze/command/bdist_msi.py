@@ -937,7 +937,7 @@ class BdistMSI(bdist_msi):
         if os.path.exists(self.target_name):
             os.unlink(self.target_name)
         metadata = self.distribution.metadata
-        author = metadata.author or metadata.maintainer or "UNKNOWN"
+        author = metadata.get_contact()
         version = metadata.get_version()
         base_version = Version(version).base_version
 
