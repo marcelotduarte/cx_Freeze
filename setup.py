@@ -14,7 +14,7 @@ Note:
     pip install -e .[dev,doc,test]
 
 """
-# pylint: disable=C0115,C0116,C0103,R0915
+# pylint: disable=attribute-defined-outside-init,missing-function-docstring
 
 import subprocess
 import sys
@@ -34,7 +34,9 @@ if sys.version_info < (3, 6, 0):
     sys.exit("Python3 versions lower than 3.6.0 are not supported.")
 
 
-class build_ext(setuptools.command.build_ext.build_ext):
+class BuildBases(setuptools.command.build_ext.build_ext):
+    """Build C bases and extension."""
+
     def build_extension(self, ext):
         if "bases" not in ext.name:
             super().build_extension(ext)
@@ -203,10 +205,12 @@ class build_ext(setuptools.command.build_ext.build_ext):
         super().run()
 
 
-class install_include(Command):
+class InstallInclude(Command):
+    """Install extra include."""
+
     def initialize_options(self):
-        self.install_dir = None  # pylint: disable=W0201
-        self.outfiles = []  # pylint: disable=W0201
+        self.install_dir = None
+        self.outfiles = []
 
     def finalize_options(self):
         self.set_undefined_options(
@@ -266,7 +270,7 @@ if __name__ == "__main__":
         package_data.append(f"initscripts/{file.name}")
 
     setup(
-        cmdclass={"build_ext": build_ext, "install_include": install_include},
+        cmdclass={"build_ext": BuildBases, "install_include": InstallInclude},
         options={"install": {"optimize": 1}},
         ext_modules=extensions,
         packages=["cx_Freeze", "cx_Freeze.command"],
