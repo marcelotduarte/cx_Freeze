@@ -9,7 +9,6 @@ import sys
 import sysconfig
 import time
 from abc import abstractmethod
-from distutils.dist import DistributionMetadata
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
 from typing import List, Optional, Set, Tuple, Union
@@ -21,6 +20,7 @@ from .common import (
     get_resource_file_path,
     process_path_specs,
 )
+from .dist import DistributionMetadata
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder

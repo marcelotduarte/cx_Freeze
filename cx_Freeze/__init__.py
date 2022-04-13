@@ -2,13 +2,14 @@
 and is cross-platform."""
 # pylint: disable=invalid-name
 
+import setuptools  # isort:skip
 import sys
 
 from .command.build import Build as build
 from .command.build_exe import BuildEXE as build_exe
 from .command.install import Install as install
 from .command.install_exe import InstallEXE as install_exe
-from .dist import setup
+from .dist import Distribution
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
@@ -43,3 +44,28 @@ else:
     __all__.append(bdist_rpm.__name__)
 
 __version__ = "6.11.0-dev0"
+
+
+def _add_command_class(command_classes, name, cls):
+    if name not in command_classes:
+        command_classes[name] = cls
+
+
+def setup(**attrs):  # pylint: disable=C0116
+    attrs.setdefault("distclass", Distribution)
+    command_classes = attrs.setdefault("cmdclass", {})
+    if sys.platform == "win32":
+        _add_command_class(command_classes, "bdist_msi", bdist_msi)
+    elif sys.platform == "darwin":
+        _add_command_class(command_classes, "bdist_dmg", bdist_dmg)
+        _add_command_class(command_classes, "bdist_mac", bdist_mac)
+    else:
+        _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
+    _add_command_class(command_classes, "build", build)
+    _add_command_class(command_classes, "build_exe", build_exe)
+    _add_command_class(command_classes, "install", install)
+    _add_command_class(command_classes, "install_exe", install_exe)
+    setuptools.setup(**attrs)
+
+
+setup.__doc__ = setuptools.setup.__doc__

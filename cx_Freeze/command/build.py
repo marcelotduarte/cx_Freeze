@@ -15,16 +15,18 @@ from setuptools.errors import OptionError
 __all__ = ["Build"]
 
 
-# pylint: disable=attribute-defined-outside-init,missing-function-docstring
-try:
-    # pylint: disable-next=deprecated-module
-    from distutils.ccompiler import show_compilers
-except ImportError:
-
-    def show_compilers():
+def show_compilers():
+    """List available compilers."""
+    try:
+        distutils_ccompiler = __import__(
+            "distutils.ccompiler", fromlist=["show_compilers"]
+        )
+        distutils_ccompiler.show_compilers()
+    except (ImportError, AttributeError):
         print("The list of available compilers was not found.")
 
 
+# pylint: disable=attribute-defined-outside-init,missing-function-docstring
 class Build(Command):
     """Build everything needed to install."""
 
