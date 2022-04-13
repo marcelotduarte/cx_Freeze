@@ -1,6 +1,5 @@
 """Implements the 'build_exe' command."""
 
-import distutils.core  # pylint: disable=W0402
 import logging
 import os
 import sys
@@ -128,6 +127,7 @@ class BuildEXE(Command):
             sys.path.insert(0, source_dir)
 
     def build_extension(self, name, module_name=None):
+        # XXX: This method, add_to_path and set_source_location can be deleted?
         if module_name is None:
             module_name = name
         source_dir = getattr(self, name.lower())
@@ -140,7 +140,8 @@ class BuildEXE(Command):
             script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
         logging.info("building '%s' extension in '%s'", name, source_dir)
-        distribution = distutils.core.run_setup("setup.py", script_args)
+        distutils_core = __import__("distutils.core", fromlist=["run_setup"])
+        distribution = distutils_core.run_setup("setup.py", script_args)
         ext_modules = distribution.ext_modules
         modules = [m for m in ext_modules if m.name == module_name]
         if not modules:
