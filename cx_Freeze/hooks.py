@@ -902,7 +902,7 @@ def get_qt_plugins_paths(name: str, plugins: str) -> List[Tuple[str, str]]:
 def copy_qt_data(name: str, subdir: str, finder: ModuleFinder) -> None:
     """Helper function to find and copy Qt resources, translations, etc."""
     for source_path, target_path in get_qt_subdir_paths(name, subdir):
-        finder.IncludeFiles(source_path, target_path)
+        finder.include_files(source_path, target_path)
 
 
 def copy_qt_plugins(name: str, plugins: str, finder: ModuleFinder) -> None:
@@ -1109,6 +1109,37 @@ def load_PyQt5_QtUiTools(finder: ModuleFinder, module: Module) -> None:
     finder.include_module(f"{name}.QtWidgets")
 
 
+def load_PyQt5_QtWebEngine(finder: ModuleFinder, module: Module) -> None:
+    """This module depends on another module."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtWebEngineCore")
+
+
+def load_PyQt5_QtWebEngineCore(finder: ModuleFinder, module: Module) -> None:
+    """This module depends on another module."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtGui")
+    finder.include_module(f"{name}.QtNetwork")
+
+
+def load_PyQt5_QtWebEngineWidgets(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """This module depends on another module, data and plugins."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtWebChannel")
+    finder.include_module(f"{name}.QtWebEngineCore")
+    finder.include_module(f"{name}.QtPrintSupport")
+    if WIN32:
+        copy_qt_data(name, "QtWebEngineProcess.exe", finder)
+    else:
+        copy_qt_data(name, "libexec", finder)
+    copy_qt_data(name, "resources", finder)
+    copy_qt_data(name, "translations", finder)
+    copy_qt_plugins(name, "webview", finder)
+    copy_qt_plugins(name, "xcbglintegrations", finder)
+
+
 def load_PyQt5_QtWebKit(finder: ModuleFinder, module: Module) -> None:
     """This module depends on other modules."""
     name = _qt_implementation(module)
@@ -1168,6 +1199,9 @@ load_PySide2_QtSql = load_PyQt5_QtSql
 load_PySide2_QtSvg = load_PyQt5_QtSvg
 load_PySide2_QtTest = load_PyQt5_QtTest
 load_PySide2_QtUiTools = load_PyQt5_QtUiTools
+load_PySide2_QtWebEngine = load_PyQt5_QtWebEngine
+load_PySide2_QtWebEngineCore = load_PyQt5_QtWebEngineCore
+load_PySide2_QtWebEngineWidgets = load_PyQt5_QtWebEngineWidgets
 load_PySide2_QtWebKit = load_PyQt5_QtWebKit
 load_PySide2_QtWebSockets = load_PyQt5_QtWebSockets
 load_PySide2_QtWidgets = load_PyQt5_QtWidgets
