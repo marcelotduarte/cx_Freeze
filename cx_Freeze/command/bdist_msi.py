@@ -6,9 +6,10 @@ import msilib
 import os
 import re
 import shutil
-import sysconfig
+from sysconfig import get_platform
 
 from packaging.version import Version
+from setuptools.errors import OptionError
 
 from ._bdist_msi import bdist_msi
 from ._pydialog import PyDialog
@@ -25,10 +26,44 @@ for index, info in enumerate(sequence):
 
 
 # pylint: disable=attribute-defined-outside-init,missing-function-docstring
+# pylint: disable=too-many-lines
 class BdistMSI(bdist_msi):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
-    user_options = bdist_msi.user_options + [
+    description = __doc__
+
+    user_options = [
+        (
+            "bdist-dir=",
+            None,
+            "temporary directory for creating the distribution",
+        ),
+        (
+            "keep-temp",
+            "k",
+            "keep the pseudo-installation tree around after "
+            "creating the distribution archive",
+        ),
+        ("dist-dir=", "d", "directory to put final built distributions in"),
+        (
+            "skip-build",
+            None,
+            "skip rebuilding everything (for testing/debugging)",
+        ),
+        (
+            "install-script=",
+            None,
+            "basename of installation script to be run after "
+            "installation or before deinstallation",
+        ),
+        (
+            "pre-install-script=",
+            None,
+            "Fully qualified filename of a script to be run before "
+            "any files are installed.  This script need not be in the "
+            "distribution",
+        ),
+        # cx_Freeze specific
         ("add-to-path=", None, "add target dir to PATH environment variable"),
         ("upgrade-code=", None, "upgrade code to use"),
         ("initial-target-dir=", None, "initial target directory"),
@@ -52,6 +87,12 @@ class BdistMSI(bdist_msi):
         ("all-users=", None, "installation for all users (or just me)"),
         ("extensions=", None, "Extensions for which to register Verbs"),
     ]
+
+    boolean_options = [
+        "keep-temp",
+        "skip-build",
+    ]
+
     x = y = 50
     width = 370
     height = 300
@@ -800,11 +841,56 @@ class BdistMSI(bdist_msi):
         if line not in rows:
             rows.append(line)
 
+    def initialize_options(self):
+        self.bdist_dir = None
+        self.keep_temp = 0
+        self.dist_dir = None
+        self.skip_build = None
+        self.install_script = None
+        self.pre_install_script = None
+        # cx_Freeze specific
+        self.upgrade_code = None
+        self.product_code = None
+        self.add_to_path = None
+        self.initial_target_dir = None
+        self.target_name = None
+        self.directories = None
+        self.environment_variables = None
+        self.data = None
+        self.summary_data = None
+        self.install_icon = None
+        self.all_users = False
+        self.extensions = None
+
     def finalize_options(self):
-        bdist_msi.finalize_options(self)
+        self.set_undefined_options("bdist", ("skip_build", "skip_build"))
+
+        if self.bdist_dir is None:
+            bdist_base = self.get_finalized_command("bdist").bdist_base
+            self.bdist_dir = os.path.join(bdist_base, "msi")
+
+        self.set_undefined_options("bdist", ("dist_dir", "dist_dir"))
+
+        if self.pre_install_script:
+            raise OptionError(
+                "the pre-install-script feature is not yet implemented"
+            )
+
+        if self.install_script:
+            for script in self.distribution.scripts:
+                if self.install_script == os.path.basename(script):
+                    break
+            else:
+                raise OptionError(
+                    f"install_script '{self.install_script}' not found in "
+                    "scripts"
+                )
+        self.install_script_key = None
+
+        # cx_Freeze specific
         name = self.distribution.get_name()
         fullname = self.distribution.get_fullname()
-        platform = sysconfig.get_platform().replace("win-amd64", "win64")
+        platform = get_platform().replace("win-amd64", "win64")
         if self.initial_target_dir is None:
             if platform == "win64" or platform.startswith("mingw_x86_64"):
                 program_files_folder = "ProgramFiles64Folder"
@@ -905,21 +991,6 @@ class BdistMSI(bdist_msi):
                 self.distribution.get_author(),
                 component,
             )
-
-    def initialize_options(self):
-        bdist_msi.initialize_options(self)
-        self.upgrade_code = None
-        self.product_code = None
-        self.add_to_path = None
-        self.initial_target_dir = None
-        self.target_name = None
-        self.directories = None
-        self.environment_variables = None
-        self.data = None
-        self.summary_data = None
-        self.install_icon = None
-        self.all_users = False
-        self.extensions = None
 
     def run(self):
         if not self.skip_build:
