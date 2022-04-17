@@ -196,7 +196,10 @@ class BuildEXE(Command):
         self.silent_level = None
 
     def finalize_options(self):
-        self.set_undefined_options("build", ("build_exe", "build_exe"))
+        if self.build_exe is None:
+            self.set_undefined_options("build", ("build_exe", "build_exe"))
+        else:
+            self.get_finalized_command("build").build_exe = self.build_exe
         self.optimize = int(self.optimize)
 
         # the degree of silencing, set from either the silent or silent-level
