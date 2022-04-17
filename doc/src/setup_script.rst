@@ -126,9 +126,8 @@ It can be further customized:
    * - .. option:: build_exe
      - directory for built executables and dependent files, defaults to
        the value of the "build_exe" option on the build command (see
-       above); note that using this option (instead of the corresponding
-       option on the build command) may break bdist_msi, bdist_mac, and
-       other commands
+       above); note that using this option overwrite the corresponding
+       option on the build command
    * - .. option:: optimize
      - optimization level, one of 0 (disabled), 1 or 2
    * - .. option:: excludes
