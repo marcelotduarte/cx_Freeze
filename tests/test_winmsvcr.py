@@ -1,5 +1,7 @@
-# pylint: disable=C0114,C0116
-import pytest  # pylint: disable=unused-import # noqa
+"""Test winmsvcr"""
+
+# pylint: disable=missing-function-docstring,unused-import
+import pytest  # noqa
 
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE
 

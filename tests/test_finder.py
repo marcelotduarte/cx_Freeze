@@ -10,17 +10,17 @@ import pytest
 from cx_Freeze import ConstantsModule, Module, ModuleFinder
 
 
+# pylint: disable=missing-function-docstring,no-self-use,unused-argument
 class TestModuleFinderWithConvertedNoseTests:
     """This class provides test cases that are conversions of the old NoseTests
     in `test_finder` that predated usage of the PyTest Framework"""
 
     @pytest.fixture()
-    def fix_module_finder(self):  # pylint: disable=C0116,R0201
+    def fix_module_finder(self):
         constants = ConstantsModule()
         finder = ModuleFinder(constants_module=constants)
         return finder
 
-    # pylint: disable-next=C0116,R0201
     def test_scan_code(self, mocker, fix_test_samples_dir, fix_module_finder):
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
@@ -42,7 +42,6 @@ class TestModuleFinderWithConvertedNoseTests:
             ]
         )
 
-    # pylint: disable-next=unused-argument,no-self-use
     def test_not_import_invalid_module_name(
         self, mocker, fix_test_samples_dir, fix_module_finder
     ):
@@ -55,7 +54,6 @@ class TestModuleFinderWithConvertedNoseTests:
             "be imported"
         )
 
-    # pylint: disable-next=unused-argument,no-self-use
     def test_invalid_syntax(self, mocker, fix_test_samples_dir):
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         constants = ConstantsModule()
@@ -66,11 +64,19 @@ class TestModuleFinderWithConvertedNoseTests:
             # Threw SyntaxError before the bug was fixed
             finder.include_module("invalid_syntax")
 
+    def test_find_spec(self, mocker, fix_test_samples_dir, fix_module_finder):
+        """Sample find_spec contains broken modules."""
+        path = os.path.join(fix_test_samples_dir, "find_spec")
+        fix_module_finder.path.insert(0, path)
+        module = fix_module_finder.include_module("hello")
+        assert (
+            "dummypackage" in module.global_names
+        ), "packages that raises exceptions should still be imported"
+
     @pytest.mark.skip(
         "Test skipped, uncertain if no longer supported - "
         "https://github.com/marcelotduarte/cx_Freeze/pull/1234"
     )
-    # pylint: disable-next=C0116,R0201
     def test_find_module_from_zip(
         self, fix_module_finder, fix_samples_dir, tmpdir
     ):
