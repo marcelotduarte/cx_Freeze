@@ -25,6 +25,6 @@ def fix_test_samples_dir(fix_test_samples_path: Path) -> str:
 
 
 @pytest.fixture()
-def fix_main_samples_dir(fix_test_dir: Path) -> Path:
+def fix_main_samples_path(fix_test_path: Path) -> Path:
     """This fixture returns the cx_Freeze samples folder"""
-    return fix_test_dir.parent.joinpath("cx_Freeze", "samples").resolve()
+    return fix_test_path.parent.joinpath("cx_Freeze", "samples").resolve()
