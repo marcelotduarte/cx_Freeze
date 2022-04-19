@@ -21,13 +21,13 @@ class TestModuleFinderWithConvertedNoseTests:
         finder = ModuleFinder(constants_module=constants)
         return finder
 
-    def test_scan_code(self, mocker, fix_test_samples_dir, fix_module_finder):
+    def test_scan_code(self, mocker, fix_test_samples_path, fix_module_finder):
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
             fix_module_finder, "_import_module", return_value=None
         )
         fix_module_finder.include_file_as_module(
-            os.path.join(fix_test_samples_dir, "imports_sample.py")
+            fix_test_samples_path / "imports_sample.py"
         )
         import_mock.assert_has_calls(
             [
@@ -64,10 +64,10 @@ class TestModuleFinderWithConvertedNoseTests:
             # Threw SyntaxError before the bug was fixed
             finder.include_module("invalid_syntax")
 
-    def test_find_spec(self, mocker, fix_test_samples_dir, fix_module_finder):
+    def test_find_spec(self, mocker, fix_test_samples_path, fix_module_finder):
         """Sample find_spec contains broken modules."""
-        path = os.path.join(fix_test_samples_dir, "find_spec")
-        fix_module_finder.path.insert(0, path)
+        path = fix_test_samples_path / "find_spec"
+        fix_module_finder.path.insert(0, str(path))
         module = fix_module_finder.include_module("hello")
         assert (
             "dummypackage" in module.global_names

@@ -26,9 +26,7 @@ setupwriter.py
 """
 master.ignore-paths = """
 ^cx_Freeze/samples/.*.py$,
-^tests/samples/find_spec/.*.py$,
-^tests/samples/invalid_syntax.py$,
-^tests/samples/testpkg1/.*.py$,
+^tests/samples/.*.py$,
 ^doc/src/conf.py$
 """
 master.py-version = "3.6"
