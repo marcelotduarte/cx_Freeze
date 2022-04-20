@@ -1,13 +1,10 @@
 """Test ModuleFinder"""
 
-import os
-import shutil
 import sys
-import zipfile
 
 import pytest
 
-from cx_Freeze import ConstantsModule, Module, ModuleFinder
+from cx_Freeze import ConstantsModule, ModuleFinder
 
 
 # pylint: disable=missing-function-docstring,no-self-use,unused-argument
@@ -72,45 +69,3 @@ class TestModuleFinderWithConvertedNoseTests:
         assert (
             "dummypackage" in module.global_names
         ), "packages that raises exceptions should still be imported"
-
-    @pytest.mark.skip(
-        "Test skipped, uncertain if no longer supported - "
-        "https://github.com/marcelotduarte/cx_Freeze/pull/1234"
-    )
-    def test_find_module_from_zip(
-        self, fix_module_finder, fix_samples_dir, tmpdir
-    ):
-        # -----------------
-        # Helper Methods from `test_zip_packages`
-        def clean_pyc_files():
-            for dirpath, dirnames, filenames in os.walk(fix_samples_dir):
-                for filename in filenames:
-                    if filename.endswith((".pyc", ".pyo")):
-                        os.unlink(os.path.join(dirpath, filename))
-                if "__pycache__" in dirnames:
-                    dirnames.remove("__pycache__")
-                    shutil.rmtree(os.path.join(dirpath, "__pycache__"))
-
-        def prepare_zip_file():
-            clean_pyc_files()
-            tmpd = tmpdir.mkdir()
-            egg = os.path.join(tmpd, "testpkg1.egg")
-            with zipfile.PyZipFile(egg, "w", zipfile.ZIP_DEFLATED) as eggzip:
-                eggzip.writepy(os.path.join(fix_samples_dir, "testmod1.py"))
-                eggzip.writepy(os.path.join(fix_samples_dir, "testpkg1"))
-            return egg
-
-        # End Helper Methods
-        # -----------------
-
-        # Original test
-        egg = prepare_zip_file()
-        try:
-            fix_module_finder.path = [egg]
-            # pylint: disable-next=protected-access
-            mod = fix_module_finder._internal_import_module(
-                "testpkg1.submod", deferred_imports=[]
-            )
-            assert isinstance(mod, Module)
-        finally:
-            os.unlink(egg)
