@@ -56,7 +56,7 @@ from PySide2.QtWidgets import (
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         self.setWindowTitle("PySide2 WebEngineWidgets Example")
 
