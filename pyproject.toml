@@ -49,3 +49,12 @@ reports.output-format = "colorized"
 minversion = "6.0"
 addopts = "-ra"
 testpaths = ["tests"]
+
+[tool.cibuildwheel]
+build-frontend = "build"
+build-verbosity = "1"
+
+[tool.cibuildwheel.linux]
+before-build = "(cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz)"
+build = "cp3*-manylinux_x86_64"
+repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
