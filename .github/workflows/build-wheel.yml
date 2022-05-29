@@ -44,7 +44,7 @@ jobs:
   build_wheel_unix:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
     name: Build [${{ matrix.os }}] using cibuildwheel
     runs-on: ${{ matrix.os }}
     steps:
@@ -62,7 +62,9 @@ jobs:
           name: cx-freeze-wheelhouse
           path: wheelhouse
   publish:
-    needs: windows
+    needs:
+      - build_wheel_windows
+      - build_wheel_unix
     runs-on: ubuntu-latest
     name: Publish package to PyPI
     steps:
