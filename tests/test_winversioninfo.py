@@ -1,6 +1,6 @@
 """Test winversioninfo"""
 
-# pylint: disable=unused-import,no-self-use
+# pylint: disable=unused-import
 import pytest  # noqa
 from packaging.version import Version
 
