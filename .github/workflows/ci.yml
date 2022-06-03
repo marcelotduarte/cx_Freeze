@@ -11,7 +11,7 @@ jobs:
   pre_commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
@@ -30,7 +30,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:

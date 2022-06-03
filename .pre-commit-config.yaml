@@ -36,7 +36,7 @@ repos:
   - id: isort
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.32.0
+  rev: v2.32.1
   hooks:
   - id: pyupgrade
     args: ["--py36-plus"]
@@ -52,7 +52,7 @@ repos:
   - id: flake8
 
 - repo: https://github.com/PyCQA/pylint
-  rev: v2.13.7
+  rev: v2.14.0
   hooks:
   - id: pylint
     name: pylint
