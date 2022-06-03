@@ -12,7 +12,7 @@ patchelf>=0.12 ;sys_platform == 'linux'
 bump2version>=1.0.1
 pre-commit>=2.17.0
 pylint>=2.13.0
-cibuildwheel==2.5.0 ;sys_platform == 'linux'
+cibuildwheel==2.6.0 ;sys_platform == 'linux'
 #doc
 sphinx==4.5.0
 sphinx-rtd-theme==1.0.0
