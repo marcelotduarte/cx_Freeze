@@ -33,13 +33,15 @@ The official documentation is available
 
 If you need help you can also ask on the [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
-# Highlights of Version 6.10:
-- Support Application Manifests in Windows: manifest and uac-admin
-- EXPERIMENTAL New dependency resolver on Windows
-- EXPERIMENTAL Support for Apple Silicon using miniforge (conda-forge)
+# Highlights of Version 6.11:
+- Binary wheels for manylinux and macOS (including Apple Silicon)
+- Complete integration to use setuptools instead of distutils
+- More code modernization
 - Bug fixes and improvements
 
-# Highlights of Version 6.2 up to 6.9:
+# Highlights of Version 6.2 up to 6.10:
+- Support Application Manifests in Windows: manifest and uac-admin
+- New dependency resolver on Windows
 - Support for pathlib.Path
 - New or improved hooks, with emphasis on matplotlib, numpy, PyQt5 and PySide2
 - New ModuleFinder engine uses importlib.machinery
