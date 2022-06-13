@@ -8,6 +8,7 @@ import sys
 
 import setuptools
 
+from cx_Freeze.command.bdist import Bdist as bdist
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.command.install import Install as install
 from cx_Freeze.command.install_exe import install_exe
@@ -49,6 +50,7 @@ __version__ = "7.0.0"
 
 def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     cmdclass = attrs.setdefault("cmdclass", {})
+    cmdclass.setdefault("bdist_msi", bdist)
     if sys.platform == "win32":
         cmdclass.setdefault("bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
