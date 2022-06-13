@@ -60,13 +60,12 @@ repos:
     language: system
     types: [python]
 
-- repo: https://github.com/thclark/pre-commit-sphinx
-  rev: 0.0.3
+- repo: local
   hooks:
   - id: build-docs
     name: build sphinx docs
-    args: ['--cache-dir', 'build/doc/.doctrees', '--html-dir', 'build/doc/html', '--source-dir', 'doc/src']
-    language_version: python3
+    language: system
+    entry: sphinx-build -M html doc/src build/doc -d build/doc/.doctrees -j auto
 
 - repo: local
   hooks:
