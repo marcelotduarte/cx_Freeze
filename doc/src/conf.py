@@ -231,9 +231,9 @@ man_pages = [
 extlinks = {
     "issue": (
         "https://github.com/marcelotduarte/cx_Freeze/issues/%s",
-        "Issue #",
+        "Issue #%s",
     ),
-    "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "PR #"),
-    "pypi": ("https://pypi.org/project/%s", ""),
-    "user": ("https://github.com/%s", "@"),
+    "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "PR #%s"),
+    "pypi": ("https://pypi.org/project/%s", "%s"),
+    "user": ("https://github.com/%s", "@%s"),
 }
