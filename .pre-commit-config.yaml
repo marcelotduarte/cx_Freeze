@@ -66,6 +66,8 @@ repos:
     name: build sphinx docs
     language: system
     entry: sphinx-build -M html doc/src build/doc -d build/doc/.doctrees -j auto
+    always_run: true
+    pass_filenames: false
 
 - repo: local
   hooks:
