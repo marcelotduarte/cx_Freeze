@@ -17,7 +17,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior
+Steps to reproduce the behavior (a setup.py or a minimal code sample will be good)
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
@@ -28,8 +28,8 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - Platform information (e.g. Ubuntu Linux 22.04):
  - OS architecture (e.g. amd64):
- - cx_Freeze version [e.g. 6.10]:
- - Python version [e.g. 3.9]:
+ - cx_Freeze version [e.g. 6.11]:
+ - Python version [e.g. 3.10]:
 
 **Additional context**
 Add any other context about the problem here.
