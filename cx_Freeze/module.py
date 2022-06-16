@@ -48,9 +48,12 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
         purelib = None
         if source_path.name.endswith(".dist-info"):
-            for source in source_path.iterdir():  # type: Path
-                target = target_path / source.name
-                target.write_bytes(source.read_bytes())
+            for source in source_path.rglob("*"):  # type: Path
+                target = target_path / source.relative_to(source_path)
+                if source.is_dir():
+                    target.mkdir(exist_ok=True)
+                else:
+                    target.write_bytes(source.read_bytes())
         elif source_path.is_file():
             # old egg-info file is converted to dist-info
             target = target_path / "METADATA"
