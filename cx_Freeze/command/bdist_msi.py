@@ -38,23 +38,18 @@ class BdistMSI(bdist_msi):
             None,
             "temporary directory for creating the distribution",
         ),
-        (
-            "keep-temp",
-            "k",
-            "keep the pseudo-installation tree around after "
-            "creating the distribution archive",
-        ),
         ("dist-dir=", "d", "directory to put final built distributions in"),
-        (
-            "skip-build",
-            None,
-            "skip rebuilding everything (for testing/debugging)",
-        ),
         (
             "install-script=",
             None,
             "basename of installation script to be run after "
             "installation or before deinstallation",
+        ),
+        (
+            "keep-temp",
+            "k",
+            "keep the pseudo-installation tree around after "
+            "creating the distribution archive",
         ),
         (
             "pre-install-script=",
@@ -63,29 +58,34 @@ class BdistMSI(bdist_msi):
             "any files are installed.  This script need not be in the "
             "distribution",
         ),
+        (
+            "skip-build",
+            None,
+            "skip rebuilding everything (for testing/debugging)",
+        ),
         # cx_Freeze specific
         ("add-to-path=", None, "add target dir to PATH environment variable"),
-        ("upgrade-code=", None, "upgrade code to use"),
-        ("initial-target-dir=", None, "initial target directory"),
-        ("target-name=", None, "name of the file to create"),
-        ("directories=", None, "list of 3-tuples of directories to create"),
-        ("environment-variables=", None, "list of environment variables"),
+        ("all-users=", None, "installation for all users (or just me)"),
         (
             "data=",
             None,
             "dictionary of data indexed by table name, and each value is a "
             "tuple to include in table",
         ),
+        ("directories=", None, "list of 3-tuples of directories to create"),
+        ("environment-variables=", None, "list of environment variables"),
+        ("extensions=", None, "Extensions for which to register Verbs"),
+        ("initial-target-dir=", None, "initial target directory"),
+        ("install-icon=", None, "icon path to add/remove programs "),
+        ("product-code=", None, "product code to use"),
         (
             "summary-data=",
             None,
             "Dictionary of data to include in msi summary data stream. "
             'Allowed keys are "author", "comments", "keywords".',
         ),
-        ("product-code=", None, "product code to use"),
-        ("install-icon=", None, "icon path to add/remove programs "),
-        ("all-users=", None, "installation for all users (or just me)"),
-        ("extensions=", None, "Extensions for which to register Verbs"),
+        ("target-name=", None, "name of the file to create"),
+        ("upgrade-code=", None, "upgrade code to use"),
     ]
 
     boolean_options = [
@@ -995,21 +995,25 @@ class BdistMSI(bdist_msi):
     def run(self):
         if not self.skip_build:
             self.run_command("build")
+
         install = self.reinitialize_command("install", reinit_subcommands=1)
-        bdist_dir = self.bdist_dir
-        install.prefix = bdist_dir
+        install_dir = install.prefix = self.bdist_dir
         install.skip_build = self.skip_build
         install.warn_dir = 0
-        logging.info("installing to %s", bdist_dir)
+        logging.info("installing to %s", install_dir)
         install.ensure_finalized()
         install.run()
+
         self.mkpath(self.dist_dir)
         # fullname = self.distribution.get_fullname()
-        if os.path.exists(self.target_name):
-            os.unlink(self.target_name)
+        installer_name = os.path.abspath(self.target_name)
+        if os.path.exists(installer_name):
+            os.unlink(installer_name)
+
         metadata = self.distribution.metadata
         author = metadata.get_contact()
         version = metadata.get_version()
+        # ProductVersion must be strictly numeric
         base_version = Version(version).base_version
 
         # msilib is reloaded in order to reset the "_directories" global member
@@ -1024,7 +1028,7 @@ class BdistMSI(bdist_msi):
         if self.product_code is None:
             self.product_code = msilib.gen_uuid()
         self.db = msilib.init_database(
-            self.target_name,
+            installer_name,
             msilib.schema,
             self.distribution.metadata.name,
             self.product_code,
@@ -1043,12 +1047,14 @@ class BdistMSI(bdist_msi):
         )
 
         if not self.keep_temp:
-            logging.info("removing '%s' (and everything under it)", bdist_dir)
+            logging.info(
+                "removing '%s' (and everything under it)", install_dir
+            )
             if not self.dry_run:
                 try:
-                    shutil.rmtree(bdist_dir)
+                    shutil.rmtree(install_dir)
                 except OSError as exc:
-                    logging.warning("error removing %s: %s", bdist_dir, exc)
+                    logging.warning("error removing %s: %s", install_dir, exc)
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent
