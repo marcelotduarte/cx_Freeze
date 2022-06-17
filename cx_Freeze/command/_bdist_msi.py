@@ -26,7 +26,7 @@ from ._pydialog import PyDialog
 class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
-    description = "create a Microsoft Installer (.msi) binary distribution"
+    description = __doc__
 
     user_options = [
         (
