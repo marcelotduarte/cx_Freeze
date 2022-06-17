@@ -584,7 +584,7 @@ class DarwinFileTracker:
         copied DarwinFiles and attempts to clean up any remaining references
         that are not already marked as copied. It covers two cases where the
         reference might not be marked as copied:
-        1) Files where _CopyFile was called without copyDependentFiles=True
+        1) Files where _copy_file was called without copy_dependent_files=True
            (in which the information would not have been added to the
             references at that time).
         2) Files with broken @rpath references. We try to fix that up here by
@@ -620,11 +620,7 @@ class DarwinFileTracker:
                                 "not find any likely intended reference."
                             )
                             copied_file.printFileInformation()
-                            raise DarwinException(
-                                f"finalizeReferences() failed to resolve path "
-                                f"[{reference.raw_path}] in file "
-                                f"[{copied_file.path}]."
-                            )
+                            potential_target = DarwinFile(reference.raw_path)
                         print(
                             f"WARNING: In file [{copied_file.path}]"
                             f" guessing that {reference.raw_path} "
