@@ -11,9 +11,14 @@ clean:
 	make -C doc clean
 
 .PHONY: upgrade
-upgrade: clean
+upgrade:
+	make all || true
+	make clean || true
+	python -m pip install -U pip
 	pip install -r requirements-dev.txt --upgrade
 	pip install -e .
+	pre-commit autoupdate
+	make all
 
 .PHONY: html
 html:
