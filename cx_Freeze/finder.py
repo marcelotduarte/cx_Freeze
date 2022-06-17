@@ -24,7 +24,6 @@ from .module import ConstantsModule, Module
 
 BUILD_LIST = opcode.opmap["BUILD_LIST"]
 EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
-INPLACE_ADD = opcode.opmap["INPLACE_ADD"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
 IMPORT_FROM = opcode.opmap["IMPORT_FROM"]

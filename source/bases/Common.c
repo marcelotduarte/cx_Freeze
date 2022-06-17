@@ -4,7 +4,6 @@
 //-----------------------------------------------------------------------------
 
 #include <compile.h>
-#include <eval.h>
 #include <osdefs.h>
 
 // define format for sys.path
