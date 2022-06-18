@@ -233,7 +233,8 @@ class DarwinFile:
         executable was located. By default, we set that to the directory of
         the library, so it would resolve in the same was as if linked from an
         executable in the same directory."""
-        # consider making this resolve to the directory of the python interpreter?  Apparently not a big issue in practice, since the code has been like this forever.
+        # consider making this resolve to the directory of the python interpreter?
+        # Apparently not a big issue in practice, since the code has been like this forever.
         if self.isExecutablePath(path):
             if path == "@executable_path":
                 return self.path.parent
