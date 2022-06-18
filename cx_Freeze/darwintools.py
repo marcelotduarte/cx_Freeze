@@ -223,6 +223,8 @@ class DarwinFile:
         """Resolve a path that includes @loader_path. @loader_path represents
         the directory in which the DarwinFile is located."""
         if self.isLoaderPath(path):
+            if path == "@loader_path":
+                return self.path.parent
             return self.path.parent / path.replace("@loader_path/", "", 1)
         raise DarwinException(f"resolveLoader() called on bad path: {path}")
 
@@ -231,9 +233,10 @@ class DarwinFile:
         executable was located. By default, we set that to the directory of
         the library, so it would resolve in the same was as if linked from an
         executable in the same directory."""
-        # consider making this resolve to the directory of the target script
-        # instead?
+        # consider making this resolve to the directory of the python interpreter?  Apparently not a big issue in practice, since the code has been like this forever.
         if self.isExecutablePath(path):
+            if path == "@executable_path":
+                return self.path.parent
             return self.path.parent / path.replace("@executable_path/", "", 1)
         raise DarwinException(
             f"resolveExecutable() called on bad path: {path}"
@@ -241,7 +244,10 @@ class DarwinFile:
 
     def resolveRPath(self, path: str) -> Optional[Path]:
         for rpath in self.getRPath():
-            test_path = rpath / path.replace("@rpath/", "", 1)
+            if path == "@rpath":
+                test_path = rpath
+            else:
+                test_path = rpath / path.replace("@rpath/", "", 1)
             if _isMachOFile(test_path):
                 return test_path
         if not self.strict:
