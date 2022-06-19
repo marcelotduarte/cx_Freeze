@@ -14,6 +14,11 @@ from .common import code_object_replace
 from .finder import ModuleFinder
 from .module import Module
 
+# get current python version
+from packaging.version import Version
+import platform
+current_version = Version(platform.python_version())
+
 MINGW = sysconfig.get_platform().startswith("mingw")
 WIN32 = sys.platform == "win32"
 
@@ -1475,13 +1480,19 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
                 if MINGW:
                     lib_texts = Path(sys.base_prefix, "lib", dir_name)
                 else:
-                    lib_texts = Path(sys.base_prefix, "tcl", dir_name)
+                    if current_version > Version("3.9.6"):
+                        lib_texts = Path(sys.base_prefix, "Library\\lib", dir_name)
+                    else:
+                        lib_texts = Path(sys.base_prefix, "tcl", dir_name)
             target_path = Path("lib", "tkinter", dir_name)
             finder.add_constant(env_name, str(target_path))
             finder.include_files(lib_texts, target_path)
             if not MINGW:
                 dll_name = dir_name.replace(".", "") + "t.dll"
-                dll_path = Path(sys.base_prefix, "DLLs", dll_name)
+                if current_version > Version("3.9.6"):
+                    dll_path = Path(sys.base_prefix, "Library\\bin", dll_name)
+                else:
+                    dll_path = Path(sys.base_prefix, "DLLs", dll_name)
                 finder.include_files(dll_path, Path("lib", dll_name))
 
 
