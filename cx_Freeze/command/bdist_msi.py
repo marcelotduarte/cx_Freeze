@@ -85,6 +85,7 @@ class BdistMSI(bdist_msi):
             'Allowed keys are "author", "comments", "keywords".',
         ),
         ("target-name=", None, "name of the file to create"),
+        ("target-version=", None, "version of the file to create"),
         ("upgrade-code=", None, "upgrade code to use"),
     ]
 
@@ -854,6 +855,8 @@ class BdistMSI(bdist_msi):
         self.add_to_path = None
         self.initial_target_dir = None
         self.target_name = None
+        self.target_version = None
+        self.fullname = None
         self.directories = None
         self.environment_variables = None
         self.data = None
@@ -888,8 +891,13 @@ class BdistMSI(bdist_msi):
         self.install_script_key = None
 
         # cx_Freeze specific
-        name = self.distribution.get_name()
-        fullname = self.distribution.get_fullname()
+        if self.target_name is None:
+            self.target_name = self.distribution.get_name()
+        if self.target_version is None and self.distribution.metadata.version:
+            self.target_version = self.distribution.metadata.version
+        name = self.target_name
+        version = self.target_version or self.distribution.get_version()
+        self.fullname = f"{name}-{version}"
         platform = get_platform().replace("win-amd64", "win64")
         if self.initial_target_dir is None:
             if platform == "win64" or platform.startswith("mingw_x86_64"):
@@ -899,12 +907,6 @@ class BdistMSI(bdist_msi):
             self.initial_target_dir = rf"[{program_files_folder}]\{name}"
         if self.add_to_path is None:
             self.add_to_path = False
-        if self.target_name is None:
-            self.target_name = fullname
-        if not self.target_name.lower().endswith(".msi"):
-            self.target_name = f"{self.target_name}-{platform}.msi"
-        if not os.path.isabs(self.target_name):
-            self.target_name = os.path.join(self.dist_dir, self.target_name)
         if self.directories is None:
             self.directories = []
         if self.environment_variables is None:
@@ -939,14 +941,12 @@ class BdistMSI(bdist_msi):
                     "Executable must be the base target name of one of the "
                     "distribution's executables"
                 ) from None
-            distribution_name = self.distribution.get_name()
             stem = os.path.splitext(executable)[0]
-            version = self.distribution.get_version()
-            progid = msilib.make_id(f"{distribution_name}.{stem}.{version}")
+            progid = msilib.make_id(f"{name}.{stem}.{version}")
             mime = extension.get("mime", None)
             # "%1" a better default for argument?
             argument = extension.get("argument", None)
-            context = extension.get("context", f"{fullname} {verb}")
+            context = extension.get("context", f"{self.fullname} {verb}")
             # Add rows via self.data to safely ignore duplicates
             self._append_to_data(
                 "ProgId",
@@ -970,7 +970,7 @@ class BdistMSI(bdist_msi):
                 -1,
                 rf"Software\Classes\{progid}",
                 "FriendlyAppName",
-                self.distribution.get_name(),
+                name,
                 component,
             )
             self._append_to_data(
@@ -979,7 +979,7 @@ class BdistMSI(bdist_msi):
                 -1,
                 rf"Software\Classes\{progid}\shell\{verb}",
                 "FriendlyAppName",
-                self.distribution.get_name(),
+                name,
                 component,
             )
             self._append_to_data(
@@ -996,23 +996,30 @@ class BdistMSI(bdist_msi):
         if not self.skip_build:
             self.run_command("build")
 
+        # install everything from build directory in a new prefix
+        install_dir = self.bdist_dir
         install = self.reinitialize_command("install", reinit_subcommands=1)
-        install_dir = install.prefix = self.bdist_dir
+        install.prefix = install_dir
         install.skip_build = self.skip_build
         install.warn_dir = 0
         logging.info("installing to %s", install_dir)
         install.ensure_finalized()
         install.run()
 
+        # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
-        # fullname = self.distribution.get_fullname()
-        installer_name = os.path.abspath(self.target_name)
+        platform = get_platform().replace("win-amd64", "win64")
+        if self.target_version:
+            base_name = f"{self.fullname}-{platform}.msi"
+        else:
+            base_name = f"{self.target_name}-{platform}.msi"
+        installer_name = os.path.join(self.dist_dir, base_name)
+        installer_name = os.path.abspath(installer_name)
         if os.path.exists(installer_name):
             os.unlink(installer_name)
 
-        metadata = self.distribution.metadata
-        author = metadata.get_contact()
-        version = metadata.get_version()
+        author = self.distribution.metadata.get_contact()
+        version = self.target_version or self.distribution.get_version()
         # ProductVersion must be strictly numeric
         base_version = Version(version).base_version
 
@@ -1030,7 +1037,7 @@ class BdistMSI(bdist_msi):
         self.db = msilib.init_database(
             installer_name,
             msilib.schema,
-            self.distribution.metadata.name,
+            self.target_name,
             self.product_code,
             base_version,
             author,
