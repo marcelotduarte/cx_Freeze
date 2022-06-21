@@ -31,8 +31,10 @@ class Install(_install):
     def get_sub_commands(self):
         sub_commands = _install.get_sub_commands(self)
         if self.distribution.executables:
+            sub_commands.remove("install_egg_info")
+            sub_commands.remove("install_scripts")
             sub_commands.append("install_exe")
-        return [s for s in sub_commands if s != "install_egg_info"]
+        return sub_commands
 
     def initialize_options(self):
         with suppress_known_deprecation():
