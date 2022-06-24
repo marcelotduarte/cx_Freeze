@@ -10,7 +10,7 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from .common import code_object_replace
+from .common import code_object_replace, get_resource_file_path
 from .finder import ModuleFinder
 from .module import Module
 
@@ -1458,31 +1458,36 @@ def load_time(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_tkinter(finder: ModuleFinder, module: Module) -> None:
-    """The tkinter module has data files that are required to be loaded so
-    ensure that they are copied into the directory that is expected at
-    runtime."""
-    if WIN32:
-        tkinter = __import__("tkinter")
-        root_names = "tcl", "tk"
-        environ_names = "TCL_LIBRARY", "TK_LIBRARY"
-        version_vars = tkinter.TclVersion, tkinter.TkVersion
-        zipped = zip(environ_names, version_vars, root_names)
-        for env_name, ver_var, mod_name in zipped:
-            dir_name = mod_name + str(ver_var)
-            try:
-                lib_texts = os.environ[env_name]
-            except KeyError:
-                if MINGW:
-                    lib_texts = Path(sys.base_prefix, "lib", dir_name)
-                else:
-                    lib_texts = Path(sys.base_prefix, "tcl", dir_name)
-            target_path = Path("lib", "tkinter", dir_name)
-            finder.add_constant(env_name, str(target_path))
-            finder.include_files(lib_texts, target_path)
-            if not MINGW:
-                dll_name = dir_name.replace(".", "") + "t.dll"
-                dll_path = Path(sys.base_prefix, "DLLs", dll_name)
-                finder.include_files(dll_path, Path("lib", dll_name))
+    """The tkinter module has data files (also called tcl/tk libraries) that
+    are required to be loaded at runtime."""
+    folders = []
+    tcltk = get_resource_file_path("bases", "tcltk", "")
+    if tcltk and tcltk.is_dir():
+        # manylinux wheels and macpython wheels store tcl/tk libraries
+        folders.append(("TCL_LIBRARY", list(tcltk.glob("tcl*"))[0]))
+        folders.append(("TK_LIBRARY", list(tcltk.glob("tk*"))[0]))
+    else:
+        # Windows, MSYS2, Miniconda: collect the tcl/tk libraries
+        try:
+            tkinter = __import__("tkinter")
+        except (ImportError, AttributeError):
+            return
+        root = tkinter.Tk(useTk=False)
+        source_path = Path(root.tk.exprstring("$tcl_library"))
+        folders.append(("TCL_LIBRARY", source_path))
+        source_name = source_path.name.replace("tcl", "tk")
+        source_path = source_path.parent / source_name
+        folders.append(("TK_LIBRARY", source_path))
+    for env_name, source_path in folders:
+        target_path = Path("lib", "tcltk", source_path.name)
+        finder.add_constant(env_name, str(target_path))
+        finder.include_files(source_path, target_path)
+        if WIN32 and not MINGW:
+            dll_name = source_path.name.replace(".", "") + "t.dll"
+            dll_path = Path(sys.base_prefix, "DLLs", dll_name)
+            if not dll_path.exists():
+                continue
+            finder.include_files(dll_path, Path("lib", dll_name))
 
 
 def load_twisted_conch_ssh_transport(
