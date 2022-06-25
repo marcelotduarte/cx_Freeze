@@ -76,8 +76,11 @@ class ModuleFinder:
             excludes or []
         )
         self._bad_modules = {}
-        self._hooks = __import__("cx_Freeze", fromlist=["hooks"]).hooks
-        self._hooks.initialize(self)
+        self._hooks = __import__(
+            "cx_Freeze.hooks", fromlist=["hooks", "exclude"]
+        )
+        for name in self._hooks.exclude.MODULES:
+            self.exclude_module(name)
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
