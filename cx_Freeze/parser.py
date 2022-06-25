@@ -123,6 +123,11 @@ class PEParser(Parser):
         return dependent_files
 
     def read_manifest(self, path: Union[str, Path]) -> str:
+        """
+        :return: the XML schema of the manifest included in the executable
+        :rtype: str
+
+        """
         if lief is None:
             raise RuntimeError("lief is not installed")
         if isinstance(path, str):
@@ -137,6 +142,11 @@ class PEParser(Parser):
         return manifest
 
     def write_manifest(self, path: Union[str, Path], manifest: str) -> None:
+        """
+        :return: write the XML schema of the manifest into the executable
+        :rtype: str
+
+        """
         if lief is None:
             raise RuntimeError("lief is not installed")
         if isinstance(path, str):
@@ -167,6 +177,7 @@ class ELFParser(Parser):
 
     @staticmethod
     def is_elf(path: Union[str, Path]) -> bool:
+        """Check if the executable is an ELF."""
         if isinstance(path, str):
             path = Path(path)
         if (
@@ -223,6 +234,7 @@ class ELFParser(Parser):
         return dependent_files
 
     def get_rpath(self, filename: Union[str, Path]) -> str:
+        """Gets the rpath of the executable."""
         args = ["patchelf", "--print-rpath", filename]
         with suppress(CalledProcessError):
             return check_output(args, encoding="utf-8").strip()
@@ -231,11 +243,13 @@ class ELFParser(Parser):
     def replace_needed(
         self, filename: Union[str, Path], so_name: str, new_so_name: str
     ) -> None:
+        """Replace DT_NEEDED entry in the dynamic table."""
         self._set_write_mode(filename)
         args = ["patchelf", "--replace-needed", so_name, new_so_name, filename]
         check_call(args)
 
     def set_rpath(self, filename: Union[str, Path], rpath: str) -> None:
+        """Sets the rpath of the executable."""
         self._set_write_mode(filename)
         args = ["patchelf", "--remove-rpath", filename]
         check_call(args)
@@ -243,6 +257,7 @@ class ELFParser(Parser):
         check_call(args)
 
     def set_soname(self, filename: Union[str, Path], new_so_name: str) -> None:
+        """Sets DT_SONAME entry in the dynamic table."""
         self._set_write_mode(filename)
         args = ["patchelf", "--set-soname", new_so_name, filename]
         check_call(args)
@@ -271,5 +286,5 @@ def _verify_patchelf() -> None:
     if mobj and tuple(int(x) for x in mobj.group(1).split(".")) >= (0, 12):
         return
     raise ValueError(
-        f"patchelf {version} found. cx-freeze requires patchelf >= 0.12."
+        f"patchelf {version} found. cx_Freeze requires patchelf >= 0.12."
     )
