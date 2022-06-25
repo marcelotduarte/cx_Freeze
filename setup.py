@@ -190,14 +190,44 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         """Copy standard libraries to cx_Freeze wheel, on posix systems, when
         python is compiled with --disable-shared, as is done in manylinux and
         macpython. Modules such as math, _struct and zlib, which are normally
-        embedded in python, are compiled separately."""
+        embedded in python, are compiled separately.
+        Also, copies tcl/tk libraries."""
         if WIN32 or IS_CONDA or bool(get_config_var("Py_ENABLE_SHARED")):
             return
-        source_path = Path(get_config_var("DESTSHARED"))
-        target_path = f"{self.build_lib}/cx_Freeze/bases/lib-dynload"
+        bases = f"{self.build_lib}/cx_Freeze/bases"
+        if bool(get_config_var("DESTSHARED")):
+            source_path = Path(get_config_var("DESTSHARED"))
+            target_path = f"{bases}/lib-dynload"
+            self.mkpath(target_path)
+            for source in source_path.iterdir():
+                self.copy_file(source.as_posix(), target_path)
+        # tcl/tk at /usr/share
+        try:
+            tkinter = __import__("tkinter")
+        except (ImportError, AttributeError):
+            return
+        root = tkinter.Tk(useTk=False)
+        # tcl
+        source_path = Path(root.tk.exprstring("$tcl_library"))
+        target_path = f"{bases}/tcltk/{source_path.name}"
         self.mkpath(target_path)
-        for source in source_path.iterdir():
-            self.copy_file(source.as_posix(), target_path)
+        for source in source_path.rglob("*"):
+            target = str(target_path / source.relative_to(source_path))
+            if source.is_dir():
+                self.mkpath(target)
+            else:
+                self.copy_file(source.as_posix(), target)
+        # tk
+        source_name = source_path.name.replace("tcl", "tk")
+        source_path = source_path.parent / source_name
+        target_path = f"{bases}/tcltk/{source_path.name}"
+        self.mkpath(target_path)
+        for source in source_path.rglob("*"):
+            target = str(target_path / source.relative_to(source_path))
+            if source.is_dir():
+                self.mkpath(target)
+            else:
+                self.copy_file(source.as_posix(), target)
 
     def run(self):
         self.run_command("install_include")
