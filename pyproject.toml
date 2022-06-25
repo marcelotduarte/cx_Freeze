@@ -21,7 +21,6 @@ format.max-line-length = 79
 master.ignore="""
 darwintools.py,
 freezer.py,
-parser.py,
 setupwriter.py
 """
 master.ignore-paths = """
