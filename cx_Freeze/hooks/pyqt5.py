@@ -2,14 +2,12 @@
 PyQt5 package is included."""
 
 import sys
-import sysconfig
 from pathlib import Path
 from typing import List, Tuple
 
 from ..finder import ModuleFinder
 from ..module import Module
 
-MINGW = sysconfig.get_platform().startswith("mingw")
 WIN32 = sys.platform == "win32"
 
 
