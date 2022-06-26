@@ -76,10 +76,7 @@ class ModuleFinder:
             excludes or []
         )
         self._bad_modules = {}
-        self._hooks = __import__(
-            "cx_Freeze.hooks", fromlist=["hooks", "exclude"]
-        )
-        for name in self._hooks.exclude.MODULES:
+        for name in self._base_hooks.exclude.MODULES:
             self.exclude_module(name)
         self._add_base_modules()
 
@@ -145,6 +142,15 @@ class ModuleFinder:
                 return caller
             return self._get_parent_by_name(caller.name)
         return None
+
+    @cached_property
+    def _base_hooks(self):
+        """Load the hooks dynamically to avoid cyclic errors, because hooks
+        have references to finder."""
+        fromlist = []
+        for path in Path(__file__).parent.joinpath("hooks").glob("*.py"):
+            fromlist.append("hooks" if path.stem == "__init__" else path.stem)
+        return __import__("cx_Freeze.hooks", fromlist=fromlist)
 
     @cached_property
     def _builtin_modules(self) -> Set[str]:
@@ -582,10 +588,22 @@ class ModuleFinder:
         )
 
     def _run_hook(self, hook: str, module_name: str, *args) -> None:
-        """Run hook (load or missing) for the given module if one is
-        present."""
+        """Run hook (load or missing) for the given module if one is present.
+        For functions present in hooks.__init__:
+        package aiofiles -> load_aiofiles function
+        package Crypto, module Cipher -> load_Crypto_Cipher function
+        For functions in a separated module (lowercased):
+        package PyQt5, module QtCore -> pyqt5.load_pyqt5_qtcore
+        """
+        base_hooks = self._base_hooks
         normalized_name = module_name.replace(".", "_")
-        method = getattr(self._hooks, f"{hook}_{normalized_name}", None)
+        method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
+        if method is None:
+            normalized_name = normalized_name.lower()
+            root = normalized_name.split("_")[0]
+            base_hooks = getattr(base_hooks, root, None)
+            if base_hooks is not None:
+                method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
         if method is not None:
             method(self, *args)
 
