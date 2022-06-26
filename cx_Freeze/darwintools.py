@@ -235,7 +235,9 @@ class DarwinFile:
         # interpreter? Apparently not a big issue in practice, since the
         # code has been like this forever.
         if self.isExecutablePath(path):
-            return self.path.parent / Path(path).relative_to("@executable_path/")
+            return self.path.parent / Path(path).relative_to(
+                "@executable_path/"
+            )
         raise DarwinException(
             f"resolveExecutable() called on bad path: {path}"
         )
