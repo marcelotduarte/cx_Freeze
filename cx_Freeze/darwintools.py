@@ -223,9 +223,7 @@ class DarwinFile:
         """Resolve a path that includes @loader_path. @loader_path represents
         the directory in which the DarwinFile is located."""
         if self.isLoaderPath(path):
-            if path == "@loader_path":
-                return self.path.parent
-            return self.path.parent / path.replace("@loader_path/", "", 1)
+            return self.path.parent / Path(path).relative_to("@loader_path")
         raise DarwinException(f"resolveLoader() called on bad path: {path}")
 
     def resolveExecutable(self, path: str) -> Path:
@@ -237,19 +235,16 @@ class DarwinFile:
         # interpreter? Apparently not a big issue in practice, since the
         # code has been like this forever.
         if self.isExecutablePath(path):
-            if path == "@executable_path":
-                return self.path.parent
-            return self.path.parent / path.replace("@executable_path/", "", 1)
+            return self.path.parent / Path(path).relative_to(
+                "@executable_path/"
+            )
         raise DarwinException(
             f"resolveExecutable() called on bad path: {path}"
         )
 
     def resolveRPath(self, path: str) -> Optional[Path]:
         for rpath in self.getRPath():
-            if path == "@rpath":
-                test_path = rpath
-            else:
-                test_path = rpath / path.replace("@rpath/", "", 1)
+            test_path = rpath / Path(path).relative_to("@rpath")
             if _isMachOFile(test_path):
                 return test_path
         if not self.strict:
