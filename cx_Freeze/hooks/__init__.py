@@ -190,14 +190,23 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     configuration files.
 
     Additionally, on Linux the opencv_python.libs directory is not
-    copied across for versions above 4.5.3 unless the cv2 package is
-    included."""
+    copied across for versions above 4.5.3."""
+    if module.path is None:
+        return
+
     finder.include_package("cv2")
 
     dest_dir = Path("lib", "cv2")
     cv2_dir = module.path[0]
     for path in cv2_dir.glob("config*.py"):
         finder.include_files(path, dest_dir / path.name)
+    module.in_file_system = 1
+
+    # Copy all files in site-packages/opencv_python.libs
+    libs_name = "opencv_python.libs"
+    libs_dir = cv2_dir.parent / libs_name
+    if libs_dir.exists():
+        finder.include_files(libs_dir, Path("lib", libs_name))
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
