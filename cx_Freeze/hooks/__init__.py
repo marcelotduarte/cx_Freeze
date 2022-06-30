@@ -15,6 +15,7 @@ from .pyqt5 import copy_qt_data, copy_qt_plugins  # noqa
 
 MINGW = sysconfig.get_platform().startswith("mingw")
 WIN32 = sys.platform == "win32"
+DARWIN = sys.platform == "darwin"
 
 
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
@@ -191,10 +192,11 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
 
     Additionally, on Linux the opencv_python.libs directory is not
     copied across for versions above 4.5.3."""
+    finder.include_package("cv2")
+    finder.include_package("numpy")
+
     if module.path is None:
         return
-
-    finder.include_package("cv2")
 
     dest_dir = Path("lib", "cv2")
     cv2_dir = module.path[0]
@@ -203,7 +205,12 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     module.in_file_system = 1
 
     # Copy all files in site-packages/opencv_python.libs
-    libs_name = "opencv_python.libs"
+    if WIN32:
+        return
+    if DARWIN:
+        libs_name = "cv2/.dylibs"
+    else:  # Linux and others
+        libs_name = "opencv_python.libs"
     libs_dir = cv2_dir.parent / libs_name
     if libs_dir.exists():
         finder.include_files(libs_dir, Path("lib", libs_name))
