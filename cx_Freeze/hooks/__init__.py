@@ -909,6 +909,11 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("xml.etree.ElementTree")
 
 
+def load_yaml(finder: ModuleFinder, module: Module) -> None:
+    """PyYAML requires its metadata"""
+    module.update_distribution("PyYAML")
+
+
 def load_zmq(finder: ModuleFinder, module: Module) -> None:
     """The zmq package loads zmq.backend.cython dynamically and links
     dynamically to zmq.libzmq or shared lib. Tested in pyzmq 16.0.4 (py36),
