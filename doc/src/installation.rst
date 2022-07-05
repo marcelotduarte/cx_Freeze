@@ -33,7 +33,7 @@ Python requirements are installed automatically by pip or conda.
    lief >= 0.11.5              (Windows only)
    packaging >= 21.0
    patchelf >= 0.12            (Linux)
-   setuptools
+   setuptools >= 59.0.1
 
 .. note:: Patchelf
 

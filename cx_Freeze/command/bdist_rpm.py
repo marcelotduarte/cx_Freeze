@@ -276,8 +276,8 @@ class BdistRPM(Command):
 
     def finalize_package_data(self):
         self.ensure_string("group", "Development/Libraries")
-        contact = self.distribution.get_contact()
-        contact_email = self.distribution.get_contact_email()
+        contact = self.distribution.get_contact() or "UNKNOWN"
+        contact_email = self.distribution.get_contact_email() or "UNKNOWN"
         self.ensure_string("vendor", f"{contact} <{contact_email}>")
         self.ensure_string("packager")
         self.ensure_string_list("doc_files")
@@ -472,7 +472,7 @@ class BdistRPM(Command):
             "%define unmangled_version " + self.distribution.get_version(),
             "%define release " + self.release.replace("-", "_"),
             "",
-            "Summary: " + self.distribution.get_description(),
+            "Summary: " + self.distribution.get_description() or "UNKNOWN",
         ]
 
         # Workaround for #14443 which affects some RPM based systems such as
@@ -514,7 +514,7 @@ class BdistRPM(Command):
 
         spec_file.extend(
             [
-                "License: " + self.distribution.get_license(),
+                "License: " + (self.distribution.get_license() or "UNKNOWN"),
                 "Group: " + self.group,
                 "BuildRoot: "
                 "%{_tmppath}/%{name}-%{version}-%{release}-buildroot",
@@ -544,7 +544,7 @@ class BdistRPM(Command):
             elif val is not None:
                 spec_file.append(f"{field}: {val}")
 
-        if self.distribution.get_url() != "UNKNOWN":
+        if self.distribution.get_url() not in (None, "UNKNOWN"):
             spec_file.append("Url: " + self.distribution.get_url())
 
         if self.distribution_name:
@@ -560,7 +560,11 @@ class BdistRPM(Command):
             spec_file.append("AutoReq: 0")
 
         spec_file.extend(
-            ["", "%description", self.distribution.get_long_description()]
+            [
+                "",
+                "%description",
+                self.distribution.get_long_description() or "",
+            ]
         )
 
         # put locale descriptions into spec file

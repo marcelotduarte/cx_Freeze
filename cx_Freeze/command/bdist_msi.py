@@ -953,7 +953,7 @@ class BdistMSI(bdist_msi):
                 progid,
                 None,
                 None,
-                self.distribution.get_description(),
+                self.distribution.get_description() or "UNKNOWN",
                 None,
                 None,
             )
@@ -988,7 +988,7 @@ class BdistMSI(bdist_msi):
                 -1,
                 rf"Software\Classes\{progid}\Application",
                 "ApplicationCompany",
-                self.distribution.get_author(),
+                self.distribution.get_author() or "UNKNOWN",
                 component,
             )
 
@@ -1018,7 +1018,7 @@ class BdistMSI(bdist_msi):
         if os.path.exists(installer_name):
             os.unlink(installer_name)
 
-        author = self.distribution.metadata.get_contact()
+        author = self.distribution.metadata.get_contact() or "UNKNOWN"
         version = self.target_version or self.distribution.get_version()
         # ProductVersion must be strictly numeric
         base_version = Version(version).base_version
