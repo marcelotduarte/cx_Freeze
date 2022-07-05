@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
 
         self.webEngineView = QWebEngineView()
         self.setCentralWidget(self.webEngineView)
-        initialUrl = "http://qt.io"
+        initialUrl = "https://marcelotduarte.github.io/cx_Freeze/"
         self.addressLineEdit.setText(initialUrl)
         self.webEngineView.load(QUrl(initialUrl))
         self.webEngineView.page().titleChanged.connect(self.setWindowTitle)
