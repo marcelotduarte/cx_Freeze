@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-import warnings
 
 from setuptools import Command
 from setuptools.errors import SetupError
@@ -40,7 +39,6 @@ class BuildEXE(Command):
             "comma-separated list of packages to include, "
             "which includes all submodules in the package",
         ),
-        ("namespace-packages=", None, "[DEPRECATED]"),
         (
             "replace-paths=",
             None,
@@ -179,8 +177,6 @@ class BuildEXE(Command):
             "zip_includes",
             "zip_include_packages",
             "zip_exclude_packages",
-            # DEPRECATED
-            "namespace_packages",
         ]
 
         for option in self.list_options:
@@ -233,11 +229,6 @@ class BuildEXE(Command):
         constants_module = ConstantsModule(
             metadata.version, constants=self.constants
         )
-        if self.namespace_packages:
-            warnings.warn(
-                "namespace-packages is obsolete and will be removed in the "
-                "next version"
-            )
 
         freezer: Freezer = Freezer(
             self.distribution.executables,

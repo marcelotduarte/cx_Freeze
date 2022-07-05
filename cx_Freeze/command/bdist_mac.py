@@ -4,7 +4,6 @@ import os
 import plistlib
 import shutil
 import subprocess
-import warnings
 from typing import List, Tuple
 
 from setuptools import Command
@@ -187,11 +186,6 @@ class BdistMac(Command):
             "Path to use for all referenced "
             "libraries instead of @executable_path.",
         ),
-        (
-            "rpath-lib-folder",
-            None,
-            "DEPRECATED.  Will be removed in next version.",
-        ),
     ]
 
     def initialize_options(self):
@@ -212,7 +206,6 @@ class BdistMac(Command):
         self.codesign_deep = None
         self.codesign_resource_rules = None
         self.absolute_reference_path = None
-        self.rpath_lib_folder = None
 
     def finalize_options(self):
         # Make sure all options of multiple values are lists
@@ -224,11 +217,6 @@ class BdistMac(Command):
                     "Error, plist_items must be a list of key, value pairs "
                     "(List[Tuple[str, str]]) (bad list item)."
                 )
-        if self.rpath_lib_folder is not None:
-            warnings.warn(
-                "rpath-lib-folder is obsolete and will be removed in the "
-                "next major version"
-            )
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""

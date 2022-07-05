@@ -221,7 +221,6 @@ This is the equivalent help to specify the same options on the command line:
     --includes (-i)         comma-separated list of modules to include
     --packages (-p)         comma-separated list of packages to include, which
                             includes all submodules in the package
-    --namespace-packages    [DEPRECATED]
     --replace-paths         comma-separated list of paths to replace in included
                             modules, using the form <search>=<replace>
     --path                  comma-separated list of paths to search
@@ -500,9 +499,6 @@ bundle (a .app directory).
      - Plist file to be passed to codesign's --resource-rules option.
    * - .. option:: absolute_reference_path
      - Path to use for all referenced libraries instead of @executable_path
-   * - .. option:: rpath_lib_folder
-     - [DEPRECATED]. Will be removed in next version. (Formerly replaced
-       @rpath with given folder for any files.)
 
 .. versionadded:: 6.0
     ``environment_variables``, ``include_resources``,
@@ -512,7 +508,7 @@ bundle (a .app directory).
    Replaced the ``compressed`` option with the ``no_compress`` option.
 
 .. deprecated:: 6.5
-    ``rpath_lib_folder`` option.
+    ``rpath_lib_folder`` option. Removed in version 6.12.
 
 This is the equivalent help to specify the same options on the command line:
 
