@@ -14,11 +14,10 @@ from typing import Any, Dict, List, Set, Union
 
 from .common import TemporaryPath
 
-try:
+# pylint: disable=c-extension-no-member
+if sys.platform == "win32":
     import lief
-except ImportError:
-    lief = None
-else:
+
     lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
 
 try:
@@ -31,10 +30,10 @@ MAGIC_ELF = b"\x7fELF"
 NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
 NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
 
-# The default is to use lief if it is installed.
-# To disable the experimental feature in Windows:
+# In Windows, to get dependencies, the default is to use lief package,
+# but LIEF can be disabled with:
 # set CX_FREEZE_BIND=imagehlp
-LIEF_ENABLED = os.environ.get("CX_FREEZE_BIND", "lief") == "lief" and lief
+LIEF_DISABLED = os.environ.get("CX_FREEZE_BIND", "") == "imagehlp" and util
 
 
 class Parser(ABC):
@@ -46,16 +45,15 @@ class Parser(ABC):
 
     @abstractmethod
     def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
-        """Return the file's dependencies using platform-specific tools (the
-        imagehlp library on Windows, otool on Mac OS X and ldd on Linux);
-        limit this list by the exclusion lists as needed.
+        """Return the file's dependencies using platform-specific tools
+        (lief package or the imagehlp library on Windows, otool on Mac OS X or
+        ldd on Linux); limit this list by the exclusion lists as needed.
         (Implemented separately for each platform.)"""
 
 
 class PEParser(Parser):
-    """`PEParser` is based on the `lief` package. The use of LIEF is
-    experimental. If it is not installed or disabled use the old friend
-    `cx_Freeze.util` extension module."""
+    """`PEParser` is based on the `lief` package. If it is disabled,
+    use the old friend `cx_Freeze.util` extension module."""
 
     @staticmethod
     def is_pe(path: Union[str, Path]) -> bool:
@@ -105,10 +103,10 @@ class PEParser(Parser):
         os.environ["PATH"] = orig_path
         return dependent_files
 
-    if LIEF_ENABLED:
-        _get_dependent_files = _get_dependent_files_lief
-    else:
+    if LIEF_DISABLED:
         _get_dependent_files = _get_dependent_files_imagehlp
+    else:
+        _get_dependent_files = _get_dependent_files_lief
 
     def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
         if isinstance(path, str):
@@ -128,8 +126,6 @@ class PEParser(Parser):
         :rtype: str
 
         """
-        if lief is None:
-            raise RuntimeError("lief is not installed")
         if isinstance(path, str):
             path = Path(path)
         with path.open("rb", buffering=0) as raw:
@@ -147,8 +143,6 @@ class PEParser(Parser):
         :rtype: str
 
         """
-        if lief is None:
-            raise RuntimeError("lief is not installed")
         if isinstance(path, str):
             path = Path(path)
         with path.open("rb", buffering=0) as raw:
