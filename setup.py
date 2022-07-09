@@ -25,6 +25,7 @@ from typing import Tuple
 
 import setuptools.command.build_ext
 from setuptools import Command, Extension, setup
+from setuptools.errors import LinkError
 
 WIN32 = sys.platform == "win32"
 DARWIN = sys.platform == "darwin"
@@ -116,15 +117,23 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                     extra_args.append("-s")
                 extra_args.append("-Wl,-rpath,$ORIGIN/lib")
                 extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
-        self.compiler.link_executable(
-            objects,
-            fullname,
-            libraries=libraries,
-            library_dirs=library_dirs,
-            runtime_library_dirs=ext.runtime_library_dirs,
-            extra_postargs=extra_args,
-            debug=self.debug,
-        )
+        for arg in (None, "--no-lto"):
+            if arg:
+                extra_args.append(arg)
+            try:
+                self.compiler.link_executable(
+                    objects,
+                    fullname,
+                    libraries=libraries,
+                    library_dirs=library_dirs,
+                    runtime_library_dirs=ext.runtime_library_dirs,
+                    extra_postargs=extra_args,
+                    debug=self.debug,
+                )
+            except LinkError:
+                continue
+            else:
+                break
 
     def get_ext_filename(self, fullname):
         if fullname.endswith("util"):
