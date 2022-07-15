@@ -28,7 +28,6 @@ from .pyqt5 import load_pyqt5_qtwebenginecore as load_pyside6_qtwebenginecore
 from .pyqt5 import (
     load_pyqt5_qtwebenginewidgets as load_pyside6_qtwebenginewidgets,
 )
-from .pyqt5 import load_pyqt5_qtwebkit as load_pyside6_qtwebkit
 from .pyqt5 import load_pyqt5_qtwebsockets as load_pyside6_qtwebsockets
 from .pyqt5 import load_pyqt5_qtwidgets as load_pyside6_qtwidgets
 from .pyqt5 import load_pyqt5_qtxmlpatterns as load_pyside6_qtxmlpatterns
@@ -56,7 +55,6 @@ __all__ = [
     "load_pyside6_qtwebengine",
     "load_pyside6_qtwebenginecore",
     "load_pyside6_qtwebenginewidgets",
-    "load_pyside6_qtwebkit",
     "load_pyside6_qtwebsockets",
     "load_pyside6_qtwidgets",
     "load_pyside6_qtxmlpatterns",
