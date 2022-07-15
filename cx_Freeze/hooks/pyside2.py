@@ -7,6 +7,7 @@ from .pyqt5 import load_pyqt5_qtcharts as load_pyside2_qtcharts
 from .pyqt5 import (
     load_pyqt5_qtdatavisualization as load_pyside2_qtdatavisualization,
 )
+from .pyqt5 import load_pyqt5_qtdesigner as load_pyside2_qtdesigner
 from .pyqt5 import load_pyqt5_qtgui as load_pyside2_qtgui
 from .pyqt5 import load_pyqt5_qthelp as load_pyside2_qthelp
 from .pyqt5 import load_pyqt5_qtlocation as load_pyside2_qtlocation
@@ -39,6 +40,7 @@ __all__ = [
     "load_pyside2_qt",
     "load_pyside2_qtcharts",
     "load_pyside2_qtdatavisualization",
+    "load_pyside2_qtdesigner",
     "load_pyside2_qtgui",
     "load_pyside2_qthelp",
     "load_pyside2_qtlocation",
