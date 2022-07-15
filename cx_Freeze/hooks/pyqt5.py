@@ -186,6 +186,14 @@ def load_pyqt5_qtdatavisualization(
     finder.include_module(f"{name}.QtGui")
 
 
+def load_pyqt5_qtdesigner(finder: ModuleFinder, module: Module) -> None:
+    """This module depends on another module and plugins."""
+    name = _qt_implementation(module)
+    finder.include_module("datetime")
+    finder.include_module(f"{name}.QtWidgets")
+    copy_qt_plugins(name, "designer", finder)
+
+
 def load_pyqt5_qtgui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that QtGui will use some image formats, then, add the
     image format plugins."""
