@@ -103,10 +103,12 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     code_string = module.file.read_text()
     code_string += f"""
 # cx_Freeze patch start
+import os
 import sys
 from pathlib import Path
-from {name}.QtCore import QCoreApplication
+from {name}.QtCore import QCoreApplication, QLibraryInfo
 
+# configure
 executable_dir = Path(sys.executable).parent
 qt_root_dir = executable_dir / "lib" / "{name}"
 plugins_dir = qt_root_dir / "Qt5" / "plugins"  # PyQt5 5.15.4
@@ -116,6 +118,22 @@ if not plugins_dir.is_dir():
     plugins_dir = qt_root_dir / "plugins"
 if plugins_dir.is_dir():
     QCoreApplication.addLibraryPath(plugins_dir.as_posix())
+
+# debug
+if os.environ.get("QT_DEBUG") or os.environ.get("QT_DEBUG_PLUGINS"):
+    major_version = QLibraryInfo.version().majorVersion()
+    data = dict()
+    if major_version == 6:
+        for key, value in QLibraryInfo.__dict__.items():
+            if isinstance(value, QLibraryInfo.LibraryPath):
+                data[key] = Path(QLibraryInfo.path(value))
+    else:
+        for key, value in QLibraryInfo.__dict__.items():
+            if isinstance(value, (QLibraryInfo.LibraryLocation, int)):
+                data[key] = Path(QLibraryInfo.location(value))
+    print("QLibraryInfo:")
+    for key, value in data.items():
+        print(" ", key, value)
 # cx_Freeze patch end
 """
     module.code = compile(code_string, str(module.file), "exec")
