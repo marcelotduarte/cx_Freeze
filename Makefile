@@ -15,10 +15,11 @@ upgrade:
 	make all || true
 	make clean || true
 	python -m pip install -U pip
-	pip install -r requirements-dev.txt --upgrade
+	pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager
 	pip install -e .
 	pre-commit autoupdate
 	make all
+	git diff || true
 
 .PHONY: html
 html:
