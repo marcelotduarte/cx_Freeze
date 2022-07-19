@@ -6,7 +6,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from ..common import get_resource_file_path
 from ..finder import ModuleFinder
 from ..module import Module
 
