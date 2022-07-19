@@ -147,9 +147,14 @@ class ModuleFinder:
     def _base_hooks(self):
         """Load the hooks dynamically to avoid cyclic errors, because hooks
         have references to finder."""
+        hooks = get_resource_file_path("hooks", "__init__", ".py")
         fromlist = []
-        for path in Path(__file__).parent.joinpath("hooks").glob("*.py"):
+        # add python files (modules)
+        for path in hooks.parent.glob("*.py"):
             fromlist.append("hooks" if path.stem == "__init__" else path.stem)
+        # add directories (subpackages)
+        for path in hooks.parent.glob("*/__init__.py"):
+            fromlist.append(path.parent.stem)
         return __import__("cx_Freeze.hooks", fromlist=fromlist)
 
     @cached_property
