@@ -301,17 +301,8 @@ if __name__ == "__main__":
         )
         extensions.append(util_module)
 
-    # define package data
-    package_data = []
-    for file in Path("cx_Freeze", "initscripts").iterdir():
-        if file.suffix != ".py":
-            continue
-        package_data.append(f"initscripts/{file.name}")
-
     setup(
         cmdclass={"build_ext": BuildBases, "install_include": InstallInclude},
         options={"install": {"optimize": 1}},
         ext_modules=extensions,
-        packages=["cx_Freeze", "cx_Freeze.command", "cx_Freeze.hooks"],
-        package_data={"cx_Freeze": package_data},
     )
