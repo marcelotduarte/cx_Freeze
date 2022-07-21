@@ -749,6 +749,11 @@ class ModuleFinder:
             name = path.name.partition(".")[0]
         deferred_imports: DeferredList = []
         module = self._load_module_from_file(name, path, deferred_imports)
+        if module is not None:
+            parent = self._get_parent_by_name(name)
+            if parent is not None:
+                parent.global_names.add(module.name)
+                module.parent = parent
         self._import_deferred_imports(deferred_imports)
         return module
 
