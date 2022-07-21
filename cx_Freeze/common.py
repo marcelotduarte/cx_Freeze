@@ -65,6 +65,10 @@ def get_resource_file_path(
     pname = Path(__file__).resolve().parent / dirname / pname.with_suffix(ext)
     if pname.exists():
         return pname
+    # Support for name argument in the old Camelcase value
+    pname = pname.with_name(pname.name.lower())
+    if pname.exists():
+        return pname
     return None
 
 

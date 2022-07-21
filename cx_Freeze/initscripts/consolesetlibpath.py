@@ -7,7 +7,7 @@ target directory are found. This requires a restart of the executable because
 the environment variable LD_LIBRARY_PATH is only checked at startup.
 
 """
-# pylint: disable=invalid-name,missing-function-docstring,exec-used
+# pylint: disable=missing-function-docstring,exec-used
 
 import os
 import sys

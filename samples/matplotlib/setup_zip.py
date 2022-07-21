@@ -18,7 +18,7 @@ import sysconfig
 
 from cx_Freeze import Executable, setup
 
-base = "Win32GUI" if sys.platform == "win32" else "Console"
+base = "Win32GUI" if sys.platform == "win32" else None
 
 platform = sysconfig.get_platform()
 python_version = sysconfig.get_python_version()
