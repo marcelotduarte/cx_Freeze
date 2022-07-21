@@ -4,7 +4,7 @@ console based applications but must handle the case where Python has already
 been initialized and another DLL of this kind has been loaded. As such it
 does not block the path unless sys.frozen is not already set.
 """
-# pylint: disable=invalid-name,missing-function-docstring
+# pylint: disable=missing-function-docstring
 
 import sys
 

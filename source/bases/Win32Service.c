@@ -79,7 +79,7 @@ static int FatalScriptError(void)
     return LogPythonException("initialization script didn't execute properly");
 }
 
-#include "Common.c"
+#include "common.c"
 
 //-----------------------------------------------------------------------------
 // Service_SetStatus()

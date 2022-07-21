@@ -213,7 +213,7 @@ static int FatalScriptError()
 }
 
 
-#include "Common.c"
+#include "common.c"
 
 
 //-----------------------------------------------------------------------------

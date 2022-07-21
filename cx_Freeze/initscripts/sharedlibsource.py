@@ -4,7 +4,7 @@ normal processing of a Python script) and then searches for a file with the
 same name as the shared library but with the extension .pth. The entries in
 this file are used to modify the path to use for subsequent imports.
 """
-# pylint: disable=invalid-name,missing-function-docstring
+# pylint: disable=missing-function-docstring
 
 import os
 import sys

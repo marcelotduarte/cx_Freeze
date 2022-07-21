@@ -2,7 +2,7 @@
 Initialization script for cx_Freeze. Sets the attribute sys.frozen so that
 modules that expect it behave as they should.
 """
-# pylint: disable=invalid-name,missing-function-docstring,exec-used
+# pylint: disable=missing-function-docstring,exec-used
 
 import sys
 

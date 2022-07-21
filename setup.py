@@ -139,8 +139,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         if fullname.endswith("util"):
             return super().get_ext_filename(fullname)
         # Examples of returned names:
-        # Console-cp37-win32.exe, Console-cp39-win_amd64.exe,
-        # Console-cpython-39-x86_64-linux-gnu, Console-cpython-36m-darwin
+        # console-cp37-win32.exe, console-cp39-win_amd64.exe,
+        # console-cpython-39-x86_64-linux-gnu, console-cpython-36m-darwin
         ext_path = Path(*fullname.split("."))
         name = ext_path.name
         if WIN32:
@@ -270,10 +270,10 @@ class InstallInclude(Command):
 
 if __name__ == "__main__":
     # build base executables
-    depends = ["source/bases/Common.c"]
+    depends = ["source/bases/common.c"]
     console = Extension(
-        "cx_Freeze.bases.Console",
-        ["source/bases/Console.c"],
+        "cx_Freeze.bases.console",
+        ["source/bases/console.c"],
         depends=depends,
     )
     extensions = [console]

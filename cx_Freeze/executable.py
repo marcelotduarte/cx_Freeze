@@ -77,7 +77,7 @@ class Executable:
 
     @base.setter
     def base(self, name: Optional[Union[str, Path]]):
-        name = name or "Console"
+        name = name or "console"
         if WIN32:
             py_version_nodot = get_config_var("py_version_nodot")
             platform_nodot = get_platform().replace(".", "").replace("-", "_")
@@ -128,7 +128,7 @@ class Executable:
 
     @init_script.setter
     def init_script(self, name: Optional[Union[str, Path]]):
-        name = name or "Console"
+        name = name or "console"
         self._init_script: Path = get_resource_file_path(
             "initscripts", name, ".py"
         )
