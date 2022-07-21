@@ -1,5 +1,5 @@
-"""A collection of functions which are triggered automatically by finder when
-PyQt5 package is included."""
+"""A collection of functions which are the base to hooks for PyQt5, PyQt6,
+PySide2 and PySide6."""
 
 import sys
 from functools import lru_cache
@@ -14,7 +14,7 @@ WIN32 = sys.platform == "win32"
 
 
 def _qt_implementation(module: Module) -> str:
-    """Helper function to get the name of the Qt implementation (PyQt5)."""
+    """Helper function to get the name of the Qt implementation."""
     return module.name.split(".")[0]
 
 
@@ -122,60 +122,7 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
     finder.include_files(source_path, target_path)
 
 
-def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
-    """Inject code in PyQt5 __init__ to locate and load plugins and resources.
-    Also, this fixes issues with conda-forge versions."""
-    if module.code is None:
-        return
-    # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the
-    # libraryPaths returns empty. Prior to this version, this doesn't happen.
-    name = _qt_implementation(module)
-    code_string = module.file.read_text()
-
-    code_string += f"""
-# cx_Freeze patch start
-import os
-import sys
-from pathlib import Path
-from {name}.QtCore import QCoreApplication, QLibraryInfo
-
-# configure
-executable_dir = Path(sys.executable).parent
-qt_root_dir = executable_dir / "lib" / "{name}"
-plugins_dir = qt_root_dir / "Qt5" / "plugins"  # PyQt5 5.15.4
-if not plugins_dir.is_dir():
-    plugins_dir = qt_root_dir / "Qt" / "plugins"
-if not plugins_dir.is_dir():
-    plugins_dir = qt_root_dir / "plugins"
-if plugins_dir.is_dir():
-    QCoreApplication.addLibraryPath(plugins_dir.as_posix())
-
-# debug
-if os.environ.get("QT_DEBUG") or os.environ.get("QT_DEBUG_PLUGINS"):
-    major_version = QLibraryInfo.version().majorVersion()
-    data = dict()
-    if major_version == 6:
-        for key, value in QLibraryInfo.__dict__.items():
-            if isinstance(value, QLibraryInfo.LibraryPath):
-                data[key] = Path(QLibraryInfo.path(value))
-    else:
-        for key, value in QLibraryInfo.__dict__.items():
-            if isinstance(value, (QLibraryInfo.LibraryLocation, int)):
-                data[key] = Path(QLibraryInfo.location(value))
-    print("QLibraryInfo:", file=sys.stderr)
-    for key, value in data.items():
-        print(" ", key, value, file=sys.stderr)
-    print("LibraryPaths:", file=sys.stderr)
-    print(" ", QCoreApplication.libraryPaths(), file=sys.stderr)
-# cx_Freeze patch end
-"""
-    module.code = compile(code_string, str(module.file), "exec")
-    if module.in_file_system == 0:
-        module.in_file_system = 2  # use optimized mode
-    finder.include_module(f"{name}.QtCore")  # imported by all modules
-
-
-def load_pyqt5_phonon(finder: ModuleFinder, module: Module) -> None:
+def load_qt_phonon(finder: ModuleFinder, module: Module) -> None:
     """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
     be present in the build directory inside a folder phonon_backend."""
     if WIN32:
@@ -183,7 +130,7 @@ def load_pyqt5_phonon(finder: ModuleFinder, module: Module) -> None:
         copy_qt_files(finder, name, "PluginsPath", "phonon_backend")
 
 
-def load_pyqt5_qt(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qt(finder: ModuleFinder, module: Module) -> None:
     """The PyQt5.Qt module is an extension module which imports a number of
     other modules and injects their namespace into its own. It seems a
     foolish way of doing things but perhaps there is some hidden advantage
@@ -209,35 +156,19 @@ def load_pyqt5_qt(finder: ModuleFinder, module: Module) -> None:
             pass
 
 
-def load_pyqt5_qtcharts(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtcharts(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
-def load_pyqt5_qtcore(finder: ModuleFinder, module: Module) -> None:
-    """The PyQt5.QtCore module implicitly imports the sip module and,
-    depending on configuration, the PyQt5._qt module."""
-    name = _qt_implementation(module)
-    try:
-        finder.include_module(f"{name}.sip")  # PyQt5 >= 5.11
-    except ImportError:
-        finder.include_module("sip")
-    try:
-        finder.include_module(f"{name}._qt")
-    except ImportError:
-        pass
-
-
-def load_pyqt5_qtdatavisualization(
-    finder: ModuleFinder, module: Module
-) -> None:
+def load_qt_qtdatavisualization(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
 
 
-def load_pyqt5_qtdesigner(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module and plugins."""
     name = _qt_implementation(module)
     finder.include_module("datetime")
@@ -245,7 +176,7 @@ def load_pyqt5_qtdesigner(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "designer")
 
 
-def load_pyqt5_qtgui(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that QtGui will use some image formats, then, add the
     image format plugins."""
     name = _qt_implementation(module)
@@ -257,19 +188,19 @@ def load_pyqt5_qtgui(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "styles")
 
 
-def load_pyqt5_qthelp(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qthelp(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
-def load_pyqt5_qtlocation(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtlocation(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtPositioning")
 
 
-def load_pyqt5_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
     """This module depends on other modules and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
@@ -278,81 +209,79 @@ def load_pyqt5_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "mediaservice")
 
 
-def load_pyqt5_qtmultimediawidgets(
-    finder: ModuleFinder, module: Module
-) -> None:
+def load_qt_qtmultimediawidgets(finder: ModuleFinder, module: Module) -> None:
     """This module depends on other modules."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtMultimedia")
 
 
-def load_pyqt5_qtopengl(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtopengl(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "renderers")
 
 
-def load_pyqt5_qtpositioning(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtpositioning(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "position")
 
 
-def load_pyqt5_qtprintsupport(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtprintsupport(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "printsupport")
 
 
-def load_pyqt5_qtqml(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtqml(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
     copy_qt_files(finder, name, "PluginsPath", "qmltooling")
 
 
-def load_pyqt5_qtscripttools(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtscripttools(finder: ModuleFinder, module: Module) -> None:
     """This module depends on other modules."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtScript")
 
 
-def load_pyqt5_qtsql(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtsql(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "sqldrivers")
 
 
-def load_pyqt5_qtsvg(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtsvg(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
-def load_pyqt5_qttest(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qttest(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
-def load_pyqt5_qtuitools(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtuitools(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
-def load_pyqt5_qtwebengine(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtwebengine(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWebEngineCore")
 
 
-def load_pyqt5_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
@@ -381,9 +310,7 @@ def load_pyqt5_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "TranslationsPath")
 
 
-def load_pyqt5_qtwebenginewidgets(
-    finder: ModuleFinder, module: Module
-) -> None:
+def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module, data and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWebChannel")
@@ -394,32 +321,32 @@ def load_pyqt5_qtwebenginewidgets(
     copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
 
 
-def load_pyqt5_qtwebkit(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtwebkit(finder: ModuleFinder, module: Module) -> None:
     """This module depends on other modules."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
     finder.include_module(f"{name}.QtGui")
 
 
-def load_pyqt5_qtwebsockets(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtwebsockets(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
 
 
-def load_pyqt5_qtwidgets(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtwidgets(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
 
 
-def load_pyqt5_qtxmlpatterns(finder: ModuleFinder, module: Module) -> None:
+def load_qt_qtxmlpatterns(finder: ModuleFinder, module: Module) -> None:
     """This module depends on another module."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
 
 
-def load_pyqt5_uic(finder: ModuleFinder, module: Module) -> None:
+def load_qt_uic(finder: ModuleFinder, module: Module) -> None:
     """The uic module makes use of "plugins" that need to be read directly and
     cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
     also implicity loaded."""

@@ -11,7 +11,7 @@ from typing import Optional
 from ..common import code_object_replace, get_resource_file_path
 from ..finder import ModuleFinder
 from ..module import Module
-from .pyqt5 import get_qt_plugins_paths  # noqa
+from ._qthooks import get_qt_plugins_paths  # noqa
 
 DARWIN = sys.platform == "darwin"
 MINGW = sysconfig.get_platform().startswith("mingw")
