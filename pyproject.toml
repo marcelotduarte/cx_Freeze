@@ -24,7 +24,7 @@ freezer.py,
 setupwriter.py
 """
 master.ignore-paths = """
-^cx_Freeze/samples/.*.py$,
+^samples/.*.py$,
 ^tests/samples/.*.py$,
 ^doc/src/conf.py$
 """
