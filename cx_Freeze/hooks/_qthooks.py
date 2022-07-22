@@ -60,34 +60,42 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
     prefix_path = source_paths["PrefixPath"]
     source_paths.setdefault("DataPath", prefix_path)
     source_paths.setdefault("LibrariesPath", prefix_path / "lib")
+    source_paths.setdefault("SettingsPath", ".")
 
     # set the target paths
     data: Dict[str, Tuple[Path, Path]] = {}
-    add_qt_subdir = None
+    target_base = Path("lib", name)
+    try:
+        target_base = target_base / prefix_path.relative_to(qt_root_dir)
+    except ValueError:
+        pass
     if name == "PyQt5" and prefix_path.name != "Qt5":
         # conda pyqt
-        add_qt_subdir = "Qt5"
+        target_base = target_base / "Qt5"
     elif name == "PySide2" and prefix_path.name != "Qt":
         # conda pyside2, pyside2 windows
-        add_qt_subdir = "Qt"
+        target_base = target_base / "Qt"
+
+    # set some defaults or use relative path
     for key, source in source_paths.items():
         if key == "SettingsPath":
-            if DARWIN:
-                target = Path("Contents/Resources")
-            else:
-                target = Path(".")
+            target = Path("Contents/Resources" if DARWIN else ".")
+        elif key in ("ArchDataPath", "DataPath", "PrefixPath"):
+            target = target_base
+        elif key == "BinariesPath":
+            target = target_base / "bin"
+        elif key == "LibrariesPath":
+            target = target_base / "lib"
+        elif key == "LibraryExecutablesPath":
+            target = target_base / ("bin" if WIN32 else "libexec")
+        elif key == "PluginsPath":
+            target = target_base / "plugins"
+        elif key == "TranslationsPath":
+            target = target_base / "translations"
         elif source == Path("."):
-            print(".......", key, source)
-            target = source
+            target = target_base
         else:
-            target = Path("lib", name)
-            if add_qt_subdir:
-                target = target / add_qt_subdir
-            try:
-                target = target / source.relative_to(qt_root_dir)
-            except ValueError:
-                # msys2 and conda-forge
-                target = target / source.relative_to(prefix_path)
+            target = target_base / source.relative_to(prefix_path)
         data[key] = source, target
 
     # debug
@@ -290,12 +298,10 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
         copy_qt_files(
             finder, name, "LibraryExecutablesPath", "QtWebEngineProcess.exe"
         )
-        copy_qt_files(
-            finder, name, "LibraryExecutablesPath", "d3dcompiler_47.dll"
-        )
-        copy_qt_files(finder, name, "LibraryExecutablesPath", "libEGL.dll")
-        copy_qt_files(finder, name, "LibraryExecutablesPath", "libGLESv2.dll")
-        copy_qt_files(finder, name, "LibraryExecutablesPath", "opengl32sw.dll")
+        copy_qt_files(finder, name, "ArchDataPath", "d3dcompiler_47.dll")
+        copy_qt_files(finder, name, "ArchDataPath", "libEGL.dll")
+        copy_qt_files(finder, name, "ArchDataPath", "libGLESv2.dll")
+        copy_qt_files(finder, name, "ArchDataPath", "opengl32sw.dll")
     elif DARWIN:
         copy_qt_files(
             finder, name, "LibrariesPath", "QtWebEngineCore.framework"
