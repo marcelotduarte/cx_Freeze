@@ -40,7 +40,7 @@ from .._qthooks import load_qt_uic as load_pyside2_uic
 
 def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide2 __init__ to locate and load plugins and
-    resources."""
+    resources. Also, this fixes issues with conda-forge versions."""
 
     # Include QtCore module needed by all modules
     finder.include_module("PySide2.QtCore")
@@ -53,10 +53,21 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_qt_debug")
 
+    # Include a resource with qt.conf for conda-forge pyside2 windows/linux
+    resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
+    if resource:
+        finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
+
+    # Include a copy of qt.conf (works for pyside2 wheels on windows)
+    qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
+    if qt_conf:
+        finder.include_files(qt_conf, qt_conf.name)
+
     # Inject code to init
     code_string = module.file.read_text()
     code_string += """
 # cx_Freeze patch start
+import PySide2._cx_freeze_resource
 import PySide2._cx_freeze_qt_debug
 # cx_Freeze patch end
 """
