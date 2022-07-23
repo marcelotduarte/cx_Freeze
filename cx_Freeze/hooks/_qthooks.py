@@ -121,10 +121,16 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
     etc."""
     variable = args[0]
     libraryinfo_paths = _qt_libraryinfo_paths(name)
-    source_path, target_path = libraryinfo_paths[variable]
-    for i in range(1, len(args)):
-        source_path = source_path / args[i]
-        target_path = target_path / args[i]
+    source_path, target_path = libraryinfo_paths[variable]  # type: Path, Path
+    for arg in args[1:]:
+        if "*" in arg:
+            # XXX: this code needs improvement
+            for source in source_path.glob(arg):
+                if source.is_file():
+                    finder.include_files(source, target_path / source.name)
+            return
+        source_path = source_path / arg
+        target_path = target_path / arg
     if not source_path.exists():
         return
     finder.include_files(source_path, target_path)
@@ -323,6 +329,7 @@ def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
     finder.include_module(f"{name}.QtWebEngineCore")
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtPrintSupport")
+    copy_qt_files(finder, name, "LibrariesPath", "*WebEngineWidgets.*")
     copy_qt_files(finder, name, "PluginsPath", "webview")
     copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
 
