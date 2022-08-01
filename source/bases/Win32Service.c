@@ -352,7 +352,7 @@ static int Service_SetupPython(udt_ServiceInfo *info)
 // Service_Install()
 //   Install the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Install(wchar_t *name, wchar_t *configFileName)
+static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wchar_t **argv)
 {
     PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
@@ -361,6 +361,10 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName)
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_DESCRIPTIONW sd;
     udt_ServiceInfo info;
+
+    // initialize Python
+    if (InitializePython(argc, argv) < 0)
+        return 1;
 
     // set up Python
     if (Service_SetupPython(&info) < 0)
@@ -466,13 +470,17 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName)
 // Service_Uninstall()
 //   Uninstall the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Uninstall(wchar_t *name)
+static int Service_Uninstall(wchar_t *name, int argc, wchar_t **argv)
 {
     PyObject *fullName, *formatArgs, *nameObj;
     wchar_t *wfullName;
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
+
+    // initialize Python
+    if (InitializePython(argc, argv) < 0)
+        return 1;
 
     // set up Python
     if (Service_SetupPython(&info) < 0)
@@ -566,6 +574,10 @@ static void WINAPI Service_Main(int argc, char **argv)
 {
     udt_ServiceInfo info;
 
+    // initialize Python
+    if (InitializePython(argc, argv) < 0)
+        return 1;
+
     if (Service_SetupPython(&info) < 0)
         return;
 
@@ -613,10 +625,6 @@ int wmain(int argc, wchar_t **argv)
         { NULL, NULL }
     };
 
-    // initialize Python
-    if (InitializePython(argc, argv) < 0)
-        return 1;
-
     // check for arguments and perform install/uninstall as requested
     gIniFileName[0] = L'\0';
     if (argc > 1) {
@@ -628,7 +636,7 @@ int wmain(int argc, wchar_t **argv)
             }
             if (argc > 3)
                 configFileName = argv[3];
-            if (Service_Install(argv[2], configFileName) < 0) {
+            if (Service_Install(argv[2], configFileName, argc, argv) < 0) {
                 fprintf(stderr, "Service not installed. ");
                 fprintf(stderr, "See log file for details.");
                 return 1;
@@ -641,7 +649,7 @@ int wmain(int argc, wchar_t **argv)
                 fprintf(stderr, CX_SERVICE_UNINSTALL_USAGE, argv[0]);
                 return 1;
             }
-            if (Service_Uninstall(argv[2]) < 0) {
+            if (Service_Uninstall(argv[2], argc, argv) < 0) {
                 fprintf(stderr, "Service not installed. ");
                 fprintf(stderr, "See log file for details.");
                 return 1;
