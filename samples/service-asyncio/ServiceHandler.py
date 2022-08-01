@@ -5,8 +5,8 @@ See below for more information on what methods must be implemented and how they
 are called.
 """
 
-import threading
 import asyncio
+import threading
 
 
 class Handler:
