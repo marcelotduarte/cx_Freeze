@@ -17,6 +17,19 @@ they're dynamically loaded - e.g. by a plugin system - you have to tell
   normally be excluded (a common use is to include "libffi.so").
 * Data files are a bit more complex - see :ref:`data_files`.
 
+Problems with freezing programs
+-------------------------------
+
+To determine which packages need to be copied with your application, 
+**cx_Freeze** follows the imports. If your installation contains a lot of 
+packages, this may lead to undesired behavior, such as **cx_Freeze** 
+encountering a recursion error when trying to compute the list of dependencies,
+or the `lib` folder of the frozen application containing many unnecessary 
+packages. 
+In this case, you may want to use **cx_Freeze** in a virtualenv. Alternatively, the 
+`setup_script` also offers the :option:`excludes` option to explicitly exclude 
+dependencies which would otherwise be included. 
+
 Specifying modules and packages
 -------------------------------
 
