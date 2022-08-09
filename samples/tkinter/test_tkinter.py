@@ -1,5 +1,6 @@
-import sys, os
-from tkinter import Button, Label, TclVersion, Tk, PhotoImage
+import os
+import sys
+from tkinter import Button, Label, PhotoImage, TclVersion, Tk
 
 
 def _test():
@@ -17,10 +18,13 @@ def _test():
             text="[%s]" % root.test["text"]
         ),
     )
-    datadir = os.path.dirname(sys.executable) \
-              if getattr(sys, "frozen", False) else ".."
-    icon = PhotoImage(file=os.path.join(datadir, 'icon', 'favicon.png'))
-    root.tk.call('wm', 'iconphoto', root._w, icon)
+    datadir = (
+        os.path.dirname(sys.executable)
+        if getattr(sys, "frozen", False)
+        else ".."
+    )
+    icon = PhotoImage(file=os.path.join(datadir, "icon", "favicon.png"))
+    root.tk.call("wm", "iconphoto", root._w, icon)
     test.pack()
     root.test = test
     quit = Button(root, text="QUIT", command=root.destroy)
