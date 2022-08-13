@@ -39,6 +39,7 @@ if sys.platform == "win32":
 build_exe_options = {
     "excludes": ["tkinter"],
     "include_files": include_files,
+    "zip_include_packages": ["PyQt5"],
 }
 
 bdist_mac_options = {
@@ -49,7 +50,7 @@ bdist_dmg_options = {
     "volume_label": "TEST",
 }
 
-executables = [Executable("PyQt5app.py", base=base, target_name="test_pyqt5")]
+executables = [Executable("PyQt5app.py", base=None, target_name="test_pyqt5")]
 
 setup(
     name="simple_PyQt5",
