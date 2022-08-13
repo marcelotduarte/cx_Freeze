@@ -2,7 +2,7 @@
 
 
 packaging>=21.0
-setuptools>=59.0.1
+setuptools>=59.0.1,<64
 cx-logging>=3.0 ;sys_platform == 'win32'
 importlib-metadata>=4.8.3 ;python_version < '3.10'
 lief>=0.11.5 ;sys_platform == 'win32'
@@ -12,6 +12,7 @@ patchelf>=0.12 ;sys_platform == 'linux'
 bump2version>=1.0.1
 pre-commit>=2.17.0
 pylint>=2.13.0
+wheel>=0.36.2
 cibuildwheel>=2.7.0 ;sys_platform == 'linux' or sys_platform == 'darwin'
 #doc
 sphinx>=5.0.1,<6.0.0
