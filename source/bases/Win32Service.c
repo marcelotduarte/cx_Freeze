@@ -570,13 +570,13 @@ static int Service_Run(udt_ServiceInfo *info)
 // Service_Main()
 //   Main routine for the service.
 //-----------------------------------------------------------------------------
-static void WINAPI Service_Main(int argc, char **argv)
+static void WINAPI Service_Main(int argc, wchar_t **argv)
 {
     udt_ServiceInfo info;
 
     // initialize Python
     if (InitializePython(argc, argv) < 0)
-        return 1;
+        return;
 
     if (Service_SetupPython(&info) < 0)
         return;
@@ -620,8 +620,8 @@ int wmain(int argc, wchar_t **argv)
 {
     wchar_t *configFileName = NULL;
 
-    SERVICE_TABLE_ENTRY table[] = {
-        { "", (LPSERVICE_MAIN_FUNCTION) Service_Main },
+    SERVICE_TABLE_ENTRYW table[] = {
+        { L"", (LPSERVICE_MAIN_FUNCTIONW) Service_Main },
         { NULL, NULL }
     };
 
@@ -661,5 +661,5 @@ int wmain(int argc, wchar_t **argv)
     }
 
     // run the service normally
-    return StartServiceCtrlDispatcher(table);
+    return StartServiceCtrlDispatcherW(table);
 }
