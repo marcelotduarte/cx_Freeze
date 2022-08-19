@@ -28,14 +28,15 @@ You can use ``git`` to clone the repository:
 
       git clone https://github.com/marcelotduarte/cx_Freeze
       cd cx_Freeze
-      pip install -e .[dev]
+      pip install -r requirements-dev.txt
+      pip install -e . --no-deps --no-build-isolation
 
 .. note::
 
    #. Please check the requirements for python and for your system
       (see :doc:`../installation`).
-   #. ``python setup.py develop`` can be used, but you must install the
-      requirements with ``pip install -r requirements-dev.txt``.
+   #. ``python setup.py develop --no-deps`` can be used, instead of
+      ``pip install -e . --no-deps --no-build-isolation``.
 
 
 Building documentation
