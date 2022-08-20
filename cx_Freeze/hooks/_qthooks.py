@@ -295,18 +295,23 @@ def load_qt_qtwebengine(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """This module depends on another modules and QtWebEngineProcess files."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
     finder.include_module(f"{name}.QtNetwork")
     if WIN32:
-        copy_qt_files(
-            finder, name, "LibraryExecutablesPath", "QtWebEngineProcess.exe"
-        )
-        copy_qt_files(finder, name, "ArchDataPath", "d3dcompiler_47.dll")
-        copy_qt_files(finder, name, "ArchDataPath", "libEGL.dll")
-        copy_qt_files(finder, name, "ArchDataPath", "libGLESv2.dll")
-        copy_qt_files(finder, name, "ArchDataPath", "opengl32sw.dll")
+        for filename in (
+            "QtWebEngineProcess.exe",
+            "d3dcompiler_47.dll",
+            "libEGL.dll",
+            "libGLESv2.dll",
+            "opengl32sw.dll",
+        ):
+            # pyside2 - only QtWebEngineProcess is in LibraryExecutablesPath
+            # pyside6 - like pyside2, but the two lib*.dll are missing
+            copy_qt_files(finder, name, "ArchDataPath", filename)
+            # pyqt5 - all files listed in LibraryExecutablesPath
+            copy_qt_files(finder, name, "LibraryExecutablesPath", filename)
     elif DARWIN:
         copy_qt_files(
             finder, name, "LibrariesPath", "QtWebEngineCore.framework"
