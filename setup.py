@@ -1,17 +1,13 @@
 """
 Setuptools script for cx_Freeze.
 
-Use one of the following commands to install from source:
+Use ONE of the following commands to install from source:
     pip install .
     python setup.py build install
-Use one of the following commands to install in the development mode:
-    pip install -e .
-    python setup.py develop -U
 
-Note:
-    In setup.cfg there are three extras_require: dev, doc and test
-    The command to full development mode is:
-    pip install -e .[dev,doc,test]
+Use the following commands to install in the development mode:
+    pip install -r requirements-dev.txt
+    pip install -e . --no-deps --no-build-isolation
 
 """
 # pylint: disable=attribute-defined-outside-init,missing-function-docstring
@@ -24,7 +20,7 @@ from sysconfig import get_config_var, get_platform, get_python_version
 from typing import Tuple
 
 import setuptools.command.build_ext
-from setuptools import Command, Extension, setup
+from setuptools import Extension, setup
 from setuptools.errors import LinkError
 
 WIN32 = sys.platform == "win32"
@@ -239,33 +235,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 self.copy_file(source.as_posix(), target)
 
     def run(self):
-        self.run_command("install_include")
         self._copy_libraries_to_bases()
         super().run()
-
-
-class InstallInclude(Command):
-    """Install extra include."""
-
-    def initialize_options(self):
-        self.install_dir = None
-        self.outfiles = []
-
-    def finalize_options(self):
-        self.set_undefined_options(
-            "install",
-            ("install_data", "install_dir"),
-        )
-
-    def run(self):
-        if WIN32:
-            target = Path(self.install_dir, "include", "cx_Logging.h")
-            if target.is_file():
-                return
-            self.mkpath(str(target.parent))
-            target_file_name = target.as_posix()
-            self.copy_file("source/bases/cx_Logging.h", target_file_name)
-            self.outfiles.append(target_file_name)
 
 
 if __name__ == "__main__":
@@ -290,6 +261,7 @@ if __name__ == "__main__":
             ["source/bases/Win32Service.c"],
             depends=depends,
             extra_link_args=["/DELAYLOAD:cx_Logging"],
+            include_dirs=["source/bases"],
             libraries=["advapi32"],
         )
         extensions.append(service)
@@ -302,7 +274,7 @@ if __name__ == "__main__":
         extensions.append(util_module)
 
     setup(
-        cmdclass={"build_ext": BuildBases, "install_include": InstallInclude},
+        cmdclass={"build_ext": BuildBases},
         options={"install": {"optimize": 1}},
         ext_modules=extensions,
     )
