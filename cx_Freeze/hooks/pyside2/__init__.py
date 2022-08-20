@@ -1,6 +1,9 @@
 """A collection of functions which are triggered automatically by finder when
 PySide2 package is included."""
 
+import sys
+from pathlib import Path
+
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -37,6 +40,9 @@ from .._qthooks import load_qt_qtwidgets as load_pyside2_qtwidgets
 from .._qthooks import load_qt_qtxmlpatterns as load_pyside2_qtxmlpatterns
 from .._qthooks import load_qt_uic as load_pyside2_uic
 
+IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
+IS_WINDOWS = sys.platform == "win32"
+
 
 def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide2 __init__ to locate and load plugins and
@@ -53,21 +59,25 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_qt_debug")
 
-    # Include a resource with qt.conf for conda-forge pyside2 windows/linux
-    resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
-    if resource:
+    # Include a resource with qt.conf for conda-forge windows/linux
+    if IS_CONDA:
+        resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
     # Include a copy of qt.conf (works for pyside2 wheels on windows)
-    qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
-    if qt_conf:
-        finder.include_files(qt_conf, qt_conf.name)
+    if IS_WINDOWS:
+        qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
+        if qt_conf:
+            finder.include_files(qt_conf, "qt.conf")
 
     # Inject code to init
     code_string = module.file.read_text()
     code_string += """
 # cx_Freeze patch start
-import PySide2._cx_freeze_resource
+try:
+    import PySide2._cx_freeze_resource
+except ImportError:
+    pass
 import PySide2._cx_freeze_qt_debug
 # cx_Freeze patch end
 """
