@@ -781,7 +781,12 @@ class WinFreezer(Freezer, PEParser):
             and source not in self.finder.excluded_dependent_files
         ):
 
-            targetdir = target.parent
+            # targetdir = target.parent
+
+            # copy all dependencies into the lib path, which is added to the
+            # system path in __startup__.py, so that Windows should be able to
+            # find dynamically linked libraries placed there.
+            targetdir = self.targetdir / "lib"
             for dependent_file in self.get_dependent_files(source):
                 target = targetdir / dependent_file.name
                 self._copy_file(dependent_file, target, copy_dependent_files)
