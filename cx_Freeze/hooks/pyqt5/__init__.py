@@ -78,7 +78,7 @@ def load_pyqt5_qtcore(finder: ModuleFinder, module: Module) -> None:
     except ImportError:
         finder.include_module("sip")
     try:
-        finder.include_module("{PyQt5._qt")
+        finder.include_module("PyQt5._qt")
     except ImportError:
         pass
 

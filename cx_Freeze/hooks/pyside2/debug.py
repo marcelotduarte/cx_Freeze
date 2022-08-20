@@ -17,7 +17,7 @@ def qt_debug():
         if isinstance(value, qtcore.QLibraryInfo.LibraryLocation):
             data[key] = Path(qtcore.QLibraryInfo.location(value))
     print("QLibraryInfo:", file=sys.stderr)
-    for key, value in data.items():
+    for key, value in sorted(data.items()):
         print(" ", key, value, file=sys.stderr)
     print("LibraryPaths:", file=sys.stderr)
     print(" ", qtcore.QCoreApplication.libraryPaths(), file=sys.stderr)

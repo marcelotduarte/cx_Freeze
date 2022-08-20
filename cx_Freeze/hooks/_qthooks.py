@@ -1,6 +1,7 @@
 """A collection of functions which are the base to hooks for PyQt5, PyQt6,
 PySide2 and PySide6."""
 
+import os
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -72,9 +73,6 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
     if name == "PyQt5" and prefix_path.name != "Qt5":
         # conda pyqt
         target_base = target_base / "Qt5"
-    elif name == "PySide2" and prefix_path.name != "Qt":
-        # conda pyside2, pyside2 windows
-        target_base = target_base / "Qt"
 
     # set some defaults or use relative path
     for key, source in source_paths.items():
@@ -99,9 +97,10 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
         data[key] = source, target
 
     # debug
-    print("QLibraryInfo:")
-    for key, (source, target) in data.items():
-        print(" ", key, "\n   ", source, "->", target)
+    if os.environ.get("QT_DEBUG"):
+        print("QLibraryInfo:")
+        for key, (source, target) in sorted(data.items()):
+            print(" ", key, source, "->", target)
     return data
 
 
@@ -317,7 +316,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             finder, name, "LibraryExecutablesPath", "QtWebEngineProcess"
         )
         # conda-forge linux
-        copy_qt_files(finder, name, "LibrariesPath", "libnssckbi.so")
+        copy_qt_files(finder, name, "LibrariesPath", "libnss*.*")
     copy_qt_files(finder, name, "DataPath", "resources")
     copy_qt_files(finder, name, "TranslationsPath")
 
