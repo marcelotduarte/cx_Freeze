@@ -21,7 +21,18 @@ options = {
     "build_exe": {
         # Sometimes a little fine-tuning is needed
         # exclude all backends except wx
-        "excludes": ["gtk", "PyQt4", "PyQt5", "tkinter"]
+        "excludes": [
+            "gi",
+            "gtk",
+            "PyQt4",
+            "PyQt5",
+            "PyQt6",
+            "PySide2",
+            "PySide6",
+            "shiboken2",
+            "shiboken6",
+            "tkinter",
+        ]
     }
 }
 

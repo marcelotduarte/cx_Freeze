@@ -28,11 +28,12 @@ options = {
             "http",
             "xml",
             "pydoc",
-        ]
+        ],
+        "zip_include_packages": ["PySide2"],
     }
 }
 
-executables = [Executable("test_pyside2.py", base=base)]
+executables = [Executable("test_pyside2.py", base=None)]
 
 setup(
     name="simple_PySide2",

@@ -18,6 +18,7 @@ base = "Win32GUI" if sys.platform == "win32" else None
 
 options = {
     "build_exe": {
+        "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
         # exclude packages that are not really needed
         "excludes": [
             "tkinter",
@@ -26,11 +27,12 @@ options = {
             "http",
             "xml",
             "pydoc",
-        ]
+        ],
+        "zip_include_packages": ["PySide6"],
     }
 }
 
-executables = [Executable("test_pyside6.py", base=base)]
+executables = [Executable("test_pyside6.py", base=None)]
 
 setup(
     name="simple_PySide6",

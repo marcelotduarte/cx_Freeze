@@ -14,12 +14,11 @@ import sys
 
 from cx_Freeze import Executable, setup
 
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+base = "Win32GUI" if sys.platform == "win32" else None
 
 options = {
     "build_exe": {
+        "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
         # exclude packages that are not really needed
         "excludes": [
             "tkinter",
