@@ -305,8 +305,9 @@ class DarwinFile:
                 f"Could not resolve path: {path} from file {self.path}."
             )
         print(
-            f"WARNING: Unable to resolve reference to {path} from"
-            f"file {self.path}.  Frozen application may not function correctly."
+            f"WARNING: Unable to resolve reference to {path} from "
+            f"file {self.path}.  Frozen application may not "
+            f"function correctly."
         )
         return None
 
@@ -635,8 +636,8 @@ class DarwinFileTracker:
                             if self.strict:
                                 copied_file.printFileInformation()
                                 raise DarwinException(
-                                    f"finalizeReferences() failed to resolve path "
-                                    f"[{reference.raw_path}] in file "
+                                    f"finalizeReferences() failed to resolve"
+                                    f" path [{reference.raw_path}] in file "
                                     f"[{copied_file.path}]."
                                 )
                             print(
