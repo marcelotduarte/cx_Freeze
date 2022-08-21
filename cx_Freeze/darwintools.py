@@ -302,8 +302,7 @@ class DarwinFile:
             return test_path.resolve()
         if self.strict:
             raise DarwinException(
-                f"Could not resolve path: {path} from"
-                f"file {self.path}."
+                f"Could not resolve path: {path} from file {self.path}."
             )
         print(
             f"WARNING: Unable to resolve reference to {path} from"
