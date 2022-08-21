@@ -140,9 +140,13 @@ class DarwinFile:
                 dict_path = resolved_path
             if dict_path in self.machOReferenceForTargetPath:
                 if self.strict:
-                    raise DarwinException(f"ERROR: Multiple dynamic libraries from {self.path} resolved to the same file ({dict_path}).")
+                    raise DarwinException(
+                        f"ERROR: Multiple dynamic libraries from {self.path}"
+                        f" resolved to the same file ({dict_path})."
+                    )
                 print(
-                    f"WARNING: Multiple dynamic libraries from {self.path} resolved to the same file ({dict_path})."
+                    f"WARNING: Multiple dynamic libraries from {self.path}"
+                    f" resolved to the same file ({dict_path})."
                 )
                 continue
             reference = MachOReference(
@@ -297,10 +301,14 @@ class DarwinFile:
         if _isMachOFile(test_path):
             return test_path.resolve()
         if self.strict:
-            raise DarwinException(f"Could not resolve path: {path} from"
-                                  f"file {self.path}.")
-        print(f"WARNING: Unable to resolve reference to {path} from"
-              f"file {self.path}.  Frozen application may not function correctly.")
+            raise DarwinException(
+                f"Could not resolve path: {path} from"
+                f"file {self.path}."
+            )
+        print(
+            f"WARNING: Unable to resolve reference to {path} from"
+            f"file {self.path}.  Frozen application may not function correctly."
+        )
         return None
 
     def resolveLibraryPaths(self):
