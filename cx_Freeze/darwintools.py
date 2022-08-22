@@ -139,9 +139,16 @@ class DarwinFile:
             else:
                 dict_path = resolved_path
             if dict_path in self.machOReferenceForTargetPath:
-                raise DarwinException(
-                    "Multiple dynamic libraries resolved to the same file."
+                if self.strict:
+                    raise DarwinException(
+                        f"ERROR: Multiple dynamic libraries from {self.path}"
+                        f" resolved to the same file ({dict_path})."
+                    )
+                print(
+                    f"WARNING: Multiple dynamic libraries from {self.path}"
+                    f" resolved to the same file ({dict_path})."
                 )
+                continue
             reference = MachOReference(
                 source_file=self,
                 raw_path=raw_path,
@@ -293,7 +300,16 @@ class DarwinFile:
         test_path = self.path.parent / path
         if _isMachOFile(test_path):
             return test_path.resolve()
-        raise DarwinException(f"Could not resolve path: {path}")
+        if self.strict:
+            raise DarwinException(
+                f"Could not resolve path: {path} from file {self.path}."
+            )
+        print(
+            f"WARNING: Unable to resolve reference to {path} from "
+            f"file {self.path}.  Frozen application may not "
+            f"function correctly."
+        )
+        return None
 
     def resolveLibraryPaths(self):
         for cmd in self.loadCommands:
@@ -498,7 +514,8 @@ def applyAdHocSignature(fileName: str):
 class DarwinFileTracker:
     """Object to track the DarwinFiles that have been added during a freeze."""
 
-    def __init__(self):
+    def __init__(self, strict: bool = False):
+        self.strict = strict
         # list of DarwinFile objects for files being copied into project
         self._copied_file_list: List[DarwinFile] = []
 
@@ -616,18 +633,20 @@ class DarwinFileTracker:
                         )
                         if potential_target is None:
                             # If we cannot find any likely candidate, fail.
+                            if self.strict:
+                                copied_file.printFileInformation()
+                                raise DarwinException(
+                                    f"finalizeReferences() failed to resolve"
+                                    f" path [{reference.raw_path}] in file "
+                                    f"[{copied_file.path}]."
+                                )
                             print(
-                                "\nERROR: Could not resolve RPath "
+                                "\nWARNING: Could not resolve dynamic link to "
                                 f"[{reference.raw_path}] in file "
                                 f"[{copied_file.path}], and could "
-                                "not find any likely intended reference."
+                                "not find any likely intended target."
                             )
-                            copied_file.printFileInformation()
-                            raise DarwinException(
-                                f"finalizeReferences() failed to resolve path "
-                                f"[{reference.raw_path}] in file "
-                                f"[{copied_file.path}]."
-                            )
+                            continue
                         print(
                             f"WARNING: In file [{copied_file.path}]"
                             f" guessing that {reference.raw_path} "
