@@ -96,7 +96,7 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
     dll_name = "Python.Runtime.dll"
     finder.include_files(
         module.file.parent / "pythonnet/runtime" / dll_name,
-        Path("lib", dll_name)
+        Path("lib", dll_name),
     )
 
 
