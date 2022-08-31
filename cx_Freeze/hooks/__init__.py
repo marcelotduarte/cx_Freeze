@@ -94,16 +94,16 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
     """The pythonnet package (imported as 'clr') needs Python.Runtime.dll
     in runtime."""
     dll_name = "Python.Runtime.dll"
-    finder.include_files(
-        module.file.parent / "pythonnet/runtime" / dll_name,
-        Path("lib", dll_name),
-    )
+    dll_path = module.file.parent / dll_name
+    if not dll_path.exists():
+        dll_path = module.file.parent / "pythonnet/runtime" / dll_name
+    finder.include_files(dll_path, Path("lib", dll_name))
 
 
 def load_cryptography_hazmat_bindings__openssl(
     finder: ModuleFinder, module: Module
 ) -> None:
-    """The cryptography module requires the _cffi_backend module."""
+    """The crptography module requires the _cffi_backend module."""
     finder.include_module("_cffi_backend")
 
 
