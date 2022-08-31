@@ -103,7 +103,7 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
 def load_cryptography_hazmat_bindings__openssl(
     finder: ModuleFinder, module: Module
 ) -> None:
-    """The crptography module requires the _cffi_backend module."""
+    """The cryptography module requires the _cffi_backend module."""
     finder.include_module("_cffi_backend")
 
 
