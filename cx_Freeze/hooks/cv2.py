@@ -4,11 +4,14 @@ opencv-python package is included."""
 import sys
 from pathlib import Path
 
+from ..common import TemporaryPath
 from ..finder import ModuleFinder
 from ..module import Module
 
 DARWIN = sys.platform == "darwin"
 WIN32 = sys.platform == "win32"
+
+temp_path = TemporaryPath()
 
 
 def load_cv2(finder: ModuleFinder, module: Module) -> None:
@@ -17,43 +20,58 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
 
     Additionally, on Linux the opencv_python.libs directory is not
     copied across for versions above 4.5.3."""
-    finder.include_package("cv2")
     finder.include_package("numpy")
-    module.update_distribution("opencv-python")
+    if module.distribution is None:
+        module.update_distribution("opencv-python")
 
     target_dir = Path("lib", "cv2")
+
+    # conda-forge and msys2: cv2 4.6.0 is a extension module
     if module.path is None:
-        # conda-forge: cv2 is a extension module
-        source = Path(sys.base_prefix, "plugins", "platforms")
+        # msys2 files is on share subdirectory
+        source = Path(sys.base_prefix, "plugins/platforms")
+        if not source.is_dir():
+            source = Path(sys.base_prefix, "share/qt5/plugins/platforms")
         if source.is_dir():
             finder.include_files(source, target_dir / "plugins" / "platforms")
         source = Path(sys.base_prefix, "fonts")
+        if not source.is_dir():
+            source = Path(sys.base_prefix, "share/fonts")
         if source.is_dir():
             finder.include_files(source, target_dir / "fonts")
-        # pylint: disable-next=protected-access
-        source_qt_conf = module.distribution._cachedir.path / "qt.conf"
-        with open(source_qt_conf, "w", encoding="utf-8") as configfile:
-            configfile.write("[Paths]\n")
-            configfile.write(f"Prefix = {target_dir.as_posix()}\n")
-            if DARWIN:
-                target_qt_conf = "Contents/Resources/qt.conf"
-            else:
-                target_qt_conf = source_qt_conf.name
-            finder.include_files(source_qt_conf, target_qt_conf)
+        source_qt_conf: Path = temp_path.path / "qt.conf"
+        lines = ["[Paths]", f"Prefix = {target_dir.as_posix()}"]
+        source_qt_conf.write_text("\n".join(lines), encoding="utf-8")
+        if DARWIN:
+            target_qt_conf = "Contents/Resources/qt.conf"
+        else:
+            target_qt_conf = source_qt_conf.name
+        finder.include_files(source_qt_conf, target_qt_conf)
         return
 
+    # Use optmized mode
+    module.in_file_system = 2
+    finder.include_package("cv2")
     source_dir = module.path[0]
     for path in source_dir.glob("config*.py"):
         finder.include_files(path, target_dir / path.name)
-    module.in_file_system = 1
+    finder.include_files(source_dir / "data", target_dir / "data")
 
-    # Copy all files in site-packages/opencv_python.libs
+    # Copy all binary files
     if WIN32:
         return
     if DARWIN:
-        libs_name = "cv2/.dylibs"
-    else:  # Linux and others
-        libs_name = "opencv_python.libs"
+        source_dylibs = source_dir / ".dylibs"
+        if source_dylibs.exists():
+            for file in source_dylibs.iterdir():
+                finder.include_files(file, file.name)
+        return
+
+    # Linux and others
+    libs_name = "opencv_python.libs"
     libs_dir = source_dir.parent / libs_name
     if libs_dir.exists():
         finder.include_files(libs_dir, target_dir.parent / libs_name)
+    qt_files = source_dir / "qt"
+    if qt_files.exists():
+        finder.include_files(qt_files, target_dir / "qt")
