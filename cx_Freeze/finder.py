@@ -596,7 +596,6 @@ class ModuleFinder:
         """Run hook (load or missing) for the given module if one is present.
         For functions present in hooks.__init__:
         package aiofiles -> load_aiofiles function
-        package Crypto, module Cipher -> load_Crypto_Cipher function
         For functions in a separated module (lowercased):
         package PyQt5, module QtCore -> pyqt5.load_pyqt5_qtcore
         """
@@ -604,10 +603,10 @@ class ModuleFinder:
         normalized_name = module_name.replace(".", "_")
         method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
         if method is None:
-            normalized_name = normalized_name.lower()
-            root = normalized_name.split("_")[0]
+            root = module_name.split(".")[0].lower()
             base_hooks = getattr(base_hooks, root, None)
             if base_hooks is not None:
+                normalized_name = normalized_name.lower()
                 method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
         if method is not None:
             method(self, *args)
