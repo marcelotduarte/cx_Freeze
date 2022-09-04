@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
 scipy package is included."""
+# pylint: disable=unused-argument
 
 import sys
 
