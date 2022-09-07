@@ -100,18 +100,13 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
     finder.include_files(dll_path, Path("lib", dll_name))
 
 
-def load_cryptography_hazmat_bindings__openssl(
-    finder: ModuleFinder, module: Module
-) -> None:
+def load_cryptography(finder: ModuleFinder, module: Module) -> None:
     """The cryptography module requires the _cffi_backend module."""
-    finder.include_module("_cffi_backend")
-
-
-def load_cryptography_hazmat_bindings__padding(
-    finder: ModuleFinder, module: Module
-) -> None:
-    """The cryptography module requires the _cffi_backend module."""
-    finder.include_module("_cffi_backend")
+    if module.distribution:
+        for req in module.distribution.requires:
+            if req.startswith("cffi"):
+                finder.include_module("_cffi_backend")
+                break
 
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
