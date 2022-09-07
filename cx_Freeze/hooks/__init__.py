@@ -35,9 +35,13 @@ def load_babel(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
-    """The bcrypt package requires the _cffi_backend module
-    (loaded implicitly."""
-    finder.include_module("_cffi_backend")
+    """The bcrypt < 4.0 package requires the _cffi_backend module
+    (loaded implicitly)."""
+    if module.distribution:
+        for req in module.distribution.requires:
+            if req.startswith("cffi"):
+                finder.include_module("_cffi_backend")
+                break
 
 
 def load_boto(finder: ModuleFinder, module: Module) -> None:
