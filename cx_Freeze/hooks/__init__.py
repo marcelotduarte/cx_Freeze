@@ -368,6 +368,17 @@ def load_Numeric(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.add("dotblas")
 
 
+def load_orjson(finder: ModuleFinder, module: Module) -> None:
+    """The orjson has dynamic imports."""
+    finder.include_module("dataclasses")
+    finder.include_module("datetime")
+    finder.include_module("decimal")
+    finder.include_module("enum")
+    finder.include_package("json")
+    finder.include_module("uuid")
+    finder.include_package("zoneinfo")
+
+
 def load_pandas(finder: ModuleFinder, module: Module) -> None:
     """The pandas has dynamic imports."""
     finder.include_package("pandas._libs")
