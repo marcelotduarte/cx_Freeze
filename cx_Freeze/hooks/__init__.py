@@ -37,11 +37,12 @@ def load_babel(finder: ModuleFinder, module: Module) -> None:
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     """The bcrypt < 4.0 package requires the _cffi_backend module
     (loaded implicitly)."""
+    include_cffi = True
     if module.distribution:
-        for req in module.distribution.requires:
-            if req.startswith("cffi"):
-                finder.include_module("_cffi_backend")
-                break
+        if int(module.distribution.version.split(".")[0]) >= 4:
+            include_cffi = False
+    if include_cffi:
+        finder.include_module("_cffi_backend")
 
 
 def load_boto(finder: ModuleFinder, module: Module) -> None:
@@ -106,11 +107,16 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
 
 def load_cryptography(finder: ModuleFinder, module: Module) -> None:
     """The cryptography module requires the _cffi_backend module."""
-    if module.distribution:
+    if module.distribution and module.distribution.requires:
+        include_cffi = False
         for req in module.distribution.requires:
             if req.startswith("cffi"):
-                finder.include_module("_cffi_backend")
+                include_cffi = True
                 break
+    else:
+        include_cffi = True
+    if include_cffi:
+        finder.include_module("_cffi_backend")
 
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
