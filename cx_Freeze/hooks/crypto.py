@@ -42,9 +42,8 @@ def load_crypto_util(finder: ModuleFinder, module: Module) -> None:
         finder.include_package(module.name)
 
 
-# pylint: disable-next=unused-argument
 def load_crypto_util__file_system(
-    finder: ModuleFinder, module: Module
+    finder: ModuleFinder, module: Module  # pylint: disable=unused-argument
 ) -> None:
     """The patch for pycryptodome package."""
     # WARNING: do not touch this code string
