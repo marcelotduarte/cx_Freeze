@@ -179,6 +179,42 @@ class Freezer:
             include_mode=include_mode,
         )
 
+    def _copy_package_data(self, module: Module, target_dir: Path):
+        """Copy any non-Python files to the target directory."""
+        ignore_patterns = ("__pycache__", "*.py", "*.pyc", "*.pyo")
+
+        def copy_tree(source_dir: Path, target_dir: Path, excludes: Set[str]):
+            target_dir.mkdir()
+            for source in source_dir.iterdir():
+                if any(filter(source.match, ignore_patterns)):
+                    continue
+                source_name = source.name
+                if source_name in excludes:
+                    continue
+                target = target_dir / source_name
+                if source.is_dir():
+                    source_subdir = source_dir / source_name
+                    excludes_subdir = {
+                        ".".join(m.split(".")[1:])
+                        for m in excludes
+                        if m.split(".")[0] == source_name
+                    }
+                    copy_tree(source_subdir, target, excludes_subdir)
+                else:
+                    self._copy_file(source, target, copy_dependent_files=True)
+
+        source_dir = module.file.parent
+        module_name = module.name
+        if self.silent < 1:
+            print(f"copying data from package {module_name}...")
+        # do not copy the subfolders which belong to excluded modules
+        excludes = {
+            ".".join(m.split(".")[1:])
+            for m in self.finder.excludes.keys()
+            if m.split(".")[0] == module_name
+        }
+        copy_tree(source_dir, target_dir, excludes)
+
     @abstractmethod
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
         """Prepare the source and target paths."""
@@ -456,9 +492,6 @@ class Freezer:
         with PyZipFile(filename, "w", compress_type) as outfile:
 
             files_to_copy: List[Tuple[Module, Path]] = []
-            ignorePatterns = shutil.ignore_patterns(
-                "*.py", "*.pyc", "*.pyo", "__pycache__"
-            )
 
             for module in modules:
 
@@ -490,28 +523,7 @@ class Freezer:
                         # the file system, any non-Python files are copied at
                         # this point if the target directory does not already
                         # exist
-                        source_package_dir = module.file.parent
-                        if self.silent < 1:
-                            print(f"copying data from package {mod_name}...")
-                        shutil.copytree(
-                            source_package_dir,
-                            target_package_dir,
-                            ignore=ignorePatterns,
-                        )
-
-                        # remove the subfolders which belong to excluded
-                        # modules
-                        excluded_folders = [
-                            m[len(mod_name) + 1 :].replace(".", os.sep)
-                            for m in finder.excludes
-                            if m.split(".")[0] == parts[0]
-                        ]
-                        for folder in excluded_folders:
-                            folder_to_remove = target_package_dir / folder
-                            if folder_to_remove.is_dir():
-                                if self.silent < 1:
-                                    print(f"removing {folder_to_remove}...")
-                                shutil.rmtree(folder_to_remove)
+                        self._copy_package_data(module, target_package_dir)
 
                 # if an extension module is found in a package that is to be
                 # included in a zip file, copy the actual file to the build
