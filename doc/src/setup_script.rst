@@ -349,7 +349,10 @@ command:
        installation
    * - .. option:: initial_target_dir
      - defines the initial target directory supplied to the user during
-       installation
+       installation; in order to specify a target directory of "XYZ" in the
+       default program directory use "[ProgramFiles64Folder]\XYZ" or
+       "[ProgramFilesFolder]\XYZ" (for the default 64-bit or non-64 bit
+       locations, respectively)
    * - .. option:: install_icon
      - path of icon to use for the add/remove programs window that pops up
        during installation
