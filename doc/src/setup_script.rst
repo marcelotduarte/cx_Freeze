@@ -33,7 +33,7 @@ There are more examples in the |samples| directory.
 
 .. |samples| raw:: html
 
-   <a href="https://github.com/marcelotduarte/cx_Freeze/tree/main/cx_Freeze/samples" target="_blank">samples</a>
+   <a href="https://github.com/marcelotduarte/cx_Freeze/tree/main/samples" target="_blank">samples</a>
 
 The script is invoked as follows:
 
