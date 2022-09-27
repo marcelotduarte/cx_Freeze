@@ -1,28 +1,42 @@
 # Makefile to automate some tools
 
 .PHONY: all
-all:
+all: install
 	pre-commit run -a -v --hook-stage manual
 	pre-commit gc
 
 .PHONY: clean
 clean:
-	pre-commit clean
+	if [ -f .git/hooks/pre-commit ] ; then\
+		pre-commit clean;\
+		pre-commit uninstall;\
+		rm -f .git/hooks/pre-commit;\
+	fi
 	make -C doc clean
+
+.PHONY: install
+install:
+	if ! [ -f .git/hooks/pre-commit ] ; then\
+		python -m pip install --upgrade pip &&\
+		pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager &&\
+		pip install -e . --no-build-isolation --no-deps &&\
+		pre-commit install --install-hooks --overwrite -t pre-commit;\
+	fi
 
 .PHONY: upgrade
 upgrade:
-	make all || true
-	make clean || true
-	python -m pip install -U pip
-	pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager
-	pip install -e .
+	if [ -f .git/hooks/pre-commit ] ; then\
+		make all || true;\
+		make clean || true;\
+		pip uninstall -y cx_Freeze || true;\
+	fi
+	make install
 	pre-commit autoupdate
 	make all
 	git diff || true
 
 .PHONY: html
-html:
+html: install
 	pre-commit run build-docs -a -v --hook-stage manual
 
 .PHONY: htmltest
