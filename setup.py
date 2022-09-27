@@ -7,7 +7,7 @@ Use ONE of the following commands to install from source:
 
 Use the following commands to install in the development mode:
     pip install -r requirements-dev.txt
-    pip install -e . --no-deps --no-build-isolation
+    pip install -e . --no-build-isolation --no-deps
 
 """
 # pylint: disable=attribute-defined-outside-init,missing-function-docstring

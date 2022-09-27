@@ -28,15 +28,23 @@ You can use ``git`` to clone the repository:
 
       git clone https://github.com/marcelotduarte/cx_Freeze
       cd cx_Freeze
+      make install
+
+If you don't have make installed, run:
+
+.. code-block:: console
+
       pip install -r requirements-dev.txt
-      pip install -e . --no-deps --no-build-isolation
+      pip install -e . --no-build-isolation --no-deps
+      pre-commit install --install-hooks --overwrite -t pre-commit
 
 .. note::
 
+   #. It is recommended to use a virtual environment.
    #. Please check the requirements for python and for your system
       (see :doc:`../installation`).
    #. ``python setup.py develop --no-deps`` can be used, instead of
-      ``pip install -e . --no-deps --no-build-isolation``.
+      ``pip install -e . --no-build-isolation --no-deps``.
 
 
 Building documentation
