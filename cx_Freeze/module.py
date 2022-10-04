@@ -29,6 +29,15 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
     @classmethod
     def from_name(cls, name: str):
+        """Return the Distribution for the given package name.
+
+        :param name: The name of the distribution package to search for.
+        :return: The Distribution instance (or subclass thereof) for the named
+            package, if found.
+        :raises PackageNotFoundError: When the named package's distribution
+            metadata cannot be found.
+        :raises ValueError: When an invalid value is supplied for name.
+        """
         distribution = super().from_name(name)
 
         # Cache dist-info files in a temporary directory
@@ -75,8 +84,6 @@ class DistributionCache(importlib_metadata.PathDistribution):
         cls._write_record_distinfo(target_path)
 
         return cls.at(target_path)
-
-    from_name.__doc__ = importlib_metadata.PathDistribution.from_name.__doc__
 
     @staticmethod
     def _write_wheel_distinfo(target_path: Path, purelib: bool):
@@ -154,7 +161,7 @@ class Module:
         """
         try:
             distribution = DistributionCache.from_name(name)
-        except importlib_metadata.PackageNotFoundError:
+        except (importlib_metadata.PackageNotFoundError, ValueError):
             distribution = None
         if distribution is None:
             return
@@ -164,7 +171,7 @@ class Module:
             requires = []
         for req in requires:
             req_name = req.partition(" ")[0]
-            with suppress(importlib_metadata.PackageNotFoundError):
+            with suppress(importlib_metadata.PackageNotFoundError, ValueError):
                 DistributionCache.from_name(req_name)
         self.distribution = distribution
 
