@@ -771,14 +771,13 @@ class WinFreezer(Freezer, PEParser):
         # fix the target path for C runtime files
         norm_target_name = target.name.lower()
         if norm_target_name in self.runtime_files:
-            target_name = target.name
-            target = self.targetdir / "lib" / target_name
+            target = self.targetdir / "lib" / norm_target_name
 
             # vcruntime140.dll must be in the root and in the lib directory
             if norm_target_name in self.runtime_files_to_dup:
                 self.runtime_files_to_dup.remove(norm_target_name)
                 self._copy_file(source, target, copy_dependent_files=False)
-                target = self.targetdir / target_name
+                target = self.targetdir / norm_target_name
         return source, target
 
     def _post_copy_hook(
@@ -793,10 +792,44 @@ class WinFreezer(Freezer, PEParser):
             and source not in self.finder.excluded_dependent_files
         ):
 
-            targetdir = target.parent
-            for dependent_file in self.get_dependent_files(source):
-                target = targetdir / dependent_file.name
-                self._copy_file(dependent_file, target, copy_dependent_files)
+            library_dir = self.targetdir / "lib"
+            source_dir = source.parent
+            target_dir = target.parent
+            for dependent_source in self.get_dependent_files(source):
+                if not self._should_copy_file(dependent_source):
+                    continue
+                # put it in the target_dir (or fixed location if C runtime)
+                dependent_source_name = dependent_source.name
+                try:
+                    # dependency located with source or in a subdirectory
+                    relative = dependent_source.relative_to(source_dir)
+                    dependent_target = target_dir / relative
+                except ValueError:
+                    # check if dependency is located in a upper level
+                    try:
+                        dependent_source_dir = dependent_source.parent
+                        relative = source_dir.relative_to(dependent_source_dir)
+                        # fix the target_dir - go to the previous level
+                        parts = target_dir.parts[: -len(relative.parts)]
+                        dependent_target = Path(*parts) / dependent_source_name
+                    except ValueError:
+                        dependent_target = target_dir / dependent_source_name
+                try:
+                    dependent_target.relative_to(library_dir)
+                except ValueError:
+                    dependent_target = library_dir / dependent_source_name
+                else:
+                    _, dependent_target = self._pre_copy_hook(
+                        dependent_source, dependent_target
+                    )
+                    if dependent_target not in self.files_copied:
+                        for file in self.files_copied:
+                            if file.match(dependent_source_name):
+                                dependent_target = file
+                                break
+                self._copy_file(
+                    dependent_source, dependent_target, copy_dependent_files
+                )
 
     def _default_bin_excludes(self) -> List[str]:
         return ["comctl32.dll", "oci.dll"]
@@ -1048,9 +1081,9 @@ class LinuxFreezer(Freezer, ELFParser):
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
         ):
-            targetdir = target.parent
-            source_dir = source.parent
             library_dir = self.targetdir / "lib"
+            source_dir = source.parent
+            target_dir = target.parent
             fix_rpath = set()
             for dependent_file in self.get_dependent_files(source):
                 if not self._should_copy_file(dependent_file):
@@ -1058,9 +1091,9 @@ class LinuxFreezer(Freezer, ELFParser):
                 try:
                     relative = dependent_file.relative_to(source_dir)
                 except ValueError:
-                    # put it in the targetdir if not already copied
+                    # put it in the target_dir if not already copied
                     dependent_filename = dependent_file.name
-                    dependent_target = targetdir / dependent_filename
+                    dependent_target = target_dir / dependent_filename
                     relative = Path(dependent_filename)
                     if dependent_target not in self.files_copied:
                         for file in self.files_copied:
@@ -1069,7 +1102,7 @@ class LinuxFreezer(Freezer, ELFParser):
                                 dependent_target = library_dir / relative
                                 break
                 else:
-                    dependent_target = targetdir / relative
+                    dependent_target = target_dir / relative
                     dependent_target = dependent_target.resolve()
                     try:
                         dependent_target.relative_to(library_dir)
