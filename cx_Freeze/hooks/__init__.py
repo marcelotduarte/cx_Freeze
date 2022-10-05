@@ -102,6 +102,8 @@ def load_clr(finder: ModuleFinder, module: Module) -> None:
     dll_path = module.file.parent / dll_name
     if not dll_path.exists():
         dll_path = module.file.parent / "pythonnet/runtime" / dll_name
+        if not dll_path.exists():
+            return
     finder.include_files(dll_path, Path("lib", dll_name))
 
 
@@ -414,8 +416,9 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
 def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
     """The postgresql.lib module requires the libsys.sql file to be included
     so make sure that file is included."""
-    filename = "libsys.sql"
-    finder.include_files(module.path[0] / filename, filename)
+    libsys = module.path[0] / "libsys.sql"
+    if libsys.exists():
+        finder.include_files(libsys, libsys.name)
 
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
@@ -806,7 +809,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
                 if path.endswith("zoneinfo"):
                     source = Path(path)
                     break
-        if source:
+        if source and source.is_dir():
             # without tzdata, copy only zoneinfo directory
             # in Linux: /usr/share/zoneinfo
             target = Path("lib", "tzdata", "zoneinfo")

@@ -55,7 +55,9 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     source_dir = module.path[0]
     for path in source_dir.glob("config*.py"):
         finder.include_files(path, target_dir / path.name)
-    finder.include_files(source_dir / "data", target_dir / "data")
+    data_dir = source_dir / "data"
+    if data_dir.exists():
+        finder.include_files(data_dir, target_dir / "data")
 
     # Copy all binary files
     if WIN32:
