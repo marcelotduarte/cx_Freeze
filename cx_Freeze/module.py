@@ -167,7 +167,7 @@ class Module:
             return
         try:
             requires = importlib_metadata.requires(distribution.name) or []
-        except importlib_metadata.PackageNotFoundError:
+        except (importlib_metadata.PackageNotFoundError, ValueError):
             requires = []
         for req in requires:
             req_name = req.partition(" ")[0]
