@@ -374,4 +374,5 @@ def load_qt_uic(finder: ModuleFinder, module: Module) -> None:
     except ImportError:
         pass
     source_dir = module.path[0] / "widget-plugins"
-    finder.include_files(source_dir, f"{name}.uic.widget-plugins")
+    if source_dir.exists():
+        finder.include_files(source_dir, f"{name}.uic.widget-plugins")
