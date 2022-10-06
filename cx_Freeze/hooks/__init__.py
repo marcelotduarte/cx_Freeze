@@ -684,6 +684,16 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
             finder.include_files(dll_path, Path("lib", dll_name))
 
 
+def load_tokenizers(finder: ModuleFinder, module: Module) -> None:
+    """On Linux the tokenizers.libs directory is not copied."""
+    if module.path is None:
+        return
+    libs_name = "tokenizers.libs"
+    source_dir = module.path[0].parent / libs_name
+    if source_dir.exists():
+        finder.include_files(source_dir, Path("lib", libs_name))
+
+
 def load_twisted_conch_ssh_transport(
     finder: ModuleFinder, module: Module
 ) -> None:
