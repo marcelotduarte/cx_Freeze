@@ -4,14 +4,105 @@ Release notes
 6.x releases
 ############
 
+Version 6.12 (October 2022)
+---------------------------
+
+#)  Linux:
+	- Support Linux binary wheel for arm64 (:pull:`1539`)
+
+#)  macOS:
+	- darwintools: fix bug in the processing of certain dynamic library references (:pull:`1521`)
+	- darwintools: Further clean-up of path resolver code. (:pull:`1529`)
+	- Make various errors in darwintools show a warning, rather than terminating freeze (:pull:`1593`)
+
+#)  Windows:
+	- freezer: Fix dependency target to avoid duplicates [windows] (:pull:`1623`)
+	- Call InitializePython from Service_Main instead of wmain. (:pull:`1572`)
+	- bdist_msi: sort options (:pull:`1519`)
+	- bdist_msi: Fix unnecessary 'running egg_info' (:pull:`1520`)
+	- bdist_msi: Fix target-name and target-version (:pull:`1524`)
+
+#)  New or improved hooks for:
+	- Improve tkinter hook to work on all OS (:pull:`1526`)
+	- hooks: add hook for orjson (:pull:`1606`)
+	- hooks: Ensure include_files only if file exists. (:pull:`1627`)
+	- hooks: Add hook for tokenizers (:pull:`1628`)
+	- hooks: only bcrypt < 4.0 requires cffi (:pull:`1607`)
+	- hooks: update cryptography hook (:pull:`1608`)
+	- hooks: bcrypt and cryptography hooks must work with msys2 (:pull:`1609`)
+	- qt hooks: Put pyqt5 and pyside2 hooks in separate modules (:pull:`1531`)
+	- qt hooks: New pyside6 hooks (:pull:`1533`)
+	- qt hooks: fix qthooks imports/exports and add an optional debug mode (:pull:`1551`)
+	- qt hooks: Add PyQt5/Pyside2/PySide6 hooks for QtDesigner module (:pull:`1552`)
+	- qt hooks: Rewrite pyqt hooks to query Qt Library paths instead of guessing (:pull:`1555`)
+	- qt hooks: Restructures qt hooks into subpackages for easier troubleshooting. (:pull:`1561`)
+	- qt hooks: set some default paths and fix copies (:pull:`1565`)
+	- qt hooks: add resources to PySide2 hooks to work on more environments (:pull:`1566`)
+	- qt hooks: extend copy_qt_files to fix pyqtweb (:pull:`1568`)
+	- qt hooks: a fix for conda-forge linux (pyside2) (:pull:`1585`)
+	- qt hooks: fix the location of auxiliary files of webengine (pyqt5) (:pull:`1586`)
+	- Improve opencv-python hook (:pull:`1536`)
+	- Improve opencv-python hook on macos (:pull:`1538`)
+	- Improve opencv hook for conda linux (:pull:`1556`)
+	- Support msys2 in opencv-python hooks and use optimized mode (:pull:`1601`)
+	- Restore PyYaml hook (:pull:`1542`)
+	- Support for pythonnet 3.0 (:pull:`1600`)
+	- hooks: Refactor as a subpackage (:pull:`1528`)
+	- hooks: Put numpy hook in separate module (:pull:`1532`)
+	- hooks: split Crypto hook in a separate module (:pull:`1602`)
+	- hooks: split scipy hook in a separate module (:pull:`1603`)
+
+#)  Samples:
+	- samples: Add orjson sample (:pull:`1605`)
+	- samples: pyqt5, pyside2 and pyside6 in optimized mode (:pull:`1587`)
+	- New pyqt5 simplebrowser sample (adapted from pyside2 sample) (:pull:`1567`)
+	- Use pyside6 example simplebrowser as sample (:pull:`1543`)
+	- New opencv-python sample (:pull:`1535`)
+	- Use the same tkinter sample as used in python (:pull:`1525`)
+	- samples: add PhotoImage to tkinter (:pull:`1581`)
+	- samples: adapt qt samples to use get_qt_plugins_paths (:pull:`1636`)
+
+#)  Improvements/Refactor/Bugfix:
+	- fix setuptools 61+ package discovery and other fixes for 62+ (:pull:`1545`)
+	- fix setup to work with setuptools 64.x and 65.x (:pull:`1588`)
+	- importlib-metadata >= 4.12.0 raise ValueError instead of returning None (:pull:`1625`)
+	- Fixed ValueError / importlib_metadata problem (:pull:`1630`)
+	- Fix readthedocs for 6.11
+	- pin sphinx 5.0.1 and fix the support for it (:pull:`1512`)
+	- update issue template (:pull:`1515`)
+	- update dev dependencies (:pull:`1516`)
+	- module: Fix .dist-info with subdirectories (:pull:`1514`)
+	- Add parse as pylint-ready module (:pull:`1527`)
+	- Remove deprecated options in build_exe and bdist_mac (:pull:`1544`)
+	- Requires permanent use of lief package on windows (:pull:`1547`)
+	- Add a workaround to compile with --no-lto if LTO linking fails (:pull:`1549`)
+	- Fix a warning compiling with gcc 12.1 (:pull:`1550`)
+	- finder: extend _base_hooks to include hooks in directories (:pull:`1557`)
+	- update dev dependencies (:pull:`1558`)
+	- setup: use find_packages and include_package_data for simplicity (:pull:`1559`)
+	- samples: move to root (:pull:`1560`)
+	- finder: extend include_file_as_module to include submodule (:pull:`1562`)
+	- bases and initscripts: lowercase to remove pylint invalid-name (:pull:`1563`)
+	- Update dev dependencies (:pull:`1584`)
+	- tweak the bdist_rpm test (:pull:`1596`)
+	- Add test for cx_Freeze.command.bdist_msi (:pull:`1597`)
+	- freezer: copy package data using _copy_files to correctly parse dependencies (:pull:`1610`)
+	- Improve makefile (:pull:`1619`)
+	- Update dev dependencies (:pull:`1620`)
+	- Cleanup to support/test with python 3.11b3 (:pull:`1518`)
+	- feezer: use internal _create_directory (create the parents, verbose) (:pull:`1635`)
+
+#)  Documentation:
+	- Fixed a broken link in documentation (:pull:`1618`)
+	- Improved documentation of initial_target_dir option on bdist_msi. (:pull:`1614`)
+	- Add FAQ item for big installations (:pull:`1583`)
+
 Version 6.11 (June 2022)
 ---------------------------
 
 #)  Main Improvements:
 	- First step to support static libpython (:pull:`1414`)
 	- Set the path to search for modules, and fix the path for built-in modules (:pull:`1419`)
-	- Support for using embedded manylinux static libraries (:pull:`1504`)
-	- Support for using macos static libraries (:pull:`1505`)
 	- New release process relies on bump2version (:pull:`1365`)
 	- Improve code to cache dist-info files and convert egg-info to dist-info (:pull:`1367`)
 	- Compile base executables with generic names depending on SOABI (:pull:`1393`)
@@ -23,8 +114,12 @@ Version 6.11 (June 2022)
 	- pin setuptools to a range that works (:pull:`1453`)
 
 #)  Linux:
+	- Support for using embedded manylinux static libraries (:pull:`1504`)
 	- Fix symlinks to avoid duplicate the target (:pull:`1424`)
 	- Fix incorrect default bin path includes (:pull:`1425`)
+
+#)  macOS:
+	- Support for using macos static libraries (:pull:`1505`)
 
 #)  Windows:
 	- Convert PEP440 version scheme to windows scheme (:pull:`1392`)
