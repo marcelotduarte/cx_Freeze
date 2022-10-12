@@ -184,7 +184,7 @@ class Freezer:
         ignore_patterns = ("__pycache__", "*.py", "*.pyc", "*.pyo")
 
         def copy_tree(source_dir: Path, target_dir: Path, excludes: Set[str]):
-            target_dir.mkdir()
+            self._create_directory(target_dir)
             for source in source_dir.iterdir():
                 if any(filter(source.match, ignore_patterns)):
                     continue
