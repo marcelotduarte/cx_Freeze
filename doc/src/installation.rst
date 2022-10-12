@@ -38,7 +38,7 @@ Python requirements are installed automatically by pip or conda.
 .. note:: Patchelf
 
  patchelf is used in Linux and unix-like systems (FreeBSD, etc), except macOS.
- In Linux, cx_Freeze 6.10 installs it using new wheels available on
+ In Linux, cx_Freeze 6.10+ installs it using new wheels available on
  |PyPI_link_patchelf|.
 
  .. |PyPI_link_patchelf| raw:: html
@@ -108,7 +108,7 @@ An example using Miniconda3:
     conda create -n cx39conda -c conda-forge python=3.9 libpython-static -y
     conda activate cx39conda
     conda install -c conda-forge c-compiler importlib-metadata patchelf -y
-    pip install --no-binary :all: --pre cx_Freeze -v
+    pip install --no-binary=cx_Freeze --pre cx_Freeze -v
 
 Download tarball or wheels
 --------------------------

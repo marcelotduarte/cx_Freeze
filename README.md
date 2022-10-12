@@ -33,13 +33,15 @@ The official documentation is available
 
 If you need help you can also ask on the [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
-# Highlights of Version 6.11:
-- Binary wheels for manylinux and macOS (including Apple Silicon)
-- Complete integration to use setuptools instead of distutils
-- More code modernization
+# Highlights of Version 6.12:
+- Improve tkinter hook to work on all OS
+- Improved PyQt5/Pyside2 hooks and new hook for PySide6
+- Linux binary wheels for arm64 (aarch64)
 - Bug fixes and improvements
 
-# Highlights of Version 6.2 up to 6.10:
+# Highlights of Version 6.2 up to 6.11:
+- Binary wheels for manylinux and macOS (including Apple Silicon)
+- Complete integration to setuptools instead of distutils
 - Support Application Manifests in Windows: manifest and uac-admin
 - New dependency resolver on Windows
 - Support for pathlib.Path
@@ -47,10 +49,9 @@ If you need help you can also ask on the [discussion](https://github.com/marcelo
 - New ModuleFinder engine uses importlib.machinery
 - Refactored Freezer
 - New support for package metadata improving Module and new DitributionCache
-- Enhanced support for Python 3.8 and Python 3.9, including MSYS2 and Anaconda distributions
+- Enhanced support for Python 3.8 to 3.10, including MSYS2 and Anaconda distributions
 - Improvements for multiprocessing
 - Optimizations in detection and distribution of libraries
-- Integrated to setuptools and importlib-metadata
 - Code modernization
 - Various bug fixes.
 
