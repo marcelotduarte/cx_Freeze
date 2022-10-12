@@ -38,7 +38,7 @@ if get_qt_plugins_paths:
         # "wayland-graphics-integration-server",
         "wayland-shell-integration",
     ):
-        include_files += get_qt_plugins_paths("PySide2", plugin_name)
+        include_files += get_qt_plugins_paths("PySide6", plugin_name)
 
 # base="Win32GUI" should be used only for Windows GUI app
 base = "Win32GUI" if sys.platform == "win32" else None
