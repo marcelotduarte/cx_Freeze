@@ -37,7 +37,7 @@ jobs:
           python -m build -o wheelhouse -n .
         shell: bash
       - name: Upload the artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cx-freeze-wheelhouse
           path: wheelhouse
@@ -58,9 +58,9 @@ jobs:
         with:
           platforms: arm64
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.10.2
+        uses: pypa/cibuildwheel@v2.11.1
       - name: Upload the artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cx-freeze-wheelhouse
           path: wheelhouse
@@ -79,7 +79,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade pip "setuptools>=59.0.1,<66"
       - name: Download the artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: cx-freeze-wheelhouse
           path: wheelhouse
@@ -87,7 +87,7 @@ jobs:
         run: rm wheelhouse/cx_Logging*
       - name: Publish package to PyPI
         if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
