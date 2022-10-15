@@ -1010,7 +1010,7 @@ class BdistMSI(bdist_msi):
         self.mkpath(self.dist_dir)
         platform = get_platform().replace("win-amd64", "win64")
 
-        msi_name:str
+        msi_name: str
         if os.path.splitext(self.target_name)[1].lower() == ".msi":
             msi_name = self.target_name
         else:
