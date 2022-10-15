@@ -1,8 +1,7 @@
 import clr
-
-SWF = clr.AddReference("System.Windows.Forms")
-print(SWF.Location)
 import System  # noqa
+
+clr.AddReference("System.Windows.Forms")
 import System.Windows.Forms as WinForms  # noqa
 from System.Drawing import Color  # noqa
 
@@ -12,6 +11,7 @@ class Splitter(WinForms.Form):
     'Creating a Multipane User Interface with Windows Forms'."""
 
     def __init__(self):
+        super().__init__()
 
         # Create an instance of each control being used.
         self.components = System.ComponentModel.Container()
@@ -24,13 +24,13 @@ class Splitter(WinForms.Form):
 
         # Set properties of TreeView control.
         self.treeView1.Dock = WinForms.DockStyle.Left
-        self.treeView1.Width = self.ClientSize.Width / 3
+        self.treeView1.Width = self.ClientSize.Width // 3
         self.treeView1.TabIndex = 0
         self.treeView1.Nodes.Add("TreeView")
 
         # Set properties of ListView control.
         self.listView1.Dock = WinForms.DockStyle.Top
-        self.listView1.Height = self.ClientSize.Height * 2 / 3
+        self.listView1.Height = self.ClientSize.Height * 2 // 3
         self.listView1.TabIndex = 0
         self.listView1.Items.Add("ListView")
 
@@ -50,7 +50,7 @@ class Splitter(WinForms.Form):
         self.splitter2.TabIndex = 1
 
         # Set TabStop to false for ease of use when negotiating UI.
-        self.splitter2.TabStop = 0
+        self.splitter2.TabStop = False
 
         # Set properties of Form's Splitter control.
         self.splitter1.Location = System.Drawing.Point(121, 0)
@@ -59,7 +59,7 @@ class Splitter(WinForms.Form):
         self.splitter1.TabIndex = 1
 
         # Set TabStop to false for ease of use when negotiating UI.
-        self.splitter1.TabStop = 0
+        self.splitter1.TabStop = False
 
         # Add the appropriate controls to the Panel.
         for item in (self.richTextBox1, self.splitter2, self.listView1):
