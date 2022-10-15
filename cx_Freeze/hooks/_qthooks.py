@@ -35,9 +35,13 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
     lib = qtcore.QLibraryInfo
     major_version = lib.version().majorVersion()
     if major_version == 6:
-        for key, value in lib.__dict__.items():
-            if isinstance(value, lib.LibraryPath):
+        if hasattr(lib.LibraryPath, "__members__"):
+            for key, value in lib.LibraryPath.__members__.items():
                 source_paths[key] = Path(lib.path(value))
+        else:
+            for key, value in lib.__dict__.items():
+                if isinstance(value, lib.LibraryPath):
+                    source_paths[key] = Path(lib.path(value))
     else:
         for key, value in lib.__dict__.items():
             if isinstance(value, (lib.LibraryLocation, int)):
