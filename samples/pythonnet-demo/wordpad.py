@@ -1,8 +1,7 @@
 import clr
-
-SWF = clr.AddReference("System.Windows.Forms")
-print(SWF.Location)
 import System  # noqa
+
+clr.AddReference("System.Windows.Forms")
 import System.Windows.Forms as WinForms  # noqa
 from System.IO import File  # noqa
 from System.Text import Encoding  # noqa
@@ -13,8 +12,9 @@ class Wordpad(WinForms.Form):
     """A simple example winforms application similar to wordpad."""
 
     def __init__(self):
+        super().__init__()
         self.filename = ""
-        self.word_wrap = 1
+        self.word_wrap = True
         self.doctype = 1
         self.InitializeComponent()
         self.NewDocument()
@@ -203,10 +203,10 @@ class Wordpad(WinForms.Form):
         self.richTextBox.Dock = WinForms.DockStyle.Fill
         self.richTextBox.Size = System.Drawing.Size(795, 485)
         self.richTextBox.TabIndex = 0
-        self.richTextBox.AutoSize = 1
+        self.richTextBox.AutoSize = True
         self.richTextBox.ScrollBars = WinForms.RichTextBoxScrollBars.ForcedBoth
         self.richTextBox.Font = System.Drawing.Font("Tahoma", 10.0)
-        self.richTextBox.AcceptsTab = 1
+        self.richTextBox.AcceptsTab = True
         self.richTextBox.Location = System.Drawing.Point(0, 0)
 
         self.statusBar.BackColor = System.Drawing.SystemColors.Control
@@ -374,6 +374,7 @@ class Wordpad(WinForms.Form):
 
 class AboutForm(WinForms.Form):
     def __init__(self):
+        super().__init__()
         self.InitializeComponent()
 
     def InitializeComponent(self):
@@ -406,8 +407,8 @@ class AboutForm(WinForms.Form):
         self.Controls.AddRange((self.label1, self.btnClose))
 
         self.FormBorderStyle = WinForms.FormBorderStyle.FixedDialog
-        self.MaximizeBox = 0
-        self.MinimizeBox = 0
+        self.MaximizeBox = False
+        self.MinimizeBox = False
         self.Name = "AboutForm"
         self.ShowInTaskbar = False
         self.StartPosition = WinForms.FormStartPosition.CenterScreen
