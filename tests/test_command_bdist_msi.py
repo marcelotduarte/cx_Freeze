@@ -55,8 +55,8 @@ def test_bdist_msi_target_name_and_version():
     cmd.target_version = "0.1"
     cmd.finalize_options()
     cmd.ensure_finalized()
-
     assert cmd.fullname == "mytest-0.1"
+
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 @pytest.mark.skipif(
@@ -76,6 +76,3 @@ def test_bdist_msi_target_name_with_extension(fix_main_samples_path):
     file_created = dist_created / msi_name
     assert file_created.is_file()
     os.remove(file_created)
-
-
-
