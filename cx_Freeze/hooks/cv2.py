@@ -39,14 +39,15 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
             source = Path(sys.base_prefix, "share/fonts")
         if source.is_dir():
             finder.include_files(source, target_dir / "fonts")
-        source_qt_conf: Path = temp_path.path / "qt.conf"
+        qt_conf: Path = temp_path.path / "qt.conf"
         lines = ["[Paths]", f"Prefix = {target_dir.as_posix()}"]
-        source_qt_conf.write_text("\n".join(lines), encoding="utf-8")
+        with qt_conf.open(mode="w", encoding="utf_8", newline="") as file:
+            file.write("\n".join(lines))
         if DARWIN:
             target_qt_conf = "Contents/Resources/qt.conf"
         else:
-            target_qt_conf = source_qt_conf.name
-        finder.include_files(source_qt_conf, target_qt_conf)
+            target_qt_conf = qt_conf.name
+        finder.include_files(qt_conf, target_qt_conf)
         return
 
     # Use optmized mode

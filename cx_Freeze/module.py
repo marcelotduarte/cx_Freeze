@@ -99,7 +99,8 @@ class DistributionCache(importlib_metadata.PathDistribution):
                 f"Root-Is-Purelib: {root_is_purelib}",
                 "Tag: py3-none-any",
             ]
-            target.write_text("\n".join(text))
+            with target.open(mode="w", encoding="utf_8", newline="") as file:
+                file.write("\n".join(text))
 
     @staticmethod
     def _write_record_distinfo(target_path: Path):
@@ -110,7 +111,8 @@ class DistributionCache(importlib_metadata.PathDistribution):
             record.append(f"{target_name}/{file.name},,")
         record.append(f"{target_name}/RECORD,,")
         target = target_path / "RECORD"
-        target.write_text("\n".join(record), encoding="utf-8")
+        with target.open(mode="w", encoding="utf_8", newline="") as file:
+            file.write("\n".join(record))
 
 
 class Module:
@@ -263,5 +265,8 @@ class ConstantsModule:
         for name in names:
             value = self.values[name]
             parts.append(f"{name} = {value!r}")
-        self.module_path.path.write_text("\n".join(parts), encoding="utf-8")
+        with self.module_path.path.open(
+            mode="w", encoding="utf_8", newline=""
+        ) as file:
+            file.write("\n".join(parts))
         return self.module_path.path, self.module_name
