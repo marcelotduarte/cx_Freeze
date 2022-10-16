@@ -5,7 +5,11 @@ from sysconfig import get_platform
 
 import pytest
 
+from cx_Freeze.dist import Distribution
 from cx_Freeze.sandbox import run_setup
+
+if sys.platform == "win32":
+    from cx_Freeze.command.bdist_msi import BdistMSI
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
@@ -22,3 +26,34 @@ def test_bdist_msi(fix_main_samples_path):
     dist_created = setup_path / "dist"
     file_created = dist_created / f"hello-0.1-{platform}.msi"
     assert file_created.is_file()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+def test_bdist_msi_target_name():
+    """Test the msi_binary_data sample with extra target_name option."""
+
+    dist = Distribution(
+        {"name": "foo", "version": "0.0", "script_name": "setup.py"}
+    )
+    cmd = BdistMSI(dist)
+    cmd.target_name = "mytest"
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+
+    assert cmd.fullname == "mytest-0.0"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+def test_bdist_msi_target_name_and_version():
+    """Test the msi_binary_data sample with extra target options."""
+
+    dist = Distribution(
+        {"name": "foo", "version": "0.0", "script_name": "setup.py"}
+    )
+    cmd = BdistMSI(dist)
+    cmd.target_name = "mytest"
+    cmd.target_version = "0.1"
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+
+    assert cmd.fullname == "mytest-0.1"
