@@ -68,7 +68,9 @@ def test_bdist_msi_target_name_with_extension(fix_main_samples_path):
 
     msi_name = "output.msi"
     setup_path = fix_main_samples_path / "msi_binary_data"
-    run_setup(setup_path / "setup.py", ["bdist_msi", "--target-name", msi_name])
+    run_setup(
+        setup_path / "setup.py", ["bdist_msi", "--target-name", msi_name]
+    )
 
     dist_created = setup_path / "dist"
     file_created = dist_created / msi_name
