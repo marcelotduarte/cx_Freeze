@@ -1009,11 +1009,16 @@ class BdistMSI(bdist_msi):
         # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
         platform = get_platform().replace("win-amd64", "win64")
-        if self.target_version:
-            base_name = f"{self.fullname}-{platform}.msi"
+
+        msi_name: str
+        if os.path.splitext(self.target_name)[1].lower() == ".msi":
+            msi_name = self.target_name
         else:
-            base_name = f"{self.target_name}-{platform}.msi"
-        installer_name = os.path.join(self.dist_dir, base_name)
+            if self.target_version:
+                msi_name = f"{self.fullname}-{platform}.msi"
+            else:
+                msi_name = f"{self.target_name}-{platform}.msi"
+        installer_name = os.path.join(self.dist_dir, msi_name)
         installer_name = os.path.abspath(installer_name)
         if os.path.exists(installer_name):
             os.unlink(installer_name)
