@@ -30,7 +30,7 @@ def test_bdist_msi(fix_main_samples_path):
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name():
-    """Test the msi_binary_data sample with extra target_name option."""
+    """Test the bdist_msi with extra target_name option."""
 
     dist = Distribution(
         {"name": "foo", "version": "0.0", "script_name": "setup.py"}
@@ -45,7 +45,7 @@ def test_bdist_msi_target_name():
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name_and_version():
-    """Test the msi_binary_data sample with extra target options."""
+    """Test the bdist_msi with extra target options."""
 
     dist = Distribution(
         {"name": "foo", "version": "0.0", "script_name": "setup.py"}

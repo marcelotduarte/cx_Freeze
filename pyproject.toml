@@ -48,6 +48,10 @@ reports.output-format = "colorized"
 minversion = "6.0"
 addopts = "-ra"
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning:distutils.*",
+    "ignore::DeprecationWarning:setuptools.*",
+]
 
 [tool.cibuildwheel]
 build-frontend = "build"
