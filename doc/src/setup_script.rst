@@ -359,7 +359,10 @@ command:
    * - .. option:: product_code
      - define the product code for the package that is created
    * - .. option:: target_name
-     - specifies the name of the file that is to be created
+     - specifies the name of the file that is to be created; if the name
+       ends with ".msi" then it is used verbatim, otherwise information
+       about program version and platform will be added to the installer
+       name
    * - .. option:: upgrade_code
      - define the GUID of the upgrade code for the package that is created;
        this is used to force removal of any packages created with the same
