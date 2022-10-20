@@ -756,11 +756,20 @@ class WinFreezer(Freezer, PEParser):
         """Called for copying certain top dependencies in _freeze_executable.
         We need this as a separate method so that it can be overridden on
         Darwin and Windows."""
-        # top dependencies do not go into lib on windows, but the C runtimes
-        # can be handled in _copy_file/_pre_copy_hook
+        # top dependencies go into build root directory on windows
+        # the C runtimes are handled in _copy_file/_pre_copy_hook
+        # on msys2 libpython depends on libgcc_s_seh and libwinpthread dlls.
+        if MINGW:
+            dependent_files = self.get_dependent_files(source)
+            for file in dependent_files:
+                if self._should_copy_file(file):
+                    self._copy_top_dependency(file)
+            copy_dependent_files = False  # already copied
+        else:
+            copy_dependent_files = True
         target = self.targetdir / source.name
         self._copy_file(
-            source, target, copy_dependent_files=True, include_mode=True
+            source, target, copy_dependent_files, include_mode=True
         )
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
