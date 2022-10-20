@@ -7,7 +7,6 @@ target directory are found. This requires a restart of the executable because
 the environment variable LD_LIBRARY_PATH is only checked at startup.
 
 """
-# pylint: disable=missing-function-docstring,exec-used
 
 import os
 import sys
@@ -26,7 +25,9 @@ sys.path = sys.path[:4]
 
 
 def run(name):
+    """Execute the main script of the frozen application."""
+
     code = __loader__.get_code(name)
     module_main = __import__("__main__")
     module_main.__dict__["__file__"] = code.co_filename
-    exec(code, module_main.__dict__)
+    exec(code, module_main.__dict__)  # pylint: disable=exec-used

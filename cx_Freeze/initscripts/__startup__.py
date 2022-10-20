@@ -13,12 +13,15 @@ from importlib.machinery import (
     ModuleSpec,
     PathFinder,
 )
+from sysconfig import get_platform
 
 import BUILD_CONSTANTS
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
+IS_MINGW = get_platform().startswith("mingw")
+IS_WINDOWS = get_platform().startswith("win") and not IS_MINGW
 
 
 class ExtensionFinder(PathFinder):
@@ -51,17 +54,32 @@ def init():
     """Basic initialization of the startup script."""
 
     # update sys module
-    if sys.platform == "win32":
-        # for MSYS2
-        sys.path = [os.path.normpath(entry) for entry in sys.path]
-        sys.executable = os.path.normpath(sys.executable)
+    sys.executable = os.path.normpath(sys.executable)
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
     sys.meta_path.append(ExtensionFinder)
 
-    if sys.platform == "win32":
-        # fix PATH for conda managers and MSYS2
+    if IS_MINGW:
+        sys.path = [os.path.normpath(entry) for entry in sys.path]
+    if IS_WINDOWS or IS_MINGW:
+        # fix PATH for conda-forge and MSYS2
+        env_path = [
+            entry for entry in os.environ["PATH"].split(os.pathsep) if entry
+        ]
+        if IS_MINGW:
+            env_path = [os.path.normpath(entry) for entry in env_path]
         add_to_path = os.path.join(frozen_dir, "lib")
-        os.environ["PATH"] = add_to_path + os.path.pathsep + os.environ["PATH"]
+        if add_to_path not in env_path:
+            env_path.insert(0, add_to_path)
+        # add numpy+mkl to the PATH
+        if hasattr(BUILD_CONSTANTS, "MKL_PATH"):
+            add_to_path = os.path.join(frozen_dir, BUILD_CONSTANTS.MKL_PATH)
+            env_path.append(os.path.normpath(add_to_path))
+        if hasattr(os, "add_dll_directory"):
+            for directory in env_path:
+                os.add_dll_directory(directory)
+        if IS_MINGW:
+            env_path = [entry.replace(os.sep, os.altsep) for entry in env_path]
+        os.environ["PATH"] = os.pathsep.join(env_path)
 
     # set environment variables
     for name in (
@@ -77,14 +95,6 @@ def init():
         else:
             os.environ[name] = os.path.join(frozen_dir, value)
 
-    # fix PATH for numpy+mkl
-    if hasattr(BUILD_CONSTANTS, "MKL_PATH"):
-        mkl_path = os.path.join(frozen_dir, BUILD_CONSTANTS.MKL_PATH)
-        try:
-            os.add_dll_directory(mkl_path)
-        except AttributeError:
-            os.environ["PATH"] += os.path.pathsep + mkl_path
-
 
 def run():
     """Determines the name of the initscript and execute it."""
@@ -92,14 +102,13 @@ def run():
     # get the real name of __init__ script
     # basically, the basename of executable plus __init__
     # but can be renamed when only one executable exists
-    name = os.path.basename(sys.executable)
-    if sys.platform == "win32":
+    name = os.path.normcase(os.path.basename(sys.executable))
+    if IS_WINDOWS or IS_MINGW:
         name, _ = os.path.splitext(name)
     name = name.partition(".")[0]
     if not name.isidentifier():
         for char in STRINGREPLACE:
             name = name.replace(char, "_")
-    name = os.path.normcase(name)
     try:
         module_init = __import__(name + "__init__")
     except ModuleNotFoundError:
