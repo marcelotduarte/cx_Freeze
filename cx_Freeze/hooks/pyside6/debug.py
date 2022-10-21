@@ -6,18 +6,24 @@ if environment variable QT_DEBUG is set.
 import os
 import sys
 from pathlib import Path
+from typing import Dict
 
 
 def qt_debug():
     """Show QLibraryInfo paths."""
 
     qtcore = __import__("PySide6", fromlist=["QtCore"]).QtCore
-    data = {}
-    for key, value in qtcore.QLibraryInfo.__dict__.items():
-        if isinstance(value, qtcore.QLibraryInfo.LibraryPath):
-            data[key] = Path(qtcore.QLibraryInfo.path(value))
+    lib = qtcore.QLibraryInfo
+    source_paths: Dict[str, Path] = {}
+    if hasattr(lib.LibraryPath, "__members__"):
+        for key, value in lib.LibraryPath.__members__.items():
+            source_paths[key] = Path(lib.path(value))
+    else:
+        for key, value in lib.__dict__.items():
+            if isinstance(value, lib.LibraryPath):
+                source_paths[key] = Path(lib.path(value))
     print("QLibraryInfo:", file=sys.stderr)
-    for key, value in data.items():
+    for key, value in source_paths.items():
         print(" ", key, value, file=sys.stderr)
     print("LibraryPaths:", file=sys.stderr)
     print(" ", qtcore.QCoreApplication.libraryPaths(), file=sys.stderr)
