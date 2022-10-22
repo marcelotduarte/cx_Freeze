@@ -12,12 +12,13 @@ Use the following commands to install in the development mode:
 """
 # pylint: disable=attribute-defined-outside-init,missing-function-docstring
 
-import subprocess
+import os
 import sys
 from pathlib import Path
 from shutil import which
+from subprocess import CalledProcessError, check_call, check_output
 from sysconfig import get_config_var, get_platform, get_python_version
-from typing import Tuple
+from typing import List, Tuple, Union
 
 import setuptools.command.build_ext
 from setuptools import Extension, setup
@@ -127,6 +128,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                     debug=self.debug,
                 )
             except LinkError:
+                if WIN32:
+                    raise
                 continue
             else:
                 break
@@ -173,7 +176,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         # Use gendef and dlltool to generate the library (.a and .delay.a)
         dll_path = self._get_dll_path(name)
         gendef_exe = Path(which("gendef"))
-        def_data = subprocess.check_output([gendef_exe, "-", dll_path])
+        def_data = check_output(_make_strs([gendef_exe, "-", dll_path]))
         def_name = library_dir / f"{name}.def"
         def_name.write_bytes(def_data)
         lib_path = library_dir / f"lib{name}.a"
@@ -184,10 +187,10 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         output_delaylib_args = ["-y", dlb_path]
         try:
             # GNU binutils dlltool support --output-delaylib
-            subprocess.check_call(dlltool + output_delaylib_args)
-        except subprocess.CalledProcessError:
+            check_call(_make_strs(dlltool + output_delaylib_args))
+        except CalledProcessError:
             # LLVM dlltool only supports generating an import library
-            subprocess.check_call(dlltool)
+            check_call(_make_strs(dlltool))
             library = name
         return str(library_dir), library
 
@@ -237,6 +240,13 @@ class BuildBases(setuptools.command.build_ext.build_ext):
     def run(self):
         self._copy_libraries_to_bases()
         super().run()
+
+
+def _make_strs(paths: List[Union[str, Path]]) -> List[str]:
+    """Convert paths to strings for legacy compatibility."""
+    if sys.version_info > (3, 8) and not WIN32:
+        return paths
+    return list(map(os.fspath, paths))
 
 
 if __name__ == "__main__":
