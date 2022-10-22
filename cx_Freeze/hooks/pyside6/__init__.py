@@ -1,6 +1,8 @@
 """A collection of functions which are triggered automatically by finder when
 PySide6 package is included."""
 
+import sysconfig
+
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -36,6 +38,8 @@ from .._qthooks import load_qt_qtwidgets as load_pyside6_qtwidgets
 from .._qthooks import load_qt_qtxmlpatterns as load_pyside6_qtxmlpatterns
 from .._qthooks import load_qt_uic as load_pyside6_uic
 
+IS_MINGW = sysconfig.get_platform().startswith("mingw")
+
 
 def load_pyside6(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide6 __init__ to locate and load plugins and
@@ -51,6 +55,12 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
     # Include modules that inject an optional debug code
     qt_debug = get_resource_file_path("hooks/pyside6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide6._cx_freeze_qt_debug")
+
+    # Include a copy of qt.conf (works for pyside6 6.4.0 mingw)
+    if IS_MINGW:
+        qt_conf = get_resource_file_path("hooks/pyside6", "qt", ".conf")
+        if qt_conf:
+            finder.include_files(qt_conf, "qt.conf")
 
     # Inject code to init
     code_string = module.file.read_text()

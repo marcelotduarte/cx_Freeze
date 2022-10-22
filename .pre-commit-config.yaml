@@ -2,6 +2,7 @@ exclude: |
     (?x)^(
         .bumpversion.cfg|
         cx_Freeze/hooks/pyside2/resource.py|
+        cx_Freeze/hooks/pyside6/resource.py|
         tests/samples/invalid_syntax.py|
         tests/samples/testpkg1/.*.py
     )$
