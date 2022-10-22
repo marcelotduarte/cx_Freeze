@@ -12,6 +12,7 @@
 #if defined(MS_WINDOWS)
     #define CX_PATH_FORMAT              L"%ls\\lib\\library.zip;%ls\\lib"
     #define CX_LIB                      L"lib"
+    #define PY3_DLLNAME                 L"python3.dll"
 #else
     #define CX_PATH_FORMAT              L"%ls/lib/library.zip:%ls/lib"
 #endif
@@ -38,6 +39,7 @@ static char *g_argv0;
 static int SetExecutableName(void)
 {
     wchar_t *wptr;
+
 #ifdef MS_WINDOWS
     if (!GetModuleFileNameW(NULL, g_ExecutableName, MAXPATHLEN + 1))
         return FatalError("Unable to get executable name!");
@@ -118,6 +120,23 @@ static int SetExecutableName(void)
     return 0;
 }
 
+#ifdef MS_WINDOWS
+//-----------------------------------------------------------------------------
+// LoadPython3dll()
+//   Ensure python3.dll is loaded in some python versions (bpo-29778).
+//-----------------------------------------------------------------------------
+static int LoadPython3dll(void)
+{
+
+    if (LoadLibraryExW(PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR) == NULL)
+#ifdef __MINGW32__
+        return 0;
+#else
+        return FatalError("Unable to load python3.dll!");
+#endif
+    return 0;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // InitializePython()
@@ -131,6 +150,10 @@ static int InitializePython(int argc, wchar_t **argv)
     // determine executable name
     if (SetExecutableName() < 0)
         return -1;
+
+#ifdef MS_WINDOWS
+    LoadPython3dll();
+#endif
 
     // create sys.path
     size = wcslen(g_ExecutableDirName) * 2 + wcslen(CX_PATH_FORMAT) + 1;
