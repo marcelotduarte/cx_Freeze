@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Optional, Set, Tuple, Union
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
+from ._compat import cached_property
 from .common import (
     IncludesList,
     InternalIncludesList,
@@ -173,10 +174,7 @@ class Freezer:
 
         # handle post-copy tasks, including copying dependencies
         self._post_copy_hook(
-            source,
-            target,
-            copy_dependent_files=copy_dependent_files,
-            include_mode=include_mode,
+            source, target, copy_dependent_files, include_mode
         )
 
     def _copy_package_data(self, module: Module, target_dir: Path):
@@ -249,16 +247,12 @@ class Freezer:
         dependent_files = self.get_dependent_files(exe.base)
         if not dependent_files:
             dependent_files = self.get_dependent_files(Path(sys.executable))
-        python_libs = tuple(self._default_bin_includes())
-        python_dirs = {Path(sys.base_exec_prefix), Path(sys.exec_prefix)}
-        python_dirs.add(Path(sysconfig.get_config_var("srcdir")))  # Linux
-        for file in dependent_files:
-            python_dirs.add(file.parent)
-        for name in python_libs:
-            for python_dir in python_dirs:
-                source = python_dir / name
-                if source.is_file():
-                    dependent_files.add(source)
+        python_libs = self._default_bin_includes()
+        for path in self._default_bin_path_includes():
+            for file in python_libs:
+                dependent_file = Path(path, file)
+                if dependent_file.is_file():
+                    dependent_files.add(dependent_file)
                     break
         if not dependent_files:
             if self.silent < 3:
@@ -786,6 +780,7 @@ class WinFreezer(Freezer, PEParser):
             if norm_target_name in self.runtime_files_to_dup:
                 self.runtime_files_to_dup.remove(norm_target_name)
                 self._copy_file(source, target, copy_dependent_files=False)
+                self.files_copied.remove(target)
                 target = self.targetdir / norm_target_name
         return source, target
 
@@ -804,36 +799,43 @@ class WinFreezer(Freezer, PEParser):
             library_dir = self.targetdir / "lib"
             source_dir = source.parent
             target_dir = target.parent
+            platform_bin_path = self._platform_bin_path
             for dependent_source in self.get_dependent_files(source):
                 if not self._should_copy_file(dependent_source):
                     continue
-                # put it in the target_dir (or fixed location if C runtime)
-                dependent_source_name = dependent_source.name
+                # put the dependency in the target_dir (except C runtime)
+                dependent_srcdir = dependent_source.parent
+                dependent_name = dependent_source.name
                 try:
                     # dependency located with source or in a subdirectory
                     relative = dependent_source.relative_to(source_dir)
                     dependent_target = target_dir / relative
                 except ValueError:
-                    # check if dependency is located in a upper level
-                    try:
-                        dependent_source_dir = dependent_source.parent
-                        relative = source_dir.relative_to(dependent_source_dir)
-                        # fix the target_dir - go to the previous level
-                        parts = target_dir.parts[: -len(relative.parts)]
-                        dependent_target = Path(*parts) / dependent_source_name
-                    except ValueError:
-                        dependent_target = target_dir / dependent_source_name
+                    # check if dependency is on default binaries path
+                    if dependent_srcdir in platform_bin_path:
+                        dependent_target = library_dir / dependent_name
+                    else:
+                        # check if dependency is located in a upper level
+                        try:
+                            relative = source_dir.relative_to(dependent_srcdir)
+                            # fix the target_dir - go to the previous level
+                            parts = target_dir.parts[: -len(relative.parts)]
+                            dependent_target = Path(*parts) / dependent_name
+                        except ValueError:
+                            dependent_target = target_dir / dependent_name
+                # check to make sure the dependency is in the correct place
+                # because it can be outside of the python subtree
                 try:
                     dependent_target.relative_to(library_dir)
                 except ValueError:
-                    dependent_target = library_dir / dependent_source_name
+                    dependent_target = library_dir / dependent_name
                 else:
                     _, dependent_target = self._pre_copy_hook(
                         dependent_source, dependent_target
                     )
                     if dependent_target not in self.files_copied:
                         for file in self.files_copied:
-                            if file.match(dependent_source_name):
+                            if file.match(dependent_name):
                                 dependent_target = file
                                 break
                 self._copy_file(
@@ -863,14 +865,37 @@ class WinFreezer(Freezer, PEParser):
 
     def _default_bin_path_includes(self) -> List[str]:
         paths = {Path(path) for path in sys.path if path}
-        # force some paths for conda systems
-        paths.add(Path(sys.prefix, "DLLs"))
-        paths.add(Path(sys.prefix, "Library", "bin"))
-        # do the same for msys2, mingw32/64
-        if sysconfig.get_config_var("DESTSHARED"):
-            paths.add(Path(sysconfig.get_config_var("DESTSHARED")))
+        paths.update(self._platform_bin_path)
         # return only valid paths
         return [str(path) for path in paths if path.is_dir()]
+
+    @cached_property
+    def _platform_bin_path(self) -> List[Path]:
+        # try to find the paths (windows, conda-forge, msys2/mingw)
+        paths = set()
+        dest_shared = sysconfig.get_config_var("DESTSHARED")  # msys2
+        dest_relative = None
+        if dest_shared:
+            dest_shared = Path(dest_shared)
+            paths.add(dest_shared)
+            try:
+                dest_relative = dest_shared.relative_to(sys.prefix)
+            except ValueError:
+                pass
+        for prefix in [
+            sys.base_exec_prefix,
+            sys.base_prefix,
+            sys.exec_prefix,
+            sys.prefix,
+        ]:
+            prefix = Path(prefix)
+            paths.add(prefix / "bin")
+            paths.add(prefix / "DLLs")
+            paths.add(prefix / "Library/bin")
+            if dest_relative:
+                paths.add(prefix / dest_relative)
+        # return only valid paths
+        return [path for path in paths if path.is_dir()]
 
     def _platform_add_extra_dependencies(
         self, dependent_files: Set[Path]
