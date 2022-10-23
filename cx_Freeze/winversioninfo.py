@@ -220,7 +220,7 @@ class VersionInfo:
             if version_stamp is None:
                 raise RuntimeError("install pywin32 extensions first")
 
-            version_stamp(str(path), self)
+            version_stamp(os.fspath(path), self)
             return
 
         # internal

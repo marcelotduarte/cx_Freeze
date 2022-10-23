@@ -1,5 +1,6 @@
 """Shared fixtures"""
 
+import os
 from pathlib import Path
 
 import pytest
@@ -21,7 +22,7 @@ def fix_test_samples_path(fix_test_path: Path) -> Path:
 @pytest.fixture()
 def fix_test_samples_dir(fix_test_samples_path: Path) -> str:
     """This fixture returns the samples folder for the tests"""
-    return str(fix_test_samples_path)
+    return os.fspath(fix_test_samples_path)
 
 
 @pytest.fixture()

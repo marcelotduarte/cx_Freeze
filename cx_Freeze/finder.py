@@ -2,6 +2,7 @@
 
 import importlib.machinery
 import logging
+import os
 import sys
 from contextlib import suppress
 from importlib.abc import ExecutionLoader
@@ -363,7 +364,7 @@ class ModuleFinder:
             if path is None:
                 path = self.path
             else:
-                path = [str(p) for p in path]
+                path = list(map(os.fspath, path))
 
         if name in self.aliases:
             actual_name = self.aliases[name]
@@ -451,7 +452,7 @@ class ModuleFinder:
         deferred_imports: DeferredList,
     ) -> Optional[Module]:
         name = module.name
-        path = str(module.file)
+        path = os.fspath(module.file)
 
         if isinstance(loader, importlib.machinery.SourceFileLoader):
             logging.debug("Adding module [%s] [SOURCE]", name)
@@ -502,7 +503,7 @@ class ModuleFinder:
         loader: Optional[ExecutionLoader] = None
 
         ext = filename.suffix
-        path = str(filename)
+        path = os.fspath(filename)
         if ext == "" or ext in importlib.machinery.SOURCE_SUFFIXES:
             loader = importlib.machinery.SourceFileLoader(name, path)
         elif ext in importlib.machinery.BYTECODE_SUFFIXES:
@@ -589,7 +590,7 @@ class ModuleFinder:
                 )
 
         return code_object_replace(
-            code, co_consts=consts, co_filename=str(new_filename)
+            code, co_consts=consts, co_filename=os.fspath(new_filename)
         )
 
     def _run_hook(self, hook: str, module_name: str, *args) -> None:
@@ -628,7 +629,7 @@ class ModuleFinder:
                             insert_at = i
                             break
                 path = path.copy()
-                path.insert(insert_at, str(dynload))
+                path.insert(insert_at, os.fspath(dynload))
         return path
 
     def _scan_code(
