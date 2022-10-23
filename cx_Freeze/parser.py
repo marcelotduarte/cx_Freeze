@@ -71,9 +71,8 @@ class PEParser(Parser):
         libraries: List[str] = []
         if binary.has_imports:
             libraries += binary.libraries
-        if getattr(binary, "has_delay_imports", False):
-            for delay_import in binary.delay_imports:
-                libraries.append(delay_import.name)
+        for delay_import in binary.delay_imports:
+            libraries.append(delay_import.name)
 
         dependent_files: Set[Path] = set()
         orig_path: List[str] = os.environ["PATH"]
