@@ -2,6 +2,7 @@
 numpy package is included."""
 # pylint: disable=unused-argument
 
+import os
 import sys
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
@@ -31,7 +32,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
                 finder.include_files(path, dest_dir / path.name)
             for path in libs_dir.glob("lib*.dll"):
                 finder.include_files(path, dest_dir / path.name)
-            finder.add_constant("MKL_PATH", str(dest_dir))
+            finder.add_constant("MKL_PATH", os.fspath(dest_dir))
             finder.exclude_module("numpy.DLLs")
 
             # do not check dependencies already handled

@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 PySide6 package is included."""
 
+import os
 import sysconfig
 
 from ...common import get_resource_file_path
@@ -69,7 +70,7 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
 import PySide6._cx_freeze_qt_debug
 # cx_Freeze patch end
 """
-    module.code = compile(code_string, str(module.file), "exec")
+    module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
 __all__ = [

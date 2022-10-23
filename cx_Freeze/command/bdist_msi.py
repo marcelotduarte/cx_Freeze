@@ -184,7 +184,7 @@ class BdistMSI(bdist_msi):
                     [
                         (
                             f"S_APP_{idx}",
-                            str(executable.shortcut_dir),
+                            os.fspath(executable.shortcut_dir),
                             executable.shortcut_name,
                             "TARGETDIR",
                             f"[TARGETDIR]{base_name}",

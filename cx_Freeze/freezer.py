@@ -610,7 +610,7 @@ class Freezer:
             try:
                 if module.parent is not None:
                     path = os.pathsep.join(
-                        [origPath] + [str(p) for p in module.parent.path]
+                        [origPath] + list(map(os.fspath, module.parent.path))
                     )
                     os.environ["PATH"] = path
                 self._copy_file(module.file, target, copy_dependent_files=True)
@@ -867,7 +867,7 @@ class WinFreezer(Freezer, PEParser):
         paths = {Path(path) for path in sys.path if path}
         paths.update(self._platform_bin_path)
         # return only valid paths
-        return [str(path) for path in paths if path.is_dir()]
+        return [os.fspath(path) for path in paths if path.is_dir()]
 
     @cached_property
     def _platform_bin_path(self) -> List[Path]:
@@ -1146,7 +1146,7 @@ class LinuxFreezer(Freezer, ELFParser):
                             parts.pop(0)
                         relative = Path(*parts)
                         dependent_target = library_dir / relative
-                dep_libs = str(relative.parent)
+                dep_libs = os.fspath(relative.parent)
                 fix_rpath.add(dep_libs)
                 self._copy_file(
                     dependent_file, dependent_target, copy_dependent_files

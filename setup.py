@@ -49,7 +49,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             depends=ext.depends,
         )
         filename = Path(self.get_ext_filename(ext.name)).with_suffix("")
-        fullname = str(Path(self.build_lib, filename))
+        fullname = os.fspath(Path(self.build_lib, filename))
         library_dirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extra_args = ext.extra_link_args or []
@@ -151,7 +151,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             soabi = get_config_var("SOABI")
             suffix = ""
         name_base = f"{name}-{soabi}"
-        return str(ext_path.parent / (name_base + suffix))
+        return os.fspath(ext_path.parent / (name_base + suffix))
 
     @staticmethod
     def _get_dll_path(name: str) -> Path:
@@ -192,7 +192,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             # LLVM dlltool only supports generating an import library
             check_call(_make_strs(dlltool))
             library = name
-        return str(library_dir), library
+        return os.fspath(library_dir), library
 
     def _copy_libraries_to_bases(self):
         """Copy standard libraries to cx_Freeze wheel, on posix systems, when
@@ -220,7 +220,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         target_path = f"{bases}/tcltk/{source_path.name}"
         self.mkpath(target_path)
         for source in source_path.rglob("*"):
-            target = str(target_path / source.relative_to(source_path))
+            target = os.fspath(target_path / source.relative_to(source_path))
             if source.is_dir():
                 self.mkpath(target)
             else:
@@ -231,7 +231,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         target_path = f"{bases}/tcltk/{source_path.name}"
         self.mkpath(target_path)
         for source in source_path.rglob("*"):
-            target = str(target_path / source.relative_to(source_path))
+            target = os.fspath(target_path / source.relative_to(source_path))
             if source.is_dir():
                 self.mkpath(target)
             else:

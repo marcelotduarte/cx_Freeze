@@ -357,7 +357,7 @@ def _get_data_path():
         code_to_inject,
         code_to_inject.replace("_get_data_path", "get_data_path"),
     ]:
-        new_code = compile(code_str, str(module.file), "exec")
+        new_code = compile(code_str, os.fspath(module.file), "exec")
         co_func = new_code.co_consts[0]
         name = co_func.co_name
         code = module.code
@@ -513,7 +513,7 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
             or "/usr/share/zoneinfo"
         )
         if data_path.is_dir():
-            finder.add_constant("PYTZ_TZDATADIR", str(target_path))
+            finder.add_constant("PYTZ_TZDATADIR", os.fspath(target_path))
     if data_path.is_dir():
         if module.in_file_system >= 1:
             finder.include_files(
@@ -674,7 +674,7 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
         folders.append(("TK_LIBRARY", source_path))
     for env_name, source_path in folders:
         target_path = Path("lib", "tcltk", source_path.name)
-        finder.add_constant(env_name, str(target_path))
+        finder.add_constant(env_name, os.fspath(target_path))
         finder.include_files(source_path, target_path)
         if WIN32 and not MINGW:
             dll_name = source_path.name.replace(".", "") + "t.dll"
@@ -824,7 +824,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
             # in Linux: /usr/share/zoneinfo
             target = Path("lib", "tzdata", "zoneinfo")
             finder.include_files(source, target, copy_dependent_files=False)
-            finder.add_constant("PYTHONTZPATH", str(source))
+            finder.add_constant("PYTHONTZPATH", os.fspath(source))
     if tzdata is None:
         return
     # when the tzdata exists, copy other files in this directory

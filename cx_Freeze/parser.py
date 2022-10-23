@@ -153,7 +153,7 @@ class PEParser(Parser):
             builder.build_resources(True)
             builder.build()
             with TemporaryPath("temp.exe") as tmp_path:
-                builder.write(str(tmp_path))
+                builder.write(os.fspath(tmp_path))
                 tmp_path.replace(path)
         except lief.exception as exc:
             raise RuntimeError(exc) from None

@@ -445,7 +445,7 @@ def _printFile(
     Utility function to prints details about a DarwinFile and (optionally)
     recursively any other DarwinFiles that it references.
     """
-    print("{}{}".format(level * "|  ", str(darwinFile.path)), end="")
+    print("{}{}".format(level * "|  ", os.fspath(darwinFile.path)), end="")
     print(" (already seen)" if noRecurse else "")
     if noRecurse:
         return

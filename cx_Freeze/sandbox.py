@@ -18,7 +18,7 @@ def run_setup(setup_script: Union[str, Path], args: Sequence):
     """Run a cx_Freeze setup script, sandboxed in its directory."""
 
     if isinstance(setup_script, Path):
-        setup_script = str(setup_script)
+        setup_script = os.fspath(setup_script)
     setup_dir = os.path.abspath(os.path.dirname(setup_script))
     with _setup_context(setup_dir):
         try:

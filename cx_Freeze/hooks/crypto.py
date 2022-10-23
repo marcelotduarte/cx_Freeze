@@ -1,6 +1,8 @@
 """A collection of functions which are triggered automatically by finder when
 pycryptodome package is included."""
 
+import os
+
 from ..common import code_object_replace
 from ..finder import ModuleFinder
 from ..module import Module
@@ -59,7 +61,7 @@ def pycryptodome_filename(dir_comps, filename):
     return os.path.join(root_lib, ".".join(dir_comps))
 """
     if module.in_file_system == 0 and module.code is not None:
-        new_code = compile(code_to_inject, str(module.file), "exec")
+        new_code = compile(code_to_inject, os.fspath(module.file), "exec")
         co_func = new_code.co_consts[2]
         name = co_func.co_name
         code = module.code
