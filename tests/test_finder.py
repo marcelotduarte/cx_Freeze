@@ -1,5 +1,6 @@
 """Test ModuleFinder"""
 
+import os
 import sys
 
 import pytest
@@ -64,7 +65,7 @@ class TestModuleFinderWithConvertedNoseTests:
     def test_find_spec(self, mocker, fix_test_samples_path, fix_module_finder):
         """Sample find_spec contains broken modules."""
         path = fix_test_samples_path / "find_spec"
-        fix_module_finder.path.insert(0, str(path))
+        fix_module_finder.path.insert(0, os.fspath(path))
         module = fix_module_finder.include_module("hello")
         assert (
             "dummypackage" in module.global_names

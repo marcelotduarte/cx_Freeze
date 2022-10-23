@@ -1,6 +1,8 @@
 """A collection of functions which are triggered automatically by finder when
 PyQt5 package is included."""
 
+import os
+
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -66,7 +68,7 @@ import PyQt5._cx_freeze_add_library
 import PyQt5._cx_freeze_qt_debug
 # cx_Freeze patch end
 """
-    module.code = compile(code_string, str(module.file), "exec")
+    module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
 # pylint: disable-next=unused-argument
