@@ -14,6 +14,7 @@ from importlib.machinery import (
     PathFinder,
 )
 from sysconfig import get_platform
+from typing import List
 
 import BUILD_CONSTANTS
 
@@ -21,7 +22,7 @@ STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
 IS_MINGW = get_platform().startswith("mingw")
-IS_WINDOWS = get_platform().startswith("win") and not IS_MINGW
+IS_WINDOWS = get_platform().startswith("win")
 
 
 class ExtensionFinder(PathFinder):
@@ -61,12 +62,10 @@ def init():
     if IS_MINGW:
         sys.path = [os.path.normpath(entry) for entry in sys.path]
     if IS_WINDOWS or IS_MINGW:
-        # fix PATH for conda-forge and MSYS2
-        env_path = [
-            entry for entry in os.environ["PATH"].split(os.pathsep) if entry
-        ]
-        if IS_MINGW:
-            env_path = [os.path.normpath(entry) for entry in env_path]
+        # limit the PATH in all windows environments
+        windows_dir = os.path.normpath(os.environ.get("WINDIR", "C:\\Windows"))
+        system_dir = os.path.join(windows_dir, "System32")
+        env_path: List[str] = sys.path.copy() + [windows_dir, system_dir]
         add_to_path = os.path.join(frozen_dir, "lib")
         if add_to_path not in env_path:
             env_path.insert(0, add_to_path)
@@ -76,7 +75,10 @@ def init():
             env_path.append(os.path.normpath(add_to_path))
         if hasattr(os, "add_dll_directory"):
             for directory in env_path:
-                os.add_dll_directory(directory)
+                try:
+                    os.add_dll_directory(directory)
+                except OSError:
+                    pass
         if IS_MINGW:
             env_path = [entry.replace(os.sep, os.altsep) for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
