@@ -54,7 +54,7 @@ repos:
   - id: flake8
 
 - repo: https://github.com/PyCQA/pylint
-  rev: v2.15.4
+  rev: v2.15.5
   hooks:
   - id: pylint
     name: pylint
