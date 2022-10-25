@@ -1,9 +1,6 @@
 """
-A simple setup script to create an executable using PyQt5. This also
-demonstrates the method for creating a Windows executable that does not have
-an associated console.
-
-test_pyqt5.py is a very simple type of PyQt5 application
+A simple setup script to create an executable using PyQt6-WebEngine.
+This also demonstrates how to use excludes to get minimal package size.
 
 Run the build process by running the command 'python setup.py build'
 
@@ -39,36 +36,26 @@ if get_qt_plugins_paths:
         # "wayland-graphics-integration-server",
         "wayland-shell-integration",
     ):
-        include_files += get_qt_plugins_paths("PyQt5", plugin_name)
+        include_files += get_qt_plugins_paths("PyQt6", plugin_name)
 
-# base="Win32GUI" should be used only for Windows GUI app
 base = "Win32GUI" if sys.platform == "win32" else None
 
 build_exe_options = {
+    "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     "include_files": include_files,
-    "zip_include_packages": ["PyQt5"],
+    "zip_include_packages": ["PyQt6"],
 }
 
-bdist_mac_options = {
-    "bundle_name": "Test",
-}
-
-bdist_dmg_options = {
-    "volume_label": "TEST",
-}
-
-executables = [Executable("test_pyqt5.py", base=base)]
+executables = [
+    Executable("simplebrowser.py", target_name="test_simplebrowser")
+]
 
 setup(
-    name="simple_PyQt5",
-    version="0.4",
-    description="Sample cx_Freeze PyQt5 script",
-    options={
-        "build_exe": build_exe_options,
-        "bdist_mac": bdist_mac_options,
-        "bdist_dmg": bdist_dmg_options,
-    },
+    name="simplebrowser",
+    version="0.1",
+    description="Sample cx_Freeze PyQt6 simplebrowser script",
+    options={"build_exe": build_exe_options},
     executables=executables,
 )
