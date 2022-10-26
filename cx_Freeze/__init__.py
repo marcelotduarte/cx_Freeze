@@ -43,7 +43,7 @@ else:
 
     __all__.append(bdist_rpm.__name__)
 
-__version__ = "6.13.0-dev0"
+__version__ = "6.13.0"
 
 
 def _add_command_class(command_classes, name, cls):
