@@ -16,7 +16,10 @@ pip install --upgrade cx_Freeze
 ```
 
 To install the latest development build:
+
 ```
+pip install --pre -f https://lief.s3-website.fr-par.scw.cloud/latest/lief/ lief
+pip install --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Logging
 pip install --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
 ```
 
@@ -33,19 +36,18 @@ The official documentation is available
 
 If you need help you can also ask on the [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
-# Highlights of Version 6.12:
-- Improve tkinter hook to work on all OS
-- Improved PyQt5/Pyside2 hooks and new hook for PySide6
-- Linux binary wheels for arm64 (aarch64)
+# Highlights of Version 6.13:
+- New hooks for PyQt6 (6.3.1 and 6.4.0)
+- Improved hooks to support new PySide6 6.4.0
 - Bug fixes and improvements
 
-# Highlights of Version 6.2 up to 6.11:
-- Binary wheels for manylinux and macOS (including Apple Silicon)
-- Complete integration to setuptools instead of distutils
+# Highlights of Version 6.2 up to 6.12:
+- Binary wheels (x86_64 and aarch64) for manylinux and macOS (including Apple Silicon)
+- New or improved hooks, especially matplotlib, numpy, PyQt5, PySide2, PySide6 and Tkinter
 - Support Application Manifests in Windows: manifest and uac-admin
+- Complete integration to setuptools instead of distutils
 - New dependency resolver on Windows
 - Support for pathlib.Path
-- New or improved hooks, with emphasis on matplotlib, numpy, PyQt5 and PySide2
 - New ModuleFinder engine uses importlib.machinery
 - Refactored Freezer
 - New support for package metadata improving Module and new DitributionCache
