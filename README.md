@@ -38,7 +38,7 @@ If you need help you can also ask on the [discussion](https://github.com/marcelo
 
 # Highlights of Version 6.13:
 - New hooks for PyQt6 (6.3.1 and 6.4.0)
-- Improved hooks for PySide6 6.4.0 in Windows and MingW
+- Improved hooks to support new PySide6 6.4.0
 - Bug fixes and improvements
 
 # Highlights of Version 6.2 up to 6.12:
