@@ -9,7 +9,7 @@ import sys
 from abc import ABC, abstractmethod
 from contextlib import suppress
 from pathlib import Path
-from subprocess import PIPE, CalledProcessError, check_call, check_output, run
+from subprocess import CalledProcessError, check_call, check_output, run
 from typing import Any, Dict, List, Set, Union
 
 from .common import TemporaryPath
@@ -196,9 +196,7 @@ class ELFParser(Parser):
         split_string = " => "
         dependent_file_index = 1
         args = ("ldd", path)
-        process = run(
-            args, check=False, stdout=PIPE, stderr=PIPE, encoding="utf-8"
-        )
+        process = run(args, check=False, capture_output=True, encoding="utf-8")
         for line in process.stdout.splitlines():
             parts = line.expandtabs().strip().split(split_string)
             if len(parts) != 2:

@@ -28,9 +28,6 @@ WIN32 = sys.platform == "win32"
 DARWIN = sys.platform == "darwin"
 IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 
-if sys.version_info < (3, 6, 0):
-    sys.exit("Python3 versions lower than 3.6.0 are not supported.")
-
 
 class BuildBases(setuptools.command.build_ext.build_ext):
     """Build C bases and extension."""
