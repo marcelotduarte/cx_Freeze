@@ -1,14 +1,14 @@
 [build-system]
 requires = [
     "setuptools>=59.0.1",
-    "wheel>=0.36.2",
+    "wheel>=0.37.1",
     "cx-logging>=3.0 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 79
-target-version = ["py36"]
+target-version = ["py37"]
 exclude = "tests/samples/invalid_syntax.py"
 
 [tool.isort]
@@ -28,7 +28,7 @@ master.ignore-paths = """
 ^tests/samples/.*.py$,
 ^doc/src/conf.py$
 """
-master.py-version = "3.6"
+master.py-version = "3.7"
 messages_control.disable = [
     "duplicate-code",
     "fixme",
