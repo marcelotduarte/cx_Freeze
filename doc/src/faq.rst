@@ -148,3 +148,13 @@ into a self-extracting archive:
 * `IExpress <https://en.wikipedia.org/wiki/IExpress>`_
 
 * `7zip sfx <https://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_
+
+cx_Freeze licensing
+-------------------
+
+**cx_Freeze** does not support building a single file exe, where all of the
+libraries for your application are embedded in one executable file.
+
+You can use other tools to compress the build directory from **cx_Freeze**
+into a self-extracting archive:
+[complete]
