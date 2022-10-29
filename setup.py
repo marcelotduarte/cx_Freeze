@@ -245,8 +245,44 @@ def _make_strs(paths: List[Union[str, Path]]) -> List[str]:
         return paths
     return list(map(os.fspath, paths))
 
+def updateFrozenLicense():
+    """Updates the license text that is incorporated in frozen programs
+     (in cx_Freeze/freeze_license/cx_frozen_license.txt) to ensure it is
+     in sync with the cx_Freeze license in documentation."""
+    srcpath = os.path.join("doc","src","license.rst")
+    dstpath = os.path.join("cx_Freeze","freeze_license", "cx_frozen_license.txt")
+    frozen_header = """Why this file is included
+=========================
+
+This program has been frozen with cx_Freeze.  The freezing process
+resulted in certain components from the cx_Freeze software being included
+in the frozen application, in particular bootstrap code for launching
+the frozen python script.  The cx_Freeze software is subject to the
+license set out below.
+"""
+    try:
+        with open(srcpath, "r") as f:
+            content = f.read()
+    except Exception:
+        print("** Error reading source license text **")
+        return
+    lines = [c for c in content.splitlines()]
+    lines = lines[1:]
+    content = frozen_header + "\n".join(lines)
+    try:
+        with open(dstpath, "w") as f:
+            f.write(content)
+    except Exception:
+        print("** Error updating frozen license text **")
+        return
+    return
+
 
 if __name__ == "__main__":
+    # ensure that the correct license text will be included in
+    # frozen applications
+    updateFrozenLicense()
+
     # build base executables
     depends = ["source/bases/common.c"]
     console = Extension(
