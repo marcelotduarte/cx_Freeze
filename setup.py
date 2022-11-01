@@ -276,7 +276,7 @@ license set out below.
     lines = lines[1:]
     content = frozen_header + "\n".join(lines) + "\n"
     try:
-        with open(dstpath, "w") as frozen_license_file:
+        with open(dstpath, "w", encoding="utf-8") as frozen_license_file:
             frozen_license_file.write(content)
     except OSError as io_error:
         print(f"** Error updating frozen license text ({io_error}) **")
