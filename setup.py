@@ -266,9 +266,11 @@ license set out below.
     try:
         with open(srcpath, encoding="utf-8") as license_doc:
             content = license_doc.read()
-    except (IOError, FileNotFoundError):
-        print("** Error reading source license text.  Check that the "
-              "license.rst file is included in doc directory. **")
+    except (OSError, FileNotFoundError):
+        print(
+            "** Error reading source license text.  Check that the "
+            "license.rst file is included in doc directory. **"
+        )
         return
     lines = list(content.splitlines())
     lines = lines[1:]
@@ -276,7 +278,7 @@ license set out below.
     try:
         with open(dstpath, "w") as frozen_license_file:
             frozen_license_file.write(content)
-    except IOError as io_error:
+    except OSError as io_error:
         print(f"** Error updating frozen license text ({io_error}) **")
         return
     return

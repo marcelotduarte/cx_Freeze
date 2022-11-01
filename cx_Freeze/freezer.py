@@ -285,8 +285,9 @@ class Freezer:
             "initscripts", "frozen_application_license", ".txt"
         )
         if respath is None:
-            raise Exception("Unable to find license "
-                            "for frozen application.")
+            raise Exception(
+                "Unable to find license for frozen application."
+            )
         self._copy_file(
             respath.absolute(),
             self.targetdir / "frozen_application_license.txt",
