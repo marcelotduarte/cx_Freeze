@@ -264,12 +264,12 @@ the frozen python script.  The cx_Freeze software is subject to the
 license set out below.
 """
     try:
-        with open(srcpath, "r") as f:
+        with open(srcpath, encoding="utf-8") as f:
             content = f.read()
     except Exception:
         print("** Error reading source license text **")
         return
-    lines = [c for c in content.splitlines()]
+    lines = list( content.splitlines() )
     lines = lines[1:]
     content = frozen_header + "\n".join(lines) + "\n"
     try:
