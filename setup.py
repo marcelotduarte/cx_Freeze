@@ -263,7 +263,7 @@ the frozen python script.  The cx_Freeze software is subject to the
 license set out below.
 """
     try:
-        with open(srcpath) as f:
+        with open(srcpath, "r") as f:
             content = f.read()
     except Exception:
         print("** Error reading source license text **")
