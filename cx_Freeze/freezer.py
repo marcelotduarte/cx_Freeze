@@ -282,11 +282,14 @@ class Freezer:
 
         # copy a file with a the cx_freeze license into frozen application
         respath = get_resource_file_path(
-            "freeze_license", "cx_frozen_license", ".txt"
+            "initscripts", "frozen_application_license", ".txt"
         )
+        if respath is None:
+            raise Exception("Unable to find license "
+                            "for frozen application.")
         self._copy_file(
             respath.absolute(),
-            self.targetdir / "cx_frozen_application_license.txt",
+            self.targetdir / "frozen_application_license.txt",
             copy_dependent_files=False,
             include_mode=False,
         )

@@ -252,7 +252,7 @@ def update_frozen_license():
     in sync with the cx_Freeze license in documentation."""
     srcpath = os.path.join("doc", "src", "license.rst")
     dstpath = os.path.join(
-        "cx_Freeze", "freeze_license", "cx_frozen_license.txt"
+        "cx_Freeze", "initscripts", "frozen_application_license.txt"
     )
     frozen_header = """Why this file is included
 =========================
@@ -324,9 +324,4 @@ if __name__ == "__main__":
         cmdclass={"build_ext": BuildBases},
         options={"install": {"optimize": 1}},
         ext_modules=extensions,
-        package_data={
-            "cx_Freeze": [
-                os.path.join("freeze_license", "cx_frozen_license.txt")
-            ]
-        },  # copy the license file into the package
     )
