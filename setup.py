@@ -245,6 +245,7 @@ def _make_strs(paths: List[Union[str, Path]]) -> List[str]:
         return paths
     return list(map(os.fspath, paths))
 
+
 def updateFrozenLicense():
     """Updates the license text that is incorporated in frozen programs
     (in cx_Freeze/freeze_license/cx_frozen_license.txt) to ensure it is
