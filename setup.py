@@ -246,7 +246,7 @@ def _make_strs(paths: List[Union[str, Path]]) -> List[str]:
     return list(map(os.fspath, paths))
 
 
-def updateFrozenLicense():
+def update_frozen_license():
     """Updates the license text that is incorporated in frozen programs
     (in cx_Freeze/freeze_license/cx_frozen_license.txt) to ensure it is
     in sync with the cx_Freeze license in documentation."""
@@ -264,19 +264,20 @@ the frozen python script.  The cx_Freeze software is subject to the
 license set out below.
 """
     try:
-        with open(srcpath, encoding="utf-8") as f:
-            content = f.read()
-    except Exception:
-        print("** Error reading source license text **")
+        with open(srcpath, encoding="utf-8") as license_doc:
+            content = license_doc.read()
+    except (IOError, FileNotFoundError):
+        print("** Error reading source license text.  Check that the "
+              "license.rst file is included in doc directory. **")
         return
-    lines = list( content.splitlines() )
+    lines = list(content.splitlines())
     lines = lines[1:]
     content = frozen_header + "\n".join(lines) + "\n"
     try:
-        with open(dstpath, "w") as f:
-            f.write(content)
-    except Exception:
-        print("** Error updating frozen license text **")
+        with open(dstpath, "w") as frozen_license_file:
+            frozen_license_file.write(content)
+    except IOError as io_error:
+        print(f"** Error updating frozen license text ({io_error}) **")
         return
     return
 
@@ -284,7 +285,7 @@ license set out below.
 if __name__ == "__main__":
     # ensure that the correct license text will be included in
     # frozen applications
-    updateFrozenLicense()
+    update_frozen_license()
 
     # build base executables
     depends = ["source/bases/common.c"]
