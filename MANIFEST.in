@@ -2,6 +2,7 @@ include Makefile
 include requirements.txt
 include requirements-dev.txt
 recursive-include cx_Freeze/hooks *.conf *.sh *.qrc
+recursive-include cx_Freeze/initscripts *.txt
 recursive-include samples *.py *.md *.ico *.png *.xaml
 recursive-include doc *.rst *.py Makefile
 recursive-include source *.c *.h *.rc *.txt

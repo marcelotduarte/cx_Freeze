@@ -109,7 +109,7 @@ Microsoft Visual C++ Redistributable Package
 
 Python 3.6-3.10 on Windows requires the Visual C++ Redistributable for Visual
 Studio 2015, 2017 or 2019 (the redistributables are shared), and because of how
-this is installed, cx_Freeze doesn't automatically copy it for your application.
+this is installed, **cx_Freeze** doesn't automatically copy it for your application.
 
 You're responsible for checking the license conditions associated with the DLLs
 you have installed.
@@ -148,3 +148,17 @@ into a self-extracting archive:
 * `IExpress <https://en.wikipedia.org/wiki/IExpress>`_
 
 * `7zip sfx <https://7zip.bugaco.com/7zip/MANUAL/switches/sfx.htm>`_
+
+License for frozen programs
+---------------------------
+
+When a python script is frozen with **cx_Freeze**, a small amount of **cx_Freeze**
+code is incorporated into the frozen program.  That code is used to
+setup and start python, and execute the frozen script, when the frozen program
+is launched. The incorporated **cx_Freeze** code is covered by the terms of the
+**cx_Freeze** :doc:`license`, which requires a copy of the license to be
+included with the frozen program.
+
+In order to make it easy to comply with this requirement, **cx_Freeze** will
+automatically include a copy of the license, as a text file, as part of
+the frozen program.
