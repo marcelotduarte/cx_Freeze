@@ -62,23 +62,30 @@ def init():
     if IS_MINGW:
         sys.path = [os.path.normpath(entry) for entry in sys.path]
     if IS_WINDOWS or IS_MINGW:
-        # limit the PATH in all windows environments
-        windows_dir = os.path.normpath(os.environ.get("WINDIR", "C:\\Windows"))
-        system_dir = os.path.join(windows_dir, "System32")
-        env_path: List[str] = sys.path.copy() + [windows_dir, system_dir]
+        # for python >= 3.8, the search for dlls is sandboxed
+        search_path: List[str] = [
+            entry for entry in sys.path if os.path.isdir(entry)
+        ]
         add_to_path = os.path.join(frozen_dir, "lib")
-        if add_to_path not in env_path:
-            env_path.insert(0, add_to_path)
+        if add_to_path not in search_path:
+            search_path.insert(0, add_to_path)
         # add numpy+mkl to the PATH
         if hasattr(BUILD_CONSTANTS, "MKL_PATH"):
             add_to_path = os.path.join(frozen_dir, BUILD_CONSTANTS.MKL_PATH)
-            env_path.append(os.path.normpath(add_to_path))
-        if hasattr(os, "add_dll_directory"):
-            for directory in env_path:
-                try:
-                    os.add_dll_directory(directory)
-                except OSError:
-                    pass
+            search_path.append(os.path.normpath(add_to_path))
+        # add to dll search path (or to path)
+        env_path = os.environ["PATH"].split(os.pathsep)
+        if IS_MINGW:
+            env_path = [os.path.normpath(entry) for entry in env_path]
+        for directory in search_path:
+            try:
+                os.add_dll_directory(directory)
+            except OSError:
+                pass
+            except AttributeError:
+                # add to path only when python < 3.8
+                if directory not in env_path:
+                    env_path.insert(0, directory)
         if IS_MINGW:
             env_path = [entry.replace(os.sep, os.altsep) for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
