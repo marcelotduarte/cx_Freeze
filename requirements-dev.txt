@@ -1,8 +1,7 @@
 --extra-index-url https://marcelotduarte.github.io/packages/
 
-
 packaging>=21.3
-setuptools>=59.0.1,<66
+setuptools>=61.2,<66
 cx-logging>=3.0 ;sys_platform == 'win32'
 importlib-metadata>=4.8.3 ;python_version < '3.10'
 lief>=0.12.0 ;sys_platform == 'win32'
@@ -10,10 +9,11 @@ patchelf>=0.13 ;sys_platform == 'linux'
 
 # dev
 bump2version>=1.0.1
+cibuildwheel>=2.10.2 ;sys_platform == 'linux' or sys_platform == 'darwin'
 pre-commit>=2.20.0
 pylint>=2.15.4
+tomli>=2.0.1
 wheel>=0.37.1
-cibuildwheel>=2.10.2 ;sys_platform == 'linux' or sys_platform == 'darwin'
 # doc
 sphinx>=5.0.1,<5.2.0
 sphinx-rtd-theme==1.0.0
