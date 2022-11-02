@@ -74,6 +74,14 @@ repos:
 
 - repo: local
   hooks:
+  - id: license
+    name: license
+    language: system
+    entry: python ci/license.py
+    files: ^cx_Freeze/initscripts/frozen_application_license.txt$
+
+- repo: local
+  hooks:
   - id: requirements
     name: requirements
     language: system

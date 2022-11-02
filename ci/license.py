@@ -1,0 +1,46 @@
+"""License sync."""
+
+import sys
+from pathlib import Path
+
+FROZEN_HEADER = """Why this file is included
+=========================
+
+This program has been frozen with cx_Freeze.  The freezing process
+resulted in certain components from the cx_Freeze software being included
+in the frozen application, in particular bootstrap code for launching
+the frozen python script.  The cx_Freeze software is subject to the
+license set out below.
+"""
+ERROR1 = """Error reading source license text.  Check that the license.rst
+file is included in doc directory."""
+ERROR2 = "Error updating frozen license text"
+
+
+def update_frozen_license() -> int:
+    """Updates the license text that is incorporated in frozen programs
+    (in cx_Freeze/initscripts/frozen_application_license.txt) to ensure
+    it is in sync with the cx_Freeze license in documentation."""
+
+    srcpath = Path("doc/src/license.rst")
+    dstpath = Path("cx_Freeze/initscripts/frozen_application_license.txt")
+    try:
+        content = srcpath.read_text(encoding="utf-8")
+    except OSError:
+        print(ERROR1, file=sys.stderr)
+        return 1
+    content = FROZEN_HEADER + "\n".join(content.splitlines()[1:]) + "\n"
+    try:
+        dstpath.write_text(content, encoding="utf-8")
+    except OSError as io_error:
+        print(ERROR2, f"({io_error}).", file=sys.stderr)
+        return 1
+    else:
+        print(dstpath, "ok")
+    return 0
+
+
+if __name__ == "__main__":
+    # ensure that the correct license text will be included in
+    # frozen applications
+    sys.exit(update_frozen_license())
