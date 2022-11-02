@@ -1,10 +1,104 @@
 [build-system]
 requires = [
-    "setuptools>=59.0.1",
+    "setuptools>=61.2",
     "wheel>=0.37.1",
     "cx-logging>=3.0 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "cx_Freeze"
+version = "6.14.0-dev0"
+description = "Create standalone executables from Python scripts"
+authors = [{name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}]
+maintainers = [{name = "Marcelo Duarte", email = "marcelotduarte@users.noreply.github.com"}]
+license = {text = "Python Software Foundation License"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Python Software Foundation License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Software Distribution",
+    "Topic :: Utilities",
+]
+keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
+requires-python = ">=3.7.4"
+dependencies = [
+    "packaging>=21.3",
+    "setuptools>=61.2,<66",
+    "cx-logging>=3.0 ;sys_platform == 'win32' and python_version < '3.10'",
+    "importlib-metadata>=4.8.3 ;python_version < '3.10'",
+    "lief>=0.12.0 ;sys_platform == 'win32'",
+    "patchelf>=0.13 ;sys_platform == 'linux'",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://marcelotduarte.github.io/cx_Freeze"
+"Bug Tracker" = "https://github.com/marcelotduarte/cx_Freeze/issues"
+"CI: GitHub Workflows" = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
+"Source Code" = "https://github.com/marcelotduarte/cx_Freeze"
+
+[project.optional-dependencies]
+dev = [
+    "bump2version>=1.0.1",
+    "cibuildwheel>=2.10.2 ;sys_platform == 'linux' or sys_platform == 'darwin'",
+    "pre-commit>=2.20.0",
+    "pylint>=2.15.4",
+    "tomli>=2.0.1",
+    "wheel>=0.37.1",
+]
+doc = [
+    "sphinx>=5.0.1,<5.2.0",
+    "sphinx-rtd-theme==1.0.0",
+]
+test = [
+    "nose==1.3.7",
+    "pygments>=2.13.0",
+    "pytest>=7.1.3",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-timeout>=2.1.0",
+]
+
+[project.scripts]
+cxfreeze = "cx_Freeze.cli:main"
+cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+license-files = ["doc/src/license.rst"]
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.distutils.bdist_wheel]
+universal = 0
+
+[tool.flake8]
+exclude = """
+.git,
+__pycache__,
+doc/src/conf.py"""
+ignore = """
+E203, W503, # Incompatible with black see https://github.com/ambv/black/issues/315
+E266,"""
+inline-quotes = "double"
 
 [tool.black]
 line-length = 79
@@ -58,7 +152,9 @@ build-frontend = "build"
 build-verbosity = "1"
 
 [tool.cibuildwheel.linux]
-before-build = "(cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz)"
+before-build = """
+cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
+"""
 build = "cp3*-manylinux_*"
 archs = "x86_64 aarch64"
 repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"

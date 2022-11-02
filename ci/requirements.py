@@ -1,20 +1,22 @@
 """Requirements sync."""
 
 import sys
-from configparser import ConfigParser
 from pathlib import Path
+
+import tomli
 
 
 def main():
     """Entry point."""
 
-    config = ConfigParser()
-    files = config.read(["setup.cfg", "../setup.cfg"])
-    if not files:
-        print("setup.cfg not found", file=sys.stderr)
+    pyproject_toml = Path("pyproject.toml")
+    if not pyproject_toml.exists():
+        print("pyproject.toml not found", file=sys.stderr)
         sys.exit(1)
+    with pyproject_toml.open("rb") as file:
+        config = tomli.load(file)
 
-    root_dir = Path(files[0]).parent
+    root_dir = pyproject_toml.parent
     requirements = root_dir / "requirements.txt"
     requires_dev = root_dir / "requirements-dev.txt"
 
@@ -24,11 +26,13 @@ def main():
     ]
 
     try:
-        install_requires = config["options"]["install_requires"].splitlines()
-        for line in install_requires:
-            if " and python_version < '3.10'" in line:
-                line = line.replace(" and python_version < '3.10'", "")
-            contents.append(line)
+        dependencies = config["project"]["dependencies"]
+        for dependency in dependencies:
+            if " and python_version < '3.10'" in dependency:
+                dependency = dependency.replace(
+                    " and python_version < '3.10'", ""
+                )
+            contents.append(dependency)
         contents.append("")
         with requirements.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(contents))
@@ -38,9 +42,11 @@ def main():
         print(requirements, "ok")
 
     try:
-        extras_require = config["options.extras_require"]
-        for extra, require in extras_require.items():
-            contents.append(f"# {extra}\n{require}".replace("\n\n", "\n"))
+        extras_require = config["project"]["optional-dependencies"]
+        for extra, dependencies in extras_require.items():
+            contents.append(f"# {extra}")
+            for dependency in dependencies:
+                contents.append(dependency)
         contents.append("")
         with requires_dev.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(contents))
