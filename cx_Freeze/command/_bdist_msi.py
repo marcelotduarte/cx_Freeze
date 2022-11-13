@@ -7,11 +7,24 @@ Borrowed from distutils.command.bdist_msi of Python 3.8
 """
 
 import logging
-import msilib
 import os
 import shutil
 import sys
-from msilib import Dialog, Directory, Feature, add_data, schema, sequence, text
+from msilib import (  # pylint: disable=deprecated-module
+    CAB,
+    Binary,
+    Dialog,
+    Directory,
+    Feature,
+    Win64,
+    add_data,
+    add_tables,
+    gen_uuid,
+    init_database,
+    schema,
+    sequence,
+    text,
+)
 from sysconfig import get_platform, get_python_version
 
 from packaging.version import Version
@@ -216,15 +229,15 @@ class bdist_msi(Command):
             product_name = f"Python {self.target_version} {fullname}"
         else:
             product_name = f"Python {fullname}"
-        self.db = msilib.init_database(
+        self.db = init_database(
             installer_name,
             schema,
             product_name,
-            msilib.gen_uuid(),
+            gen_uuid(),
             base_version,
             author,
         )
-        msilib.add_tables(self.db, sequence)
+        add_tables(self.db, sequence)
         props = [("DistVersion", version)]
         email = metadata.author_email or metadata.maintainer_email
         if email:
@@ -255,7 +268,7 @@ class bdist_msi(Command):
 
     def add_files(self):
         db = self.db
-        cab = msilib.CAB("distfiles")
+        cab = CAB("distfiles")
         rootdir = os.path.abspath(self.bdist_dir)
 
         root = Directory(db, cab, None, rootdir, "TARGETDIR", "SourceDir")
@@ -347,7 +360,7 @@ class bdist_msi(Command):
             exe_action = f"PythonExe{ver}"
             target_dir_prop = f"TARGETDIR{ver}"
             exe_prop = f"PYTHON{ver}"
-            if msilib.Win64:
+            if Win64:
                 # type_: msidbLocatorTypeRawValue + msidbLocatorType64bit
                 type_ = 2 + 16
             else:
@@ -449,9 +462,7 @@ class bdist_msi(Command):
                 file.write('rem ="""\n%1 %0\nexit\n"""\n')
                 with open(self.pre_install_script, encoding="utf-8") as fin:
                     file.write(fin.read())
-            add_data(
-                self.db, "Binary", [("PreInstall", msilib.Binary(scriptfn))]
-            )
+            add_data(self.db, "Binary", [("PreInstall", Binary(scriptfn))])
             add_data(
                 self.db,
                 "CustomAction",

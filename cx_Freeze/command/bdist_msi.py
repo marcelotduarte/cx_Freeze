@@ -2,7 +2,7 @@
 
 import importlib
 import logging
-import msilib
+import msilib  # pylint: disable=deprecated-module
 import os
 import re
 import shutil
