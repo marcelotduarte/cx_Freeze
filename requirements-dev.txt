@@ -9,7 +9,7 @@ patchelf>=0.13 ;sys_platform == 'linux'
 
 # dev
 bump2version>=1.0.1
-cibuildwheel>=2.10.2 ;sys_platform == 'linux' or sys_platform == 'darwin'
+cibuildwheel>=2.11.2
 pre-commit>=2.20.0
 pylint>=2.15.4
 tomli>=2.0.1
