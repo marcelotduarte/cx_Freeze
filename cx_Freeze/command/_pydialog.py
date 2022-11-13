@@ -1,6 +1,6 @@
 """Extend msilib Dialog."""
 
-from msilib import Dialog
+from msilib import Dialog  # pylint: disable=deprecated-module
 
 
 class PyDialog(Dialog):
