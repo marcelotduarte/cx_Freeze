@@ -51,7 +51,7 @@ If you need help you can also ask on the [discussion](https://github.com/marcelo
 - New ModuleFinder engine uses importlib.machinery
 - Refactored Freezer
 - New support for package metadata improving Module and new DitributionCache
-- Enhanced support for Python 3.8 to 3.10, including MSYS2 and Anaconda distributions
+- Enhanced support for Python 3.8 to 3.11, including MSYS2 and Anaconda distributions
 - Improvements for multiprocessing
 - Optimizations in detection and distribution of libraries
 - Code modernization
