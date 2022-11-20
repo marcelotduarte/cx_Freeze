@@ -149,22 +149,20 @@ filterwarnings = [
 ]
 
 [tool.cibuildwheel]
+build = "cp3*"
 build-frontend = "build"
 build-verbosity = "1"
 
 [tool.cibuildwheel.linux]
+archs = "x86_64 aarch64"
 before-build = """
 cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
 """
-build = "cp3*-manylinux_*"
-archs = "x86_64 aarch64"
 repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
-build = "cp3*-macosx_*"
 archs = "x86_64 universal2 arm64"
 skip = "cp38-macosx_universal2 cp38-macosx_arm64"
-dependency-versions = "latest"
 repair-wheel-command = """
 delocate-listdeps {wheel} &&
 delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
