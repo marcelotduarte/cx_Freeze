@@ -269,7 +269,6 @@ if __name__ == "__main__":
             ["source/bases/Win32Service.c"],
             depends=depends,
             extra_link_args=["/DELAYLOAD:cx_Logging"],
-            include_dirs=["source/bases"],
             libraries=["advapi32"],
         )
         extensions.append(service)
