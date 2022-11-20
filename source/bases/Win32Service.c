@@ -9,7 +9,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Winsvc.h>
-#define OLECHAR WCHAR
 #include <cx_Logging.h>
 
 // define constants

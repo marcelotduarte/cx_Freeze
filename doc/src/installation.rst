@@ -28,7 +28,7 @@ Python requirements are installed automatically by pip or conda.
   .. code-block:: console
 
    C compiler                  (required if installing from sources)
-   cx_Logging >= 3.0           (Windows only)
+   cx_Logging >= 3.1           (Windows only)
    importlib-metadata >= 4.8.3 (Python < 3.10)
    lief >= 0.11.5              (Windows only)
    packaging >= 21.0

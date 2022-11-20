@@ -19,7 +19,7 @@ In a virtual environment, install by issuing the command:
 pip install --upgrade cx_Freeze cx_Logging
 ```
 
-cx_Logging 3.0 has support for Python 3.6 up to 3.9.
+cx_Logging 3.1 has support for Python 3.7 up to 3.11.
 
 # Build the executable:
 

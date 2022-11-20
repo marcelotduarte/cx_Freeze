@@ -18,8 +18,6 @@ pip install --upgrade cx_Freeze
 To install the latest development build:
 
 ```
-pip install --pre -f https://lief.s3-website.fr-par.scw.cloud/latest/lief/ lief
-pip install --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Logging
 pip install --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
 ```
 
