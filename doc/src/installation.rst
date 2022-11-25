@@ -29,7 +29,6 @@ Python requirements are installed automatically by pip or conda.
 
    C compiler                  (required if installing from sources)
    cx_Logging >= 3.1           (Windows only)
-   importlib-metadata >= 4.8.3 (Python < 3.10)
    lief >= 0.11.5              (Windows only)
    packaging >= 21.0
    patchelf >= 0.12            (Linux)
@@ -92,7 +91,6 @@ using the same channel:
    python
    c-compiler
    libpython-static (for python >=3.8 in linux and macOS)
-   importlib-metadata
    py-lief (Windows)
    patchelf (Linux)
    declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9+ in macOS)
@@ -107,7 +105,7 @@ An example using Miniconda3:
     # For macOS and Linux
     conda create -n cx39conda -c conda-forge python=3.9 libpython-static -y
     conda activate cx39conda
-    conda install -c conda-forge c-compiler importlib-metadata patchelf -y
+    conda install -c conda-forge c-compiler patchelf -y
     pip install --no-binary=cx_Freeze --pre cx_Freeze -v
 
 Download tarball or wheels

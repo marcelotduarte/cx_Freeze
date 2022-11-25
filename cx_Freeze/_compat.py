@@ -1,4 +1,5 @@
 """Internal compatible module."""
+
 import sys
 
 __all__ = ["cached_property", "importlib_metadata"]
@@ -6,10 +7,7 @@ __all__ = ["cached_property", "importlib_metadata"]
 if sys.version_info >= (3, 10):
     import importlib.metadata as importlib_metadata
 else:
-    try:
-        import importlib_metadata
-    except ImportError:
-        import importlib.metadata as importlib_metadata
+    from setuptools.extern import importlib_metadata
 
 
 try:
