@@ -4,7 +4,7 @@ Release notes
 6.x releases
 ############
 
-Version 6.12 (October 2022)
+Version 6.13 (October 2022)
 ---------------------------
 
 #)  New or improved hooks for:
