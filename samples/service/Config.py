@@ -36,6 +36,8 @@
 #       parameters sessionId and eventTypeId.
 # ------------------------------------------------------------------------------
 
+from __future__ import annotations
+
 NAME = "cx_FreezeSampleService%s"
 DISPLAY_NAME = "cx_Freeze Sample Service - %s"
 MODULE_NAME = "ServiceHandler"

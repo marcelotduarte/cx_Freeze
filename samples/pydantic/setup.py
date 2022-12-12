@@ -2,13 +2,14 @@
 A setup script to create a single executable.
 """
 
+from __future__ import annotations
+
 # https://github.com/samuelcolvin/pydantic#a-simple-example
 #
 # Run the build process by running the command 'python setup.py build'
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
-
 from cx_Freeze import Executable, setup
 
 executables = [Executable("test_pydantic.py")]

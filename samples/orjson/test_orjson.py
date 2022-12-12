@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import orjson
 
 print(orjson.dumps({"a": "b", "c": {"d": True}, "e": [1, 2]}))

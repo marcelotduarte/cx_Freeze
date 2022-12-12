@@ -1,11 +1,12 @@
 """A collection of functions which are the base to hooks for PyQt5, PyQt6,
 PySide2 and PySide6."""
 
+from __future__ import annotations
+
 import os
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 from ..finder import ModuleFinder
 from ..module import Module
@@ -20,7 +21,7 @@ def _qt_implementation(module: Module) -> str:
 
 
 @lru_cache(maxsize=None)
-def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
+def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     """Cache the QtCore library paths."""
 
     try:
@@ -31,7 +32,7 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
         return {}
 
     # get paths from QLibraryInfo
-    source_paths: Dict[str, Path] = {}
+    source_paths: dict[str, Path] = {}
     lib = qtcore.QLibraryInfo
     major_version = lib.version().majorVersion()
     if major_version == 6:
@@ -68,7 +69,7 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
     source_paths.setdefault("SettingsPath", ".")
 
     # set the target paths
-    data: Dict[str, Tuple[Path, Path]] = {}
+    data: dict[str, tuple[Path, Path]] = {}
     target_base = Path("lib", name)
     try:
         target_base = target_base / prefix_path.relative_to(qt_root_dir)
@@ -108,7 +109,7 @@ def _qt_libraryinfo_paths(name: str) -> Dict[str, Tuple[Path, Path]]:
     return data
 
 
-def get_qt_plugins_paths(name: str, plugins: str) -> List[Tuple[Path, Path]]:
+def get_qt_plugins_paths(name: str, plugins: str) -> list[tuple[Path, Path]]:
     """Helper function to get a list of source and target paths of Qt plugins,
     indicated to be used in include_files."""
     libraryinfo_paths = _qt_libraryinfo_paths(name)

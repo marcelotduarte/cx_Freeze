@@ -4,6 +4,8 @@ determines the name of the initscript that is to be executed after
 a basic initialization.
 """
 
+from __future__ import annotations
+
 import os
 import string
 import sys
@@ -14,7 +16,6 @@ from importlib.machinery import (
     PathFinder,
 )
 from sysconfig import get_platform
-from typing import List
 
 import BUILD_CONSTANTS
 
@@ -63,7 +64,7 @@ def init():
         sys.path = [os.path.normpath(entry) for entry in sys.path]
     if IS_WINDOWS or IS_MINGW:
         # for python >= 3.8, the search for dlls is sandboxed
-        search_path: List[str] = [
+        search_path: list[str] = [
             entry for entry in sys.path if os.path.isdir(entry)
         ]
         add_to_path = os.path.join(frozen_dir, "lib")

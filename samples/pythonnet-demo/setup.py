@@ -2,6 +2,8 @@
 A setup script to create executables and demonstrate the use pythonnet.
 """
 
+from __future__ import annotations
+
 import sys
 
 from cx_Freeze import Executable, setup

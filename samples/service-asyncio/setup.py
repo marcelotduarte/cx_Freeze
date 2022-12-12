@@ -10,6 +10,8 @@ of the same service code -- for example for accessing different databases or
 using different configuration files.
 """
 
+from __future__ import annotations
+
 from cx_Freeze import Executable, setup
 
 options = {

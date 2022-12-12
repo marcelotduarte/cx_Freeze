@@ -3,6 +3,8 @@ A setup script to create executables and demonstrate the use icons, that can be
 valid or invalid icons. Also, it is used to demonstrate the use of manifests.
 """
 
+from __future__ import annotations
+
 from cx_Freeze import Executable, setup
 
 executables = [

@@ -1,5 +1,7 @@
 """Internal compatible module."""
 
+from __future__ import annotations
+
 import sys
 
 __all__ = ["cached_property", "importlib_metadata"]

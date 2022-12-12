@@ -1,5 +1,7 @@
 """A simple script to show some values of a font in matplotlib."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 import matplotlib as mpl

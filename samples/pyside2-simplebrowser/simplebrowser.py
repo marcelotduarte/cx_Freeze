@@ -40,6 +40,8 @@
 
 """PySide2 WebEngineWidgets Example"""
 
+from __future__ import annotations
+
 import sys
 
 from PySide2.QtCore import QUrl

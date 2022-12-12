@@ -1,11 +1,12 @@
 """Module for the Executable base class."""
 
+from __future__ import annotations
+
 import os
 import string
 import sys
 from pathlib import Path
 from sysconfig import get_config_var, get_platform
-from typing import Optional, Union
 
 from .common import get_resource_file_path, validate_args
 from .exception import ConfigError
@@ -25,22 +26,22 @@ class Executable:
 
     def __init__(
         self,
-        script: Union[str, Path],
-        init_script: Optional[Union[str, Path]] = None,
-        base: Optional[Union[str, Path]] = None,
-        target_name: Optional[str] = None,
-        icon: Optional[Union[str, Path]] = None,
-        shortcut_name: Optional[str] = None,
-        shortcut_dir: Optional[Union[str, Path]] = None,
-        copyright: Optional[str] = None,  # pylint: disable=W0622
-        trademarks: Optional[str] = None,
-        manifest: Optional[Union[str, Path]] = None,
+        script: str | Path,
+        init_script: str | Path | None = None,
+        base: str | Path | None = None,
+        target_name: str | None = None,
+        icon: str | Path | None = None,
+        shortcut_name: str | None = None,
+        shortcut_dir: str | Path | None = None,
+        copyright: str | None = None,  # pylint: disable=W0622
+        trademarks: str | None = None,
+        manifest: str | Path | None = None,
         uac_admin: bool = False,
         *,
-        initScript: Optional[str] = None,
-        targetName: Optional[str] = None,
-        shortcutName: Optional[str] = None,
-        shortcutDir: Optional[str] = None,
+        initScript: str | None = None,
+        targetName: str | None = None,
+        shortcutName: str | None = None,
+        shortcutDir: str | None = None,
     ):
         self.main_script = script
         self.init_script = validate_args(
@@ -76,7 +77,7 @@ class Executable:
         return self._base
 
     @base.setter
-    def base(self, name: Optional[Union[str, Path]]):
+    def base(self, name: str | Path | None):
         name = name or "console"
         if WIN32:
             py_version_nodot = get_config_var("py_version_nodot")
@@ -103,7 +104,7 @@ class Executable:
         return self._icon
 
     @icon.setter
-    def icon(self, name: Optional[Union[str, Path]]):
+    def icon(self, name: str | Path | None):
         self._icon: Path = Path(name) if name else None
 
     @property
@@ -127,7 +128,7 @@ class Executable:
         return self._init_script
 
     @init_script.setter
-    def init_script(self, name: Optional[Union[str, Path]]):
+    def init_script(self, name: str | Path | None):
         name = name or "console"
         self._init_script: Path = get_resource_file_path(
             "initscripts", name, ".py"
@@ -156,11 +157,11 @@ class Executable:
         return self._main_script
 
     @main_script.setter
-    def main_script(self, name: Union[str, Path]):
+    def main_script(self, name: str | Path):
         self._main_script: Path = Path(name)
 
     @property
-    def manifest(self) -> Optional[str]:
+    def manifest(self) -> str | None:
         """
         :return: the XML schema of the manifest which is to be included in the
         frozen executable
@@ -170,8 +171,8 @@ class Executable:
         return self._manifest
 
     @manifest.setter
-    def manifest(self, name: Optional[Union[str, Path]]) -> None:
-        self._manifest: Optional[str] = None
+    def manifest(self, name: str | Path | None) -> None:
+        self._manifest: str | None = None
         if name is None:
             return
         if isinstance(name, str):
@@ -204,7 +205,7 @@ class Executable:
         return self._shortcut_dir
 
     @shortcut_dir.setter
-    def shortcut_dir(self, name: Union[str, Path]):
+    def shortcut_dir(self, name: str | Path):
         self._shortcut_dir: Path = Path(name) if name else None
 
     @property
@@ -218,7 +219,7 @@ class Executable:
         return self._name + self._ext
 
     @target_name.setter
-    def target_name(self, name: Optional[str]):
+    def target_name(self, name: str | None):
         if name is None:
             name = self.main_script.stem
         else:

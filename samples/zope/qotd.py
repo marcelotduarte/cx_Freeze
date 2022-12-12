@@ -4,6 +4,8 @@
 A simple Quote of the Day server
 """
 
+from __future__ import annotations
+
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
 

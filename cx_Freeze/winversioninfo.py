@@ -1,11 +1,12 @@
 """Module for the VersionInfo base class."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
 from pathlib import Path
 from struct import calcsize, pack
-from typing import List, Optional, Tuple, Union
 
 from packaging.version import Version
 
@@ -53,7 +54,7 @@ class Structure:
 
     def __init__(self, *args):
         if not hasattr(self, "_fields"):
-            self._fields: List[Tuple[str, str]] = []
+            self._fields: list[tuple[str, str]] = []
         for i, (field, _) in enumerate(self._fields):
             setattr(self, field, args[i])
 
@@ -112,7 +113,7 @@ class String(Structure):
     """File version resource representation of the data."""
 
     def __init__(
-        self, key: str, value: Optional[Union[int, str, Structure]] = None
+        self, key: str, value: int | str | Structure | None = None
     ):  # pylint: disable=W0231
         key = key + "\0"
         key_len = len(key)
@@ -163,7 +164,7 @@ class String(Structure):
         )
         self._children = 0
 
-    def children(self, value: "String"):
+    def children(self, value: String):
         """Represents the child String object."""
         pad_len = 4 - (self.wLength & 3)
         if 0 < pad_len < 4:
@@ -184,32 +185,32 @@ class VersionInfo:
     def __init__(
         self,
         version: str,
-        internal_name: Optional[str] = None,
-        original_filename: Optional[str] = None,
-        comments: Optional[str] = None,
-        company: Optional[str] = None,
-        description: Optional[str] = None,
-        copyright: Optional[str] = None,  # pylint: disable=W0622
-        trademarks: Optional[str] = None,
-        product: Optional[str] = None,
-        dll: Optional[bool] = None,
-        debug: Optional[bool] = None,
+        internal_name: str | None = None,
+        original_filename: str | None = None,
+        comments: str | None = None,
+        company: str | None = None,
+        description: str | None = None,
+        copyright: str | None = None,  # pylint: disable=W0622
+        trademarks: str | None = None,
+        product: str | None = None,
+        dll: bool | None = None,
+        debug: bool | None = None,
         verbose: bool = True,
     ):
         self.version: Version = Version(version)
-        self.internal_name: Optional[str] = internal_name
-        self.original_filename: Optional[str] = original_filename
-        self.comments: Optional[str] = comments
-        self.company: Optional[str] = company
-        self.description: Optional[str] = description
-        self.copyright: Optional[str] = copyright
-        self.trademarks: Optional[str] = trademarks
-        self.product: Optional[str] = product
-        self.dll: Optional[bool] = dll
-        self.debug: Optional[bool] = debug
+        self.internal_name: str | None = internal_name
+        self.original_filename: str | None = original_filename
+        self.comments: str | None = comments
+        self.company: str | None = company
+        self.description: str | None = description
+        self.copyright: str | None = copyright
+        self.trademarks: str | None = trademarks
+        self.product: str | None = product
+        self.dll: bool | None = dll
+        self.debug: bool | None = debug
         self.verbose: bool = verbose
 
-    def stamp(self, path: Union[str, Path]) -> None:
+    def stamp(self, path: str | Path) -> None:
         """Stamp a Win32 binary with version information."""
         if isinstance(path, str):
             path = Path(path)

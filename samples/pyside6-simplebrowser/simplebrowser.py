@@ -1,5 +1,7 @@
 """PySide6 WebEngineWidgets Example"""
 
+from __future__ import annotations
+
 import sys
 
 from PySide6.QtCore import QUrl

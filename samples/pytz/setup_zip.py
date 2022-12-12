@@ -2,12 +2,13 @@
 A setup script to demonstrate build using pytz
 This version requires the zoneinfo in the zip file
 """
+from __future__ import annotations
+
 #
 # Run the build process by running the command 'python setup.py build'
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
-
 import os
 import sysconfig
 

@@ -1,6 +1,8 @@
 """A simple setup script to create two executables using matplotlib
    This version requires the mpl-data in the zip file."""
 
+from __future__ import annotations
+
 # matplotlib_eg.py is a very simple matplotlib application that demonstrates
 # its use.
 #
@@ -11,7 +13,6 @@
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the application
-
 import os
 import sys
 import sysconfig

@@ -1,5 +1,7 @@
 """A simple script to demonstrate opencv-python."""
 
+from __future__ import annotations
+
 import os
 import sys
 

@@ -1,5 +1,7 @@
 """Common utility functions shared between cx_Freeze modules."""
 
+from __future__ import annotations
+
 import contextlib
 import shutil
 import types
@@ -13,6 +15,7 @@ from .exception import ConfigError
 IncludesList = List[
     Union[str, Path, Tuple[Union[str, Path], Optional[Union[str, Path]]]]
 ]
+
 InternalIncludesList = List[Tuple[Path, PurePath]]
 
 
@@ -51,8 +54,8 @@ class TemporaryPath(TemporaryDirectory):
 
 
 def get_resource_file_path(
-    dirname: Union[str, Path], name: Union[str, Path], ext: str
-) -> Optional[Path]:
+    dirname: str | Path, name: str | Path, ext: str
+) -> Path | None:
     """
     Return the path to a resource file shipped with cx_Freeze.
 
@@ -73,8 +76,8 @@ def get_resource_file_path(
 
 
 def normalize_to_list(
-    value: Optional[Union[str, List[str], Tuple[str, ...]]]
-) -> List[str]:
+    value: str | list[str] | tuple[str, ...] | None
+) -> list[str]:
     """
     Takes the different formats of options containing multiple values and
     returns the value as a list object.
@@ -89,7 +92,7 @@ def normalize_to_list(
     return normalized_value
 
 
-def process_path_specs(specs: Optional[IncludesList]) -> InternalIncludesList:
+def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
     """
     Prepare paths specified as config.
 

@@ -5,6 +5,8 @@ build subclass of cx_Freeze 6.10.
 
 """
 
+from __future__ import annotations
+
 import os
 import sys
 from sysconfig import get_platform, get_python_version

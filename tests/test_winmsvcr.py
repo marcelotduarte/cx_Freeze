@@ -1,6 +1,8 @@
 """Test winmsvcr"""
 
 # pylint: disable=missing-function-docstring,unused-import
+from __future__ import annotations
+
 import pytest  # noqa
 
 from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE

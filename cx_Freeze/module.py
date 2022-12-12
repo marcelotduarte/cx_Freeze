@@ -1,13 +1,15 @@
 """Base class for Module and ConstantsModule."""
 
+from __future__ import annotations
+
 import ast
 import datetime
 import socket
+from collections.abc import Sequence
 from contextlib import suppress
 from keyword import iskeyword
 from pathlib import Path
 from types import CodeType
-from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 from ._compat import importlib_metadata
 from .common import TemporaryPath
@@ -22,7 +24,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
     _cachedir = TemporaryPath()
 
     @staticmethod
-    def at(path: Union[str, Path]):
+    def at(path: str | Path):
         return DistributionCache(Path(path))
 
     at.__doc__ = importlib_metadata.PathDistribution.at.__doc__
@@ -123,21 +125,21 @@ class Module:
     def __init__(
         self,
         name: str,
-        path: Optional[Sequence[Union[Path, str]]] = None,
-        file_name: Optional[Union[Path, str]] = None,
-        parent: Optional["Module"] = None,
+        path: Sequence[Path | str] | None = None,
+        file_name: Path | str | None = None,
+        parent: Module | None = None,
     ):
         self.name: str = name
-        self.path: Optional[List[Path]] = None
+        self.path: list[Path] | None = None
         if path:
             self.path = [Path(p) for p in path]
         self.file = file_name
-        self.parent: Optional["Module"] = parent
-        self.code: Optional[CodeType] = None
-        self.distribution: Optional[DistributionCache] = None
-        self.exclude_names: Set[str] = set()
-        self.global_names: Set[str] = set()
-        self.ignore_names: Set[str] = set()
+        self.parent: Module | None = parent
+        self.code: CodeType | None = None
+        self.distribution: DistributionCache | None = None
+        self.exclude_names: set[str] = set()
+        self.global_names: set[str] = set()
+        self.ignore_names: set[str] = set()
         self.in_import: bool = True
         self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
@@ -146,13 +148,13 @@ class Module:
         self.update_distribution(name)
 
     @property
-    def file(self) -> Optional[Path]:
+    def file(self) -> Path | None:
         """Module filename"""
         return self._file
 
     @file.setter
-    def file(self, file_name: Optional[Union[Path, str]]):
-        self._file: Optional[Path] = Path(file_name) if file_name else None
+    def file(self, file_name: Path | str | None):
+        self._file: Path | None = Path(file_name) if file_name else None
 
     def update_distribution(self, name: str) -> None:
         """Update the distribution cache based on its name.
@@ -210,15 +212,15 @@ class ConstantsModule:
 
     def __init__(
         self,
-        release_string: Optional[str] = None,
-        copyright_string: Optional[str] = None,
+        release_string: str | None = None,
+        copyright_string: str | None = None,
         module_name: str = "BUILD_CONSTANTS",
         time_format: str = "%B %d, %Y %H:%M:%S",
-        constants: Optional[List[str]] = None,
+        constants: list[str] | None = None,
     ):
         self.module_name: str = module_name
         self.time_format: str = time_format
-        self.values: Dict[str, str] = {}
+        self.values: dict[str, str] = {}
         self.values["BUILD_RELEASE_STRING"] = release_string
         self.values["BUILD_COPYRIGHT"] = copyright_string
         if constants:
@@ -237,7 +239,7 @@ class ConstantsModule:
                 self.values[name] = value
         self.module_path: TemporaryPath = TemporaryPath("constants.py")
 
-    def create(self, modules: List[Module]) -> Tuple[Path, str]:
+    def create(self, modules: list[Module]) -> tuple[Path, str]:
         """
         Create the module which consists of declaration statements for each
         of the values.

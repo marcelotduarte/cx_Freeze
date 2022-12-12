@@ -1,5 +1,7 @@
 """Test exceptions."""
 
+from __future__ import annotations
+
 import pytest
 
 from cx_Freeze.exception import ConfigError, DarwinException

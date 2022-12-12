@@ -1,10 +1,12 @@
 """Extend setuptools.sandbox.run_setup to work with cx_Freeze setup()."""
 
+from __future__ import annotations
+
 import contextlib
 import os
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence, Union
 
 import setuptools.sandbox as _sandbox
 
@@ -14,7 +16,7 @@ _sandbox._MODULES_TO_HIDE.update({"cx_Freeze", "msilib"})
 __all__ = ["run_setup"]
 
 
-def run_setup(setup_script: Union[str, Path], args: Sequence):
+def run_setup(setup_script: str | Path, args: Sequence):
     """Run a cx_Freeze setup script, sandboxed in its directory."""
 
     if isinstance(setup_script, Path):

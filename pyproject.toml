@@ -109,6 +109,7 @@ exclude = "tests/samples/invalid_syntax.py"
 profile = "black"
 line_length = 79
 skip_gitignore = true
+add_imports = ["from __future__ import annotations"]
 
 [tool.pylint]
 format.max-line-length = 79

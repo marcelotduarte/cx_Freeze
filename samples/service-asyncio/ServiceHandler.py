@@ -5,6 +5,8 @@ See below for more information on what methods must be implemented and how they
 are called.
 """
 
+from __future__ import annotations
+
 import asyncio
 import threading
 

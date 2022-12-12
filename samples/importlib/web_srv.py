@@ -2,6 +2,8 @@
 """Example for aiohttp.web basic server
 """
 
+from __future__ import annotations
+
 import textwrap
 
 from aiohttp import web
