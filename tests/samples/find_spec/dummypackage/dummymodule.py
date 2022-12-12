@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 print("Hi, I'm a module!")
 
 raise Exception(

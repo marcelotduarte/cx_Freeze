@@ -2,8 +2,11 @@
 and is cross-platform."""
 # pylint: disable=invalid-name
 
-import setuptools  # isort:skip
+from __future__ import annotations
+
 import sys
+
+import setuptools
 
 from .command.build import Build as build
 from .command.build_exe import BuildEXE as build_exe

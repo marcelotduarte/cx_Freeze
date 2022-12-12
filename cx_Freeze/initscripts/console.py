@@ -2,6 +2,8 @@
 Initialization script for cx_Freeze. Sets the attribute sys.frozen so that
 modules that expect it behave as they should.
 """
+from __future__ import annotations
+
 import sys
 
 sys.frozen = True

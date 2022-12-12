@@ -1,6 +1,8 @@
 """A collection of functions which are triggered automatically by finder when
 pycryptodome package is included."""
 
+from __future__ import annotations
+
 import os
 
 from ..common import code_object_replace

@@ -1,5 +1,7 @@
 """Extend msilib Dialog."""
 
+from __future__ import annotations
+
 from msilib import Dialog  # pylint: disable=deprecated-module
 
 

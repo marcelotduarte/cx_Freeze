@@ -2,6 +2,8 @@
 numpy package is included."""
 # pylint: disable=unused-argument
 
+from __future__ import annotations
+
 import os
 import sys
 from importlib.machinery import EXTENSION_SUFFIXES

@@ -3,6 +3,8 @@ Sample to test the 'pycountry' hook
 
 """
 
+from __future__ import annotations
+
 import gettext
 
 import pycountry

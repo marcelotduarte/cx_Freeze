@@ -1,5 +1,7 @@
 """A simple script to demonstrate PyQt6."""
 
+from __future__ import annotations
+
 import sys
 
 from PyQt6.QtCore import Qt

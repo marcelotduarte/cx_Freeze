@@ -1,5 +1,7 @@
 #!/usr/bin/python
 """WSGI server example"""
+from __future__ import annotations
+
 from gevent.pywsgi import WSGIServer
 
 

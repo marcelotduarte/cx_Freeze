@@ -1,10 +1,11 @@
 """Extends setuptools to build macOS dmg or app blundle."""
 
+from __future__ import annotations
+
 import os
 import plistlib
 import shutil
 import subprocess
-from typing import List, Tuple
 
 from setuptools import Command
 
@@ -114,9 +115,9 @@ class BdistMac(Command):
 
     description = "create a Mac application bundle"
 
-    plist_items: List[Tuple[str, str]]
-    include_frameworks: List[str]
-    include_resources: List[str]
+    plist_items: list[tuple[str, str]]
+    include_frameworks: list[str]
+    include_resources: list[str]
 
     user_options = [
         ("iconfile=", None, "Path to an icns icon file for the application."),
@@ -394,7 +395,7 @@ class BdistMac(Command):
     def run(self):
         self.run_command("build")
         build = self.get_finalized_command("build")
-        freezer: "freezer.Freezer" = self.get_finalized_command(
+        freezer: freezer.Freezer = self.get_finalized_command(
             "build_exe"
         ).freezer
 

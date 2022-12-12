@@ -1,5 +1,7 @@
 """A simple script to demonstrate matplotlib."""
 
+from __future__ import annotations
+
 import matplotlib
 from numpy import arange, pi, sin
 

@@ -2,6 +2,8 @@
 scipy package is included."""
 # pylint: disable=unused-argument
 
+from __future__ import annotations
+
 import sys
 
 from ..finder import ModuleFinder

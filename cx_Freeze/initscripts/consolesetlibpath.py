@@ -8,6 +8,8 @@ the environment variable LD_LIBRARY_PATH is only checked at startup.
 
 """
 
+from __future__ import annotations
+
 import os
 import sys
 

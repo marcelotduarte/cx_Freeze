@@ -6,6 +6,8 @@ Implements the bdist_msi command.
 Borrowed from distutils.command.bdist_msi of Python 3.8
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import shutil

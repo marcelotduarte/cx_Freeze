@@ -3,6 +3,8 @@ This module is used to inject a debug code to show QLibraryInfo paths
 if environment variable QT_DEBUG is set.
 """
 
+from __future__ import annotations
+
 import os
 import sys
 from pathlib import Path

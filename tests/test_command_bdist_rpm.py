@@ -1,5 +1,7 @@
 """Tests for cx_Freeze.command.bdist_rpm."""
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 from sysconfig import get_platform

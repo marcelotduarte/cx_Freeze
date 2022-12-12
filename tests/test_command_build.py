@@ -1,5 +1,7 @@
 """Tests for cx_Freeze.command.build."""
 
+from __future__ import annotations
+
 import os
 import sys
 from sysconfig import get_platform, get_python_version

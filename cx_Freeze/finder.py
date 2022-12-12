@@ -1,15 +1,18 @@
 """Module Finder - discovers what modules are required by the code."""
 
+from __future__ import annotations
+
 import importlib.machinery
 import logging
 import os
 import sys
+from collections.abc import Sequence
 from contextlib import suppress
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from sysconfig import get_config_var
 from types import CodeType
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, List, Tuple
 
 import opcode
 
@@ -35,7 +38,6 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 HAVE_ARGUMENT = opcode.HAVE_ARGUMENT
 
-
 DeferredList = List[Tuple[Module, Module, List[str]]]
 
 __all__ = ["Module", "ModuleFinder"]
@@ -46,22 +48,22 @@ class ModuleFinder:
 
     def __init__(
         self,
-        include_files: Optional[IncludesList] = None,
-        excludes: Optional[List[str]] = None,
-        path: Optional[List[str]] = None,
-        replace_paths: Optional[List[Tuple[str, str]]] = None,
+        include_files: IncludesList | None = None,
+        excludes: list[str] | None = None,
+        path: list[str] | None = None,
+        replace_paths: list[tuple[str, str]] | None = None,
         zip_include_all_packages: bool = False,
-        zip_exclude_packages: Optional[List[str]] = None,
-        zip_include_packages: Optional[List[str]] = None,
-        constants_module: Optional[ConstantsModule] = None,
-        zip_includes: Optional[IncludesList] = None,
+        zip_exclude_packages: list[str] | None = None,
+        zip_include_packages: list[str] | None = None,
+        constants_module: ConstantsModule | None = None,
+        zip_includes: IncludesList | None = None,
     ):
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
-        self.excludes: Dict[str, Any] = dict.fromkeys(excludes or [])
+        self.excludes: dict[str, Any] = dict.fromkeys(excludes or [])
         self.optimize_flag = 0
-        self.path: List[str] = self._set_path(path)
+        self.path: list[str] = self._set_path(path)
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
         self.zip_exclude_packages = zip_exclude_packages or []
@@ -72,10 +74,8 @@ class ModuleFinder:
         )
         self.modules = []
         self.aliases = {}
-        self.excluded_dependent_files: Set[Path] = set()
-        self._modules: Dict[str, Optional[Module]] = dict.fromkeys(
-            excludes or []
-        )
+        self.excluded_dependent_files: set[Path] = set()
+        self._modules: dict[str, Module | None] = dict.fromkeys(excludes or [])
         self._bad_modules = {}
         for name in self._base_hooks.exclude.MODULES:
             self.exclude_module(name)
@@ -105,9 +105,9 @@ class ModuleFinder:
     def _add_module(
         self,
         name: str,
-        path: Optional[Sequence[Union[Path, str]]] = None,
-        file_name: Optional[Union[Path, str]] = None,
-        parent: Optional[Module] = None,
+        path: Sequence[Path | str] | None = None,
+        file_name: Path | str | None = None,
+        parent: Module | None = None,
     ) -> Module:
         """
         Add a module to the list of modules but if one is already found,
@@ -136,7 +136,7 @@ class ModuleFinder:
             module.file = file_name
         return module
 
-    def _determine_parent(self, caller: Optional[Module]) -> Optional[Module]:
+    def _determine_parent(self, caller: Module | None) -> Module | None:
         """Determine the parent to use when searching packages."""
         if caller is not None:
             if caller.path is not None:
@@ -159,9 +159,9 @@ class ModuleFinder:
         return __import__("cx_Freeze.hooks", fromlist=fromlist)
 
     @cached_property
-    def _builtin_modules(self) -> Set[str]:
+    def _builtin_modules(self) -> set[str]:
         """The built-in modules are determined based on the cx_Freeze build."""
-        builtin_modules: Set[str] = set(sys.builtin_module_names)
+        builtin_modules: set[str] = set(sys.builtin_module_names)
         dynload = get_resource_file_path("bases", "lib-dynload", "")
         if dynload and dynload.is_dir():
             # discard modules that exist in bases/lib-dynload
@@ -173,7 +173,7 @@ class ModuleFinder:
         self,
         caller: Module,
         package_module: Module,
-        from_list: List[str],
+        from_list: list[str],
         deferred_imports: DeferredList,
     ) -> None:
         """
@@ -191,7 +191,7 @@ class ModuleFinder:
                 sub_module_name = f"{package_module.name}.{name}"
                 self._import_module(sub_module_name, deferred_imports, caller)
 
-    def _get_parent_by_name(self, name: str) -> Optional[Module]:
+    def _get_parent_by_name(self, name: str) -> Module | None:
         """Return the parent module given the name of a module."""
         pos = name.rfind(".")
         if pos > 0:
@@ -272,7 +272,7 @@ class ModuleFinder:
         self,
         name: str,
         deferred_imports: DeferredList,
-        caller: Optional[Module] = None,
+        caller: Module | None = None,
         relative_import_index: int = 0,
     ):
         """
@@ -332,7 +332,7 @@ class ModuleFinder:
 
     def _internal_import_module(
         self, name: str, deferred_imports: DeferredList
-    ) -> Optional[Module]:
+    ) -> Module | None:
         """
         Internal method used for importing a module which assumes that the
         name given is an absolute name. None is returned if the module
@@ -387,14 +387,14 @@ class ModuleFinder:
     def _load_module(
         self,
         name: str,
-        path: Optional[Sequence[str]],
+        path: Sequence[str] | None,
         deferred_imports: DeferredList,
-        parent: Optional[Module] = None,
-    ) -> Optional[Module]:
+        parent: Module | None = None,
+    ) -> Module | None:
         """Load the module, searching the module spec."""
-        spec: Optional[importlib.machinery.ModuleSpec] = None
-        loader: Optional[ExecutionLoader] = None
-        module: Optional[Module] = None
+        spec: importlib.machinery.ModuleSpec | None = None
+        loader: ExecutionLoader | None = None
+        module: Module | None = None
 
         # Find modules to load
         try:
@@ -448,9 +448,9 @@ class ModuleFinder:
     def _load_module_code(
         self,
         module: Module,
-        loader: Optional[ExecutionLoader],
+        loader: ExecutionLoader | None,
         deferred_imports: DeferredList,
-    ) -> Optional[Module]:
+    ) -> Module | None:
         name = module.name
         path = os.fspath(module.file)
 
@@ -498,9 +498,9 @@ class ModuleFinder:
 
     def _load_module_from_file(
         self, name: str, filename: Path, deferred_imports: DeferredList
-    ) -> Optional[Module]:
+    ) -> Module | None:
         """Load the module from the filename."""
-        loader: Optional[ExecutionLoader] = None
+        loader: ExecutionLoader | None = None
 
         ext = filename.suffix
         path = os.fspath(filename)
@@ -551,7 +551,7 @@ class ModuleFinder:
         return code
 
     def _replace_paths_in_code(
-        self, module: Module, code: Optional[CodeType] = None
+        self, module: Module, code: CodeType | None = None
     ) -> CodeType:
         """
         Replace paths in the code as directed, returning a new code object
@@ -613,7 +613,7 @@ class ModuleFinder:
             method(self, *args)
 
     @staticmethod
-    def _set_path(path: Optional[List[str]] = None) -> Set[str]:
+    def _set_path(path: list[str] | None = None) -> set[str]:
         """Set the path to search for modules, and fix the path for built-in
         modules when it differs from the running python built-in modules."""
         path = path or sys.path
@@ -722,7 +722,7 @@ class ModuleFinder:
         used in the initscripts."""
         self.constants_module.values[name] = value
 
-    def exclude_dependent_files(self, filename: Union[Path, str]) -> None:
+    def exclude_dependent_files(self, filename: Path | str) -> None:
         """Exclude the dependent files of the named file from the resulting
         frozen executable."""
         if not isinstance(filename, Path):
@@ -740,7 +740,7 @@ class ModuleFinder:
             self._modules[mod] = None
 
     def include_file_as_module(
-        self, path: Union[Path, str], name: Optional[str] = None
+        self, path: Path | str, name: str | None = None
     ) -> Module:
         """Include the named file as a module in the frozen executable."""
         if isinstance(path, str):
@@ -759,8 +759,8 @@ class ModuleFinder:
 
     def include_files(
         self,
-        source_path: Union[Path, str],
-        target_path: Union[Path, str],
+        source_path: Path | str,
+        target_path: Path | str,
         copy_dependent_files: bool = True,
     ) -> None:
         """Include the files in the given directory in the target build."""
@@ -822,8 +822,8 @@ class ModuleFinder:
 
     def zip_include_files(
         self,
-        source_path: Union[str, Path],
-        target_path: Optional[Union[str, Path, PurePath]] = None,
+        source_path: str | Path,
+        target_path: str | Path | PurePath | None = None,
     ) -> None:
         """Include files or all of the files in a directory to the zip file."""
         self.zip_includes.extend(

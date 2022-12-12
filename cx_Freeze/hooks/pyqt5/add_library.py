@@ -1,6 +1,8 @@
 """
 This module is used to inject a code to guessing and set the plugins directory.
 """
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 

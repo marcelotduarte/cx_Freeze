@@ -4,6 +4,8 @@ Sample to show the datetime in RFC1123 (timezone is required)
 zoneinfo version (new library in python 3.9)
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 
 try:

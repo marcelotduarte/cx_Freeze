@@ -8,6 +8,8 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the script without Python.
 """
 
+from __future__ import annotations
+
 import os
 import sys
 

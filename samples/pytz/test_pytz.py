@@ -4,6 +4,8 @@ Sample to show the datetime in RFC1123 (timezone is required)
 pytz version
 """
 
+from __future__ import annotations
+
 import datetime
 
 import pytz

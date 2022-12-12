@@ -2,11 +2,12 @@
 certain packages are included or not found."""
 # pylint: disable=unused-argument,invalid-name
 
+from __future__ import annotations
+
 import os
 import sys
 import sysconfig
 from pathlib import Path
-from typing import Optional
 
 from ..common import code_object_replace, get_resource_file_path
 from ..finder import ModuleFinder
@@ -806,8 +807,8 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     """The zoneinfo package requires timezone data, that
     can be the in tzdata package, if installed."""
-    tzdata: Optional[Module] = None
-    source: Optional[Path] = None
+    tzdata: Module | None = None
+    source: Path | None = None
     try:
         tzdata = finder.include_package("tzdata")
         # store tzdata along with zoneinfo

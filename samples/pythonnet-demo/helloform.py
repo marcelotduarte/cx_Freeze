@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import clr
 
 clr.AddReference("System.Windows.Forms")

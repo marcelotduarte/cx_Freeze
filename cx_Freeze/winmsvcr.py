@@ -6,6 +6,8 @@ Extracted from:
 
 """
 
+from __future__ import annotations
+
 FILES = (
     # VC 2015 and 2017
     "api-ms-win-core-console-l1-1-0.dll",

@@ -1,6 +1,8 @@
 """Implements `Parser` interface to create an abstraction to parse binary
 files."""
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
@@ -10,7 +12,7 @@ from abc import ABC, abstractmethod
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError, check_call, check_output, run
-from typing import Any, Dict, List, Set, Union
+from typing import Any
 
 from .common import TemporaryPath
 
@@ -40,11 +42,11 @@ class Parser(ABC):
     """`Parser` interface."""
 
     def __init__(self, silent: int = 0) -> None:
-        self.dependent_files: Dict[Path, Set[Path]] = {}
+        self.dependent_files: dict[Path, set[Path]] = {}
         self._silent: int = silent
 
     @abstractmethod
-    def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
+    def get_dependent_files(self, path: str | Path) -> set[Path]:
         """Return the file's dependencies using platform-specific tools
         (lief package or the imagehlp library on Windows, otool on Mac OS X or
         ldd on Linux); limit this list by the exclusion lists as needed.
@@ -56,27 +58,27 @@ class PEParser(Parser):
     use the old friend `cx_Freeze.util` extension module."""
 
     @staticmethod
-    def is_pe(path: Union[str, Path]) -> bool:
+    def is_pe(path: str | Path) -> bool:
         """Determines whether the file is a PE file."""
         if isinstance(path, str):
             path = Path(path)
         return path.suffix.lower().endswith(PE_EXT) and path.is_file()
 
-    def _get_dependent_files_lief(self, path: Path) -> Set[Path]:
+    def _get_dependent_files_lief(self, path: Path) -> set[Path]:
         with path.open("rb", buffering=0) as raw:
             binary = lief.PE.parse(raw, path.name)
         if not binary:
             return set()
 
-        libraries: List[str] = []
+        libraries: list[str] = []
         if binary.has_imports:
             libraries += binary.libraries
         for delay_import in binary.delay_imports:
             libraries.append(delay_import.name)
 
-        dependent_files: Set[Path] = set()
-        orig_path: List[str] = os.environ["PATH"]
-        search_path: List[str] = sys.path + orig_path.split(os.pathsep)
+        dependent_files: set[Path] = set()
+        orig_path: list[str] = os.environ["PATH"]
+        search_path: list[str] = sys.path + orig_path.split(os.pathsep)
         for library_name in libraries:
             for directory in search_path:
                 library_path = Path(directory, library_name)
@@ -85,12 +87,12 @@ class PEParser(Parser):
                     break
         return dependent_files
 
-    def _get_dependent_files_imagehlp(self, path: Path) -> Set[Path]:
-        dependent_files: Set[Path] = set()
+    def _get_dependent_files_imagehlp(self, path: Path) -> set[Path]:
+        dependent_files: set[Path] = set()
         orig_path = os.environ["PATH"]
         os.environ["PATH"] = os.pathsep.join(sys.path) + os.pathsep + orig_path
         try:
-            files: List[str] = util.GetDependentFiles(path)
+            files: list[str] = util.GetDependentFiles(path)
         except util.BindError as exc:
             # Sometimes this gets called when path is not actually
             # a library (See issue 88).
@@ -107,7 +109,7 @@ class PEParser(Parser):
     else:
         _get_dependent_files = _get_dependent_files_lief
 
-    def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
+    def get_dependent_files(self, path: str | Path) -> set[Path]:
         if isinstance(path, str):
             path = Path(path)
         with suppress(KeyError):
@@ -115,11 +117,11 @@ class PEParser(Parser):
         if not self.is_pe(path):
             return set()
 
-        dependent_files: Set[Path] = self._get_dependent_files(path)
+        dependent_files: set[Path] = self._get_dependent_files(path)
         self.dependent_files[path] = dependent_files
         return dependent_files
 
-    def read_manifest(self, path: Union[str, Path]) -> str:
+    def read_manifest(self, path: str | Path) -> str:
         """
         :return: the XML schema of the manifest included in the executable
         :rtype: str
@@ -136,7 +138,7 @@ class PEParser(Parser):
             raise RuntimeError(exc) from None
         return manifest
 
-    def write_manifest(self, path: Union[str, Path], manifest: str) -> None:
+    def write_manifest(self, path: str | Path, manifest: str) -> None:
         """
         :return: write the XML schema of the manifest into the executable
         :rtype: str
@@ -165,11 +167,11 @@ class ELFParser(Parser):
 
     def __init__(self, silent: int = 0) -> None:
         super().__init__(silent)
-        self.linker_warnings: Dict[Path, Any] = {}
+        self.linker_warnings: dict[Path, Any] = {}
         _verify_patchelf()
 
     @staticmethod
-    def is_elf(path: Union[str, Path]) -> bool:
+    def is_elf(path: str | Path) -> bool:
         """Check if the executable is an ELF."""
         if isinstance(path, str):
             path = Path(path)
@@ -183,13 +185,13 @@ class ELFParser(Parser):
             four_bytes = binary.read(4)
         return bool(four_bytes == MAGIC_ELF)
 
-    def get_dependent_files(self, path: Union[str, Path]) -> Set[Path]:
+    def get_dependent_files(self, path: str | Path) -> set[Path]:
         if isinstance(path, str):
             path = Path(path)
         with suppress(KeyError):
             return self.dependent_files[path]
 
-        dependent_files: Set[Path] = set()
+        dependent_files: set[Path] = set()
         if not self.is_elf(path) or not os.access(path, os.X_OK):
             return dependent_files
 
@@ -224,7 +226,7 @@ class ELFParser(Parser):
         self.dependent_files[path] = dependent_files
         return dependent_files
 
-    def get_rpath(self, filename: Union[str, Path]) -> str:
+    def get_rpath(self, filename: str | Path) -> str:
         """Gets the rpath of the executable."""
         args = ["patchelf", "--print-rpath", filename]
         with suppress(CalledProcessError):
@@ -232,14 +234,14 @@ class ELFParser(Parser):
         return ""
 
     def replace_needed(
-        self, filename: Union[str, Path], so_name: str, new_so_name: str
+        self, filename: str | Path, so_name: str, new_so_name: str
     ) -> None:
         """Replace DT_NEEDED entry in the dynamic table."""
         self._set_write_mode(filename)
         args = ["patchelf", "--replace-needed", so_name, new_so_name, filename]
         check_call(args)
 
-    def set_rpath(self, filename: Union[str, Path], rpath: str) -> None:
+    def set_rpath(self, filename: str | Path, rpath: str) -> None:
         """Sets the rpath of the executable."""
         self._set_write_mode(filename)
         args = ["patchelf", "--remove-rpath", filename]
@@ -247,14 +249,14 @@ class ELFParser(Parser):
         args = ["patchelf", "--force-rpath", "--set-rpath", rpath, filename]
         check_call(args)
 
-    def set_soname(self, filename: Union[str, Path], new_so_name: str) -> None:
+    def set_soname(self, filename: str | Path, new_so_name: str) -> None:
         """Sets DT_SONAME entry in the dynamic table."""
         self._set_write_mode(filename)
         args = ["patchelf", "--set-soname", new_so_name, filename]
         check_call(args)
 
     @staticmethod
-    def _set_write_mode(filename: Union[str, Path]) -> None:
+    def _set_write_mode(filename: str | Path) -> None:
         if isinstance(filename, str):
             filename = Path(filename)
         mode = filename.stat().st_mode

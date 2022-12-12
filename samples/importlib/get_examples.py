@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from urllib.request import urlopen
 
 GITHUBUSERCONTENT = "https://raw.githubusercontent.com"

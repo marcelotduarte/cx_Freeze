@@ -1,5 +1,7 @@
 """Extends setuptools to build Windows installer packages."""
 
+from __future__ import annotations
+
 import importlib
 import logging
 import msilib  # pylint: disable=deprecated-module

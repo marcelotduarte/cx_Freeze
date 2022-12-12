@@ -1,8 +1,9 @@
 """Implements the 'install_exe' command."""
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from typing import Optional
 
 from setuptools import Command
 
@@ -22,7 +23,7 @@ class InstallEXE(Command):
     ]
 
     def initialize_options(self):
-        self.install_dir: Optional[str] = None
+        self.install_dir: str | None = None
         self.force = 0
         self.build_dir = None
         self.skip_build = None

@@ -1,6 +1,8 @@
 """A collection of functions which are triggered automatically by finder when
 opencv-python package is included."""
 
+from __future__ import annotations
+
 import sys
 from pathlib import Path
 

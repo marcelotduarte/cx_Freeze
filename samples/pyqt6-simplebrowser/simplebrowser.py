@@ -1,5 +1,7 @@
 """PyQt6 WebEngineWidgets Example"""
 
+from __future__ import annotations
+
 import sys
 
 from PyQt6.QtCore import QUrl

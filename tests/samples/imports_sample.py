@@ -1,4 +1,6 @@
 # pylint: skip-file
+from __future__ import annotations
+
 import moda  # noqa
 from modb import b  # noqa
 

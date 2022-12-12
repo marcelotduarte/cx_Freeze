@@ -1,5 +1,7 @@
 """A simple script to demonstrate PySide2."""
 
+from __future__ import annotations
+
 import sys
 
 from PySide2.QtCore import Qt

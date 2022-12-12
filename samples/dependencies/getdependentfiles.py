@@ -9,6 +9,8 @@
 #
 # See also: test_1.py - a batch of tests
 
+from __future__ import annotations
+
 import os
 import sys
 

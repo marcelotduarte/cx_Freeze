@@ -10,6 +10,8 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application
 """
 
+from __future__ import annotations
+
 from cx_Freeze import Executable, setup
 
 options = {

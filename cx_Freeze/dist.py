@@ -1,5 +1,7 @@
 """The classes and functions with which cx_Freeze extends setuptools."""
 
+from __future__ import annotations
+
 from setuptools import Distribution as _Distribution
 
 __all__ = ["Distribution", "DistributionMetadata"]

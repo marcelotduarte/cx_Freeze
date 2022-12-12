@@ -3,6 +3,8 @@
 # This sample uses the getdependentfiles.py script to try to get the
 # dependents of some predetermined files.
 
+from __future__ import annotations
+
 import os
 import sys
 

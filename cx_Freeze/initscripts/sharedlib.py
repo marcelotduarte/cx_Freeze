@@ -4,8 +4,9 @@ console based applications but must handle the case where Python has already
 been initialized and another DLL of this kind has been loaded. As such it
 does not block the path unless sys.frozen is not already set.
 """
-# pylint: disable=missing-function-docstring
+from __future__ import annotations
 
+# pylint: disable=missing-function-docstring
 import sys
 
 if not hasattr(sys, "frozen"):

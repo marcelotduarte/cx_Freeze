@@ -10,15 +10,15 @@ Use the following commands to install in the development mode:
     pip install -e . --no-build-isolation --no-deps
 
 """
-# pylint: disable=attribute-defined-outside-init,missing-function-docstring
+from __future__ import annotations
 
+# pylint: disable=attribute-defined-outside-init,missing-function-docstring
 import os
 import sys
 from pathlib import Path
 from shutil import which
 from subprocess import CalledProcessError, check_call, check_output
 from sysconfig import get_config_var, get_platform, get_python_version
-from typing import List, Tuple, Union
 
 import setuptools.command.build_ext
 from setuptools import Extension, setup
@@ -165,7 +165,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 return dll_path
         return Path(f"{name}.dll")
 
-    def _dlltool_delay_load(self, name: str) -> Tuple[str, str]:
+    def _dlltool_delay_load(self, name: str) -> tuple[str, str]:
         """Get the delay load library to use with mingw32 gcc/clang compiler"""
         dir_name = f"libdl.{get_platform()}-{get_python_version()}"
         library_dir = Path(self.build_temp, dir_name)
@@ -239,7 +239,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         super().run()
 
 
-def _make_strs(paths: List[Union[str, Path]]) -> List[str]:
+def _make_strs(paths: list[str | Path]) -> list[str]:
     """Convert paths to strings for legacy compatibility."""
     if sys.version_info > (3, 8) and not WIN32:
         return paths
