@@ -48,10 +48,12 @@ file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
-Homepage = "https://marcelotduarte.github.io/cx_Freeze"
-"Bug Tracker" = "https://github.com/marcelotduarte/cx_Freeze/issues"
-"CI: GitHub Workflows" = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
-"Source Code" = "https://github.com/marcelotduarte/cx_Freeze"
+Home = "https://marcelotduarte.github.io/cx_Freeze"
+Changelog = "https://cx-freeze.readthedocs.io/en/latest/releasenotes.html"
+Documentation = "https://cx-freeze.readthedocs.io"
+Source = "https://github.com/marcelotduarte/cx_Freeze"
+Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
+Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
 
 [project.optional-dependencies]
 dev = [
