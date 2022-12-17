@@ -80,9 +80,8 @@ class Executable:
     def base(self, name: str | Path | None):
         name = name or "console"
         if IS_WINDOWS or IS_MINGW:
-            py_version_nodot = get_config_var("py_version_nodot")
             platform_nodot = get_platform().replace(".", "").replace("-", "_")
-            soabi = f"cp{py_version_nodot}-{platform_nodot}"
+            soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
             suffix = ".exe"
         else:
             soabi = get_config_var("SOABI")
