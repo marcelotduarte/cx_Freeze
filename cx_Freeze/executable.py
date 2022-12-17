@@ -8,13 +8,13 @@ import sys
 from pathlib import Path
 from sysconfig import get_config_var, get_platform
 
+from ._compat import IS_MINGW, IS_WINDOWS
 from .common import get_resource_file_path, validate_args
 from .exception import ConfigError
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
-WIN32 = sys.platform == "win32"
 
 __all__ = ["Executable"]
 
@@ -79,7 +79,7 @@ class Executable:
     @base.setter
     def base(self, name: str | Path | None):
         name = name or "console"
-        if WIN32:
+        if IS_WINDOWS or IS_MINGW:
             py_version_nodot = get_config_var("py_version_nodot")
             platform_nodot = get_platform().replace(".", "").replace("-", "_")
             soabi = f"cp{py_version_nodot}-{platform_nodot}"

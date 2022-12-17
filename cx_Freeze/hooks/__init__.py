@@ -9,14 +9,11 @@ import sys
 import sysconfig
 from pathlib import Path
 
+from .._compat import IS_MINGW, IS_WINDOWS
 from ..common import code_object_replace, get_resource_file_path
 from ..finder import ModuleFinder
 from ..module import Module
 from ._qthooks import get_qt_plugins_paths  # noqa
-
-DARWIN = sys.platform == "darwin"
-MINGW = sysconfig.get_platform().startswith("mingw")
-WIN32 = sys.platform == "win32"
 
 
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
@@ -125,7 +122,7 @@ def load_cryptography(finder: ModuleFinder, module: Module) -> None:
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
     """In Windows, the _ctypes module in Python 3.8+ requires an additional
     libffi dll to be present in the build directory."""
-    if WIN32 and sys.version_info >= (3, 8) and not MINGW:
+    if IS_WINDOWS and sys.version_info >= (3, 8):
         dll_pattern = "libffi-*.dll"
         dll_dir = Path(sys.base_prefix, "DLLs")
         for dll_path in dll_dir.glob(dll_pattern):
@@ -604,7 +601,7 @@ def load_site(finder: ModuleFinder, module: Module) -> None:
 def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
     be present in the build directory."""
-    if WIN32 and not MINGW:
+    if IS_WINDOWS:
         dll_name = "sqlite3.dll"
         dll_path = Path(sys.base_prefix, "DLLs", dll_name)
         if not dll_path.exists():
@@ -622,7 +619,7 @@ def load_six(finder: ModuleFinder, module: Module) -> None:
 def load_ssl(finder: ModuleFinder, module: Module) -> None:
     """In Windows, the SSL module in Python 3.7+ requires additional dlls to
     be present in the build directory."""
-    if WIN32 and sys.version_info >= (3, 7) and not MINGW:
+    if IS_WINDOWS and sys.version_info >= (3, 7):
         for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
             libs_dir = Path(sys.base_prefix, "DLLs")
             for dll_path in libs_dir.glob(dll_search):
@@ -678,7 +675,7 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
         target_path = Path("lib", "tcltk", source_path.name)
         finder.add_constant(env_name, os.fspath(target_path))
         finder.include_files(source_path, target_path)
-        if WIN32 and not MINGW:
+        if IS_WINDOWS:
             dll_name = source_path.name.replace(".", "") + "t.dll"
             dll_path = Path(sys.base_prefix, "DLLs", dll_name)
             if not dll_path.exists():
@@ -790,7 +787,7 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
     dynamically to zmq.libzmq or shared lib. Tested in pyzmq 16.0.4 (py36),
     19.0.2 (MSYS2 py39) up to 22.2.1 (from pip and from conda)."""
     finder.include_package("zmq.backend.cython")
-    if WIN32:
+    if IS_WINDOWS or IS_MINGW:
         # For pyzmq 22 the libzmq dependencies are located in
         # site-packages/pyzmq.libs
         libzmq_folder = "pyzmq.libs"
@@ -863,5 +860,5 @@ def missing_readline(finder: ModuleFinder, caller: Module) -> None:
     """The readline module is not normally present on Windows but it also may
     be so instead of excluding it completely, ignore it if it can't be found.
     """
-    if WIN32:
+    if IS_WINDOWS:
         caller.ignore_names.add("readline")

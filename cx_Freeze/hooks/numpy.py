@@ -9,10 +9,9 @@ import sys
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 
+from .._compat import IS_MINGW, IS_WINDOWS
 from ..finder import ModuleFinder
 from ..module import Module
-
-WIN32 = sys.platform == "win32"
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
@@ -21,7 +20,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     1.21.1+mkl, 1.21.2+mkl and 1.21.2 from conda-forge."""
     finder.include_package("numpy")
 
-    if WIN32:
+    if IS_WINDOWS or IS_MINGW:
         numpy_dir = module.path[0]
         # numpy+mkl from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
         libs_dir = numpy_dir / "DLLs"

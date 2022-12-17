@@ -8,11 +8,9 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+from .._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from ..finder import ModuleFinder
 from ..module import Module
-
-DARWIN = sys.platform == "darwin"
-WIN32 = sys.platform == "win32"
 
 
 def _qt_implementation(module: Module) -> str:
@@ -82,7 +80,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     # set some defaults or use relative path
     for key, source in source_paths.items():
         if key == "SettingsPath":
-            target = Path("Contents/Resources" if DARWIN else ".")
+            target = Path("Contents/Resources" if IS_MACOS else ".")
         elif key in ("ArchDataPath", "DataPath", "PrefixPath"):
             target = target_base
         elif key == "BinariesPath":
@@ -90,7 +88,9 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
         elif key == "LibrariesPath":
             target = target_base / "lib"
         elif key == "LibraryExecutablesPath":
-            target = target_base / ("bin" if WIN32 else "libexec")
+            target = target_base / (
+                "bin" if IS_WINDOWS or IS_MINGW else "libexec"
+            )
         elif key == "PluginsPath":
             target = target_base / "plugins"
         elif key == "TranslationsPath":
@@ -143,7 +143,7 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
 def load_qt_phonon(finder: ModuleFinder, module: Module) -> None:
     """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
     be present in the build directory inside a folder phonon_backend."""
-    if WIN32:
+    if IS_WINDOWS or IS_MINGW:
         name = _qt_implementation(module)
         copy_qt_files(finder, name, "PluginsPath", "phonon_backend")
 
@@ -304,7 +304,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
     finder.include_module(f"{name}.QtNetwork")
-    if WIN32:
+    if IS_WINDOWS:
         for filename in (
             "QtWebEngineProcess.exe",
             "d3dcompiler_47.dll",
@@ -317,7 +317,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             copy_qt_files(finder, name, "ArchDataPath", filename)
             # pyqt5 - all files listed in LibraryExecutablesPath
             copy_qt_files(finder, name, "LibraryExecutablesPath", filename)
-    elif DARWIN:
+    elif IS_MACOS:
         copy_qt_files(
             finder, name, "LibrariesPath", "QtWebEngineCore.framework"
         )

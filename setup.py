@@ -24,8 +24,11 @@ import setuptools.command.build_ext
 from setuptools import Extension, setup
 from setuptools.errors import LinkError
 
-WIN32 = sys.platform == "win32"
-DARWIN = sys.platform == "darwin"
+ENABLE_SHARED = bool(get_config_var("Py_ENABLE_SHARED"))
+PLATFORM = get_platform()
+IS_MACOS = PLATFORM.startswith("macos")
+IS_MINGW = PLATFORM.startswith("mingw")
+IS_WINDOWS = PLATFORM.startswith("win")
 IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 
 
@@ -36,7 +39,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         if "bases" not in ext.name:
             super().build_extension(ext)
             return
-        if WIN32 and self.compiler.compiler_type == "mingw32":
+        if IS_MINGW or IS_WINDOWS and self.compiler.compiler_type == "mingw32":
             ext.sources.append("source/bases/manifest.rc")
         objects = self.compiler.compile(
             ext.sources,
@@ -50,7 +53,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         library_dirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extra_args = ext.extra_link_args or []
-        if WIN32:
+        if IS_MINGW or IS_WINDOWS:
             compiler_type = self.compiler.compiler_type
             # support for delay load [windows]
             for arg in extra_args[:]:
@@ -73,7 +76,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                             if "clang" in linker_option:
                                 extra_args.append(f"-Wl,-delayload,{dll_name}")
                                 break
-                        if get_platform().startswith("mingw_i686"):  # mingw32
+                        if PLATFORM.startswith("mingw_i686"):  # mingw32
                             # disable delay load to avoid a Segmentation fault
                             libraries.append(lib_name)
                         else:
@@ -89,11 +92,11 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 extra_args.append("-municode")
         else:
             library_dirs.append(get_config_var("LIBPL"))
-            if not bool(get_config_var("Py_ENABLE_SHARED")):
+            if not ENABLE_SHARED:
                 library_dirs.append(get_config_var("LIBDIR"))
             abiflags = get_config_var("abiflags")
             libraries.append(f"python{get_python_version()}{abiflags}")
-            if get_config_var("LINKFORSHARED") and not DARWIN:
+            if get_config_var("LINKFORSHARED") and not IS_MACOS:
                 extra_args.extend(get_config_var("LINKFORSHARED").split())
             if get_config_var("LIBS"):
                 extra_args.extend(get_config_var("LIBS").split())
@@ -103,7 +106,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 extra_args.extend(get_config_var("BASEMODLIBS").split())
             if get_config_var("LOCALMODLIBS"):
                 extra_args.extend(get_config_var("LOCALMODLIBS").split())
-            if DARWIN:
+            if IS_MACOS:
                 # macOS on Github Actions
                 extra_args.append("-Wl,-export_dynamic")
             else:
@@ -125,7 +128,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                     debug=self.debug,
                 )
             except LinkError:
-                if WIN32:
+                if IS_MINGW or IS_WINDOWS:
                     raise
                 continue
             else:
@@ -139,9 +142,9 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         # console-cpython-39-x86_64-linux-gnu, console-cpython-36m-darwin
         ext_path = Path(*fullname.split("."))
         name = ext_path.name
-        if WIN32:
+        if IS_MINGW or IS_WINDOWS:
             py_version_nodot = get_config_var("py_version_nodot")
-            platform_nodot = get_platform().replace(".", "").replace("-", "_")
+            platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
             soabi = f"cp{py_version_nodot}-{platform_nodot}"
             suffix = ".exe"
         else:
@@ -167,7 +170,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
 
     def _dlltool_delay_load(self, name: str) -> tuple[str, str]:
         """Get the delay load library to use with mingw32 gcc/clang compiler"""
-        dir_name = f"libdl.{get_platform()}-{get_python_version()}"
+        dir_name = f"libdl.{PLATFORM}-{get_python_version()}"
         library_dir = Path(self.build_temp, dir_name)
         library_dir.mkdir(parents=True, exist_ok=True)
         # Use gendef and dlltool to generate the library (.a and .delay.a)
@@ -197,7 +200,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         macpython. Modules such as math, _struct and zlib, which are normally
         embedded in python, are compiled separately.
         Also, copies tcl/tk libraries."""
-        if WIN32 or IS_CONDA or bool(get_config_var("Py_ENABLE_SHARED")):
+        if IS_MINGW or IS_WINDOWS or IS_CONDA or ENABLE_SHARED:
             return
         bases = f"{self.build_lib}/cx_Freeze/bases"
         if bool(get_config_var("DESTSHARED")):
@@ -241,7 +244,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
 
 def _make_strs(paths: list[str | Path]) -> list[str]:
     """Convert paths to strings for legacy compatibility."""
-    if sys.version_info > (3, 8) and not WIN32:
+    if sys.version_info > (3, 8) and not (IS_MINGW or IS_WINDOWS):
         return paths
     return list(map(os.fspath, paths))
 
@@ -256,7 +259,7 @@ if __name__ == "__main__":
         depends=depends,
     )
     extensions = [console]
-    if WIN32:
+    if IS_MINGW or IS_WINDOWS:
         gui = Extension(
             "cx_Freeze.bases.Win32GUI",
             ["source/bases/Win32GUI.c"],
