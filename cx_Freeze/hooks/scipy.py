@@ -4,12 +4,9 @@ scipy package is included."""
 
 from __future__ import annotations
 
-import sys
-
+from .._compat import IS_MINGW, IS_WINDOWS
 from ..finder import ModuleFinder
 from ..module import Module
-
-WIN32 = sys.platform == "win32"
 
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
@@ -17,7 +14,7 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     problems without a number of subpackages being present."""
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")
-    if WIN32:
+    if IS_WINDOWS or IS_MINGW:
         finder.exclude_module("scipy.spatial.cKDTree")
 
 

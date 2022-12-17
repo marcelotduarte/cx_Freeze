@@ -6,12 +6,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from .._compat import IS_MACOS, IS_WINDOWS
 from ..common import TemporaryPath
 from ..finder import ModuleFinder
 from ..module import Module
-
-DARWIN = sys.platform == "darwin"
-WIN32 = sys.platform == "win32"
 
 temp_path = TemporaryPath()
 
@@ -45,7 +43,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
         lines = ["[Paths]", f"Prefix = {target_dir.as_posix()}"]
         with qt_conf.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(lines))
-        if DARWIN:
+        if IS_MACOS:
             target_qt_conf = "Contents/Resources/qt.conf"
         else:
             target_qt_conf = qt_conf.name
@@ -63,9 +61,9 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
         finder.include_files(data_dir, target_dir / "data")
 
     # Copy all binary files
-    if WIN32:
+    if IS_WINDOWS:
         return
-    if DARWIN:
+    if IS_MACOS:
         source_dylibs = source_dir / ".dylibs"
         if source_dylibs.exists():
             for file in source_dylibs.iterdir():

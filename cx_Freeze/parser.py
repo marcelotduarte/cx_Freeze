@@ -14,28 +14,25 @@ from pathlib import Path
 from subprocess import CalledProcessError, check_call, check_output, run
 from typing import Any
 
+from ._compat import IS_MINGW, IS_WINDOWS
 from .common import TemporaryPath
-
-# pylint: disable=c-extension-no-member
-if sys.platform == "win32":
-    import lief
-
-    lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
-
-try:
-    from cx_Freeze import util
-except ImportError:
-    util = None
-
-PE_EXT = (".exe", ".dll", ".pyd")
-MAGIC_ELF = b"\x7fELF"
-NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
-NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
 
 # In Windows, to get dependencies, the default is to use lief package,
 # but LIEF can be disabled with:
 # set CX_FREEZE_BIND=imagehlp
-LIEF_DISABLED = os.environ.get("CX_FREEZE_BIND", "") == "imagehlp" and util
+if IS_WINDOWS or IS_MINGW:
+    # pylint: disable=c-extension-no-member
+    import lief
+
+    from .util import BindError, GetDependentFiles
+
+    lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
+
+LIEF_DISABLED = os.environ.get("CX_FREEZE_BIND", "") == "imagehlp"
+PE_EXT = (".exe", ".dll", ".pyd")
+MAGIC_ELF = b"\x7fELF"
+NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
+NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
 
 
 class Parser(ABC):
@@ -92,8 +89,8 @@ class PEParser(Parser):
         orig_path = os.environ["PATH"]
         os.environ["PATH"] = os.pathsep.join(sys.path) + os.pathsep + orig_path
         try:
-            files: list[str] = util.GetDependentFiles(path)
-        except util.BindError as exc:
+            files: list[str] = GetDependentFiles(path)
+        except BindError as exc:
             # Sometimes this gets called when path is not actually
             # a library (See issue 88).
             if self._silent < 3:

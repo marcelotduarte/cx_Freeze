@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 import sys
+import sysconfig
 
 __all__ = ["cached_property", "importlib_metadata"]
+__all__ += ["PLATFORM", "IS_LINUX", "IS_MACOS", "IS_MINGW", "IS_WINDOWS"]
+
+PLATFORM = sysconfig.get_platform()
+IS_LINUX = PLATFORM.startswith("linux")
+IS_MACOS = PLATFORM.startswith("macos")
+IS_MINGW = PLATFORM.startswith("mingw")
+IS_WINDOWS = PLATFORM.startswith("win")
+
 
 if sys.version_info >= (3, 10):
     import importlib.metadata as importlib_metadata

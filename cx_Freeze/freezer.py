@@ -15,7 +15,7 @@ from importlib.util import MAGIC_NUMBER
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
-from ._compat import cached_property
+from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, cached_property
 from .common import (
     IncludesList,
     InternalIncludesList,
@@ -29,11 +29,7 @@ from .finder import ModuleFinder
 from .module import ConstantsModule, Module
 from .parser import ELFParser, Parser, PEParser
 
-DARWIN = sys.platform == "darwin"
-MINGW = sysconfig.get_platform().startswith("mingw")
-WIN32 = sys.platform == "win32"
-
-if WIN32:
+if IS_WINDOWS or IS_MINGW:
     from . import winmsvcr
     from .winversioninfo import VersionInfo
 
@@ -41,7 +37,7 @@ if WIN32:
         from .util import AddIcon, GetSystemDir, GetWindowsDir, UpdateCheckSum
     except ImportError:
         pass
-elif DARWIN:
+elif IS_MACOS:
     from .darwintools import DarwinFile, DarwinFileTracker, MachOReference
 
 __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
@@ -51,9 +47,9 @@ class Freezer:
     def __new__(cls, *args, **kwargs):
         # create instance of appropriate sub-class, depending on the platform.
         instance: Freezer
-        if WIN32:
+        if IS_WINDOWS or IS_MINGW:
             instance = super().__new__(WinFreezer)
-        elif DARWIN:
+        elif IS_MACOS:
             instance = super().__new__(DarwinFreezer)
         else:  # assume any other platform would be handled by LinuxFreezer
             instance = super().__new__(LinuxFreezer)
@@ -768,7 +764,7 @@ class WinFreezer(Freezer, PEParser):
         # top dependencies go into build root directory on windows
         # the C runtimes are handled in _copy_file/_pre_copy_hook
         # on msys2 libpython depends on libgcc_s_seh and libwinpthread dlls.
-        if MINGW:
+        if IS_MINGW:
             dependent_files = self.get_dependent_files(source)
             for file in dependent_files:
                 if self._should_copy_file(file):
@@ -862,7 +858,7 @@ class WinFreezer(Freezer, PEParser):
 
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[str] = []
-        if MINGW:
+        if IS_MINGW:
             name = sysconfig.get_config_var("INSTSONAME")
             if name:
                 python_shared_libs.append(name.replace(".dll.a", ".dll"))
