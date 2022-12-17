@@ -609,7 +609,8 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
         dll_path = Path(sys.base_prefix, "DLLs", dll_name)
         if not dll_path.exists():
             dll_path = Path(sys.base_prefix, "Library", "bin", dll_name)
-        finder.include_files(dll_path, Path("lib", dll_name))
+        if dll_path.exists():
+            finder.include_files(dll_path, Path("lib", dll_name))
     finder.include_package("sqlite3")
 
 
