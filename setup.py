@@ -143,9 +143,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         ext_path = Path(*fullname.split("."))
         name = ext_path.name
         if IS_MINGW or IS_WINDOWS:
-            py_version_nodot = get_config_var("py_version_nodot")
             platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
-            soabi = f"cp{py_version_nodot}-{platform_nodot}"
+            soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
             suffix = ".exe"
         else:
             soabi = get_config_var("SOABI")
