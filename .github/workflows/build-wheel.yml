@@ -60,6 +60,9 @@ jobs:
           name: cx-freeze-wheelhouse
           path: wheelhouse
 
+      - name: Add sdist
+        run: python setup.py sdist -d wheelhouse/
+
       - name: Publish package to PyPI
         if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
