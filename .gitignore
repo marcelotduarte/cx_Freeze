@@ -3,10 +3,7 @@ build/
 dist/
 wheelhouse/
 cx_Freeze/bases/*
-!cx_Freeze/bases/README
-cx_Freeze/util*.so
-cx_Freeze/util*.dll
-cx_Freeze/util*.pyd
+!cx_Freeze/bases/*-win*.exe
 cx_Freeze.egg-info/
 MANIFEST
 output.log
