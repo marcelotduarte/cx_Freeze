@@ -12,9 +12,16 @@ WIN32 = sys.platform == "win32"
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """The scipy module loads items within itself in a way that causes
-    problems without a number of subpackages being present."""
+    problems without libs and a number of subpackages being present."""
+    libs_name = f"{module.name}.libs"
+    source_dir = module.path[0].parent / libs_name
+    if source_dir.exists():
+        finder.include_files(source_dir, f"lib/{libs_name}")
+
+    finder.include_package("scipy.integrate")
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")
+    finder.include_package("scipy.optimize")
     if WIN32:
         finder.exclude_module("scipy.spatial.cKDTree")
 
