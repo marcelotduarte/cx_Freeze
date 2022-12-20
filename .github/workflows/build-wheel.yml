@@ -110,5 +110,5 @@ jobs:
             git add cx_Freeze/bases/__init__.py
             # Update
             git commit -m "bases: update base executables and util module"
-            git push --set-upstream origin develop
+            git push --set-upstream origin main
           fi
