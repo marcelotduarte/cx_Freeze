@@ -248,42 +248,51 @@ def _make_strs(paths: list[str | Path]) -> list[str]:
     return list(map(os.fspath, paths))
 
 
-if __name__ == "__main__":
-
-    # build base executables
+def get_extensions():
+    """Build base executables and util module extension."""
+    # [Windows only] With binaries included in bases, the compilation is
+    # optional in the development mode.
     depends = ["source/bases/common.c"]
-    console = Extension(
-        "cx_Freeze.bases.console",
-        ["source/bases/console.c"],
-        depends=depends,
-    )
-    extensions = [console]
-    if IS_MINGW or IS_WINDOWS:
-        gui = Extension(
-            "cx_Freeze.bases.Win32GUI",
-            ["source/bases/Win32GUI.c"],
+    optional = IS_WINDOWS and os.environ.get("CIBUILDWHEEL", "0") != "1"
+    extensions = [
+        Extension(
+            "cx_Freeze.bases.console",
+            ["source/bases/console.c"],
             depends=depends,
-            libraries=["user32"],
+            optional=optional,
         )
-        extensions.append(gui)
-        service = Extension(
-            "cx_Freeze.bases.Win32Service",
-            ["source/bases/Win32Service.c"],
-            depends=depends,
-            extra_link_args=["/DELAYLOAD:cx_Logging"],
-            libraries=["advapi32"],
-        )
-        extensions.append(service)
-        # build utility module
-        util_module = Extension(
-            "cx_Freeze.util",
-            ["source/util.c"],
-            libraries=["imagehlp", "shlwapi"],
-        )
-        extensions.append(util_module)
+    ]
 
+    if IS_MINGW or IS_WINDOWS:
+        extensions += [
+            Extension(
+                "cx_Freeze.bases.Win32GUI",
+                ["source/bases/Win32GUI.c"],
+                depends=depends,
+                libraries=["user32"],
+                optional=optional,
+            ),
+            Extension(
+                "cx_Freeze.bases.Win32Service",
+                ["source/bases/Win32Service.c"],
+                depends=depends,
+                extra_link_args=["/DELAYLOAD:cx_Logging"],
+                libraries=["advapi32"],
+                optional=optional,
+            ),
+            Extension(
+                "cx_Freeze.util",
+                ["source/util.c"],
+                libraries=["imagehlp", "shlwapi"],
+                optional=optional,
+            ),
+        ]
+    return extensions
+
+
+if __name__ == "__main__":
     setup(
         cmdclass={"build_ext": BuildBases},
         options={"install": {"optimize": 1}},
-        ext_modules=extensions,
+        ext_modules=get_extensions(),
     )
