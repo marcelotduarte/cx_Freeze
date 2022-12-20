@@ -576,8 +576,22 @@ def load_skimage(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
-    """The skimage.feature.orb_cy is a extension that load a module."""
+    """The skimage.feature.orb_cy is an extension that load a module."""
     finder.include_module("skimage.feature._orb_descriptor_positions")
+
+
+def load_sklearn__distributor_init(
+    finder: ModuleFinder, module: Module
+) -> None:
+    """On Windows the sklearn/.libs directory is not copied."""
+    source_dir = module.parent.path[0] / ".libs"
+    if source_dir.exists():
+        # msvc files should be copied to lib directory
+        finder.include_files(source_dir, "lib")
+        # patch the code to search the correct directory
+        code_string = module.file.read_text()
+        code_string = code_string.replace("libs_path =", "libs_path = 'lib'#")
+        module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
