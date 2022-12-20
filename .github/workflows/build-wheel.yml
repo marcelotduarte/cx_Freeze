@@ -99,7 +99,7 @@ jobs:
             git config user.name "Marcelo Duarte"
             git config user.email marcelotduarte@users.noreply.github.com
             # Remove any file that match - remove previous versions too
-            git rm -f 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
+            git rm --ignore-unmatch 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             # Extract base executables and util module
             for file in wheelhouse/*-win*.whl; do
               unzip -o $file 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
