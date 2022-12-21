@@ -707,6 +707,13 @@ def load_tokenizers(finder: ModuleFinder, module: Module) -> None:
         finder.include_files(source_dir, Path("lib", libs_name))
 
 
+def load_torch(finder: ModuleFinder, module: Module) -> None:
+    """Include the shared libraries in 'lib' to avoid searching through the
+    system."""
+    source_dir = module.path[0] / "lib"
+    finder.include_files(source_dir, f"lib/{module.name}/lib")
+
+
 def load_twisted_conch_ssh_transport(
     finder: ModuleFinder, module: Module
 ) -> None:
