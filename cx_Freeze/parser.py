@@ -273,8 +273,8 @@ def _verify_patchelf() -> None:
         raise ValueError("Could not call `patchelf` binary") from None
 
     mobj = re.match(r"patchelf\s+(\d+(.\d+)?)", version)
-    if mobj and tuple(int(x) for x in mobj.group(1).split(".")) >= (0, 12):
+    if mobj and tuple(int(x) for x in mobj.group(1).split(".")) >= (0, 14):
         return
     raise ValueError(
-        f"patchelf {version} found. cx_Freeze requires patchelf >= 0.12."
+        f"patchelf {version} found. cx_Freeze requires patchelf >= 0.14."
     )

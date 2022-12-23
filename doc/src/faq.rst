@@ -26,9 +26,9 @@ packages, this may lead to undesired behavior, such as **cx_Freeze**
 encountering a recursion error when trying to compute the list of dependencies,
 or the `lib` folder of the frozen application containing many unnecessary
 packages.
-In this case, you may want to use **cx_Freeze** in a virtualenv. Alternatively, the
-`setup_script` also offers the :option:`excludes` option to explicitly exclude
-dependencies which would otherwise be included.
+In this case, you may want to use **cx_Freeze** in a virtualenv. Alternatively,
+the `setup_script` also offers the :option:`excludes` option to explicitly
+exclude dependencies which would otherwise be included.
 
 Specifying modules and packages
 -------------------------------
@@ -163,3 +163,37 @@ included with the frozen program.
 In order to make it easy to comply with this requirement, **cx_Freeze** will
 automatically include a copy of the license, as a text file, as part of
 the frozen program.
+
+.. _patchelf:
+
+How to install Patchelf
+-----------------------
+
+Patchelf is used in Linux and unix-like systems (FreeBSD, etc, except macOS).
+In Linux, cx_Freeze 6.10+ installs it using |PyPI_link_patchelf| wheels.
+
+ .. |PyPI_link_patchelf| raw:: html
+
+   <a href="https://pypi.org/project/patchelf/" target="_blank">PyPI</a>
+
+If you have any trouble with it, because your platform is not supported by
+binary wheels, please install it using the system package manager or from
+sources.
+
+ To install patchelf in debian-based:
+
+  .. code-block:: console
+
+    sudo apt-get install patchelf
+
+ To install patchelf in fedora:
+
+  .. code-block:: console
+
+    dnf install patchelf
+
+ Or install patchelf from |patchelf_sources|.
+
+ .. |patchelf_sources| raw:: html
+
+   <a href="https://github.com/NixOS/patchelf#compiling-and-testing" target="_blank">sources</a>
