@@ -7,11 +7,6 @@ from setuptools import Distribution as _Distribution
 __all__ = ["Distribution", "DistributionMetadata"]
 
 
-class DistributionMetadata:
-    """Dummy class to hold the distribution meta-data: name, version,
-    author, and so forth."""
-
-
 class Distribution(_Distribution):
     """Distribution with support for executables."""
 
@@ -19,7 +14,6 @@ class Distribution(_Distribution):
         self.executables = []
         super().__init__(attrs)
         self._fix_py_modules()
-        self.metadata = self._patch_metadata()
 
     def _fix_py_modules(self):
         # fix package discovery (setuptools >= 61)
@@ -31,15 +25,11 @@ class Distribution(_Distribution):
             ]
         )
 
-    def _patch_metadata(self) -> DistributionMetadata:
-        old_metadata = self.metadata
-        new_metadata = DistributionMetadata()
-        for var in dir(old_metadata):
-            if not hasattr(new_metadata, var):
-                setattr(new_metadata, var, getattr(old_metadata, var))
-        self.distutils_metadata = old_metadata
-        return new_metadata
-
     def has_executables(self):
         """Predicate for build_exe command."""
         return self.executables and len(self.executables) > 0
+
+
+DistributionMetadata = type(_Distribution().metadata)
+"""Dummy class to hold the distribution meta-data: name, version, author,
+and so forth."""
