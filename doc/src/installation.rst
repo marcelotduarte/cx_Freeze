@@ -31,43 +31,17 @@ Python requirements are installed automatically by pip or conda.
    cx_Logging >= 3.1           (Windows only)
    lief >= 0.11.5              (Windows only)
    packaging >= 21.0
-   patchelf >= 0.12            (Linux)
+   patchelf >= 0.14            (Linux)
    setuptools >= 59.0.1
 
 .. note:: Patchelf
 
- patchelf is used in Linux and unix-like systems (FreeBSD, etc), except macOS.
- In Linux, cx_Freeze 6.10+ installs it using new wheels available on
- |PyPI_link_patchelf|.
-
- .. |PyPI_link_patchelf| raw:: html
-
-   <a href="https://pypi.org/project/patchelf/" target="_blank">PyPI</a>
-
- If you have any trouble with it, use the old method:
-
- To install patchelf in debian/ubuntu:
-
-  .. code-block:: console
-
-    sudo apt-get install patchelf
-
- To install patchelf in fedora:
-
-  .. code-block:: console
-
-    dnf install patchelf
-
- Or install patchelf from |patchelf_sources|
-
- .. |patchelf_sources| raw:: html
-
-   <a href="https://github.com/NixOS/patchelf#compiling-and-testing" target="_blank">sources</a>
+ If you have any trouble with patchelf, check :ref:`patchelf`.
 
 Pipenv
 ------
 
-Using pipenv, install or update by issuing one of the folowing commanda:
+Using pipenv, install or update by issuing one of the folowing command:
 
   .. code-block:: console
 
