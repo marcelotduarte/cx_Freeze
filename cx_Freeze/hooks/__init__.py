@@ -542,6 +542,14 @@ def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("reportlab.rl_settings")
 
 
+def load_shapely(finder: ModuleFinder, module: Module) -> None:
+    """The Shapely.libs directory is not copied."""
+    libs_name = "Shapely.libs"
+    source_dir = module.path[0].parent / libs_name
+    if source_dir.exists():
+        finder.include_files(source_dir, f"lib/{libs_name}")
+
+
 def load_sentry(finder: ModuleFinder, module: Module) -> None:
     """The Sentry.io SDK"""
     finder.include_module("sentry_sdk.integrations.stdlib")
