@@ -26,28 +26,14 @@ class TestBuild:
         wanted = os.path.join(cmd.build_base, "lib")
         assert cmd.build_purelib == wanted
 
-        # build_platlib is 'build/lib.platform-x.x[-pydebug]'
+        # build_exe is 'build/exe.platform-x.x'
         # examples:
-        #   build/lib.linux-x86_64-3.9
-        #   build/lib.win-amd64-3.10
+        #   build/lib.linux-x86_64-3.10
+        #   build/lib.win-amd64-3.11
         python_version = get_python_version()
         plat_spec = f".{cmd.plat_name}-{python_version}"
-        if hasattr(sys, "gettotalrefcount"):
-            self.assertTrue(cmd.build_platlib.endswith("-pydebug"))
-            plat_spec += "-pydebug"
-        wanted = os.path.join(cmd.build_base, "lib" + plat_spec)
-        assert cmd.build_platlib == wanted
-
-        # by default, build_lib = build_purelib
-        assert cmd.build_lib == cmd.build_purelib
-
-        # build_temp is build/temp.<plat>
-        wanted = os.path.join(cmd.build_base, "temp" + plat_spec)
-        assert cmd.build_temp == wanted
-
-        # build_scripts is build/scripts-x.x
-        wanted = os.path.join(cmd.build_base, f"scripts-{python_version}")
-        assert cmd.build_scripts == wanted
+        wanted = os.path.join(cmd.build_base, "exe" + plat_spec)
+        assert cmd.build_exe == wanted
 
         # executable is os.path.normpath(sys.executable)
         assert cmd.executable == os.path.normpath(sys.executable)
