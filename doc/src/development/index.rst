@@ -47,6 +47,32 @@ If you don't have make installed, run:
       ``pip install -e . --no-build-isolation --no-deps``.
 
 
+Conda-forge
+-----------
+
+If you are installing a pre-release or from sources, install the requirements
+using the conda-forge channel:
+
+  .. code-block:: console
+
+    python
+    c-compiler
+    libpython-static (for python >=3.8 in linux and macOS)
+    py-lief (Windows)
+    patchelf (Linux)
+    # declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9+ in macOS)
+    # for example, in Github Actions CI, macOS:
+    export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+
+An example for Linux:
+
+  .. code-block:: console
+
+    conda create -n cx39conda -c conda-forge python=3.9 libpython-static -y
+    conda activate cx39conda
+    conda install -c conda-forge c-compiler patchelf -y
+    pip install --upgrade --no-binary=cx_Freeze --pre cx_Freeze -v
+
 Building documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 

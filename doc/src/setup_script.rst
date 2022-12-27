@@ -1,6 +1,6 @@
 .. _setup_script:
 
-setup script
+Setup script
 ============
 
 In order to make use of this method, a setup script must be created. This is
@@ -29,7 +29,13 @@ something like this:
         executables=[Executable("guifoo.py", base=base)],
     )
 
-There are more examples in the |samples| directory.
+.. seealso::
+
+   :doc:`setup() keywords <keywords>`.
+
+   :ref:`cx_freeze_executable`
+
+.. note:: There are more examples in the |samples| directory.
 
 .. |samples| raw:: html
 
@@ -458,6 +464,8 @@ ensure that packages are created with the proper architecture for the platform.
 The standard command assumes that the package should be architecture
 independent if it cannot find any extension modules.
 
+.. seealso:: :setuptools:`Creating RPM packages </deprecated/distutils/builtdist.html#creating-rpm-packages>`
+
 bdist_mac
 `````````
 
@@ -551,6 +559,7 @@ This is the equivalent help to specify the same options on the command line:
 
     python setup.py bdist_dmg --help
 
+.. _cx_freeze_executable:
 
 cx_Freeze.Executable
 --------------------
