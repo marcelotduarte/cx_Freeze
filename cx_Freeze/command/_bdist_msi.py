@@ -29,9 +29,11 @@ from msilib import (  # pylint: disable=deprecated-module
 )
 from sysconfig import get_platform, get_python_version
 
-from packaging.version import Version
 from setuptools import Command
 from setuptools.errors import OptionError
+
+# pylint: disable-next=no-name-in-module
+from setuptools.extern.packaging import version as packaging_version
 
 from ._pydialog import PyDialog
 
@@ -222,7 +224,7 @@ class bdist_msi(Command):
         version = metadata.get_version()
         # ProductVersion must be strictly numeric
         # XXX need to deal with prerelease versions
-        base_version = Version(version).base_version
+        base_version = packaging_version.Version(version).base_version
         # Prefix ProductName with Python x.y, so that
         # it sorts together with the other Python packages
         # in Add-Remove-Programs (APR)

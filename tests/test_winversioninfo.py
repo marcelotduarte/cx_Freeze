@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 import pytest  # noqa
-from packaging.version import Version
 
-from cx_Freeze.winversioninfo import VersionInfo
+from cx_Freeze.winversioninfo import Version, VersionInfo
 
 
 class TestVersionInfo:
