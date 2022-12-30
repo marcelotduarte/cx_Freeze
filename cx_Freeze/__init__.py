@@ -12,7 +12,6 @@ from .command.build import Build as build
 from .command.build_exe import BuildEXE as build_exe
 from .command.install import Install as install
 from .command.install_exe import InstallEXE as install_exe
-from .dist import Distribution
 from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
@@ -55,7 +54,6 @@ def _add_command_class(command_classes, name, cls):
 
 
 def setup(**attrs):  # pylint: disable=C0116
-    attrs.setdefault("distclass", Distribution)
     command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
         _add_command_class(command_classes, "bdist_msi", bdist_msi)
