@@ -6,8 +6,9 @@ import os
 import sys
 from sysconfig import get_platform, get_python_version
 
+from setuptools import Distribution
+
 from cx_Freeze.command.build import Build
-from cx_Freeze.dist import Distribution
 
 
 # pylint: disable=C0115,C0116

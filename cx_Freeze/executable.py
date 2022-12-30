@@ -8,6 +8,9 @@ import sys
 from pathlib import Path
 from sysconfig import get_config_var, get_platform
 
+from setuptools import Distribution
+from setuptools.errors import SetupError
+
 from ._compat import IS_MINGW, IS_WINDOWS
 from .common import get_resource_file_path, validate_args
 from .exception import ConfigError
@@ -239,3 +242,20 @@ class Executable:
         if not name.isidentifier():
             raise ConfigError(f"Invalid name for target_name ({self._name!r})")
         self._internal_name: str = name
+
+
+# pylint: disable-next=unused-argument
+def validate_executables(dist: Distribution, attr: str, value):
+    """Verify that value is a Executable list."""
+
+    try:
+        # verify that value is a list or tuple to exclude unordered
+        # or single-use iterables
+        assert isinstance(value, (list, tuple))
+        # verify that elements of value are Executable
+        for executable in value:
+            assert isinstance(executable, Executable)
+    except (TypeError, ValueError, AttributeError, AssertionError) as exc:
+        raise SetupError(
+            f"{attr!r} must be a list of Executable (got {value!r})"
+        ) from exc
