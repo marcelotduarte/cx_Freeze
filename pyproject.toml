@@ -85,10 +85,10 @@ cxfreeze = "cx_Freeze.cli:main"
 cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
 
 [project.entry-points."distutils.setup_keywords"]
-executables = "cx_Freeze.dist:validate_executables"
+executables = "cx_Freeze.executable:validate_executables"
 
 [project.entry-points."setuptools.finalize_distribution_options"]
-build = "cx_Freeze.dist:finalize_distribution_options"
+build = "cx_Freeze.dist:plugin_install"
 
 [tool.setuptools]
 include-package-data = true

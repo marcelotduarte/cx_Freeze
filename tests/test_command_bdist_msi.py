@@ -7,8 +7,8 @@ from pathlib import Path
 from sysconfig import get_platform
 
 import pytest
+from setuptools import Distribution
 
-from cx_Freeze.dist import Distribution
 from cx_Freeze.sandbox import run_setup
 
 if sys.platform == "win32":

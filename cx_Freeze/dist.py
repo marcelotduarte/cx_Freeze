@@ -3,31 +3,11 @@
 from __future__ import annotations
 
 from setuptools import Distribution
-from setuptools.errors import SetupError
 
-from .executable import Executable
-
-__all__ = ["Distribution", "DistributionMetadata"]
+__all__ = ["DistributionMetadata"]
 
 
-# pylint: disable-next=unused-argument
-def validate_executables(dist: Distribution, attr: str, value):
-    """Verify that value is a Executable list."""
-
-    try:
-        # verify that value is a list or tuple to exclude unordered
-        # or single-use iterables
-        assert isinstance(value, (list, tuple))
-        # verify that elements of value are Executable
-        for executable in value:
-            assert isinstance(executable, Executable)
-    except (TypeError, ValueError, AttributeError, AssertionError) as exc:
-        raise SetupError(
-            f"{attr!r} must be a list of Executable (got {value!r})"
-        ) from exc
-
-
-def finalize_distribution_options(dist: Distribution) -> None:
+def plugin_install(dist: Distribution) -> None:
     """Use a setuptools extension to customize Distribution options."""
 
     if getattr(dist, "executables", None) is None:
