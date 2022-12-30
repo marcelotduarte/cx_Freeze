@@ -1,4 +1,5 @@
 """Tests for cx_Freeze.command.bdist_msi."""
+
 from __future__ import annotations
 
 import sys
@@ -12,6 +13,13 @@ from cx_Freeze.sandbox import run_setup
 
 if sys.platform == "win32":
     from cx_Freeze.command.bdist_msi import BdistMSI
+
+DIST_ATTRS = {
+    "name": "foo",
+    "version": "0.0",
+    "executables": [],
+    "script_name": "setup.py",
+}
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
@@ -40,9 +48,7 @@ def test_bdist_msi(fix_main_samples_path: Path):
 def test_bdist_msi_target_name():
     """Test the bdist_msi with extra target_name option."""
 
-    dist = Distribution(
-        {"name": "foo", "version": "0.0", "script_name": "setup.py"}
-    )
+    dist = Distribution(DIST_ATTRS)
     cmd = BdistMSI(dist)
     cmd.target_name = "mytest"
     cmd.finalize_options()
@@ -55,9 +61,7 @@ def test_bdist_msi_target_name():
 def test_bdist_msi_target_name_and_version():
     """Test the bdist_msi with extra target options."""
 
-    dist = Distribution(
-        {"name": "foo", "version": "0.0", "script_name": "setup.py"}
-    )
+    dist = Distribution(DIST_ATTRS)
     cmd = BdistMSI(dist)
     cmd.target_name = "mytest"
     cmd.target_version = "0.1"
