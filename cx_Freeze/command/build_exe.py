@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from sysconfig import get_platform, get_python_version
 
 from setuptools import Command
 from setuptools.errors import SetupError
@@ -194,10 +195,14 @@ class BuildEXE(Command):
         self.silent_level = None
 
     def finalize_options(self):
+        build = self.get_finalized_command("build")
+        self.build_base = build.build_base
         if self.build_exe is None:
-            self.set_undefined_options("build", ("build_exe", "build_exe"))
-        else:
-            self.get_finalized_command("build").build_exe = self.build_exe
+            self.build_exe = build.build_exe
+            if self.build_exe is None:
+                dir_name = f"exe.{get_platform()}-{get_python_version()}"
+                self.build_exe = os.path.join(self.build_base, dir_name)
+
         self.optimize = int(self.optimize)
 
         # the degree of silencing, set from either the silent or silent-level
@@ -271,3 +276,8 @@ class BuildEXE(Command):
             source_dir = os.path.join(base_dir, *pathParts)
             if os.path.isdir(source_dir):
                 setattr(self, attr_name, source_dir)
+
+    # -- Predicates for the sub-command list ---------------------------
+
+    def has_executables(self):
+        return getattr(self.distribution, "executables", None) is not None

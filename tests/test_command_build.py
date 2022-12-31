@@ -2,39 +2,31 @@
 
 from __future__ import annotations
 
-import os
+import shutil
 import sys
+from pathlib import Path
 from sysconfig import get_platform, get_python_version
 
-from setuptools import Distribution
+from cx_Freeze.sandbox import run_setup
 
-from cx_Freeze.command.build import Build
+PLATFORM = get_platform()
+PYTHON_VERSION = get_python_version()
+BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 
-# pylint: disable=C0115,C0116
-class TestBuild:
-    def test_finalize_options(self):
-        dist = Distribution(
-            {"name": "foo", "version": "0.0", "script_name": "setup.py"}
-        )
-        cmd = Build(dist)
-        cmd.finalize_options()
+def test_build_exe(fix_main_samples_path: Path):
+    """Test the simple sample."""
 
-        # if not specified, plat_name gets the current platform
-        assert cmd.plat_name == get_platform()
+    setup_path = fix_main_samples_path / "simple"
+    dist_created = setup_path / BUILD_EXE_DIR
+    dist_already_exists = dist_created.exists()
 
-        # build_purelib is build + lib
-        wanted = os.path.join(cmd.build_base, "lib")
-        assert cmd.build_purelib == wanted
+    run_setup(setup_path / "setup.py", ["build"])
 
-        # build_exe is 'build/exe.platform-x.x'
-        # examples:
-        #   build/lib.linux-x86_64-3.10
-        #   build/lib.win-amd64-3.11
-        python_version = get_python_version()
-        plat_spec = f".{cmd.plat_name}-{python_version}"
-        wanted = os.path.join(cmd.build_base, "exe" + plat_spec)
-        assert cmd.build_exe == wanted
+    suffix = ".exe" if sys.platform == "win32" else ""
+    file_created = dist_created / f"hello{suffix}"
+    assert file_created.is_file()
+    file_created.unlink()
 
-        # executable is os.path.normpath(sys.executable)
-        assert cmd.executable == os.path.normpath(sys.executable)
+    if not dist_already_exists:
+        shutil.rmtree(dist_created)

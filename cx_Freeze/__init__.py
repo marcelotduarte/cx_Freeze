@@ -8,7 +8,6 @@ import sys
 
 import setuptools
 
-from .command.build import Build as build
 from .command.build_exe import BuildEXE as build_exe
 from .command.install import Install as install
 from .command.install_exe import InstallEXE as install_exe
@@ -17,7 +16,6 @@ from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
 
 __all__ = [
-    "build",
     "build_exe",
     "install",
     "install_exe",
@@ -53,7 +51,7 @@ def _add_command_class(command_classes, name, cls):
         command_classes[name] = cls
 
 
-def setup(**attrs):  # pylint: disable=C0116
+def setup(**attrs):  # pylint: disable=missing-function-docstring
     command_classes = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
         _add_command_class(command_classes, "bdist_msi", bdist_msi)
@@ -62,7 +60,6 @@ def setup(**attrs):  # pylint: disable=C0116
         _add_command_class(command_classes, "bdist_mac", bdist_mac)
     else:
         _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
-    _add_command_class(command_classes, "build", build)
     _add_command_class(command_classes, "build_exe", build_exe)
     _add_command_class(command_classes, "install", install)
     _add_command_class(command_classes, "install_exe", install_exe)
@@ -70,3 +67,23 @@ def setup(**attrs):  # pylint: disable=C0116
 
 
 setup.__doc__ = setuptools.setup.__doc__
+
+
+def plugin_install(dist: setuptools.Distribution) -> None:
+    """Use a setuptools extension to customize Distribution options."""
+
+    if getattr(dist, "executables", None) is None:
+        return
+
+    # Fix package discovery (setuptools >= 61)
+    if getattr(dist, "py_modules", None) is None:
+        dist.py_modules = []
+
+    # Add build_exe as subcommand of setuptools build (plugin)
+    dist.cmdclass.update(build_exe=build_exe)
+    build = dist.get_command_obj("build")
+    build.sub_commands = [
+        *build.sub_commands,
+        ("build_exe", build_exe.has_executables),
+    ]
+    build.build_exe = None
