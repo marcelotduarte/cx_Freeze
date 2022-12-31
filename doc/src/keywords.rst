@@ -15,6 +15,10 @@ may be overwritten by) the information present in ``setup.cfg`` and
 Some important metadata, such as ``name`` and ``version``, may assume
 a default *degenerate* value if not specified.
 
+.. warning::
+   cx_Freeze inherits keywords, metadata and configuration from setuptools,
+   but is a sotware layer above, to generate executables.
+
 Users are strongly encouraged to use a declarative config either via
 :setuptools:`setup.cfg </userguide/declarative_config>` or
 :setuptools:`pyproject.toml </userguide/pyproject_config>`.
@@ -104,7 +108,6 @@ Users are strongly encouraged to use a declarative config either via
 ``keywords``
     A list of strings or a comma-separated string providing descriptive
     meta-data.
-    See: :setuptools:`Core Metadata Specifications<core-metadata-keywords>`.
 
 .. _keyword/project_urls:
 

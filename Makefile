@@ -7,7 +7,7 @@ all: install
 
 .PHONY: clean
 clean:
-	if [ -f .git/hooks/pre-commit ] ; then\
+	if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		pre-commit clean;\
 		pre-commit uninstall;\
 		rm -f .git/hooks/pre-commit;\
@@ -16,7 +16,7 @@ clean:
 
 .PHONY: install
 install:
-	if ! [ -f .git/hooks/pre-commit ] ; then\
+	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
 		pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager &&\
 		pip install -e . --no-build-isolation --no-deps &&\
@@ -25,7 +25,7 @@ install:
 
 .PHONY: upgrade
 upgrade:
-	if [ -f .git/hooks/pre-commit ] ; then\
+	if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		make all || true;\
 		make clean || true;\
 		pip uninstall -y cx_Freeze || true;\
@@ -37,7 +37,11 @@ upgrade:
 
 .PHONY: html
 html: install
-	pre-commit run build-docs -a -v --hook-stage manual
+	if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
+		pre-commit run build-docs -a -v --hook-stage manual;\
+	else\
+		make -C doc html;\
+	fi
 
 .PHONY: htmltest
 htmltest:
@@ -52,7 +56,8 @@ pdf:
 	make -C doc pdf
 
 .PHONY: tests
-tests:
+tests: install
+	pip uninstall -y cx_Freeze && pip install -e . --no-build-isolation --no-deps
 	python -m pytest
 
 .PHONY: cov
