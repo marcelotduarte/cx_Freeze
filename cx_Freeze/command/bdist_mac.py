@@ -100,7 +100,7 @@ class BdistDMG(Command):
 
         # Find the location of the application bundle and the build dir
         self.bundle_dir = self.get_finalized_command("bdist_mac").bundle_dir
-        self.build_dir = self.get_finalized_command("build").build_base
+        self.build_dir = self.get_finalized_command("build_exe").build_base
 
         # Set the file name of the DMG to be built
         self.dmg_name = os.path.join(
@@ -393,15 +393,13 @@ class BdistMac(Command):
             pass
 
     def run(self):
-        self.run_command("build")
-        build = self.get_finalized_command("build")
-        freezer: freezer.Freezer = self.get_finalized_command(
-            "build_exe"
-        ).freezer
+        self.run_command("build_exe")
+        build_exe = self.get_finalized_command("build_exe")
+        freezer: freezer.Freezer = build_exe.freezer
 
         # Define the paths within the application bundle
         self.bundle_dir = os.path.join(
-            build.build_base, self.bundle_name + ".app"
+            build_exe.build_base, self.bundle_name + ".app"
         )
         self.contents_dir = os.path.join(self.bundle_dir, "Contents")
         self.resources_dir = os.path.join(self.contents_dir, "Resources")
@@ -417,7 +415,7 @@ class BdistMac(Command):
         self.mkpath(self.bin_dir)
         self.mkpath(self.frameworks_dir)
 
-        self.copy_tree(build.build_exe, self.bin_dir)
+        self.copy_tree(build_exe.build_exe, self.bin_dir)
 
         # Copy the icon
         if self.iconfile:
@@ -454,7 +452,10 @@ class BdistMac(Command):
         self.darwin_tracker: DarwinFileTracker = freezer.darwin_tracker
         self.execute(
             self.set_relative_reference_paths,
-            (os.path.abspath(build.build_exe), os.path.abspath(self.bin_dir)),
+            (
+                os.path.abspath(build_exe.build_exe),
+                os.path.abspath(self.bin_dir),
+            ),
         )
 
         # Make library references absolute if enabled

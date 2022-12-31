@@ -24,7 +24,6 @@ def test_exposed_namespaces(platform, extra_modules):
 
     # These namespaces are there regardless of platform
     expected_namespaces = [
-        "build",
         "build_exe",
         "install",
         "install_exe",

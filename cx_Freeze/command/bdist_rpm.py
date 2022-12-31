@@ -373,7 +373,7 @@ class BdistRPM(Command):
             if os.path.exists(self.icon):
                 self.copy_file(self.icon, source_dir)
             else:
-                raise FileError("icon file '{self.icon}' does not exist")
+                raise FileError(f"icon file {self.icon!r} does not exist")
 
         # build package
         logging.info("building RPMs")

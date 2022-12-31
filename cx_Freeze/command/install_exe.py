@@ -29,7 +29,7 @@ class InstallEXE(Command):
         self.skip_build = None
 
     def finalize_options(self):
-        self.set_undefined_options("build", ("build_exe", "build_dir"))
+        self.set_undefined_options("build_exe", ("build_exe", "build_dir"))
         self.set_undefined_options(
             "install",
             ("install_exe", "install_dir"),

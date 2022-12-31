@@ -9,7 +9,6 @@ The project's code layout
     * ``bdist_mac.py`` - Extends setuptools to build macOS dmg or app blundle.
     * ``bdist_msi.py`` - Extends setuptools to build Windows installer packages.
     * ``bdist_rpm.py`` - Extends setuptools to create an RPM distribution.
-    * ``build.py`` - Extends setuptools 'build' command.
     * ``build_exe.py`` - Implements the 'build_exe' command.
     * ``install.py`` - Extends setuptools 'install' command.
     * ``install_exe.py`` - Implements the 'install_exe' command.
@@ -18,8 +17,6 @@ The project's code layout
     frozen code, then load the code from the zip file and set it running.
   * ``cli.py`` - The code behind the :ref:`cxfreeze script <script>`.
   * ``common.py`` - Common utility functions shared between cx_Freeze modules.
-  * ``dist.py`` - The classes and functions with which cx_Freeze :ref:`extends
-    setuptools <setup_script>`.
   * ``exception.py`` - Internal exception classes.
   * ``executable.py`` - Module for the Executable base class.
   * ``finder.py`` - Module Finder - discovers what modules are required by the

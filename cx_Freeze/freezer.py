@@ -13,6 +13,7 @@ import time
 from abc import abstractmethod
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
+from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
 from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, cached_property
@@ -22,7 +23,6 @@ from .common import (
     get_resource_file_path,
     process_path_specs,
 )
-from .dist import DistributionMetadata
 from .exception import ConfigError
 from .executable import Executable
 from .finder import ModuleFinder
@@ -74,7 +74,7 @@ class Freezer:
         includeFiles: IncludesList | None = None,
         zipIncludes: IncludesList | None = None,
         silent: bool | int = 0,
-        metadata: DistributionMetadata | None = None,
+        metadata: Any = None,
         includeMSVCR: bool = False,
         zipIncludePackages: list[str] | None = None,
         zipExcludePackages: list[str] | None = None,
@@ -109,7 +109,7 @@ class Freezer:
                 self.silent = 0
         else:
             self.silent = silent
-        self.metadata: DistributionMetadata | None = metadata
+        self.metadata: Any = metadata
         self.zipIncludePackages: list[str] | None = zipIncludePackages
         self.zipExcludePackages: list[str] | None = zipExcludePackages
         self._verify_configuration()
