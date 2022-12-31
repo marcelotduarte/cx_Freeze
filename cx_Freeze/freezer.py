@@ -127,12 +127,12 @@ class Freezer:
         path = Path(path).resolve()
         if path.is_dir():
             # starts in a clean directory
-
-            def onerror(*args):
-                raise ConfigError("the build directory cannot be cleaned")
-
-            shutil.rmtree(path, onerror=onerror)
-
+            try:
+                shutil.rmtree(path)
+            except OSError:
+                raise ConfigError(
+                    "the build directory cannot be cleaned"
+                ) from None
         self._targetdir: Path = path
 
     def _add_resources(self, exe: Executable) -> None:

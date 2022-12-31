@@ -14,7 +14,7 @@ PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 
-def test_build_exe(fix_main_samples_path: Path):
+def test_build(fix_main_samples_path: Path):
     """Test the simple sample."""
 
     setup_path = fix_main_samples_path / "simple"
@@ -29,4 +29,4 @@ def test_build_exe(fix_main_samples_path: Path):
     file_created.unlink()
 
     if not dist_already_exists:
-        shutil.rmtree(dist_created)
+        shutil.rmtree(dist_created, ignore_errors=True)

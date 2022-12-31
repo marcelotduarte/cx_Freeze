@@ -237,5 +237,5 @@ extlinks = {
     "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "PR #%s"),
     "pypi": ("https://pypi.org/project/%s", "%s"),
     "user": ("https://github.com/%s", "@%s"),
-    "setuptools": ("https://setuptools.pypa.io/en/latest/%s", "%s"),
+    "setuptools": ("https://setuptools.pypa.io/en/latest/%s.html", "%s"),
 }

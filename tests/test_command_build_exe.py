@@ -29,4 +29,4 @@ def test_build_exe(fix_main_samples_path: Path):
     file_created.unlink()
 
     if not dist_already_exists:
-        shutil.rmtree(dist_created)
+        shutil.rmtree(dist_created, ignore_errors=True)
