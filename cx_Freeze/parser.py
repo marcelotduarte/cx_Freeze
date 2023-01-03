@@ -24,7 +24,10 @@ if IS_WINDOWS or IS_MINGW:
     # pylint: disable=c-extension-no-member
     import lief
 
-    from .util import BindError, GetDependentFiles
+    try:
+        from .util import BindError, GetDependentFiles
+    except ModuleNotFoundError:
+        pass
 
     lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
 
