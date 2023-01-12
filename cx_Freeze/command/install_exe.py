@@ -14,6 +14,7 @@ __all__ = ["InstallEXE"]
 class InstallEXE(Command):
     """Install executables built from Python scripts."""
 
+    command_name = "install_exe"
     description = "install executables built from Python scripts"
     user_options = [
         ("install-dir=", "d", "directory to install executables to"),

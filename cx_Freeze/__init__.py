@@ -79,11 +79,12 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     if getattr(dist, "py_modules", None) is None:
         dist.py_modules = []
 
+    # Add/update commands (provisional)
+    dist.cmdclass["build_exe"] = build_exe
+    dist.cmdclass["install"] = install
+    dist.cmdclass["install_exe"] = install_exe
+
     # Add build_exe as subcommand of setuptools build (plugin)
-    dist.cmdclass.update(build_exe=build_exe)
     build = dist.get_command_obj("build")
-    build.sub_commands = [
-        *build.sub_commands,
-        ("build_exe", build_exe.has_executables),
-    ]
+    build.sub_commands = [*build.sub_commands, ("build_exe", None)]
     build.build_exe = None
