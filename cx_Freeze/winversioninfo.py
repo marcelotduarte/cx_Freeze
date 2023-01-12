@@ -345,7 +345,7 @@ if __name__ == "__main__":
         description="cx_Freeze description",
         company="cx_Freeze company",
         product="cx_Freeze product",
-        copyright="(c) 2022, cx_Freeze",
+        copyright="(c) 2023, cx_Freeze",
         trademarks="cx_Freeze (TM)",
     )
 

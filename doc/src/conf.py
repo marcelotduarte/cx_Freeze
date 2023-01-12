@@ -42,7 +42,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "cx_Freeze"
-copyright = "2022, Marcelo Duarte"
+copyright = "2023, Marcelo Duarte"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
