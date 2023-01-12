@@ -68,3 +68,11 @@ cov:
 .PHONY: release
 release:
 	bump2version --verbose --tag release
+
+.PHONY: release-dev
+release-dev:
+	if (grep "current_version" .bumpversion.cfg | grep -q "\-dev"); then\
+		bump2version --allow-dirty --verbose --no-tag build;\
+	else\
+		bump2version --allow-dirty --verbose --no-tag minor;\
+	fi
