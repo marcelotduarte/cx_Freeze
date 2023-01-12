@@ -68,3 +68,7 @@ class Install(_install):
                 metadata = self.distribution.metadata
                 dir_name = f"{metadata.name}-{metadata.version}"
                 self.install_exe = f"$base/lib/{dir_name}"
+
+    def run(self):  # pylint: disable=useless-parent-delegation
+        # setuptools used inspect.currentframe(), this method needs to exist.
+        super().run()
