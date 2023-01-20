@@ -2,23 +2,24 @@
 Installation
 ============
 
-cx_Freeze is available on |PyPI_link|.
-
+Pip
+---
 .. |PyPI_link| raw:: html
 
-   <a href="https://pypi.org/project/cx_Freeze" target="_blank">PyPI</a>
+   <a href="https://pypi.org/project/cx_Freeze" target="_blank">cx_Freeze</a>
 
-In a virtual environment, install by issuing the command:
+You can install the latest version of |PyPI_link| using :pypi:`pip`:
 
   .. code-block:: console
 
     pip install --upgrade cx_Freeze
 
-Without virtual environment, generally:
+.. note::
+  The recommended way is to use a virtual environment.
 
-  .. code-block:: console
-
-    python3 -m pip install --upgrade cx_Freeze
+.. important::
+  Please note that some operating systems might be equipped with the python3
+  and pip3 commands instead of python and pip (but they should be equivalent).
 
 Pipenv
 ------
@@ -39,7 +40,7 @@ Directly from the conda-forge channel:
 
     conda install -c conda-forge cx_freeze
 
-.. note:: Check |cx_freeze-feedstock|.
+.. seealso:: |cx_freeze-feedstock|.
 
 .. |cx_freeze-feedstock| raw:: html
 

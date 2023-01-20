@@ -27,6 +27,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinx_tabs.tabs",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -229,6 +230,7 @@ man_pages = [
     )
 ]
 
+# sphinx.ext.extlinks
 extlinks = {
     "issue": (
         "https://github.com/marcelotduarte/cx_Freeze/issues/%s",
@@ -237,5 +239,9 @@ extlinks = {
     "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "PR #%s"),
     "pypi": ("https://pypi.org/project/%s", "%s"),
     "user": ("https://github.com/%s", "@%s"),
+    "packaging": ("https://packaging.python.org/en/latest/%s", "%s"),
     "setuptools": ("https://setuptools.pypa.io/en/latest/%s.html", "%s"),
 }
+
+# sphinx_tabs.tabs
+sphinx_tabs_disable_tab_closing = True
