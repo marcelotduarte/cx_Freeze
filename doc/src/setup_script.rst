@@ -3,35 +3,160 @@
 Setup script
 ============
 
-In order to make use of this method, a setup script must be created. This is
-called ``setup.py`` by convention, although it can have any name. It looks
-something like this:
+cx_Freeze creates four new commands and subclasses four others in order to
+provide the ability to both build and install executables. In typical
+setuptools fashion they can be provided in the setup script (it is called
+``setup.py`` by convention, although it can have any name), in a
+``pyproject.toml`` configuration file, in a ``setup.cfg`` configuration file,
+or on the command line. They are described in further detail below.
 
-  .. code-block:: python
+Example
+-------
 
-    import sys
-    from cx_Freeze import setup, Executable
+It looks something like this:
 
-    # Dependencies are automatically detected, but it might need fine tuning.
-    # "packages": ["os"] is used as example only
-    build_exe_options = {"packages": ["os"], "excludes": ["tkinter"]}
+.. tabs::
 
-    # base="Win32GUI" should be used only for Windows GUI app
-    base = None
-    if sys.platform == "win32":
-        base = "Win32GUI"
+   .. group-tab:: setup.py
 
-    setup(
-        name="guifoo",
-        version="0.1",
-        description="My GUI application!",
-        options={"build_exe": build_exe_options},
-        executables=[Executable("guifoo.py", base=base)],
-    )
+      .. code-block:: python
+
+         import sys
+         from cx_Freeze import setup, Executable
+
+         # Dependencies are automatically detected, but it might need fine tuning.
+         # "packages": ["os"] is used as example only
+         build_exe_options = {
+             "packages": ["os"],
+             "excludes": ["tkinter"],
+             "zip_include_packages": ["encodings", "PySide6"],
+         }
+
+         # base="Win32GUI" should be used only for Windows GUI app
+         base = "Win32GUI" if sys.platform == "win32" else None
+
+         setup(
+             name="guifoo",
+             version="0.1",
+             description="My GUI application!",
+             options={"build_exe": build_exe_options},
+             executables=[Executable("guifoo.py", base=base)],
+         )
+
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: python
+
+         # minimal setup required (for now)
+         import sys
+         from cx_Freeze import setup, Executable
+
+         # base="Win32GUI" should be used only for Windows GUI app
+         base = "Win32GUI" if sys.platform == "win32" else None
+
+         setup(executables=[Executable("guifoo.py", base=base)])
+
+      pyproject.toml
+
+      .. code-block:: toml
+
+         [project]
+         name = "guifoo"
+         version = "0.1"
+         description = "My GUI application!"
+
+         [tool.distutils.build_exe]
+         packages = ["os"]
+         excludes = ["tkinter"]
+         zip_include_packages = ["encodings", "PySide6"]
+
+   .. group-tab:: setup.cfg
+
+      .. code-block:: python
+
+         # minimal setup required (for now)
+         import sys
+         from cx_Freeze import setup, Executable
+
+         # base="Win32GUI" should be used only for Windows GUI app
+         base = "Win32GUI" if sys.platform == "win32" else None
+
+         setup(executables=[Executable("guifoo.py", base=base)])
+
+      setup.cfg
+
+      .. code-block:: ini
+
+         [metadata]
+         name = guifoo
+         version = 0.1
+         description = My GUI application!
+
+         [build_exe]
+         packages =
+             os
+         excludes =
+             tkinter
+         zip_include_packages =
+             encodings
+             PySide6
+
+   .. group-tab:: command line
+
+      .. code-block:: python
+
+         # basic setup
+         import sys
+         from cx_Freeze import setup, Executable
+
+         build_exe_options = {
+             "excludes": ["tkinter"],
+         }
+
+         # base="Win32GUI" should be used only for Windows GUI app
+         base = "Win32GUI" if sys.platform == "win32" else None
+
+         setup(
+             name="guifoo",
+             version="0.1",
+             description="My GUI application!",
+             options={"build_exe": build_exe_options},
+             executables=[Executable("guifoo.py", base=base)],
+         )
+
+The script is invoked as follows:
+
+.. tabs::
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+         python setup.py build
+
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+         python setup.py build
+
+   .. group-tab:: setup.cfg
+
+      .. code-block:: console
+
+         python setup.py build
+
+   .. group-tab:: command line
+
+      .. code-block:: console
+
+         python setup.py build_exe --zip-include-packages=encodings,PySide6
 
 .. seealso::
 
    :doc:`setup() keywords <keywords>`.
+
+   :packaging:`Declaring project metadata </specifications/declaring-project-metadata/>`
 
    :ref:`cx_freeze_executable`
 
@@ -41,16 +166,23 @@ something like this:
 
    <a href="https://github.com/marcelotduarte/cx_Freeze/tree/main/samples" target="_blank">samples</a>
 
-The script is invoked as follows:
-
-  .. code-block:: console
-
-    python setup.py build
-
 This command will create a subdirectory called ``build`` with a further
 subdirectory starting with the letters ``exe.`` and ending with the typical
 identifier for the platform and python version. This allows for multiple
 platforms to be built without conflicts.
+
+To specify options in the script, use underscores in the name. For example:
+
+  .. code-block:: python
+
+     # ...
+     zip_include_packages = ["encodings", "PySide6"]
+
+To specify the same options on the command line, use dashes, like this:
+
+  .. code-block:: console
+
+    python setup.py build_exe --zip-include-packages=encodings,PySide6
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
 includes for your application, by running the setup script as:
@@ -59,32 +191,12 @@ includes for your application, by running the setup script as:
 
     python setup.py bdist_msi
 
-On Mac OS X, you can use ``bdist_dmg`` to build a Mac disk image.
+On Mac OS X, you can use ``bdist_mac`` to create a Mac application bundle or
+``bdist_dmg`` to build a Mac disk image.
 
-commands
+
+Commands
 --------
-
-cx_Freeze creates four new commands and subclasses four others in order to
-provide the ability to both build and install executables. In typical
-setuptools fashion they can be provided in the setup script, on the command
-line or in a ``setup.cfg`` configuration file. They are described in further
-detail below.
-
-To specify options in the script, use underscores in the name. For example:
-
-  .. code-block:: python
-
-    setup(
-        # ...
-        options={"build_exe": {"zip_include_packages": ["encodings"]}}
-    )
-
-To specify the same options on the command line, use dashes, like this:
-
-  .. code-block:: console
-
-    python setup.py build_exe --zip-include-packages=encodings
-
 
 build
 `````
@@ -101,8 +213,10 @@ the standard set of options for the command:
    * - option name
      - description
    * - .. option:: build_exe
-     - directory for built executables and dependent files, defaults to a
-       directory of the form ``build/exe.[platform identifier].[python version]``
+     - directory for built executables and dependent files, defaults to
+       the value of the "build_exe" option on the build_exe command (see
+       below); note that this option is overwritten by the corresponding
+       option on the build_exe command
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -124,16 +238,14 @@ It can be further customized:
 
 .. list-table::
    :header-rows: 1
-   :widths: 200 600
+   :widths: 230 570
    :width: 100%
 
    * - option name
      - description
    * - .. option:: build_exe
-     - directory for built executables and dependent files, defaults to
-       the value of the "build_exe" option on the build command (see
-       above); note that using this option overwrite the corresponding
-       option on the build command
+     - directory for built executables and dependent files, defaults to a
+       directory of the form ``build/exe.[platform identifier].[python version]``
    * - .. option:: optimize
      - optimization level, one of 0 (disabled), 1 or 2
    * - .. option:: excludes
@@ -328,10 +440,10 @@ command:
 
 .. list-table::
    :header-rows: 1
-   :widths: 200 600
+   :widths: 250 550
    :width: 100%
 
-   * - option_name
+   * - option name
      - description
    * - .. option:: add_to_path
      - add the target directory to the PATH environment variable; the default
@@ -474,10 +586,10 @@ bundle (a .app directory).
 
 .. list-table::
    :header-rows: 1
-   :widths: 200 600
+   :widths: 260 540
    :width: 100%
 
-   * - option_name
+   * - option name
      - description
    * - .. option:: iconfile
      - Path to an icns icon file for the application. This will be copied into
@@ -540,10 +652,10 @@ installation.
 
 .. list-table::
    :header-rows: 1
-   :widths: 200 600
+   :widths: 240 560
    :width: 100%
 
-   * - option_name
+   * - option name
      - description
    * - .. option:: volume_label
      - Volume label of the DMG disk image
@@ -571,53 +683,53 @@ constructor are as follows:
 
 .. list-table::
    :header-rows: 1
-   :widths: 200 600
+   :widths: 250 550
    :width: 100%
 
    * - argument name
      - description
-   * - script
+   * - .. option:: script
      - the name of the file containing the script which is to be frozen
-   * - init_script
+   * - .. option:: init_script
      - the name of the initialization script that will be executed before the
        actual script is executed; this script is used to set up the environment
        for the executable; if a name is given without an absolute path the
        names of files in the initscripts subdirectory of the cx_Freeze package
        is searched
-   * - base
+   * - .. option:: base
      - the name of the base executable; if a name is given without an absolute
        path the names of files in the bases subdirectory of the cx_Freeze
        package is searched
-   * - target_name
+   * - .. option:: target_name
      - the name of the target executable; the default value is the name of the
        script; the extension is optional (automatically added on Windows);
        support for names with version; if specified a pathname, raise an error.
-   * - icon
+   * - .. option:: icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
        (ignored in Microsoft Store Python app)
-   * - manifest
+   * - .. option:: manifest
      - name of manifest which should be included in the executable itself
        (Windows only - ignored by Python app from Microsoft Store)
-   * - uac-admin
+   * - .. option:: uac_admin
      - creates a manifest for an application that will request elevation
        (Windows only - ignored by Python app from Microsoft Store)
-   * - shortcut_name
+   * - .. option:: shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
        package (Windows only).
-   * - shortcut_dir
+   * - .. option:: shortcut_dir
      - the directory in which to place the shortcut when being installed by an
        MSI package; see the MSI Shortcut table documentation for more
        information on what values can be placed here (Windows only).
-   * - copyright
+   * - .. option:: copyright
      - the copyright value to include in the version resource associated with
        executable (Windows only).
-   * - trademarks
+   * - .. option:: trademarks
      - the trademarks value to include in the version resource associated with
        the executable (Windows only).
 
 .. versionadded:: 6.10
-    ``manifest`` and ``uac-admin`` options.
+    ``manifest`` and ``uac_admin`` options.
 
 .. versionchanged:: 6.5
     Arguments are all snake_case (camelCase are still valid up to 7.0)
