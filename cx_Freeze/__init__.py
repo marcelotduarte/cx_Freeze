@@ -46,23 +46,18 @@ else:
 __version__ = "6.14.0-dev1"
 
 
-def _add_command_class(command_classes, name, cls):
-    if name not in command_classes:
-        command_classes[name] = cls
-
-
 def setup(**attrs):  # pylint: disable=missing-function-docstring
-    command_classes = attrs.setdefault("cmdclass", {})
+    cmdclass = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        _add_command_class(command_classes, "bdist_msi", bdist_msi)
+        cmdclass.setdefault("bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
-        _add_command_class(command_classes, "bdist_dmg", bdist_dmg)
-        _add_command_class(command_classes, "bdist_mac", bdist_mac)
+        cmdclass.setdefault("bdist_dmg", bdist_dmg)
+        cmdclass.setdefault("bdist_mac", bdist_mac)
     else:
-        _add_command_class(command_classes, "bdist_rpm", bdist_rpm)
-    _add_command_class(command_classes, "build_exe", build_exe)
-    _add_command_class(command_classes, "install", install)
-    _add_command_class(command_classes, "install_exe", install_exe)
+        cmdclass.setdefault("bdist_rpm", bdist_rpm)
+    cmdclass.setdefault("build_exe", build_exe)
+    cmdclass.setdefault("install", install)
+    cmdclass.setdefault("install_exe", install_exe)
     setuptools.setup(**attrs)
 
 
@@ -80,9 +75,10 @@ def plugin_install(dist: setuptools.Distribution) -> None:
         dist.py_modules = []
 
     # Add/update commands (provisional)
-    dist.cmdclass["build_exe"] = build_exe
-    dist.cmdclass["install"] = install
-    dist.cmdclass["install_exe"] = install_exe
+    cmdclass = dist.cmdclass
+    cmdclass.setdefault("build_exe", build_exe)
+    cmdclass.setdefault("install", install)
+    cmdclass.setdefault("install_exe", install_exe)
 
     # Add build_exe as subcommand of setuptools build (plugin)
     build = dist.get_command_obj("build")
