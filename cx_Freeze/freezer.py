@@ -320,7 +320,7 @@ class Freezer:
         frozen executable to work.
         (overriden on Windows)"""
         python_shared_libs = []
-        # Miniconda python 3.6-3.9 linux returns a static library to indicate
+        # Miniconda python 3.7-3.9 linux returns a static library to indicate
         # the usage of libpython-static (a shared library is not used).
         name = sysconfig.get_config_var("INSTSONAME")
         if name and not name.endswith(".a"):
@@ -557,8 +557,6 @@ class Freezer:
                         mtime = int(time.time())
                         size = 0
                     header = MAGIC_NUMBER + struct.pack("<iii", 0, mtime, size)
-                    if sys.version_info[:2] < (3, 7):
-                        header = MAGIC_NUMBER + struct.pack("<ii", mtime, size)
                     data = header + marshal.dumps(module.code)
 
                 # if the module should be written to the file system, do so

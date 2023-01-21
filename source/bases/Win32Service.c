@@ -271,9 +271,6 @@ static int Service_SetupPython(udt_ServiceInfo *info)
         return -1;
 
     // ensure threading is initialized and interpreter state saved
-#if PY_VERSION_HEX < 0x03070000
-    PyEval_InitThreads();
-#endif
     threadState = PyThreadState_Swap(NULL);
     if (!threadState) {
         LogMessage(LOG_LEVEL_ERROR, "cannot set up interpreter state");
