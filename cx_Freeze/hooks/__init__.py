@@ -88,6 +88,18 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
         finder.exclude_module("cffi._pycparser")
 
 
+def load_charset_normalizer(finder: ModuleFinder, module: Module) -> None:
+    """The charset_normalizer package."""
+    finder.exclude_module("charset_normalizer.cli")
+
+
+def load_charset_normalizer_md(finder: ModuleFinder, module: Module) -> None:
+    """The charset_normalizer package implicitly imports a extension module."""
+    mypyc = module.file.parent / ("md__mypyc" + "".join(module.file.suffixes))
+    if mypyc.exists():
+        finder.include_module("charset_normalizer.md__mypyc")
+
+
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
     """The google.crc32c module requires _cffi_backend module."""
     finder.include_module("_cffi_backend")
