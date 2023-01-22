@@ -23,9 +23,6 @@ DIST_ATTRS = {
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-@pytest.mark.skipif(
-    sys.version_info < (3, 7, 4), reason="requires python 3.7.4 or higher"
-)
 def test_bdist_msi(fix_main_samples_path: Path):
     """Test the msi_binary_data sample."""
 
@@ -71,9 +68,6 @@ def test_bdist_msi_target_name_and_version():
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-@pytest.mark.skipif(
-    sys.version_info < (3, 7, 4), reason="requires python 3.7.4 or higher"
-)
 def test_bdist_msi_target_name_with_extension(fix_main_samples_path: Path):
     """Test the msi_binary_data sample, with a specified target_name that
     includes an ".msi" extension."""

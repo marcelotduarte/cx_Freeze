@@ -62,13 +62,9 @@ def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_certifi(finder: ModuleFinder, module: Module) -> None:
-    """The certifi package, in python 3.7 and up, uses importlib.resources
-    to locate the cacert.pem in zip packages.
-    In previous versions, it is expected to be stored in the file system."""
+    """The certifi package uses importlib.resources to locate the cacert.pem
+    in zip packages."""
     if module.in_file_system == 0:
-        if sys.version_info < (3, 7):
-            module.in_file_system = 1
-            return
         cacert = Path(__import__("certifi").where())
         finder.zip_include_files(cacert, Path("certifi", cacert.name))
 
@@ -651,9 +647,9 @@ def load_six(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_ssl(finder: ModuleFinder, module: Module) -> None:
-    """In Windows, the SSL module in Python 3.7+ requires additional dlls to
-    be present in the build directory."""
-    if IS_WINDOWS and sys.version_info >= (3, 7):
+    """In Windows, the SSL module requires additional dlls to be present in the
+    build directory."""
+    if IS_WINDOWS:
         for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
             libs_dir = Path(sys.base_prefix, "DLLs")
             for dll_path in libs_dir.glob(dll_search):
