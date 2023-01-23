@@ -25,10 +25,8 @@ It looks something like this:
          from cx_Freeze import setup, Executable
 
          # Dependencies are automatically detected, but it might need fine tuning.
-         # "packages": ["os"] is used as example only
          build_exe_options = {
-             "packages": ["os"],
-             "excludes": ["tkinter"],
+             "excludes": ["tkinter", "unittest"],
              "zip_include_packages": ["encodings", "PySide6"],
          }
 
@@ -66,8 +64,7 @@ It looks something like this:
          description = "My GUI application!"
 
          [tool.distutils.build_exe]
-         packages = ["os"]
-         excludes = ["tkinter"]
+         excludes = ["tkinter", "unittest"]
          zip_include_packages = ["encodings", "PySide6"]
 
    .. group-tab:: setup.cfg
@@ -93,13 +90,8 @@ It looks something like this:
          description = My GUI application!
 
          [build_exe]
-         packages =
-             os
-         excludes =
-             tkinter
-         zip_include_packages =
-             encodings
-             PySide6
+         excludes = tkinter unittest
+         zip_include_packages = encodings PySide6
 
    .. group-tab:: command line
 
@@ -110,7 +102,7 @@ It looks something like this:
          from cx_Freeze import setup, Executable
 
          build_exe_options = {
-             "excludes": ["tkinter"],
+             "zip_include_packages": ["encodings", "PySide6"],
          }
 
          # base="Win32GUI" should be used only for Windows GUI app
@@ -150,7 +142,7 @@ The script is invoked as follows:
 
       .. code-block:: console
 
-         python setup.py build_exe --zip-include-packages=encodings,PySide6
+         python setup.py build_exe --excludes=tkinter,unittest
 
 .. seealso::
 

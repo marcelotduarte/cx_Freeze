@@ -9,7 +9,6 @@ import subprocess
 
 from setuptools import Command
 
-from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
     DarwinFile,
     DarwinFileTracker,
@@ -211,7 +210,7 @@ class BdistMac(Command):
     def finalize_options(self):
         # Make sure all options of multiple values are lists
         for option in self.list_options:
-            setattr(self, option, normalize_to_list(getattr(self, option)))
+            self.ensure_string_list(option)
         for item in self.plist_items:
             if not isinstance(item, tuple) or len(item) != 2:
                 raise Exception(

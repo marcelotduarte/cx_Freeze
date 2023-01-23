@@ -10,7 +10,6 @@ from sysconfig import get_platform, get_python_version
 from setuptools import Command
 from setuptools.errors import SetupError
 
-from ..common import normalize_to_list
 from ..freezer import Freezer
 from ..module import ConstantsModule
 
@@ -229,7 +228,7 @@ class BuildEXE(Command):
 
         # Make sure all options of multiple values are lists
         for option in self.list_options:
-            setattr(self, option, normalize_to_list(getattr(self, option)))
+            self.ensure_string_list(option)
 
     def run(self):
         metadata = self.distribution.metadata
