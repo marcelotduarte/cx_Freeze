@@ -10,7 +10,6 @@ from sysconfig import get_platform, get_python_version
 from setuptools import Command
 from setuptools.errors import SetupError
 
-from ..common import normalize_to_list
 from ..freezer import Freezer
 from ..module import ConstantsModule
 
@@ -166,7 +165,7 @@ class BuildEXE(Command):
         )
 
     def initialize_options(self):
-        self.list_options = [
+        self.string_list_options = [
             "excludes",
             "includes",
             "packages",
@@ -182,7 +181,7 @@ class BuildEXE(Command):
             "zip_exclude_packages",
         ]
 
-        for option in self.list_options:
+        for option in self.string_list_options:
             setattr(self, option, [])
 
         self.zip_exclude_packages = ["*"]
@@ -228,8 +227,8 @@ class BuildEXE(Command):
             self.silent_setting = 1
 
         # Make sure all options of multiple values are lists
-        for option in self.list_options:
-            setattr(self, option, normalize_to_list(getattr(self, option)))
+        for option in self.string_list_options:
+            self.ensure_string_list(option)
 
     def run(self):
         metadata = self.distribution.metadata

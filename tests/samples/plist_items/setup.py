@@ -1,5 +1,5 @@
-# A simple script demonstrating use of plist_items option.
-#
+"""A simple script demonstrating use of plist_items option."""
+
 # hello.py is a very simple 'Hello, world' type script which also displays the
 # environment in which the script runs
 #

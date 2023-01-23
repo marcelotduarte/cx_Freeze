@@ -58,6 +58,7 @@ def setup(**attrs):  # pylint: disable=missing-function-docstring
     cmdclass.setdefault("build_exe", build_exe)
     cmdclass.setdefault("install", install)
     cmdclass.setdefault("install_exe", install_exe)
+    attrs.setdefault("executables", [])
     setuptools.setup(**attrs)
 
 
