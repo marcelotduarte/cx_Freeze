@@ -5,7 +5,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import tomli
+try:
+    import tomllib
+except ImportError:
+    from setuptools.extern import tomli as tomllib
 
 
 def main():
@@ -16,7 +19,7 @@ def main():
         print("pyproject.toml not found", file=sys.stderr)
         sys.exit(1)
     with pyproject_toml.open("rb") as file:
-        config = tomli.load(file)
+        config = tomllib.load(file)
 
     root_dir = pyproject_toml.parent
     requirements = root_dir / "requirements.txt"
