@@ -4,6 +4,76 @@ Release notes
 6.x releases
 ############
 
+Version 6.14 (January 2023)
+---------------------------
+
+#)  New or improved hooks for:
+	- hooks: Add charset_normalizer (:pull:`1758`)
+	- hooks: Add shapely (:pull:`1725`)
+	- hooks: Add sklearn hook (:pull:`1715`)
+	- hooks: Add pytorch (:pull:`1720`)
+	- hooks: Update scipy hook (:pull:`1716`)
+	- hooks: fix sqlite3 hook in python embed (:pull:`1707`)
+
+#)  Linux:
+	- Support to build musllinux wheels (:pull:`1687`)
+	- project: Improve patchelf dependency specification (:pull:`1722`)
+
+#)  Windows:
+	- startup: Do not limit PATH (revert #1659 partially), limit dll search path (:pull:`1675`)
+	- Ignore pylint error for deprecated module msilib (:pull:`1682`)
+	- Update to cx_Logging 3.1 and remove hacks for previous version (:pull:`1688`)
+	- [windows] Compile base executables with generic names depending on cache_tag (:pull:`1712`)
+	- [windows] build-wheel: maintain base executables on git (:pull:`1713`)
+	- [windows] build-wheel: fix git rm (use --ignore-unmatch instead) (:pull:`1714`)
+	- [windows] build-wheel: fix git branch (:pull:`1717`)
+	- [windows] setup: optional compilation in editable mode (:pull:`1718`)
+
+#)  Documentation:
+	- pin sphinx to 5.3.0 (:pull:`1691`)
+	- docs: fix typo (:pull:`1697`)
+	- doc: Add keywords for setup() and reorganize read order (:pull:`1728`)
+	- Update copyright year (:pull:`1749`)
+	- docs: use 'furo' theme for sphinx (:pull:`1750`)
+	- doc: cleanup after use of furo theme (:pull:`1755`)
+	- doc: improve documentation about setup script (:pull:`1756`)
+	- project and doc: tweak formatting and ordering (:pull:`1762`)
+	- Small fixes in code and documentation (:pull:`1738`)
+
+#)  Improvements/Refactor/Bugfix:
+	- Include copy of cx_Freeze license with frozen applications (:pull:`1672`)
+	- license: move update_frozen_license to a pre-commit (:pull:`1676`)
+	- Move OS constants to _compat module (:pull:`1709`)
+	- install: run() method needs to exist (:pull:`1747`)
+	- Fix the subclassing of internal commands (regression introduced in #1746) (:pull:`1759`)
+	- commands: accepts space-delimited string lists (:pull:`1761`)
+
+#)  Project:
+	- Support Python 3.11 and set it as default in CI (:pull:`1681`)
+	- Drop python 3.6 (:pull:`1670`)
+	- Drop the external dependency on importlib-metadata (:pull:`1692`)
+	- Drop the external dependency on packaging (:pull:`1730`)
+	- Python type hints - upgrade syntax (:pull:`1703`)
+	- Cleanup (:pull:`1760`)
+	- setup: move metadata to pyproject.toml (setuptools 61+) (:pull:`1677`)
+	- pre-commit: fix files that trigger the hook (:pull:`1690`)
+	- Update pre-commit dependencies (:pull:`1693`)
+	- update dev dependencies (:pull:`1701`)
+	- project: add/fix urls (:pull:`1708`)
+	- build-wheel: add missing sdist files (:pull:`1711`)
+	- dist: Use another aproach to export DistributionMetadata (:pull:`1726`)
+	- build: setuptools has 'build' command since v62.4.0 (:pull:`1729`)
+	- dist: Use setuptools plugins to extend Distribution instead of subclassing (:pull:`1733`)
+	- Use setuptools Distribution directly (:pull:`1736`)
+	- Add build_exe as subcommand of setuptools build (plugin) (:pull:`1737`)
+	- Add/update commands (provisional) and minor tweaks (:pull:`1746`)
+	- Add dependabot (:pull:`1752`)
+	- Declare support for setuptools 66.0 (:pull:`1753`)
+	- Ignore build time error (:pull:`1754`)
+
+#)  Samples:
+	- samples: Add simple samples using pyproject.toml and setup.cfg (:pull:`1757`)
+
 Version 6.13 (October 2022)
 ---------------------------
 
