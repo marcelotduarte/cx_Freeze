@@ -43,9 +43,10 @@ It looks something like this:
 
    .. group-tab:: pyproject.toml
 
+      A minimal ``setup.py`` is required (for now).
+
       .. code-block:: python
 
-         # minimal setup required (for now)
          import sys
          from cx_Freeze import setup, Executable
 
@@ -54,7 +55,7 @@ It looks something like this:
 
          setup(executables=[Executable("guifoo.py", base=base)])
 
-      pyproject.toml
+      ``pyproject.toml``
 
       .. code-block:: toml
 
@@ -69,9 +70,10 @@ It looks something like this:
 
    .. group-tab:: setup.cfg
 
+      A minimal ``setup.py`` is required.
+
       .. code-block:: python
 
-         # minimal setup required (for now)
          import sys
          from cx_Freeze import setup, Executable
 
@@ -80,7 +82,7 @@ It looks something like this:
 
          setup(executables=[Executable("guifoo.py", base=base)])
 
-      setup.cfg
+      ``setup.cfg``
 
       .. code-block:: ini
 
@@ -95,9 +97,11 @@ It looks something like this:
 
    .. group-tab:: command line
 
+      A basic ``setup.py`` is required and the command line options overwrite
+      them.
+
       .. code-block:: python
 
-         # basic setup
          import sys
          from cx_Freeze import setup, Executable
 

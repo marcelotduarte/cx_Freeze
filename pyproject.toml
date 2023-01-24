@@ -46,25 +46,12 @@ dependencies = [
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'",
 ]
 
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
-[project.urls]
-Home = "https://marcelotduarte.github.io/cx_Freeze"
-Changelog = "https://cx-freeze.readthedocs.io/en/latest/releasenotes.html"
-Documentation = "https://cx-freeze.readthedocs.io"
-Source = "https://github.com/marcelotduarte/cx_Freeze"
-Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
-Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
-
 [project.optional-dependencies]
 dev = [
     "bump2version>=1.0.1",
     "cibuildwheel>=2.11.2",
     "pre-commit>=2.20.0",
     "pylint>=2.15.4",
-    "tomli>=2.0.1",
     "wheel>=0.37.1",
 ]
 doc = [
@@ -80,6 +67,18 @@ test = [
     "pytest-mock>=3.10.0",
     "pytest-timeout>=2.1.0",
 ]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Home = "https://marcelotduarte.github.io/cx_Freeze"
+Changelog = "https://cx-freeze.readthedocs.io/en/latest/releasenotes.html"
+Documentation = "https://cx-freeze.readthedocs.io"
+Source = "https://github.com/marcelotduarte/cx_Freeze"
+Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
+Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
 
 [project.scripts]
 cxfreeze = "cx_Freeze.cli:main"
@@ -107,8 +106,9 @@ exclude = """
 .git,
 __pycache__,
 doc/src/conf.py"""
+# E203, W503 - Incompatible with black see https://github.com/ambv/black/issues/315
 ignore = """
-E203, W503, # Incompatible with black see https://github.com/ambv/black/issues/315
+E203, W503,
 E266,"""
 inline-quotes = "double"
 
