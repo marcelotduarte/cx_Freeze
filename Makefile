@@ -67,7 +67,7 @@ cov:
 
 .PHONY: release
 release:
-	bump2version --verbose --tag release
+	echo "# Run:\nbump2version --verbose --sign-tags release\ngit push origin main --follow-tags"
 
 .PHONY: release-dev
 release-dev:
