@@ -8,8 +8,8 @@ import shutil
 import subprocess
 
 from setuptools import Command
-from setuptools.errors import OptionError
 
+from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
     DarwinFile,
     DarwinFileTracker,
@@ -190,50 +190,34 @@ class BdistMac(Command):
     ]
 
     def initialize_options(self):
-        self.string_list_options = [
+        self.list_options = [
+            "plist_items",
             "include_frameworks",
             "include_resources",
         ]
-        for option in self.string_list_options:
+        for option in self.list_options:
             setattr(self, option, [])
 
         self.absolute_reference_path = None
         self.bundle_name = self.distribution.get_fullname()
-        self.iconfile = None
         self.codesign_deep = None
         self.codesign_entitlements = None
         self.codesign_identity = None
         self.codesign_resource_rules = None
         self.custom_info_plist = None
-        self.plist_items = None
+        self.iconfile = None
         self.qt_menu_nib = False
 
     def finalize_options(self):
         # Make sure all options of multiple values are lists
-        for option in self.string_list_options:
-            self.ensure_string_list(option)
-        self._ensure_dict("plist_items")
-
-    def _ensure_dict(self, option):
-        """Ensure that 'option' is a list of key/value."""
-        val = getattr(self, option)
-        if val is None:
-            return
-        try:
-            val = dict(val)
-            valid = all(
-                isinstance(k, str) and isinstance(v, str)
-                for k, v in val.items()
-            )
-        except ValueError:
-            valid = False
-        if valid:
-            setattr(self, option, val)
-        else:
-            raise OptionError(
-                f"{option!r} must be a list of key, value pairs or a dict "
-                f"(got {val!r})"
-            )
+        for option in self.list_options:
+            setattr(self, option, normalize_to_list(getattr(self, option)))
+        for item in self.plist_items:
+            if not isinstance(item, tuple) or len(item) != 2:
+                raise Exception(
+                    "Error, plist_items must be a list of key, value pairs "
+                    "(List[Tuple[str, str]]) (bad list item)."
+                )
 
     def create_plist(self):
         """Create the Contents/Info.plist file"""
@@ -258,8 +242,8 @@ class BdistMac(Command):
         contents["CFBundleExecutable"] = self.bundle_executable
 
         # add custom items to the plist file
-        if self.plist_items:
-            contents.update(self.plist_items)
+        for key, value in self.plist_items:
+            contents[key] = value
 
         with open(os.path.join(self.contents_dir, "Info.plist"), "wb") as file:
             plistlib.dump(contents, file)
