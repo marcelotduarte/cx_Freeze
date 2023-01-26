@@ -7,7 +7,7 @@ all: install
 
 .PHONY: clean
 clean:
-	if [ -f .git/hooks/pre-commit ] ; then\
+	if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		pre-commit clean;\
 		pre-commit uninstall;\
 		rm -f .git/hooks/pre-commit;\
@@ -16,7 +16,7 @@ clean:
 
 .PHONY: install
 install:
-	if ! [ -f .git/hooks/pre-commit ] ; then\
+	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
 		pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager &&\
 		pip install -e . --no-build-isolation --no-deps &&\
@@ -24,20 +24,21 @@ install:
 	fi
 
 .PHONY: upgrade
-upgrade:
-	if [ -f .git/hooks/pre-commit ] ; then\
-		make all || true;\
-		make clean || true;\
-		pip uninstall -y cx_Freeze || true;\
-	fi
-	make install
+upgrade: clean
+	rm -f .git/hooks/pre-commit || true
+	pip uninstall -y cx_Freeze || true
+	pip install --upgrade pre-commit
 	pre-commit autoupdate
 	make all
 	git diff || true
 
 .PHONY: html
 html: install
-	pre-commit run build-docs -a -v --hook-stage manual
+	if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
+		pre-commit run build-docs -a -v --hook-stage manual;\
+	else\
+		make -C doc html;\
+	fi
 
 .PHONY: htmltest
 htmltest:
@@ -52,7 +53,8 @@ pdf:
 	make -C doc pdf
 
 .PHONY: tests
-tests:
+tests: install
+	pip uninstall -y cx_Freeze && pip install -e . --no-build-isolation --no-deps
 	python -m pytest
 
 .PHONY: cov
@@ -62,4 +64,16 @@ cov:
 
 .PHONY: release
 release:
-	bump2version --verbose --tag release
+	echo "# Run:\nbump2version --verbose --sign-tags release\ngit push origin main --follow-tags"
+
+.PHONY: release-patch
+release-patch:
+	echo "# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\ngit push origin main --follow-tags"
+
+.PHONY: release-dev
+release-dev:
+	if (grep "current_version" .bumpversion.cfg | grep -q "\-dev"); then\
+		bump2version --allow-dirty --verbose --no-tag build;\
+	else\
+		bump2version --allow-dirty --verbose --no-tag minor;\
+	fi
