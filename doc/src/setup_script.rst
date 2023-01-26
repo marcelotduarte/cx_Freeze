@@ -92,8 +92,8 @@ It looks something like this:
          description = My GUI application!
 
          [build_exe]
-         excludes = tkinter unittest
-         zip_include_packages = encodings PySide6
+         excludes = tkinter,unittest
+         zip_include_packages = encodings,PySide6
 
    .. group-tab:: command line
 
