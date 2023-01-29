@@ -259,6 +259,8 @@ class VersionInfo:
         elif self.version.is_postrelease:
             file_flags += 0x20
             build = self.version.post
+        elif len(self.version.release) >= 4:
+            build = self.version.release[3]
 
         data = {
             "Comments": self.comments or "",
