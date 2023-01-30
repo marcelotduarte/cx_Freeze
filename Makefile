@@ -69,6 +69,10 @@ cov:
 release:
 	echo "# Run:\nbump2version --verbose --sign-tags release\ngit push origin main --follow-tags"
 
+.PHONY: release-patch
+release-patch:
+	echo "# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\ngit push origin main --follow-tags"
+
 .PHONY: release-dev
 release-dev:
 	if (grep "current_version" .bumpversion.cfg | grep -q "\-dev"); then\

@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cx_Freeze"
-version = "6.14.1"
+version = "6.14.2"
 description = "Create standalone executables from Python scripts"
 authors = [{name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}]
 maintainers = [{name = "Marcelo Duarte", email = "marcelotduarte@users.noreply.github.com"}]
