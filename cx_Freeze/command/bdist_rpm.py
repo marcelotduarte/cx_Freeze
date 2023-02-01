@@ -610,7 +610,7 @@ class BdistRPM(Command):
             ("postun", "post_uninstall", None),
         ]
 
-        for (rpm_opt, attr, default) in script_options:
+        for rpm_opt, attr, default in script_options:
             # Insert contents of file referred to, if no file is referred to
             # use 'default' as contents of script
             val = getattr(self, attr)

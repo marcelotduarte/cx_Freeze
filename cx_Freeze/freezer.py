@@ -495,11 +495,9 @@ class Freezer:
         # Prepare zip file
         compress_type = ZIP_DEFLATED if self.compress else ZIP_STORED
         with PyZipFile(filename, "w", compress_type) as outfile:
-
             files_to_copy: list[tuple[Module, Path]] = []
 
             for module in modules:
-
                 # determine if the module should be written to the file system;
                 # a number of packages make the assumption that files that they
                 # require will be found in a location relative to where they
@@ -804,7 +802,6 @@ class WinFreezer(Freezer, PEParser):
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
         ):
-
             library_dir = self.targetdir / "lib"
             source_dir = source.parent
             target_dir = target.parent
@@ -962,7 +959,6 @@ class DarwinFreezer(Freezer, Parser):
         include_mode: bool = False,
         reference: MachOReference | None = None,
     ) -> None:
-
         # The file was not previously copied, so need to create a
         # DarwinFile file object to represent the file being copied.
         if reference is not None:

@@ -13,15 +13,18 @@ repos:
   - id: check-added-large-files
   - id: check-case-conflict
   - id: check-merge-conflict
+  - id: check-shebang-scripts-are-executable
   - id: check-symlinks
+  - id: check-toml
   - id: check-yaml
   - id: debug-statements
   - id: end-of-file-fixer
+  - id: fix-byte-order-marker
   - id: mixed-line-ending
   - id: trailing-whitespace
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.11.4
+  rev: 5.12.0
   hooks:
   - id: isort
 
@@ -32,7 +35,7 @@ repos:
     args: ["--py37-plus"]
 
 - repo: https://github.com/psf/black
-  rev: 22.12.0
+  rev: 23.1.0
   hooks:
   - id: black
 
@@ -40,11 +43,11 @@ repos:
   rev: 1.13.0
   hooks:
   - id: blacken-docs
-    additional_dependencies: [black==22.12.0]
+    additional_dependencies: [black==23.1.0]
     args: ["-l", "79"]
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.11
+  rev: v0.12.1
   hooks:
   - id: validate-pyproject
 
@@ -54,7 +57,7 @@ repos:
   - id: flake8
 
 - repo: https://github.com/PyCQA/pylint
-  rev: v2.16.0b1
+  rev: v2.16.0
   hooks:
   - id: pylint
     name: pylint

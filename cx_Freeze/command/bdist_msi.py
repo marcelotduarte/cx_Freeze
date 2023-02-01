@@ -215,7 +215,7 @@ class BdistMSI(bdist_msi):
         if len(self.summary_data) > 0:
             for k in self.summary_data:
                 if k not in ["author", "comments", "keywords"]:
-                    raise Exception(
+                    raise OptionError(
                         f"Unknown key provided in summary-data: {k!r}"
                     )
 
