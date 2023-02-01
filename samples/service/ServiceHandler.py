@@ -11,7 +11,6 @@ import threading
 
 
 class Handler:
-
     # no parameters are permitted; all configuration should be placed in the
     # configuration file and handled in the initialize() method
     def __init__(self):

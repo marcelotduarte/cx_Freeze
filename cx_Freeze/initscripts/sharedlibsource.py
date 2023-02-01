@@ -23,5 +23,4 @@ with open(filename, encoding="utf-8") as in_file:
 
 
 def run():
-
     pass

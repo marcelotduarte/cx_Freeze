@@ -34,11 +34,10 @@ def update_frozen_license() -> int:
     content = FROZEN_HEADER + "\n".join(content.splitlines()[1:]) + "\n"
     try:
         dstpath.write_text(content, encoding="utf-8")
+        print(dstpath, "ok")
     except OSError as io_error:
         print(ERROR2, f"({io_error}).", file=sys.stderr)
         return 1
-    else:
-        print(dstpath, "ok")
     return 0
 
 

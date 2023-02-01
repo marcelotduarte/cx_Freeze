@@ -24,13 +24,10 @@ install:
 	fi
 
 .PHONY: upgrade
-upgrade:
-	if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
-		make all || true;\
-		make clean || true;\
-		pip uninstall -y cx_Freeze || true;\
-	fi
-	make install
+upgrade: clean
+	rm -f .git/hooks/pre-commit || true
+	pip uninstall -y cx_Freeze || true
+	pip install --upgrade pre-commit
 	pre-commit autoupdate
 	make all
 	git diff || true

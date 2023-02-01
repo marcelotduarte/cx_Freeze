@@ -8,6 +8,7 @@ import shutil
 import subprocess
 
 from setuptools import Command
+from setuptools.errors import OptionError
 
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
@@ -214,7 +215,7 @@ class BdistMac(Command):
             setattr(self, option, normalize_to_list(getattr(self, option)))
         for item in self.plist_items:
             if not isinstance(item, tuple) or len(item) != 2:
-                raise Exception(
+                raise OptionError(
                     "Error, plist_items must be a list of key, value pairs "
                     "(List[Tuple[str, str]]) (bad list item)."
                 )
