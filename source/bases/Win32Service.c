@@ -84,7 +84,7 @@ static int FatalScriptError(void)
 // Service_SetStatus()
 //   Set the status for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
+static int Service_SetStatus(udt_ServiceInfo* info, DWORD status, DWORD exit_code=0)
 {
     SERVICE_STATUS serviceStatus;
 
@@ -93,6 +93,14 @@ static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
     serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
     if (info->sessionChanges)
         serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_SESSIONCHANGE;
+    if (exit_code == 0) {
+        serviceStatus.dwWin32ExitCode = 0;
+        serviceStatus.dwServiceSpecificExitCode = 0;
+    }
+    else {
+        serviceStatus.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+        serviceStatus.dwServiceSpecificExitCode = exit_code;
+    }
     serviceStatus.dwWin32ExitCode = 0;
     serviceStatus.dwServiceSpecificExitCode = 0;
     serviceStatus.dwCheckPoint = 0;
@@ -587,8 +595,9 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
     }
 
     // run the service
-    if (Service_Run(&info) < 0) {
-        Service_SetStatus(&info, SERVICE_STOPPED);
+    const int exit_code = Service_Run(&info);
+    if (exit_code < 0) {
+        Service_SetStatus(&info, SERVICE_STOPPED, exit_code);
         return;
     }
 
