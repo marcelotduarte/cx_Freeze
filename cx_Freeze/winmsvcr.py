@@ -62,5 +62,3 @@ FILES = (
     "msvcp140_atomic_wait.dll",
     "msvcp140_codecvt_ids.dll",
 )
-
-FILES_TO_DUPLICATE = ("vcruntime140.dll",)

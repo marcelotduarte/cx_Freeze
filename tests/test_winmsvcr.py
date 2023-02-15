@@ -1,12 +1,10 @@
 """Test winmsvcr"""
 
-# pylint: disable=missing-function-docstring,unused-import
-import pytest  # noqa
-
-from cx_Freeze.winmsvcr import FILES, FILES_TO_DUPLICATE
+from cx_Freeze.winmsvcr import FILES
 
 
 def test_files():
+    """Test winmsvcr.FILES"""
     expected = (
         # VC 2015 and 2017
         "api-ms-win-core-console-l1-1-0.dll",
@@ -64,8 +62,3 @@ def test_files():
         "msvcp140_codecvt_ids.dll",
     )
     assert expected == FILES
-
-
-def test_files_to_duplicate():
-    expected = ("vcruntime140.dll",)
-    assert expected == FILES_TO_DUPLICATE

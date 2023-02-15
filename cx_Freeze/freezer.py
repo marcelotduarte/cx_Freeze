@@ -665,7 +665,6 @@ class WinFreezer(Freezer, PEParser):
 
         # deal with C-runtime files
         self.runtime_files: Set[str] = set()
-        self.runtime_files_to_dup: Set[str] = set()
         self._set_runtime_files()
 
     def _add_resources(self, exe: Executable) -> None:
@@ -768,20 +767,12 @@ class WinFreezer(Freezer, PEParser):
 
     def _pre_copy_hook(self, source: Path, target: Path) -> Tuple[Path, Path]:
         """Prepare the source and target paths. Also, adjust the target of
-        C runtime libraries and triggers an additional copy for files in
-        self.runtime_files_to_dup."""
+        C runtime libraries."""
 
         # fix the target path for C runtime files
         norm_target_name = target.name.lower()
         if norm_target_name in self.runtime_files:
-            target = self.targetdir / "lib" / norm_target_name
-
-            # vcruntime140.dll must be in the root and in the lib directory
-            if norm_target_name in self.runtime_files_to_dup:
-                self.runtime_files_to_dup.remove(norm_target_name)
-                self._copy_file(source, target, copy_dependent_files=False)
-                self.files_copied.remove(target)
-                target = self.targetdir / norm_target_name
+            target = self.targetdir / norm_target_name
         return source, target
 
     def _post_copy_hook(
@@ -925,7 +916,6 @@ class WinFreezer(Freezer, PEParser):
     def _set_runtime_files(self) -> None:
         if self.include_msvcr:
             self.runtime_files.update(winmsvcr.FILES)
-            self.runtime_files_to_dup.update(winmsvcr.FILES_TO_DUPLICATE)
         else:
             # just put on the exclusion list
             self.bin_excludes.extend([Path(name) for name in winmsvcr.FILES])
