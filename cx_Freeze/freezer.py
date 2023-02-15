@@ -483,7 +483,7 @@ class Freezer:
 
         # Prepare zip file
         compress_type = ZIP_DEFLATED if self.compress else ZIP_STORED
-        with PyZipFile(filename, "w", compress_type) as outfile:
+        with PyZipFile(str(filename), "w", compress_type) as outfile:
 
             files_to_copy: List[Tuple[Module, Path]] = []
 
@@ -590,7 +590,7 @@ class Freezer:
                 for name in dist_cachedir.rglob("*"):
                     if name.is_dir():
                         continue
-                    outfile.write(name, name.as_posix()[pos:])
+                    outfile.write(str(name), name.as_posix()[pos:])
 
             # write any files to the zip file that were requested specially
             for source_path, target_path in finder.zip_includes:
@@ -600,9 +600,9 @@ class Freezer:
                         if source_filename.is_dir():
                             continue
                         target = target_path / source_filename.as_posix()[pos:]
-                        outfile.write(source_filename, target)
+                        outfile.write(str(source_filename), target.as_posix())
                 else:
-                    outfile.write(source_path, target_path.as_posix())
+                    outfile.write(str(source_path), target_path.as_posix())
 
         # Copy Python extension modules from the list built above.
         origPath = os.environ["PATH"]
