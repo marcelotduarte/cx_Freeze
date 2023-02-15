@@ -101,8 +101,6 @@ static int Service_SetStatus(udt_ServiceInfo* info, DWORD status, DWORD exit_cod
         serviceStatus.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
         serviceStatus.dwServiceSpecificExitCode = exit_code;
     }
-    serviceStatus.dwWin32ExitCode = 0;
-    serviceStatus.dwServiceSpecificExitCode = 0;
     serviceStatus.dwCheckPoint = 0;
     serviceStatus.dwWaitHint = 0;
     if (!SetServiceStatus(gServiceHandle, &serviceStatus))
