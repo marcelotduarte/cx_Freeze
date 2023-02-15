@@ -49,7 +49,7 @@ copyright = "2023, Marcelo Duarte"
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = "6.13.1"
+release = "6.13.2"
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 
