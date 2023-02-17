@@ -84,7 +84,7 @@ static int FatalScriptError(void)
 // Service_SetStatus()
 //   Set the status for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetStatus(udt_ServiceInfo* info, DWORD status, DWORD exit_code=0)
+static int Service_SetStatus(udt_ServiceInfo* info, DWORD status, DWORD exit_code)
 {
     SERVICE_STATUS serviceStatus;
 
@@ -122,7 +122,7 @@ static int Service_Stop(udt_ServiceInfo* info)
     PyObject *result;
 
     // indicate that the service is being stopped
-    if (Service_SetStatus(info, SERVICE_STOP_PENDING) < 0)
+    if (Service_SetStatus(info, SERVICE_STOP_PENDING, 0) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as stopping");
 
     // create event for the main thread to wait on for the control thread
@@ -150,7 +150,7 @@ static int Service_Stop(udt_ServiceInfo* info)
     PyThreadState_Delete(threadState);
 
     // indicate that the service has stopped
-    if (Service_SetStatus(info, SERVICE_STOPPED) < 0)
+    if (Service_SetStatus(info, SERVICE_STOPPED, 0) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as stopped");
 
     // now set the control event
@@ -280,7 +280,7 @@ static int Service_SetupPython(udt_ServiceInfo *info)
     threadState = PyThreadState_Swap(NULL);
     if (!threadState) {
         LogMessage(LOG_LEVEL_ERROR, "cannot set up interpreter state");
-        Service_SetStatus(info, SERVICE_STOPPED);
+        Service_SetStatus(info, SERVICE_STOPPED, 0);
         return -1;
     }
     gInterpreterState = threadState->interp;
@@ -549,7 +549,7 @@ static int Service_Run(udt_ServiceInfo *info)
 
     // run the service
     LogMessage(LOG_LEVEL_INFO, "starting up service");
-    if (Service_SetStatus(info, SERVICE_RUNNING) < 0)
+    if (Service_SetStatus(info, SERVICE_RUNNING, 0) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as started");
     temp = PyObject_CallMethod(gInstance, "run", NULL);
     if (!temp)
@@ -610,7 +610,7 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
     // otherwise, the service terminated normally by some other means
     } else {
         LogMessage(LOG_LEVEL_INFO, "stopping service (internally)");
-        Service_SetStatus(&info, SERVICE_STOPPED);
+        Service_SetStatus(&info, SERVICE_STOPPED, 0);
     }
 }
 
