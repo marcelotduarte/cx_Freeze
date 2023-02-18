@@ -48,7 +48,7 @@ class BuildEXE(Command):
             "comma-separated list of paths to replace in included modules, "
             "using the form <search>=<replace>",
         ),
-        ("path=", None, "comma-separated list of paths to search"),
+        ("path=", None, "comma-separated list of paths to search for modules"),
         ("no-compress", None, "create a zipfile with no compression"),
         ("constants=", None, "comma-separated list of constants to include"),
         (

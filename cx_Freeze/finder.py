@@ -10,7 +10,6 @@ from collections.abc import Sequence
 from contextlib import suppress
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
-from sysconfig import get_config_var
 from types import CodeType
 from typing import Any, List, Tuple
 
@@ -50,7 +49,7 @@ class ModuleFinder:
         self,
         include_files: IncludesList | None = None,
         excludes: list[str] | None = None,
-        path: list[str] | None = None,
+        path: list[str | Path] | None = None,
         replace_paths: list[tuple[str, str]] | None = None,
         zip_include_all_packages: bool = False,
         zip_exclude_packages: list[str] | None = None,
@@ -63,7 +62,7 @@ class ModuleFinder:
         )
         self.excludes: dict[str, Any] = dict.fromkeys(excludes or [])
         self.optimize_flag = 0
-        self.path: list[str] = self._set_path(path)
+        self.path: list[str] = list(map(os.fspath, path or sys.path))
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
         self.zip_exclude_packages = zip_exclude_packages or []
@@ -287,7 +286,7 @@ class ModuleFinder:
 
         # old style relative import (regular 'import foo' in Python 2)
         # the name given is tried in the current package, and if no match
-        # is found, sys.path is searched for a top-level module/pockage
+        # is found, self.path is searched for a top-level module/pockage
         elif relative_import_index < 0:
             parent = self._determine_parent(caller)
             if parent is not None:
@@ -611,26 +610,6 @@ class ModuleFinder:
                 method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
         if method is not None:
             method(self, *args)
-
-    @staticmethod
-    def _set_path(path: list[str] | None = None) -> set[str]:
-        """Set the path to search for modules, and fix the path for built-in
-        modules when it differs from the running python built-in modules."""
-        path = path or sys.path
-        if path == sys.path:
-            dynload = get_resource_file_path("bases", "lib-dynload", "")
-            if dynload and dynload.is_dir():
-                # add bases/lib-dynload to the finder path
-                insert_at = 0
-                dest_shared = get_config_var("DESTSHARED")
-                if dest_shared:
-                    for i, pth in enumerate(path):
-                        if pth == dest_shared:
-                            insert_at = i
-                            break
-                path = path.copy()
-                path.insert(insert_at, os.fspath(dynload))
-        return path
 
     def _scan_code(
         self,

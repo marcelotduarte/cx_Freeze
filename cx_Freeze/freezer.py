@@ -65,7 +65,7 @@ class Freezer:
         replacePaths: list[str] | None = None,
         compress: bool = True,
         optimizeFlag: int = 0,
-        path: list[str] | None = None,
+        path: list[str | Path] | None = None,
         targetDir: str | Path | None = None,
         binIncludes: list[str] | None = None,
         binExcludes: list[str] | None = None,
@@ -89,7 +89,7 @@ class Freezer:
         self.replacePaths: list[str] = list(replacePaths or [])
         self.compress = True if compress is None else compress
         self.optimize_flag: int = optimizeFlag
-        self.path: list[str] | None = path
+        self.path: list[str] | None = self._validate_path(path)
         self.include_msvcr: bool = includeMSVCR
         self.targetdir = targetDir
         self.bin_includes: list[str] | None = binIncludes
@@ -125,13 +125,17 @@ class Freezer:
             python_version = sysconfig.get_python_version()
             path = f"build/exe.{platform}-{python_version}"
         path = Path(path).resolve()
+        if os.fspath(path) in self.path:
+            raise ConfigError(
+                "the build_exe directory cannot be used as search path"
+            )
         if path.is_dir():
             # starts in a clean directory
             try:
                 shutil.rmtree(path)
             except OSError:
                 raise ConfigError(
-                    "the build directory cannot be cleaned"
+                    "the build_exe directory cannot be cleaned"
                 ) from None
         self._targetdir: Path = path
 
@@ -432,6 +436,24 @@ class Freezer:
                 return False
 
         return True
+
+    @staticmethod
+    def _validate_path(path: list[str | Path] | None = None) -> list[str]:
+        """Returns valid search path for modules, and fix the path for built-in
+        modules when it differs from the running python built-in modules."""
+        path = list(map(os.fspath, path or sys.path))
+        dynload = get_resource_file_path("bases", "lib-dynload", "")
+        if dynload and dynload.is_dir():
+            # add bases/lib-dynload to the finder path
+            dest_shared = sysconfig.get_config_var("DESTSHARED")
+            if dest_shared:
+                try:
+                    index = path.index(dest_shared)
+                    path.pop(index)
+                except ValueError:
+                    index = 0
+                path.insert(index, os.fspath(dynload))
+        return path
 
     def _verify_configuration(self) -> None:
         """Verify and normalize names and paths. Raises ConfigError on
