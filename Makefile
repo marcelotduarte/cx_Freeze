@@ -64,11 +64,11 @@ cov:
 
 .PHONY: release
 release:
-	echo "# Run:\nbump2version --verbose --sign-tags release\ngit push origin main --follow-tags"
+	@echo "# Run:\nbump2version --verbose --sign-tags release\ngit push origin main --tags"
 
 .PHONY: release-patch
 release-patch:
-	echo "# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\ngit push origin main --follow-tags"
+	@echo "# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\ngit push origin main --tags"
 
 .PHONY: release-dev
 release-dev:
