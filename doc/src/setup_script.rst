@@ -258,7 +258,8 @@ It can be further customized:
        relative path to the module; multiple values are separated by the
        standard path separator
    * - .. option:: path
-     - comma-separated list of paths to search; the default value is sys.path
+     - comma-separated list of paths to search for modules;
+       the default value is sys.path
    * - .. option:: no_compress
      - create a zipfile with no compression
    * - .. option:: constants
@@ -337,7 +338,7 @@ This is the equivalent help to specify the same options on the command line:
                             includes all submodules in the package
     --replace-paths         comma-separated list of paths to replace in included
                             modules, using the form <search>=<replace>
-    --path                  comma-separated list of paths to search
+    --path                  comma-separated list of paths to search for modules
     --no-compress           create a zipfile with no compression
     --constants             comma-separated list of constants to include
     --bin-includes          list of files to include when determining
