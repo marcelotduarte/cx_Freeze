@@ -127,7 +127,6 @@ add_imports = ["from __future__ import annotations"]
 format.max-line-length = 79
 master.ignore="""
 darwintools.py,
-freezer.py,
 setupwriter.py
 """
 master.ignore-paths = """

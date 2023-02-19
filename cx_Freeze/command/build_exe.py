@@ -248,22 +248,22 @@ class BuildEXE(Command):
             self.optimize,
             self.path,
             self.build_exe,
-            binIncludes=self.bin_includes,
-            binExcludes=self.bin_excludes,
-            binPathIncludes=self.bin_path_includes,
-            binPathExcludes=self.bin_path_excludes,
-            includeFiles=self.include_files,
-            zipIncludes=self.zip_includes,
-            zipIncludePackages=self.zip_include_packages,
-            zipExcludePackages=self.zip_exclude_packages,
+            bin_includes=self.bin_includes,
+            bin_excludes=self.bin_excludes,
+            bin_path_includes=self.bin_path_includes,
+            bin_path_excludes=self.bin_path_excludes,
+            include_files=self.include_files,
+            zip_includes=self.zip_includes,
+            zip_include_packages=self.zip_include_packages,
+            zip_exclude_packages=self.zip_exclude_packages,
             silent=self.silent_setting,
             metadata=metadata,
-            includeMSVCR=self.include_msvcr,
+            include_msvcr=self.include_msvcr,
         )
 
         # keep freezer around so that its data case be used in bdist_mac phase
         self.freezer = freezer
-        freezer.Freeze()
+        freezer.freeze()
 
     def set_source_location(self, name, *pathParts):
         env_name = f"{name.upper()}_BASE"
