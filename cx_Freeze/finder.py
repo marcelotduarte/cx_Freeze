@@ -61,7 +61,7 @@ class ModuleFinder:
             include_files
         )
         self.excludes: dict[str, Any] = dict.fromkeys(excludes or [])
-        self.optimize_flag = 0
+        self.optimize = 0
         self.path: list[str] = list(map(os.fspath, path or sys.path))
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
@@ -459,7 +459,7 @@ class ModuleFinder:
             source_bytes = loader.get_data(path)
             try:
                 module.code = loader.source_to_code(
-                    source_bytes, path, _optimize=self.optimize_flag
+                    source_bytes, path, _optimize=self.optimize
                 )
             except SyntaxError:
                 logging.debug("Invalid syntax in [%s]", name)
@@ -786,16 +786,16 @@ class ModuleFinder:
             print("may not be needed on this platform.\n")
 
     @property
-    def optimize_flag(self) -> int:
+    def optimize(self) -> int:
         """The value of optimize flag propagated according to the user's
         choice."""
         return self._optimize_flag
 
-    @optimize_flag.setter
-    def optimize_flag(self, value: int):
-        # The value of optimize_flag is checked in dist.py or main,py. This
-        # value is unlikely to be wrong, yet we check and ignore any divergent
-        # value.
+    @optimize.setter
+    def optimize(self, value: int):
+        # The value of optimize is checked in '.command.build_exe' or '.cli'.
+        # This value is unlikely to be wrong, yet we check and ignore any
+        # divergent value.
         if -1 <= value <= 2:
             self._optimize_flag = value
 

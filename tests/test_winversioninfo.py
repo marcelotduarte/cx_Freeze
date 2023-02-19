@@ -1,9 +1,6 @@
 """Test winversioninfo"""
 
-# pylint: disable=unused-import
 from __future__ import annotations
-
-import pytest  # noqa
 
 from cx_Freeze.winversioninfo import Version, VersionInfo
 
