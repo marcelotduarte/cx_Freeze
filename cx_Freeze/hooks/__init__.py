@@ -10,7 +10,6 @@ import sysconfig
 from pathlib import Path
 
 from .._compat import IS_MINGW, IS_WINDOWS
-from ..common import code_object_replace, get_resource_file_path
 from ..finder import ModuleFinder
 from ..module import Module
 from ._qthooks import get_qt_plugins_paths  # noqa
@@ -101,18 +100,6 @@ def load_crc32c(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("_cffi_backend")
 
 
-def load_clr(finder: ModuleFinder, module: Module) -> None:
-    """The pythonnet package (imported as 'clr') needs Python.Runtime.dll
-    in runtime."""
-    dll_name = "Python.Runtime.dll"
-    dll_path = module.file.parent / dll_name
-    if not dll_path.exists():
-        dll_path = module.file.parent / "pythonnet/runtime" / dll_name
-        if not dll_path.exists():
-            return
-    finder.include_files(dll_path, Path("lib", dll_name))
-
-
 def load_cryptography(finder: ModuleFinder, module: Module) -> None:
     """The cryptography module requires the _cffi_backend module."""
     if module.distribution and module.distribution.requires:
@@ -180,86 +167,6 @@ def load_gevent(finder: ModuleFinder, module: Module) -> None:
 def load_GifImagePlugin(finder: ModuleFinder, module: Module) -> None:
     """The GifImagePlugin module optionally imports the _imaging_gif module"""
     module.ignore_names.add("_imaging_gif")
-
-
-def load_glib(finder: ModuleFinder, module: Module) -> None:
-    """Ignore globals that are imported."""
-    module.global_names.update(
-        [
-            "GError",
-            "IOChannel",
-            "IO_ERR",
-            "IO_FLAG_APPEND",
-            "IO_FLAG_GET_MASK",
-            "IO_FLAG_IS_READABLE",
-            "IO_FLAG_IS_SEEKABLE",
-            "IO_FLAG_IS_WRITEABLE",
-            "IO_FLAG_MASK",
-            "IO_FLAG_NONBLOCK",
-            "IO_FLAG_SET_MASK",
-            "IO_HUP",
-            "IO_IN",
-            "IO_NVAL",
-            "IO_OUT",
-            "IO_PRI",
-            "IO_STATUS_AGAIN",
-            "IO_STATUS_EOF",
-            "IO_STATUS_ERROR",
-            "IO_STATUS_NORMAL",
-            "Idle",
-            "MainContext",
-            "MainLoop",
-            "OPTION_ERROR",
-            "OPTION_ERROR_BAD_VALUE",
-            "OPTION_ERROR_FAILED",
-            "OPTION_ERROR_UNKNOWN_OPTION",
-            "OPTION_FLAG_FILENAME",
-            "OPTION_FLAG_HIDDEN",
-            "OPTION_FLAG_IN_MAIN",
-            "OPTION_FLAG_NOALIAS",
-            "OPTION_FLAG_NO_ARG",
-            "OPTION_FLAG_OPTIONAL_ARG",
-            "OPTION_FLAG_REVERSE",
-            "OPTION_REMAINING",
-            "OptionContext",
-            "OptionGroup",
-            "PRIORITY_DEFAULT",
-            "PRIORITY_DEFAULT_IDLE",
-            "PRIORITY_HIGH",
-            "PRIORITY_HIGH_IDLE",
-            "PRIORITY_LOW",
-            "Pid",
-            "PollFD",
-            "SPAWN_CHILD_INHERITS_STDIN",
-            "SPAWN_DO_NOT_REAP_CHILD",
-            "SPAWN_FILE_AND_ARGV_ZERO",
-            "SPAWN_LEAVE_DESCRIPTORS_OPEN",
-            "SPAWN_SEARCH_PATH",
-            "SPAWN_STDERR_TO_DEV_NULL",
-            "SPAWN_STDOUT_TO_DEV_NULL",
-            "Source",
-            "Timeout",
-            "child_watch_add",
-            "filename_display_basename",
-            "filename_display_name",
-            "filename_from_utf8",
-            "get_application_name",
-            "get_current_time",
-            "get_prgname",
-            "glib_version",
-            "idle_add",
-            "io_add_watch",
-            "main_context_default",
-            "main_depth",
-            "markup_escape_text",
-            "set_application_name",
-            "set_prgname",
-            "source_remove",
-            "spawn_async",
-            "timeout_add",
-            "timeout_add_seconds",
-        ]
-    )
 
 
 def load_googleapiclient(finder: ModuleFinder, module: Module) -> None:
@@ -336,43 +243,6 @@ def load_llvmlite(finder: ModuleFinder, module: Module) -> None:
     """The llvmlite must be loaded as package."""
     finder.include_package("llvmlite")
     finder.exclude_module("llvmlite.tests")
-
-
-def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
-    """The matplotlib package requires mpl-data subdirectory."""
-    data_path = module.path[0] / "mpl-data"
-    target_path = Path("lib", module.name, "mpl-data")
-    # After matplotlib 3.4 mpl-data is guaranteed to be a subdirectory.
-    if not data_path.is_dir():
-        data_path = __import__("matplotlib").get_data_path()
-        need_patch = True
-    else:
-        need_patch = module.in_file_system == 0
-    finder.include_files(data_path, target_path, copy_dependent_files=False)
-    finder.include_package("matplotlib")
-    finder.exclude_module("matplotlib.tests")
-    finder.exclude_module("matplotlib.testing")
-    if not need_patch or module.code is None:
-        return
-    code_to_inject = f"""
-def _get_data_path():
-    import os, sys
-    return os.path.join(os.path.dirname(sys.executable), "{target_path!s}")
-"""
-    for code_str in [
-        code_to_inject,
-        code_to_inject.replace("_get_data_path", "get_data_path"),
-    ]:
-        new_code = compile(code_str, os.fspath(module.file), "exec")
-        co_func = new_code.co_consts[0]
-        name = co_func.co_name
-        code = module.code
-        consts = list(code.co_consts)
-        for i, constant in enumerate(consts):
-            if isinstance(constant, type(code)) and constant.co_name == name:
-                consts[i] = co_func
-                break
-        module.code = code_object_replace(code, co_consts=consts)
 
 
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
@@ -504,31 +374,6 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     )
 
 
-def load_pytz(finder: ModuleFinder, module: Module) -> None:
-    """The pytz module requires timezone data to be found in a known directory
-    or in the zip file where the package is written."""
-    target_path = Path("lib", "pytz", "zoneinfo")
-    data_path = module.path[0] / "zoneinfo"
-    if not data_path.is_dir():
-        # Fedora (and possibly other systems) use a separate location to
-        # store timezone data so look for that here as well
-        pytz = __import__("pytz")
-        data_path = Path(
-            getattr(pytz, "_tzinfo_dir", None)
-            or os.getenv("PYTZ_TZDATADIR")
-            or "/usr/share/zoneinfo"
-        )
-        if data_path.is_dir():
-            finder.add_constant("PYTZ_TZDATADIR", os.fspath(target_path))
-    if data_path.is_dir():
-        if module.in_file_system >= 1:
-            finder.include_files(
-                data_path, target_path, copy_dependent_files=False
-            )
-        else:
-            finder.zip_include_files(data_path, Path("pytz", "zoneinfo"))
-
-
 def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     """The pywintypes module is actually contained in a DLL but since those
     cannot be loaded directly in Python 2.5 and higher a special module is
@@ -566,34 +411,6 @@ def load_sentry(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("sentry_sdk.integrations.argv")
     finder.include_module("sentry_sdk.integrations.logging")
     finder.include_module("sentry_sdk.integrations.threading")
-
-
-def load_skimage(finder: ModuleFinder, module: Module) -> None:
-    """The skimage package."""
-    finder.include_package("skimage.io")
-    # exclude all tests
-    finder.exclude_module("skimage.color.tests")
-    finder.exclude_module("skimage.data.tests")
-    finder.exclude_module("skimage.draw.tests")
-    finder.exclude_module("skimage.exposure.tests")
-    finder.exclude_module("skimage.feature.tests")
-    finder.exclude_module("skimage.filters.tests")
-    finder.exclude_module("skimage.graph.tests")
-    finder.exclude_module("skimage.io.tests")
-    finder.exclude_module("skimage.measure.tests")
-    finder.exclude_module("skimage.metrics.tests")
-    finder.exclude_module("skimage.morphology.tests")
-    finder.exclude_module("skimage.restoration.tests")
-    finder.exclude_module("skimage.segmentation.tests")
-    finder.exclude_module("skimage._shared.tests")
-    finder.exclude_module("skimage.transform.tests")
-    finder.exclude_module("skimage.util.tests")
-    finder.exclude_module("skimage.viewer.tests")
-
-
-def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
-    """The skimage.feature.orb_cy is an extension that load a module."""
-    finder.include_module("skimage.feature._orb_descriptor_positions")
 
 
 def load_sklearn__distributor_init(
@@ -682,39 +499,6 @@ def load_time(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("_strptime")
 
 
-def load_tkinter(finder: ModuleFinder, module: Module) -> None:
-    """The tkinter module has data files (also called tcl/tk libraries) that
-    are required to be loaded at runtime."""
-    folders = []
-    tcltk = get_resource_file_path("bases", "tcltk", "")
-    if tcltk and tcltk.is_dir():
-        # manylinux wheels and macpython wheels store tcl/tk libraries
-        folders.append(("TCL_LIBRARY", list(tcltk.glob("tcl*"))[0]))
-        folders.append(("TK_LIBRARY", list(tcltk.glob("tk*"))[0]))
-    else:
-        # Windows, MSYS2, Miniconda: collect the tcl/tk libraries
-        try:
-            tkinter = __import__("tkinter")
-        except (ImportError, AttributeError):
-            return
-        root = tkinter.Tk(useTk=False)
-        source_path = Path(root.tk.exprstring("$tcl_library"))
-        folders.append(("TCL_LIBRARY", source_path))
-        source_name = source_path.name.replace("tcl", "tk")
-        source_path = source_path.parent / source_name
-        folders.append(("TK_LIBRARY", source_path))
-    for env_name, source_path in folders:
-        target_path = Path("lib", "tcltk", source_path.name)
-        finder.add_constant(env_name, os.fspath(target_path))
-        finder.include_files(source_path, target_path)
-        if IS_WINDOWS:
-            dll_name = source_path.name.replace(".", "") + "t.dll"
-            dll_path = Path(sys.base_prefix, "DLLs", dll_name)
-            if not dll_path.exists():
-                continue
-            finder.include_files(dll_path, Path("lib", dll_name))
-
-
 def load_tokenizers(finder: ModuleFinder, module: Module) -> None:
     """On Linux the tokenizers.libs directory is not copied."""
     if module.path is None:
@@ -780,34 +564,6 @@ def load_wx_lib_pubsub_core(finder: ModuleFinder, module: Module) -> None:
     that this only works if the import of wx.lib.pubsub.setupkwargs
     occurs first."""
     module.path.insert(0, module.file.parent / "kwargs")
-
-
-def load_Xlib_display(finder: ModuleFinder, module: Module) -> None:
-    """The Xlib.display module implicitly loads a number of extension modules;
-    make sure this happens."""
-    finder.include_module("Xlib.ext.xtest")
-    finder.include_module("Xlib.ext.shape")
-    finder.include_module("Xlib.ext.xinerama")
-    finder.include_module("Xlib.ext.record")
-    finder.include_module("Xlib.ext.composite")
-    finder.include_module("Xlib.ext.randr")
-
-
-def load_Xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
-    """The Xlib.support.connect module implicitly loads a platform specific
-    module; make sure this happens."""
-    if sys.platform.split("-", maxsplit=1)[0] == "OpenVMS":
-        module_name = "vms_connect"
-    else:
-        module_name = "unix_connect"
-    finder.include_module(f"Xlib.support.{module_name}")
-
-
-def load_Xlib_XK(finder: ModuleFinder, module: Module) -> None:
-    """The Xlib.XK module implicitly loads some keysymdef modules; make sure
-    this happens."""
-    finder.include_module("Xlib.keysymdef.miscellany")
-    finder.include_module("Xlib.keysymdef.latin1")
 
 
 def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
