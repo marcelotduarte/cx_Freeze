@@ -610,8 +610,7 @@ class Freezer:
                             parts.append("__init__")
                         target_name = target_lib_dir.joinpath(*parts)
                         target_name = target_name.with_suffix(".pyc")
-                        if not os.path.exists(target_name.parent):
-                            self._create_directory(target_name.parent)
+                        self._create_directory(target_name.parent)
                         target_name.write_bytes(data)
 
                 # otherwise, write to the zip file
