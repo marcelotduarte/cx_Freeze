@@ -18,8 +18,7 @@ class TestModuleFinderWithConvertedNoseTests:
     @pytest.fixture()
     def fix_module_finder(self):
         constants = ConstantsModule()
-        finder = ModuleFinder(constants_module=constants)
-        return finder
+        return ModuleFinder(constants_module=constants)
 
     def test_scan_code(self, mocker, fix_test_samples_path, fix_module_finder):
         any3 = (mocker.ANY,) * 3
@@ -58,7 +57,7 @@ class TestModuleFinderWithConvertedNoseTests:
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         constants = ConstantsModule()
         finder = ModuleFinder(
-            path=[fix_test_samples_dir] + sys.path, constants_module=constants
+            path=[fix_test_samples_dir, *sys.path], constants_module=constants
         )
         with pytest.raises(ImportError):
             # Threw SyntaxError before the bug was fixed

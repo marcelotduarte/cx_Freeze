@@ -10,7 +10,7 @@ import cx_Freeze
 
 
 @pytest.mark.parametrize(
-    "platform, extra_modules",
+    ("platform", "extra_modules"),
     [
         (None, []),
         ("win32", ["bdist_msi"]),

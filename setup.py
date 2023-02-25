@@ -157,14 +157,13 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         """Find the dll by name, priority by pyd extension."""
         pattern_pyd = f"{name}*.pyd"
         pattern_dll = f"{name}*.dll"
-        for path in sys.path:
-            path = Path(path).resolve()
+        for path in map(Path, sys.path):
             if not path.is_dir():
                 continue
             for dll_path in path.glob(pattern_pyd):
-                return dll_path
+                return dll_path.resolve()
             for dll_path in path.glob(pattern_dll):
-                return dll_path
+                return dll_path.resolve()
         return Path(f"{name}.dll")
 
     def _dlltool_delay_load(self, name: str) -> tuple[str, str]:

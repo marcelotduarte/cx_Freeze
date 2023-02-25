@@ -7,12 +7,13 @@ from __future__ import annotations
 import os
 import sys
 import sysconfig
+from contextlib import suppress
 from pathlib import Path
 
 from .._compat import IS_MINGW, IS_WINDOWS
 from ..finder import ModuleFinder
 from ..module import Module
-from ._qthooks import get_qt_plugins_paths  # noqa
+from ._qthooks import get_qt_plugins_paths  # noqa: F401
 
 
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
@@ -35,9 +36,11 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     """The bcrypt < 4.0 package requires the _cffi_backend module
     (loaded implicitly)."""
     include_cffi = True
-    if module.distribution:
-        if int(module.distribution.version.split(".")[0]) >= 4:
-            include_cffi = False
+    if (
+        module.distribution
+        and int(module.distribution.version.split(".")[0]) >= 4
+    ):
+        include_cffi = False
     if include_cffi:
         finder.include_module("_cffi_backend")
 
@@ -77,7 +80,7 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
     """The cffi.cparser module can use a extension if present."""
     try:
         cffi = __import__("cffi", fromlist=["_pycparser"])
-        pycparser = getattr(cffi, "_pycparser")
+        pycparser = getattr(cffi, "_pycparser")  # noqa: B009
         finder.include_module(pycparser.__name__)
     except (ImportError, AttributeError):
         finder.exclude_module("cffi._pycparser")
@@ -590,10 +593,8 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
         if libs_dir.exists():
             finder.include_files(libs_dir, Path("lib", libzmq_folder))
     # Include the bundled libzmq library, if it exists
-    try:
+    with suppress(ImportError):
         finder.include_module("zmq.libzmq")
-    except ImportError:
-        pass  # assume libzmq is not bundled
     finder.exclude_module("zmq.tests")
 
 

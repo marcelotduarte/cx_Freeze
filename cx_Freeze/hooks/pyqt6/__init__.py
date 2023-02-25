@@ -9,7 +9,10 @@ import sys
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
-from .._qthooks import copy_qt_files
+from .._qthooks import (
+    copy_qt_files,
+    load_qt_qtwidgets,
+)
 from .._qthooks import load_qt_qt as load_pyqt6_qt
 from .._qthooks import load_qt_qtcharts as load_pyqt6_qtcharts
 from .._qthooks import (
@@ -38,7 +41,6 @@ from .._qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt6_qtwebenginewidgets,
 )
 from .._qthooks import load_qt_qtwebsockets as load_pyqt6_qtwebsockets
-from .._qthooks import load_qt_qtwidgets
 from .._qthooks import load_qt_qtxmlpatterns as load_pyqt6_qtxmlpatterns
 from .._qthooks import load_qt_uic as load_pyqt6_uic
 
