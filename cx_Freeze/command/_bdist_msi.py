@@ -281,7 +281,7 @@ class bdist_msi(Command):
         )
 
         items = [(feat, root, "")]
-        for version in self.versions + [self.other_version]:
+        for version in [*self.versions, self.other_version]:
             target = "TARGETDIR" + version
             name = default = "Python" + version
             desc = "Everything"
@@ -435,7 +435,7 @@ class bdist_msi(Command):
     def add_scripts(self):
         if self.install_script:
             start = 6800
-            for ver in self.versions + [self.other_version]:
+            for ver in [*self.versions, self.other_version]:
                 install_action = f"install_script.{ver}"
                 exe_prop = f"PYTHON{ver}"
                 add_data(
@@ -876,7 +876,7 @@ class bdist_msi(Command):
         c = seldlg.nextbutton("Next >", "Cancel")
         order = 1
         c.event("[TARGETDIR]", "[SourceDir]", ordering=order)
-        for version in self.versions + [self.other_version]:
+        for version in [*self.versions, self.other_version]:
             order += 1
             c.event(
                 "[TARGETDIR]",
@@ -1194,5 +1194,4 @@ class bdist_msi(Command):
             )
         else:
             base_name = f"{fullname}.{self.plat_name}.msi"
-        installer_name = os.path.join(self.dist_dir, base_name)
-        return installer_name
+        return os.path.join(self.dist_dir, base_name)

@@ -360,10 +360,7 @@ class ModuleFinder:
             if parent_module is None:
                 return None
             path = parent_module.path
-            if path is None:
-                path = self.path
-            else:
-                path = list(map(os.fspath, path))
+            path = self.path if path is None else list(map(os.fspath, path))
 
         if name in self.aliases:
             actual_name = self.aliases[name]
@@ -653,18 +650,17 @@ class ModuleFinder:
                     imported_module = self._import_module(
                         name, deferred_imports, module, relative_import_index
                     )
-                    if imported_module is not None:
-                        if (
-                            from_list
-                            and from_list != ("*",)
-                            and imported_module.path is not None
-                        ):
-                            self._ensure_from_list(
-                                module,
-                                imported_module,
-                                from_list,
-                                deferred_imports,
-                            )
+                    if imported_module is not None and (
+                        from_list
+                        and from_list != ("*",)
+                        and imported_module.path is not None
+                    ):
+                        self._ensure_from_list(
+                            module,
+                            imported_module,
+                            from_list,
+                            deferred_imports,
+                        )
 
             # import * statement: copy all global names
             elif (

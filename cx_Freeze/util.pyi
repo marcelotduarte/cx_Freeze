@@ -36,11 +36,11 @@ def UpdateCheckSum(target_path: str | Path):
     ...
 
 def GetSystemDir() -> str:
-    """Return the Windows system directory (C:\Windows\system for example)."""
+    """Return the Windows system directory (C:\\Windows\\system for example)."""
     ...
 
 def GetWindowsDir() -> str:
-    """Return the Windows directory (C:\Windows for example)."""
+    """Return the Windows directory (C:\\Windows for example)."""
     ...
 
 def GetDependentFiles(path: str | Path) -> list[str]:

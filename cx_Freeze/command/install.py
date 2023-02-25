@@ -23,8 +23,9 @@ class Install(_install):
     """Install everything from build directory."""
 
     command_name = "install"
-    user_options = _install.user_options + [
-        ("install-exe=", None, "installation directory for executables")
+    user_options = [
+        *_install.user_options,
+        ("install-exe=", None, "installation directory for executables"),
     ]
 
     def expand_dirs(self):

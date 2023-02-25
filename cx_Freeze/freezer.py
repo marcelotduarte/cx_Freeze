@@ -48,14 +48,12 @@ class Freezer:
 
     def __new__(cls, *args, **kwargs):  # pylint: disable=unused-argument
         # create instance of appropriate sub-class, depending on the platform.
-        instance: Freezer
         if IS_WINDOWS or IS_MINGW:
-            instance = super().__new__(WinFreezer)
-        elif IS_MACOS:
-            instance = super().__new__(DarwinFreezer)
-        else:  # assume any other platform would be handled by LinuxFreezer
-            instance = super().__new__(LinuxFreezer)
-        return instance
+            return super().__new__(WinFreezer)
+        if IS_MACOS:
+            return super().__new__(DarwinFreezer)
+        # assume any other platform would be handled by LinuxFreezer
+        return super().__new__(LinuxFreezer)
 
     def __init__(
         self,
@@ -263,9 +261,8 @@ class Freezer:
                 if dependent_file.is_file():
                     dependent_files.add(dependent_file)
                     break
-        if not dependent_files:
-            if self.silent < 3:
-                print("WARNING: shared libraries not found:", python_libs)
+        if not dependent_files and self.silent < 3:
+            print("WARNING: shared libraries not found:", python_libs)
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
@@ -395,11 +392,11 @@ class Freezer:
             parts.pop(-1)
             tweaked = True
         if tweaked:
-            filename = ".".join(parts)
+            return ".".join(parts)
         return filename
 
     # pylint: disable-next=too-many-return-statements
-    def _should_copy_file(self, path: Path) -> bool:
+    def _should_copy_file(self, path: Path) -> bool:  # noqa: PLR0911
         """Return true if the file should be copied to the target machine.
         This is done by checking the bin_path_includes, bin_path_excludes,
         bin_includes and bin_excludes configuration variables using first
@@ -654,7 +651,7 @@ class Freezer:
             try:
                 if module.parent is not None:
                     path = os.pathsep.join(
-                        [orig_path] + list(map(os.fspath, module.parent.path))
+                        [orig_path, *list(map(os.fspath, module.parent.path))]
                     )
                     os.environ["PATH"] = path
                 self._copy_file(module.file, target, copy_dependent_files=True)

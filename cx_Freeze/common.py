@@ -83,13 +83,10 @@ def normalize_to_list(
     returns the value as a list object.
     """
     if value is None:
-        normalized_value = []
-    elif isinstance(value, str):
-        normalized_value = value.split(",")
-    else:
-        normalized_value = list(value)
-
-    return normalized_value
+        return []
+    if isinstance(value, str):
+        return value.split(",")
+    return list(value)
 
 
 def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:

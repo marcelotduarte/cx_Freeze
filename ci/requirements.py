@@ -33,11 +33,9 @@ def main():
     try:
         dependencies = config["project"]["dependencies"]
         for dependency in dependencies:
-            if " and python_version < '3.10'" in dependency:
-                dependency = dependency.replace(
-                    " and python_version < '3.10'", ""
-                )
-            contents.append(dependency)
+            contents.append(
+                dependency.replace(" and python_version < '3.10'", "")
+            )
         contents.append("")
         with requirements.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(contents))

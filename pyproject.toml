@@ -101,17 +101,6 @@ find = {namespaces = false}
 [tool.distutils.bdist_wheel]
 universal = 0
 
-[tool.flake8]
-exclude = """
-.git,
-__pycache__,
-doc/src/conf.py"""
-# E203, W503 - Incompatible with black see https://github.com/ambv/black/issues/315
-ignore = """
-E203, W503,
-E266,"""
-inline-quotes = "double"
-
 [tool.black]
 line-length = 79
 target-version = ["py37"]
@@ -122,6 +111,44 @@ profile = "black"
 line_length = 79
 skip_gitignore = true
 add_imports = ["from __future__ import annotations"]
+
+[tool.ruff]
+select = [
+  "E", "F", "W",  # flake8
+  "B",  "B904",  # flake8-bugbear
+  "I",  # isort
+  #"ARG",  # flake8-unused-arguments
+  "C4",  # flake8-comprehensions
+  #"EM",  # flake8-errmsg
+  "ICN",  # flake8-import-conventions
+  "ISC",  # flake8-implicit-str-concat
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PLC", "PLE", "PLR", #"PLW",  # pylint
+  "PT",  # flake8-pytest-style
+  "RET",  # flake8-return
+  "RUF",  # Ruff-specific
+  #"SIM",  # flake8-simplify
+  "UP",  # pyupgrade
+  "YTT",  # flake8-2020
+]
+ignore = [
+  "PLR2004", "E501",
+  "PLR0912",  # too-many-branches
+  "PLR0913",  # too-many-arguments
+  "PLR0915",  # too-many-statements
+]
+line-length = 79
+target-version = "py37"
+flake8-unused-arguments.ignore-variadic-names = true
+extend-exclude = [
+    "darwintools.py",
+    "setupwriter.py",
+    "doc/src/conf.py",
+    "samples/*.py",
+    "tests/samples/*.py",
+    "tests/samples/invalid_syntax.py",
+]
 
 [tool.pylint]
 format.max-line-length = 79
@@ -156,6 +183,7 @@ addopts = "-ra"
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:distutils.*",
+    "ignore::DeprecationWarning:pkg_resources.*",
     "ignore::DeprecationWarning:setuptools.*",
 ]
 

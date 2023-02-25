@@ -227,7 +227,7 @@ class VersionInfo:
                 raise RuntimeError("install pywin32 extensions first")
 
             options = self
-            setattr(options, "version", str(self.version))
+            setattr(options, "version", str(self.version))  # noqa: B010
             version_stamp(os.fspath(path), options)
             return
 
