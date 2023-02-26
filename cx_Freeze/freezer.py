@@ -780,20 +780,19 @@ class WinFreezer(Freezer, PEParser):
         We need this as a separate method so that it can be overridden on
         Darwin and Windows."""
         # top dependencies go into build root directory on windows
-        # the C runtimes are handled in _copy_file/_pre_copy_hook
-        # on msys2 libpython depends on libgcc_s_seh and libwinpthread dlls.
-        if IS_MINGW:
-            dependent_files = self.get_dependent_files(source)
-            for file in dependent_files:
-                if self._should_copy_file(file):
-                    self._copy_top_dependency(file)
-            copy_dependent_files = False  # already copied
-        else:
-            copy_dependent_files = True
-        target = self.targetdir / source.name
+        # MS VC runtimes are handled in _copy_file/_pre_copy_hook
+        # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
+        # conda-forge python3x.dll depends on zlib.dll
+        target_dir = self.targetdir
+        target = target_dir / source.name
         self._copy_file(
-            source, target, copy_dependent_files, include_mode=True
+            source, target, copy_dependent_files=False, include_mode=True
         )
+        for dependent_source in self.get_dependent_files(source):
+            dependent_target = target_dir / dependent_source.name
+            self._copy_file(
+                dependent_source, dependent_target, copy_dependent_files=True
+            )
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths. Also, adjust the target of
