@@ -23,8 +23,8 @@ class PyDialog(Dialog):
         first,
         default,
         cancel,
-        bitmap=True,
-    ):  # pylint: disable=invalid-name,unused-argument
+        bitmap=True,  # noqa: ARG002
+    ):  # pylint: disable=invalid-name
         Dialog.__init__(
             self, db, name, x, y, w, h, attr, title, first, default, cancel
         )

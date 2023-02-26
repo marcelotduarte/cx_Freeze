@@ -1,6 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
 TKinter package is included."""
-# pylint: disable=unused-argument
+
 from __future__ import annotations
 
 import os
@@ -13,7 +13,7 @@ from ..finder import ModuleFinder
 from ..module import Module
 
 
-def load_tkinter(finder: ModuleFinder, module: Module) -> None:
+def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """The tkinter module has data files (also called tcl/tk libraries) that
     are required to be loaded at runtime."""
     folders = []

@@ -1,13 +1,13 @@
 """A collection of functions which are triggered automatically by finder when
 glib package is included."""
-# pylint: disable=unused-argument
+
 from __future__ import annotations
 
 from ..finder import ModuleFinder
 from ..module import Module
 
 
-def load_glib(finder: ModuleFinder, module: Module) -> None:
+def load_glib(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """Ignore globals that are imported."""
     module.global_names.update(
         [

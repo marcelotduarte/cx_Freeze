@@ -47,7 +47,7 @@ def load_crypto_util(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_crypto_util__file_system(
-    finder: ModuleFinder, module: Module  # pylint: disable=unused-argument
+    finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The patch for pycryptodome package."""
     # WARNING: do not touch this code string

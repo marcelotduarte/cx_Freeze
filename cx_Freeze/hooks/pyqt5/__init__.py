@@ -73,8 +73,9 @@ import PyQt5._cx_freeze_qt_debug
     module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
-# pylint: disable-next=unused-argument
-def load_pyqt5_qtcore(finder: ModuleFinder, module: Module) -> None:
+def load_pyqt5_qtcore(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The PyQt5.QtCore module implicitly imports the sip module and,
     depending on configuration, the PyQt5._qt module."""
     try:
