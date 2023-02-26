@@ -42,7 +42,7 @@ class TestModuleFinderWithConvertedNoseTests:
         )
 
     def test_not_import_invalid_module_name(
-        self, mocker, fix_test_samples_dir, fix_module_finder
+        self, mocker, fix_test_samples_dir, fix_module_finder  # noqa: ARG002
     ):
         """testpkg1 contains not.importable.py, which shouldn't be included."""
         fix_module_finder.path.insert(0, fix_test_samples_dir)
@@ -53,7 +53,9 @@ class TestModuleFinderWithConvertedNoseTests:
             "be imported"
         )
 
-    def test_invalid_syntax(self, mocker, fix_test_samples_dir):
+    def test_invalid_syntax(
+        self, mocker, fix_test_samples_dir  # noqa: ARG002
+    ):
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         constants = ConstantsModule()
         finder = ModuleFinder(
@@ -63,7 +65,9 @@ class TestModuleFinderWithConvertedNoseTests:
             # Threw SyntaxError before the bug was fixed
             finder.include_module("invalid_syntax")
 
-    def test_find_spec(self, mocker, fix_test_samples_path, fix_module_finder):
+    def test_find_spec(
+        self, mocker, fix_test_samples_path, fix_module_finder  # noqa: ARG002
+    ):
         """Sample find_spec contains broken modules."""
         path = fix_test_samples_path / "find_spec"
         fix_module_finder.path.insert(0, os.fspath(path))

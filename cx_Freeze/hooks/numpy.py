@@ -1,6 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
 numpy package is included."""
-# pylint: disable=unused-argument
+
 
 from __future__ import annotations
 
@@ -65,7 +65,9 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("numpy.typing.tests")
 
 
-def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
+def load_numpy_core_numerictypes(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The numpy.core.numerictypes module adds a number of items to itself
     dynamically; define these to avoid spurious errors about missing
     modules."""
@@ -88,7 +90,7 @@ def load_numpy_core_numerictypes(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_numpy_distutils_command_scons(
-    finder: ModuleFinder, module: Module
+    finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The numpy.distutils.command.scons module optionally imports the numscons
     module; ignore the error if the module cannot be found."""
@@ -96,7 +98,7 @@ def load_numpy_distutils_command_scons(
 
 
 def load_numpy_distutils_misc_util(
-    finder: ModuleFinder, module: Module
+    finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The numpy.distutils.misc_util module optionally imports the numscons
     module; ignore the error if the module cannot be found."""
@@ -104,26 +106,32 @@ def load_numpy_distutils_misc_util(
 
 
 def load_numpy_distutils_system_info(
-    finder: ModuleFinder, module: Module
+    finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The numpy.distutils.system_info module optionally imports the Numeric
     module; ignore the error if the module cannot be found."""
     module.ignore_names.add("Numeric")
 
 
-def load_numpy_f2py___version__(finder: ModuleFinder, module: Module) -> None:
+def load_numpy_f2py___version__(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The numpy.f2py.__version__ module optionally imports the __svn_version__
     module; ignore the error if the module cannot be found."""
     module.ignore_names.add("__svn_version__")
 
 
-def load_numpy_linalg(finder: ModuleFinder, module: Module) -> None:
+def load_numpy_linalg(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The numpy.linalg module implicitly loads the lapack_lite module; make
     sure this happens."""
     finder.include_module("numpy.linalg.lapack_lite")
 
 
-def load_numpy_random_mtrand(finder: ModuleFinder, module: Module) -> None:
+def load_numpy_random_mtrand(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The numpy.random.mtrand module is an extension module and the numpy
     module imports * from this module; define the list of global names
     available to this module in order to avoid spurious errors about missing

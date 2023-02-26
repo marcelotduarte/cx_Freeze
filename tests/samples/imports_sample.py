@@ -1,17 +1,16 @@
-# pylint: skip-file
 from __future__ import annotations
 
-import moda  # noqa
-from modb import b  # noqa
+import moda  # noqa: F401
+from modb import b  # noqa: F401
 
-from . import modc  # noqa
-from .modd import d  # noqa
+from . import modc  # noqa: F401
+from .modd import d  # noqa: F401
 
-from mode import *  # noqa isort:skip
-from ..modf import *  # noqa isort:skip
-import modg.submod  # noqa isort:skip
+from mode import *  # noqa: F403 isort:skip
+from ..modf import *  # noqa: F403 isort:skip
+import modg.submod  # noqa: F401 isort:skip
 
 try:
     pass
 finally:
-    import modh  # noqa
+    import modh  # noqa: F401

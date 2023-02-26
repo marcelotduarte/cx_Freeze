@@ -244,8 +244,7 @@ class Executable:
         self._internal_name: str = name
 
 
-# pylint: disable-next=unused-argument
-def validate_executables(dist: Distribution, attr: str, value):
+def validate_executables(dist: Distribution, attr: str, value):  # noqa: ARG001
     """Verify that value is a Executable list."""
 
     try:

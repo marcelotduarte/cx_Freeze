@@ -30,7 +30,7 @@ class ExtensionFinder(PathFinder):
     """A Finder for extension modules of packages in zip files."""
 
     @classmethod
-    def find_spec(cls, fullname, path=None, target=None):
+    def find_spec(cls, fullname, path=None, target=None):  # noqa: ARG003
         """
         This finder is only for extension modules found within packages that
         are included in the zip file (instead of as files on disk);

@@ -46,7 +46,7 @@ __all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
 class Freezer:
     """Freezer base class."""
 
-    def __new__(cls, *args, **kwargs):  # pylint: disable=unused-argument
+    def __new__(cls, *args, **kwargs):
         # create instance of appropriate sub-class, depending on the platform.
         if IS_WINDOWS or IS_MINGW:
             return super().__new__(WinFreezer)
@@ -177,9 +177,7 @@ class Freezer:
         self.files_copied.add(target)
 
         # handle post-copy tasks, including copying dependencies
-        self._post_copy_hook(
-            source, target, copy_dependent_files, include_mode
-        )
+        self._post_copy_hook(source, target, copy_dependent_files)
 
     def _copy_package_data(self, module: Module, target_dir: Path):
         """Copy any non-Python files to the target directory."""
@@ -228,7 +226,6 @@ class Freezer:
         source: Path,
         target: Path,
         copy_dependent_files: bool,
-        include_mode: bool = False,
     ):
         """Post-copy task."""
 
@@ -822,7 +819,6 @@ class WinFreezer(Freezer, PEParser):
         source: Path,
         target: Path,
         copy_dependent_files: bool,
-        include_mode: bool = False,
     ) -> None:
         if (
             copy_dependent_files
@@ -984,7 +980,6 @@ class DarwinFreezer(Freezer, Parser):
         source: Path,
         target: Path,
         copy_dependent_files: bool,
-        include_mode: bool = False,
         reference: MachOReference | None = None,
     ) -> None:
         # The file was not previously copied, so need to create a
@@ -1058,7 +1053,6 @@ class DarwinFreezer(Freezer, Parser):
             source,
             target,
             copy_dependent_files=copy_dependent_files,
-            include_mode=include_mode,
             reference=reference,
         )
 
@@ -1144,7 +1138,6 @@ class LinuxFreezer(Freezer, ELFParser):
         source: Path,
         target: Path,
         copy_dependent_files: bool,
-        include_mode: bool = False,
     ):
         if (
             copy_dependent_files

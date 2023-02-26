@@ -1,6 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
 Xlib package is included."""
-# pylint: disable=unused-argument
+
 from __future__ import annotations
 
 import sys
@@ -9,7 +9,9 @@ from ..finder import ModuleFinder
 from ..module import Module
 
 
-def load_xlib_display(finder: ModuleFinder, module: Module) -> None:
+def load_xlib_display(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The Xlib.display module implicitly loads a number of extension modules;
     make sure this happens."""
     finder.include_module("Xlib.ext.xtest")
@@ -20,7 +22,9 @@ def load_xlib_display(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("Xlib.ext.randr")
 
 
-def load_xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
+def load_xlib_support_connect(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The Xlib.support.connect module implicitly loads a platform specific
     module; make sure this happens."""
     if sys.platform.split("-", maxsplit=1)[0] == "OpenVMS":
@@ -30,7 +34,7 @@ def load_xlib_support_connect(finder: ModuleFinder, module: Module) -> None:
     finder.include_module(f"Xlib.support.{module_name}")
 
 
-def load_xlib_xk(finder: ModuleFinder, module: Module) -> None:
+def load_xlib_xk(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """The Xlib.XK module implicitly loads some keysymdef modules; make sure
     this happens."""
     finder.include_module("Xlib.keysymdef.miscellany")

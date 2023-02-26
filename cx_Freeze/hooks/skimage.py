@@ -1,13 +1,13 @@
 """A collection of functions which are triggered automatically by finder when
 scikit-image package is included."""
-# pylint: disable=unused-argument
+
 from __future__ import annotations
 
 from ..finder import ModuleFinder
 from ..module import Module
 
 
-def load_skimage(finder: ModuleFinder, module: Module) -> None:
+def load_skimage(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """The skimage package."""
     finder.include_package("skimage.io")
     # exclude all tests
@@ -30,6 +30,8 @@ def load_skimage(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("skimage.viewer.tests")
 
 
-def load_skimage_feature_orb_cy(finder: ModuleFinder, module: Module) -> None:
+def load_skimage_feature_orb_cy(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
     """The skimage.feature.orb_cy is an extension that load a module."""
     finder.include_module("skimage.feature._orb_descriptor_positions")
