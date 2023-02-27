@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-TKinter package is included."""
+TKinter package is included.
+"""
 
 from __future__ import annotations
 
@@ -15,7 +16,8 @@ from ..module import Module
 
 def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """The tkinter module has data files (also called tcl/tk libraries) that
-    are required to be loaded at runtime."""
+    are required to be loaded at runtime.
+    """
     folders = {}
     tcltk = get_resource_file_path("bases", "tcltk", "")
     if tcltk and tcltk.is_dir():

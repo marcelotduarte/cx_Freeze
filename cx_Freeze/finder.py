@@ -81,8 +81,7 @@ class ModuleFinder:
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
-        """
-        Add the base modules to the finder. These are the modules that
+        """Add the base modules to the finder. These are the modules that
         Python imports itself during initialization and, if not found,
         can result in behavior that differs from running from source;
         also include modules used within the bootstrap code.
@@ -108,8 +107,7 @@ class ModuleFinder:
         file_name: Path | str | None = None,
         parent: Module | None = None,
     ) -> Module:
-        """
-        Add a module to the list of modules but if one is already found,
+        """Add a module to the list of modules but if one is already found,
         then return it instead; this is done so that packages can be
         handled properly.
         """
@@ -146,7 +144,8 @@ class ModuleFinder:
     @cached_property
     def _base_hooks(self):
         """Load the hooks dynamically to avoid cyclic errors, because hooks
-        have references to finder."""
+        have references to finder.
+        """
         hooks = get_resource_file_path("hooks", "__init__", ".py")
         fromlist = []
         # add python files (modules)
@@ -175,8 +174,7 @@ class ModuleFinder:
         from_list: list[str],
         deferred_imports: DeferredList,
     ) -> None:
-        """
-        Ensure that the from list is satisfied. This is only necessary for
+        """Ensure that the from list is satisfied. This is only necessary for
         package modules. If the package module has not been completely
         imported yet, defer the import until it has been completely imported
         in order to avoid spurious errors about missing modules.
@@ -274,11 +272,9 @@ class ModuleFinder:
         caller: Module | None = None,
         relative_import_index: int = 0,
     ):
-        """
-        Attempt to find the named module and return it or None if no module
+        """Attempt to find the named module and return it or None if no module
         by that name could be found.
         """
-
         # absolute import (available in Python 2.5 and up)
         # the name given is the only name that will be searched
         if relative_import_index == 0:
@@ -332,8 +328,7 @@ class ModuleFinder:
     def _internal_import_module(
         self, name: str, deferred_imports: DeferredList
     ) -> Module | None:
-        """
-        Internal method used for importing a module which assumes that the
+        """Internal method used for importing a module which assumes that the
         name given is an absolute name. None is returned if the module
         cannot be found.
         """
@@ -513,8 +508,7 @@ class ModuleFinder:
 
     @staticmethod
     def _replace_package_in_code(module: Module) -> CodeType:
-        """
-        Replace the value of __package__ directly in the code,
+        """Replace the value of __package__ directly in the code,
         when the module is in a package and will be stored in library.zip.
         """
         code = module.code
@@ -549,8 +543,7 @@ class ModuleFinder:
     def _replace_paths_in_code(
         self, module: Module, code: CodeType | None = None
     ) -> CodeType:
-        """
-        Replace paths in the code as directed, returning a new code object
+        """Replace paths in the code as directed, returning a new code object
         with the modified paths in place.
         """
         top_level_module = module  # type: Module
@@ -594,7 +587,7 @@ class ModuleFinder:
         For functions present in hooks.__init__:
         package aiofiles -> load_aiofiles function
         For functions in a separated module (lowercased):
-        package PyQt5, module QtCore -> pyqt5.load_pyqt5_qtcore
+        package PyQt5, module QtCore -> pyqt5.load_pyqt5_qtcore.
         """
         base_hooks = self._base_hooks
         normalized_name = module_name.replace(".", "_")
@@ -617,7 +610,8 @@ class ModuleFinder:
     ):
         """Scan code, looking for imported modules and keeping track of the
         constants that have been created in order to better tell which
-        modules are truly missing."""
+        modules are truly missing.
+        """
         arguments = []
         imported_module = None
         co_code = code.co_code
@@ -694,19 +688,22 @@ class ModuleFinder:
 
     def add_constant(self, name: str, value: str) -> None:
         """Makes available a constant in the module BUILD_CONSTANTS which is
-        used in the initscripts."""
+        used in the initscripts.
+        """
         self.constants_module.values[name] = value
 
     def exclude_dependent_files(self, filename: Path | str) -> None:
         """Exclude the dependent files of the named file from the resulting
-        frozen executable."""
+        frozen executable.
+        """
         if not isinstance(filename, Path):
             filename = Path(filename)
         self.excluded_dependent_files.add(filename)
 
     def exclude_module(self, name: str) -> None:
         """Exclude the named module and its submodules from the resulting
-        frozen executable."""
+        frozen executable.
+        """
         modules_to_exclude = [name] + [
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
@@ -759,7 +756,8 @@ class ModuleFinder:
 
     def include_package(self, name: str) -> Module:
         """Include the named package and any submodules in the frozen
-        executable."""
+        executable.
+        """
         deferred_imports: DeferredList = []
         module = self._import_module(name, deferred_imports)
         if module.path:
@@ -783,7 +781,8 @@ class ModuleFinder:
     @property
     def optimize(self) -> int:
         """The value of optimize flag propagated according to the user's
-        choice."""
+        choice.
+        """
         return self._optimize_flag
 
     @optimize.setter

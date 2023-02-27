@@ -1,5 +1,5 @@
-"""
-This module is used to inject a code to guessing and set the plugins directory.
+"""This module is used to inject a code to guessing and set the plugins
+directory.
 """
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ from pathlib import Path
 
 def add_path():
     """Add library path."""
-
     executable_dir = Path(sys.executable).parent
     qt_root_dir = executable_dir / "lib" / "PyQt5"
     plugins_dir = qt_root_dir / "Qt5" / "plugins"  # PyQt5 5.15.4

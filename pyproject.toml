@@ -114,8 +114,10 @@ add_imports = ["from __future__ import annotations"]
 
 [tool.ruff]
 select = [
+  "A",   # flake8-builtins
   "E", "F", "W",  # flake8
   "B",  "B904",  # flake8-bugbear
+  #"D",  # pydocstyle
   "I",  # isort
   "ARG",  # flake8-unused-arguments
   "C4",  # flake8-comprehensions
@@ -126,6 +128,7 @@ select = [
   "PIE",  # flake8-pie
   "PLC", "PLE", "PLR", "PLW",  # pylint
   "PT",  # flake8-pytest-style
+  "RSE",  # flake8-raise
   "RET",  # flake8-return
   "RUF",  # Ruff-specific
   "SIM",  # flake8-simplify
@@ -155,14 +158,15 @@ messages_control.disable = [
     "duplicate-code",
     "fixme",
     "import-error",
+    "redefined-builtin",  # checked by ruff A
     "too-few-public-methods",
-    "too-many-arguments",
-    "too-many-branches",
+    "too-many-arguments",  # ignore by ruff too
+    "too-many-branches",  # ignore by ruff too
     "too-many-instance-attributes",
     "too-many-locals",
     "too-many-nested-blocks",
-    "too-many-statements",
-    "unused-argument",  # ruff
+    "too-many-statements",  # ignore by ruff too
+    "unused-argument",  # checked by ruff ARG
 ]
 reports.output-format = "colorized"
 

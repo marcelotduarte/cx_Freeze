@@ -23,9 +23,7 @@ __all__ = ["Executable"]
 
 
 class Executable:
-    """
-    Base Executable class.
-    """
+    """Base Executable class."""
 
     def __init__(
         self,
@@ -36,7 +34,7 @@ class Executable:
         icon: str | Path | None = None,
         shortcut_name: str | None = None,
         shortcut_dir: str | Path | None = None,
-        copyright: str | None = None,  # pylint: disable=W0622
+        copyright: str | None = None,  # noqa: A002
         trademarks: str | None = None,
         manifest: str | Path | None = None,
         uac_admin: bool = False,
@@ -71,9 +69,7 @@ class Executable:
 
     @property
     def base(self) -> Path:
-        """
-
-        :return: the name of the base executable
+        """:return: the name of the base executable
         :rtype: Path
 
         """
@@ -97,9 +93,7 @@ class Executable:
 
     @property
     def icon(self) -> str:
-        """
-
-        :return: the path of the icon
+        """:return: the path of the icon
         :rtype: Path
 
         """
@@ -111,9 +105,7 @@ class Executable:
 
     @property
     def init_module_name(self) -> str:
-        """
-
-        :return: the name of the init module in zip file
+        """:return: the name of the init module in zip file
         :rtype: str
 
         """
@@ -121,8 +113,7 @@ class Executable:
 
     @property
     def init_script(self) -> Path:
-        """
-        :return: the name of the initialization script that will be executed
+        """:return: the name of the initialization script that will be executed
         before the main script is executed
         :rtype: Path
 
@@ -140,9 +131,7 @@ class Executable:
 
     @property
     def main_module_name(self) -> str:
-        """
-
-        :return: the name of the main module in zip file
+        """:return: the name of the main module in zip file
         :rtype: str
 
         """
@@ -150,8 +139,7 @@ class Executable:
 
     @property
     def main_script(self) -> Path:
-        """
-        :return: the path of the file containing the script which is to be
+        """:return: the path of the file containing the script which is to be
         frozen
         :rtype: Path
 
@@ -164,9 +152,8 @@ class Executable:
 
     @property
     def manifest(self) -> str | None:
-        """
-        :return: the XML schema of the manifest which is to be included in the
-        frozen executable
+        """:return: the XML schema of the manifest which is to be included in
+        the frozen executable
         :rtype: str
 
         """
@@ -183,9 +170,8 @@ class Executable:
 
     @property
     def shortcut_name(self) -> str:
-        """
-        :return: the name to give a shortcut for the executable when included
-        in an MSI package (Windows only).
+        """:return: the name to give a shortcut for the executable when
+        included in an MSI package (Windows only).
         :rtype: str
 
         """
@@ -197,8 +183,7 @@ class Executable:
 
     @property
     def shortcut_dir(self) -> Path:
-        """
-        :return: tthe directory in which to place the shortcut when being
+        """:return: tthe directory in which to place the shortcut when being
         installed by an MSI package; see the MSI Shortcut table documentation
         for more information on what values can be placed here (Windows only).
         :rtype: Path
@@ -212,9 +197,7 @@ class Executable:
 
     @property
     def target_name(self) -> str:
-        """
-
-        :return: the name of the target executable
+        """:return: the name of the target executable
         :rtype: str
 
         """
@@ -246,7 +229,6 @@ class Executable:
 
 def validate_executables(dist: Distribution, attr: str, value):  # noqa: ARG001
     """Verify that value is a Executable list."""
-
     try:
         # verify that value is a list or tuple to exclude unordered
         # or single-use iterables

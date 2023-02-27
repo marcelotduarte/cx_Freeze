@@ -16,7 +16,6 @@ BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 def test_build_exe(fix_main_samples_path: Path):
     """Test the simple sample."""
-
     setup_path = fix_main_samples_path / "simple"
     dist_created = setup_path / BUILD_EXE_DIR
     dist_already_exists = dist_created.exists()

@@ -221,7 +221,7 @@ class BdistMac(Command):
                 )
 
     def create_plist(self):
-        """Create the Contents/Info.plist file"""
+        """Create the Contents/Info.plist file."""
         # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
             with open(self.custom_info_plist, "rb") as file:
@@ -250,9 +250,8 @@ class BdistMac(Command):
             plistlib.dump(contents, file)
 
     def set_absolute_reference_paths(self, path=None):
-        """
-        For all files in Contents/MacOS, set their linked library paths to be
-        absolute paths using the given path instead of @executable_path.
+        """For all files in Contents/MacOS, set their linked library paths to
+        be absolute paths using the given path instead of @executable_path.
         """
         if not path:
             path = self.absolute_reference_path
@@ -292,8 +291,7 @@ class BdistMac(Command):
             applyAdHocSignature(filepath)
 
     def set_relative_reference_paths(self, build_dir: str, bin_dir: str):
-        """
-        Make all the references from included Mach-O files to other included
+        """Make all the references from included Mach-O files to other included
         Mach-O files relative.
         """
         darwin_file: DarwinFile
@@ -337,8 +335,7 @@ class BdistMac(Command):
             applyAdHocSignature(file_path_in_bin_dir)
 
     def find_qt_menu_nib(self):
-        """
-        Returns a location of a qt_menu.nib folder, or None if this is not
+        """Returns a location of a qt_menu.nib folder, or None if this is not
         a Qt application.
         """
         if self.qt_menu_nib:
@@ -376,8 +373,7 @@ class BdistMac(Command):
         raise OSError("Could not find qt_menu.nib")
 
     def prepare_qt_app(self):
-        """
-        Add resource files for a Qt application. Should do nothing if the
+        """Add resource files for a Qt application. Should do nothing if the
         application does not use QtCore.
         """
         nib_locn = self.find_qt_menu_nib()

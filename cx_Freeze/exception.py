@@ -7,7 +7,8 @@ __all__ = ["ConfigError"]
 
 class ConfigError(Exception):
     """Raised when an error is detected in the configuration.
-    The associated value is a string indicating what precisely went wrong."""
+    The associated value is a string indicating what precisely went wrong.
+    """
 
     def __init__(self, msg: str):
         self.what: str = msg

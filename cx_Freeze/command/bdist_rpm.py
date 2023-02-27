@@ -664,7 +664,8 @@ class BdistRPM(Command):
 
 def write_file(filename, contents):
     """Create a file with the specified name and write 'contents'
-    (a sequence of strings without line terminators) to it."""
+    (a sequence of strings without line terminators) to it.
+    """
     with open(filename, "w", encoding="utf-8") as file:
         for line in contents:
             file.write(line + "\n")

@@ -1,4 +1,4 @@
-"""Test winmsvcr"""
+"""Test winmsvcr."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from cx_Freeze.winmsvcr import FILES
 
 
 def test_files():
-    """Test winmsvcr.FILES"""
+    """Test winmsvcr.FILES."""
     expected = (
         # VC 2015 and 2017
         "api-ms-win-core-console-l1-1-0.dll",

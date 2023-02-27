@@ -1,6 +1,4 @@
-"""
-cx_Freeze command line tool (enable python -m cx_Freeze syntax)
-"""
+"""cx_Freeze command line tool (enable python -m cx_Freeze syntax)."""
 
 from __future__ import annotations
 

@@ -55,7 +55,8 @@ class Version(packaging_version.Version):
 class Structure:
     """Abstract base class for structures in native byte order. Concrete
     structure and union types must be created by subclassing one of these
-    types, and at least define a _fields class variable."""
+    types, and at least define a _fields class variable.
+    """
 
     def __init__(self, *args):
         if not hasattr(self, "_fields"):
@@ -195,7 +196,7 @@ class VersionInfo:
         comments: str | None = None,
         company: str | None = None,
         description: str | None = None,
-        copyright: str | None = None,  # pylint: disable=W0622
+        copyright: str | None = None,  # noqa: A002
         trademarks: str | None = None,
         product: str | None = None,
         dll: bool | None = None,

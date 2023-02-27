@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-pythonnet package is included."""
+pythonnet package is included.
+"""
 
 from __future__ import annotations
 
@@ -9,7 +10,8 @@ from ..module import Module
 
 def load_clr(finder: ModuleFinder, module: Module) -> None:
     """The pythonnet package (imported as 'clr') needs Python.Runtime.dll
-    in runtime."""
+    in runtime.
+    """
     dll_name = "Python.Runtime.dll"
     dll_path = module.file.parent / dll_name
     if not dll_path.exists():

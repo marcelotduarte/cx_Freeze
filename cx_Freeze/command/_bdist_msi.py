@@ -1,7 +1,6 @@
 # Copyright (C) 2005, 2006 Martin von Löwis
 # Licensed to PSF under a Contributor Agreement.
-"""
-Implements the bdist_msi command.
+"""Implements the bdist_msi command.
 
 Borrowed from distutils.command.bdist_msi of Python 3.8
 """
@@ -350,8 +349,8 @@ class bdist_msi(Command):
         Properties TARGETDIRX.Y will be set from PYTHON.USER.X.Y if defined,
         else from PYTHON.MACHINE.X.Y.
 
-        Properties PYTHONX.Y will be set to TARGETDIRX.Y\\python.exe"""
-
+        Properties PYTHONX.Y will be set to TARGETDIRX.Y\\python.exe
+        """
         start = 402
         for ver in self.versions:
             install_path = rf"SOFTWARE\Python\PythonCore\{ver}\InstallPath"

@@ -1,5 +1,4 @@
-"""
-This module is used to inject a debug code to show QLibraryInfo paths
+"""This module is used to inject a debug code to show QLibraryInfo paths
 if environment variable QT_DEBUG is set.
 """
 
@@ -12,7 +11,6 @@ from pathlib import Path
 
 def qt_debug():
     """Show QLibraryInfo paths."""
-
     qtcore = __import__("PyQt6", fromlist=["QtCore"]).QtCore
     lib = qtcore.QLibraryInfo
     source_paths: dict[str, Path] = {}

@@ -89,7 +89,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
     @staticmethod
     def _write_wheel_distinfo(target_path: Path, purelib: bool):
-        """Create a WHEEL file if it doesn't exist"""
+        """Create a WHEEL file if it doesn't exist."""
         target = target_path / "WHEEL"
         if not target.exists():
             project = Path(__file__).parent.name
@@ -106,7 +106,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
     @staticmethod
     def _write_record_distinfo(target_path: Path):
-        """Recreate a minimal RECORD file"""
+        """Recreate a minimal RECORD file."""
         target_name = target_path.name
         record = []
         for file in target_path.iterdir():
@@ -118,9 +118,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
 
 
 class Module:
-    """
-    The Module class.
-    """
+    """The Module class."""
 
     def __init__(
         self,
@@ -149,7 +147,7 @@ class Module:
 
     @property
     def file(self) -> Path | None:
-        """Module filename"""
+        """Module filename."""
         return self._file
 
     @file.setter
@@ -193,7 +191,8 @@ class Module:
         """Returns a value indicating where the module/package will be stored:
         0. in a zip file (not directly in the file system)
         1. in the file system, package with modules and data
-        2. in the file system, only detected modules."""
+        2. in the file system, only detected modules.
+        """
         if self.parent is not None:
             return self.parent.in_file_system
         if self.path is None or self.file is None:
@@ -206,9 +205,7 @@ class Module:
 
 
 class ConstantsModule:
-    """
-    Base ConstantsModule class.
-    """
+    """Base ConstantsModule class."""
 
     def __init__(
         self,
@@ -240,8 +237,7 @@ class ConstantsModule:
         self.module_path: TemporaryPath = TemporaryPath("constants.py")
 
     def create(self, modules: list[Module]) -> tuple[Path, str]:
-        """
-        Create the module which consists of declaration statements for each
+        """Create the module which consists of declaration statements for each
         of the values.
         """
         today = datetime.datetime.today()

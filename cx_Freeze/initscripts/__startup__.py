@@ -1,5 +1,4 @@
-"""
-This is the first script that is run when cx_Freeze starts up. It
+"""This is the first script that is run when cx_Freeze starts up. It
 determines the name of the initscript that is to be executed after
 a basic initialization.
 """
@@ -31,8 +30,7 @@ class ExtensionFinder(PathFinder):
 
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):  # noqa: ARG003
-        """
-        This finder is only for extension modules found within packages that
+        """This finder is only for extension modules found within packages that
         are included in the zip file (instead of as files on disk);
         extension modules cannot be found within zip files but are stored in
         the lib subdirectory; if the extension module is found in a package,
@@ -54,7 +52,6 @@ class ExtensionFinder(PathFinder):
 
 def init():
     """Basic initialization of the startup script."""
-
     # update sys module
     sys.executable = os.path.normpath(sys.executable)
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
@@ -108,7 +105,6 @@ def init():
 
 def run():
     """Determines the name of the initscript and execute it."""
-
     # get the real name of __init__ script
     # basically, the basename of executable plus __init__
     # but can be renamed when only one executable exists

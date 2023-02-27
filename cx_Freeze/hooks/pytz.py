@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-pytz package is included."""
+pytz package is included.
+"""
 
 from __future__ import annotations
 
@@ -12,7 +13,8 @@ from ..module import Module
 
 def load_pytz(finder: ModuleFinder, module: Module) -> None:
     """The pytz module requires timezone data to be found in a known directory
-    or in the zip file where the package is written."""
+    or in the zip file where the package is written.
+    """
     target_path = Path("lib", "pytz", "zoneinfo")
     data_path = module.path[0] / "zoneinfo"
     if not data_path.is_dir():

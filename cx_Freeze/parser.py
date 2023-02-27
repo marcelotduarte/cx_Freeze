@@ -1,5 +1,6 @@
 """Implements `Parser` interface to create an abstraction to parse binary
-files."""
+files.
+"""
 
 from __future__ import annotations
 
@@ -48,12 +49,15 @@ class Parser(ABC):
         """Return the file's dependencies using platform-specific tools
         (lief package or the imagehlp library on Windows, otool on Mac OS X or
         ldd on Linux); limit this list by the exclusion lists as needed.
-        (Implemented separately for each platform.)"""
+        (Implemented separately for each platform.)
+        .
+        """
 
 
 class PEParser(Parser):
     """`PEParser` is based on the `lief` package. If it is disabled,
-    use the old friend `cx_Freeze.util` extension module."""
+    use the old friend `cx_Freeze.util` extension module.
+    """
 
     @staticmethod
     def is_pe(path: str | Path) -> bool:
@@ -120,8 +124,7 @@ class PEParser(Parser):
         return dependent_files
 
     def read_manifest(self, path: str | Path) -> str:
-        """
-        :return: the XML schema of the manifest included in the executable
+        """:return: the XML schema of the manifest included in the executable
         :rtype: str
 
         """
@@ -137,8 +140,7 @@ class PEParser(Parser):
         return manifest
 
     def write_manifest(self, path: str | Path, manifest: str) -> None:
-        """
-        :return: write the XML schema of the manifest into the executable
+        """:return: write the XML schema of the manifest into the executable
         :rtype: str
 
         """
@@ -161,7 +163,8 @@ class PEParser(Parser):
 
 class ELFParser(Parser):
     """`ELFParser` is based on the logic around invoking `patchelf` and
-    `ldd`."""
+    `ldd`.
+    """
 
     def __init__(self, silent: int = 0) -> None:
         super().__init__(silent)
@@ -265,7 +268,8 @@ class ELFParser(Parser):
 def _verify_patchelf() -> None:
     """This function looks for the ``patchelf`` external binary in the PATH,
     checks for the required version, and throws an exception if a proper
-    version can't be found. Otherwise, silence is golden."""
+    version can't be found. Otherwise, silence is golden.
+    """
     if not shutil.which("patchelf"):
         raise ValueError("Cannot find required utility `patchelf` in PATH")
     try:

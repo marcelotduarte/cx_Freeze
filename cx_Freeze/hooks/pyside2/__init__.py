@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-PySide2 package is included."""
+PySide2 package is included.
+"""
 
 from __future__ import annotations
 
@@ -49,8 +50,8 @@ IS_WINDOWS = sys.platform == "win32"
 
 def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide2 __init__ to locate and load plugins and
-    resources. Also, this fixes issues with conda-forge versions."""
-
+    resources. Also, this fixes issues with conda-forge versions.
+    """
     # Include QtCore module needed by all modules
     finder.include_module("PySide2.QtCore")
 

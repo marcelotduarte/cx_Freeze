@@ -180,7 +180,6 @@ class Freezer:
 
     def _copy_package_data(self, module: Module, target_dir: Path):
         """Copy any non-Python files to the target directory."""
-
         ignore_patterns = ("__pycache__", "*.py", "*.pyc", "*.pyo")
 
         def copy_tree(source_dir: Path, target_dir: Path, excludes: set[str]):
@@ -308,7 +307,8 @@ class Freezer:
         self, dependent_files: set[Path]
     ) -> None:
         """Override with platform specific files to add runtime libraries to
-        the list of dependent_files calculated in _freeze_executable."""
+        the list of dependent_files calculated in _freeze_executable.
+        """
 
     @abstractmethod
     def _copy_top_dependency(self, source: Path) -> None:
@@ -319,13 +319,17 @@ class Freezer:
         they would normally be expected to be found on the target system or
         because they are part of a package which requires independent
         installation anyway.
-        (overridden on Windows)"""
+        (overridden on Windows)
+        .
+        """
         return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _default_bin_includes(self) -> list[str]:
         """Return the file names of libraries which must be included for the
         frozen executable to work.
-        (overriden on Windows)"""
+        (overriden on Windows)
+        .
+        """
         python_shared_libs = []
         # Miniconda python 3.7-3.9 linux returns a static library to indicate
         # the usage of libpython-static (a shared library is not used).
@@ -338,12 +342,14 @@ class Freezer:
     def _default_bin_path_excludes(self) -> list[str]:
         """Return the paths of directories which contain files that should not
         be included, generally because they contain standard system
-        libraries."""
+        libraries.
+        """
 
     @abstractmethod
     def _default_bin_path_includes(self) -> list[str]:
         """Return the paths of directories which contain files that should
-        be included."""
+        be included.
+        """
 
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
@@ -400,8 +406,8 @@ class Freezer:
         without any version numbers.
 
         Files are included unless specifically excluded but inclusions take
-        precedence over exclusions."""
-
+        precedence over exclusions.
+        """
         # check the full path
         if path in self.bin_includes:
             return True
@@ -444,7 +450,8 @@ class Freezer:
     @staticmethod
     def _validate_path(path: list[str | Path] | None = None) -> list[str]:
         """Returns valid search path for modules, and fix the path for built-in
-        modules when it differs from the running python built-in modules."""
+        modules when it differs from the running python built-in modules.
+        """
         path = list(map(os.fspath, path or sys.path))
         dynload = get_resource_file_path("bases", "lib-dynload", "")
         if dynload and dynload.is_dir():
@@ -461,7 +468,8 @@ class Freezer:
 
     def _verify_configuration(self) -> None:
         """Verify and normalize names and paths. Raises ConfigError on
-        failure."""
+        failure.
+        """
         filenames = list(self.bin_includes or [])
         filenames += self._default_bin_includes()
         self.bin_includes = [Path(name) for name in filenames]
@@ -656,7 +664,6 @@ class Freezer:
 
     def freeze(self):
         """Do the freeze."""
-
         finder: ModuleFinder = self.finder
 
         # Add the executables to target
@@ -787,7 +794,8 @@ class WinFreezer(Freezer, PEParser):
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying certain top dependencies in _freeze_executable.
         We need this as a separate method so that it can be overridden on
-        Darwin and Windows."""
+        Darwin and Windows.
+        """
         # top dependencies go into build root directory on windows
         # MS VC runtimes are handled in _copy_file/_pre_copy_hook
         # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
@@ -805,8 +813,8 @@ class WinFreezer(Freezer, PEParser):
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths. Also, adjust the target of
-        C runtime libraries."""
-
+        C runtime libraries.
+        """
         # fix the target path for C runtime files
         norm_target_name = target.name.lower()
         if norm_target_name in self.runtime_files:
@@ -1018,7 +1026,8 @@ class DarwinFreezer(Freezer, Parser):
     ) -> None:
         """This is essentially the same as Freezer._copy_file, except that it
         also takes a reference parameter. Used when recursing to dependencies
-        of a file on Darwin."""
+        of a file on Darwin.
+        """
         if not self._should_copy_file(source):
             return
 
@@ -1056,8 +1065,8 @@ class DarwinFreezer(Freezer, Parser):
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying certain top dependencies. We need this as a
         separate function so that it can be overridden on Darwin
-        (to interact with the DarwinTools system)."""
-
+        (to interact with the DarwinTools system).
+        """
         target = self.target_dir / "lib" / source.name
 
         # this recovers the cached MachOReference pointers to the files
@@ -1121,7 +1130,8 @@ class LinuxFreezer(Freezer, ELFParser):
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths. In addition, it ensures that
         the source of a symbolic link is copied by deferring the creation of
-        the link."""
+        the link.
+        """
         if source.is_symlink():
             real_source = source.resolve()
             symlink = real_source.name

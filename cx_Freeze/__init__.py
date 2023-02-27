@@ -1,5 +1,6 @@
 """Create standalone executables from Python scripts, with the same performance
-and is cross-platform."""
+and is cross-platform.
+"""
 # pylint: disable=invalid-name
 
 from __future__ import annotations
@@ -67,7 +68,6 @@ setup.__doc__ = setuptools.setup.__doc__
 
 def plugin_install(dist: setuptools.Distribution) -> None:
     """Use a setuptools extension to customize Distribution options."""
-
     if getattr(dist, "executables", None) is None:
         return
 

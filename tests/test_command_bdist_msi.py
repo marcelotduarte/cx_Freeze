@@ -25,7 +25,6 @@ DIST_ATTRS = {
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi(fix_main_samples_path: Path):
     """Test the msi_binary_data sample."""
-
     setup_path = fix_main_samples_path / "msi_binary_data"
     dist_created = setup_path / "dist"
     dist_already_exists = dist_created.exists()
@@ -44,7 +43,6 @@ def test_bdist_msi(fix_main_samples_path: Path):
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name():
     """Test the bdist_msi with extra target_name option."""
-
     dist = Distribution(DIST_ATTRS)
     cmd = BdistMSI(dist)
     cmd.target_name = "mytest"
@@ -57,7 +55,6 @@ def test_bdist_msi_target_name():
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name_and_version():
     """Test the bdist_msi with extra target options."""
-
     dist = Distribution(DIST_ATTRS)
     cmd = BdistMSI(dist)
     cmd.target_name = "mytest"
@@ -70,8 +67,8 @@ def test_bdist_msi_target_name_and_version():
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name_with_extension(fix_main_samples_path: Path):
     """Test the msi_binary_data sample, with a specified target_name that
-    includes an ".msi" extension."""
-
+    includes an ".msi" extension.
+    """
     msi_name = "output.msi"
     setup_path = fix_main_samples_path / "msi_binary_data"
     dist_created = setup_path / "dist"

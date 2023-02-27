@@ -30,7 +30,6 @@ Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.
 
 def prepare_parser():
     """Helper function to parse the arguments."""
-
     parser = argparse.ArgumentParser(prog="cxfreeze", epilog=VERSION)
     parser.add_argument("--version", action="version", version=VERSION)
     # Executable parameters
@@ -287,7 +286,6 @@ def prepare_parser():
 
 def parse_command_line(parser):
     """Helper function to parse the command line."""
-
     args = parser.parse_args()
     if args.script is None and args.includes is None:
         parser.error("script or a list of modules must be specified")
@@ -331,7 +329,6 @@ def parse_command_line(parser):
 
 def main():
     """Entry point for cxfreeze command line tool."""
-
     args = parse_command_line(prepare_parser())
     executables = [
         Executable(
