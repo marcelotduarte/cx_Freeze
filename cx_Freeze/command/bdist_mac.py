@@ -260,14 +260,14 @@ class BdistMac(Command):
         files = os.listdir(self.bin_dir)
 
         for filename in files:
-            filename = os.path.join(self.bin_dir, filename)
+            filepath = os.path.join(self.bin_dir, filename)
 
             # Skip some file types
-            if filename[-1:] in ("txt", "zip") or os.path.isdir(filename):
+            if filepath[-1:] in ("txt", "zip") or os.path.isdir(filepath):
                 continue
 
             out = subprocess.check_output(
-                ("otool", "-L", filename), encoding="utf-8"
+                ("otool", "-L", filepath), encoding="utf-8"
             )
             for line in out.splitlines()[1:]:
                 lib = line.lstrip("\t").split(" (compat")[0]
@@ -286,10 +286,10 @@ class BdistMac(Command):
                                 "-change",
                                 lib,
                                 replacement,
-                                filename,
+                                filepath,
                             )
                         )
-            applyAdHocSignature(filename)
+            applyAdHocSignature(filepath)
 
     def set_relative_reference_paths(self, build_dir: str, bin_dir: str):
         """
