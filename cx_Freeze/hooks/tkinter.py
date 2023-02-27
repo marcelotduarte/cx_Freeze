@@ -16,12 +16,12 @@ from ..module import Module
 def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """The tkinter module has data files (also called tcl/tk libraries) that
     are required to be loaded at runtime."""
-    folders = []
+    folders = {}
     tcltk = get_resource_file_path("bases", "tcltk", "")
     if tcltk and tcltk.is_dir():
         # manylinux wheels and macpython wheels store tcl/tk libraries
-        folders.append(("TCL_LIBRARY", list(tcltk.glob("tcl*"))[0]))
-        folders.append(("TK_LIBRARY", list(tcltk.glob("tk*"))[0]))
+        folders["TCL_LIBRARY"] = list(tcltk.glob("tcl*"))[0]
+        folders["TK_LIBRARY"] = list(tcltk.glob("tk*"))[0]
     else:
         # Windows, MSYS2, Miniconda: collect the tcl/tk libraries
         try:
@@ -30,12 +30,12 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
             return
         root = tkinter.Tk(useTk=False)
         source_path = Path(root.tk.exprstring("$tcl_library"))
-        folders.append(("TCL_LIBRARY", source_path))
+        folders["TCL_LIBRARY"] = source_path
         source_name = source_path.name.replace("tcl", "tk")
         source_path = source_path.parent / source_name
-        folders.append(("TK_LIBRARY", source_path))
-    for env_name, source_path in folders:
-        target_path = Path("lib", "tcltk", source_path.name)
+        folders["TK_LIBRARY"] = source_path
+    for env_name, source_path in folders.items():
+        target_path = Path("lib", source_path.name)
         finder.add_constant(env_name, os.fspath(target_path))
         finder.include_files(source_path, target_path)
         if IS_WINDOWS:

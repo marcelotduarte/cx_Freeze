@@ -4,6 +4,7 @@ PyQt5 package is included."""
 from __future__ import annotations
 
 import os
+from contextlib import suppress
 
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
@@ -82,10 +83,8 @@ def load_pyqt5_qtcore(
         finder.include_module("PyQt5.sip")  # PyQt5 >= 5.11
     except ImportError:
         finder.include_module("sip")
-    try:
+    with suppress(ImportError):
         finder.include_module("PyQt5._qt")
-    except ImportError:
-        pass
 
 
 __all__ = [

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import contextlib
 import shutil
 import types
 import warnings
+from contextlib import suppress
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Tuple, Union
@@ -27,10 +27,10 @@ class FilePath(Path):
     def replace(self, target):
         """Rename this path to the target path, overwriting if that path
         exists. Extended to support move between file systems."""
-        with contextlib.suppress(OSError):
+        with suppress(OSError):
             return super().replace(target)
         shutil.copyfile(self, target)
-        with contextlib.suppress(FileNotFoundError):
+        with suppress(FileNotFoundError):
             self.unlink()
         return self.__class__(target)
 
@@ -127,10 +127,8 @@ def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
     """
     Return a copy of the code object with new values for the specified fields.
     """
-    try:
+    with suppress(ValueError):
         kwargs["co_consts"] = tuple(kwargs["co_consts"])
-    except ValueError:
-        pass
     # Python 3.8+
     if hasattr(code, "replace"):
         return code.replace(**kwargs)

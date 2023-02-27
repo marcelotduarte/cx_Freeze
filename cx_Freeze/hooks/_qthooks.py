@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import sys
+from contextlib import suppress
 from functools import lru_cache
 from pathlib import Path
 
@@ -69,10 +70,8 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     # set the target paths
     data: dict[str, tuple[Path, Path]] = {}
     target_base = Path("lib", name)
-    try:
+    with suppress(ValueError):
         target_base = target_base / prefix_path.relative_to(qt_root_dir)
-    except ValueError:
-        pass
     if name == "PyQt5" and prefix_path.name != "Qt5":
         # conda pyqt
         target_base = target_base / "Qt5"
@@ -168,10 +167,8 @@ def load_qt_qt(finder: ModuleFinder, module: Module) -> None:
         "QtTest",
         "QtXml",
     ):
-        try:
+        with suppress(ImportError):
             finder.include_module(f"{name}.{mod}")
-        except ImportError:
-            pass
 
 
 def load_qt_qtcharts(finder: ModuleFinder, module: Module) -> None:
@@ -374,10 +371,8 @@ def load_qt_uic(finder: ModuleFinder, module: Module) -> None:
     also implicity loaded."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
-    try:
+    with suppress(ImportError):
         finder.include_module(f"{name}.QtWebKit")
-    except ImportError:
-        pass
     source_dir = module.path[0] / "widget-plugins"
     if source_dir.exists():
         finder.include_files(source_dir, f"{name}.uic.widget-plugins")

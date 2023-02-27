@@ -748,10 +748,9 @@ class ModuleFinder:
     def include_module(self, name: str) -> Module:
         """Include the named module in the frozen executable."""
         # includes has priority over excludes
-        if name in self.excludes and name in self._modules:
-            if self._modules[name] is None:
-                self.excludes.pop(name)
-                self._modules.pop(name)
+        if name in self.excludes and self._modules.get(name) is None:
+            self.excludes.pop(name)
+            self._modules.pop(name, None)
         # include module
         deferred_imports: DeferredList = []
         module = self._import_module(name, deferred_imports)

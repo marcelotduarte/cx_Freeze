@@ -128,7 +128,7 @@ select = [
   "PT",  # flake8-pytest-style
   "RET",  # flake8-return
   "RUF",  # Ruff-specific
-  #"SIM",  # flake8-simplify
+  "SIM",  # flake8-simplify
   "UP",  # pyupgrade
   "YTT",  # flake8-2020
 ]

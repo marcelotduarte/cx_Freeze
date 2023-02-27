@@ -364,11 +364,8 @@ class bdist_msi(Command):
             exe_action = f"PythonExe{ver}"
             target_dir_prop = f"TARGETDIR{ver}"
             exe_prop = f"PYTHON{ver}"
-            if Win64:
-                # type_: msidbLocatorTypeRawValue + msidbLocatorType64bit
-                type_ = 2 + 16
-            else:
-                type_ = 2
+            # type_: msidbLocatorTypeRawValue [ + msidbLocatorType64bit ]
+            type_ = 2 + 16 if Win64 else 2
             add_data(
                 self.db,
                 "RegLocator",
