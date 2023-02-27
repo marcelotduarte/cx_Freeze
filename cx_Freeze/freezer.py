@@ -11,6 +11,7 @@ import sys
 import sysconfig
 import time
 from abc import abstractmethod
+from contextlib import suppress
 from importlib import import_module
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
@@ -33,10 +34,8 @@ from .module import ConstantsModule, Module
 from .parser import ELFParser, Parser, PEParser
 
 if IS_WINDOWS or IS_MINGW:
-    try:
+    with suppress(ImportError):
         from .util import AddIcon, GetSystemDir, GetWindowsDir, UpdateCheckSum
-    except ImportError:
-        pass
 elif IS_MACOS:
     from .darwintools import DarwinFile, DarwinFileTracker, MachOReference
 
@@ -906,10 +905,8 @@ class WinFreezer(Freezer, PEParser):
         if dest_shared:
             dest_shared = Path(dest_shared)
             paths.add(dest_shared)
-            try:
+            with suppress(ValueError):
                 dest_relative = dest_shared.relative_to(sys.prefix)
-            except ValueError:
-                pass
         prefixes = [
             sys.base_exec_prefix,
             sys.base_prefix,

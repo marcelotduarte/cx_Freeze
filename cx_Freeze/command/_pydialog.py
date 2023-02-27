@@ -46,10 +46,7 @@ class PyDialog(Dialog):
         its name in the Control table, possibly initially disabled.
 
         Return the button, so that events can be associated"""
-        if active:
-            flags = 3  # Visible|Enabled
-        else:
-            flags = 1  # Visible
+        flags = 3 if active else 1  # Visible|Enabled or Visible
         return self.pushbutton(
             name, 180, self.h - 27, 56, 17, flags, title, tabnext
         )
@@ -59,10 +56,7 @@ class PyDialog(Dialog):
         its name in the Control table, possibly initially disabled.
 
         Return the button, so that events can be associated"""
-        if active:
-            flags = 3  # Visible|Enabled
-        else:
-            flags = 1  # Visible
+        flags = 3 if active else 1  # Visible|Enabled or Visible
         return self.pushbutton(
             name, 304, self.h - 27, 56, 17, flags, title, tabnext
         )
@@ -72,10 +66,7 @@ class PyDialog(Dialog):
         its name in the Control table, possibly initially disabled.
 
         Return the button, so that events can be associated"""
-        if active:
-            flags = 3  # Visible|Enabled
-        else:
-            flags = 1  # Visible
+        flags = 3 if active else 1  # Visible|Enabled or Visible
         return self.pushbutton(
             name, 236, self.h - 27, 56, 17, flags, title, tabnext
         )
