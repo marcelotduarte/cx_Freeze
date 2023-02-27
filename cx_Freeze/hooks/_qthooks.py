@@ -1,5 +1,6 @@
 """A collection of functions which are the base to hooks for PyQt5, PyQt6,
-PySide2 and PySide6."""
+PySide2 and PySide6.
+"""
 
 from __future__ import annotations
 
@@ -22,7 +23,6 @@ def _qt_implementation(module: Module) -> str:
 @lru_cache(maxsize=None)
 def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     """Cache the QtCore library paths."""
-
     try:
         qtcore = __import__(name, fromlist=["QtCore"]).QtCore
     except RuntimeError:
@@ -110,7 +110,8 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
 
 def get_qt_plugins_paths(name: str, plugins: str) -> list[tuple[Path, Path]]:
     """Helper function to get a list of source and target paths of Qt plugins,
-    indicated to be used in include_files."""
+    indicated to be used in include_files.
+    """
     libraryinfo_paths = _qt_libraryinfo_paths(name)
     source_path, target_path = libraryinfo_paths["PluginsPath"]
     source_path = source_path / plugins
@@ -121,7 +122,8 @@ def get_qt_plugins_paths(name: str, plugins: str) -> list[tuple[Path, Path]]:
 
 def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
     """Helper function to find and copy Qt plugins, resources, translations,
-    etc."""
+    etc.
+    """
     variable = args[0]
     libraryinfo_paths = _qt_libraryinfo_paths(name)
     source_path, target_path = libraryinfo_paths[variable]  # type: Path, Path
@@ -141,7 +143,8 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
 
 def load_qt_phonon(finder: ModuleFinder, module: Module) -> None:
     """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
-    be present in the build directory inside a folder phonon_backend."""
+    be present in the build directory inside a folder phonon_backend.
+    """
     if IS_WINDOWS or IS_MINGW:
         name = _qt_implementation(module)
         copy_qt_files(finder, name, "PluginsPath", "phonon_backend")
@@ -152,7 +155,8 @@ def load_qt_qt(finder: ModuleFinder, module: Module) -> None:
     other modules and injects their namespace into its own. It seems a
     foolish way of doing things but perhaps there is some hidden advantage
     to this technique over pure Python; ignore the absence of some of
-    the modules since not every installation includes all of them."""
+    the modules since not every installation includes all of them.
+    """
     name = _qt_implementation(module)
     for mod in (
         "_qt",
@@ -193,7 +197,8 @@ def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
 
 def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that QtGui will use some image formats, then, add the
-    image format plugins."""
+    image format plugins.
+    """
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "imageformats")
     # On Qt5, we need the platform plugins. For simplicity, we just copy
@@ -368,7 +373,8 @@ def load_qt_qtxmlpatterns(finder: ModuleFinder, module: Module) -> None:
 def load_qt_uic(finder: ModuleFinder, module: Module) -> None:
     """The uic module makes use of "plugins" that need to be read directly and
     cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
-    also implicity loaded."""
+    also implicity loaded.
+    """
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
     with suppress(ImportError):

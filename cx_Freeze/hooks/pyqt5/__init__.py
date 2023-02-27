@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-PyQt5 package is included."""
+PyQt5 package is included.
+"""
 
 from __future__ import annotations
 
@@ -45,8 +46,8 @@ from .._qthooks import load_qt_uic as load_pyqt5_uic
 
 def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PyQt5 __init__ to locate and load plugins and
-    resources. Also, this fixes issues with conda-forge versions."""
-
+    resources. Also, this fixes issues with conda-forge versions.
+    """
     # Include QtCore module needed by all modules
     finder.include_module("PyQt5.QtCore")
 
@@ -78,7 +79,8 @@ def load_pyqt5_qtcore(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The PyQt5.QtCore module implicitly imports the sip module and,
-    depending on configuration, the PyQt5._qt module."""
+    depending on configuration, the PyQt5._qt module.
+    """
     try:
         finder.include_module("PyQt5.sip")  # PyQt5 >= 5.11
     except ImportError:

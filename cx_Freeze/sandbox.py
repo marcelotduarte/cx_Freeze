@@ -16,5 +16,4 @@ __all__ = ["run_setup"]
 
 def run_setup(setup_script: str | Path, args: Sequence):
     """Run a cx_Freeze setup script, sandboxed in its directory."""
-
     _sandbox.run_setup(os.fspath(setup_script), list(args))

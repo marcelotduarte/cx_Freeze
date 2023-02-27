@@ -27,7 +27,8 @@ except ImportError:
     class cached_property:  # pylint: disable=invalid-name
         """Transform a method of a class into a property whose value is
         computed once and then cached as a normal attribute for the life of
-        the instance."""
+        the instance.
+        """
 
         def __init__(self, func):
             self.func = func

@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-opencv-python package is included."""
+opencv-python package is included.
+"""
 
 from __future__ import annotations
 
@@ -19,7 +20,8 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     configuration files.
 
     Additionally, on Linux the opencv_python.libs directory is not
-    copied across for versions above 4.5.3."""
+    copied across for versions above 4.5.3.
+    """
     finder.include_package("numpy")
     if module.distribution is None:
         module.update_distribution("opencv-python")

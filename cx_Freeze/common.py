@@ -26,7 +26,8 @@ class FilePath(Path):
 
     def replace(self, target):
         """Rename this path to the target path, overwriting if that path
-        exists. Extended to support move between file systems."""
+        exists. Extended to support move between file systems.
+        """
         with suppress(OSError):
             return super().replace(target)
         shutil.copyfile(self, target)
@@ -39,8 +40,8 @@ class TemporaryPath(TemporaryDirectory):
     """Create and return a Path-like temporary directory."""
 
     def __init__(
-        self, filename=None, suffix=None, prefix=None, dir=None
-    ):  # pylint: disable=redefined-builtin
+        self, filename=None, suffix=None, prefix=None, dir=None  # noqa: A002
+    ):
         super().__init__(suffix, prefix or "cxfreeze-", dir)
         if filename:
             if Path(filename).parent.name:
@@ -56,8 +57,7 @@ class TemporaryPath(TemporaryDirectory):
 def get_resource_file_path(
     dirname: str | Path, name: str | Path, ext: str
 ) -> Path | None:
-    """
-    Return the path to a resource file shipped with cx_Freeze.
+    """Return the path to a resource file shipped with cx_Freeze.
 
     This is used to find our base executables and initscripts when they are
     just specified by name.
@@ -78,8 +78,7 @@ def get_resource_file_path(
 def normalize_to_list(
     value: str | list[str] | tuple[str, ...] | None
 ) -> list[str]:
-    """
-    Takes the different formats of options containing multiple values and
+    """Takes the different formats of options containing multiple values and
     returns the value as a list object.
     """
     if value is None:
@@ -90,8 +89,7 @@ def normalize_to_list(
 
 
 def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
-    """
-    Prepare paths specified as config.
+    """Prepare paths specified as config.
 
     The input is a list of either strings, or 2-tuples (source, target).
     Where single strings are supplied, the basenames are used as targets.
@@ -124,8 +122,8 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
 
 
 def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
-    """
-    Return a copy of the code object with new values for the specified fields.
+    """Return a copy of the code object with new values for the specified
+    fields.
     """
     with suppress(ValueError):
         kwargs["co_consts"] = tuple(kwargs["co_consts"])
@@ -153,8 +151,7 @@ def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
 
 
 def validate_args(arg, snake_value, camel_value):
-    """
-    Validate arguments from two exclusive sources.
+    """Validate arguments from two exclusive sources.
     This is a temporary function to be used while transitioning from using
     camelCase parameters to snake_case.
     """

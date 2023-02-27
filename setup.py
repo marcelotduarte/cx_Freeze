@@ -1,5 +1,4 @@
-"""
-Setuptools script for cx_Freeze.
+"""Setuptools script for cx_Freeze.
 
 Use ONE of the following commands to install from source:
     pip install .
@@ -167,7 +166,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         return Path(f"{name}.dll")
 
     def _dlltool_delay_load(self, name: str) -> tuple[str, str]:
-        """Get the delay load library to use with mingw32 gcc/clang compiler"""
+        """Get the delay load library to use with mingw32 compilers."""
         dir_name = f"libdl.{PLATFORM}-{get_python_version()}"
         library_dir = Path(self.build_temp, dir_name)
         library_dir.mkdir(parents=True, exist_ok=True)
@@ -197,7 +196,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         python is compiled with --disable-shared, as is done in manylinux and
         macpython. Modules such as math, _struct and zlib, which are normally
         embedded in python, are compiled separately.
-        Also, copies tcl/tk libraries."""
+        Also, copies tcl/tk libraries.
+        """
         if IS_MINGW or IS_WINDOWS or IS_CONDA or ENABLE_SHARED:
             return
         bases = f"{self.build_lib}/cx_Freeze/bases"

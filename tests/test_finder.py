@@ -1,4 +1,4 @@
-"""Test ModuleFinder"""
+"""Test ModuleFinder."""
 
 from __future__ import annotations
 
@@ -13,7 +13,8 @@ from cx_Freeze import ConstantsModule, ModuleFinder
 # pylint: disable=missing-function-docstring,unused-argument
 class TestModuleFinderWithConvertedNoseTests:
     """This class provides test cases that are conversions of the old NoseTests
-    in `test_finder` that predated usage of the PyTest Framework"""
+    in `test_finder` that predated usage of the PyTest Framework.
+    """
 
     @pytest.fixture()
     def fix_module_finder(self):

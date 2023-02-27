@@ -1,5 +1,4 @@
-"""
-Initialization script for cx_Freeze. Sets the attribute sys.frozen so that
+"""Initialization script for cx_Freeze. Sets the attribute sys.frozen so that
 modules that expect it behave as they should.
 """
 from __future__ import annotations
@@ -11,7 +10,6 @@ sys.frozen = True
 
 def run(name):
     """Execute the main script of the frozen application."""
-
     code = __loader__.get_code(name)
     module_main = __import__("__main__")
     module_main.__dict__["__file__"] = code.co_filename

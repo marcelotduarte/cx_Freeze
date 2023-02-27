@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-PyQt6 package is included."""
+PyQt6 package is included.
+"""
 
 from __future__ import annotations
 
@@ -47,8 +48,8 @@ from .._qthooks import load_qt_uic as load_pyqt6_uic
 
 def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PyQt6 __init__ to locate and load plugins and
-    resources."""
-
+    resources.
+    """
     # Include QtCore module and sip module needed by all modules
     finder.include_module("PyQt6.QtCore")
     finder.include_module("PyQt6.sip")

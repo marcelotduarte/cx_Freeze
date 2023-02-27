@@ -13,7 +13,6 @@ except ImportError:
 
 def main():
     """Entry point."""
-
     pyproject_toml = Path("pyproject.toml")
     if not pyproject_toml.exists():
         print("pyproject.toml not found", file=sys.stderr)

@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-matplotlib package is included."""
+matplotlib package is included.
+"""
 
 from __future__ import annotations
 

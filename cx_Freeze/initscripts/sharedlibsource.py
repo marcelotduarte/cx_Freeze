@@ -1,5 +1,4 @@
-"""
-Initialization script for cx_Freeze which imports the site module (as per
+"""Initialization script for cx_Freeze which imports the site module (as per
 normal processing of a Python script) and then searches for a file with the
 same name as the shared library but with the extension .pth. The entries in
 this file are used to modify the path to use for subsequent imports.

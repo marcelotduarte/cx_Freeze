@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-PySide6 package is included."""
+PySide6 package is included.
+"""
 
 from __future__ import annotations
 
@@ -46,8 +47,8 @@ IS_MINGW = sysconfig.get_platform().startswith("mingw")
 
 def load_pyside6(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide6 __init__ to locate and load plugins and
-    resources."""
-
+    resources.
+    """
     # Include QtCore module needed by all modules
     finder.include_module("PySide6.QtCore")
 

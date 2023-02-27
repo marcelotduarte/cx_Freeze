@@ -14,7 +14,6 @@ from cx_Freeze.sandbox import run_setup
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_rpm(fix_main_samples_path: Path):
     """Test the bcrypt sample with bdist_rpm."""
-
     package = "bcrypt"
     version = "0.3"
     arch = get_platform().split("-", 1)[1]

@@ -1,5 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
-scipy package is included."""
+scipy package is included.
+"""
 
 
 from __future__ import annotations
@@ -11,7 +12,8 @@ from ..module import Module
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """The scipy module loads items within itself in a way that causes
-    problems without libs and a number of subpackages being present."""
+    problems without libs and a number of subpackages being present.
+    """
     libs_name = f"{module.name}.libs"
     source_dir = module.path[0].parent / libs_name
     if source_dir.exists():
@@ -27,7 +29,8 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
 
 def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
     """The scipy.linalg module loads items within itself in a way that causes
-    problems without the entire package being present."""
+    problems without the entire package being present.
+    """
     module.global_names.add("norm")
     finder.include_package("scipy.linalg")
 
@@ -36,7 +39,8 @@ def load_scipy_linalg_interface_gen(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The scipy.linalg.interface_gen module optionally imports the pre module;
-    ignore the error if this module cannot be found."""
+    ignore the error if this module cannot be found.
+    """
     module.ignore_names.add("pre")
 
 
@@ -83,7 +87,8 @@ def load_scipy_special__cephes(
 ) -> None:
     """The scipy.special._cephes is an extension module and the scipy module
     imports * from it in places; advertise the global names that are used
-    in order to avoid spurious errors about missing modules."""
+    in order to avoid spurious errors about missing modules.
+    """
     module.global_names.add("gammaln")
 
 
