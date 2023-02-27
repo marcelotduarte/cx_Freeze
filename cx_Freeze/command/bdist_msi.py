@@ -202,13 +202,15 @@ class BdistMSI(bdist_msi):
                         )
                     ],
                 )
-        for table_name, data in self.data.items():
+        for table_name, table_data in self.data.items():
             col = self._binary_columns.get(table_name)
             if col is not None:
                 data = [
                     (*row[:col], msilib.Binary(row[col]), *row[col + 1 :])
-                    for row in data
+                    for row in table_data
                 ]
+            else:
+                data = table_data
             msilib.add_data(self.db, table_name, data)
 
         # If provided, add data to MSI's summary information stream

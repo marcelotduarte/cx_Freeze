@@ -372,8 +372,8 @@ class MachOCommand:
 
         # split the output into separate load commands
         out = subprocess.check_output(shell_command, encoding="utf-8")
-        for line in out.splitlines():
-            line = line.strip()
+        for raw_line in out.splitlines():
+            line = raw_line.strip()
             if line[:12] == "Load command":
                 if current_command_lines is not None:
                     commands.append(

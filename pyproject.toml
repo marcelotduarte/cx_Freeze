@@ -124,7 +124,7 @@ select = [
   "ISC",  # flake8-implicit-str-concat
   "PGH",  # pygrep-hooks
   "PIE",  # flake8-pie
-  "PLC", "PLE", "PLR", #"PLW",  # pylint
+  "PLC", "PLE", "PLR", "PLW",  # pylint
   "PT",  # flake8-pytest-style
   "RET",  # flake8-return
   "RUF",  # Ruff-specific

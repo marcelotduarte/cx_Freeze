@@ -448,8 +448,8 @@ class BdistRPM(Command):
                 )
 
             if not self.source_only:
-                for rpm in binary_rpms:
-                    rpm = os.path.join(rpm_dir["RPMS"], rpm)
+                for binary_rpm in binary_rpms:
+                    rpm = os.path.join(rpm_dir["RPMS"], binary_rpm)
                     if os.path.exists(rpm):
                         self.move_file(rpm, self.dist_dir)
                         filename = os.path.join(
@@ -646,8 +646,8 @@ class BdistRPM(Command):
         if not changelog:
             return changelog
         new_changelog = []
-        for line in changelog.strip().split("\n"):
-            line = line.strip()
+        for raw_line in changelog.strip().split("\n"):
+            line = raw_line.strip()
             if line[0] == "*":
                 new_changelog.extend(["", line])
             elif line[0] == "-":

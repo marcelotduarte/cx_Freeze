@@ -910,13 +910,13 @@ class WinFreezer(Freezer, PEParser):
                 dest_relative = dest_shared.relative_to(sys.prefix)
             except ValueError:
                 pass
-        for prefix in [
+        prefixes = [
             sys.base_exec_prefix,
             sys.base_prefix,
             sys.exec_prefix,
             sys.prefix,
-        ]:
-            prefix = Path(prefix)
+        ]
+        for prefix in map(Path, prefixes):
             paths.add(prefix / "bin")
             paths.add(prefix / "DLLs")
             paths.add(prefix / "Library/bin")

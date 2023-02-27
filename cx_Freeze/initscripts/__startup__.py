@@ -122,18 +122,18 @@ def run():
     try:
         module_init = __import__(name + "__init__")
     except ModuleNotFoundError:
-        files = []
-        for k in __loader__._files:  # pylint: disable=W0212
-            if k.endswith("__init__.pyc"):
-                k = k.rpartition("__init__")[0]
-                if k.isidentifier():
-                    files.append(k)
-        if len(files) != 1:
+        names = [
+            f.rpartition("__init__")[0]
+            for f in __loader__._files  # pylint: disable=protected-access
+            if f.endswith("__init__.pyc")
+            and f.rpartition("__init__")[0].isidentifier()
+        ]
+        if len(names) != 1:
             raise RuntimeError(
                 "Apparently, the original executable has been renamed to "
                 f"{name!r}. When multiple executables are generated, "
                 "renaming is not allowed."
             ) from None
-        name = files[0]
+        name = names[0]
         module_init = __import__(name + "__init__")
     module_init.run(name + "__main__")

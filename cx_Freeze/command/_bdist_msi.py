@@ -297,8 +297,8 @@ class bdist_msi(Command):
         db.Commit()
 
         seen = {}
-        for feature, directory, version in items:
-            todo = [directory]
+        for feature, base_directory, version in items:
+            todo = [base_directory]
             while todo:
                 directory = todo.pop()
                 for file in os.listdir(directory.absolute):
