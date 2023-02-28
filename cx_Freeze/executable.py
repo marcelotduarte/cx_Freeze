@@ -12,7 +12,7 @@ from setuptools import Distribution
 from setuptools.errors import SetupError
 
 from ._compat import IS_MINGW, IS_WINDOWS
-from .common import get_resource_file_path, validate_args
+from .common import get_resource_file_path
 from .exception import ConfigError
 
 STRINGREPLACE = list(
@@ -38,27 +38,14 @@ class Executable:
         trademarks: str | None = None,
         manifest: str | Path | None = None,
         uac_admin: bool = False,
-        *,
-        initScript: str | None = None,
-        targetName: str | None = None,
-        shortcutName: str | None = None,
-        shortcutDir: str | None = None,
     ):
         self.main_script = script
-        self.init_script = validate_args(
-            "init_script", init_script, initScript
-        )
+        self.init_script = init_script
         self.base = base
-        self.target_name = validate_args(
-            "target_name", target_name, targetName
-        )
+        self.target_name = target_name
         self.icon = icon
-        self.shortcut_name = validate_args(
-            "shortcut_name", shortcut_name, shortcutName
-        )
-        self.shortcut_dir = validate_args(
-            "shortcut_dir", shortcut_dir, shortcutDir
-        )
+        self.shortcut_name = shortcut_name
+        self.shortcut_dir = shortcut_dir
         self.copyright = copyright
         self.trademarks = trademarks
         self.manifest = manifest
