@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import shutil
 import types
-import warnings
 from contextlib import suppress
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory
@@ -148,21 +147,3 @@ def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
         kwargs.get("co_cellvars", code.co_cellvars),
     ]
     return types.CodeType(*params)
-
-
-def validate_args(arg, snake_value, camel_value):
-    """Validate arguments from two exclusive sources.
-    This is a temporary function to be used while transitioning from using
-    camelCase parameters to snake_case.
-    """
-    if isinstance(snake_value, str):
-        if isinstance(camel_value, str):
-            raise ConfigError(
-                f"May not pass {arg!r} as snake_case and camelCase"
-            )
-    elif isinstance(camel_value, str):
-        warnings.warn(
-            "camelCase values is obsolete and will be removed in the "
-            f"next major version -> use the new name {arg!r}"
-        )
-    return snake_value or camel_value
