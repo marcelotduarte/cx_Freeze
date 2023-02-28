@@ -258,8 +258,8 @@ It can be further customized:
        relative path to the module; multiple values are separated by the
        standard path separator
    * - .. option:: path
-     - comma-separated list of paths to search for modules;
-       the default value is sys.path
+     - comma-separated list of paths to search for modules; the default value
+       is sys.path (use only if you know what you are doing)
    * - .. option:: no_compress
      - create a zipfile with no compression
    * - .. option:: constants
@@ -338,7 +338,9 @@ This is the equivalent help to specify the same options on the command line:
                             includes all submodules in the package
     --replace-paths         comma-separated list of paths to replace in included
                             modules, using the form <search>=<replace>
-    --path                  comma-separated list of paths to search for modules
+    --path                  comma-separated list of paths to search for modules;
+                            the default value is sys.path (use only if you know
+                            what you are doing)
     --no-compress           create a zipfile with no compression
     --constants             comma-separated list of constants to include
     --bin-includes          list of files to include when determining
@@ -539,8 +541,8 @@ For example:
                 copyright="Copyright (C) 2023 cx_Freeze",
                 base=base,
                 icon="icon.ico",
-                shortcutName="My Program Name",
-                shortcutDir="MyProgramMenu",
+                shortcut_name="My Program Name",
+                shortcut_dir="MyProgramMenu",
             ),
         ],
     )
@@ -727,7 +729,7 @@ constructor are as follows:
     ``manifest`` and ``uac_admin`` options.
 
 .. versionchanged:: 6.5
-    Arguments are all snake_case (camelCase are still valid up to 7.0)
+    Arguments are all snake_case (camelCase removed in 6.15).
 
 .. note::
 

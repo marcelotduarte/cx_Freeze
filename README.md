@@ -18,7 +18,7 @@ pip install --upgrade cx_Freeze
 To install the latest development build:
 
 ```
-pip install --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
+pip install --upgrade --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
 ```
 
 Please check the [installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
