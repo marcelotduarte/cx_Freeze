@@ -114,32 +114,32 @@ add_imports = ["from __future__ import annotations"]
 
 [tool.ruff]
 select = [
-  "A",   # flake8-builtins
-  "E", "F", "W",  # flake8
-  "B",  "B904",  # flake8-bugbear
-  #"D",  # pydocstyle
-  "I",  # isort
-  "ARG",  # flake8-unused-arguments
-  "C4",  # flake8-comprehensions
-  #"EM",  # flake8-errmsg
-  "ICN",  # flake8-import-conventions
-  "ISC",  # flake8-implicit-str-concat
-  "PGH",  # pygrep-hooks
-  "PIE",  # flake8-pie
-  "PLC", "PLE", "PLR", "PLW",  # pylint
-  "PT",  # flake8-pytest-style
-  "RSE",  # flake8-raise
-  "RET",  # flake8-return
-  "RUF",  # Ruff-specific
-  "SIM",  # flake8-simplify
-  "UP",  # pyupgrade
-  "YTT",  # flake8-2020
+    "A",   # flake8-builtins
+    "E", "F", "W",  # flake8
+    "B",  "B904",  # flake8-bugbear
+    #"D",  # pydocstyle
+    "I",  # isort
+    "ARG",  # flake8-unused-arguments
+    "C4",  # flake8-comprehensions
+    #"EM",  # flake8-errmsg
+    "ICN",  # flake8-import-conventions
+    "ISC",  # flake8-implicit-str-concat
+    "PGH",  # pygrep-hooks
+    "PIE",  # flake8-pie
+    "PLC", "PLE", "PLR", "PLW",  # pylint
+    "PT",  # flake8-pytest-style
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "RUF",  # Ruff-specific
+    "SIM",  # flake8-simplify
+    "UP",  # pyupgrade
+    "YTT",  # flake8-2020
 ]
 ignore = [
-  "PLR2004", "E501",
-  "PLR0912",  # too-many-branches
-  "PLR0913",  # too-many-arguments
-  "PLR0915",  # too-many-statements
+    "PLR2004", "E501",
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
 ]
 line-length = 79
 target-version = "py37"
@@ -150,11 +150,9 @@ extend-exclude = [
     "tests/samples/invalid_syntax.py",
 ]
 
-[tool.pylint]
-format.max-line-length = 79
-master.ignore-paths = "^samples/.*.py$,^tests/samples/.*.py$,"
-master.py-version = "3.7"
-messages_control.disable = [
+[tool.pylint.main]
+disable = [
+    "c-extension-no-member",
     "duplicate-code",
     "fixme",
     "import-error",
@@ -168,7 +166,17 @@ messages_control.disable = [
     "too-many-statements",  # ignore by ruff too
     "unused-argument",  # checked by ruff ARG
 ]
-reports.output-format = "colorized"
+ignore-paths = [
+    "cx_Freeze/hooks/pyside2/resource.py",
+    "cx_Freeze/hooks/pyside6/resource.py",
+    "^samples/.*.py$",
+    "^tests/samples/.*.py$",
+]
+py-version = [3, 7]
+output-format = "colorized"
+
+[tool.pylint.format]
+max-line-length = 79
 
 [tool.pytest.ini_options]
 minversion = "6.0"

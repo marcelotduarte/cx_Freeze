@@ -1019,11 +1019,10 @@ class BdistMSI(bdist_msi):
         msi_name: str
         if os.path.splitext(self.target_name)[1].lower() == ".msi":
             msi_name = self.target_name
+        elif self.target_version:
+            msi_name = f"{self.fullname}-{platform}.msi"
         else:
-            if self.target_version:
-                msi_name = f"{self.fullname}-{platform}.msi"
-            else:
-                msi_name = f"{self.target_name}-{platform}.msi"
+            msi_name = f"{self.target_name}-{platform}.msi"
         installer_name = os.path.join(self.dist_dir, msi_name)
         installer_name = os.path.abspath(installer_name)
         if os.path.exists(installer_name):
