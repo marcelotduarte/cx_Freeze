@@ -23,28 +23,21 @@ repos:
   - id: mixed-line-ending
   - id: trailing-whitespace
 
-- repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.0.252
+- repo: https://github.com/abravalheri/validate-pyproject
+  rev: v0.12.1
   hooks:
-  - id: ruff
-    args: ["--fix"]
+  - id: validate-pyproject
 
 - repo: https://github.com/psf/black
   rev: 23.1.0
   hooks:
   - id: black
 
-- repo: https://github.com/asottile/blacken-docs
-  rev: 1.13.0
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: v0.0.253
   hooks:
-  - id: blacken-docs
-    additional_dependencies: [black==23.1.0]
-    args: ["-l", "79"]
-
-- repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.12.1
-  hooks:
-  - id: validate-pyproject
+  - id: ruff
+    args: ["--fix"]
 
 - repo: https://github.com/PyCQA/pylint
   rev: v2.16.2
@@ -54,6 +47,13 @@ repos:
     entry: pylint
     language: system
     types: [python]
+
+- repo: https://github.com/asottile/blacken-docs
+  rev: 1.13.0
+  hooks:
+  - id: blacken-docs
+    additional_dependencies: [black==23.1.0]
+    args: ["-l", "79"]
 
 - repo: local
   hooks:
