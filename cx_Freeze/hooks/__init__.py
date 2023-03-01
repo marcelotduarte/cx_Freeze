@@ -525,7 +525,7 @@ def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("tensorflow.python")
 
 
-def load_ttkbootstrap(finder: ModuleFinder, module: Module) -> None:
+def load_ttkbootstrap(finder: ModuleFinder, _: Module) -> None:
     """The ttkbootstrap package needs the tcl8 directory.
     This isn't copied by the Tkinter load hook, so we need an extra hook."""
     folders = []
