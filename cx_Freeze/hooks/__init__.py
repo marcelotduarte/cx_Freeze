@@ -526,8 +526,7 @@ def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
 
 def load_ttkbootstrap(finder: ModuleFinder, module: Module) -> None:
     """The ttkbootstrap package needs the tcl8 directory.
-    The tkinter module has data files (also called tcl/tk libraries) that
-    are required to be loaded at runtime."""
+    This isn't copied by the Tkinter load hook, so we need an extra hook."""
     folders = []
     tcltk = get_resource_file_path("bases", "tcltk", "")
     if tcltk and tcltk.is_dir():
