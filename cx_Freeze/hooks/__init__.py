@@ -546,7 +546,8 @@ def load_ttkbootstrap(finder: ModuleFinder, module: Module) -> None:
         new_name = os.path.splitext(source_path.name)[0]
         target_path = Path("lib", new_name)
         finder.include_files(
-            os.path.join(os.path.split(source_path)[0], new_name), target_path)
+            os.path.join(os.path.split(source_path)[0], new_name), target_path
+        )
 
 
 def load_time(finder: ModuleFinder, module: Module) -> None:
