@@ -541,11 +541,12 @@ def load_ttkbootstrap(finder: ModuleFinder, module: Module) -> None:
         root = tkinter.Tk(useTk=False)
         source_path = Path(root.tk.exprstring("$tcl_library"))
         folders.append(("TCL_LIBRARY", source_path))
-    for env_name, source_path in folders:
+    for _, source_path in folders:
         # get the root tcl dir. If soure_path.name = tcl8.6 then tcl8
         new_name = os.path.splitext(source_path.name)[0]
         target_path = Path("lib", new_name)
-        finder.include_files(os.path.join(os.path.split(source_path)[0], new_name), target_path)
+        finder.include_files(
+            os.path.join(os.path.split(source_path)[0], new_name), target_path)
 
 
 def load_time(finder: ModuleFinder, module: Module) -> None:
