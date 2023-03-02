@@ -207,33 +207,30 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             self.mkpath(target_path)
             for source in source_path.iterdir():
                 self.copy_file(source.as_posix(), target_path)
-        # tcl/tk at /usr/share
+        # tcl/tk are detected in /usr/local/lib or /usr/share
         try:
             tkinter = __import__("tkinter")
         except (ImportError, AttributeError):
             return
         root = tkinter.Tk(useTk=False)
-        # tcl
-        source_path = Path(root.tk.exprstring("$tcl_library"))
-        target_path = f"{bases}/tcltk/{source_path.name}"
-        self.mkpath(target_path)
-        for source in source_path.rglob("*"):
-            target = os.fspath(target_path / source.relative_to(source_path))
-            if source.is_dir():
-                self.mkpath(target)
-            else:
-                self.copy_file(source.as_posix(), target)
-        # tk
-        source_name = source_path.name.replace("tcl", "tk")
-        source_path = source_path.parent / source_name
-        target_path = f"{bases}/tcltk/{source_path.name}"
-        self.mkpath(target_path)
-        for source in source_path.rglob("*"):
-            target = os.fspath(target_path / source.relative_to(source_path))
-            if source.is_dir():
-                self.mkpath(target)
-            else:
-                self.copy_file(source.as_posix(), target)
+        tcl_library = Path(root.tk.exprstring("$tcl_library"))
+        # source paths of tcl8.6, tcl8 and tk8.6
+        source_paths = [
+            tcl_library,
+            tcl_library.with_suffix(""),
+            tcl_library.parent / tcl_library.name.replace("tcl", "tk"),
+        ]
+        for source_path in source_paths:
+            target_path = f"{bases}/tcltk/{source_path.name}"
+            self.mkpath(target_path)
+            for source in source_path.rglob("*"):
+                target = os.fspath(
+                    target_path / source.relative_to(source_path)
+                )
+                if source.is_dir():
+                    self.mkpath(target)
+                else:
+                    self.copy_file(source.as_posix(), target)
 
     def run(self):
         self._copy_libraries_to_bases()

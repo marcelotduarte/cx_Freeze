@@ -4,7 +4,6 @@ TKinter package is included.
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
@@ -22,8 +21,8 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     tcltk = get_resource_file_path("bases", "tcltk", "")
     if tcltk and tcltk.is_dir():
         # manylinux wheels and macpython wheels store tcl/tk libraries
-        folders["TCL_LIBRARY"] = list(tcltk.glob("tcl*"))[0]
-        folders["TK_LIBRARY"] = list(tcltk.glob("tk*"))[0]
+        folders["TCL_LIBRARY"] = list(tcltk.glob("tcl*.*"))[0]
+        folders["TK_LIBRARY"] = list(tcltk.glob("tk*.*"))[0]
     else:
         # Windows, MSYS2, Miniconda: collect the tcl/tk libraries
         try:
@@ -37,9 +36,13 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
         source_path = source_path.parent / source_name
         folders["TK_LIBRARY"] = source_path
     for env_name, source_path in folders.items():
-        target_path = Path("lib", source_path.name)
-        finder.add_constant(env_name, os.fspath(target_path))
+        target_path = f"lib/{source_path.name}"
+        finder.add_constant(env_name, target_path)
         finder.include_files(source_path, target_path)
+        if env_name == "TCL_LIBRARY":
+            tcl8_path = source_path.parent / source_path.stem
+            if tcl8_path.is_dir():
+                finder.include_files(tcl8_path, f"lib/{tcl8_path.name}")
         if IS_WINDOWS:
             dll_name = source_path.name.replace(".", "") + "t.dll"
             dll_path = Path(sys.base_prefix, "DLLs", dll_name)
