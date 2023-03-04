@@ -4,9 +4,7 @@ pycryptodome package is included.
 
 from __future__ import annotations
 
-import os
-
-from ..common import code_object_replace
+from ..common import code_object_replace_function
 from ..finder import ModuleFinder
 from ..module import Module
 
@@ -51,26 +49,16 @@ def load_crypto_util__file_system(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The patch for pycryptodome package."""
-    # WARNING: do not touch this code string
-    code_to_inject = """
-import os
-
-def pycryptodome_filename(dir_comps, filename):
-    import sys
-    if dir_comps[0] != "Crypto":
-        raise ValueError("Only available for modules under 'Crypto'")
-    dir_comps = list(dir_comps) + [filename]
-    root_lib = os.path.join(os.path.dirname(sys.executable), "lib")
-    return os.path.join(root_lib, ".".join(dir_comps))
-"""
-    if module.in_file_system == 0 and module.code is not None:
-        new_code = compile(code_to_inject, os.fspath(module.file), "exec")
-        co_func = new_code.co_consts[2]
-        name = co_func.co_name
-        code = module.code
-        consts = list(code.co_consts)
-        for i, constant in enumerate(consts):
-            if isinstance(constant, type(code)) and constant.co_name == name:
-                consts[i] = co_func
-                break
-        module.code = code_object_replace(code, co_consts=consts)
+    code = module.code
+    if module.in_file_system == 0 and code is not None:
+        name = "pycryptodome_filename"
+        source = f"""\
+        def {name}(dir_comps, filename):
+            import os, sys
+            if dir_comps[0] != "Crypto":
+                raise ValueError("Only available for modules under 'Crypto'")
+            dir_comps = list(dir_comps) + [filename]
+            root_lib = os.path.join(sys.frozen_dir, "lib")
+            return os.path.join(root_lib, ".".join(dir_comps))
+        """
+        module.code = code_object_replace_function(code, name, source)
