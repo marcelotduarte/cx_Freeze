@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import shutil
-import types
 from contextlib import suppress
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory
+from textwrap import dedent
+from types import CodeType
 from typing import List, Optional, Tuple, Union
 
 from .exception import ConfigError
@@ -120,11 +121,11 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
     return processed_specs
 
 
-def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
+def code_object_replace(code: CodeType, **kwargs) -> CodeType:
     """Return a copy of the code object with new values for the specified
     fields.
     """
-    with suppress(ValueError):
+    with suppress(ValueError, KeyError):
         kwargs["co_consts"] = tuple(kwargs["co_consts"])
     # Python 3.8+
     if hasattr(code, "replace"):
@@ -146,4 +147,30 @@ def code_object_replace(code: types.CodeType, **kwargs) -> types.CodeType:
         kwargs.get("co_freevars", code.co_freevars),
         kwargs.get("co_cellvars", code.co_cellvars),
     ]
-    return types.CodeType(*params)
+    return CodeType(*params)
+
+
+def code_object_replace_function(
+    code: CodeType, name: str, source: str
+) -> CodeType:
+    """Return a copy of the code object with the function 'name' replaced."""
+    if code is None:
+        return code
+
+    new_code = compile(dedent(source), code.co_filename, "exec")
+    new_co_func = None
+    for constant in new_code.co_consts:
+        if isinstance(constant, CodeType) and constant.co_name == name:
+            new_co_func = constant
+            break
+    if new_co_func is None:
+        return code
+
+    consts = list(code.co_consts)
+    for i, constant in enumerate(consts):
+        if isinstance(constant, CodeType) and constant.co_name == name:
+            consts[i] = code_object_replace(
+                new_co_func, co_firstlineno=constant.co_firstlineno
+            )
+            break
+    return code_object_replace(code, co_consts=consts)
