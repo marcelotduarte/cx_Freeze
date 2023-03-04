@@ -11,6 +11,7 @@ import sys
 import sysconfig
 import time
 from abc import abstractmethod
+from collections.abc import Sequence
 from contextlib import suppress
 from importlib import import_module
 from importlib.util import MAGIC_NUMBER
@@ -75,8 +76,8 @@ class Freezer:
         silent: bool | int = 0,
         metadata: Any = None,
         include_msvcr: bool = False,
-        zip_include_packages: list[str] | None = None,
-        zip_exclude_packages: list[str] | None = None,
+        zip_include_packages: Sequence[str] | None = None,
+        zip_exclude_packages: Sequence[str] | None = None,
     ):
         self.executables: list[Executable] = list(executables)
         if constants_module is None:
@@ -109,8 +110,12 @@ class Freezer:
         else:
             self.silent = silent
         self.metadata: Any = metadata
-        self.zip_include_packages: list[str] | None = zip_include_packages
-        self.zip_exclude_packages: list[str] | None = zip_exclude_packages
+
+        self.zip_exclude_packages: set[str] = {"*"}
+        self.zip_include_packages: set[str] = set()
+        self.zip_include_all_packages: bool = False
+        self._populate_zip_options(zip_include_packages, zip_exclude_packages)
+
         self._verify_configuration()
         self.files_copied: set[Path] = set()
         self.finder: ModuleFinder = self._get_module_finder()
@@ -353,14 +358,14 @@ class Freezer:
 
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
-            self.include_files,
+            self.constants_module,
             self.excludes,
+            self.include_files,
             self.path,
             self.replace_paths,
-            self.zip_include_all_packages,
             self.zip_exclude_packages,
             self.zip_include_packages,
-            self.constants_module,
+            self.zip_include_all_packages,
             self.zip_includes,
         )
         finder.optimize = self.optimize
@@ -490,28 +495,46 @@ class Freezer:
             name for name in paths if Path(name).is_dir()
         ]
 
-        if (
-            self.zip_include_packages is None
-            and self.zip_exclude_packages is None
-        ):
-            self.zip_include_packages = []
-            self.zip_exclude_packages = ["*"]
+    def _populate_zip_options(
+        self,
+        zip_include_packages: Sequence[str] | None,
+        zip_exclude_packages: Sequence[str] | None,
+    ) -> None:
+        """Verify, normalize and populate zip_*_packages options.
+        Raises ConfigError on failure.
+        """
+        if zip_include_packages is None and zip_exclude_packages is None:
+            zip_include_packages = []
+            zip_exclude_packages = ["*"]
         else:
-            self.zip_include_packages = list(self.zip_include_packages or [])
-            self.zip_exclude_packages = list(self.zip_exclude_packages or [])
-        self.zip_exclude_all_packages = "*" in self.zip_exclude_packages
-        self.zip_include_all_packages = "*" in self.zip_include_packages
-        if self.zip_exclude_all_packages and self.zip_include_all_packages:
+            zip_include_packages = list(zip_include_packages or [])
+            zip_exclude_packages = list(zip_exclude_packages or [])
+        zip_include_all_packages = "*" in zip_include_packages
+        zip_exclude_all_packages = "*" in zip_exclude_packages
+        # check the '*' option
+        if zip_exclude_all_packages and zip_include_all_packages:
             raise ConfigError(
                 "all packages cannot be included and excluded "
                 "from the zip file at the same time"
             )
-        for name in self.zip_include_packages:
-            if name in self.zip_exclude_packages:
-                raise ConfigError(
-                    f"package {name!r} cannot be both included and "
-                    "excluded from zip file"
-                )
+        # normalize namespace packages - syntax suggar
+        zip_include_packages = {
+            name.partition(".")[0] for name in zip_include_packages
+        }
+        zip_exclude_packages = {
+            name.partition(".")[0] for name in zip_exclude_packages
+        }
+        # check invalid usage
+        invalid = ", ".join(zip_include_packages & zip_exclude_packages)
+        if invalid:
+            raise ConfigError(
+                f"package{'s' if len(invalid)>1 else ''} {invalid!r} "
+                "cannot be both included and excluded from zip file"
+            )
+        # populate
+        self.zip_include_packages = zip_include_packages
+        self.zip_exclude_packages = zip_exclude_packages
+        self.zip_include_all_packages = zip_include_all_packages
 
     def _write_modules(self, filename: Path, finder: ModuleFinder):
         finder.include_file_as_module(
