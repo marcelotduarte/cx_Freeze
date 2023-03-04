@@ -65,7 +65,7 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_qt_debug")
 
     # Inject code to init
-    code_string = module.file.read_text()
+    code_string = module.file.read_text(encoding="utf-8")
     code_string += """
 # cx_Freeze patch start
 import PyQt5._cx_freeze_add_library

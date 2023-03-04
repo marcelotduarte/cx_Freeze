@@ -447,7 +447,7 @@ def load_sklearn__distributor_init(
         # msvcp140 and vcomp140 dlls should be copied
         finder.include_files(source_dir, "lib")
         # patch the code to search the correct directory
-        code_string = module.file.read_text()
+        code_string = module.file.read_text(encoding="utf-8")
         code_string = code_string.replace(
             "libs_path =", "libs_path = __import__('sys').frozen_dir  #"
         )
