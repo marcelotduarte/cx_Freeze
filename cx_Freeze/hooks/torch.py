@@ -26,7 +26,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         module.in_file_system = 2
     # patch the code to ignore CUDA_PATH_Vxx_x installation directory
-    code_string = module.file.read_text()
+    code_string = module.file.read_text(encoding="utf-8")
     code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
     module.code = compile(code_string, os.fspath(module.file), "exec")
     # include the shared libraries in 'lib' to avoid searching through the
