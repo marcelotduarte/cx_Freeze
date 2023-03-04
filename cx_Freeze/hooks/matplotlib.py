@@ -4,6 +4,7 @@ matplotlib package is included.
 
 from __future__ import annotations
 
+from contextlib import suppress
 from pathlib import Path
 from types import CodeType
 
@@ -33,44 +34,43 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
     if source_dir.exists():
         finder.include_files(source_dir, f"lib/{module_libs_name}")
     _remove_delvewheel(module)
-    mpl_toolkits = finder.include_module("mpl_toolkits")
-    _remove_delvewheel(mpl_toolkits)
+    with suppress(ImportError):
+        mpl_toolkits = finder.include_module("mpl_toolkits")
+        _remove_delvewheel(mpl_toolkits)
 
 
 def _patch_data_path(module: Module, data_path: Path) -> None:
     # fix get_data_path functions when using zip_include_packages or
     # with some distributions that have matplotlib < 3.4 installed.
-    if module.code is None:
-        return
     code = module.code
+    if code is None:
+        return
     for name in ("_get_data_path", "get_data_path"):
         source = f"""\
         def {name}():
             import os, sys
             return os.path.join(sys.frozen_dir, "{data_path}")
         """
-        # pacth if the name (_get_data_path and/or get_data_path) is found
+        # patch if the name (_get_data_path and/or get_data_path) is found
         code = code_object_replace_function(code, name, source)
     module.code = code
 
 
 def _remove_delvewheel(module: Module) -> None:
     # remove delvewheel injections of code to not find for .libs directory
-    if module.code is None:
-        return
     code = module.code
-    name = None
+    if code is None:
+        return None
     delvewheel_func = "_delvewheel_init_patch_"
     consts = list(code.co_consts)
     for constant in consts:
         if isinstance(constant, CodeType):
             name = constant.co_name
             if name.startswith(delvewheel_func):
+                source = f"""\
+                def {name}():
+                    return
+                """
+                code = code_object_replace_function(code, name, source)
                 break
-    if name is None:
-        return
-    source = f"""\
-    def {name}():
-        return
-    """
-    module.code = code_object_replace_function(code, name, source)
+    return code
