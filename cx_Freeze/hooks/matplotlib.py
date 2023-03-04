@@ -58,6 +58,7 @@ def _remove_delvewheel(module: Module) -> None:
     if module.code is None:
         return
     code = module.code
+    name = None
     delvewheel_func = "_delvewheel_init_patch_"
     consts = list(code.co_consts)
     for constant in consts:
@@ -65,6 +66,8 @@ def _remove_delvewheel(module: Module) -> None:
             name = constant.co_name
             if name.startswith(delvewheel_func):
                 break
+    if name is None:
+        return
     source = f"""\
     def {name}():
         return
