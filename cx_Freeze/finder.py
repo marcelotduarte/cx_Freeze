@@ -47,14 +47,14 @@ class ModuleFinder:
 
     def __init__(
         self,
-        include_files: IncludesList | None = None,
+        constants_module: ConstantsModule | None = None,
         excludes: list[str] | None = None,
+        include_files: IncludesList | None = None,
         path: list[str | Path] | None = None,
         replace_paths: list[tuple[str, str]] | None = None,
+        zip_exclude_packages: Sequence[str] | None = None,
+        zip_include_packages: Sequence[str] | None = None,
         zip_include_all_packages: bool = False,
-        zip_exclude_packages: list[str] | None = None,
-        zip_include_packages: list[str] | None = None,
-        constants_module: ConstantsModule | None = None,
         zip_includes: IncludesList | None = None,
     ):
         self.included_files: InternalIncludesList = process_path_specs(
@@ -65,8 +65,8 @@ class ModuleFinder:
         self.path: list[str] = list(map(os.fspath, path or sys.path))
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
-        self.zip_exclude_packages = zip_exclude_packages or []
-        self.zip_include_packages = zip_include_packages or []
+        self.zip_exclude_packages: set = zip_exclude_packages or set()
+        self.zip_include_packages: set = zip_include_packages or set()
         self.constants_module = constants_module
         self.zip_includes: InternalIncludesList = process_path_specs(
             zip_includes
