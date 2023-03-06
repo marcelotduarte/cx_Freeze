@@ -214,13 +214,18 @@ the standard set of options for the command:
        below); note that this option is overwritten by the corresponding
        option on the build_exe command
 
+.. deprecated:: 6.14
+    ``build_exe`` option. To be removed in version 6.18 or 7.0.
+
 This is the equivalent help to specify the same options on the command line:
 
   .. code-block:: console
 
     python setup.py build --help
     Options for 'build' command:
-      --build-exe        build directory for executables
+      --build-base (-b)  base directory for build library
+      --build-exe        directory for built executables and dependent files
+      (...)
       --compiler (-c)    specify the compiler type
       --help-compiler    list available compilers
 

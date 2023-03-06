@@ -198,10 +198,19 @@ class BuildEXE(Command):
         build = self.get_finalized_command("build")
         self.build_base = build.build_base
         if self.build_exe is None:
-            self.build_exe = build.build_exe
-            if self.build_exe is None:
-                dir_name = f"exe.{get_platform()}-{get_python_version()}"
-                self.build_exe = os.path.join(self.build_base, dir_name)
+            # get the value from deprecated option
+            options = build.distribution.get_option_dict("build")
+            build_exe = options.get("build_exe", (None, None))[1]
+            if build_exe:
+                build.warn(
+                    "[DEPRECATED] The use of build command with 'build-exe' "
+                    "option is deprecated.\n\t\t"
+                    "Use build_exe command with 'build-exe' option instead."
+                )
+                self.build_exe = build_exe
+        if self.build_exe is None:
+            dir_name = f"exe.{get_platform()}-{get_python_version()}"
+            self.build_exe = os.path.join(self.build_base, dir_name)
 
         self.optimize = int(self.optimize)
 
