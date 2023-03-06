@@ -52,7 +52,7 @@ dev = [
     "bump2version==1.0.1",
     "cibuildwheel==2.12.0",
     "pre-commit>=2.21.0",
-    "pylint==2.16.3",
+    "pylint==2.16.4",
     "wheel==0.38.4",
 ]
 doc = [
