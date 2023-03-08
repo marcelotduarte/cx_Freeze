@@ -40,7 +40,7 @@ repos:
     args: ["--fix"]
 
 - repo: https://github.com/PyCQA/pylint
-  rev: v2.16.3
+  rev: v2.17.0
   hooks:
   - id: pylint
     name: pylint
