@@ -5,11 +5,11 @@ PySide6 package is included.
 from __future__ import annotations
 
 import os
-import sysconfig
 
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
+from .._compat import IS_MINGW
 from .._qthooks import load_qt_qaxcontainer as load_pyside6_qaxcontainer
 from .._qthooks import load_qt_qt as load_pyside6_qt
 from .._qthooks import load_qt_qtcharts as load_pyside6_qtcharts
@@ -45,8 +45,6 @@ from .._qthooks import (
 )
 from .._qthooks import load_qt_qtwebsockets as load_pyside6_qtwebsockets
 from .._qthooks import load_qt_qtwidgets as load_pyside6_qtwidgets
-
-IS_MINGW = sysconfig.get_platform().startswith("mingw")
 
 
 def load_pyside6(finder: ModuleFinder, module: Module) -> None:

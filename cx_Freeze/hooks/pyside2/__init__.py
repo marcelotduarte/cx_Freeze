@@ -5,12 +5,11 @@ PySide2 package is included.
 from __future__ import annotations
 
 import os
-import sys
-from pathlib import Path
 
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
+from .._compat import IS_CONDA, IS_WINDOWS
 from .._qthooks import load_qt_qt as load_pyside2_qt
 from .._qthooks import load_qt_qtcharts as load_pyside2_qtcharts
 from .._qthooks import (
@@ -43,9 +42,6 @@ from .._qthooks import load_qt_qtwebsockets as load_pyside2_qtwebsockets
 from .._qthooks import load_qt_qtwidgets as load_pyside2_qtwidgets
 from .._qthooks import load_qt_qtxmlpatterns as load_pyside2_qtxmlpatterns
 from .._qthooks import load_qt_uic as load_pyside2_uic
-
-IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
-IS_WINDOWS = sys.platform == "win32"
 
 
 def load_pyside2(finder: ModuleFinder, module: Module) -> None:

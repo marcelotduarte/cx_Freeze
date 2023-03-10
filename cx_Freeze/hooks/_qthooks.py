@@ -10,7 +10,7 @@ from contextlib import suppress
 from functools import lru_cache
 from pathlib import Path
 
-from .._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from .._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
 from ..finder import ModuleFinder
 from ..module import Module
 
@@ -66,7 +66,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     source_paths.setdefault("DataPath", prefix_path)
     source_paths.setdefault("LibrariesPath", prefix_path / "lib")
     source_paths.setdefault("SettingsPath", ".")
-    if name == "PySide6" and IS_WINDOWS:
+    if name == "PySide6" and IS_WINDOWS and not IS_CONDA:
         source_paths["BinariesPath"] = prefix_path
 
     # set the target paths
@@ -82,7 +82,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     for key, source in source_paths.items():
         if key == "SettingsPath":  # Check for SettingsPath first
             target = Path("Contents/Resources" if IS_MACOS else ".")
-        elif name == "PySide6" and IS_WINDOWS:
+        elif name == "PySide6" and IS_WINDOWS and not IS_CONDA:
             target = target_base / source.relative_to(prefix_path)
         elif key in ("ArchDataPath", "DataPath", "PrefixPath"):
             target = target_base
@@ -105,7 +105,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
         data[key] = source, target
 
     # debug
-    if os.environ.get("QT_DEBUG", 1):
+    if os.environ.get("QT_DEBUG"):
         print("QLibraryInfo:")
         for key, (source, target) in sorted(data.items()):
             print(" ", key, source, "->", target)
