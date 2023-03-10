@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import os
 
+from ..._compat import IS_CONDA, IS_WINDOWS
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
-from .._compat import IS_CONDA, IS_WINDOWS
 from .._qthooks import load_qt_qt as load_pyside2_qt
 from .._qthooks import load_qt_qtcharts as load_pyside2_qtcharts
 from .._qthooks import (
