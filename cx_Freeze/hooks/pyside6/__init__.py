@@ -10,6 +10,7 @@ import sysconfig
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
+from .._qthooks import load_qt_qaxcontainer as load_pyside6_qaxcontainer
 from .._qthooks import load_qt_qt as load_pyside6_qt
 from .._qthooks import load_qt_qtcharts as load_pyside6_qtcharts
 from .._qthooks import (
@@ -23,13 +24,18 @@ from .._qthooks import load_qt_qtmultimedia as load_pyside6_qtmultimedia
 from .._qthooks import (
     load_qt_qtmultimediawidgets as load_pyside6_qtmultimediawidgets,
 )
+from .._qthooks import load_qt_qtnetwork as load_pyside6_qtnetwork
 from .._qthooks import load_qt_qtopengl as load_pyside6_qtopengl
+from .._qthooks import load_qt_qtopenglwidgets as load_pyside6_qtopenglwidgets
 from .._qthooks import load_qt_qtpositioning as load_pyside6_qtpositioning
 from .._qthooks import load_qt_qtprintsupport as load_pyside6_qtprintsupport
 from .._qthooks import load_qt_qtqml as load_pyside6_qtqml
+from .._qthooks import load_qt_qtquick as load_pyside6_qtquick
+from .._qthooks import load_qt_qtquickwidgets as load_pyside6_qtquickwidgets
 from .._qthooks import load_qt_qtscripttools as load_pyside6_qtscripttools
 from .._qthooks import load_qt_qtsql as load_pyside6_qtsql
 from .._qthooks import load_qt_qtsvg as load_pyside6_qtsvg
+from .._qthooks import load_qt_qtsvgwidgets as load_pyside6_qtsvgwidgets
 from .._qthooks import load_qt_qttest as load_pyside6_qttest
 from .._qthooks import load_qt_qtuitools as load_pyside6_qtuitools
 from .._qthooks import load_qt_qtwebengine as load_pyside6_qtwebengine
@@ -39,8 +45,6 @@ from .._qthooks import (
 )
 from .._qthooks import load_qt_qtwebsockets as load_pyside6_qtwebsockets
 from .._qthooks import load_qt_qtwidgets as load_pyside6_qtwidgets
-from .._qthooks import load_qt_qtxmlpatterns as load_pyside6_qtxmlpatterns
-from .._qthooks import load_qt_uic as load_pyside6_uic
 
 IS_MINGW = sysconfig.get_platform().startswith("mingw")
 
@@ -79,6 +83,7 @@ import PySide6._cx_freeze_qt_debug
 __all__ = [
     "load_pyside6",
     "load_pyside6_qt",
+    "load_pyside6_qaxcontainer",
     "load_pyside6_qtcharts",
     "load_pyside6_qtdatavisualization",
     "load_pyside6_qtdesigner",
@@ -87,13 +92,18 @@ __all__ = [
     "load_pyside6_qtlocation",
     "load_pyside6_qtmultimedia",
     "load_pyside6_qtmultimediawidgets",
+    "load_pyside6_qtnetwork",
     "load_pyside6_qtopengl",
+    "load_pyside6_qtopenglwidgets",
     "load_pyside6_qtpositioning",
     "load_pyside6_qtprintsupport",
+    "load_pyside6_qtquick",
+    "load_pyside6_qtquickwidgets",
     "load_pyside6_qtqml",
     "load_pyside6_qtscripttools",
     "load_pyside6_qtsql",
     "load_pyside6_qtsvg",
+    "load_pyside6_qtsvgwidgets",
     "load_pyside6_qttest",
     "load_pyside6_qtuitools",
     "load_pyside6_qtwebengine",
@@ -101,6 +111,4 @@ __all__ = [
     "load_pyside6_qtwebenginewidgets",
     "load_pyside6_qtwebsockets",
     "load_pyside6_qtwidgets",
-    "load_pyside6_qtxmlpatterns",
-    "load_pyside6_uic",
 ]
