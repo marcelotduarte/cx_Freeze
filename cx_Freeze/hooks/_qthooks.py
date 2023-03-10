@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import sys
+from contextlib import suppress
 from functools import lru_cache
 from pathlib import Path
 
@@ -65,6 +66,8 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     source_paths.setdefault("DataPath", prefix_path)
     source_paths.setdefault("LibrariesPath", prefix_path / "lib")
     source_paths.setdefault("SettingsPath", ".")
+    if name == "PySide6" and IS_WINDOWS:
+        source_paths["BinariesPath"] = prefix_path
 
     # set the target paths
     data: dict[str, tuple[Path, Path]] = {}
@@ -79,8 +82,10 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
 
     # set some defaults or use relative path
     for key, source in source_paths.items():
-        if key == "SettingsPath":
+        if key == "SettingsPath":  # Check for SettingsPath first
             target = Path("Contents/Resources" if IS_MACOS else ".")
+        elif name == "PySide6" and IS_WINDOWS:
+            target = target_base / source.relative_to(prefix_path)
         elif key in ("ArchDataPath", "DataPath", "PrefixPath"):
             target = target_base
         elif key == "BinariesPath":
@@ -102,7 +107,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
         data[key] = source, target
 
     # debug
-    if os.environ.get("QT_DEBUG"):
+    if os.environ.get("QT_DEBUG", 1):
         print("QLibraryInfo:")
         for key, (source, target) in sorted(data.items()):
             print(" ", key, source, "->", target)
@@ -140,6 +145,12 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
     finder.include_files(source_path, target_path)
 
 
+def load_qt_qaxcontainer(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtWidgets")
+
+
 def load_qt_phonon(finder: ModuleFinder, module: Module) -> None:
     """In Windows, phonon5.dll requires an additional dll phonon_ds94.dll to
     be present in the build directory inside a folder phonon_backend."""
@@ -157,7 +168,6 @@ def load_qt_qt(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     for mod in (
         "_qt",
-        "QtSvg",
         "Qsci",
         "QtAssistant",
         "QtNetwork",
@@ -175,21 +185,20 @@ def load_qt_qt(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_qt_qtcharts(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
 def load_qt_qtdatavisualization(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
 
 
 def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module and plugins."""
+    """Include module dependency and plugins."""
     name = _qt_implementation(module)
-    finder.include_module("datetime")
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "designer")
 
@@ -198,112 +207,153 @@ def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     """There is a chance that QtGui will use some image formats, then, add the
     image format plugins."""
     name = _qt_implementation(module)
+    finder.include_module("datetime")
+    finder.include_module(f"{name}.QtSvg")  # class Svg
+    copy_qt_files(finder, name, "PluginsPath", "generic")
+    copy_qt_files(finder, name, "PluginsPath", "iconengines")
     copy_qt_files(finder, name, "PluginsPath", "imageformats")
     # On Qt5, we need the platform plugins. For simplicity, we just copy
     # any that are installed.
+    copy_qt_files(finder, name, "PluginsPath", "platforminputcontexts")
     copy_qt_files(finder, name, "PluginsPath", "platforms")
     copy_qt_files(finder, name, "PluginsPath", "platformthemes")
     copy_qt_files(finder, name, "PluginsPath", "styles")
 
 
 def load_qt_qthelp(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
 def load_qt_qtlocation(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtPositioning")
 
 
 def load_qt_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on other modules and plugins."""
+    """Include module dependency and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
     finder.include_module(f"{name}.QtMultimediaWidgets")
     copy_qt_files(finder, name, "PluginsPath", "audio")
     copy_qt_files(finder, name, "PluginsPath", "mediaservice")
+    copy_qt_files(finder, name, "PluginsPath", "multimedia")
 
 
 def load_qt_qtmultimediawidgets(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on other modules."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtMultimedia")
 
 
+def load_qt_qtnetwork(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "networkinformation")
+    copy_qt_files(finder, name, "PluginsPath", "tls")
+
+
 def load_qt_qtopengl(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module and plugins."""
+    """Include module dependency and plugins."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtWidgets")
+    copy_qt_files(finder, name, "PluginsPath", "renderers")
+
+
+def load_qt_qtopenglwidgets(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "renderers")
 
 
 def load_qt_qtpositioning(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "position")
 
 
 def load_qt_qtprintsupport(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module and plugins."""
+    """Include module dependency and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "printsupport")
+    copy_qt_files(finder, name, "BinariesPath", "Qt?Pdf*.dll")
 
 
 def load_qt_qtqml(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module and plugins."""
+    """Include module dependency and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
     copy_qt_files(finder, name, "PluginsPath", "qmltooling")
 
 
+def load_qt_qtquick(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtGui")
+    finder.include_module(f"{name}.QtQml")
+
+
+def load_qt_qtquickwidgets(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtWidgets")
+
+
 def load_qt_qtscripttools(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on other modules."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtScript")
 
 
 def load_qt_qtsql(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module and plugins."""
+    """Include module dependency and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     copy_qt_files(finder, name, "PluginsPath", "sqldrivers")
 
 
 def load_qt_qtsvg(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
+def load_qt_qtsvgwidgets(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtSvg")
+    finder.include_module(f"{name}.QtWidgets")
+
+
 def load_qt_qttest(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
 def load_qt_qtuitools(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
 
 
 def load_qt_qtwebengine(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWebEngineCore")
 
 
 def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another modules and QtWebEngineProcess files."""
+    """Include module dependency and QtWebEngineProcess files."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
-    finder.include_module(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtWebSockets")
     if IS_WINDOWS:
         for filename in (
             "QtWebEngineProcess.exe",
@@ -332,38 +382,40 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module, data and plugins."""
+    """Include module dependency, data and plugins."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWebChannel")
     finder.include_module(f"{name}.QtWebEngineCore")
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtPrintSupport")
+    with suppress(ImportError):
+        finder.include_module(f"{name}.QtWebEngineQuick")
     copy_qt_files(finder, name, "LibrariesPath", "*WebEngineWidgets.*")
     copy_qt_files(finder, name, "PluginsPath", "webview")
     copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
 
 
 def load_qt_qtwebkit(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on other modules."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
     finder.include_module(f"{name}.QtGui")
 
 
 def load_qt_qtwebsockets(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
 
 
 def load_qt_qtwidgets(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
 
 
 def load_qt_qtxmlpatterns(finder: ModuleFinder, module: Module) -> None:
-    """This module depends on another module."""
+    """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtNetwork")
 
