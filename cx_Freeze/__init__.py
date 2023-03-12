@@ -44,7 +44,7 @@ else:
 
     __all__.append(bdist_rpm.__name__)
 
-__version__ = "6.15.0-dev0"
+__version__ = "6.15.0-dev1"
 
 
 def setup(**attrs):  # pylint: disable=missing-function-docstring
