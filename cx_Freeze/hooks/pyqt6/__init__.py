@@ -63,6 +63,9 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyqt6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt6._cx_freeze_qt_debug")
 
+    # Include a copy of qt.conf (used by webengine)
+    copy_qt_files(finder, "PyQt6", "LibraryExecutablesPath", "qt.conf")
+
     # Inject code to init
     code_string = module.file.read_text()
     code_string += """

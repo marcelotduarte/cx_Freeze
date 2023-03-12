@@ -68,6 +68,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     source_paths.setdefault("SettingsPath", ".")
     if name == "PySide6" and IS_WINDOWS and not IS_CONDA:
         source_paths["BinariesPath"] = prefix_path
+        source_paths["LibraryExecutablesPath"] = prefix_path
 
     # set the target paths
     data: dict[str, tuple[Path, Path]] = {}
