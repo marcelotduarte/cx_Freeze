@@ -66,7 +66,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     source_paths.setdefault("DataPath", prefix_path)
     source_paths.setdefault("LibrariesPath", prefix_path / "lib")
     source_paths.setdefault("SettingsPath", ".")
-    if name == "PySide6" and IS_WINDOWS and not IS_CONDA:
+    if name in ("PySide2", "PySide6") and IS_WINDOWS and not IS_CONDA:
         source_paths["BinariesPath"] = prefix_path
         source_paths["LibraryExecutablesPath"] = prefix_path
 
@@ -83,7 +83,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     for key, source in source_paths.items():
         if key == "SettingsPath":  # Check for SettingsPath first
             target = Path("Contents/Resources" if IS_MACOS else ".")
-        elif name == "PySide6" and IS_WINDOWS and not IS_CONDA:
+        elif name in ("PySide2", "PySide6") and IS_WINDOWS and not IS_CONDA:
             target = target_base / source.relative_to(prefix_path)
         elif key in ("ArchDataPath", "DataPath", "PrefixPath"):
             target = target_base
@@ -386,12 +386,15 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
 def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency, data and plugins."""
     name = _qt_implementation(module)
+    finder.include_module(f"{name}.QtNetwork")
+    finder.include_module(f"{name}.QtPrintSupport")
     finder.include_module(f"{name}.QtWebChannel")
     finder.include_module(f"{name}.QtWebEngineCore")
     finder.include_module(f"{name}.QtWidgets")
-    finder.include_module(f"{name}.QtPrintSupport")
     with suppress(ImportError):
-        finder.include_module(f"{name}.QtWebEngineQuick")
+        finder.include_module(f"{name}.QtWebEngine")  # qt5
+    with suppress(ImportError):
+        finder.include_module(f"{name}.QtWebEngineQuick")  # qt6
     copy_qt_files(finder, name, "LibrariesPath", "*WebEngineWidgets.*")
     copy_qt_files(finder, name, "PluginsPath", "webview")
     copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
