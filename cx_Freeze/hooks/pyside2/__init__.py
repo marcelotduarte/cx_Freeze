@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import os
 
-from ..._compat import IS_CONDA, IS_WINDOWS
+from ..._compat import IS_CONDA, IS_LINUX, IS_WINDOWS
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
+from .._qthooks import copy_qt_files
 from .._qthooks import load_qt_qt as load_pyside2_qt
 from .._qthooks import load_qt_qtcharts as load_pyside2_qtcharts
 from .._qthooks import (
@@ -64,23 +65,17 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
-    # Include a copy of qt.conf (works for pyside2 wheels on windows)
-    if IS_WINDOWS:
-        qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
-        if qt_conf:
-            finder.include_files(qt_conf, "qt.conf")
+    # Include a copy of qt.conf (used by webengine)
+    if IS_WINDOWS or IS_LINUX:
+        copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to init
     code_string = module.file.read_text(encoding="utf-8")
-    code_string += """
-# cx_Freeze patch start
-try:
-    import PySide2._cx_freeze_resource
-except ImportError:
-    pass
-import PySide2._cx_freeze_qt_debug
-# cx_Freeze patch end
-"""
+    code_string += "\n# cx_Freeze patch start\n"
+    if IS_CONDA:
+        code_string += "import PySide2._cx_freeze_resource\n"
+    code_string += "import PySide2._cx_freeze_qt_debug\n"
+    code_string += "# cx_Freeze patch end\n"
     module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
