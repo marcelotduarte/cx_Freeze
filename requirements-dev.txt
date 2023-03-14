@@ -15,7 +15,7 @@ bump2version==1.0.1
 cibuildwheel==2.12.1
 pre-commit>=2.21.0
 pylint==2.17.0
-wheel==0.38.4
+wheel==0.40.0
 # doc
 sphinx==5.3.0
 sphinx-tabs==3.4.1
