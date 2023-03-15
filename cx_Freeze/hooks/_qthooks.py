@@ -211,15 +211,14 @@ def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     finder.include_module("datetime")
     finder.include_module(f"{name}.QtSvg")  # class Svg
+    copy_qt_files(finder, name, "PluginsPath", "accessiblebridge")
     copy_qt_files(finder, name, "PluginsPath", "generic")
-    copy_qt_files(finder, name, "PluginsPath", "iconengines")
     copy_qt_files(finder, name, "PluginsPath", "imageformats")
-    # On Qt5, we need the platform plugins. For simplicity, we just copy
-    # any that are installed.
+    copy_qt_files(finder, name, "PluginsPath", "pictureformats")  # obsolete
+    # For simplicity, we just copy the platform plugins that are installed.
     copy_qt_files(finder, name, "PluginsPath", "platforminputcontexts")
     copy_qt_files(finder, name, "PluginsPath", "platforms")
     copy_qt_files(finder, name, "PluginsPath", "platformthemes")
-    copy_qt_files(finder, name, "PluginsPath", "styles")
 
 
 def load_qt_qthelp(finder: ModuleFinder, module: Module) -> None:
@@ -242,6 +241,9 @@ def load_qt_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "audio")
     copy_qt_files(finder, name, "PluginsPath", "mediaservice")
     copy_qt_files(finder, name, "PluginsPath", "multimedia")
+    copy_qt_files(finder, name, "PluginsPath", "playlistformats")
+    copy_qt_files(finder, name, "PluginsPath", "resourcepolicy")
+    copy_qt_files(finder, name, "PluginsPath", "video")
 
 
 def load_qt_qtmultimediawidgets(finder: ModuleFinder, module: Module) -> None:
@@ -254,6 +256,7 @@ def load_qt_qtmultimediawidgets(finder: ModuleFinder, module: Module) -> None:
 def load_qt_qtnetwork(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency."""
     name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "bearer")
     copy_qt_files(finder, name, "PluginsPath", "networkinformation")
     copy_qt_files(finder, name, "PluginsPath", "tls")
 
@@ -298,6 +301,7 @@ def load_qt_qtquick(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
     finder.include_module(f"{name}.QtQml")
+    copy_qt_files(finder, name, "PluginsPath", "scenegraph")
 
 
 def load_qt_qtquickwidgets(finder: ModuleFinder, module: Module) -> None:
@@ -306,11 +310,24 @@ def load_qt_qtquickwidgets(finder: ModuleFinder, module: Module) -> None:
     finder.include_module(f"{name}.QtWidgets")
 
 
+def load_qt_qtscript(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "script")
+
+
 def load_qt_qtscripttools(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
     finder.include_module(f"{name}.QtScript")
+
+
+def load_qt_qtsensors(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "sensorgestures")
+    copy_qt_files(finder, name, "PluginsPath", "sensors")
 
 
 def load_qt_qtsql(finder: ModuleFinder, module: Module) -> None:
@@ -324,6 +341,7 @@ def load_qt_qtsvg(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtWidgets")
+    copy_qt_files(finder, name, "PluginsPath", "iconengines")
 
 
 def load_qt_qtsvgwidgets(finder: ModuleFinder, module: Module) -> None:
@@ -417,6 +435,8 @@ def load_qt_qtwidgets(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency."""
     name = _qt_implementation(module)
     finder.include_module(f"{name}.QtGui")
+    copy_qt_files(finder, name, "PluginsPath", "accessible")
+    copy_qt_files(finder, name, "PluginsPath", "styles")
 
 
 def load_qt_qtxmlpatterns(finder: ModuleFinder, module: Module) -> None:
