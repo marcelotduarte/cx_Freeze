@@ -1,5 +1,4 @@
-# pylint: skip-file
-
+# ruff: noqa
 from __future__ import annotations
 
 import os

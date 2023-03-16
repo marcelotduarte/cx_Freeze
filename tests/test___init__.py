@@ -19,9 +19,8 @@ import cx_Freeze
     ],
 )
 def test_exposed_namespaces(platform, extra_modules):
-    """This test asserts that all the namespaces that should be exposed when
-    `importing cx_Freeze` are available
-    .
+    """Test asserts all the namespaces that should be exposed when
+    `importing cx_Freeze` are available.
     """
     # These namespaces are there regardless of platform
     expected_namespaces = [

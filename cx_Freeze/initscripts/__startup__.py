@@ -1,6 +1,5 @@
-"""This is the first script that is run when cx_Freeze starts up. It
-determines the name of the initscript that is to be executed after
-a basic initialization.
+"""First script that is run when cx_Freeze starts up. It determines the name of
+the initscript that is to be executed after a basic initialization.
 """
 
 from __future__ import annotations
@@ -30,7 +29,7 @@ class ExtensionFinder(PathFinder):
 
     @classmethod
     def find_spec(cls, fullname, path=None, target=None):  # noqa: ARG003
-        """This finder is only for extension modules found within packages that
+        """Finder only for extension modules found within packages that
         are included in the zip file (instead of as files on disk);
         extension modules cannot be found within zip files but are stored in
         the lib subdirectory; if the extension module is found in a package,

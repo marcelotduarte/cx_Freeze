@@ -49,7 +49,7 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_boto(finder: ModuleFinder, module: Module) -> None:
-    """the boto package uses 'six' fake modules."""
+    """The boto package uses 'six' fake modules."""
     finder.exclude_module("boto.vendored.six.moves")
 
 
@@ -233,14 +233,14 @@ def load_h5py_wrapper(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_hashlib(finder: ModuleFinder, module: Module) -> None:
-    """hashlib's fallback modules don't exist if the equivalent OpenSSL
+    """The hashlib's fallback modules don't exist if the equivalent OpenSSL
     algorithms are loaded from _hashlib, so we can ignore the error.
     """
     module.ignore_names.update(["_md5", "_sha", "_sha256", "_sha512"])
 
 
 def load_hdfdict(finder: ModuleFinder, module: Module) -> None:
-    """hdfdict module requires h5py_wrapper and PyYAML."""
+    """The hdfdict module requires h5py_wrapper and PyYAML."""
     finder.include_module("h5py_wrapper")
     finder.include_package("yaml")
 
@@ -678,8 +678,8 @@ def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
 
 
 def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
-    """This module is not necessairly present so ignore it when it cannot be
-    found.
+    """The ltihooks module is not necessairly present so ignore it when it
+    cannot be found.
     """
     caller.ignore_names.add("ltihooks")
 

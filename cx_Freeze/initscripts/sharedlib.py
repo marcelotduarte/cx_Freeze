@@ -5,7 +5,6 @@ does not block the path unless sys.frozen is not already set.
 """
 from __future__ import annotations
 
-# pylint: disable=missing-function-docstring
 import sys
 
 if not hasattr(sys, "frozen"):
@@ -13,5 +12,5 @@ if not hasattr(sys, "frozen"):
     sys.path = sys.path[:4]
 
 
-def run():
+def run():  # noqa: D103
     pass

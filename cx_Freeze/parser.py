@@ -22,7 +22,6 @@ from .common import TemporaryPath
 # but LIEF can be disabled with:
 # set CX_FREEZE_BIND=imagehlp
 if IS_WINDOWS or IS_MINGW:
-    # pylint: disable=c-extension-no-member
     import lief
 
     with suppress(ImportError):
@@ -266,9 +265,9 @@ class ELFParser(Parser):
 
 
 def _verify_patchelf() -> None:
-    """This function looks for the ``patchelf`` external binary in the PATH,
-    checks for the required version, and throws an exception if a proper
-    version can't be found. Otherwise, silence is golden.
+    """Looks for the ``patchelf`` external binary in the PATH, checks for the
+    required version, and throws an exception if a proper version can't be
+    found. Otherwise, silence is golden.
     """
     if not shutil.which("patchelf"):
         raise ValueError("Cannot find required utility `patchelf` in PATH")

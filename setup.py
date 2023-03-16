@@ -11,7 +11,7 @@ Use the following commands to install in the development mode:
 """
 from __future__ import annotations
 
-# pylint: disable=attribute-defined-outside-init,missing-function-docstring
+# pylint: disable=attribute-defined-outside-init
 import os
 import sys
 from pathlib import Path

@@ -1,4 +1,4 @@
-# pylint: skip-file
+# ruff: noqa
 #
 # cx_Freeze documentation build configuration file, created by
 # sphinx-quickstart on Wed Feb  1 22:01:33 2012.
@@ -45,7 +45,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "cx_Freeze"
-copyright = "2023, Marcelo Duarte"  # noqa: A001
+copyright = "2023, Marcelo Duarte"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

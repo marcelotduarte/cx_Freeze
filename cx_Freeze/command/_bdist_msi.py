@@ -37,8 +37,7 @@ from setuptools.extern.packaging import version as packaging_version
 from ._pydialog import PyDialog
 
 
-# pylint: disable=attribute-defined-outside-init,missing-function-docstring
-# pylint: disable=too-many-lines,invalid-name
+# pylint: disable=attribute-defined-outside-init,invalid-name
 class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
@@ -341,7 +340,7 @@ class bdist_msi(Command):
         cab.commit(db)
 
     def add_find_python(self):
-        """Adds code to the installer to compute the location of Python.
+        r"""Adds code to the installer to compute the location of Python.
 
         Properties PYTHON.MACHINE.X.Y and PYTHON.USER.X.Y will be set from the
         registry for each version of Python.
@@ -349,7 +348,7 @@ class bdist_msi(Command):
         Properties TARGETDIRX.Y will be set from PYTHON.USER.X.Y if defined,
         else from PYTHON.MACHINE.X.Y.
 
-        Properties PYTHONX.Y will be set to TARGETDIRX.Y\\python.exe
+        Properties PYTHONX.Y will be set to TARGETDIRX.Y\python.exe
         """
         start = 402
         for ver in self.versions:
