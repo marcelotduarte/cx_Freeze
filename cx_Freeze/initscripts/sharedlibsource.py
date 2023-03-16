@@ -5,7 +5,6 @@ this file are used to modify the path to use for subsequent imports.
 """
 from __future__ import annotations
 
-# pylint: disable=missing-function-docstring
 import os
 import sys
 
@@ -21,5 +20,5 @@ with open(filename, encoding="utf-8") as in_file:
     sys.path = [s.strip() for s in in_file.read().splitlines()] + sys.path
 
 
-def run():
+def run():  # noqa: D103
     pass

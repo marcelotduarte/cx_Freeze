@@ -36,7 +36,7 @@ class PyDialog(Dialog):
         self.line("BottomLine", 0, ruler, self.w, 0)
 
     def title(self, title):
-        "Set the title text of the dialog at the top."
+        """Set the title text of the dialog at the top."""
         # name, x, y, w, h, flags=Visible|Enabled|Transparent|NoPrefix,
         # text, in VerdanaBold10
         font = r"{\VerdanaBold10}"

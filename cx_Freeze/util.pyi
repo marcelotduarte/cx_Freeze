@@ -19,17 +19,17 @@ def AddIcon(target_path: str | Path, exe_icon: str | Path):
 def BeginUpdateResource(
     path: str | Path, delete_existing_resources: bool = True
 ) -> HANDLE:
-    """Wrapper for BeginUpdateResource()."""
+    """Wrapper for BeginUpdateResource."""
     ...
 
 def UpdateResource(
     handle: HANDLE, resource_type: int, resource_id: int, resource_data: bytes
 ) -> None:
-    """Wrapper for UpdateResource()."""
+    """Wrapper for UpdateResource."""
     ...
 
 def EndUpdateResource(handle: HANDLE, discard_changes: bool):
-    """Wrapper for EndUpdateResource()."""
+    """Wrapper for EndUpdateResource."""
     ...
 
 def UpdateCheckSum(target_path: str | Path):
@@ -37,11 +37,11 @@ def UpdateCheckSum(target_path: str | Path):
     ...
 
 def GetSystemDir() -> str:
-    """Return the Windows system directory (C:\\Windows\\system for example)."""
+    r"""Return the Windows system directory (C:\Windows\system for example)."""
     ...
 
 def GetWindowsDir() -> str:
-    """Return the Windows directory (C:\\Windows for example)."""
+    r"""Return the Windows directory (C:\Windows for example)."""
     ...
 
 def GetDependentFiles(path: str | Path) -> list[str]:

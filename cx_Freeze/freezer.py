@@ -1,5 +1,4 @@
 """The core class for freezing scripts into executables."""
-# pylint: disable=too-many-lines
 from __future__ import annotations
 
 import marshal
@@ -402,7 +401,6 @@ class Freezer:
             return ".".join(parts)
         return filename
 
-    # pylint: disable-next=too-many-return-statements
     def _should_copy_file(self, path: Path) -> bool:  # noqa: PLR0911
         """Return true if the file should be copied to the target machine.
         This is done by checking the bin_path_includes, bin_path_excludes,
@@ -1047,8 +1045,8 @@ class DarwinFreezer(Freezer, Parser):
         include_mode: bool = False,
         reference: MachOReference | None = None,
     ) -> None:
-        """This is essentially the same as Freezer._copy_file, except that it
-        also takes a reference parameter. Used when recursing to dependencies
+        """Essentially the same as Freezer._copy_file, except that it also
+        takes a reference parameter. Used when recursing to dependencies
         of a file on Darwin.
         """
         if not self._should_copy_file(source):

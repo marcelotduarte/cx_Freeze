@@ -47,7 +47,7 @@ else:
 __version__ = "6.15.0-dev1"
 
 
-def setup(**attrs):  # pylint: disable=missing-function-docstring
+def setup(**attrs):  # noqa: D103
     cmdclass = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
         cmdclass.setdefault("bdist_msi", bdist_msi)

@@ -118,7 +118,7 @@ select = [
     "A",   # flake8-builtins
     "E", "F", "W",  # flake8
     "B",  "B904",  # flake8-bugbear
-    #"D",  # pydocstyle
+    "D",  # pydocstyle
     "I",  # isort
     "ARG",  # flake8-unused-arguments
     "C4",  # flake8-comprehensions
@@ -137,6 +137,14 @@ select = [
     "YTT",  # flake8-2020
 ]
 ignore = [
+    # ignored for now, but should be revised in future
+    "D102",  # Missing docstring in public method
+    "D104",  # Missing docstring in public package
+    "D401",  # First line of docstring should be in imperative mood
+    # ignore the following
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in `__init__`
+    "D203", "D205", "D213",
     "PLR2004", "E501",
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
@@ -157,19 +165,24 @@ disable = [
     "duplicate-code",
     "fixme",
     "import-error",
+    "missing-function-docstring",   # checked by ruff D103
     "redefined-builtin",  # checked by ruff A
     "too-few-public-methods",
     "too-many-arguments",  # ignore by ruff too
     "too-many-branches",  # ignore by ruff too
     "too-many-instance-attributes",
+    "too-many-lines",
     "too-many-locals",
     "too-many-nested-blocks",
+    "too-many-return-statements",  # checked by ruff PLR0911
     "too-many-statements",  # ignore by ruff too
     "unused-argument",  # checked by ruff ARG
 ]
 ignore-paths = [
+    "cx_Freeze/darwintools.py",
     "cx_Freeze/hooks/pyside2/resource.py",
     "cx_Freeze/hooks/pyside6/resource.py",
+    "doc/src/conf.py",
     "^samples/.*.py$",
     "^tests/samples/.*.py$",
 ]

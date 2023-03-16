@@ -10,7 +10,7 @@ from setuptools import Command
 __all__ = ["InstallEXE"]
 
 
-# pylint: disable=attribute-defined-outside-init,missing-function-docstring
+# pylint: disable=attribute-defined-outside-init
 class InstallEXE(Command):
     """Install executables built from Python scripts."""
 

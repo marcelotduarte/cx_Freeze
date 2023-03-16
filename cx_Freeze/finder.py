@@ -495,7 +495,7 @@ class ModuleFinder:
 
         ext = filename.suffix
         path = os.fspath(filename)
-        if ext == "" or ext in importlib.machinery.SOURCE_SUFFIXES:
+        if not ext or ext in importlib.machinery.SOURCE_SUFFIXES:
             loader = importlib.machinery.SourceFileLoader(name, path)
         elif ext in importlib.machinery.BYTECODE_SUFFIXES:
             loader = importlib.machinery.SourcelessFileLoader(name, path)
