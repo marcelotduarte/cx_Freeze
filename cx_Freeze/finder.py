@@ -104,7 +104,7 @@ class ModuleFinder:
         self,
         name: str,
         path: Sequence[Path | str] | None = None,
-        file_name: Path | str | None = None,
+        filename: Path | None = None,
         parent: Module | None = None,
     ) -> Module:
         """Add a module to the list of modules but if one is already found,
@@ -113,7 +113,7 @@ class ModuleFinder:
         """
         module = self._modules.get(name)
         if module is None:
-            module = Module(name, path, file_name, parent)
+            module = Module(name, path, filename, parent)
             self._modules[name] = module
             self.modules.append(module)
             if name in self._bad_modules:
@@ -128,9 +128,9 @@ class ModuleFinder:
             ):
                 module.in_file_system = 0
         if module.path is None and path is not None:
-            module.path = [Path(p) for p in path]
-        if module.file is None and file_name is not None:
-            module.file = file_name
+            module.path = list(map(Path, path))
+        if module.file is None and filename is not None:
+            module.file = filename
         return module
 
     def _determine_parent(self, caller: Module | None) -> Module | None:
@@ -403,7 +403,7 @@ class ModuleFinder:
                     parent=parent,
                 )
                 logging.debug("Adding module [%s] [PACKAGE]", name)
-                module.file = Path(path[0], "__init__.py")
+                module.file = Path(path[0]) / "__init__.py"
                 module.source_is_string = True
 
         if spec:
@@ -426,10 +426,10 @@ class ModuleFinder:
                     module.source_is_string = True
                 else:
                     logging.debug("Adding module [%s] [PACKAGE]", name)
-                    module.file = spec.origin  # path of __init__.py
+                    module.file = Path(spec.origin)  # path of __init__.py
             else:
                 module = self._add_module(
-                    name, file_name=spec.origin, parent=parent
+                    name, filename=Path(spec.origin), parent=parent
                 )
 
         if module is not None:
@@ -502,7 +502,7 @@ class ModuleFinder:
         elif ext in importlib.machinery.EXTENSION_SUFFIXES:
             loader = importlib.machinery.ExtensionFileLoader(name, path)
 
-        module = self._add_module(name, file_name=filename)
+        module = self._add_module(name, filename=filename)
         self._load_module_code(module, loader, deferred_imports)
         return module
 

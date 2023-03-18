@@ -57,7 +57,7 @@ def init():
     sys.meta_path.append(ExtensionFinder)
 
     if IS_MINGW:
-        sys.path = [os.path.normpath(entry) for entry in sys.path]
+        sys.path = list(map(os.path.normpath, sys.path))
     if IS_WINDOWS or IS_MINGW:
         # for python >= 3.8, the search for dlls is sandboxed
         search_path: list[str] = [
@@ -73,7 +73,7 @@ def init():
         # add to dll search path (or to path)
         env_path = os.environ["PATH"].split(os.pathsep)
         if IS_MINGW:
-            env_path = [os.path.normpath(entry) for entry in env_path]
+            env_path = list(map(os.path.normpath, env_path))
         for directory in search_path:
             try:
                 os.add_dll_directory(directory)

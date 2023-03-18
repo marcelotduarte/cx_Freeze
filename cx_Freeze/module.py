@@ -124,14 +124,12 @@ class Module:
         self,
         name: str,
         path: Sequence[Path | str] | None = None,
-        file_name: Path | str | None = None,
+        filename: Path | str | None = None,
         parent: Module | None = None,
     ):
         self.name: str = name
-        self.path: list[Path] | None = None
-        if path:
-            self.path = [Path(p) for p in path]
-        self.file = file_name
+        self.path: list[Path] | None = list(map(Path, path)) if path else None
+        self._file: Path | None = Path(filename) if filename else None
         self.parent: Module | None = parent
         self.code: CodeType | None = None
         self.distribution: DistributionCache | None = None
@@ -141,9 +139,18 @@ class Module:
         self.in_import: bool = True
         self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
-        self.in_file_system = 1
+        self._in_file_system: int = 1
         # cache the dist-info files (metadata)
         self.update_distribution(name)
+
+    def __repr__(self) -> str:
+        parts = [f"name={self.name!r}"]
+        if self.file is not None:
+            parts.append(f"file={self.file!r}")
+        if self.path is not None:
+            parts.append(f"path={self.path!r}")
+        join_parts = ", ".join(parts)
+        return f"<Module {join_parts}>"
 
     @property
     def file(self) -> Path | None:
@@ -151,8 +158,25 @@ class Module:
         return self._file
 
     @file.setter
-    def file(self, file_name: Path | str | None):
-        self._file: Path | None = Path(file_name) if file_name else None
+    def file(self, filename: Path | str | None):
+        self._file = Path(filename) if filename else None
+
+    @property
+    def in_file_system(self) -> int:
+        """Returns a value indicating where the module/package will be stored:
+        0. in a zip file (not directly in the file system)
+        1. in the file system, package with modules and data
+        2. in the file system, only detected modules.
+        """
+        if self.parent is not None:
+            return self.parent._in_file_system  # pylint: disable=W0212
+        if self.path is None or self.file is None:
+            return 0
+        return self._in_file_system
+
+    @in_file_system.setter
+    def in_file_system(self, value: int) -> None:
+        self._in_file_system: int = value
 
     def update_distribution(self, name: str) -> None:
         """Update the distribution cache based on its name.
@@ -176,32 +200,6 @@ class Module:
             with suppress(importlib_metadata.PackageNotFoundError, ValueError):
                 DistributionCache.from_name(req_name)
         self.distribution = distribution
-
-    def __repr__(self) -> str:
-        parts = [f"name={self.name!r}"]
-        if self.file is not None:
-            parts.append(f"file={self.file!r}")
-        if self.path is not None:
-            parts.append(f"path={self.path!r}")
-        join_parts = ", ".join(parts)
-        return f"<Module {join_parts}>"
-
-    @property
-    def in_file_system(self) -> int:
-        """Returns a value indicating where the module/package will be stored:
-        0. in a zip file (not directly in the file system)
-        1. in the file system, package with modules and data
-        2. in the file system, only detected modules.
-        """
-        if self.parent is not None:
-            return self.parent.in_file_system
-        if self.path is None or self.file is None:
-            return 0
-        return self._in_file_system
-
-    @in_file_system.setter
-    def in_file_system(self, value: int) -> None:
-        self._in_file_system: int = value
 
 
 class ConstantsModule:
