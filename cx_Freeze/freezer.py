@@ -982,7 +982,7 @@ class WinFreezer(Freezer, PEParser):
             self.runtime_files.update(winmsvcr.FILES)
         else:
             # just put on the exclusion list
-            self.bin_excludes.extend([Path(name) for name in winmsvcr.FILES])
+            self.bin_excludes.extend(list(map(Path, winmsvcr.FILES)))
 
 
 class DarwinFreezer(Freezer, Parser):
