@@ -90,7 +90,8 @@ tests: install
 
 .PHONY: cov
 cov:
-	python -m pytest -m "not long" --cov="cx_Freeze" --cov-report=html
+	@rm -rf ./htmlcov/
+	python -m pytest --cov="cx_Freeze" --cov-report=html --cov-report=xml
 	python -m webbrowser -t ./htmlcov/index.html
 
 .PHONY: release
