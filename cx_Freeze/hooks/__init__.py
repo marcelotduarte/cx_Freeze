@@ -234,6 +234,20 @@ def load_idna(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("idna.idnadata")
 
 
+def load_imagej(finder: ModuleFinder, module: Module) -> None:
+    """The pyimagej package requires its metadata."""
+    module.update_distribution("pyimagej")
+
+
+def load_jpype(finder: ModuleFinder, module: Module) -> None:
+    """The JPype1 package requires its binary."""
+    source = module.file.parent.parent / "org.jpype.jar"
+    if source.exists():
+        finder.include_files(
+            source, f"lib/{source.name}", copy_dependent_files=False
+        )
+
+
 def load_lxml(finder: ModuleFinder, module: Module) -> None:
     """The lxml package uses an extension."""
     finder.include_module("lxml._elementpath")
