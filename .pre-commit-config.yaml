@@ -28,25 +28,16 @@ repos:
   hooks:
   - id: validate-pyproject
 
-- repo: https://github.com/psf/black
-  rev: 23.1.0
-  hooks:
-  - id: black
-
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.0.256
+  rev: v0.0.259
   hooks:
   - id: ruff
     args: ["--fix"]
 
-- repo: https://github.com/PyCQA/pylint
-  rev: v2.17.0
+- repo: https://github.com/psf/black
+  rev: 23.1.0
   hooks:
-  - id: pylint
-    name: pylint
-    entry: pylint
-    language: system
-    types: [python]
+  - id: black
 
 - repo: https://github.com/asottile/blacken-docs
   rev: 1.13.0
@@ -79,3 +70,12 @@ repos:
     language: system
     entry: python ci/requirements.py
     files: ^(pyproject.toml|requirements.*.txt)$
+
+- repo: https://github.com/PyCQA/pylint
+  rev: v2.17.1
+  hooks:
+  - id: pylint
+    name: pylint
+    entry: pylint
+    language: system
+    types: [python]
