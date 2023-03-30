@@ -264,15 +264,28 @@ def load_jpype(finder: ModuleFinder, module: Module) -> None:
         )
 
 
-def load_lxml(finder: ModuleFinder, module: Module) -> None:
-    """The lxml package uses an extension."""
-    finder.include_module("lxml._elementpath")
+def load_lazy_loader(finder: ModuleFinder, module: Module) -> None:
+    """The pyimagej package requires its metadata."""
+    if module.distribution.version < "0.2":
+        raise SystemExit(
+            "Please upgrade 'lazy_loader>=0.2' to support cx_Freeze"
+        )
+
+
+def load_librosa(finder: ModuleFinder, module: Module) -> None:
+    """The librosa must be loaded as package."""
+    finder.include_package("librosa")
 
 
 def load_llvmlite(finder: ModuleFinder, module: Module) -> None:
     """The llvmlite must be loaded as package."""
     finder.include_package("llvmlite")
     finder.exclude_module("llvmlite.tests")
+
+
+def load_lxml(finder: ModuleFinder, module: Module) -> None:
+    """The lxml package uses an extension."""
+    finder.include_module("lxml._elementpath")
 
 
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
