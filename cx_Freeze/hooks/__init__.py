@@ -265,7 +265,7 @@ def load_jpype(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_lazy_loader(finder: ModuleFinder, module: Module) -> None:
-    """The pyimagej package requires its metadata."""
+    """Use load_lazy_loader 0.2+ to work with .pyc files."""
     if module.distribution.version < "0.2":
         raise SystemExit(
             "Please upgrade 'lazy_loader>=0.2' to support cx_Freeze"
