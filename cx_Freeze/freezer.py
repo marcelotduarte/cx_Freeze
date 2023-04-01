@@ -612,7 +612,7 @@ class Freezer:
                     else:
                         mtime = int(time.time())
                         size = 0
-                    header = MAGIC_NUMBER + struct.pack("<iii", 0, mtime, size)
+                    header = MAGIC_NUMBER + struct.pack("<iLL", 0, mtime & 0xFFFF_FFFF, size)
                     data = header + marshal.dumps(module.code)
 
                 # if the module should be written to the file system, do so
