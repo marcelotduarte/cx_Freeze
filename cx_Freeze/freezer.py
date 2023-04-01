@@ -827,10 +827,15 @@ class WinFreezer(Freezer, PEParser):
             source, target, copy_dependent_files=False, include_mode=True
         )
         for dependent_source in self.get_dependent_files(source):
-            dependent_target = target_dir / dependent_source.name
-            self._copy_file(
-                dependent_source, dependent_target, copy_dependent_files=True
-            )
+            if IS_MINGW:
+                if self._should_copy_file(dependent_source):
+                    self._copy_top_dependency(dependent_source)
+            else:
+                self._copy_file(
+                    source=dependent_source,
+                    target=target_dir / dependent_source.name,
+                    copy_dependent_files=True,
+                )
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths. Also, adjust the target of
