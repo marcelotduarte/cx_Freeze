@@ -607,12 +607,12 @@ class Freezer:
                 if module.code is not None:
                     if module.file is not None and module.file.exists():
                         file_stat = module.file.stat()
-                        mtime = int(file_stat.st_mtime)
+                        mtime = int(file_stat.st_mtime) & 0xFFFF_FFFF
                         size = file_stat.st_size & 0xFFFFFFFF
                     else:
-                        mtime = int(time.time())
+                        mtime = int(time.time()) & 0xFFFF_FFFF
                         size = 0
-                    header = MAGIC_NUMBER + struct.pack("<iLL", 0, mtime & 0xFFFF_FFFF, size)
+                    header = MAGIC_NUMBER + struct.pack("<iLL", 0, mtime, size)
                     data = header + marshal.dumps(module.code)
 
                 # if the module should be written to the file system, do so
