@@ -29,9 +29,9 @@ from msilib import (  # pylint: disable=deprecated-module
 from sysconfig import get_platform, get_python_version
 
 from setuptools import Command
-from setuptools.errors import OptionError
 
 from .._compat import packaging
+from ..exception import OptionError
 from ._pydialog import PyDialog
 
 

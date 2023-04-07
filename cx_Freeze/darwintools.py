@@ -9,8 +9,8 @@ import subprocess
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
+from .exception import PlatformError
 
-from .exception import DarwinException
 
 # In a MachO file, need to deal specially with links that use @executable_path,
 # @loader_path, @rpath
@@ -142,7 +142,7 @@ class DarwinFile:
                 dict_path = resolved_path
             if dict_path in self.machOReferenceForTargetPath:
                 if self.strict:
-                    raise DarwinException(
+                    raise PlatformError(
                         f"ERROR: Multiple dynamic libraries from {self.path}"
                         f" resolved to the same file ({dict_path})."
                     )
@@ -234,7 +234,7 @@ class DarwinFile:
         """
         if self.isLoaderPath(path):
             return self.path.parent / Path(path).relative_to("@loader_path")
-        raise DarwinException(f"resolveLoader() called on bad path: {path}")
+        raise PlatformError(f"resolveLoader() called on bad path: {path}")
 
     def resolveExecutable(self, path: str) -> Path:
         """@executable_path should resolve to the directory where the original
@@ -249,9 +249,7 @@ class DarwinFile:
             return self.path.parent / Path(path).relative_to(
                 "@executable_path/"
             )
-        raise DarwinException(
-            f"resolveExecutable() called on bad path: {path}"
-        )
+        raise PlatformError(f"resolveExecutable() called on bad path: {path}")
 
     def resolveRPath(self, path: str) -> Path | None:
         for rpath in self.getRPath():
@@ -264,7 +262,7 @@ class DarwinFile:
             return None
         print(f"\nERROR: Problem resolving RPath [{path}] in file:")
         self.printFileInformation()
-        raise DarwinException(f"resolveRPath() failed to resolve path: {path}")
+        raise PlatformError(f"resolveRPath() failed to resolve path: {path}")
 
     def getRPath(self) -> list[Path]:
         """Returns the rpath in effect for this file. Determined by rpath
@@ -307,7 +305,7 @@ class DarwinFile:
         if _isMachOFile(test_path):
             return test_path.resolve()
         if self.strict:
-            raise DarwinException(
+            raise PlatformError(
                 f"Could not resolve path: {path} from file {self.path}."
             )
         print(
@@ -343,7 +341,7 @@ class DarwinFile:
         try:
             return self.machOReferenceForTargetPath[path]
         except KeyError:
-            raise DarwinException(
+            raise PlatformError(
                 f"Path {path} is not a path referenced from DarwinFile"
             ) from None
 
@@ -552,21 +550,21 @@ class DarwinFileTracker:
     ) -> DarwinFile:
         """Gets the DarwinFile for file copied from source_path to target_path.
         If either (i) nothing, or (ii) a different file has been copied to
-        targetPath, raises a DarwinException.
+        targetPath, raises a PlatformError.
         """
         # check that the target file came from the specified source
         targetDarwinFile: DarwinFile
         try:
             targetDarwinFile = self._darwin_file_for_build_path[target_path]
         except KeyError:
-            raise DarwinException(
+            raise PlatformError(
                 f"File {target_path} already copied to, "
                 "but no DarwinFile object found for it."
             ) from None
         real_source = source_path.resolve()
         target_real_source = targetDarwinFile.path.resolve()
         if real_source != target_real_source:
-            # raise DarwinException(
+            # raise PlatformError(
             print(
                 "*** WARNING ***\n"
                 f"Attempting to copy two files to {target_path}\n"
@@ -581,10 +579,10 @@ class DarwinFileTracker:
 
     def recordCopiedFile(self, target_path: Path, darwin_file: DarwinFile):
         """Record that a DarwinFile is being copied to a given path. If a
-        file has been copied to that path, raise a DarwinException.
+        file has been copied to that path, raise a PlatformError.
         """
         if self.pathIsAlreadyCopiedTo(target_path):
-            raise DarwinException(
+            raise PlatformError(
                 "addFile() called with target_path already copied to "
                 f"(target_path={target_path})"
             )
@@ -646,7 +644,7 @@ class DarwinFileTracker:
                             # If we cannot find any likely candidate, fail.
                             if self.strict:
                                 copied_file.printFileInformation()
-                                raise DarwinException(
+                                raise PlatformError(
                                     f"finalizeReferences() failed to resolve"
                                     f" path [{reference.raw_path}] in file "
                                     f"[{copied_file.path}]."

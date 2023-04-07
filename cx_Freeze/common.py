@@ -10,7 +10,7 @@ from textwrap import dedent
 from types import CodeType
 from typing import List, Optional, Tuple, Union
 
-from .exception import ConfigError
+from .exception import OptionError
 
 IncludesList = List[
     Union[str, Path, Tuple[Union[str, Path], Optional[Union[str, Path]]]]
@@ -95,7 +95,7 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
     Where single strings are supplied, the basenames are used as targets.
     Where targets are given explicitly, they must not be absolute paths.
 
-    Returns a list of 2-tuples, or throws ConfigError if something is wrong
+    Returns a list of 2-tuples, or throws OptionError if something is wrong
     in the input.
     """
     if specs is None:
@@ -107,16 +107,16 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
             target = None
         elif len(spec) != 2:
             error = "path spec must be a list or tuple of length two"
-            raise ConfigError(error)
+            raise OptionError(error)
         else:
             source, target = spec
         source = Path(source)
         if not source.exists():
-            raise ConfigError(f"cannot find file/directory named {source!s}")
+            raise OptionError(f"cannot find file/directory named {source!s}")
         target = PurePath(target or source.name)
         if target.is_absolute():
             error = f"target path named {target!s} cannot be absolute"
-            raise ConfigError(error)
+            raise OptionError(error)
         processed_specs.append((source, target))
     return processed_specs
 

@@ -10,9 +10,8 @@ import re
 import shutil
 from sysconfig import get_platform
 
-from setuptools.errors import OptionError
-
 from .._compat import packaging
+from ..exception import OptionError
 from ._bdist_msi import bdist_msi
 from ._pydialog import PyDialog
 

@@ -12,7 +12,6 @@ import setuptools
 from .command.build_exe import BuildEXE as build_exe
 from .command.install import Install as install
 from .command.install_exe import InstallEXE as install_exe
-from .exception import ConfigError
 from .finder import Module, ModuleFinder
 from .freezer import ConstantsModule, Executable, Freezer
 
@@ -21,7 +20,6 @@ __all__ = [
     "install",
     "install_exe",
     "setup",
-    "ConfigError",
     "ConstantsModule",
     "Executable",
     "Freezer",

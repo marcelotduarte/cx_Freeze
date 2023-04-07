@@ -8,7 +8,6 @@ import shutil
 import subprocess
 
 from setuptools import Command
-from setuptools.errors import OptionError
 
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
@@ -17,6 +16,8 @@ from cx_Freeze.darwintools import (
     applyAdHocSignature,
     changeLoadReference,
 )
+
+from ..exception import OptionError
 
 __all__ = ["BdistDMG", "BdistMac"]
 

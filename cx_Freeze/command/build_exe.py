@@ -8,9 +8,9 @@ import sys
 from sysconfig import get_platform, get_python_version
 
 from setuptools import Command
-from setuptools.errors import SetupError
 
 from ..common import normalize_to_list
+from ..exception import SetupError
 from ..freezer import Freezer
 from ..module import ConstantsModule
 
