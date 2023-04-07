@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import sys
+
+import pytest
+
 from cx_Freeze.winversioninfo import Version, VersionInfo
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 class TestVersionInfo:
     """Test VersionInfo class."""
 
