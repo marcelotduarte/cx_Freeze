@@ -54,21 +54,27 @@ pdf:
 
 .PHONY: tests
 tests: install
-	pip uninstall -y cx_Freeze && pip install -e . --no-build-isolation --no-deps
+	pip uninstall -y cx_Freeze || true
+	pip install -e . --no-build-isolation --no-deps
 	python -m pytest
 
 .PHONY: cov
 cov:
-	python -m pytest -m "not long" --cov="cx_Freeze" --cov-report=html
+	@rm -rf ./htmlcov/
+	python -m pytest --cov="cx_Freeze" --cov-report=html --cov-report=xml
 	python -m webbrowser -t ./htmlcov/index.html
 
 .PHONY: release
 release:
-	@echo "# Run:\nbump2version --verbose --sign-tags release\ngit push origin main --tags"
+	@echo \
+	"# Run:\nbump2version --verbose --sign-tags release\n"\
+	"git push origin main --tags"
 
 .PHONY: release-patch
 release-patch:
-	@echo "# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\ngit push origin main --tags"
+	@echo \
+	"# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\n"\
+	"git push origin `git branch --show-current` --tags"
 
 .PHONY: release-dev
 release-dev:

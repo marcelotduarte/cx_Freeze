@@ -9,9 +9,18 @@ from pathlib import Path
 if sys.version_info >= (3, 10):
     import importlib.metadata as importlib_metadata
 else:
-    from setuptools.extern import importlib_metadata
+    try:
+        from setuptools.extern import importlib_metadata
+    except ImportError:
+        import importlib_metadata
 
-__all__ = ["cached_property", "importlib_metadata"]
+try:
+    # pylint: disable-next=ungrouped-imports
+    from setuptools.extern import packaging
+except ImportError:
+    import packaging
+
+__all__ = ["cached_property", "importlib_metadata", "packaging"]
 __all__ += ["PLATFORM", "IS_LINUX", "IS_MACOS", "IS_MINGW", "IS_WINDOWS"]
 __all__ += ["IS_CONDA"]
 

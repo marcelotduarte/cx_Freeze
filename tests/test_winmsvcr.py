@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import sys
+
+import pytest
+
 from cx_Freeze.winmsvcr import FILES
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_files():
     """Test winmsvcr.FILES"""
     expected = (

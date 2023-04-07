@@ -36,12 +36,13 @@ classifiers = [
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
 requires-python = ">=3.7.4"
 dependencies = [
-    "setuptools>=61.2,<68",
+    "setuptools>=62.6,<68",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
     "lief>=0.12.0 ;sys_platform == 'win32'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'i686'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "patchelf>=0.17.2.1 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'ppc64le'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'",
 ]
@@ -157,6 +158,7 @@ addopts = "-ra"
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:distutils.*",
+    "ignore::DeprecationWarning:pkg_resources.*",
     "ignore::DeprecationWarning:setuptools.*",
 ]
 

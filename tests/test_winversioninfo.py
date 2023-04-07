@@ -3,11 +3,14 @@
 # pylint: disable=unused-import
 from __future__ import annotations
 
-import pytest  # noqa
+import sys
+
+import pytest
 
 from cx_Freeze.winversioninfo import Version, VersionInfo
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 class TestVersionInfo:
     """Test VersionInfo class."""
 

@@ -12,9 +12,7 @@ from sysconfig import get_platform
 
 from setuptools.errors import OptionError
 
-# pylint: disable-next=no-name-in-module
-from setuptools.extern.packaging import version as packaging_version
-
+from .._compat import packaging
 from ._bdist_msi import bdist_msi
 from ._pydialog import PyDialog
 
@@ -1030,7 +1028,7 @@ class BdistMSI(bdist_msi):
         author = self.distribution.metadata.get_contact() or "UNKNOWN"
         version = self.target_version or self.distribution.get_version()
         # ProductVersion must be strictly numeric
-        base_version = packaging_version.Version(version).base_version
+        base_version = packaging.version.Version(version).base_version
 
         # msilib is reloaded in order to reset the "_directories" global member
         # in that module.  That member is used by msilib to prevent any two

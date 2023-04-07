@@ -8,8 +8,7 @@ import os
 from pathlib import Path
 from struct import calcsize, pack
 
-# pylint: disable-next=no-name-in-module
-from setuptools.extern.packaging import version as packaging_version
+from ._compat import packaging
 
 try:
     from win32verstamp import stamp as version_stamp
@@ -48,7 +47,7 @@ else:
     CX_FREEZE_STAMP = "internal"
 
 
-class Version(packaging_version.Version):
+class Version(packaging.version.Version):
     """A valid PEP440 version."""
 
 
