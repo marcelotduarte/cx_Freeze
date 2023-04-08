@@ -13,7 +13,7 @@ from types import CodeType
 
 from ._compat import importlib_metadata
 from .common import TemporaryPath
-from .exception import ConfigError
+from .exception import OptionError
 
 __all__ = ["ConstantsModule", "Module"]
 
@@ -228,7 +228,7 @@ class ConstantsModule:
                     name, string_value = parts
                     value = ast.literal_eval(string_value)
                 if (not name.isidentifier()) or iskeyword(name):
-                    raise ConfigError(
+                    raise OptionError(
                         f"Invalid constant name in ConstantsModule ({name!r})"
                     )
                 self.values[name] = value
@@ -246,7 +246,7 @@ class ConstantsModule:
             if module.source_is_zip_file:
                 continue
             if not module.file.exists():
-                raise ConfigError(
+                raise OptionError(
                     f"No file named {module.file!s} (for module {module.name})"
                 )
             timestamp = module.file.stat().st_mtime

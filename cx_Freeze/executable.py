@@ -9,11 +9,10 @@ from pathlib import Path
 from sysconfig import get_config_var, get_platform
 
 from setuptools import Distribution
-from setuptools.errors import SetupError
 
 from ._compat import IS_MINGW, IS_WINDOWS
 from .common import get_resource_file_path
-from .exception import ConfigError
+from .exception import OptionError, SetupError
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
@@ -75,7 +74,7 @@ class Executable:
         name_base = f"{name}-{soabi}"
         self._base: Path = get_resource_file_path("bases", name_base, suffix)
         if self._base is None:
-            raise ConfigError(f"no base named {name!r} ({name_base!r})")
+            raise OptionError(f"no base named {name!r} ({name_base!r})")
         self._ext: str = suffix
 
     @property
@@ -114,7 +113,7 @@ class Executable:
             "initscripts", name, ".py"
         )
         if self._init_script is None:
-            raise ConfigError(f"no init_script named {name}")
+            raise OptionError(f"no init_script named {name}")
 
     @property
     def main_module_name(self) -> str:
@@ -197,7 +196,7 @@ class Executable:
         else:
             pathname = Path(name)
             if name != pathname.name:
-                raise ConfigError(
+                raise OptionError(
                     "target_name should only be the name, for example: "
                     f"{pathname.name}"
                 )
@@ -210,7 +209,7 @@ class Executable:
                 name = name.replace(invalid, "_")
         name = os.path.normcase(name)
         if not name.isidentifier():
-            raise ConfigError(f"Invalid name for target_name ({self._name!r})")
+            raise OptionError(f"Invalid name for target_name ({self._name!r})")
         self._internal_name: str = name
 
 

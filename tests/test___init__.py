@@ -28,7 +28,6 @@ def test_exposed_namespaces(platform, extra_modules):
         "install",
         "install_exe",
         "setup",
-        "ConfigError",
         "ConstantsModule",
         "Executable",
         "Freezer",

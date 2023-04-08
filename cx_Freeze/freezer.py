@@ -18,8 +18,6 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
-from setuptools.errors import InternalError
-
 from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, cached_property
 from .common import (
     IncludesList,
@@ -27,7 +25,7 @@ from .common import (
     get_resource_file_path,
     process_path_specs,
 )
-from .exception import ConfigError
+from .exception import FileError, OptionError
 from .executable import Executable
 from .finder import ModuleFinder
 from .module import ConstantsModule, Module
@@ -39,7 +37,7 @@ if IS_WINDOWS or IS_MINGW:
 elif IS_MACOS:
     from .darwintools import DarwinFile, DarwinFileTracker, MachOReference
 
-__all__ = ["ConfigError", "ConstantsModule", "Executable", "Freezer"]
+__all__ = ["ConstantsModule", "Executable", "Freezer"]
 
 
 class Freezer:
@@ -132,7 +130,7 @@ class Freezer:
             path = f"build/exe.{platform}-{python_version}"
         path = Path(path).resolve()
         if os.fspath(path) in self.path:
-            raise ConfigError(
+            raise OptionError(
                 "the build_exe directory cannot be used as search path"
             )
         if path.is_dir():
@@ -140,7 +138,7 @@ class Freezer:
             try:
                 shutil.rmtree(path)
             except OSError:
-                raise ConfigError(
+                raise OptionError(
                     "the build_exe directory cannot be cleaned"
                 ) from None
         self._targetdir: Path = path
@@ -290,9 +288,7 @@ class Freezer:
             "initscripts", "frozen_application_license", ".txt"
         )
         if respath is None:
-            raise InternalError(
-                "Unable to find license for frozen application."
-            )
+            raise FileError("Unable to find license for frozen application.")
         self._copy_file(
             respath.absolute(),
             self.target_dir / "frozen_application_license.txt",
@@ -470,7 +466,7 @@ class Freezer:
         return path
 
     def _verify_configuration(self) -> None:
-        """Verify and normalize names and paths. Raises ConfigError on
+        """Verify and normalize names and paths. Raises OptionError on
         failure.
         """
         filenames = list(self.bin_includes or [])
@@ -499,7 +495,7 @@ class Freezer:
         zip_exclude_packages: Sequence[str] | None,
     ) -> None:
         """Verify, normalize and populate zip_*_packages options.
-        Raises ConfigError on failure.
+        Raises OptionError on failure.
         """
         if zip_include_packages is None and zip_exclude_packages is None:
             zip_include_packages = []
@@ -511,7 +507,7 @@ class Freezer:
         zip_exclude_all_packages = "*" in zip_exclude_packages
         # check the '*' option
         if zip_exclude_all_packages and zip_include_all_packages:
-            raise ConfigError(
+            raise OptionError(
                 "all packages cannot be included and excluded "
                 "from the zip file at the same time"
             )
@@ -525,7 +521,7 @@ class Freezer:
         # check invalid usage
         invalid = ", ".join(zip_include_packages & zip_exclude_packages)
         if invalid:
-            raise ConfigError(
+            raise OptionError(
                 f"package{'s' if len(invalid)>1 else ''} {invalid!r} "
                 "cannot be both included and excluded from zip file"
             )
