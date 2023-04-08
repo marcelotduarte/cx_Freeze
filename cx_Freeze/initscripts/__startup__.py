@@ -70,12 +70,8 @@ def init():
         add_to_path = os.path.join(frozen_dir, "lib")
         if add_to_path not in search_path:
             search_path.insert(0, add_to_path)
-        # add numpy+mkl to the PATH
-        if hasattr(BUILD_CONSTANTS, "MKL_PATH"):
-            add_to_path = os.path.join(frozen_dir, BUILD_CONSTANTS.MKL_PATH)
-            search_path.append(os.path.normpath(add_to_path))
         # add to dll search path (or to path)
-        env_path = os.environ["PATH"].split(os.pathsep)
+        env_path = os.environ.get("PATH", "").split(os.pathsep)
         if IS_MINGW:
             env_path = [os.path.normpath(entry) for entry in env_path]
         for directory in search_path:
