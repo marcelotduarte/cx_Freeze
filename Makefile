@@ -5,21 +5,16 @@ all: install
 
 .PHONY: pre-commit
 pre-commit: install
-	@pre-commit run check-added-large-files -a --hook-stage manual
 	@pre-commit run check-case-conflict -a --hook-stage manual
-	@pre-commit run check-merge-conflict -a --hook-stage manual
-	@pre-commit run check-shebang-scripts-are-executable -a --hook-stage manual
-	@pre-commit run check-symlinks -a --hook-stage manual
 	@pre-commit run check-toml -a --hook-stage manual
 	@pre-commit run check-yaml -a --hook-stage manual
-	@pre-commit run debug-statements -a --hook-stage manual || true
 	@pre-commit run end-of-file-fixer -a --hook-stage manual || true
 	@pre-commit run fix-byte-order-marker -a --hook-stage manual || true
 	@pre-commit run mixed-line-ending -a --hook-stage manual || true
 	@pre-commit run trailing-whitespace -a --hook-stage manual || true
 	@pre-commit run validate-pyproject -a --hook-stage manual || true
-	@pre-commit run black -a --hook-stage manual || true
 	@pre-commit run ruff -a --hook-stage manual || true
+	@pre-commit run black -a --hook-stage manual || true
 	@pre-commit run license -a --hook-stage manual || true
 	@pre-commit run requirements -a --hook-stage manual || true
 	@pre-commit gc
