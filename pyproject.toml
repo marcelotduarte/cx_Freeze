@@ -50,7 +50,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "bump2version==1.0.1",
-    "cibuildwheel==2.12.1",
+    "cibuildwheel==2.12.3",
     "pre-commit>=2.21.0",
     "pylint==2.17.2",
     "wheel==0.40.0",
