@@ -396,6 +396,12 @@ def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
         finder.include_module(mod)
 
 
+def load_pyreadstat(finder: ModuleFinder, module: Module) -> None:
+    """The pyreadstat package must be loaded as a package."""
+    finder.include_package("pyreadstat")
+    finder.include_module("pandas")
+
+
 def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
     """The pyqtgraph package must be loaded as a package."""
     finder.include_package("pyqtgraph")
