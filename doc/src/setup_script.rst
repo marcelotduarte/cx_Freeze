@@ -292,8 +292,8 @@ It can be further customized:
      - list containing files to be copied to the target directory; it is
        expected that this list will contain strings or 2-tuples for the source
        and destination; the source can be a file or a directory (in which case
-       the tree is copied except for .svn and CVS directories); the target must
-       not be an absolute path
+       the tree is copied except for .git, .svn and CVS directories);
+       the target must not be an absolute path
    * - .. option:: zip_includes
      - list containing files to be included in the zip file directory; it is
        expected that this list will contain strings or 2-tuples for the source
