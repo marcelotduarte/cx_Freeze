@@ -702,9 +702,11 @@ class Freezer:
                 for name in source_path.rglob("*"):
                     if name.is_dir():
                         continue
-                    if ".svn" in name.parents:
-                        continue
-                    if "CVS" in name.parents:
+                    if any(
+                        parent
+                        for parent in name.parents
+                        if parent.name in (".git", ".svn", "CVS")
+                    ):
                         continue
                     fulltarget = target_base / name.relative_to(source_path)
                     self._create_directory(fulltarget.parent)
