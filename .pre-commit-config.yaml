@@ -29,7 +29,7 @@ repos:
   - id: validate-pyproject
 
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.0.261
+  rev: v0.0.265
   hooks:
   - id: ruff
     args: ["--fix"]
@@ -72,7 +72,7 @@ repos:
     files: ^(pyproject.toml|requirements.*.txt)$
 
 - repo: https://github.com/PyCQA/pylint
-  rev: v2.17.3
+  rev: v2.17.4
   hooks:
   - id: pylint
     name: pylint
