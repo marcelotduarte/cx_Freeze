@@ -72,7 +72,7 @@ repos:
     files: ^(pyproject.toml|requirements.*.txt)$
 
 - repo: https://github.com/PyCQA/pylint
-  rev: v2.17.3
+  rev: v2.17.4
   hooks:
   - id: pylint
     name: pylint
