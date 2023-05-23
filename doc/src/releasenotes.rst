@@ -4,6 +4,69 @@ Release notes
 6.x releases
 ############
 
+Version 6.15 (May 2023)
+-----------------------
+
+#)  Breaking changes:
+	- chore: remove the latest camelCase in Executable api (:pull:`1809`)
+	- chore: use utf-8 encoding with read_text (:pull:`1817`)
+	- chore: map internal exception classes to setuptools (:pull:`1866`)
+
+#)  New or improved hooks for:
+	- hooks: split more hooks in a separate module (:pull:`1790`)
+	- hooks: add suport for matplotlib 3.7 (:pull:`1791`)
+	- hooks: improved hook for pytorch (:pull:`1804`)
+	- fix: add tcl8 directory to bases and fix tkinter hooks (:pull:`1812`)
+	- hooks: improved hook for matplotlib 3.7 work with bdist_msi (:pull:`1815`)
+	- fix: matplotlib hooks (:pull:`1818`, :pull:`1819`)
+	- hooks: pyside6/pyqt6 - fix svg and pdf, docs, modules (:pull:`1827`)
+	- hooks: pyside6 - check for conda (:pull:`1828`)
+	- hooks: include a qt.conf for pyqt6-webengine to work (:pull:`1829`)
+	- hooks: include a qt.conf for pyside2-webengine to work (:pull:`1832`)
+	- hooks: add new qt plugins based on the docs (:pull:`1835`)
+	- hooks: add pyimagej and jpype (:pull:`1842`)
+	- hooks: add librosa and lazy_loader hooks (:pull:`1856`)
+	- hooks: numpy can be used in conda-forge without mkl [windows] (:pull:`1867`)
+	- hooks: add pyreadstat (:pull:`1883`)
+
+#)  Linux:
+	- fix: use latest manylinux release to fix tkinter in Python 3.11 (:pull:`1830`)
+	- fix: setuptools is unbundled on Gentoo (:pull:`1864`)
+
+#)  Windows:
+	- windows: fix file version with four elements (:pull:`1772`)
+	- windows: fix error using CX_FREEZE_STAMP=pywin32 (:pull:`1773`)
+	- windows: put all msvcr dlls in build_exe top directory (:pull:`1780`)
+	- fix: copy all top dependencies [windows,conda] (:pull:`1799`)
+	- fix: copy all top dependencies [mingw] (:pull:`1859`)
+
+#)  Documentation:
+	- docs: improve options documentation and fix typos (:pull:`1805`)
+
+#)  Improvements/Refactor/Bugfix:
+	- Revert "commands: accepts space-delimited string lists" (:pull:`1768`)
+	- freezer: fix importerror when using 'path' option (:pull:`1785`)
+	- Check that parent directory exists before writing to file (:pull:`1793`)
+	- fix: parse namespace packages as packages in zip options (:pull:`1820`)
+	- fix: restore build-exe option of build command (now deprecated) (:pull:`1823`)
+	- Fix code for year 2038 (:pull:`1860`)
+	- fix: ignore recursion into .git subdirectories (:pull:`1884`)
+
+#)  Project:
+	- Declare support for setuptools 67.x (:pull:`1782`)
+	- Use CodeQL tools for scanning (:pull:`1766`)
+	- Use bump2version tag_name (:pull:`1769`)
+	- Upgrade pre-commit tools (:pull:`1774`)
+	- freezer: pylint ready (:pull:`1781`)
+	- dependabot: add package-ecosystem for pip (:pull:`1792`)
+	- chore: use ruff (:pull:`1798`, :pull:`1800`, :pull:`1801`, :pull:`1802`, :pull:`1803`, :pull:`1836`)
+	- chore: change Makefile to call pylint separated of others tools (:pull:`1807`)
+	- chore: update python dependencies (:pull:`1808`, :pull:`1822`)
+	- chore: add python version to dependabot (:pull:`1810`)
+	- chore: use code_object_replace_function if possible (:pull:`1816`)
+	- chore: normalize filename and use map (:pull:`1839`)
+	- chore: Generate coverage report (:pull:`1843`)
+
 Version 6.14 (January 2023)
 ---------------------------
 

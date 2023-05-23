@@ -34,6 +34,12 @@ The official documentation is available
 
 If you need help you can also ask on the [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
+# Highlights of Version 6.15:
+- Breaking change: remove camelCase in Executable api
+- New hooks: lazy_loader, librosa, jpype, pyimagej, pyreadstat
+- Improved hooks: matplotlib, pytorch, PyQt6, PySide6, TkInter
+- Bug fixes and improvements
+
 # Highlights of Version 6.14:
 - Support Python 3.11
 - Binary wheels (x86_64 and aarch64) for musllinux
