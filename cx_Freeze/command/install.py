@@ -12,7 +12,7 @@ __all__ = ["Install"]
 
 
 @contextlib.contextmanager
-def suppress_known_deprecation():  # noqa: D103
+def suppress_known_deprecation():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "setup.py install is deprecated")
         yield
