@@ -84,7 +84,7 @@ static int FatalScriptError(void)
 // Service_SetStatus()
 //   Set the status for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetStatus(udt_ServiceInfo* info, DWORD status, DWORD exit_code)
+static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
 {
     SERVICE_STATUS serviceStatus;
 
@@ -93,14 +93,8 @@ static int Service_SetStatus(udt_ServiceInfo* info, DWORD status, DWORD exit_cod
     serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
     if (info->sessionChanges)
         serviceStatus.dwControlsAccepted |= SERVICE_ACCEPT_SESSIONCHANGE;
-    if (exit_code == 0) {
-        serviceStatus.dwWin32ExitCode = 0;
-        serviceStatus.dwServiceSpecificExitCode = 0;
-    }
-    else {
-        serviceStatus.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
-        serviceStatus.dwServiceSpecificExitCode = exit_code;
-    }
+    serviceStatus.dwWin32ExitCode = 0;
+    serviceStatus.dwServiceSpecificExitCode = 0;
     serviceStatus.dwCheckPoint = 0;
     serviceStatus.dwWaitHint = 0;
     if (!SetServiceStatus(gServiceHandle, &serviceStatus))
@@ -122,7 +116,7 @@ static int Service_Stop(udt_ServiceInfo* info)
     PyObject *result;
 
     // indicate that the service is being stopped
-    if (Service_SetStatus(info, SERVICE_STOP_PENDING, 0) < 0)
+    if (Service_SetStatus(info, SERVICE_STOP_PENDING) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as stopping");
 
     // create event for the main thread to wait on for the control thread
@@ -150,7 +144,7 @@ static int Service_Stop(udt_ServiceInfo* info)
     PyThreadState_Delete(threadState);
 
     // indicate that the service has stopped
-    if (Service_SetStatus(info, SERVICE_STOPPED, 0) < 0)
+    if (Service_SetStatus(info, SERVICE_STOPPED) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as stopped");
 
     // now set the control event
@@ -280,7 +274,7 @@ static int Service_SetupPython(udt_ServiceInfo *info)
     threadState = PyThreadState_Swap(NULL);
     if (!threadState) {
         LogMessage(LOG_LEVEL_ERROR, "cannot set up interpreter state");
-        Service_SetStatus(info, SERVICE_STOPPED, 0);
+        Service_SetStatus(info, SERVICE_STOPPED);
         return -1;
     }
     gInterpreterState = threadState->interp;
@@ -549,7 +543,7 @@ static int Service_Run(udt_ServiceInfo *info)
 
     // run the service
     LogMessage(LOG_LEVEL_INFO, "starting up service");
-    if (Service_SetStatus(info, SERVICE_RUNNING, 0) < 0)
+    if (Service_SetStatus(info, SERVICE_RUNNING) < 0)
         return LogWin32Error(GetLastError(), "cannot set service as started");
     temp = PyObject_CallMethod(gInstance, "run", NULL);
     if (!temp)
@@ -593,10 +587,10 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
     }
 
     // run the service
-    const int exit_code = Service_Run(&info);
-    if (exit_code < 0) {
-        Service_SetStatus(&info, SERVICE_STOPPED, exit_code);
-        return;
+    if (Service_Run(&info)) {
+        // exit the process without setting SERVICE_STOPPED, to indicate that the
+        // service did not close intentionally
+        ExitProcess(-1:)
     }
 
     // ensure that the main thread does not terminate before the control
@@ -610,7 +604,7 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
     // otherwise, the service terminated normally by some other means
     } else {
         LogMessage(LOG_LEVEL_INFO, "stopping service (internally)");
-        Service_SetStatus(&info, SERVICE_STOPPED, 0);
+        Service_SetStatus(&info, SERVICE_STOPPED);
     }
 }
 
