@@ -329,6 +329,8 @@ def parse_command_line(parser):
 
 def main():
     """Entry point for cxfreeze command line tool."""
+    sys.setrecursionlimit(sys.getrecursionlimit() * 10)
+
     args = parse_command_line(prepare_parser())
     executables = [
         Executable(
