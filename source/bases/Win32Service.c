@@ -588,8 +588,9 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
 
     // run the service
     if (Service_Run(&info) < 0) {
-        Service_SetStatus(&info, SERVICE_STOPPED);
-        return;
+        // exit the process without setting SERVICE_STOPPED, to indicate that the
+        // service did not close intentionally
+        ExitProcess(-1);
     }
 
     // ensure that the main thread does not terminate before the control
