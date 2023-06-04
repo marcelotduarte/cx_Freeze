@@ -8,6 +8,7 @@ import os
 import sys
 from collections.abc import Sequence
 from contextlib import suppress
+from importlib import import_module
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from types import CodeType
@@ -76,8 +77,7 @@ class ModuleFinder:
         self.excluded_dependent_files: set[Path] = set()
         self._modules: dict[str, Module | None] = dict.fromkeys(excludes or [])
         self._bad_modules = {}
-        for name in self._base_hooks.exclude.MODULES:
-            self.exclude_module(name)
+        self._exclude_unused_modules()
         self._add_base_modules()
 
     def _add_base_modules(self) -> None:
@@ -133,29 +133,6 @@ class ModuleFinder:
             module.file = filename
         return module
 
-    def _determine_parent(self, caller: Module | None) -> Module | None:
-        """Determine the parent to use when searching packages."""
-        if caller is not None:
-            if caller.path is not None:
-                return caller
-            return self._get_parent_by_name(caller.name)
-        return None
-
-    @cached_property
-    def _base_hooks(self):
-        """Load the hooks dynamically to avoid cyclic errors, because hooks
-        have references to finder.
-        """
-        hooks = get_resource_file_path("hooks", "__init__", ".py")
-        fromlist = []
-        # add python files (modules)
-        for path in hooks.parent.glob("*.py"):
-            fromlist.append("hooks" if path.stem == "__init__" else path.stem)
-        # add directories (subpackages)
-        for path in hooks.parent.glob("*/__init__.py"):
-            fromlist.append(path.parent.stem)
-        return __import__("cx_Freeze.hooks", fromlist=fromlist)
-
     @cached_property
     def _builtin_modules(self) -> set[str]:
         """The built-in modules are determined based on the cx_Freeze build."""
@@ -166,6 +143,20 @@ class ModuleFinder:
             for file in dynload.iterdir():
                 builtin_modules.discard(file.name.partition(".")[0])
         return builtin_modules
+
+    def _determine_parent(self, caller: Module | None) -> Module | None:
+        """Determine the parent to use when searching packages."""
+        if caller is not None:
+            if caller.path is not None:
+                return caller
+            return self._get_parent_by_name(caller.name)
+        return None
+
+    def _exclude_unused_modules(self) -> None:
+        """Exclude unused modules in the current platform."""
+        exclude = import_module("cx_Freeze.hooks.exclude")
+        for name in exclude.MODULES:
+            self.exclude_module(name)
 
     def _ensure_from_list(
         self,
@@ -318,10 +309,7 @@ class ModuleFinder:
         if module is None:
             if caller is None:
                 raise ImportError(f"No module named {name!r}")
-            self._run_hook("missing", name, caller)
-            if name not in caller.ignore_names:
-                callers = self._bad_modules.setdefault(name, {})
-                callers[caller.name] = None
+            self._missing_hook(caller, name)
 
         return module
 
@@ -339,7 +327,8 @@ class ModuleFinder:
         if name in self._builtin_modules:
             module = self._add_module(name)
             logging.debug("Adding module [%s] [C_BUILTIN]", name)
-            self._run_hook("load", module.name, module)
+            if module.hook:
+                module.hook(self)
             module.in_import = False
             return module
 
@@ -472,7 +461,8 @@ class ModuleFinder:
             raise ImportError(f"Unknown module loader in {path}", name=name)
 
         # If there's a custom hook for this module, run it.
-        self._run_hook("load", module.name, module)
+        if module.hook:
+            module.hook(self)
 
         if module.code is not None:
             if self.replace_paths:
@@ -505,6 +495,17 @@ class ModuleFinder:
         module = self._add_module(name, filename=filename)
         self._load_module_code(module, loader, deferred_imports)
         return module
+
+    def _missing_hook(self, caller: Module, module_name: str) -> None:
+        """Run hook for missing module."""
+        hooks = import_module("cx_Freeze.hooks")
+        normalized_name = module_name.replace(".", "_")
+        method = getattr(hooks, f"missing_{normalized_name}", None)
+        if method:
+            method(self, caller)
+        if module_name not in caller.ignore_names:
+            callers = self._bad_modules.setdefault(module_name, {})
+            callers[caller.name] = None
 
     @staticmethod
     def _replace_package_in_code(module: Module) -> CodeType:
@@ -546,9 +547,7 @@ class ModuleFinder:
         """Replace paths in the code as directed, returning a new code object
         with the modified paths in place.
         """
-        top_level_module = module  # type: Module
-        while top_level_module.parent is not None:
-            top_level_module = top_level_module.parent
+        top_level_module: Module = module.root
         if code is None:
             code = module.code
         # Prepare the new filename.
@@ -581,25 +580,6 @@ class ModuleFinder:
         return code_object_replace(
             code, co_consts=consts, co_filename=os.fspath(new_filename)
         )
-
-    def _run_hook(self, hook: str, module_name: str, *args) -> None:
-        """Run hook (load or missing) for the given module if one is present.
-        For functions present in hooks.__init__:
-        package aiofiles -> load_aiofiles function
-        For functions in a separated module (lowercased):
-        package PyQt5, module QtCore -> pyqt5.load_pyqt5_qtcore.
-        """
-        base_hooks = self._base_hooks
-        normalized_name = module_name.replace(".", "_")
-        method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
-        if method is None:
-            root = module_name.split(".")[0].lower()
-            base_hooks = getattr(base_hooks, root, None)
-            if base_hooks is not None:
-                normalized_name = normalized_name.lower()
-                method = getattr(base_hooks, f"{hook}_{normalized_name}", None)
-        if method is not None:
-            method(self, *args)
 
     def _scan_code(
         self,
