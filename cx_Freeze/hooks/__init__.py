@@ -536,6 +536,12 @@ def load_ssl(finder: ModuleFinder, module: Module) -> None:
             libs_dir = Path(sys.base_prefix, "DLLs")
             for dll_path in libs_dir.glob(dll_search):
                 finder.include_files(dll_path, Path("lib", dll_path.name))
+    # copy cert.pem
+    ssl_paths = __import__("ssl").get_default_verify_paths()
+    openssl_cafile = Path(ssl_paths.openssl_cafile)
+    if openssl_cafile.exists():
+        finder.include_files(openssl_cafile, "lib/cert.pem")
+        finder.add_constant("SSL_CERT_FILE", "lib/cert.pem")
 
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
