@@ -33,10 +33,10 @@ def load_matplotlib(finder: ModuleFinder, module: Module) -> None:
     source_dir = module_path.parent / module_libs_name
     if source_dir.exists():
         finder.include_files(source_dir, f"lib/{module_libs_name}")
-    _remove_delvewheel(module)
+    _replace_delvewheel_patch(module)
     with suppress(ImportError):
         mpl_toolkits = finder.include_module("mpl_toolkits")
-        _remove_delvewheel(mpl_toolkits)
+        _replace_delvewheel_patch(mpl_toolkits)
 
 
 def _patch_data_path(module: Module, data_path: Path) -> None:
@@ -56,11 +56,11 @@ def _patch_data_path(module: Module, data_path: Path) -> None:
     module.code = code
 
 
-def _remove_delvewheel(module: Module) -> None:
+def _replace_delvewheel_patch(module: Module) -> None:
     # remove delvewheel injections of code to not find for .libs directory
     code = module.code
     if code is None:
-        return None
+        return
     delvewheel_func = "_delvewheel_init_patch_"
     consts = list(code.co_consts)
     for constant in consts:
@@ -69,8 +69,20 @@ def _remove_delvewheel(module: Module) -> None:
             if name.startswith(delvewheel_func):
                 source = f"""\
                 def {name}():
-                    return
+                    import os, sys
+
+                    libs_path = os.path.join(
+                        sys.frozen_dir, "lib", "matplotlib.libs"
+                    )
+                    try:
+                        os.add_dll_directory(libs_path)
+                    except (OSError, AttributeError):
+                        pass
+                    env_path = os.environ.get("PATH", "").split(os.pathsep)
+                    if libs_path not in env_path:
+                        env_path.insert(0, libs_path)
+                        os.environ["PATH"] = os.pathsep.join(env_path)
                 """
                 code = code_object_replace_function(code, name, source)
                 break
-    return code
+    module.code = code
