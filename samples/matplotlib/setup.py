@@ -1,10 +1,7 @@
-"""A simple setup script to create two executables using matplotlib."""
+"""A simple setup script to create executables using matplotlib."""
 
 # matplotlib_eg.py is a very simple matplotlib application that demonstrates
 # its use.
-#
-# matplotlib_afm.py is a very simple matplotlib console application that show
-# some values of a font.
 #
 # Run the build process by running the command 'python setup.py build'
 #
@@ -39,7 +36,6 @@ options = {
 }
 
 executables = [
-    Executable("matplotlib_afm.py"),
     Executable("matplotlib_eg.py", base=base),
 ]
 
