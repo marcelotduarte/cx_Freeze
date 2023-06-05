@@ -1,13 +1,10 @@
-"""A simple setup script to create two executables using matplotlib
+"""A simple setup script to create executables using matplotlib.
    This version requires the mpl-data in the zip file."""
 
 from __future__ import annotations
 
 # matplotlib_eg.py is a very simple matplotlib application that demonstrates
 # its use.
-#
-# matplotlib_afm.py is a very simple matplotlib console application that show
-# some values of a font.
 #
 # Run the build process by running the command 'python setup.py build'
 #
@@ -30,7 +27,18 @@ options = {
     "build_exe": {
         # Sometimes a little fine-tuning is needed
         # exclude all backends except wx
-        "excludes": ["gtk", "PyQt4", "PyQt5", "tkinter"],
+        "excludes": [
+            "gi",
+            "gtk",
+            "PyQt4",
+            "PyQt5",
+            "PyQt6",
+            "PySide2",
+            "PySide6",
+            "shiboken2",
+            "shiboken6",
+            "tkinter",
+        ],
         "zip_include_packages": ["*"],
         "zip_exclude_packages": [],
         "build_exe": build_exe_dir,
@@ -38,7 +46,6 @@ options = {
 }
 
 executables = [
-    Executable("matplotlib_afm.py"),
     Executable("matplotlib_eg.py", base=base),
 ]
 
