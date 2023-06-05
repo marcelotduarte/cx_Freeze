@@ -30,12 +30,13 @@ from ..module import Module
 # conda install -c conda-forge blas=*=openblas numpy
 
 
-def load_numpy(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
+def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy must be loaded as a package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.24.2).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.24.3).
     """
     finder.include_package("numpy")
+    module.in_file_system = 1  # TODO: support zip or optimized mode
     # exclude the tests
     finder.exclude_module("numpy.compat.tests")
     finder.exclude_module("numpy.core.tests")
