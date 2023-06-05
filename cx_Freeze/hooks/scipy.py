@@ -2,7 +2,6 @@
 scipy package is included.
 """
 
-
 from __future__ import annotations
 
 from .._compat import IS_MINGW, IS_WINDOWS
@@ -23,8 +22,14 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")
     finder.include_package("scipy.optimize")
-    if IS_WINDOWS or IS_MINGW:
-        finder.exclude_module("scipy.spatial.cKDTree")
+
+
+def load_scipy_interpolate(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
+    """The scipy.interpolate must be loaded as a package."""
+    finder.exclude_module("scipy.interpolate.tests")
+    finder.include_package("scipy.interpolate")
 
 
 def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
@@ -67,6 +72,16 @@ def load_scipy_sparse_linalg_dsolve_linsolve(
     module.ignore_names.add("scikits.umfpack")
 
 
+def load_scipy_spatial(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
+    """The scipy.spatial must be loaded as a package."""
+    finder.include_package("scipy.spatial")
+    finder.exclude_module("scipy.spatial.tests")
+    if IS_WINDOWS or IS_MINGW:
+        finder.exclude_module("scipy.spatial.cKDTree")
+
+
 def load_scipy_spatial_transform(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
@@ -79,7 +94,9 @@ def load_scipy_special(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The scipy.special must be loaded as a package."""
+    finder.exclude_module("scipy.special.tests")
     finder.include_package("scipy.special")
+    finder.include_package("scipy.special._precompute")
 
 
 def load_scipy_special__cephes(
