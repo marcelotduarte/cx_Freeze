@@ -32,7 +32,7 @@ options = {
 }
 
 executables = [
-    Executable("scipy_eg.py", base=base),
+    Executable("test_scipy.py", base=base),
 ]
 
 setup(

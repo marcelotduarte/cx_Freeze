@@ -1,4 +1,4 @@
-"""A simple setup script to create executables using matplotlib."""
+"""A simple setup script to create executables using scipy."""
 
 # scipy_eg.py is a very simple scipy application that demonstrates
 # its use.
@@ -17,7 +17,7 @@ from cx_Freeze import Executable, setup
 base = "Win32GUI" if sys.platform == "win32" else None
 
 executables = [
-    Executable("scipy_eg.py", base=base),
+    Executable("test_scipy.py", base=base),
 ]
 
 setup(
