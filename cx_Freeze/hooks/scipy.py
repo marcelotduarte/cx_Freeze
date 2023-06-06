@@ -4,24 +4,44 @@ scipy package is included.
 
 from __future__ import annotations
 
+import os
+
 from .._compat import IS_MINGW, IS_WINDOWS
 from ..finder import ModuleFinder
 from ..module import Module
+from ._libs import replace_delvewheel_patch
 
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """The scipy module loads items within itself in a way that causes
     problems without libs and a number of subpackages being present.
     """
-    libs_name = f"{module.name}.libs"
-    source_dir = module.path[0].parent / libs_name
+    source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():
-        finder.include_files(source_dir, f"lib/{libs_name}")
-
+        finder.include_files(source_dir, f"lib/{source_dir.name}")
+    replace_delvewheel_patch(module)
     finder.include_package("scipy.integrate")
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")
     finder.include_package("scipy.optimize")
+
+
+def load_scipy__distributor_init(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
+    """Fix the location of dependent files in Windows."""
+    if not (IS_WINDOWS or IS_MINGW):
+        # In Linux and macOS it is detected correctly.
+        return
+
+    if module.in_file_system != 0:  # not in zip_include_packages
+        return
+
+    # patch the code
+    code_string = module.file.read_text(encoding="utf-8").replace(
+        "__file__", "__file__.replace('library.zip/', '')"
+    )
+    module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
 def load_scipy_interpolate(
@@ -57,6 +77,14 @@ def load_scipy_ndimage(
     finder.include_package("scipy.ndimage")
 
 
+def load_scipy_sparse(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
+    """The scipy.sparse must be loaded as a package."""
+    finder.exclude_module("scipy.sparse.tests")
+    finder.include_package("scipy.sparse")
+
+
 def load_scipy_sparse_csgraph(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
@@ -65,10 +93,12 @@ def load_scipy_sparse_csgraph(
     finder.include_package("scipy.sparse.csgraph")
 
 
-def load_scipy_sparse_linalg_dsolve_linsolve(
+def load_scipy_sparse_linalg__dsolve_linsolve(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
-    """The scipy.linalg.dsolve.linsolve optionally loads scikits.umfpack."""
+    """The scipy.sparse.linalg._dsolve.linsolve optionally loads
+    scikits.umfpack.
+    """
     module.ignore_names.add("scikits.umfpack")
 
 
