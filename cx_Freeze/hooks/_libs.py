@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-scipy package is included.
-"""
+"""Helper functions for hooks."""
 
 from __future__ import annotations
 
@@ -11,7 +9,9 @@ from ..module import Module
 
 
 def replace_delvewheel_patch(module: Module) -> None:
-    # replace delvewheel injections of code to not find for .libs directory
+    """Replace delvewheel injections of code to not find for module.libs
+    directory.
+    """
     code = module.code
     if code is None:
         return
