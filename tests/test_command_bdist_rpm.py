@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
 from sysconfig import get_platform
@@ -14,6 +15,9 @@ from cx_Freeze.sandbox import run_setup
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_rpm(fix_main_samples_path: Path):
     """Test the bcrypt sample with bdist_rpm."""
+    if not shutil.which("rpmbuild"):
+        pytest.xfail("rpmbuild not installed")
+
     package = "bcrypt"
     version = "0.3"
     arch = get_platform().split("-", 1)[1]

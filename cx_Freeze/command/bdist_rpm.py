@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from sysconfig import get_python_version
@@ -276,6 +277,9 @@ class BdistRPM(Command):
 
         # cx_Freeze specific
         self.use_rpm_opt_flags = 1
+
+        if not shutil.which("rpmbuild"):
+            raise PlatformError("Failed to find rpmbuild for this platform.")
 
     def finalize_package_data(self):
         self.ensure_string("group", "Development/Libraries")
