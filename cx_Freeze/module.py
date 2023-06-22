@@ -169,7 +169,7 @@ class Module:
         2. in the file system, only detected modules.
         """
         if self.parent is not None:
-            return self.parent._in_file_system  # pylint: disable=W0212
+            return self.parent.in_file_system
         if self.path is None or self.file is None:
             return 0
         return self._in_file_system
