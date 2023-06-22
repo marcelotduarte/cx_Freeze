@@ -42,8 +42,7 @@ clean:
 install:
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
-		pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager &&\
-		pip install -e . --no-build-isolation --no-deps &&\
+		pip install -e .[dev,doc] &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
@@ -62,6 +61,7 @@ html: install
 		pre-commit run blacken-docs -a --hook-stage manual;\
 		pre-commit run build-docs -a -v --hook-stage manual;\
 	else\
+		pip install -e .[doc] &&\
 		make -C doc html;\
 	fi
 
@@ -77,14 +77,17 @@ epub:
 pdf:
 	make -C doc pdf
 
-.PHONY: tests
-tests: install
-	pip uninstall -y cx_Freeze || true
-	pip install -e . --no-build-isolation --no-deps
+.PHONY: install_test
+install_test:
+	python -m pip install --upgrade pip
+	pip install -e .[test]
+
+.PHONY: test
+test: install_test
 	python -m pytest
 
 .PHONY: cov
-cov:
+cov: install_test
 	@rm -rf ./htmlcov/
 	python -m pytest --cov="cx_Freeze" --cov-report=html --cov-report=xml
 	python -m webbrowser -t ./htmlcov/index.html
