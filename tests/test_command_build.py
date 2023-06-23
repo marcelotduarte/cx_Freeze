@@ -2,30 +2,24 @@
 
 from __future__ import annotations
 
-import shutil
 import sys
 from pathlib import Path
 from sysconfig import get_platform, get_python_version
+
+import pytest
 
 from cx_Freeze.sandbox import run_setup
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+FIXTURE_DIR = Path(__file__).resolve().parent
 
 
-def test_build(fix_main_samples_path: Path):
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+def test_build(datafiles: Path):
     """Test the simple sample."""
-    setup_path = fix_main_samples_path / "simple"
-    dist_created = setup_path / BUILD_EXE_DIR
-    dist_already_exists = dist_created.exists()
-
-    run_setup(setup_path / "setup.py", ["build"])
-
+    run_setup(datafiles / "setup.py", ["build"])
     suffix = ".exe" if sys.platform == "win32" else ""
-    file_created = dist_created / f"hello{suffix}"
+    file_created = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
     assert file_created.is_file()
-    file_created.unlink()
-
-    if not dist_already_exists:
-        shutil.rmtree(dist_created, ignore_errors=True)
