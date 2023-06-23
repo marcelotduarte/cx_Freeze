@@ -4,29 +4,31 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
 
+FIXTURE_DIR = Path(__file__).resolve().parent
+SAMPLES_DIR = FIXTURE_DIR / "samples"
 
-class TestModuleFinderWithConvertedNoseTests:
-    """Provides test cases that are conversions of the old NoseTests in
-    `test_finder` that predated usage of the PyTest Framework.
-    """
+
+class TestModuleFinder:
+    """Provides test cases for ModuleFinder class."""
 
     @pytest.fixture()
     def fix_module_finder(self):
         constants = ConstantsModule()
         return ModuleFinder(constants_module=constants)
 
-    def test_scan_code(self, mocker, fix_test_samples_path, fix_module_finder):
+    def test_scan_code(self, mocker, fix_module_finder):
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
             fix_module_finder, "_import_module", return_value=None
         )
         fix_module_finder.include_file_as_module(
-            fix_test_samples_path / "imports_sample.py"
+            SAMPLES_DIR / "imports_sample.py"
         )
         import_mock.assert_has_calls(
             [
@@ -41,11 +43,9 @@ class TestModuleFinderWithConvertedNoseTests:
             ]
         )
 
-    def test_not_import_invalid_module_name(
-        self, mocker, fix_test_samples_dir, fix_module_finder  # noqa: ARG002
-    ):
+    def test_not_import_invalid_module_name(self, fix_module_finder):
         """testpkg1 contains not.importable.py, which shouldn't be included."""
-        fix_module_finder.path.insert(0, fix_test_samples_dir)
+        fix_module_finder.path.insert(0, os.fspath(SAMPLES_DIR))
         # Threw ImportError before the bug was fixed
         module = fix_module_finder.include_package("testpkg1")
         assert "invalid-identifier" in module.global_names, (
@@ -53,23 +53,20 @@ class TestModuleFinderWithConvertedNoseTests:
             "be imported"
         )
 
-    def test_invalid_syntax(
-        self, mocker, fix_test_samples_dir  # noqa: ARG002
-    ):
+    def test_invalid_syntax(self):
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         constants = ConstantsModule()
         finder = ModuleFinder(
-            path=[fix_test_samples_dir, *sys.path], constants_module=constants
+            path=[os.fspath(SAMPLES_DIR), *sys.path],
+            constants_module=constants,
         )
         with pytest.raises(ImportError):
             # Threw SyntaxError before the bug was fixed
             finder.include_module("invalid_syntax")
 
-    def test_find_spec(
-        self, mocker, fix_test_samples_path, fix_module_finder  # noqa: ARG002
-    ):
+    def test_find_spec(self, fix_module_finder):
         """Sample find_spec contains broken modules."""
-        path = fix_test_samples_path / "find_spec"
+        path = SAMPLES_DIR / "find_spec"
         fix_module_finder.path.insert(0, os.fspath(path))
         module = fix_module_finder.include_module("hello")
         assert (

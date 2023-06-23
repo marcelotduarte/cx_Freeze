@@ -23,5 +23,6 @@ furo==2023.3.27
 # test
 pytest==7.4.0
 pytest-cov==4.1.0
+pytest-datafiles==3.0.0
 pytest-mock==3.11.1
 pytest-timeout==2.1.0

@@ -20,24 +20,17 @@ DIST_ATTRS = {
     "executables": [],
     "script_name": "setup.py",
 }
+FIXTURE_DIR = Path(__file__).resolve().parent
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-def test_bdist_msi(fix_main_samples_path: Path):
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
+def test_bdist_msi(datafiles: Path):
     """Test the msi_binary_data sample."""
-    setup_path = fix_main_samples_path / "msi_binary_data"
-    dist_created = setup_path / "dist"
-    dist_already_exists = dist_created.exists()
-
-    run_setup(setup_path / "setup.py", ["bdist_msi"])
-
+    run_setup(datafiles / "setup.py", ["bdist_msi"])
     platform = get_platform().replace("win-amd64", "win64")
-    file_created = dist_created / f"hello-0.1-{platform}.msi"
+    file_created = datafiles / "dist" / f"hello-0.1-{platform}.msi"
     assert file_created.is_file()
-    file_created.unlink()
-
-    if not dist_already_exists:
-        dist_created.rmdir()
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
@@ -48,7 +41,6 @@ def test_bdist_msi_target_name():
     cmd.target_name = "mytest"
     cmd.finalize_options()
     cmd.ensure_finalized()
-
     assert cmd.fullname == "mytest-0.0"
 
 
@@ -65,22 +57,12 @@ def test_bdist_msi_target_name_and_version():
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-def test_bdist_msi_target_name_with_extension(fix_main_samples_path: Path):
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
+def test_bdist_msi_target_name_with_extension(datafiles: Path):
     """Test the msi_binary_data sample, with a specified target_name that
     includes an ".msi" extension.
     """
     msi_name = "output.msi"
-    setup_path = fix_main_samples_path / "msi_binary_data"
-    dist_created = setup_path / "dist"
-    dist_already_exists = dist_created.exists()
-
-    run_setup(
-        setup_path / "setup.py", ["bdist_msi", "--target-name", msi_name]
-    )
-
-    file_created = dist_created / msi_name
+    run_setup(datafiles / "setup.py", ["bdist_msi", "--target-name", msi_name])
+    file_created = datafiles / "dist" / msi_name
     assert file_created.is_file()
-    file_created.unlink()
-
-    if not dist_already_exists:
-        dist_created.rmdir()
