@@ -16,15 +16,18 @@ To Execute the tests in this folder do the following steps
 
 3 - Call the tests (debuggable) with:
 
-  ```
-  python -m pytest
-  ```
+ ```
+ python -m pytest
+ ```
 
 or with coverage (not-debuggable) with:
 
-  ```
-  python -m pytest -m "not long" --cov="cx_Freeze" --cov-report=html
-  ```
+ ```
+ python -m pytest --cov="cx_Freeze" --cov-report=html
+ ```
 
-The coverage report will be saved into `./htmlcov` - open the `index.html` to
-navigate the report
+To navigate to the coverage report:
+
+ ```
+ python -m webbrowser -t ./htmlcov/index.html
+ ```

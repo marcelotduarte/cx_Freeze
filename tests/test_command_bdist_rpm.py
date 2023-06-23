@@ -11,9 +11,12 @@ import pytest
 
 from cx_Freeze.sandbox import run_setup
 
+FIXTURE_DIR = Path(__file__).resolve().parent
+
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
-def test_bdist_rpm(fix_main_samples_path: Path):
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "bcrypt")
+def test_bdist_rpm(datafiles: Path):
     """Test the bcrypt sample with bdist_rpm."""
     if not shutil.which("rpmbuild"):
         pytest.xfail("rpmbuild not installed")
@@ -21,25 +24,17 @@ def test_bdist_rpm(fix_main_samples_path: Path):
     package = "bcrypt"
     version = "0.3"
     arch = get_platform().split("-", 1)[1]
-    setup_path = fix_main_samples_path / package
-    dist_created = setup_path / "dist"
-    dist_already_exists = dist_created.exists()
+    dist_created = datafiles / "dist"
 
-    run_setup(setup_path / "setup.py", ["bdist_rpm"])
+    run_setup(datafiles / "setup.py", ["bdist_rpm"])
 
     base_name = f"test_{package}-{version}"
 
     file_created = dist_created / f"{base_name}-1.src.rpm"
     assert file_created.is_file()
-    file_created.unlink()
 
     file_created = dist_created / f"{base_name}-1.{arch}.rpm"
     assert file_created.is_file()
-    file_created.unlink()
 
     file_created = dist_created / f"{base_name}.tar.gz"
     assert file_created.is_file()
-    file_created.unlink()
-
-    if not dist_already_exists:
-        dist_created.rmdir()
