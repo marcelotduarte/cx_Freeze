@@ -1,16 +1,10 @@
-from __future__ import annotations
-
 import sys
 from datetime import datetime
 
 
-def SayHello():
+def say_hello():
     print("Hello from cx_Freeze")
-    print(
-        "The current date is {}\n".format(
-            datetime.today().strftime("%B %d, %Y %H:%M:%S")
-        )
-    )
+    print(f"The current date is {datetime.today():%B %d, %Y %H:%M:%S}\n")
 
     print(f"Executable: {sys.executable}")
     print(f"Prefix: {sys.prefix}")
@@ -30,4 +24,4 @@ def SayHello():
 
 
 if __name__ == "__main__":
-    SayHello()
+    say_hello()
