@@ -1,5 +1,3 @@
-from __future__ import annotations
-
-print("Hello from cx_Freeze Advanced #1\n")
+print("Hello from cx_Freeze Advanced #1")
 
 module = __import__("testfreeze_1")
