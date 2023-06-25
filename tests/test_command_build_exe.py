@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -30,17 +31,17 @@ def test_build_exe_advanced(datafiles: Path):
 
     executable = datafiles / BUILD_EXE_DIR / f"advanced_1{suffix}"
     assert executable.is_file()
-    output = subprocess.run(
-        [executable], capture_output=True, text=True, timeout=10, check=False
+    output = subprocess.check_output(
+        [os.fspath(executable)], text=True, timeout=10
     )
-    assert output.stdout == OUTPUT1
+    assert output == OUTPUT1
 
     executable = datafiles / BUILD_EXE_DIR / f"advanced_2{suffix}"
     assert executable.is_file()
-    output = subprocess.run(
-        [executable], capture_output=True, text=True, timeout=10, check=False
+    output = subprocess.check_output(
+        [os.fspath(executable)], text=True, timeout=10
     )
-    assert output.stdout == OUTPUT2
+    assert output == OUTPUT2
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "asmodule")
@@ -52,10 +53,10 @@ def test_build_exe_asmodule(datafiles: Path):
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"asmodule{suffix}"
     assert executable.is_file()
-    output = subprocess.run(
-        [executable], capture_output=True, text=True, timeout=10, check=False
+    output = subprocess.check_output(
+        [os.fspath(executable)], text=True, timeout=10
     )
-    assert output.stdout.startswith("Hello from cx_Freeze")
+    assert output.startswith("Hello from cx_Freeze")
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
@@ -67,10 +68,10 @@ def test_build_exe_simple(datafiles: Path):
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
     assert executable.is_file()
-    output = subprocess.run(
-        [executable], capture_output=True, text=True, timeout=10, check=False
+    output = subprocess.check_output(
+        [os.fspath(executable)], text=True, timeout=10
     )
-    assert output.stdout.startswith("Hello from cx_Freeze")
+    assert output.startswith("Hello from cx_Freeze")
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
@@ -82,7 +83,7 @@ def test_build_exe_sqlite(datafiles: Path):
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"test_sqlite3{suffix}"
     assert executable.is_file()
-    output = subprocess.run(
-        [executable], capture_output=True, text=True, timeout=10, check=False
+    output = subprocess.check_output(
+        [os.fspath(executable)], text=True, timeout=10
     )
-    assert output.stdout.startswith("dump.sql created")
+    assert output.startswith("dump.sql created")
