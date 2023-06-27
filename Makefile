@@ -84,12 +84,12 @@ install_test:
 
 .PHONY: test
 test: install_test
-	python -m pytest
+	python -m pytest -n auto
 
 .PHONY: cov
 cov: install_test
 	@rm -rf ./htmlcov/
-	python -m pytest --cov="cx_Freeze" --cov-report=html --cov-report=xml
+	python -m pytest -n auto --cov="cx_Freeze" --cov-report=html --cov-report=xml
 	python -m webbrowser -t ./htmlcov/index.html
 
 .PHONY: release
