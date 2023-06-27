@@ -148,6 +148,7 @@ ignore = [
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
+    "RUF012",
 ]
 line-length = 79
 target-version = "py37"
