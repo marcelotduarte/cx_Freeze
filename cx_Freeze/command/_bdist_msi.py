@@ -1,9 +1,9 @@
-# Copyright (C) 2005, 2006 Martin von Löwis
-# Licensed to PSF under a Contributor Agreement.
 """Implements the bdist_msi command.
 
 Borrowed from distutils.command.bdist_msi of Python 3.8
 """
+# Copyright (C) 2005, 2006 Martin von Löwis
+# Licensed to PSF under a Contributor Agreement.
 
 from __future__ import annotations
 
