@@ -2,7 +2,7 @@
 
 import os
 import py_compile
-import tempfile
+import sys
 from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 
 import pytest
@@ -40,7 +40,7 @@ from cx_Freeze import ConstantsModule, ModuleFinder
 # Each package will be created in test_dir, and test_dir will be
 # removed after the tests again.
 # ModuleFinder searches in a path that contains test_dir, plus
-# the standard Lib directory.
+# the standard path search directory.
 
 
 def _do_test(
@@ -58,7 +58,7 @@ def _do_test(
     create_package(test_dir, source)
     finder = modulefinder_class(
         ConstantsModule(),
-        path=[test_dir, os.path.dirname(tempfile.__file__)],
+        path=[test_dir, *sys.path],
         # debug=debug,
         **kwargs,
     )
