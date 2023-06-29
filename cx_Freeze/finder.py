@@ -8,6 +8,7 @@ import os
 import sys
 from collections.abc import Sequence
 from contextlib import suppress
+from functools import cached_property
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from types import CodeType
@@ -15,7 +16,6 @@ from typing import Any, List, Tuple
 
 import opcode
 
-from ._compat import cached_property
 from .common import (
     IncludesList,
     InternalIncludesList,

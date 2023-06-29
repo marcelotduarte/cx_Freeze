@@ -23,7 +23,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -34,7 +33,7 @@ classifiers = [
     "Topic :: Utilities",
 ]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
-requires-python = ">=3.7.4"
+requires-python = ">=3.8"
 dependencies = [
     "setuptools>=62.6,<69",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
@@ -51,16 +50,17 @@ dependencies = [
 dev = [
     "bump2version==1.0.1",
     "cibuildwheel==2.13.1",
-    "pre-commit>=2.21.0",
+    "pre-commit==3.3.3",
     "pylint==2.17.4",
     "wheel==0.40.0",
 ]
 doc = [
-    "sphinx==5.3.0",
+    "sphinx==7.0.1",
     "sphinx-tabs==3.4.1",
-    "furo==2023.3.27",
+    "furo==2023.5.20",
 ]
 test = [
+    "pluggy==1.2.0",
     "pytest==7.4.0",
     "pytest-cov==4.1.0",
     "pytest-datafiles==3.0.0",
@@ -104,7 +104,7 @@ universal = 0
 
 [tool.black]
 line-length = 79
-target-version = ["py37"]
+target-version = ["py38"]
 exclude = "tests/samples/invalid_syntax.py"
 
 [tool.isort]
@@ -152,7 +152,7 @@ ignore = [
     "RUF012",
 ]
 line-length = 79
-target-version = "py37"
+target-version = "py38"
 flake8-unused-arguments.ignore-variadic-names = true
 extend-exclude = [
     "samples/*.py",
@@ -187,14 +187,14 @@ ignore-paths = [
     "^samples/.*.py$",
     "^tests/samples/.*.py$",
 ]
-py-version = [3, 7]
+py-version = [3, 8]
 output-format = "colorized"
 
 [tool.pylint.format]
 max-line-length = 79
 
 [tool.pytest.ini_options]
-minversion = "6.0"
+minversion = "7.0"
 addopts = "-ra"
 testpaths = ["tests"]
 filterwarnings = [
