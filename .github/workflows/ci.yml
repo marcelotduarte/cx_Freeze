@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12-dev"]
 
     steps:
       - uses: actions/checkout@v3
@@ -48,7 +48,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -v -e .[test]
+          if [[ ${{ matrix.python-version }} == *-dev ]] ; then
+            pip install -r requirements.txt --pre
+            pip install --upgrade wheel
+            pip install -v -e .[test] --no-build-isolation
+          else
+            pip install -v -e .[test]
+          fi
+        shell: bash
 
       - name: Run tests with Pytest
         if: matrix.python-version != '3.11'
