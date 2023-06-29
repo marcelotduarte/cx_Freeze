@@ -5,18 +5,7 @@ all: install
 
 .PHONY: pre-commit
 pre-commit: install
-	@pre-commit run check-case-conflict -a --hook-stage manual
-	@pre-commit run check-toml -a --hook-stage manual
-	@pre-commit run check-yaml -a --hook-stage manual
-	@pre-commit run end-of-file-fixer -a --hook-stage manual || true
-	@pre-commit run fix-byte-order-marker -a --hook-stage manual || true
-	@pre-commit run mixed-line-ending -a --hook-stage manual || true
-	@pre-commit run trailing-whitespace -a --hook-stage manual || true
-	@pre-commit run validate-pyproject -a --hook-stage manual || true
-	@pre-commit run ruff -a --hook-stage manual || true
-	@pre-commit run black -a --hook-stage manual || true
-	@pre-commit run license -a --hook-stage manual || true
-	@pre-commit run requirements -a --hook-stage manual || true
+	@SKIP=pylint pre-commit run -a --hook-stage manual || true
 	@pre-commit gc
 
 .PHONY: pre-commit-all
