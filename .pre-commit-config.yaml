@@ -1,3 +1,6 @@
+ci:
+    skip: [build-docs, license, pylint]
+
 exclude: |
     (?x)^(
         .bumpversion.cfg|
@@ -20,7 +23,10 @@ repos:
   - id: debug-statements
   - id: end-of-file-fixer
   - id: fix-byte-order-marker
+  - id: fix-encoding-pragma
+    args: ["--remove"]
   - id: mixed-line-ending
+    args: ["--fix=lf"]
   - id: trailing-whitespace
 
 - repo: https://github.com/abravalheri/validate-pyproject
@@ -29,7 +35,7 @@ repos:
   - id: validate-pyproject
 
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.0.272
+  rev: v0.0.275
   hooks:
   - id: ruff
     args: ["--fix"]

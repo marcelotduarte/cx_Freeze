@@ -5,18 +5,7 @@ all: install
 
 .PHONY: pre-commit
 pre-commit: install
-	@pre-commit run check-case-conflict -a --hook-stage manual
-	@pre-commit run check-toml -a --hook-stage manual
-	@pre-commit run check-yaml -a --hook-stage manual
-	@pre-commit run end-of-file-fixer -a --hook-stage manual || true
-	@pre-commit run fix-byte-order-marker -a --hook-stage manual || true
-	@pre-commit run mixed-line-ending -a --hook-stage manual || true
-	@pre-commit run trailing-whitespace -a --hook-stage manual || true
-	@pre-commit run validate-pyproject -a --hook-stage manual || true
-	@pre-commit run ruff -a --hook-stage manual || true
-	@pre-commit run black -a --hook-stage manual || true
-	@pre-commit run license -a --hook-stage manual || true
-	@pre-commit run requirements -a --hook-stage manual || true
+	@SKIP=pylint pre-commit run -a --hook-stage manual || true
 	@pre-commit gc
 
 .PHONY: pre-commit-all
@@ -42,8 +31,7 @@ clean:
 install:
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
-		pip install -r requirements-dev.txt --upgrade --upgrade-strategy eager &&\
-		pip install -e . --no-build-isolation --no-deps &&\
+		pip install -e .[dev,doc] &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
@@ -62,6 +50,7 @@ html: install
 		pre-commit run blacken-docs -a --hook-stage manual;\
 		pre-commit run build-docs -a -v --hook-stage manual;\
 	else\
+		pip install -e .[doc] &&\
 		make -C doc html;\
 	fi
 
@@ -77,16 +66,19 @@ epub:
 pdf:
 	make -C doc pdf
 
-.PHONY: tests
-tests: install
-	pip uninstall -y cx_Freeze || true
-	pip install -e . --no-build-isolation --no-deps
-	python -m pytest
+.PHONY: install_test
+install_test:
+	python -m pip install --upgrade pip
+	pip install -e .[test]
+
+.PHONY: test
+test: install_test
+	python -m pytest -n auto
 
 .PHONY: cov
-cov:
+cov: install_test
 	@rm -rf ./htmlcov/
-	python -m pytest --cov="cx_Freeze" --cov-report=html --cov-report=xml
+	python -m pytest -n auto --cov="cx_Freeze" --cov-report=html --cov-report=xml
 	python -m webbrowser -t ./htmlcov/index.html
 
 .PHONY: release

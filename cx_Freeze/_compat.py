@@ -20,7 +20,7 @@ try:
 except ImportError:
     import packaging
 
-__all__ = ["cached_property", "importlib_metadata", "packaging"]
+__all__ = ["importlib_metadata", "packaging"]
 __all__ += ["PLATFORM", "IS_LINUX", "IS_MACOS", "IS_MINGW", "IS_WINDOWS"]
 __all__ += ["IS_CONDA"]
 
@@ -31,26 +31,3 @@ IS_MINGW = PLATFORM.startswith("mingw")
 IS_WINDOWS = PLATFORM.startswith("win")
 
 IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
-
-
-try:
-    from functools import cached_property
-except ImportError:
-
-    class cached_property:  # pylint: disable=invalid-name
-        """Transform a method of a class into a property whose value is
-        computed once and then cached as a normal attribute for the life of
-        the instance.
-        """
-
-        def __init__(self, func):
-            self.func = func
-            self.__doc__ = func.__doc__
-
-        def __get__(self, instance, owner=None):
-            if instance is None:
-                return self
-
-            value = self.func(instance)
-            instance.__dict__[self.func.__name__] = value
-            return value
