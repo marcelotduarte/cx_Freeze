@@ -127,7 +127,7 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
     """In Windows, the _ctypes module in Python 3.8+ requires an additional
     libffi dll to be present in the build directory.
     """
-    if IS_WINDOWS and sys.version_info >= (3, 8):
+    if IS_WINDOWS:
         dll_pattern = "libffi-*.dll"
         dll_dir = Path(sys.base_prefix, "DLLs")
         for dll_path in dll_dir.glob(dll_pattern):

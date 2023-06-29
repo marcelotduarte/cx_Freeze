@@ -12,13 +12,14 @@ import time
 from abc import abstractmethod
 from collections.abc import Sequence
 from contextlib import suppress
+from functools import cached_property
 from importlib import import_module
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
-from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, cached_property
+from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from .common import (
     IncludesList,
     InternalIncludesList,
