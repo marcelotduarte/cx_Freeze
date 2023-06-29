@@ -58,6 +58,28 @@ class PEParser(Parser):
     use the old friend `cx_Freeze.util` extension module.
     """
 
+    def __init__(self, silent: int = 0) -> None:
+        super().__init__(silent)
+        if hasattr(lief.PE, "ParserConfig"):
+            # LIEF 0.14+
+            imports_only = lief.PE.ParserConfig()
+            imports_only.parse_exports = False
+            imports_only.parse_imports = True
+            imports_only.parse_reloc = False
+            imports_only.parse_rsrc = False
+            imports_only.parse_signature = False
+            self.imports_only = imports_only
+            resource_only = lief.PE.ParserConfig()
+            resource_only.parse_exports = False
+            resource_only.parse_imports = True
+            resource_only.parse_reloc = False
+            resource_only.parse_rsrc = False
+            resource_only.parse_signature = False
+            self.resource_only = resource_only
+        else:
+            self.imports_only = None
+            self.resource_only = None
+
     @staticmethod
     def is_pe(path: str | Path) -> bool:
         """Determines whether the file is a PE file."""
@@ -67,7 +89,7 @@ class PEParser(Parser):
 
     def _get_dependent_files_lief(self, path: Path) -> set[Path]:
         with path.open("rb", buffering=0) as raw:
-            binary = lief.PE.parse(raw, path.name)
+            binary = lief.PE.parse(raw, self.imports_only or path.name)
         if not binary:
             return set()
 
@@ -130,7 +152,7 @@ class PEParser(Parser):
         if isinstance(path, str):
             path = Path(path)
         with path.open("rb", buffering=0) as raw:
-            binary = lief.PE.parse(raw, path.name)
+            binary = lief.PE.parse(raw, self.resource_only or path.name)
         try:
             resources_manager = binary.resources_manager
             manifest = resources_manager.manifest
@@ -146,7 +168,7 @@ class PEParser(Parser):
         if isinstance(path, str):
             path = Path(path)
         with path.open("rb", buffering=0) as raw:
-            binary = lief.PE.parse(raw, path.name)
+            binary = lief.PE.parse(raw, self.resource_only or path.name)
         try:
             resources_manager = binary.resources_manager
             resources_manager.manifest = manifest
