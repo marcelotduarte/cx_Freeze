@@ -30,7 +30,10 @@ EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
 IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
-IMPORT_STAR = opcode.opmap["IMPORT_STAR"]
+# Python 3.12+ uses CALL_INTRINSIC_1 with argument 2
+IMPORT_STAR = (
+    opcode.opmap.get("IMPORT_STAR") or opcode.opmap["CALL_INTRINSIC_1"]
+)
 STORE_FAST = opcode.opmap["STORE_FAST"]
 STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
@@ -659,6 +662,7 @@ class ModuleFinder:
             # import * statement: copy all global names
             elif (
                 opc == IMPORT_STAR
+                and (arg == 2 if opc > HAVE_ARGUMENT else None)
                 and top_level
                 and imported_module is not None
             ):
