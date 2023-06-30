@@ -26,8 +26,6 @@ for index, info in enumerate(sequence):
         sequence[index] = (info[0], info[1], 1450)
 
 
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=too-many-lines
 class BdistMSI(bdist_msi):
     """Create a Microsoft Installer (.msi) binary distribution."""
 

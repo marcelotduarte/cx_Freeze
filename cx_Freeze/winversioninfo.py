@@ -152,18 +152,13 @@ class String(Structure):
             value_type = 0
             fields.append(("Value", type(value)))
 
+        # pylint: disable=invalid-name
         self._fields = fields
-        # pylint: disable-next=invalid-name
         self.wValueLength = value_len
-        # pylint: disable-next=invalid-name
         self.wType = value_type
-        # pylint: disable-next=invalid-name
         self.szKey = key
-        # pylint: disable-next=invalid-name
         self.Padding = b"\0" * pad_len
-        # pylint: disable-next=invalid-name
         self.Value = value
-        # pylint: disable-next=invalid-name
         self.wLength = (
             calcsize(WORD) * 3 + key_len + pad_len + value_size * value_len
         )

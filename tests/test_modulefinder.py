@@ -7,22 +7,22 @@ from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 
 import pytest
 from generate_samples import (
-    absolute_import_test,
-    bytecode_test,
-    coding_default_utf8_test,
-    coding_explicit_cp1252_test,
-    coding_explicit_utf8_test,
+    ABSOLUTE_IMPORT_TEST,
+    BYTECODE_TEST,
+    CODING_DEFAULT_UTF8_TEST,
+    CODING_EXPLICIT_CP1252_TEST,
+    CODING_EXPLICIT_UTF8_TEST,
+    EXTENDED_OPARGS_TEST,
+    MAYBE_TEST,
+    MAYBE_TEST_NEW,
+    PACKAGE_TEST,
+    RELATIVE_IMPORT_TEST,
+    RELATIVE_IMPORT_TEST_2,
+    RELATIVE_IMPORT_TEST_3,
+    RELATIVE_IMPORT_TEST_4,
+    SAME_NAME_AS_BAD_TEST,
+    SUB_PACKAGE_TEST,
     create_package,
-    extended_opargs_test,
-    maybe_test,
-    maybe_test_new,
-    package_test,
-    relative_import_test,
-    relative_import_test_2,
-    relative_import_test_3,
-    relative_import_test_4,
-    same_name_as_bad_test,
-    sub_package_test,
 )
 
 from cx_Freeze import ConstantsModule, ModuleFinder
@@ -63,7 +63,7 @@ def _do_test(
         **kwargs,
     )
     finder.modules = []  # remove default modules
-    finder._modules = {}  # pylint: disable=protected-access
+    finder._modules = {}
     finder.include_module(import_this)
     if report:
         finder.report_missing_modules()
@@ -81,20 +81,20 @@ def _do_test(
 @pytest.mark.parametrize(
     ("import_this", "modules", "missing", "maybe_missing", "source"),
     [
-        absolute_import_test,
-        coding_default_utf8_test,
-        coding_explicit_cp1252_test,
-        coding_explicit_utf8_test,
-        extended_opargs_test,
-        maybe_test,
-        maybe_test_new,
-        package_test,
-        relative_import_test,
-        relative_import_test_2,
-        relative_import_test_3,
-        relative_import_test_4,
-        same_name_as_bad_test,
-        sub_package_test,
+        ABSOLUTE_IMPORT_TEST,
+        CODING_DEFAULT_UTF8_TEST,
+        CODING_EXPLICIT_CP1252_TEST,
+        CODING_EXPLICIT_UTF8_TEST,
+        EXTENDED_OPARGS_TEST,
+        MAYBE_TEST,
+        MAYBE_TEST_NEW,
+        PACKAGE_TEST,
+        RELATIVE_IMPORT_TEST,
+        RELATIVE_IMPORT_TEST_2,
+        RELATIVE_IMPORT_TEST_3,
+        RELATIVE_IMPORT_TEST_4,
+        SAME_NAME_AS_BAD_TEST,
+        SUB_PACKAGE_TEST,
     ],
     ids=[
         "absolute_import_test",
@@ -134,14 +134,14 @@ def test_bytecode(tmp_path):
         file.write(b"testing_modulefinder = True\n")
     py_compile.compile(os.fspath(source_path), cfile=os.fspath(bytecode_path))
     os.remove(source_path)
-    _do_test(tmp_path, *bytecode_test)
+    _do_test(tmp_path, *BYTECODE_TEST)
 
 
 def test_zip_include_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
     _do_test(
         tmp_path,
-        *sub_package_test,
+        *SUB_PACKAGE_TEST,
         zip_exclude_packages=["*"],
         zip_include_packages=["p"],
     )
@@ -151,7 +151,7 @@ def test_zip_exclude_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
     _do_test(
         tmp_path,
-        *sub_package_test,
+        *SUB_PACKAGE_TEST,
         zip_exclude_packages=["p"],
         zip_include_packages=["*"],
     )

@@ -18,7 +18,6 @@ def suppress_known_deprecation():
         yield
 
 
-# pylint: disable=attribute-defined-outside-init
 class Install(_install):
     """Install everything from build directory."""
 
@@ -70,6 +69,6 @@ class Install(_install):
                 dir_name = f"{metadata.name}-{metadata.version}"
                 self.install_exe = f"$base/lib/{dir_name}"
 
-    def run(self):  # pylint: disable=useless-parent-delegation
+    def run(self):
         # setuptools used inspect.currentframe(), this method needs to exist.
         super().run()
