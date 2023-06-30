@@ -12,61 +12,7 @@ from pathlib import Path
 #    about because they MAY be not found
 # 5. a string specifying packages to create; the format is obvious imo.
 
-maybe_test = [
-    "a.module",
-    ["a", "a.module", "sys", "b"],
-    ["c"],
-    ["b.something"],
-    """\
-a/__init__.py
-a/module.py
-    from b import something
-    from c import something
-b/__init__.py
-    from sys import *
-""",
-]
-
-maybe_test_new = [
-    "a.module",
-    ["a", "a.module", "sys", "b", "__future__"],
-    ["c"],
-    ["b.something"],
-    """\
-a/__init__.py
-a/module.py
-    from b import something
-    from c import something
-b/__init__.py
-    from __future__ import absolute_import
-    from sys import *
-""",
-]
-
-package_test = [
-    "a.module",
-    ["a", "a.b", "a.c", "a.module", "mymodule", "sys"],
-    ["blahblah", "c"],
-    [],
-    """\
-mymodule.py
-a/__init__.py
-    import blahblah
-    from a import b
-    import c
-a/module.py
-    import sys
-    from a import b as x
-    from a.c import sillyname
-a/b.py
-a/c.py
-    from a.module import x
-    import mymodule as sillyname
-    from sys import version_info
-""",
-]
-
-absolute_import_test = [
+ABSOLUTE_IMPORT_TEST = [
     "a.module",
     ["a", "a.module", "b", "b.x", "b.y", "b.z", "__future__", "sys", "gc"],
     ["blahblah", "z"],
@@ -98,7 +44,211 @@ b/z.py
 """,
 ]
 
-relative_import_test = [
+BYTECODE_TEST = ["a", ["a"], [], [], ""]
+
+CODING_DEFAULT_UTF8_TEST = [
+    "a_utf8",
+    ["a_utf8", "b_utf8"],
+    [],
+    [],
+    """\
+a_utf8.py
+    # use the default of utf8
+    print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
+    import b_utf8
+b_utf8.py
+    # use the default of utf8
+    print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
+""",
+]
+
+CODING_EXPLICIT_CP1252_TEST = [
+    "a_cp1252",
+    ["a_cp1252", "b_utf8"],
+    [],
+    [],
+    b"""\
+a_cp1252.py
+    # coding=cp1252
+    # 0xe2 is not allowed in utf8
+    print('CP1252 test P\xe2t\xe9')
+    import b_utf8
+"""
+    + """\
+b_utf8.py
+    # use the default of utf8
+    print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
+""".encode(),
+]
+
+CODING_EXPLICIT_UTF8_TEST = [
+    "a_utf8",
+    ["a_utf8", "b_utf8"],
+    [],
+    [],
+    """\
+a_utf8.py
+    # coding=utf8
+    print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
+    import b_utf8
+b_utf8.py
+    # use the default of utf8
+    print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
+""",
+]
+
+EXTENDED_OPARGS_TEST = [
+    "a",
+    ["a", "b"],
+    [],
+    [],
+    f"""\
+a.py
+    {list(range(2**16))!r}
+    import b
+b.py
+""",
+]  # 2**16 constants
+
+FIND_SPEC_TEST = [
+    "find_spec",
+    [],
+    [],
+    [],
+    """\
+find_spec/dummypackage/__init__.py
+    print("Hi, I'm a package!")
+    raise Exception("package-level exception should not occur during freeze")
+    from . import dummymodule
+find_spec/dummypackage/dummymodule.py
+    print("Hi, I'm a module!")
+    raise Exception("module-level exception should not occur during freeze")
+find_spec/hello.py
+    import dummypackage.dummymodule
+    print("Hi, I'm a program.")
+    raise Exception("This exception is fine.")
+""",
+]
+
+INVALID_MODULE_NAME_TEST = [
+    "testpkg1",
+    [],
+    [],
+    [],
+    """\
+testpkg1/__init__.py
+testpkg1/invalid-identifier.py
+    # Since this is a python module, we try to import it even though its name
+    # is not a valid identifier (required for e.g. win32com.gen_py.*)
+testpkg1/not.importable.py
+    # The . in the filename means this file cannot be imported as a module.
+testpkg1/submod.py
+    a = 2
+""",
+]
+
+MAYBE_TEST = [
+    "a.module",
+    ["a", "a.module", "sys", "b"],
+    ["c"],
+    ["b.something"],
+    """\
+a/__init__.py
+a/module.py
+    from b import something
+    from c import something
+b/__init__.py
+    from sys import *
+""",
+]
+
+MAYBE_TEST_NEW = [
+    "a.module",
+    ["a", "a.module", "sys", "b", "__future__"],
+    ["c"],
+    ["b.something"],
+    """\
+a/__init__.py
+a/module.py
+    from b import something
+    from c import something
+b/__init__.py
+    from __future__ import absolute_import
+    from sys import *
+""",
+]
+
+PACKAGE_TEST = [
+    "a.module",
+    ["a", "a.b", "a.c", "a.module", "mymodule", "sys"],
+    ["blahblah", "c"],
+    [],
+    """\
+mymodule.py
+a/__init__.py
+    import blahblah
+    from a import b
+    import c
+a/module.py
+    import sys
+    from a import b as x
+    from a.c import sillyname
+a/b.py
+a/c.py
+    from a.module import x
+    import mymodule as sillyname
+    from sys import version_info
+""",
+]
+
+
+PLIST_ITEMS_TEST = [
+    "hello",
+    ["hello", "plist_data"],
+    [],
+    [],
+    """\
+plist_data.py
+    TEST_KEY = "TestKey"
+    TEST_VALUE = "TextValue"
+    BUILD_DIR = "Built_App"
+    BUNDLE_NAME = "Bundle"
+hello.py
+    import sys
+    from datetime import datetime
+    print("Hello from cx_Freeze")
+    print(f"The current date is {datetime.today():%B %d, %Y %H:%M:%S}")
+    print(f"Executable: {sys.executable}")
+    print(f"Prefix: {sys.prefix}")
+    print(f"Default encoding: {sys.getdefaultencoding()}")
+    print(f"File system encoding: {sys.getfilesystemencoding()}")
+    print("ARGUMENTS:")
+    for a in sys.argv: print(f"{a}")
+    print()
+    print("PATH:")
+    for p in sys.path: print(f"{p}")
+    print()
+setup.py
+    from plist_data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
+    from cx_Freeze import Executable, setup
+    executables = [Executable("hello.py")]
+    setup(
+        name="hello",
+        version="0.1",
+        description="Sample cx_Freeze script",
+        options={
+            "build": {"build_base": BUILD_DIR},
+            "bdist_mac": {
+                "bundle_name": BUNDLE_NAME,
+                "plist_items": [(TEST_KEY, TEST_VALUE)],
+            },
+        },
+        executables=executables,
+    )
+""",
+]
+
+RELATIVE_IMPORT_TEST = [
     "a.module",
     [
         "__future__",
@@ -143,7 +293,7 @@ a/b/c/x.py
 """,
 ]
 
-relative_import_test_2 = [
+RELATIVE_IMPORT_TEST_2 = [
     "a.module",
     [
         "a",
@@ -190,7 +340,7 @@ a/b/c/f.py
 """,
 ]
 
-relative_import_test_3 = [
+RELATIVE_IMPORT_TEST_3 = [
     "a.module",
     ["a", "a.module"],
     ["a.bar"],
@@ -204,7 +354,7 @@ a/module.py
 """,
 ]
 
-relative_import_test_4 = [
+RELATIVE_IMPORT_TEST_4 = [
     "a.module",
     ["a", "a.module"],
     [],
@@ -217,25 +367,7 @@ a/module.py
 """,
 ]
 
-bytecode_test = ["a", ["a"], [], [], ""]
-
-syntax_error_test = [
-    "a.module",
-    ["a", "a.module", "b"],
-    ["b.module"],
-    [],
-    """\
-a/__init__.py
-a/module.py
-    import b.module
-b/__init__.py
-b/module.py
-    ?  # SyntaxError: invalid syntax
-""",
-]
-
-
-same_name_as_bad_test = [
+SAME_NAME_AS_BAD_TEST = [
     "a.module",
     ["a", "a.module", "b", "b.c"],
     ["c"],
@@ -250,71 +382,53 @@ b/c.py
 """,
 ]
 
-extended_opargs_test = [
-    "a",
-    ["a", "b"],
-    [],
-    [],
-    f"""\
-a.py
-    {list(range(2**16))!r}
-    import b
-b.py
-""",
-]  # 2**16 constants
 
-coding_default_utf8_test = [
-    "a_utf8",
-    ["a_utf8", "b_utf8"],
+SCAN_CODE_TEST = [
+    "imports_sample",
+    ["imports_sample"],
     [],
     [],
     """\
-a_utf8.py
-    # use the default of utf8
-    print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
-    import b_utf8
-b_utf8.py
-    # use the default of utf8
-    print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
+imports_sample.py
+    import moda
+    from modb import b
+    from . import modc
+    from .modd import d
+    from mode import *
+    from ..modf import *
+    import modg.submod
+    try: pass
+    finally: import modh
 """,
 ]
 
-coding_explicit_utf8_test = [
-    "a_utf8",
-    ["a_utf8", "b_utf8"],
+SYNTAX_ERROR_TEST = [
+    "invalid_syntax",
+    [],
     [],
     [],
     """\
-a_utf8.py
-    # coding=utf8
-    print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
-    import b_utf8
-b_utf8.py
-    # use the default of utf8
-    print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
+invalid_syntax.py
+    raise = 2
 """,
 ]
 
-coding_explicit_cp1252_test = [
-    "a_cp1252",
-    ["a_cp1252", "b_utf8"],
+SYNTAX_ERROR_TEST_2 = [
+    "a.module",
+    ["a", "a.module", "b"],
+    ["b.module"],
     [],
-    [],
-    b"""\
-a_cp1252.py
-    # coding=cp1252
-    # 0xe2 is not allowed in utf8
-    print('CP1252 test P\xe2t\xe9')
-    import b_utf8
-"""
-    + """\
-b_utf8.py
-    # use the default of utf8
-    print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
-""".encode(),
+    """\
+a/__init__.py
+a/module.py
+    import b.module
+b/__init__.py
+b/module.py
+    ?  # SyntaxError: invalid syntax
+""",
 ]
 
-sub_package_test = [
+SUB_PACKAGE_TEST = [
     "main",
     ["p", "p.p1", "p.q", "p.q.q1", "main"],
     [],

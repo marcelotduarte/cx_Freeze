@@ -106,7 +106,6 @@ universal = 0
 [tool.black]
 line-length = 79
 target-version = ["py38"]
-exclude = "tests/samples/invalid_syntax.py"
 
 [tool.isort]
 profile = "black"
@@ -140,9 +139,9 @@ select = [
 ignore = [
     # ignored for now, but should be revised in future
     "D102",  # Missing docstring in public method
-    "D104",  # Missing docstring in public package
     "D401",  # First line of docstring should be in imperative mood
     # ignore the following
+    "D104",  # Missing docstring in public package
     "D105",  # Missing docstring in magic method
     "D107",  # Missing docstring in `__init__`
     "D203", "D205", "D213",
@@ -155,19 +154,21 @@ ignore = [
 line-length = 79
 target-version = "py38"
 flake8-unused-arguments.ignore-variadic-names = true
-extend-exclude = [
-    "samples/*.py",
-    "tests/samples/*.py",
-    "tests/samples/invalid_syntax.py",
-]
+extend-exclude = ["samples/*.py"]
 
 [tool.pylint.main]
 disable = [
+    "attribute-defined-outside-init",
     "c-extension-no-member",
     "duplicate-code",
+    "exec-used",
     "fixme",
     "import-error",
+    "missing-class-docstring",      # checked by ruff D101
     "missing-function-docstring",   # checked by ruff D103
+    "missing-module-docstring",     # checked by ruff D100
+    "no-member",  # not handled by ruff yet E1101
+    "protected-access",
     "redefined-builtin",  # checked by ruff A
     "too-few-public-methods",
     "too-many-arguments",  # ignore by ruff too
@@ -178,7 +179,10 @@ disable = [
     "too-many-nested-blocks",
     "too-many-return-statements",  # checked by ruff PLR0911
     "too-many-statements",  # ignore by ruff too
+    "unbalanced-tuple-unpacking",  # not handled by ruff yet W0632
+    "ungrouped-imports",  # checked by ruff C0412 (I001)
     "unused-argument",  # checked by ruff ARG
+    "useless-parent-delegation",  # not handled by ruff yet W0246"
 ]
 ignore-paths = [
     "cx_Freeze/darwintools.py",
@@ -186,7 +190,6 @@ ignore-paths = [
     "cx_Freeze/hooks/pyside6/resource.py",
     "doc/src/conf.py",
     "^samples/.*.py$",
-    "^tests/samples/.*.py$",
 ]
 py-version = [3, 8]
 output-format = "colorized"

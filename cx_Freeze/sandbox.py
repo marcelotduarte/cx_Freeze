@@ -8,7 +8,6 @@ from pathlib import Path
 
 import setuptools.sandbox as _sandbox
 
-# pylint: disable-next=protected-access
 _sandbox._MODULES_TO_HIDE.update({"cx_Freeze", "msilib"})
 
 __all__ = ["run_setup"]
