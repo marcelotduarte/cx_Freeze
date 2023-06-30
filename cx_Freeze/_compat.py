@@ -15,7 +15,6 @@ else:
         import importlib_metadata
 
 try:
-    # pylint: disable-next=ungrouped-imports
     from setuptools.extern import packaging
 except ImportError:
     import packaging

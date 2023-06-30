@@ -638,7 +638,6 @@ class ModuleFinder:
             if opc == IMPORT_NAME:
                 name = code.co_names[arg]
                 if len(arguments) >= 2:
-                    # pylint: disable-next=W0632
                     relative_import_index, from_list = arguments[-2:]
                 else:
                     relative_import_index = -1

@@ -22,7 +22,6 @@ from ..exception import OptionError
 __all__ = ["BdistDMG", "BdistMac"]
 
 
-# pylint: disable=attribute-defined-outside-init
 class BdistDMG(Command):
     """Create a Mac DMG disk image containing the Mac application bundle."""
 

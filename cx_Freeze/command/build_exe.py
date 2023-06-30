@@ -17,7 +17,6 @@ from ..module import ConstantsModule
 __all__ = ["BuildEXE"]
 
 
-# pylint: disable=attribute-defined-outside-init
 class BuildEXE(Command):
     """Build executables from Python scripts."""
 

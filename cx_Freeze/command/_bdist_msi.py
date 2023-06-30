@@ -35,7 +35,7 @@ from ..exception import OptionError
 from ._pydialog import PyDialog
 
 
-# pylint: disable=attribute-defined-outside-init,invalid-name
+# pylint: disable=invalid-name
 class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 

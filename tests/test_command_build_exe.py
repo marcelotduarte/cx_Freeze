@@ -9,7 +9,7 @@ from pathlib import Path
 from sysconfig import get_platform, get_python_version
 
 import pytest
-from generate_samples import create_package, sub_package_test
+from generate_samples import SUB_PACKAGE_TEST, create_package
 
 from cx_Freeze.sandbox import run_setup
 
@@ -94,7 +94,7 @@ def test_build_exe_sqlite(datafiles: Path):
 
 def test_zip_include_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
-    source = sub_package_test[4]
+    source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
     run_setup(
         tmp_path / "setup.py",
@@ -117,7 +117,7 @@ def test_zip_include_packages(tmp_path):
 
 def test_zip_exclude_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
-    source = sub_package_test[4]
+    source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
     run_setup(
         tmp_path / "setup.py",

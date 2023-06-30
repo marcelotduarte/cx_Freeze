@@ -247,10 +247,8 @@ class Freezer:
         )
 
         # Ensure the copy of default python libraries
-        # pylint: disable-next=no-member
         dependent_files: set[Path] = self.get_dependent_files(exe.base)
         if not dependent_files:
-            # pylint: disable-next=no-member
             dependent_files = self.get_dependent_files(Path(sys.executable))
         python_libs = self._default_bin_includes()
         for path in self._default_bin_path_includes():

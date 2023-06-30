@@ -25,7 +25,6 @@ DEBUG = os.environ.get("DISTUTILS_DEBUG")
 __all__ = ["BdistRPM"]
 
 
-# pylint: disable=attribute-defined-outside-init
 class BdistRPM(Command):
     """Create an RPM distribution."""
 
