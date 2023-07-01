@@ -76,15 +76,15 @@ test: install_test
 .PHONY: cov
 cov: install_test
 	python -m pytest --cov="cx_Freeze" \
-	    --cov-report=html:$(BUILDDIR)/coverage \
-	    --cov-report=xml:$(BUILDDIR)/coverage.xml
+		--cov-report=html:$(BUILDDIR)/coverage \
+		--cov-report=xml:$(BUILDDIR)/coverage.xml
 	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: install_test_pre
 install_test_pre:
 	pip uninstall -y cx_Freeze || true
 	pip install --upgrade cx_Freeze[test] \
-        --extra-index-url https://marcelotduarte.github.io/packages/ --pre
+		--extra-index-url https://marcelotduarte.github.io/packages/ --pre
 
 .PHONY: test-pre
 test-pre: install_test_pre
