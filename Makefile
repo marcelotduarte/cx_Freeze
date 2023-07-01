@@ -1,5 +1,7 @@
 # Makefile to automate some tools
 
+BUILDDIR = ./build
+
 .PHONY: all
 all: install
 
@@ -58,28 +60,35 @@ html: install
 htmltest:
 	make -C doc test
 
-.PHONY: epub
-epub:
+.PHONY: doc
+doc: html
 	make -C doc epub
-
-.PHONY: pdf
-pdf:
 	make -C doc pdf
 
 .PHONY: install_test
 install_test:
-	python -m pip install --upgrade pip
 	pip install -e .[test]
 
 .PHONY: test
 test: install_test
-	python -m pytest -n auto
+	python -m pytest
 
 .PHONY: cov
 cov: install_test
-	@rm -rf ./htmlcov/
-	python -m pytest -n auto --cov="cx_Freeze" --cov-report=html --cov-report=xml
-	python -m webbrowser -t ./htmlcov/index.html
+	python -m pytest --cov="cx_Freeze" \
+		--cov-report=html:$(BUILDDIR)/coverage \
+		--cov-report=xml:$(BUILDDIR)/coverage.xml
+	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
+
+.PHONY: install_test_pre
+install_test_pre:
+	pip uninstall -y cx_Freeze || true
+	pip install --upgrade cx_Freeze[test] \
+		--extra-index-url https://marcelotduarte.github.io/packages/ --pre
+
+.PHONY: test-pre
+test-pre: install_test_pre
+	python -m pytest
 
 .PHONY: release
 release:
