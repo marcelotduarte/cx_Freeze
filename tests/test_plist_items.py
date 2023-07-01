@@ -7,18 +7,22 @@ import plistlib
 import sys
 from importlib import import_module
 from pathlib import Path
+from subprocess import check_output
 
 import pytest
 from generate_samples import PLIST_ITEMS_TEST, create_package
 
-from cx_Freeze.sandbox import run_setup
 
-
-@pytest.mark.skipif(sys.platform != "darwin", reason="Macos tests")
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS tests")
 def test_plist_items(tmp_path: Path):
     """Test that the plist_items option is working correctly."""
     create_package(tmp_path, source=PLIST_ITEMS_TEST[4])
-    run_setup(tmp_path / "setup.py", ["bdist_mac"])
+    output = check_output(
+        [sys.executable, "setup.py", "bdist_mac"],
+        text=True,
+        cwd=os.fspath(tmp_path),
+    )
+    print(output)
     # Test that the additional keys were correctly added to the plist.
     sys.path.insert(0, os.fspath(tmp_path))
     data = import_module("plist_data")

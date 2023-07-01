@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
+from subprocess import check_output
 from sysconfig import get_platform
 
 import pytest
 from setuptools import Distribution
-
-from cx_Freeze.sandbox import run_setup
 
 if sys.platform == "win32":
     from cx_Freeze.command.bdist_msi import BdistMSI
@@ -27,7 +27,12 @@ FIXTURE_DIR = Path(__file__).resolve().parent
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
 def test_bdist_msi(datafiles: Path):
     """Test the msi_binary_data sample."""
-    run_setup(datafiles / "setup.py", ["bdist_msi"])
+    output = check_output(
+        [sys.executable, "setup.py", "bdist_msi"],
+        text=True,
+        cwd=os.fspath(datafiles),
+    )
+    print(output)
     platform = get_platform().replace("win-amd64", "win64")
     file_created = datafiles / "dist" / f"hello-0.1-{platform}.msi"
     assert file_created.is_file()
@@ -63,6 +68,11 @@ def test_bdist_msi_target_name_with_extension(datafiles: Path):
     includes an ".msi" extension.
     """
     msi_name = "output.msi"
-    run_setup(datafiles / "setup.py", ["bdist_msi", "--target-name", msi_name])
+    output = check_output(
+        [sys.executable, "setup.py", "bdist_msi", "--target-name", msi_name],
+        text=True,
+        cwd=os.fspath(datafiles),
+    )
+    print(output)
     file_created = datafiles / "dist" / msi_name
     assert file_created.is_file()
