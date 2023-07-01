@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 import os
-import subprocess
 import sys
 from pathlib import Path
+from subprocess import check_output
 from sysconfig import get_platform, get_python_version
 
 import pytest
 from generate_samples import SUB_PACKAGE_TEST, create_package
-
-from cx_Freeze.sandbox import run_setup
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -27,68 +25,94 @@ OUTPUT_SUBPACKAGE_TEST = "This is p.p1\nThis is p.q.q1\n"
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "advanced")
 def test_build_exe_advanced(datafiles: Path):
     """Test the advanced sample."""
-    run_setup(
-        datafiles / "setup.py", ["build_exe", "--silent", "--excludes=tkinter"]
+    output = check_output(
+        [
+            sys.executable,
+            "setup.py",
+            "build_exe",
+            "--silent",
+            "--excludes=tkinter",
+        ],
+        text=True,
+        cwd=os.fspath(datafiles),
     )
+    print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
 
     executable = datafiles / BUILD_EXE_DIR / f"advanced_1{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output == OUTPUT1
 
     executable = datafiles / BUILD_EXE_DIR / f"advanced_2{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output == OUTPUT2
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "asmodule")
 def test_build_exe_asmodule(datafiles: Path):
     """Test the asmodule sample."""
-    run_setup(
-        datafiles / "setup.py", ["build_exe", "--silent", "--excludes=tkinter"]
+    output = check_output(
+        [
+            sys.executable,
+            "setup.py",
+            "build_exe",
+            "--silent",
+            "--excludes=tkinter",
+        ],
+        text=True,
+        cwd=os.fspath(datafiles),
     )
+    print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"asmodule{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_build_exe_simple(datafiles: Path):
     """Test the simple sample."""
-    run_setup(
-        datafiles / "setup.py", ["build_exe", "--silent", "--excludes=tkinter"]
+    output = check_output(
+        [
+            sys.executable,
+            "setup.py",
+            "build_exe",
+            "--silent",
+            "--excludes=tkinter",
+        ],
+        text=True,
+        cwd=os.fspath(datafiles),
     )
+    print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
 def test_build_exe_sqlite(datafiles: Path):
     """Test the sqlite sample."""
-    run_setup(
-        datafiles / "setup.py", ["build_exe", "--silent", "--excludes=tkinter"]
+    output = check_output(
+        [
+            sys.executable,
+            "setup.py",
+            "build_exe",
+            "--silent",
+            "--excludes=tkinter",
+        ],
+        text=True,
+        cwd=os.fspath(datafiles),
     )
+    print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"test_sqlite3{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output.startswith("dump.sql created")
 
 
@@ -96,22 +120,24 @@ def test_zip_include_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
     source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
-    run_setup(
-        tmp_path / "setup.py",
+    output = check_output(
         [
+            sys.executable,
+            "setup.py",
             "build_exe",
             "--silent",
             "--excludes=tkinter",
             "--zip-exclude-packages=*",
             "--zip-include-packages=p",
         ],
+        text=True,
+        cwd=os.fspath(tmp_path),
     )
+    print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = tmp_path / BUILD_EXE_DIR / f"main{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output == OUTPUT_SUBPACKAGE_TEST
 
 
@@ -119,20 +145,22 @@ def test_zip_exclude_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
     source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
-    run_setup(
-        tmp_path / "setup.py",
+    output = check_output(
         [
+            sys.executable,
+            "setup.py",
             "build_exe",
             "--silent",
             "--excludes=tkinter",
             "--zip-exclude-packages=p",
             "--zip-include-packages=*",
         ],
+        text=True,
+        cwd=os.fspath(tmp_path),
     )
+    print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = tmp_path / BUILD_EXE_DIR / f"main{suffix}"
     assert executable.is_file()
-    output = subprocess.check_output(
-        [os.fspath(executable)], text=True, timeout=10
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output == OUTPUT_SUBPACKAGE_TEST

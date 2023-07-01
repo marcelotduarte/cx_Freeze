@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from pathlib import Path
+from subprocess import check_output
 from sysconfig import get_platform
 
 import pytest
-
-from cx_Freeze.sandbox import run_setup
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -26,7 +26,12 @@ def test_bdist_rpm(datafiles: Path):
     arch = get_platform().split("-", 1)[1]
     dist_created = datafiles / "dist"
 
-    run_setup(datafiles / "setup.py", ["bdist_rpm"])
+    output = check_output(
+        [sys.executable, "setup.py", "bdist_rpm"],
+        text=True,
+        cwd=os.fspath(datafiles),
+    )
+    print(output)
 
     base_name = f"test_{package}-{version}"
 
