@@ -1026,11 +1026,11 @@ class DarwinFreezer(Freezer, Parser):
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
         ):
-            # Always copy dependent files on root directory
-            # to allow to set relative reference
-            target_dir = self.target_dir
+            # copy dependent files on "lib" directory and set relative
+            # reference
+            target_lib = self.target_dir / "lib"
             for dependent in self.get_dependent_files(source, darwin_file):
-                target = target_dir / dependent.name
+                target = target_lib / dependent.name
                 reference = darwin_file.getMachOReferenceForPath(dependent)
                 self._copy_file_recursion(
                     dependent,
