@@ -198,7 +198,7 @@ max-line-length = 79
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-rFepsx -nauto"
+addopts = "-rpfEsx -nauto"
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:distutils.*",
