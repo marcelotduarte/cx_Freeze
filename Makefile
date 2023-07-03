@@ -67,6 +67,8 @@ doc: html
 
 .PHONY: install_test
 install_test:
+	@rm -rf cx_Freeze/bases/lib cx_Freeze/bases/lib-dynload cx_Freeze/bases/ssl
+	@rm -rf cx_Freeze/bases/tcltk
 	pip install -e .[test]
 
 .PHONY: test
@@ -75,20 +77,34 @@ test: install_test
 
 .PHONY: cov
 cov: install_test
-	python -m pytest --cov="cx_Freeze" \
+	python -m pytest \
+		--cov="cx_Freeze" \
 		--cov-report=html:$(BUILDDIR)/coverage \
 		--cov-report=xml:$(BUILDDIR)/coverage.xml
 	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: install_test_pre
-install_test_pre:
-	pip uninstall -y cx_Freeze || true
+install_test_pre: install_test
+	# This is important for manylinux, macOS and python-dev
+	@mkdir -p wheelhouse
+	pip download cx_Freeze \
+		--extra-index-url https://marcelotduarte.github.io/packages/ \
+		--pre --no-deps -d wheelhouse
+	unzip -o wheelhouse/cx_Freeze*.whl "cx_Freeze/bases/*" -x "*.py"
 	pip install --upgrade cx_Freeze[test] \
 		--extra-index-url https://marcelotduarte.github.io/packages/ --pre
 
 .PHONY: test-pre
 test-pre: install_test_pre
-	python -m pytest
+	python -m pytest -o pythonpath=cx_Freeze/bases/lib-dynload/
+
+.PHONY: cov-pre
+cov-pre: install_test_pre
+	python -m pytest -o pythonpath=cx_Freeze/bases/lib-dynload/ \
+		--cov="cx_Freeze" \
+		--cov-report=html:$(BUILDDIR)/coverage \
+		--cov-report=xml:$(BUILDDIR)/coverage.xml
+	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: release
 release:
