@@ -13,9 +13,13 @@ executables = [Executable("test/__init__.py", target_name="test_bcrypt")]
 options = {
     "build_exe": {
         "excludes": ["tkinter"],
+        "silent": True,
         "zip_include_packages": ["*"],
         "zip_exclude_packages": [],
-    }
+    },
+    "bdist_rpm": {
+        "quiet": True,
+    },
 }
 
 setup(
@@ -24,7 +28,6 @@ setup(
     description="cx_Freeze script to test bcrypt",
     executables=executables,
     options=options,
-    packages=["test"],
     author="Marcelo Duarte",
     author_email="marcelotduarte@users.noreply.github.com",
     url="https://github.com/marcelotduarte/cx_Freeze/",
