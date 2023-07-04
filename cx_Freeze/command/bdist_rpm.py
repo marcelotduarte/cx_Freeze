@@ -1,5 +1,4 @@
-"""Implements the 'bdist_rpm' command (create RPM source and binary
-distributions).
+"""Implements the 'bdist_rpm' command (create RPM binary distributions).
 
 Borrowed from distutils.command.bdist_rpm of Python 3.10 and merged with
 bdist_rpm subclass of cx_Freeze 6.10.
