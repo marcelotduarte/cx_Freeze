@@ -42,7 +42,7 @@ dependencies = [
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'i686'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
-    "patchelf>=0.17.2.1 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
+    "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'ppc64le'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'",
 ]
