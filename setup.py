@@ -90,7 +90,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 extra_args.append("-municode")
         else:
             library_dirs.append(get_config_var("LIBPL"))
-            if not ENABLE_SHARED:
+            if not ENABLE_SHARED or IS_CONDA:
                 library_dirs.append(get_config_var("LIBDIR"))
             abiflags = get_config_var("abiflags")
             libraries.append(f"python{get_python_version()}{abiflags}")
@@ -112,9 +112,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                     extra_args.append("-s")
                 extra_args.append("-Wl,-rpath,$ORIGIN/lib")
                 extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
-        for arg in (None, "--no-lto"):
-            if arg:
-                extra_args.append(arg)
+        for arg in (None, "-fno-lto", "--no-lto"):
             try:
                 self.compiler.link_executable(
                     objects,
@@ -122,7 +120,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                     libraries=libraries,
                     library_dirs=library_dirs,
                     runtime_library_dirs=ext.runtime_library_dirs,
-                    extra_postargs=extra_args,
+                    extra_postargs=extra_args + ([arg] if arg else []),
                     debug=self.debug,
                 )
             except LinkError:
