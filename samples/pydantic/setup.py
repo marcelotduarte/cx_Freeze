@@ -1,18 +1,20 @@
 """
 A setup script to create a single executable.
 """
-
-from __future__ import annotations
-
-# https://github.com/samuelcolvin/pydantic#a-simple-example
 #
 # Run the build process by running the command 'python setup.py build'
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 from cx_Freeze import Executable, setup
+import sys
 
-executables = [Executable("test_pydantic.py")]
+script = (
+    "test_pydantic.py"
+    if sys.version_info < (3, 10)
+    else "test_pydantic_py310.py"
+)
+executables = [Executable(script, target_name="test_pydantic")]
 
 setup(
     name="test_pydantic",

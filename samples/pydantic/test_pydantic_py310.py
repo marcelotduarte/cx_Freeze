@@ -1,16 +1,13 @@
-"""
-https://github.com/pydantic/pydantic#a-simple-example
-"""
 from datetime import datetime
-from typing import List, Optional
+
 from pydantic import BaseModel
 
 
 class User(BaseModel):
     id: int
     name: str = "John Doe"
-    signup_ts: Optional[datetime] = None
-    friends: List[int] = []
+    signup_ts: datetime | None = None
+    friends: list[int] = []
 
 
 external_data = {
@@ -20,6 +17,7 @@ external_data = {
 }
 user = User(**external_data)
 print(user)
-# > User id=123 name='John Doe' signup_ts=datetime.datetime(2017, 6, 1, 12, 22) friends=[1, 2, 3]
+# > User id=123 name='John Doe' signup_ts=datetime.datetime(2017, 6, 1, 12, 22)
+# friends=[1, 2, 3]
 print(user.id)
 # > 123
