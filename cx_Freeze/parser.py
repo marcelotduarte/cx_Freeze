@@ -13,7 +13,6 @@ from abc import ABC, abstractmethod
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError, check_call, check_output, run
-from typing import Any
 
 from ._compat import IS_MINGW, IS_WINDOWS
 from .common import TemporaryPath
@@ -165,9 +164,10 @@ class ELFParser(Parser):
     `ldd`.
     """
 
-    def __init__(self, silent: int = 0) -> None:
+    def __init__(self, bin_path_includes: list[str], silent: int = 0) -> None:
         super().__init__(silent)
-        self.linker_warnings: dict[Path, Any] = {}
+        self.bin_path_includes: list[str] = bin_path_includes
+        self.linker_warnings: set = set()
         _verify_patchelf()
 
     @staticmethod
@@ -203,23 +203,29 @@ class ELFParser(Parser):
             parts = line.expandtabs().strip().split(split_string)
             if len(parts) != 2:
                 continue
-            dependent_file = parts[dependent_file_index].strip()
-            if dependent_file == path.name:
+            filename = parts[dependent_file_index].strip()
+            if filename == path.name:
                 continue
-            if dependent_file in ("not found", "(file not found)"):
-                filename = parts[0]
-                if filename not in self.linker_warnings:
-                    self.linker_warnings[filename] = None
-                    if self._silent < 3:
-                        print(f"WARNING: cannot find '{filename}'")
+            if filename in ("not found", "(file not found)"):
+                filename = Path(parts[0])
+                for bin_path in self.bin_path_includes:
+                    filename = Path(bin_path, filename)
+                    if filename.is_file():
+                        dependent_files.add(filename)
+                        break
+                if not filename.is_file():
+                    name = filename.name
+                    if self._silent < 3 and name not in self.linker_warnings:
+                        print(f"WARNING: cannot find '{name}'")
+                    self.linker_warnings.add(name)
                 continue
-            if dependent_file.startswith("("):
+            if filename.startswith("("):
                 continue
-            pos = dependent_file.find(" (")
+            pos = filename.find(" (")
             if pos >= 0:
-                dependent_file = dependent_file[:pos].strip()
-            if dependent_file:
-                dependent_files.add(Path(dependent_file))
+                filename = filename[:pos].strip()
+            if filename:
+                dependent_files.add(Path(filename))
         if process.returncode and self._silent < 3:
             print("WARNING:", *args, "returns:")
             print(process.stderr, end="")
