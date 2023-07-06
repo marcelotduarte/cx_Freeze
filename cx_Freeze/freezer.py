@@ -92,8 +92,12 @@ class Freezer:
         self.target_dir = target_dir
         self.bin_includes: list[str] | None = bin_includes
         self.bin_excludes: list[str] | None = bin_excludes
-        self.bin_path_includes: list[str] | None = bin_path_includes
-        self.bin_path_excludes: list[str] | None = bin_path_excludes
+        self.bin_path_includes: list[str] = self._validate_bin_path(
+            bin_path_includes
+        )
+        self.bin_path_excludes: list[str] = self._validate_bin_path(
+            bin_path_excludes
+        )
         self.include_files: InternalIncludesList = process_path_specs(
             include_files
         )
@@ -248,17 +252,14 @@ class Freezer:
 
         # Ensure the copy of default python libraries
         dependent_files: set[Path] = self.get_dependent_files(exe.base)
-        if not dependent_files:
-            dependent_files = self.get_dependent_files(Path(sys.executable))
+        # Extra files like python3.dll need to be found
         python_libs = self._default_bin_includes()
-        for path in self._default_bin_path_includes():
-            for file in python_libs:
-                dependent_file = Path(path, file)
+        for bin_path in self.bin_path_includes:
+            for name in python_libs:
+                dependent_file = Path(bin_path, name)
                 if dependent_file.is_file():
                     dependent_files.add(dependent_file)
                     break
-        if not dependent_files and self.silent < 3:
-            print("WARNING: shared libraries not found:", python_libs)
 
         # Search the C runtimes, using the directory of the python libraries
         # and the directories of the base executable
@@ -329,11 +330,15 @@ class Freezer:
         (overriden on Windows)
         .
         """
-        python_shared_libs = []
-        # Miniconda python 3.7-3.9 linux returns a static library to indicate
-        # the usage of libpython-static (a shared library is not used).
+        python_shared_libs: list[str] = []
         name = sysconfig.get_config_var("INSTSONAME")
-        if name and not name.endswith(".a"):
+        if name:
+            if name.endswith(".a"):
+                # Miniconda python Linux/macOS returns a static library.
+                if IS_MACOS:
+                    name = name.replace(".a", ".dylib")
+                else:
+                    name = name.replace(".a", ".so")
             python_shared_libs.append(self._remove_version_numbers(name))
         return python_shared_libs
 
@@ -454,20 +459,30 @@ class Freezer:
         dynload = get_resource_file_path("bases", "lib-dynload", "")
         if dynload and dynload.is_dir():
             # add bases/lib-dynload to the finder path
+            index = 0
             dest_shared = sysconfig.get_config_var("DESTSHARED")
             if dest_shared:
-                try:
+                with suppress(ValueError, IndexError):
                     index = path.index(dest_shared)
                     path.pop(index)
-                except ValueError:
-                    index = 0
-                path.insert(index, os.fspath(dynload))
+            path.insert(index, os.fspath(dynload))
         return path
 
-    def _verify_configuration(self) -> None:
-        """Verify and normalize names and paths. Raises OptionError on
-        failure.
+    @staticmethod
+    def _validate_bin_path(bin_path: Sequence[str | Path] | None) -> list[str]:
+        """Returns valid search path for bin_path_includes and
+        bin_path_excludes.
         """
+        if bin_path is None:
+            return []
+        valid = []
+        for path in map(Path, bin_path):
+            if path.is_dir():
+                valid.append(os.fspath(path))
+        return valid
+
+    def _verify_configuration(self) -> None:
+        """Verify and normalize names and paths."""
         filenames = list(self.bin_includes or [])
         filenames += self._default_bin_includes()
         self.bin_includes = [Path(name) for name in filenames]
@@ -476,17 +491,8 @@ class Freezer:
         filenames += self._default_bin_excludes()
         self.bin_excludes = [Path(name) for name in filenames]
 
-        paths = list(self.bin_path_includes or [])
-        paths += self._default_bin_path_includes()
-        self.bin_path_includes = [
-            name for name in paths if Path(name).is_dir()
-        ]
-
-        paths = list(self.bin_path_excludes or [])
-        paths += self._default_bin_path_excludes()
-        self.bin_path_excludes = [
-            name for name in paths if Path(name).is_dir()
-        ]
+        self.bin_path_includes += self._default_bin_path_includes()
+        self.bin_path_excludes += self._default_bin_path_excludes()
 
     def _populate_zip_options(
         self,
@@ -906,6 +912,7 @@ class WinFreezer(Freezer, PEParser):
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[str] = []
         if IS_MINGW:
+            # MSYS2 python returns a static library.
             name = sysconfig.get_config_var("INSTSONAME")
             if name:
                 python_shared_libs.append(name.replace(".dll.a", ".dll"))
@@ -924,8 +931,7 @@ class WinFreezer(Freezer, PEParser):
     def _default_bin_path_includes(self) -> list[str]:
         paths = {Path(path) for path in sys.path if path}
         paths.update(self._platform_bin_path)
-        # return only valid paths
-        return [os.fspath(path) for path in paths if path.is_dir()]
+        return self._validate_bin_path(paths)
 
     @cached_property
     def _platform_bin_path(self) -> list[Path]:
@@ -1111,7 +1117,11 @@ class DarwinFreezer(Freezer, Parser):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
     def _default_bin_path_includes(self) -> list[str]:
-        return [sysconfig.get_config_var("DESTSHARED")]
+        bin_path = [
+            sysconfig.get_config_var("LIBDIR"),
+            sysconfig.get_config_var("DESTLIB"),
+        ]
+        return self._validate_bin_path(bin_path)
 
     def get_dependent_files(
         self, path: Path, darwinFile: DarwinFile | None = None
@@ -1147,7 +1157,7 @@ class LinuxFreezer(Freezer, ELFParser):
 
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        ELFParser.__init__(self, self.silent)
+        ELFParser.__init__(self, self.bin_path_includes, self.silent)
         self._symlinks: set[tuple[Path, str]] = set()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
@@ -1242,8 +1252,8 @@ class LinuxFreezer(Freezer, ELFParser):
         ]
 
     def _default_bin_path_includes(self) -> list[str]:
-        # add the stdlib/lib-dynload directory
-        destlib = sysconfig.get_config_var("DESTLIB")
-        if bool(destlib):
-            return [destlib]
-        return []
+        bin_path = [
+            sysconfig.get_config_var("LIBDIR"),
+            sysconfig.get_config_var("DESTLIB"),
+        ]
+        return self._validate_bin_path(bin_path)
