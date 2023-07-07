@@ -94,8 +94,6 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 library_dirs.append(get_config_var("LIBDIR"))
             abiflags = get_config_var("abiflags")
             libraries.append(f"python{get_python_version()}{abiflags}")
-            if get_config_var("LINKFORSHARED") and not IS_MACOS:
-                extra_args.extend(get_config_var("LINKFORSHARED").split())
             if get_config_var("LIBS"):
                 extra_args.extend(get_config_var("LIBS").split())
             if get_config_var("LIBM"):
@@ -105,13 +103,15 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             if get_config_var("LOCALMODLIBS"):
                 extra_args.extend(get_config_var("LOCALMODLIBS").split())
             if IS_MACOS:
-                # macOS on Github Actions
                 extra_args.append("-Wl,-export_dynamic")
+                extra_args.append("-Wl,-rpath,@loader_path/lib")
             else:
-                if not self.debug:
-                    extra_args.append("-s")
+                if get_config_var("LINKFORSHARED"):
+                    extra_args.extend(get_config_var("LINKFORSHARED").split())
                 extra_args.append("-Wl,-rpath,$ORIGIN/lib")
                 extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
+                if not self.debug:
+                    extra_args.append("-s")
         for arg in (None, "-fno-lto", "--no-lto"):
             try:
                 self.compiler.link_executable(
