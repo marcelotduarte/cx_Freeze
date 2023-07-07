@@ -454,7 +454,7 @@ def load_shapely(finder: ModuleFinder, module: Module) -> None:
         finder.include_files(source_dir, f"lib/{libs_name}")
 
 
-def load_sentry(finder: ModuleFinder, module: Module) -> None:
+def load_sentry_sdk(finder: ModuleFinder, module: Module) -> None:
     """The Sentry.io SDK."""
     finder.include_module("sentry_sdk.integrations.stdlib")
     finder.include_module("sentry_sdk.integrations.excepthook")
