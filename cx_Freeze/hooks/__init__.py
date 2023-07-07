@@ -466,22 +466,6 @@ def load_sentry(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("sentry_sdk.integrations.threading")
 
 
-def load_sklearn__distributor_init(
-    finder: ModuleFinder, module: Module
-) -> None:
-    """On Windows the sklearn/.libs directory is not copied."""
-    source_dir = module.parent.path[0] / ".libs"
-    if source_dir.exists():
-        # msvcp140 and vcomp140 dlls should be copied
-        finder.include_files(source_dir, "lib")
-        # patch the code to search the correct directory
-        code_string = module.file.read_text(encoding="utf-8")
-        code_string = code_string.replace(
-            "libs_path =", "libs_path = __import__('sys').frozen_dir  #"
-        )
-        module.code = compile(code_string, os.fspath(module.file), "exec")
-
-
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
     """The setuptools must be loaded as a package, to prevent it to break in
     the future.
