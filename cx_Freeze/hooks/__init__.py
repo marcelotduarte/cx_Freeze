@@ -317,11 +317,6 @@ def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("pikepdf")
 
 
-def load_PIL(finder: ModuleFinder, module: Module) -> None:
-    """The Pillow must be loaded as a package."""
-    finder.include_package("PIL")
-
-
 def load_plotly(finder: ModuleFinder, module: Module) -> None:
     """The plotly must be loaded as a package."""
     finder.include_package("plotly")
