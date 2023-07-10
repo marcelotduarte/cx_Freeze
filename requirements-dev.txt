@@ -12,7 +12,7 @@ patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'
 
 # dev
 bump2version==1.0.1
-cibuildwheel==2.13.1
+cibuildwheel==2.14.0
 pre-commit==3.3.3
 pylint==2.17.4
 wheel==0.40.0
