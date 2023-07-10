@@ -53,6 +53,14 @@ def load_boto(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("boto.vendored.six.moves")
 
 
+def load_boto3(finder: ModuleFinder, module: Module) -> None:
+    """The boto3 package."""
+    finder.include_package("boto3.dynamodb")
+    finder.include_package("boto3.ec2")
+    finder.include_package("boto3.s3")
+    finder.include_files(module.file.parent / "data", "lib/boto3/data")
+
+
 def load_cElementTree(finder: ModuleFinder, module: Module) -> None:
     """The cElementTree module implicitly loads the elementtree.ElementTree
     module; make sure this happens.
