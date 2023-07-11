@@ -220,8 +220,8 @@ cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
 repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
-archs = "x86_64 universal2 arm64"
-skip = "cp38-macosx_universal2 cp38-macosx_arm64"
+archs = "x86_64 arm64"
+skip = "cp38-macosx_arm64"
 repair-wheel-command = """
 delocate-listdeps {wheel} &&
 delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
