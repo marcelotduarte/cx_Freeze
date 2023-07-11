@@ -12,8 +12,8 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     name: Build wheel on [${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
-
     steps:
+
       - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v4
@@ -32,7 +32,11 @@ jobs:
         shell: bash
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
+
+      - name: Add sdist
+        if: runner.os == 'Linux'
+        run: python setup.py sdist -d wheelhouse
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v3
@@ -41,12 +45,17 @@ jobs:
           path: wheelhouse
 
   publish:
+    name: Publish package to PyPI
     needs:
       - build_wheel
     runs-on: ubuntu-latest
-    name: Publish package to PyPI
-
+    environment:
+      name: pypi
+      url: https://pypi.org/p/cx-Freeze
+    permissions:
+      id-token: write
     steps:
+
       - uses: actions/checkout@v3
 
       - name: Setup Python
@@ -61,15 +70,10 @@ jobs:
           name: cx-freeze-wheelhouse
           path: wheelhouse
 
-      - name: Add sdist
-        run: python setup.py sdist -d wheelhouse/
-
       - name: Publish package to PyPI
         if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
           packages-dir: wheelhouse/
           skip-existing: true
           verbose: true
@@ -79,8 +83,8 @@ jobs:
       - build_wheel
     runs-on: ubuntu-latest
     name: Update cx_Freeze/bases and util module
-
     steps:
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
