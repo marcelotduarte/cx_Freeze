@@ -155,6 +155,11 @@ def load_datetime(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("time")
 
 
+def load_discord(finder: ModuleFinder, module: Module) -> None:
+    """py-cord requires its metadata."""
+    module.update_distribution("py-cord")
+
+
 def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
     """The optik module is the old name for the optparse module; ignore the
     module if it cannot be found.
