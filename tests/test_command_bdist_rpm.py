@@ -116,7 +116,7 @@ def test_bdist_rpm_simple(datafiles: Path):
     dist_created = datafiles / "dist"
 
     process = run(
-        [sys.executable, "setup.py", "bdist_rpm"],
+        [sys.executable, "setup.py", "bdist_rpm", "--quiet"],
         text=True,
         capture_output=True,
         check=False,
@@ -158,6 +158,5 @@ def test_bdist_rpm(datafiles: Path):
             pytest.fail(process.stderr)
 
     base_name = f"test_{package}-{version}"
-
     file_created = dist_created / f"{base_name}-1.{arch}.rpm"
     assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
