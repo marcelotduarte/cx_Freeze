@@ -11,8 +11,8 @@ import os
 import shutil
 import subprocess
 import sys
+import tarfile
 from sysconfig import get_python_version
-from tarfile import TarFile
 
 from setuptools import Command
 
@@ -329,13 +329,21 @@ class BdistRPM(Command):
 
         # Make a source distribution and copy to SOURCES directory with
         # optional icon.
+        def exclude_filter(info: tarfile.TarInfo) -> tarfile.TarInfo | None:
+            if (
+                os.path.basename(info.name) in ("build", "dist")
+                and info.isdir()
+            ):
+                return None
+            return info
+
         name = self.distribution.get_name()
         version = self.distribution.get_version()
         source = f"{name}-{version}"
         source_dir = rpm_dir["SOURCES"]
         source_fullname = os.path.join(source_dir, source + ".tar.gz")
-        with TarFile.open(source_fullname, "w:gz") as tar:
-            tar.add(".", source)
+        with tarfile.open(source_fullname, "w:gz") as tar:
+            tar.add(".", source, filter=exclude_filter)
         if self.icon:
             if os.path.exists(self.icon):
                 self.copy_file(self.icon, source_dir)
@@ -523,7 +531,7 @@ class BdistRPM(Command):
         # rpm scripts
         # figure out default build script
         def_setup_call = f"{self.python} {self.distribution.script_name}"
-        def_build = f"{def_setup_call} build_exe"
+        def_build = f"{def_setup_call} build_exe -O1"
         def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
         # insert contents of files
@@ -533,8 +541,10 @@ class BdistRPM(Command):
         # are just text that we drop in as-is.  Hmmm.
 
         install_cmd = (
-            f"{def_setup_call} install -O1 --root=$RPM_BUILD_ROOT "
-            "--record=INSTALLED_FILES"
+            f"{def_setup_call} install --root=$RPM_BUILD_ROOT "
+            "--record=INSTALLED_FILES --skip-build; "
+            "sed -i 's/^/\"/' INSTALLED_FILES; "
+            "sed -i 's/$/\"/' INSTALLED_FILES"
         )
 
         script_options = [

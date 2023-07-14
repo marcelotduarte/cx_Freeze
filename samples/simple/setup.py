@@ -19,4 +19,11 @@ setup(
     version="0.1.2.3",
     description="Sample cx_Freeze script",
     executables=executables,
+    options={
+        "build_exe": {
+            "excludes": ["tkinter"],
+            "replace_paths": [("*", "")],
+            "silent": True,
+        }
+    },
 )
