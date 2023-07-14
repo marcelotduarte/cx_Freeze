@@ -22,8 +22,11 @@ def load_multiprocessing(
     Note: Using multiprocessing.spawn.freeze_support directly because it works
     for all OS, not only Windows.
     """
+    # Support for:
+    # - fork in Unix (including macOS) is native;
+    # - spawn in Windows is native (since 4.3.4) but was improved in v6.2;
+    # - spawn and forkserver in Unix is implemented here.
     if IS_WINDOWS:
-        # working on Windows since v4.3.4, complete support since v6.2
         return
     if module.file.suffix == ".pyc":  # source unavailable
         return
@@ -36,7 +39,7 @@ def load_multiprocessing(
         if re.search(r"^from multiprocessing.* import main.*", cmd):
             exec(cmd)
             sys.exit()
-    # run the freeze_support to avoid infinite loop
+    # workaround for python docs: run the freeze_support to avoid infinite loop
     from multiprocessing.spawn import freeze_support as spawn_freeze_support
     spawn_freeze_support()
     del spawn_freeze_support

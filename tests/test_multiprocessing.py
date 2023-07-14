@@ -32,6 +32,20 @@ sample1.py
         print(q.get())
         p.join()
 sample2.py
+    import multiprocessing
+
+    def foo(q):
+        q.put('hello')
+
+    if __name__ == '__main__':
+        ctx = multiprocessing.get_context('spawn')
+        ctx.freeze_support()
+        q = ctx.Queue()
+        p = ctx.Process(target=foo, args=(q,))
+        p.start()
+        print(q.get())
+        p.join()
+sample3.py
     if __name__ ==  "__main__":
         import multiprocessing
         multiprocessing.freeze_support()
@@ -47,7 +61,11 @@ setup.py
         name="test_multiprocessing",
         version="0.1",
         description="Sample for test with cx_Freeze",
-        executables=[Executable("sample1.py"), Executable("sample2.py")],
+        executables=[
+            Executable("sample1.py"),
+            Executable("sample2.py"),
+            Executable("sample3.py"),
+        ],
         options={
             "build_exe": {
                 "excludes": ["tkinter"],
@@ -56,15 +74,15 @@ setup.py
         }
     )
 """
+EXPECTED_OUTPUT = ["hello", "hello", "creating dict...done!"]
 
 
 def _parameters_data():
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
-        for i in range(2):
+        for i, expected in enumerate(EXPECTED_OUTPUT):
             sample = f"sample{i+1}"
-            expected = "hello" if i == 0 else "creating dict...done!"
             test_id = f"{sample},{method}"
             yield pytest.param(source, sample, expected, id=test_id)
 
