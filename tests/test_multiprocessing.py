@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import multiprocessing as mp
 import os
 import sys
 from pathlib import Path
@@ -55,26 +56,22 @@ setup.py
         }
     )
 """
-SOURCE_FORK = SOURCE.replace("('spawn')", "('fork')")
-SOURCE_FORKSERVER = SOURCE.replace("('spawn')", "('forkserver')")
-DONE = "creating dict...done!"
-LINUX_ONLY = pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 
 
-@pytest.mark.parametrize(
-    ("source", "number", "expected"),
-    [
-        (SOURCE, 1, "hello"),
-        (SOURCE, 2, DONE),
-        pytest.param(SOURCE_FORK, 1, "hello", marks=LINUX_ONLY),
-        pytest.param(SOURCE_FORK, 2, DONE, marks=LINUX_ONLY),
-        pytest.param(SOURCE_FORKSERVER, 1, "hello", marks=LINUX_ONLY),
-        pytest.param(SOURCE_FORKSERVER, 2, DONE, marks=LINUX_ONLY),
-    ],
-    ids=["spawn1", "spawn2", "fork1", "fork2", "forkserver1", "forkserver2"],
-)
+def _parameters_data():
+    methods = mp.get_all_start_methods()
+    for method in methods:
+        source = SOURCE.replace("('spawn')", f"('{method}')")
+        for i in range(2):
+            sample = f"sample{i+1}"
+            expected = "hello" if i == 0 else "creating dict...done!"
+            test_id = f"{sample},{method}"
+            yield pytest.param(source, sample, expected, id=test_id)
+
+
+@pytest.mark.parametrize(("source", "sample", "expected"), _parameters_data())
 def test_multiprocessing(
-    tmp_path: Path, source: str, number: int, expected: str
+    tmp_path: Path, source: str, sample: str, expected: str
 ):
     """Provides test cases for multiprocessing."""
     create_package(tmp_path, source)
@@ -85,7 +82,7 @@ def test_multiprocessing(
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
-    executable = tmp_path / BUILD_EXE_DIR / f"sample{number}{suffix}"
+    executable = tmp_path / BUILD_EXE_DIR / f"{sample}{suffix}"
     assert executable.is_file()
     output = check_output(
         [os.fspath(executable)], text=True, timeout=10, cwd=os.fspath(tmp_path)
