@@ -32,7 +32,7 @@ jobs:
         shell: bash
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
+        run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Add sdist
         if: runner.os == 'Linux'
