@@ -1,6 +1,9 @@
 """Source of samples to tests."""
+from __future__ import annotations
 
+import string
 from pathlib import Path
+from textwrap import dedent
 
 # Each test description is a list of 5 items:
 #
@@ -67,18 +70,16 @@ CODING_EXPLICIT_CP1252_TEST = [
     ["a_cp1252", "b_utf8"],
     [],
     [],
-    b"""\
+    """\
 a_cp1252.py
     # coding=cp1252
     # 0xe2 is not allowed in utf8
     print('CP1252 test P\xe2t\xe9')
     import b_utf8
-"""
-    + """\
 b_utf8.py
     # use the default of utf8
     print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
-""".encode(),
+""",
 ]
 
 CODING_EXPLICIT_UTF8_TEST = [
@@ -457,21 +458,14 @@ setup.py
 
 def create_package(test_dir: Path, source: str):
     """Create package in test_dir, based on source."""
-    ofi = None
-    try:
-        for line in source.splitlines():
-            if not isinstance(line, bytes):
-                line = line.encode("utf-8")  # noqa: PLW2901
-            if line.startswith((b" ", b"\t")):
-                ofi.write(line.strip() + b"\n")
-            else:
-                if ofi:
-                    ofi.close()
-                if isinstance(line, bytes):
-                    line = line.decode("utf-8")  # noqa: PLW2901
-                path = test_dir / line.strip()
+    buf = []
+    path: Path | None = None
+    for line in [*source.splitlines(), "EOF"]:
+        if not line.startswith(tuple(string.ascii_letters)):
+            buf.append(line)
+        else:
+            if path:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                ofi = path.open("wb")
-    finally:
-        if ofi:
-            ofi.close()
+                path.write_bytes(dedent("\n".join(buf)).encode("utf-8"))
+                buf = []
+            path = test_dir / line.strip()
