@@ -42,5 +42,6 @@ class App(wx.App):
         return True
 
 
-app = App(1)
-app.MainLoop()
+if __name__ == "__main__":
+    app = App(1)
+    app.MainLoop()
