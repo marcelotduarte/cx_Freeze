@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 
 from ..._compat import IS_CONDA, IS_LINUX, IS_WINDOWS
-from ...common import get_resource_file_path
+from ...common import code_object_replace_function, get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
 from .._qthooks import copy_qt_files
@@ -76,7 +76,19 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         code_string += "import PySide2._cx_freeze_resource\n"
     code_string += "import PySide2._cx_freeze_qt_debug\n"
     code_string += "# cx_Freeze patch end\n"
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    code = compile(code_string, os.fspath(module.file), "exec")
+
+    # shiboken2 in zip_include_packages
+    shiboken2 = finder.include_package("shiboken2")
+    if shiboken2.in_file_system == 0:
+        name = "_additional_dll_directories"
+        source = f"""\
+        def {name}(package_dir):
+            return []
+        """
+        code = code_object_replace_function(code, name, source)
+
+    module.code = code
 
 
 __all__ = [
