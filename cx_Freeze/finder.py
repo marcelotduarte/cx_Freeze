@@ -26,16 +26,19 @@ from .common import (
 )
 from .module import ConstantsModule, Module
 
-BUILD_LIST = opcode.opmap["BUILD_LIST"]
+CALL_FUNCTION = opcode.opmap.get("CALL_FUNCTION")
+CALL = opcode.opmap.get("CALL")
+PRECALL = opcode.opmap.get("PRECALL")
+
 EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
+LOAD_NAME = opcode.opmap["LOAD_NAME"]
 IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
 IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
 # Python 3.12+ uses CALL_INTRINSIC_1 with argument 2
 IMPORT_STAR = (
     opcode.opmap.get("IMPORT_STAR") or opcode.opmap["CALL_INTRINSIC_1"]
 )
-STORE_FAST = opcode.opmap["STORE_FAST"]
 STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
@@ -451,7 +454,7 @@ class ModuleFinder:
                 module.code = self._replace_paths_in_code(module)
 
             # Scan the module code for import statements
-            self._scan_code(module.code, module, deferred_imports)
+            self._scan_code(module, deferred_imports)
 
             # Verify __package__ in use
             module.code = self._replace_package_in_code(module)
@@ -565,19 +568,23 @@ class ModuleFinder:
 
     def _scan_code(
         self,
-        code,
         module: Module,
         deferred_imports: DeferredList,
+        code: CodeType | None = None,
         top_level: bool = True,
     ):
         """Scan code, looking for imported modules and keeping track of the
         constants that have been created in order to better tell which
         modules are truly missing.
         """
+        if code is None:
+            code = module.code
         arguments = []
+        name = None
+        import_call = 0
         imported_module = None
-        co_code = code.co_code
         extended_arg = 0
+        co_code = code.co_code
         for i in range(0, len(co_code), 2):
             opc = co_code[i]
             if opc >= HAVE_ARGUMENT:
@@ -593,9 +600,37 @@ class ModuleFinder:
                 arguments.append(code.co_consts[arg])
                 continue
 
-            # import statement: attempt to import module
-            if opc == IMPORT_NAME:
+            # __import__()
+            if opc == LOAD_NAME:
                 name = code.co_names[arg]
+                continue
+            if name and name == "__import__" and len(arguments) == 1:
+                # Try to identify a __import__ call
+                # Python 3.12 bytecode:
+                # 20           2 PUSH_NULL
+                #              4 LOAD_NAME                0 (__import__)
+                #              6 LOAD_CONST               0 ('pkgutil')
+                #              8 CALL                     1
+                # Python 3.6 to 3.10 uses CALL_FUNCTION instead fo CALL
+                # Python 3.11 uses PRECALL then CALL
+                if CALL_FUNCTION and (opc, arg) == (CALL_FUNCTION, 1):
+                    import_call = 1
+                elif PRECALL:
+                    if (opc, arg) == (PRECALL, 1):
+                        import_call = arg
+                        continue
+                    arg = import_call
+                if CALL and (opc, arg) == (CALL, 1):
+                    import_call = 1
+
+            # import statement: attempt to import module or __import__
+            if opc == IMPORT_NAME or import_call == 1:
+                if opc == IMPORT_NAME:
+                    name = code.co_names[arg]
+                else:
+                    name = arguments[0]
+                    arguments = []
+                    logging.debug("Scan code detected __import__(%r)", name)
                 if len(arguments) >= 2:
                     relative_import_index, from_list = arguments[-2:]
                 else:
@@ -634,12 +669,14 @@ class ModuleFinder:
             # reset arguments; these are only needed for import statements so
             # ignore them in all other cases!
             arguments = []
+            name = None
+            import_call = 0
 
         # Scan the code objects from function & class definitions
         for constant in code.co_consts:
             if isinstance(constant, type(code)):
                 self._scan_code(
-                    constant, module, deferred_imports, top_level=False
+                    module, deferred_imports, code=constant, top_level=False
                 )
 
     def add_alias(self, name: str, alias_for: str) -> None:
