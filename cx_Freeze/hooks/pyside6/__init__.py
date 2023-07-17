@@ -84,6 +84,7 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
             return []
         """
         code = code_object_replace_function(code, name, source)
+    finder.include_module("inspect")  # for shiboken6
 
     module.code = code
 

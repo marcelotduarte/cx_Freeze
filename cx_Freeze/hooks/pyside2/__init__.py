@@ -87,6 +87,7 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
             return []
         """
         code = code_object_replace_function(code, name, source)
+    finder.include_module("inspect")  # for shiboken2
 
     module.code = code
 
