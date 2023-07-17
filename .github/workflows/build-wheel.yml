@@ -3,18 +3,32 @@ name: Build wheel
 on:
   release:
     types: [created]
+  workflow_call:
+    inputs:
+      branch:
+        default: ${{ github.ref }}
+        required: true
+        type: string
   workflow_dispatch:
 
 jobs:
   build_wheel:
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-    name: Build wheel on [${{ matrix.os }}]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12-dev"]
+    name: Build [${{ matrix.os }}-${{ matrix.python-version }}]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
 
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+          repository: marcelotduarte/cx_Freeze
 
       - uses: actions/setup-python@v4
         with:
@@ -29,10 +43,12 @@ jobs:
 
       - name: Install cibuildwheel
         run: python -m pip install "`grep cibuildwheel requirements-dev.txt`"
-        shell: bash
 
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
+      - name: Build wheel for Python ${{ matrix.python-version }}
+        run: |
+          pyver=$(python -c "print('${{ matrix.python-version }}'.partition('-')[0].replace('.',''))")
+          export CIBW_BUILD="cp${pyver}*"
+          python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
 
       - name: Add sdist
         if: runner.os == 'Linux'
@@ -46,6 +62,7 @@ jobs:
 
   publish:
     name: Publish package to PyPI
+    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
     needs:
       - build_wheel
     runs-on: ubuntu-latest
@@ -57,6 +74,9 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+          repository: marcelotduarte/cx_Freeze
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -71,23 +91,25 @@ jobs:
           path: wheelhouse
 
       - name: Publish package to PyPI
-        if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: wheelhouse/
-          skip-existing: true
+          packages_dir: wheelhouse/
+          skip_existing: true
           verbose: true
 
   update_bases:
+    name: Update cx_Freeze/bases and util module
+    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
     needs:
       - build_wheel
     runs-on: ubuntu-latest
-    name: Update cx_Freeze/bases and util module
     steps:
 
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ inputs.branch }}
+          repository: marcelotduarte/cx_Freeze
           token: ${{ secrets.PUSH }}
 
       - name: Download the artifact
@@ -114,6 +136,6 @@ jobs:
             echo "# $SHA256SUM1" > cx_Freeze/bases/__init__.py
             git add cx_Freeze/bases/__init__.py
             # Update
-            git commit -m "bases: update base executables and util module"
-            git push --set-upstream origin main
+            git commit -m "bases: update base executables and util module [skip ci]"
+            git push --set-upstream origin ${{ inputs.branch }}
           fi
