@@ -532,14 +532,13 @@ def load_ssl(finder: ModuleFinder, module: Module) -> None:
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
     """The sysconfig module implicitly loads _sysconfigdata."""
+    if IS_WINDOWS:
+        return
     get_data_name = getattr(sysconfig, "_get_sysconfigdata_name", None)
     if get_data_name is None:
-        datafile = "_sysconfigdata"
-    else:
-        if not hasattr(sys, "abiflags"):
-            sys.abiflags = ""
-        datafile = get_data_name()
-    finder.include_module(datafile)
+        return
+    with suppress(ImportError):
+        finder.include_module(get_data_name())
 
 
 def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
