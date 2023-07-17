@@ -12,12 +12,11 @@ pip install --upgrade wxPython
 ```
 
 There are wheels for ubuntu in:
-https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04
 https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04
 https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04
 
 For example:
 
 ```
-pip install -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04 wxPython
+pip install -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04 wxPython
 ```

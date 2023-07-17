@@ -13,7 +13,7 @@ import wx
 
 class CanvasFrame(wx.Frame):
     def __init__(self):
-        super().__init__(None, -1, "CanvasFrame", size=(550, 350))
+        wx.Frame.__init__(self, None, -1, "CanvasFrame", size=(550, 350))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot()
@@ -43,9 +43,9 @@ class CanvasFrame(wx.Frame):
 class App(wx.App):
     def OnInit(self):
         """Create the main window and insert the custom frame."""
-        self.Init()
         frame = CanvasFrame()
         frame.Show(True)
+        self.SetTopWindow(frame)
 
         return True
 
