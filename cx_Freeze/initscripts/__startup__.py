@@ -13,15 +13,12 @@ from importlib.machinery import (
     ModuleSpec,
     PathFinder,
 )
-from sysconfig import get_platform
 
 import BUILD_CONSTANTS
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
-IS_MINGW = get_platform().startswith("mingw")
-IS_WINDOWS = get_platform().startswith("win")
 
 
 class ExtensionFinder(PathFinder):
@@ -51,14 +48,13 @@ class ExtensionFinder(PathFinder):
 
 def init():
     """Basic initialization of the startup script."""
-    # update sys module
+    # to avoid bugs (especially in MSYS2) use normpath after any change
     sys.executable = os.path.normpath(sys.executable)
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
     sys.meta_path.append(ExtensionFinder)
 
-    if IS_MINGW:
-        sys.path = list(map(os.path.normpath, sys.path))
-    if IS_WINDOWS or IS_MINGW:
+    sys.path = list(map(os.path.normpath, sys.path))
+    if sys.platform.startswith("win"):
         # for python >= 3.8, the search for dlls is sandboxed
         search_path: list[str] = [
             entry for entry in sys.path if os.path.isdir(entry)
@@ -68,19 +64,17 @@ def init():
             search_path.insert(0, add_to_path)
         # add to dll search path (or to path)
         env_path = os.environ.get("PATH", "").split(os.pathsep)
-        if IS_MINGW:
-            env_path = list(map(os.path.normpath, env_path))
+        env_path = list(map(os.path.normpath, env_path))
         for directory in search_path:
             try:
                 os.add_dll_directory(directory)
             except OSError:
                 pass
             except AttributeError:
-                # add to path only when python < 3.8
+                # XXX: we need to add to path only when python < 3.8
                 if directory not in env_path:
                     env_path.insert(0, directory)
-        if IS_MINGW:
-            env_path = [entry.replace(os.sep, os.altsep) for entry in env_path]
+        env_path = [entry.replace(os.sep, "\\") for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
 
     # set environment variables
@@ -91,7 +85,7 @@ def init():
         "PYTHONTZPATH",
     ):
         try:
-            value = getattr(BUILD_CONSTANTS, name)
+            value = os.path.normpath(getattr(BUILD_CONSTANTS, name))
         except AttributeError:
             pass
         else:
@@ -104,7 +98,7 @@ def run():
     # basically, the basename of executable plus __init__
     # but can be renamed when only one executable exists
     name = os.path.normcase(os.path.basename(sys.executable))
-    if IS_WINDOWS or IS_MINGW:
+    if sys.platform.startswith("win"):
         name, _ = os.path.splitext(name)
     name = name.partition(".")[0]
     if not name.isidentifier():
