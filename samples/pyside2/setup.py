@@ -49,7 +49,7 @@ build_exe_options = {
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     "include_files": include_files,
-    "zip_include_packages": ["PySide2"],
+    "zip_include_packages": ["PySide2", "shiboken2"],
 }
 
 executables = [Executable("test_pyside2.py", base=base)]
