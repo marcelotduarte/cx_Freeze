@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 
 from ..._compat import IS_MINGW
-from ...common import get_resource_file_path
+from ...common import code_object_replace_function, get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
 from .._qthooks import load_qt_qaxcontainer as load_pyside6_qaxcontainer
@@ -70,12 +70,23 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
 
     # Inject code to init
     code_string = module.file.read_text(encoding="utf-8")
-    code_string += """
-# cx_Freeze patch start
-import PySide6._cx_freeze_qt_debug
-# cx_Freeze patch end
-"""
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    code_string += "\n# cx_Freeze patch start\n"
+    code_string += "import PySide6._cx_freeze_qt_debug\n"
+    code_string += "# cx_Freeze patch end\n"
+    code = compile(code_string, os.fspath(module.file), "exec")
+
+    # shiboken6 in zip_include_packages
+    shiboken6 = finder.include_package("shiboken6")
+    if shiboken6.in_file_system == 0:
+        name = "_additional_dll_directories"
+        source = f"""\
+        def {name}(package_dir):
+            return []
+        """
+        code = code_object_replace_function(code, name, source)
+    finder.include_module("inspect")  # for shiboken6
+
+    module.code = code
 
 
 __all__ = [
