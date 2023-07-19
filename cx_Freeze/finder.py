@@ -78,27 +78,6 @@ class ModuleFinder:
         self._bad_modules = {}
         for name in self._base_hooks.exclude.MODULES:
             self.exclude_module(name)
-        self._add_base_modules()
-
-    def _add_base_modules(self) -> None:
-        """Add the base modules to the finder. These are the modules that
-        Python imports itself during initialization and, if not found,
-        can result in behavior that differs from running from source;
-        also include modules used within the bootstrap code.
-
-        When cx_Freeze is built, these modules (and modules they load) are
-        included in the startup zip file.
-        """
-        self.include_module("traceback")
-        self.include_module("warnings")
-        self.include_module("unicodedata")
-        self.include_package("encodings")
-        self.include_module("io")
-        self.include_module("os")
-        self.include_module("sys")
-        self.include_module("zlib")
-        self.include_module("collections.abc")
-        self.include_module("importlib.abc")
 
     def _add_module(
         self,
@@ -684,6 +663,26 @@ class ModuleFinder:
         import a module using the alias name, import the actual name instead.
         """
         self.aliases[name] = alias_for
+
+    def add_base_modules(self) -> None:
+        """Add the base modules to the finder. These are the modules that
+        Python imports itself during initialization and, if not found,
+        can result in behavior that differs from running from source;
+        also include modules used within the bootstrap code.
+
+        When cx_Freeze is built, these modules (and modules they load) are
+        included in the startup zip file.
+        """
+        self.include_package("collections")
+        self.include_package("encodings")
+        self.include_package("importlib")
+        self.include_module("io")
+        self.include_module("os")
+        self.include_module("sys")
+        self.include_module("traceback")
+        self.include_module("unicodedata")
+        self.include_module("warnings")
+        self.include_module("zlib")
 
     def add_constant(self, name: str, value: str) -> None:
         """Makes available a constant in the module BUILD_CONSTANTS which is
