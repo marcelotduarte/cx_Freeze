@@ -62,8 +62,6 @@ def _do_test(
         # debug=debug,
         **kwargs,
     )
-    finder.modules = []  # remove default modules
-    finder._modules = {}
     finder.include_module(import_this)
     if report:
         finder.report_missing_modules()

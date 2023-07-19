@@ -372,6 +372,7 @@ class Freezer:
             finder.include_module(name)
         for name in self.packages:
             finder.include_package(name)
+        finder.add_base_modules()
         return finder
 
     def _post_freeze_hook(self) -> None:
