@@ -131,6 +131,18 @@ find_spec/hello.py
 """,
 ]
 
+IMPORT_CALL_TEST = [
+    "testpkg1",
+    ["testpkg1", "fake_pkgutil"],
+    [],
+    [],
+    """\
+testpkg1/__init__.py
+    __path__ = __import__('fake_pkgutil').extend_path(__path__, __name__)
+fake_pkgutil.py
+""",
+]
+
 INVALID_MODULE_NAME_TEST = [
     "testpkg1",
     [],
