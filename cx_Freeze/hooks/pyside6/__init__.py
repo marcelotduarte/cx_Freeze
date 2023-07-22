@@ -1,12 +1,12 @@
 """A collection of functions which are triggered automatically by finder when
 PySide6 package is included.
 """
-
 from __future__ import annotations
 
 import os
+from textwrap import dedent
 
-from ..._compat import IS_MINGW
+from ..._compat import IS_CONDA, IS_MINGW
 from ...common import code_object_replace_function, get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -62,17 +62,28 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyside6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide6._cx_freeze_qt_debug")
 
-    # Include a copy of qt.conf (works for pyside6 6.4.0 mingw)
+    # Include a resource for conda-forge
+    if IS_CONDA:
+        # The resource include a qt.conf (Prefix = lib/PySide6)
+        resource = get_resource_file_path("hooks/pyside6", "resource", ".py")
+        finder.include_file_as_module(resource, "PySide6._cx_freeze_resource")
+
     if IS_MINGW:
+        # Include a qt.conf in the module path (Prefix = lib/PySide6)
         qt_conf = get_resource_file_path("hooks/pyside6", "qt", ".conf")
-        if qt_conf:
-            finder.include_files(qt_conf, "qt.conf")
+        finder.include_files(qt_conf, qt_conf.name)
 
     # Inject code to init
     code_string = module.file.read_text(encoding="utf-8")
-    code_string += "\n# cx_Freeze patch start\n"
-    code_string += "import PySide6._cx_freeze_qt_debug\n"
-    code_string += "# cx_Freeze patch end\n"
+    code_string += dedent(
+        f"""
+        # cx_Freeze patch start
+        if {IS_CONDA}:
+            import PySide6._cx_freeze_resource
+        import PySide6._cx_freeze_qt_debug
+        # cx_Freeze patch end
+        """
+    )
     code = compile(code_string, os.fspath(module.file), "exec")
 
     # shiboken6 in zip_include_packages
