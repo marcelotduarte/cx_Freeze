@@ -1,11 +1,11 @@
 """A collection of functions which are triggered automatically by finder when
 PyQt5 package is included.
 """
-
 from __future__ import annotations
 
 import os
 from contextlib import suppress
+from textwrap import dedent
 
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
@@ -66,12 +66,14 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
 
     # Inject code to init
     code_string = module.file.read_text(encoding="utf-8")
-    code_string += """
-# cx_Freeze patch start
-import PyQt5._cx_freeze_add_library
-import PyQt5._cx_freeze_qt_debug
-# cx_Freeze patch end
-"""
+    code_string += dedent(
+        """
+        # cx_Freeze patch start
+        import PyQt5._cx_freeze_add_library
+        import PyQt5._cx_freeze_qt_debug
+        # cx_Freeze patch end
+        """
+    )
     module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
