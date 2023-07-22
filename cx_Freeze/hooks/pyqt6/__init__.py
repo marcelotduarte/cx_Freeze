@@ -1,11 +1,11 @@
 """A collection of functions which are triggered automatically by finder when
 PyQt6 package is included.
 """
-
 from __future__ import annotations
 
 import os
 import sys
+from textwrap import dedent
 
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
@@ -67,13 +67,19 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     # Include a copy of qt.conf (used by webengine)
     copy_qt_files(finder, "PyQt6", "LibraryExecutablesPath", "qt.conf")
 
+    # Include a qt.conf in the module path (Prefix = lib/PyQt6)
+    qt_conf = get_resource_file_path("hooks/pyqt6", "qt", ".conf")
+    finder.include_files(qt_conf, qt_conf.name)
+
     # Inject code to init
-    code_string = module.file.read_text(encoding="utf-8")
-    code_string += """
-# cx_Freeze patch start
-import PyQt6._cx_freeze_qt_debug
-# cx_Freeze patch end
-"""
+    code_string = module.file.read_text(encoding="utf_8")
+    code_string += dedent(
+        """
+        # cx_Freeze patch start
+        import PyQt6._cx_freeze_qt_debug
+        # cx_Freeze patch end
+        """
+    )
     module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
