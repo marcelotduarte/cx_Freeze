@@ -1,12 +1,12 @@
 """A collection of functions which are triggered automatically by finder when
 PySide2 package is included.
 """
-
 from __future__ import annotations
 
 import os
+from textwrap import dedent
 
-from ..._compat import IS_CONDA, IS_LINUX, IS_WINDOWS
+from ..._compat import IS_CONDA, IS_LINUX, IS_MINGW, IS_WINDOWS
 from ...common import code_object_replace_function, get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -60,22 +60,32 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_qt_debug")
 
-    # Include a resource with qt.conf for conda-forge windows/linux
+    # Include a resource for conda-forge windows/linux
     if IS_CONDA:
+        # The resource include a qt.conf (Prefix = lib/PySide2)
         resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
-    # Include a copy of qt.conf (used by webengine)
-    if IS_WINDOWS or IS_LINUX:
+    if IS_MINGW:
+        # Include a qt.conf in the module path (Prefix = lib/PySide2)
+        qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
+        finder.include_files(qt_conf, qt_conf.name)
+
+    # Include the specifc qt.conf used by webengine (Prefix = ..)
+    if IS_LINUX or IS_WINDOWS:
         copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to init
-    code_string = module.file.read_text(encoding="utf-8")
-    code_string += "\n# cx_Freeze patch start\n"
-    if IS_CONDA:
-        code_string += "import PySide2._cx_freeze_resource\n"
-    code_string += "import PySide2._cx_freeze_qt_debug\n"
-    code_string += "# cx_Freeze patch end\n"
+    code_string = module.file.read_text(encoding="utf_8")
+    code_string += dedent(
+        f"""
+        # cx_Freeze patch start
+        if {IS_CONDA}:
+            import PySide2._cx_freeze_resource
+        import PySide2._cx_freeze_qt_debug
+        # cx_Freeze patch end
+        """
+    )
     code = compile(code_string, os.fspath(module.file), "exec")
 
     # shiboken2 in zip_include_packages
