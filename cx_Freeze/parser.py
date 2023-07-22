@@ -192,7 +192,7 @@ class ELFParser(Parser):
             return self.dependent_files[path]
 
         dependent_files: set[Path] = set()
-        if not self.is_elf(path) or not os.access(path, os.X_OK):
+        if not self.is_elf(path):
             return dependent_files
 
         split_string = " => "
