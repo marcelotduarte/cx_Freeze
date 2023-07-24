@@ -10,6 +10,7 @@ from textwrap import dedent
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
+from .._qthooks import copy_qt_files
 from .._qthooks import load_qt_qt as load_pyqt5_qt
 from .._qthooks import load_qt_qtcharts as load_pyqt5_qtcharts
 from .._qthooks import (
@@ -55,22 +56,19 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         module.in_file_system = 2
 
-    # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the
-    # libraryPaths returns empty. Prior to this version, this doesn't happen.
-    qt_patch = get_resource_file_path("hooks/pyqt5", "add_library", ".py")
-    finder.include_file_as_module(qt_patch, "PyQt5._cx_freeze_add_library")
+    # Include a module that fix an issue and inject an optional debug code
+    qt_debug = get_resource_file_path("hooks/pyqt5", "_append_to_init", ".py")
+    finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_append_to_init")
 
-    # Include modules that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/pyqt5", "debug", ".py")
-    finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_qt_debug")
+    # Include the specific qt.conf used by webengine (Prefix = ..)
+    copy_qt_files(finder, "PyQt5", "LibraryExecutablesPath", "qt.conf")
 
-    # Inject code to init
-    code_string = module.file.read_text(encoding="utf-8")
+    # Inject code to the end of init
+    code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
         """
         # cx_Freeze patch start
-        import PyQt5._cx_freeze_add_library
-        import PyQt5._cx_freeze_qt_debug
+        import PyQt5._cx_freeze_append_to_init
         # cx_Freeze patch end
         """
     )
