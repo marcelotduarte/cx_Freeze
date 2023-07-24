@@ -6,7 +6,7 @@ from __future__ import annotations
 import os
 from textwrap import dedent
 
-from ..._compat import IS_CONDA, IS_LINUX, IS_MINGW, IS_WINDOWS
+from ..._compat import IS_CONDA, IS_MINGW
 from ...common import code_object_replace_function, get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -56,9 +56,16 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         module.in_file_system = 2
 
-    # Include modules that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
-    finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_qt_debug")
+    # Include a module that fix an issue and inject an optional debug code
+    qt_debug = get_resource_file_path(
+        "hooks/pyside2", "_append_to_init", ".py"
+    )
+    finder.include_file_as_module(
+        qt_debug, "PySide2._cx_freeze_append_to_init"
+    )
+
+    # Include the specific qt.conf used by webengine (Prefix = ..)
+    copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
 
     # Include a resource for conda-forge windows/linux
     if IS_CONDA:
@@ -71,10 +78,6 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
         finder.include_files(qt_conf, qt_conf.name)
 
-    # Include the specifc qt.conf used by webengine (Prefix = ..)
-    if IS_LINUX or IS_WINDOWS:
-        copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
-
     # Inject code to init
     code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
@@ -82,7 +85,7 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch start
         if {IS_CONDA}:
             import PySide2._cx_freeze_resource
-        import PySide2._cx_freeze_qt_debug
+        import PySide2._cx_freeze_append_to_init
         # cx_Freeze patch end
         """
     )
