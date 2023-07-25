@@ -49,7 +49,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
         source_path = getattr(distribution, "_path", None)
         if source_path is None:
             mask = f"{normalized_name}-{distribution.version}*-info"
-            source_path = list(distribution.locate_file("").glob(mask))[0]
+            source_path = next(iter(distribution.locate_file("").glob(mask)))
         if not source_path.exists():
             raise importlib_metadata.PackageNotFoundError(name)
 
