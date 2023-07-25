@@ -21,8 +21,8 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     tcltk = get_resource_file_path("bases", "tcltk", "")
     if tcltk and tcltk.is_dir():
         # manylinux wheels and macpython wheels store tcl/tk libraries
-        folders["TCL_LIBRARY"] = list(tcltk.glob("tcl*.*"))[0]
-        folders["TK_LIBRARY"] = list(tcltk.glob("tk*.*"))[0]
+        folders["TCL_LIBRARY"] = next(iter(tcltk.glob("tcl*.*")))
+        folders["TK_LIBRARY"] = next(iter(tcltk.glob("tk*.*")))
     else:
         # Windows, MSYS2, Miniconda: collect the tcl/tk libraries
         try:
