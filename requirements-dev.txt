@@ -17,7 +17,7 @@ pre-commit==3.3.3
 pylint==2.17.4
 wheel==0.41.0
 # doc
-sphinx==7.0.1
+sphinx==7.1.0
 sphinx-tabs==3.4.1
 furo==2023.5.20
 # test
