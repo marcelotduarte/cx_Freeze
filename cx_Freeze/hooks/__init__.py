@@ -519,17 +519,6 @@ def load_six(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("six.moves")
 
 
-def load_ssl(finder: ModuleFinder, module: Module) -> None:
-    """In Windows, the SSL module requires additional dlls to be present in the
-    build directory.
-    """
-    if IS_WINDOWS:
-        for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
-            libs_dir = Path(sys.base_prefix, "DLLs")
-            for dll_path in libs_dir.glob(dll_search):
-                finder.include_files(dll_path, Path("lib", dll_path.name))
-
-
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
     """The sysconfig module implicitly loads _sysconfigdata."""
     if IS_WINDOWS:
