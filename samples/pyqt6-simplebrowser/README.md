@@ -10,6 +10,10 @@ In a virtual environment, install by issuing the command:
 pip install --upgrade cx_Freeze PyQt6-WebEngine
 ```
 
+Using conda-forge:
+
+N/A
+
 # Support for inclusion of extra plugins:
 
 Please check the setup.py as example on how to use this feature.

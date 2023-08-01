@@ -7,7 +7,13 @@ Here are samples to test cx_Freeze or to show how to use a package in cx_Freeze.
 In a virtual environment, install by issuing the command:
 
 ```
-pip install --upgrade cx_Freeze PyQt5
+pip install --upgrade cx_Freeze PyQt5 PyQtWebEngine
+```
+
+Using conda-forge:
+
+```
+conda install --conda-forge cx_freeze pyqt pyqtwebengine
 ```
 
 # Support for inclusion of extra plugins:
