@@ -19,9 +19,6 @@ def _run():
     if plugins_dir.is_dir():
         qtcore.QCoreApplication.addLibraryPath(plugins_dir.as_posix())
 
-    # Support for QtWebEngine
-    os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
-
     # Inject a option to debug if environment variable QT_DEBUG is set.
     if os.environ.get("QT_DEBUG"):
         # Show QLibraryInfo paths.
