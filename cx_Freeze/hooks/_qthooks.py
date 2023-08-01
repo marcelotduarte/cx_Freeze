@@ -1,9 +1,9 @@
 """A collection of functions which are the base to hooks for PyQt5, PyQt6,
 PySide2 and PySide6.
 """
-
 from __future__ import annotations
 
+import json
 import os
 import sys
 from contextlib import suppress
@@ -387,16 +387,28 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             copy_qt_files(finder, name, "ArchDataPath", filename)
             # pyqt5 - all files listed in LibraryExecutablesPath
             copy_qt_files(finder, name, "LibraryExecutablesPath", filename)
-    elif IS_MACOS:
+    elif IS_MACOS and not IS_CONDA:
+        # wheels for macOS
         copy_qt_files(
             finder, name, "LibrariesPath", "QtWebEngineCore.framework"
         )
     else:
+        # wheels for Linux or conda-forge Linux and macOS
         copy_qt_files(
             finder, name, "LibraryExecutablesPath", "QtWebEngineProcess"
         )
-        # conda-forge linux
-        copy_qt_files(finder, name, "LibrariesPath", "libnss*.*")
+        if IS_CONDA:  # conda-forge Linux and macOS
+            prefix = Path(sys.prefix)
+            conda_meta = prefix / "conda-meta"
+            pkg = next(conda_meta.glob("nss-*.json"))
+            files = json.loads(pkg.read_text(encoding="utf-8"))["files"]
+            for file in files:
+                source = prefix / file
+                if source.match("libnss*.so") or source.match("libnss*.dylib"):
+                    finder.include_files(source, f"lib/{source.name}")
+        else:
+            copy_qt_files(finder, name, "LibraryExecutablesPath", "libnss*.*")
+
     copy_qt_files(finder, name, "DataPath", "resources")
     copy_qt_files(finder, name, "TranslationsPath")
 
