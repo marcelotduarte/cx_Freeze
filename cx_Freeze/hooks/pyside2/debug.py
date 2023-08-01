@@ -1,13 +1,10 @@
-"""Module used to inject a code to PySide2/__init__."""
+"""Module used to inject a debug code to PySide2/__init__."""
 import os
 import sys
 from pathlib import Path
 
 
-def _run():
-    # Support for QtWebEngine
-    os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
-
+def _debug():
     # Inject a option to debug if environment variable QT_DEBUG is set.
     if os.environ.get("QT_DEBUG"):
         qtcore = __import__("PySide2", fromlist=["QtCore"]).QtCore
@@ -23,4 +20,4 @@ def _run():
         print(" ", qtcore.QCoreApplication.libraryPaths(), file=sys.stdout)
 
 
-_run()
+_debug()

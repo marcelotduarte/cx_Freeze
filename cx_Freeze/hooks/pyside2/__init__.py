@@ -57,19 +57,11 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include a module that fix an issue and inject an optional debug code
-    qt_debug = get_resource_file_path(
-        "hooks/pyside2", "_append_to_init", ".py"
-    )
-    finder.include_file_as_module(
-        qt_debug, "PySide2._cx_freeze_append_to_init"
-    )
+    qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
+    finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_debug")
 
-    # Include the specific qt.conf used by webengine (Prefix = ..)
-    copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
-
-    # Include a resource for conda-forge windows/linux
+    # Include a resource with qt.conf (Prefix = lib/PySide2) for conda-forge
     if IS_CONDA:
-        # The resource include a qt.conf (Prefix = lib/PySide2)
         resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
@@ -78,6 +70,9 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
         finder.include_files(qt_conf, qt_conf.name)
 
+    # Include the optional qt.conf used by QtWebEngine (Prefix = ..)
+    copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
+
     # Inject code to init
     code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
@@ -85,7 +80,11 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch start
         if {IS_CONDA}:
             import PySide2._cx_freeze_resource
-        import PySide2._cx_freeze_append_to_init
+        else:
+            # Support for QtWebEngine
+            import os
+            os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
+        import PySide2._cx_freeze_debug
         # cx_Freeze patch end
         """
     )
