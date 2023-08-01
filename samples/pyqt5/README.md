@@ -10,6 +10,12 @@ In a virtual environment, install by issuing the command:
 pip install --upgrade cx_Freeze PyQt5
 ```
 
+Using conda-forge:
+
+```
+conda install --conda-forge cx_freeze pyqt
+```
+
 # Support for inclusion of extra plugins:
 
 Please check the setup.py as example on how to use this feature.
