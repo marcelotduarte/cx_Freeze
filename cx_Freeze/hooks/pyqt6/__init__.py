@@ -64,12 +64,12 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyqt6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt6._cx_freeze_qt_debug")
 
-    # Include a copy of qt.conf (used by webengine)
-    copy_qt_files(finder, "PyQt6", "LibraryExecutablesPath", "qt.conf")
-
     # Include a qt.conf in the module path (Prefix = lib/PyQt6)
     qt_conf = get_resource_file_path("hooks/pyqt6", "qt", ".conf")
     finder.include_files(qt_conf, qt_conf.name)
+
+    # Include a copy of qt.conf (used by QtWebEngine)
+    copy_qt_files(finder, "PyQt6", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to init
     code_string = module.file.read_text(encoding="utf_8")
