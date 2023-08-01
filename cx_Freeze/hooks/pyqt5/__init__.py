@@ -7,6 +7,7 @@ import os
 from contextlib import suppress
 from textwrap import dedent
 
+from ..._compat import IS_CONDA
 from ...common import get_resource_file_path
 from ...finder import ModuleFinder
 from ...module import Module
@@ -60,14 +61,25 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyqt5", "_append_to_init", ".py")
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_append_to_init")
 
-    # Include the specific qt.conf used by webengine (Prefix = ..)
+    # Include a resource with qt.conf (Prefix = lib/PyQt5) for conda-forge
+    if IS_CONDA:
+        resource = get_resource_file_path("hooks/pyqt5", "resource", ".py")
+        finder.include_file_as_module(resource, "PyQt5._cx_freeze_resource")
+
+    # Include the optional qt.conf used by QtWebEngine (Prefix = ..)
     copy_qt_files(finder, "PyQt5", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to the end of init
     code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
-        """
+        f"""
         # cx_Freeze patch start
+        if {IS_CONDA}:
+            import PyQt5._cx_freeze_resource
+        else:
+            # Support for QtWebEngine
+            import os
+            os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
         import PyQt5._cx_freeze_append_to_init
         # cx_Freeze patch end
         """

@@ -186,6 +186,7 @@ disable = [
 ]
 ignore-paths = [
     "cx_Freeze/darwintools.py",
+    "cx_Freeze/hooks/pyqt5/resource.py",
     "cx_Freeze/hooks/pyside2/resource.py",
     "cx_Freeze/hooks/pyside6/resource.py",
     "doc/src/conf.py",
