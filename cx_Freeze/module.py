@@ -5,8 +5,10 @@ from __future__ import annotations
 import ast
 import datetime
 import socket
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from contextlib import suppress
+from functools import cached_property, partial
+from importlib import import_module
 from keyword import iskeyword
 from pathlib import Path
 from types import CodeType
@@ -15,7 +17,7 @@ from ._compat import importlib_metadata
 from .common import TemporaryPath
 from .exception import OptionError
 
-__all__ = ["ConstantsModule", "Module"]
+__all__ = ["ConstantsModule", "Module", "ModuleHook"]
 
 
 class DistributionCache(importlib_metadata.PathDistribution):
@@ -133,6 +135,7 @@ class Module:
         self.parent: Module | None = parent
         self.code: CodeType | None = None
         self.distribution: DistributionCache | None = None
+        self.hook: ModuleHook | Callable | None = None
         self.exclude_names: set[str] = set()
         self.global_names: set[str] = set()
         self.ignore_names: set[str] = set()
@@ -142,6 +145,8 @@ class Module:
         self._in_file_system: int = 1
         # cache the dist-info files (metadata)
         self.update_distribution(name)
+        # add the load hook
+        self.load_hook()
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]
@@ -169,7 +174,7 @@ class Module:
         2. in the file system, only detected modules.
         """
         if self.parent is not None:
-            return self.parent.in_file_system
+            return self.root.in_file_system
         if self.path is None or self.file is None:
             return 0
         return self._in_file_system
@@ -177,6 +182,54 @@ class Module:
     @in_file_system.setter
     def in_file_system(self, value: int) -> None:
         self._in_file_system: int = value
+
+    def load_hook(self) -> None:
+        """Load hook for the given module if one is present.
+
+        For instance, a load hook for PyQt5.QtCore:
+        - Using ModuleHook class:
+            # module and hook methods are lowercased.
+            hook = pyqt5.Hook()
+            hook.qtcore()
+        - For functions present in hooks.__init__:
+            # module and load hook functions use the original case.
+            load_PyQt5_QtCore()
+        - For functions in a separated module:
+            # module and load hook functions are lowercased.
+            pyqt5.load_pyqt5_qtcore()
+        """
+        name = self.name.replace(".", "_")
+        if not isinstance(self.root.hook, ModuleHook):
+            try:
+                # new style hook using ModuleHook class - top-level call
+                root_name = self.root.name.lower()
+                hooks = import_module(f"cx_Freeze.hooks.{root_name}")
+                hook_cls = getattr(hooks, "Hook", None)
+                if hook_cls and issubclass(hook_cls, ModuleHook):
+                    self.root.hook = hook_cls(self.root)
+                else:
+                    # old style hook with lowercased functions
+                    func = getattr(hooks, f"load_{name.lower()}", None)
+                    self.hook = partial(func, module=self) if func else None
+                    return
+            except ImportError:
+                # old style hook with functions at hooks.__init__
+                hooks = import_module("cx_Freeze.hooks")
+                func = getattr(hooks, f"load_{name}", None)
+                self.hook = partial(func, module=self) if func else None
+                return
+        # new style hook using ModuleHook class - lower level call
+        if isinstance(self.root.hook, ModuleHook) and self.parent is not None:
+            func = getattr(self.root.hook, name.lower(), None)
+            self.hook = partial(func, module=self) if func else None
+
+    @cached_property
+    def root(self) -> Module:
+        """Module root parent."""
+        top_level_module: Module = self
+        while top_level_module.parent is not None:
+            top_level_module = top_level_module.parent
+        return top_level_module
 
     def update_distribution(self, name: str) -> None:
         """Update the distribution cache based on its name.
@@ -200,6 +253,20 @@ class Module:
             with suppress(importlib_metadata.PackageNotFoundError, ValueError):
                 DistributionCache.from_name(req_name)
         self.distribution = distribution
+
+
+class ModuleHook:
+    """The Module Hook class."""
+
+    def __init__(self, module: Module):
+        self.module = module
+        self.name = module.name.replace(".", "_").lower()
+
+    def __call__(self, finder):
+        # redirect to the top level hook
+        method = getattr(self, self.name, None)
+        if method:
+            method(finder, self.module)
 
 
 class ConstantsModule:
