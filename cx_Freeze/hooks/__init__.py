@@ -301,6 +301,13 @@ def load_lxml(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("lxml._elementpath")
 
 
+def load_markdown(finder: ModuleFinder, module: Module) -> None:
+    """The markdown package implicitly loads html.parser; make sure this
+    happens.
+    """
+    finder.include_module("html.parser")
+
+
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
     """The Numeric module optionally loads the dotblas module; ignore the error
     if this modules does not exist.
