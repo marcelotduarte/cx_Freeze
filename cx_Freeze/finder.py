@@ -12,6 +12,7 @@ from functools import cached_property
 from importlib import import_module
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
+from tempfile import TemporaryDirectory
 from types import CodeType
 from typing import Any, List, Tuple
 
@@ -84,6 +85,9 @@ class ModuleFinder:
         self._modules: dict[str, Module | None] = dict.fromkeys(excludes or [])
         self._bad_modules = {}
         self._exclude_unused_modules()
+        # pylint: disable-next=consider-using-with
+        self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
+        self.cache_path = Path(self._tmp_dir.name)
 
     def _add_module(
         self,
@@ -445,7 +449,10 @@ class ModuleFinder:
         else:
             raise ImportError(f"Unknown module loader in {path}", name=name)
 
-        # If there's a custom hook for this module, run it.
+        # Cache the dist-info files (metadata)
+        module.update_distribution(self.cache_path, name)
+
+        # Run custom hook for the module
         if module.hook:
             module.hook(self)
 

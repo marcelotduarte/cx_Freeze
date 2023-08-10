@@ -8,11 +8,8 @@ import sys
 from pathlib import Path
 
 from .._compat import IS_MACOS, IS_MINGW, IS_MINGW64, IS_WINDOWS
-from ..common import TemporaryPath
 from ..finder import ModuleFinder
 from ..module import Module
-
-temp_path = TemporaryPath()
 
 
 def load_cv2(finder: ModuleFinder, module: Module) -> None:
@@ -24,7 +21,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     """
     finder.include_package("numpy")
     if module.distribution is None:
-        module.update_distribution("opencv-python")
+        module.update_distribution(finder.cache_path, "opencv-python")
 
     source_dir = module.file.parent
     target_dir = Path("lib", "cv2")
@@ -46,7 +43,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
             source = Path(sys.base_prefix, "share/fonts")
         if source.is_dir():
             finder.include_files(source, target_dir / "fonts")
-        qt_conf: Path = temp_path.path / "qt.conf"
+        qt_conf: Path = finder.cache_path / "qt.conf"
         lines = ["[Paths]", f"Prefix = {target_dir.as_posix()}"]
         with qt_conf.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(lines))

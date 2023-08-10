@@ -536,12 +536,16 @@ class Freezer:
         self.zip_exclude_packages = zip_exclude_packages
         self.zip_include_all_packages = zip_include_all_packages
 
-    def _write_modules(self, filename: Path, finder: ModuleFinder):
-        finder.include_file_as_module(
-            *self.constants_module.create(finder.modules)
-        )
+    def _write_modules(self, filename: Path):
+        finder: ModuleFinder = self.finder
+        cache_path = finder.cache_path
 
         modules = [m for m in finder.modules if m.name not in finder.excludes]
+        modules.append(
+            finder.include_file_as_module(
+                self.constants_module.create(cache_path, modules)
+            )
+        )
         modules.sort(key=lambda m: m.name)
 
         if self.silent < 1:
@@ -648,17 +652,11 @@ class Freezer:
                     outfile.writestr(zinfo, data)
 
             # put the distribution files metadata in the zip file
-            dist_cachedir = None
-            for module in modules:
-                if module.distribution:
-                    dist_cachedir = module.distribution.locate_file(".")
-                    break
-            if dist_cachedir is not None:
-                pos = len(dist_cachedir.as_posix()) + 1
-                for name in dist_cachedir.rglob("*"):
-                    if name.is_dir():
-                        continue
-                    outfile.write(name, name.as_posix()[pos:])
+            pos = len(cache_path.as_posix()) + 1
+            for name in cache_path.rglob("*.dist-info/*"):
+                if name.is_dir():
+                    continue
+                outfile.write(name, name.as_posix()[pos:])
 
             # write any files to the zip file that were requested specially
             for source_path, target_path in finder.zip_includes:
@@ -695,10 +693,9 @@ class Freezer:
 
         # Write the modules
         target_dir = self.target_dir
-        library_zip = target_dir / "lib" / "library.zip"
-        self._write_modules(library_zip, finder)
+        self._write_modules(target_dir / "lib" / "library.zip")
 
-        excluded_dependent_files = self.finder.excluded_dependent_files
+        excluded_dependent_files = finder.excluded_dependent_files
         for source_path, target_path in finder.included_files:
             copy_dependent_files = source_path not in excluded_dependent_files
             if source_path.is_dir():

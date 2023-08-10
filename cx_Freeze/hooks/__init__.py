@@ -87,7 +87,7 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
 
 def load__cffi_backend(finder: ModuleFinder, module: Module) -> None:
     """Add the cffi metadata for _cffi_backend module."""
-    module.update_distribution("cffi")
+    module.update_distribution(finder.cache_path, "cffi")
 
 
 def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
@@ -157,7 +157,7 @@ def load_datetime(finder: ModuleFinder, module: Module) -> None:
 
 def load_discord(finder: ModuleFinder, module: Module) -> None:
     """py-cord requires its metadata."""
-    module.update_distribution("py-cord")
+    module.update_distribution(finder.cache_path, "py-cord")
 
 
 def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
@@ -176,7 +176,7 @@ def load_dummy_threading(finder: ModuleFinder, module: Module) -> None:
 
 def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
     """flask-compress requires its metadata."""
-    module.update_distribution("Flask_Compress")
+    module.update_distribution(finder.cache_path, "Flask_Compress")
 
 
 def load_ftplib(finder: ModuleFinder, module: Module) -> None:
@@ -198,7 +198,7 @@ def load_GifImagePlugin(finder: ModuleFinder, module: Module) -> None:
 
 def load_googleapiclient(finder: ModuleFinder, module: Module) -> None:
     """Add the googleapiclient metadata for googleapiclient package."""
-    module.update_distribution("google_api_python_client")
+    module.update_distribution(finder.cache_path, "google_api_python_client")
 
 
 def load_googleapiclient_discovery(
@@ -265,7 +265,7 @@ def load_idna(finder: ModuleFinder, module: Module) -> None:
 
 def load_imagej(finder: ModuleFinder, module: Module) -> None:
     """The pyimagej package requires its metadata."""
-    module.update_distribution("pyimagej")
+    module.update_distribution(finder.cache_path, "pyimagej")
 
 
 def load_jpype(finder: ModuleFinder, module: Module) -> None:
@@ -365,7 +365,7 @@ def load_pty(finder: ModuleFinder, module: Module) -> None:
 
 def load_ptr(finder: ModuleFinder, module: Module) -> None:
     """pytest-runner requires its metadata."""
-    module.update_distribution("pytest-runner")
+    module.update_distribution(finder.cache_path, "pytest-runner")
 
 
 def load_pycountry(finder: ModuleFinder, module: Module) -> None:
@@ -624,7 +624,7 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
 
 def load_yaml(finder: ModuleFinder, module: Module) -> None:
     """PyYAML requires its metadata."""
-    module.update_distribution("PyYAML")
+    module.update_distribution(finder.cache_path, "PyYAML")
 
 
 def load_zmq(finder: ModuleFinder, module: Module) -> None:

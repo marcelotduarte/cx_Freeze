@@ -5,7 +5,6 @@ from __future__ import annotations
 import shutil
 from contextlib import suppress
 from pathlib import Path, PurePath
-from tempfile import TemporaryDirectory
 from textwrap import dedent
 from types import CodeType
 from typing import List, Optional, Tuple, Union
@@ -34,24 +33,6 @@ class FilePath(Path):
         with suppress(FileNotFoundError):
             self.unlink()
         return self.__class__(target)
-
-
-class TemporaryPath(TemporaryDirectory):
-    """Create and return a Path-like temporary directory."""
-
-    def __init__(
-        self, filename=None, suffix=None, prefix=None, dir=None  # noqa: A002
-    ):
-        super().__init__(suffix, prefix or "cxfreeze-", dir)
-        if filename:
-            if Path(filename).parent.name:
-                raise ValueError("filename cannot contain directory")
-            self.path = FilePath(self.name, filename)
-        else:
-            self.path = FilePath(self.name)
-
-    def __enter__(self):
-        return self.path
 
 
 def get_resource_file_path(
