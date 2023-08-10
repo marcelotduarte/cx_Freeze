@@ -7,15 +7,14 @@ import datetime
 import socket
 from collections.abc import Callable, Sequence
 from contextlib import suppress
-from functools import cached_property, partial
+from functools import partial
 from importlib import import_module
 from keyword import iskeyword
 from pathlib import Path
 from types import CodeType
 
 from ._compat import importlib_metadata
-from .common import TemporaryPath
-from .exception import OptionError
+from .exception import ModuleError, OptionError
 
 __all__ = ["ConstantsModule", "Module", "ModuleHook"]
 
@@ -23,41 +22,42 @@ __all__ = ["ConstantsModule", "Module", "ModuleHook"]
 class DistributionCache(importlib_metadata.PathDistribution):
     """Cache the distribution package."""
 
-    _cachedir = TemporaryPath()
+    def __init__(self, cache_path: Path, name: str):
+        """Construct a distribution.
 
-    @staticmethod
-    def at(path: str | Path):
-        return DistributionCache(Path(path))
-
-    at.__doc__ = importlib_metadata.PathDistribution.at.__doc__
-
-    @classmethod
-    def from_name(cls, name: str):
-        """Return the Distribution for the given package name.
-
-        :param name: The name of the distribution package to search for.
-        :return: The Distribution instance (or subclass thereof) for the named
-            package, if found.
-        :raises PackageNotFoundError: When the named package's distribution
+        :param cache_path: Path indicating where to store the cache.
+        :param name: The name of the distribution package to cache.
+        :raises ModuleError: When the named package's distribution
             metadata cannot be found.
-        :raises ValueError: When an invalid value is supplied for name.
         """
-        distribution = super().from_name(name)
-
+        try:
+            distribution = importlib_metadata.PathDistribution.from_name(name)
+        except importlib_metadata.PackageNotFoundError:
+            distribution = None
+        if distribution is None:
+            raise ModuleError(name)
         # Cache dist-info files in a temporary directory
         normalized_name = getattr(distribution, "_normalized_name", None)
         if normalized_name is None:
             normalized_name = importlib_metadata.Prepared.normalize(name)
         source_path = getattr(distribution, "_path", None)
         if source_path is None:
-            mask = f"{normalized_name}-{distribution.version}*-info"
-            source_path = next(iter(distribution.locate_file("").glob(mask)))
-        if not source_path.exists():
-            raise importlib_metadata.PackageNotFoundError(name)
+            mask = f"{normalized_name}-{distribution.version}.*-info"
+            dist_path = list(distribution.locate_file(".").glob(mask))
+            if not dist_path:
+                mask = f"{name}-{distribution.version}.*-info"
+                dist_path = list(distribution.locate_file(".").glob(mask))
+            if dist_path:
+                source_path = dist_path[0]
+        if source_path is None or not source_path.exists():
+            raise ModuleError(name)
 
         target_name = f"{normalized_name}-{distribution.version}.dist-info"
-        target_path = cls._cachedir.path / target_name
-        target_path.mkdir(exist_ok=True)
+        target_path = cache_path / target_name
+        super().__init__(target_path)
+        if target_path.exists():  # cached
+            return
+        target_path.mkdir(parents=True)
 
         purelib = None
         if source_path.name.endswith(".dist-info"):
@@ -84,10 +84,8 @@ class DistributionCache(importlib_metadata.PathDistribution):
                 target.write_bytes(source.read_bytes())
             purelib = not source_path.joinpath("not-zip-safe").is_file()
 
-        cls._write_wheel_distinfo(target_path, purelib)
-        cls._write_record_distinfo(target_path)
-
-        return cls.at(target_path)
+        self._write_wheel_distinfo(target_path, purelib)
+        self._write_record_distinfo(target_path)
 
     @staticmethod
     def _write_wheel_distinfo(target_path: Path, purelib: bool):
@@ -118,6 +116,10 @@ class DistributionCache(importlib_metadata.PathDistribution):
         with target.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(record))
 
+    @property
+    def requires(self) -> list[str]:
+        return super().requires or []
+
 
 class Module:
     """The Module class."""
@@ -133,6 +135,7 @@ class Module:
         self.path: list[Path] | None = list(map(Path, path)) if path else None
         self._file: Path | None = Path(filename) if filename else None
         self.parent: Module | None = parent
+        self.root: Module = parent.root if parent else self
         self.code: CodeType | None = None
         self.distribution: DistributionCache | None = None
         self.hook: ModuleHook | Callable | None = None
@@ -143,8 +146,6 @@ class Module:
         self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
         self._in_file_system: int = 1
-        # cache the dist-info files (metadata)
-        self.update_distribution(name)
         # add the load hook
         self.load_hook()
 
@@ -174,7 +175,7 @@ class Module:
         2. in the file system, only detected modules.
         """
         if self.parent is not None:
-            return self.root.in_file_system
+            return self.parent.in_file_system
         if self.path is None or self.file is None:
             return 0
         return self._in_file_system
@@ -223,15 +224,7 @@ class Module:
             func = getattr(self.root.hook, name.lower(), None)
             self.hook = partial(func, module=self) if func else None
 
-    @cached_property
-    def root(self) -> Module:
-        """Module root parent."""
-        top_level_module: Module = self
-        while top_level_module.parent is not None:
-            top_level_module = top_level_module.parent
-        return top_level_module
-
-    def update_distribution(self, name: str) -> None:
+    def update_distribution(self, cache_path: Path, name: str) -> None:
         """Update the distribution cache based on its name.
         This method may be used to link an distribution's name to a module.
 
@@ -239,19 +232,13 @@ class Module:
         but in a hook we can link it to 'cffi'.
         """
         try:
-            distribution = DistributionCache.from_name(name)
-        except (importlib_metadata.PackageNotFoundError, ValueError):
-            distribution = None
-        if distribution is None:
+            distribution = DistributionCache(cache_path, name)
+        except ModuleError:
             return
-        try:
-            requires = importlib_metadata.requires(distribution.name) or []
-        except (importlib_metadata.PackageNotFoundError, ValueError):
-            requires = []
-        for req in requires:
+        for req in distribution.requires:
             req_name = req.partition(" ")[0]
-            with suppress(importlib_metadata.PackageNotFoundError, ValueError):
-                DistributionCache.from_name(req_name)
+            with suppress(ModuleError):
+                DistributionCache(cache_path, req_name)
         self.distribution = distribution
 
 
@@ -299,9 +286,8 @@ class ConstantsModule:
                         f"Invalid constant name in ConstantsModule ({name!r})"
                     )
                 self.values[name] = value
-        self.module_path: TemporaryPath = TemporaryPath("constants.py")
 
-    def create(self, modules: list[Module]) -> tuple[Path, str]:
+    def create(self, tmp_path: Path, modules: list[Module]) -> Path:
         """Create the module which consists of declaration statements for each
         of the values.
         """
@@ -328,8 +314,7 @@ class ConstantsModule:
         for name in names:
             value = self.values[name]
             parts.append(f"{name} = {value!r}")
-        with self.module_path.path.open(
-            mode="w", encoding="utf_8", newline=""
-        ) as file:
+        module_path = tmp_path.joinpath(self.module_name).with_suffix(".py")
+        with module_path.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(parts))
-        return self.module_path.path, self.module_name
+        return module_path

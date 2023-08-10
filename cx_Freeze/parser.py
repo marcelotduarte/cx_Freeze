@@ -13,9 +13,9 @@ from abc import ABC, abstractmethod
 from contextlib import suppress
 from pathlib import Path
 from subprocess import CalledProcessError, check_call, check_output, run
+from tempfile import TemporaryDirectory
 
 from ._compat import IS_MINGW, IS_WINDOWS
-from .common import TemporaryPath
 
 # In Windows, to get dependencies, the default is to use lief package,
 # but LIEF can be disabled with:
@@ -174,9 +174,10 @@ class PEParser(Parser):
             builder = lief.PE.Builder(binary)
             builder.build_resources(True)
             builder.build()
-            with TemporaryPath("temp.exe") as tmp_path:
+            with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
+                tmp_path = Path(tmp_dir, "temp.exe")
                 builder.write(os.fspath(tmp_path))
-                tmp_path.replace(path)
+                shutil.move(tmp_path, path)
         except lief.exception as exc:
             raise RuntimeError(exc) from None
 
