@@ -20,12 +20,8 @@ from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
 from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
-from .common import (
-    IncludesList,
-    InternalIncludesList,
-    get_resource_file_path,
-    process_path_specs,
-)
+from ._typing import IncludesList, InternalIncludesList
+from .common import get_resource_file_path, process_path_specs
 from .exception import FileError, OptionError
 from .executable import Executable
 from .finder import ModuleFinder

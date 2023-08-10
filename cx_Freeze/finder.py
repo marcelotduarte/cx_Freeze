@@ -1,5 +1,4 @@
 """Module Finder - discovers what modules are required by the code."""
-
 from __future__ import annotations
 
 import importlib.machinery
@@ -14,18 +13,20 @@ from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from tempfile import TemporaryDirectory
 from types import CodeType
-from typing import Any, List, Tuple
+from typing import Any
 
 import opcode
 
+from ._typing import DeferredList, IncludesList, InternalIncludesList
 from .common import (
-    IncludesList,
-    InternalIncludesList,
     code_object_replace,
     get_resource_file_path,
     process_path_specs,
 )
 from .module import ConstantsModule, Module
+
+ALL_SUFFIXES = importlib.machinery.all_suffixes()
+
 
 CALL_FUNCTION = opcode.opmap.get("CALL_FUNCTION")
 CALL = opcode.opmap.get("CALL")
@@ -44,8 +45,6 @@ STORE_NAME = opcode.opmap["STORE_NAME"]
 STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 HAVE_ARGUMENT = opcode.HAVE_ARGUMENT
-
-DeferredList = List[Tuple[Module, Module, List[str]]]
 
 __all__ = ["Module", "ModuleFinder"]
 
@@ -183,8 +182,6 @@ class ModuleFinder:
         recursive: bool = True,
     ):
         """Import all sub modules to the given package."""
-        suffixes = importlib.machinery.all_suffixes()
-
         for path in module.path:
             for fullname in path.iterdir():
                 if fullname.is_dir():
@@ -195,7 +192,7 @@ class ModuleFinder:
                     # We need to run through these in order to correctly pick
                     # up PEP 3149 library names
                     # (e.g. .cpython-39-x86_64-linux-gnu.so).
-                    for suffix in suffixes:
+                    for suffix in ALL_SUFFIXES:
                         if fullname.name.endswith(suffix):
                             name = fullname.name[: -len(suffix)]
 
