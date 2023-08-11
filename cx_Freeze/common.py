@@ -7,15 +7,9 @@ from contextlib import suppress
 from pathlib import Path, PurePath
 from textwrap import dedent
 from types import CodeType
-from typing import List, Optional, Tuple, Union
 
+from ._typing import IncludesList, InternalIncludesList
 from .exception import OptionError
-
-IncludesList = List[
-    Union[str, Path, Tuple[Union[str, Path], Optional[Union[str, Path]]]]
-]
-
-InternalIncludesList = List[Tuple[Path, PurePath]]
 
 
 class FilePath(Path):
