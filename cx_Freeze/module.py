@@ -133,10 +133,11 @@ class Module:
     ):
         self.name: str = name
         self.path: list[Path] | None = list(map(Path, path)) if path else None
-        self._file: Path | None = Path(filename) if filename else None
+        self._file: Path | None = self._file_validate(filename)
         self.parent: Module | None = parent
         self.root: Module = parent.root if parent else self
         self.code: CodeType | None = None
+        self.cache_path: Path | None = None
         self.distribution: DistributionCache | None = None
         self.hook: ModuleHook | Callable | None = None
         self.exclude_names: set[str] = set()
@@ -165,7 +166,14 @@ class Module:
 
     @file.setter
     def file(self, filename: Path | str | None):
-        self._file = Path(filename) if filename else None
+        self._file = self._file_validate(filename)
+
+    def _file_validate(self, filename: Path | str | None) -> Path | None:
+        if not filename:
+            return None
+        if isinstance(filename, str):
+            filename = Path(filename)
+        return filename
 
     @property
     def in_file_system(self) -> int:
@@ -224,13 +232,18 @@ class Module:
             func = getattr(self.root.hook, name.lower(), None)
             self.hook = partial(func, module=self) if func else None
 
-    def update_distribution(self, cache_path: Path, name: str) -> None:
+    def update_distribution(self, name: str | None = None) -> None:
         """Update the distribution cache based on its name.
         This method may be used to link an distribution's name to a module.
 
         Example: ModuleFinder cannot detects the distribution of _cffi_backend
         but in a hook we can link it to 'cffi'.
         """
+        cache_path: Path = self.cache_path
+        if cache_path is None:
+            return
+        if name is None:
+            name = self.name
         try:
             distribution = DistributionCache(cache_path, name)
         except ModuleError:

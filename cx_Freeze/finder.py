@@ -115,6 +115,8 @@ class ModuleFinder:
                 or module.name in self.zip_include_packages
             ):
                 module.in_file_system = 0
+            module.cache_path = self.cache_path
+            module.update_distribution()
         if module.path is None and path is not None:
             module.path = list(map(Path, path))
         if module.file is None and filename is not None:
@@ -445,9 +447,6 @@ class ModuleFinder:
             module.code = compile("", path, "exec")
         else:
             raise ImportError(f"Unknown module loader in {path}", name=name)
-
-        # Cache the dist-info files (metadata)
-        module.update_distribution(self.cache_path, name)
 
         # Run custom hook for the module
         if module.hook:

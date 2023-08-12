@@ -21,7 +21,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     """
     finder.include_package("numpy")
     if module.distribution is None:
-        module.update_distribution(finder.cache_path, "opencv-python")
+        module.update_distribution("opencv-python")
 
     source_dir = module.file.parent
     target_dir = Path("lib", "cv2")
