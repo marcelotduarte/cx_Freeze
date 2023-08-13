@@ -462,6 +462,9 @@ class ModuleFinder:
             # Verify __package__ in use
             module.code = self._replace_package_in_code(module)
 
+        elif module.stub_code is not None:
+            self._scan_code(module, deferred_imports, module.stub_code)
+
         module.in_import = False
         return module
 
