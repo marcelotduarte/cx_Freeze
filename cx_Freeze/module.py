@@ -189,21 +189,21 @@ class Module:
             return None
         source_dir = self.root.file.parent
         package = filename.parent.relative_to(source_dir.parent)
-        # search for a stub file along side the python extension module
         stem = filename.name.partition(ext)[0]
         stub_name = f"{stem}.pyi"
+        # search for the stub file already parsed in the distribution
+        importshed = Path(__file__).resolve().parent / "importshed"
+        source_file = importshed / package / stub_name
+        if source_file.exists():
+            imports_only = source_file.read_text(encoding="utf_8")
+            if imports_only:
+                return compile(imports_only, stub_name, "exec")
+        # search for a stub file along side the python extension module
         source_file = filename.parent / stub_name
         if not source_file.exists():
-            # search for distributed parsed stubs
-            importshed = Path(__file__).resolve().parent / "importshed"
-            source_file = importshed / package / stub_name
-            if source_file.exists():
-                imports_only = source_file.read_text(encoding="utf_8")
-                if imports_only:
-                    return compile(imports_only, stub_name, "exec")
+            return None
         if cache_path:
-            target_dir = cache_path / package
-            target_file = target_dir / stub_name
+            target_file = cache_path / package / stub_name
             if target_file.exists():
                 # a parsed stub exists in the cache
                 imports_only = target_file.read_text(encoding="utf_8")
