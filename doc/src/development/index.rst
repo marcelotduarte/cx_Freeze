@@ -57,7 +57,6 @@ using the conda-forge channel:
 
     python
     c-compiler
-    libpython-static (for python >=3.8 in linux and macOS)
     py-lief (Windows)
     patchelf (Linux)
     # declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9+ in macOS)
@@ -68,7 +67,7 @@ An example for Linux:
 
   .. code-block:: console
 
-    conda create -n cx39conda -c conda-forge python=3.9 libpython-static -y
+    conda create -n cx39conda -c conda-forge python=3.9 -y
     conda activate cx39conda
     conda install -c conda-forge c-compiler patchelf -y
     pip install --upgrade --no-binary=cx_Freeze --pre cx_Freeze -v

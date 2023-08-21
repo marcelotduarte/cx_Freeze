@@ -53,7 +53,7 @@ Python requirements are installed automatically by pip, pipenv or conda.
 
   .. code-block:: console
 
-   setuptools >= 61.2
+   setuptools >= 62.6
    cx_Logging >= 3.1           (Windows only)
    lief >= 0.12.0              (Windows only)
    patchelf >= 0.14            (Linux)
