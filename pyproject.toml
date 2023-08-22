@@ -10,8 +10,12 @@ build-backend = "setuptools.build_meta"
 name = "cx_Freeze"
 version = "6.16.0-dev5"
 description = "Create standalone executables from Python scripts"
-authors = [{name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}]
-maintainers = [{name = "Marcelo Duarte", email = "marcelotduarte@users.noreply.github.com"}]
+authors = [
+    {name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}
+]
+maintainers = [
+    {name = "Marcelo Duarte", email = "marcelotduarte@users.noreply.github.com"}
+]
 license = {text = "Python Software Foundation License"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -193,7 +197,6 @@ ignore-paths = [
     "cx_Freeze/hooks/pyqt5/resource.py",
     "cx_Freeze/hooks/pyside2/resource.py",
     "cx_Freeze/hooks/pyside6/resource.py",
-    "doc/src/conf.py",
     "^samples/.*.py$",
 ]
 py-version = [3, 8]

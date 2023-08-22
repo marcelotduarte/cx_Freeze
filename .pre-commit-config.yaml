@@ -7,7 +7,8 @@ exclude: |
         cx_Freeze/hooks/pyqt5/resource.py|
         cx_Freeze/hooks/pyside2/resource.py|
         cx_Freeze/hooks/pyside6/resource.py|
-        cx_Freeze/importshed/.*.pyi
+        cx_Freeze/importshed/.*.pyi|
+        doc/src/conf.py
     )$
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
