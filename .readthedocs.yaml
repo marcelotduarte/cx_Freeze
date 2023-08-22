@@ -5,8 +5,6 @@ sphinx:
   configuration: doc/src/conf.py
   fail_on_warning: true
 
-formats: all
-
 build:
   os: ubuntu-22.04
   tools:
