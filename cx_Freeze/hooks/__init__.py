@@ -6,7 +6,6 @@ certain packages are included or not found.
 
 from __future__ import annotations
 
-import os
 import sys
 import sysconfig
 from contextlib import suppress
@@ -576,6 +575,12 @@ def load_twitter(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.update(["json", "simplejson", "django.utils"])
 
 
+def load_tzdata(finder: ModuleFinder, module: Module) -> None:
+    """The tzdata package requires its zone and timezone data."""
+    if module.in_file_system == 0:
+        finder.zip_include_files(module.file.parent, "tzdata")
+
+
 def load_uvloop(finder: ModuleFinder, module: Module) -> None:
     """The uvloop module implicitly loads an extension module."""
     finder.include_module("uvloop._noop")
@@ -644,43 +649,6 @@ def load_zmq(finder: ModuleFinder, module: Module) -> None:
     with suppress(ImportError):
         finder.include_module("zmq.libzmq")
     finder.exclude_module("zmq.tests")
-
-
-def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
-    """The zoneinfo package requires timezone data, that
-    can be the in tzdata package, if installed.
-    """
-    tzdata: Module | None = None
-    source: Path | None = None
-    try:
-        tzdata = finder.include_package("tzdata")
-        # store tzdata along with zoneinfo
-        tzdata.in_file_system = module.in_file_system
-    except ImportError:
-        zoneinfo = __import__(module.name, fromlist=["TZPATH"])
-        if zoneinfo.TZPATH:
-            for path in zoneinfo.TZPATH:
-                if path.endswith("zoneinfo"):
-                    source = Path(path)
-                    break
-        if source and source.is_dir():
-            # without tzdata, copy only zoneinfo directory
-            # in Linux: /usr/share/zoneinfo
-            target = Path("lib", "tzdata", "zoneinfo")
-            finder.include_files(source, target, copy_dependent_files=False)
-            finder.add_constant("PYTHONTZPATH", os.fspath(source))
-    if tzdata is None:
-        return
-    # when the tzdata exists, copy other files in this directory
-    source = tzdata.path[0]
-    target = Path("lib", "tzdata")
-    if tzdata.in_file_system >= 1:
-        finder.include_files(source, target, copy_dependent_files=False)
-    else:
-        finder.zip_include_files(source, "tzdata")
-
-
-load_backports_zoneinfo = load_zoneinfo
 
 
 def load_zope_component(finder: ModuleFinder, module: Module) -> None:
