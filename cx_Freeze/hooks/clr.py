@@ -1,11 +1,10 @@
 """A collection of functions which are triggered automatically by finder when
 pythonnet package is included.
 """
-
 from __future__ import annotations
 
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_clr(finder: ModuleFinder, module: Module) -> None:

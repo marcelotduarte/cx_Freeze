@@ -6,9 +6,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from .._compat import IS_WINDOWS
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_ssl(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001

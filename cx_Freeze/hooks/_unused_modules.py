@@ -1,5 +1,4 @@
 """List of modules for automatic exclusions on various platforms."""
-
 from __future__ import annotations
 
 import collections.abc
@@ -12,7 +11,6 @@ MODULES = [
     # py2 modules that have been removed or renamed in py3
     "__builtin__",
     "__main__",
-    "_winreg",
     "audiodev",
     "anydbm",
     "BaseHTTPServer",
@@ -26,7 +24,6 @@ MODULES = [
     "cStringIO",
     "dbhash",
     "dircache",
-    "dl",
     "dumbdbm",
     "dummy_thread",
     "email.Charset",
@@ -115,10 +112,6 @@ MODULES = [
     "jpeg",
     "cd",
     "sv",
-    # internal modules
-    "_frozen_importlib",
-    "_frozen_importlib_external",
-    "os.path",
     # confused names in Windows
     "multiprocessing.Pool",
     "multiprocessing.Process",
@@ -127,17 +120,9 @@ MODULES = [
 for name in collections.abc.__all__:
     MODULES.append(f"collections.{name}")
 # exclusion by platform/os
-if os.name == "nt":
-    MODULES += ("fcntl", "grp", "pwd", "termios")
-else:
+if os.name != "nt":
     MODULES += (
-        "_overlapped",
-        "_subprocess",
-        "_winapi",
         "msilib",
-        "msvcrt",
-        "multiprocessing._multiprocessing",
-        "nt",
         "nturl2path",
         "pyHook",
         "pythoncom",
@@ -159,14 +144,10 @@ else:
         "win32service",
         "win32stat",
         "win32wnet",
-        "winreg",
         "wx.activex",
     )
-if os.name != "posix":
-    MODULES.append("posix")
 if sys.platform != "darwin":
     MODULES += (
-        "ctypes.macholib.dyld",
         "mac",
         "macpath",
         "macurl2path",
@@ -178,9 +159,7 @@ if os.name != "ce":
     MODULES.append("ce")
 if os.name != "riscos":
     MODULES += ("riscos", "riscosenviron", "riscospath", "rourl2path")
-if not sys.platform.startswith("java"):
-    MODULES += ("com.sun", "java", "org.python")
-if not sys.platform.startswith("OpenVMS"):
-    MODULES.append("vms_lib")
 if "__pypy__" not in sys.builtin_module_names:
     MODULES.append("__pypy__")
+
+MODULES.append("test")

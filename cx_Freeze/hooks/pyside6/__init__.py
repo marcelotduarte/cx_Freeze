@@ -53,7 +53,7 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         finder.include_files(qt_conf, qt_conf.name)
 
     # Inject code to init
-    code_string = module.file.read_text(encoding="utf-8")
+    code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
         f"""
         # cx_Freeze patch start

@@ -33,6 +33,17 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
             )
         else:
             finder.zip_include_files(source_path, "pytz/zoneinfo")
+    module.exclude_names.add("doctest")
 
 
-__all__ = ["load_pytz"]
+def load_pytz_lazy(_, module: Module) -> None:
+    """Ignore module not used in Python 3.x."""
+    module.ignore_names.update({"UserDict", "collections.Mapping"})
+
+
+def load_pytz_tzinfo(_, module: Module) -> None:
+    """Ignore module not used in Python 3.x."""
+    module.ignore_names.add("sets")
+
+
+__all__ = ["load_pytz", "load_pytz_lazy", "load_pytz_tzinfo"]

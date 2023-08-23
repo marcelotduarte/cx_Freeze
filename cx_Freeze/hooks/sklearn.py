@@ -1,13 +1,12 @@
 """A collection of functions which are triggered automatically by finder when
 scipy package is included.
 """
-
 from __future__ import annotations
 
 import os
 
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_sklearn__distributor_init(
@@ -19,7 +18,7 @@ def load_sklearn__distributor_init(
         # msvcp140 and vcomp140 dlls should be copied
         finder.include_files(source_dir, "lib")
         # patch the code to search the correct directory
-        code_string = module.file.read_text(encoding="utf-8")
+        code_string = module.file.read_text(encoding="utf_8")
         code_string = code_string.replace(
             "libs_path =", "libs_path = __import__('sys').frozen_dir  #"
         )

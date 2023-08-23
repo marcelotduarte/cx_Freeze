@@ -1,16 +1,15 @@
 """A collection of functions which are triggered automatically by finder when
 matplotlib package is included.
 """
-
 from __future__ import annotations
 
 from contextlib import suppress
 from pathlib import Path
 
-from ..common import code_object_replace_function
-from ..finder import ModuleFinder
-from ..module import Module
-from ._libs import replace_delvewheel_patch
+from cx_Freeze.common import code_object_replace_function
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.module import Module
 
 
 def load_matplotlib(finder: ModuleFinder, module: Module) -> None:

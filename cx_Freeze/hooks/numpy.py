@@ -1,8 +1,6 @@
 """A collection of functions which are triggered automatically by finder when
 numpy package is included.
 """
-
-
 from __future__ import annotations
 
 import json
@@ -12,9 +10,9 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 from textwrap import dedent
 
-from .._compat import IS_CONDA, IS_MINGW, IS_WINDOWS
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_CONDA, IS_MINGW, IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 # The sample/pandas is used to test.
 # Using pip (pip install numpy) in Windows/Linux/macOS from pypi (w/ OpenBLAS)
@@ -37,7 +35,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """
     finder.include_package("numpy")
     module.in_file_system = 1  # TODO: support zip or optimized mode
-    # exclude the tests
+    # first, exclude the tests
     finder.exclude_module("numpy.compat.tests")
     finder.exclude_module("numpy.core.tests")
     finder.exclude_module("numpy.distutils.tests")
@@ -51,6 +49,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("numpy.random._examples")
     finder.exclude_module("numpy.random.tests")
     finder.exclude_module("numpy.tests")
+    finder.exclude_module("numpy.testing")
     finder.exclude_module("numpy.typing.tests")
 
 
@@ -61,7 +60,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         return
 
     # patch the code when necessary
-    code_string = module.file.read_text(encoding="utf-8")
+    code_string = module.file.read_text(encoding="utf_8")
 
     # installed from pypi, using zip_include_packages we must fix it
     numpy_dir = module.file.parent
@@ -89,7 +88,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
                     pkg = next(conda_meta.glob(f"{package}-*.json"))
                 except StopIteration:
                     continue
-                files = json.loads(pkg.read_text(encoding="utf-8"))["files"]
+                files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
                 files_to_copy += [
                     prefix / file
                     for file in files
@@ -130,9 +129,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
-def load_numpy_core_numerictypes(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_numpy_core_numerictypes(_, module: Module) -> None:
     """The numpy.core.numerictypes module adds a number of items to itself
     dynamically; define these to avoid spurious errors about missing
     modules.
@@ -155,36 +152,28 @@ def load_numpy_core_numerictypes(
     )
 
 
-def load_numpy_distutils_command_scons(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_numpy_distutils_command_scons(_, module: Module) -> None:
     """The numpy.distutils.command.scons module optionally imports the numscons
     module; ignore the error if the module cannot be found.
     """
     module.ignore_names.add("numscons")
 
 
-def load_numpy_distutils_misc_util(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_numpy_distutils_misc_util(_, module: Module) -> None:
     """The numpy.distutils.misc_util module optionally imports the numscons
     module; ignore the error if the module cannot be found.
     """
     module.ignore_names.add("numscons")
 
 
-def load_numpy_distutils_system_info(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_numpy_distutils_system_info(_, module: Module) -> None:
     """The numpy.distutils.system_info module optionally imports the Numeric
     module; ignore the error if the module cannot be found.
     """
     module.ignore_names.add("Numeric")
 
 
-def load_numpy_f2py___version__(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_numpy_f2py___version__(_, module: Module) -> None:
     """The numpy.f2py.__version__ module optionally imports the __svn_version__
     module; ignore the error if the module cannot be found.
     """
@@ -200,9 +189,7 @@ def load_numpy_linalg(
     finder.include_module("numpy.linalg.lapack_lite")
 
 
-def load_numpy_random_mtrand(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_numpy_random_mtrand(_, module: Module) -> None:
     """The numpy.random.mtrand module is an extension module and the numpy
     module imports * from this module; define the list of global names
     available to this module in order to avoid spurious errors about missing

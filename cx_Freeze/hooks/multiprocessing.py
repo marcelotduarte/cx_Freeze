@@ -7,13 +7,10 @@ import os
 from textwrap import dedent
 
 from cx_Freeze._compat import IS_WINDOWS
-from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
 
-def load_multiprocessing(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_multiprocessing(_, module: Module) -> None:
     """The forkserver method calls utilspawnv_passfds in ensure_running to
     pass a command line to python. In cx_Freeze the running executable
     is called, then we need to catch this and use exec function.
@@ -47,5 +44,85 @@ def load_multiprocessing(
     freeze_support = lambda: None
     # cx_Freeze patch end
     """
-    code_string = module.file.read_text(encoding="utf-8") + dedent(source)
+    code_string = module.file.read_text(encoding="utf_8") + dedent(source)
     module.code = compile(code_string, os.fspath(module.file), "exec")
+
+
+def load_multiprocessing_connection(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if not IS_WINDOWS:
+        module.exclude_names.update({"_winapi"})
+    module.ignore_names.update(
+        {
+            "multiprocessing.AuthenticationError",
+            "multiprocessing.BufferTooShort",
+        }
+    )
+
+
+def load_multiprocessing_heap(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if not IS_WINDOWS:
+        module.exclude_names.add("_winapi")
+
+
+def load_multiprocessing_managers(_, module: Module) -> None:
+    """Ignore modules not found in current os."""
+    module.ignore_names.add("multiprocessing.get_context")
+
+
+def load_multiprocessing_pool(_, module: Module) -> None:
+    """Ignore modules not found in current os."""
+    module.ignore_names.update(
+        {"multiprocessing.TimeoutError", "multiprocessing.get_context"}
+    )
+
+
+def load_multiprocessing_popen_spawn_win32(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if not IS_WINDOWS:
+        module.exclude_names.update({"msvcrt", "_winapi"})
+
+
+def load_multiprocessing_reduction(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if not IS_WINDOWS:
+        module.exclude_names.add("_winapi")
+
+
+def load_multiprocessing_resource_tracker(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if IS_WINDOWS:
+        module.exclude_names.add("_posixshmem")
+
+
+def load_multiprocessing_sharedctypes(_, module: Module) -> None:
+    """Ignore modules not found in current os."""
+    module.ignore_names.add("multiprocessing.get_context")
+
+
+def load_multiprocessing_shared_memory(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if not IS_WINDOWS:
+        module.exclude_names.add("_winapi")
+    else:
+        module.exclude_names.add("_posixshmem")
+
+
+def load_multiprocessing_spawn(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    if not IS_WINDOWS:
+        module.exclude_names.update({"msvcrt", "_winapi"})
+    module.ignore_names.update(
+        {
+            "multiprocessing.get_start_method",
+            "multiprocessing.set_start_method",
+        }
+    )
+
+
+def load_multiprocessing_util(_, module: Module) -> None:
+    """The module uses test for tests and shouldn't be imported."""
+    module.exclude_names.add("test")
+    if IS_WINDOWS:
+        module.exclude_names.add("_posixsubprocess")

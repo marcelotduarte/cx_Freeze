@@ -10,9 +10,9 @@ from contextlib import suppress
 from functools import lru_cache
 from pathlib import Path
 
-from .._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def _qt_implementation(module: Module) -> str:

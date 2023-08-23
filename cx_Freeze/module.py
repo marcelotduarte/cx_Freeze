@@ -226,7 +226,7 @@ class Module:
         """Get the implicit imports in a stub file."""
         if not source_file.is_file():
             return None
-        ignore = {"__future__", "typing"}
+        ignore = {"__future__", "builtins", "typing", "_typeshed"}
         source = source_file.read_text(encoding="utf_8")
         try:
             rootnode = ast.parse(source, source_file.name)
