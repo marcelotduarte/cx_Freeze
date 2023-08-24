@@ -403,6 +403,11 @@ class BdistMac(Command):
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
 
+        # Remove App if it already exists ( avoids confusing issues where prior builds persist! )
+        if os.path.exists(self.bundle_dir):
+            shutil.rmtree(self.bundle_dir) # not tested!
+            print(f"Staging - Removed existing '{self.bundle_dir}'")
+
         # Find the executable name
         executable = self.distribution.executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
