@@ -214,7 +214,8 @@ build-verbosity = "1"
 manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
 
 [tool.cibuildwheel.linux]
-archs = "x86_64 aarch64"
+archs = "x86_64 aarch64 ppc64le"
+skip = "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}"
 before-build = """
 cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
 """
@@ -222,7 +223,7 @@ repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
-skip = "cp38-macosx_arm64"
+skip = "cp3{8,9}-macosx_arm64"
 repair-wheel-command = """
 delocate-listdeps {wheel} &&
 delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
