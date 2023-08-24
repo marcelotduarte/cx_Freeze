@@ -469,8 +469,9 @@ class BdistMac(Command):
         self.execute(self.prepare_qt_app, ())
 
         # Sign the app bundle if a key is specified
+        # TODO: try "--force" "--timestamp" "--strict {options?all,library?}" "--options"...???
         if self.codesign_identity:
-            signargs = ["codesign", "-s", self.codesign_identity]
+            signargs = ["codesign", "-s", self.codesign_identity, "--force"]
 
             if self.codesign_entitlements:
                 signargs.append("--entitlements")
