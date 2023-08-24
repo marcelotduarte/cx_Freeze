@@ -459,6 +459,12 @@ class BdistMac(Command):
         if self.absolute_reference_path:
             self.execute(self.set_absolute_reference_paths, ())
 
+        # Move license file to resources as it can't be signed
+        src_lfp = os.path.join(self.bin_dir, "frozen_application_license.txt")
+        if os.path.exists(src_lfp):
+            shutil.move(src_lfp, self.resources_dir)
+            print(f"Moved: {src_lfp} -> {self.resources_dir}")
+
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
 
