@@ -1,15 +1,14 @@
 """A collection of functions which are triggered automatically by finder when
 scipy package is included.
 """
-
 from __future__ import annotations
 
 import os
 
-from .._compat import IS_MINGW, IS_WINDOWS
-from ..finder import ModuleFinder
-from ..module import Module
-from ._libs import replace_delvewheel_patch
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.module import Module
 
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
@@ -26,9 +25,7 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("scipy.optimize")
 
 
-def load_scipy__distributor_init(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_scipy__distributor_init(_, module: Module) -> None:
     """Fix the location of dependent files in Windows."""
     if not (IS_WINDOWS or IS_MINGW):
         # In Linux and macOS it is detected correctly.
@@ -38,7 +35,7 @@ def load_scipy__distributor_init(
         return
 
     # patch the code
-    code_string = module.file.read_text(encoding="utf-8").replace(
+    code_string = module.file.read_text(encoding="utf_8").replace(
         "__file__", "__file__.replace('library.zip/', '')"
     )
     module.code = compile(code_string, os.fspath(module.file), "exec")
@@ -60,9 +57,7 @@ def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("scipy.linalg")
 
 
-def load_scipy_linalg_interface_gen(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_scipy_linalg_interface_gen(_, module: Module) -> None:
     """The scipy.linalg.interface_gen module optionally imports the pre module;
     ignore the error if this module cannot be found.
     """

@@ -1,12 +1,11 @@
 """A collection of functions which are triggered automatically by finder when
 pycryptodome package is included.
 """
-
 from __future__ import annotations
 
-from ..common import code_object_replace_function
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.common import code_object_replace_function
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_crypto_cipher(finder: ModuleFinder, module: Module) -> None:
@@ -45,9 +44,7 @@ def load_crypto_util(finder: ModuleFinder, module: Module) -> None:
         finder.include_package(module.name)
 
 
-def load_crypto_util__file_system(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_crypto_util__file_system(_, module: Module) -> None:
     """The patch for pycryptodome package."""
     code = module.code
     if module.in_file_system == 0 and code is not None:

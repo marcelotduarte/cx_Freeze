@@ -1,13 +1,12 @@
 """A collection of functions which are triggered automatically by finder when
 PyTorch package is included.
 """
-
 from __future__ import annotations
 
 import os
 
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 # 1) Test in Windows from pypi
 # pip install torch
@@ -26,7 +25,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         module.in_file_system = 2
     # patch the code to ignore CUDA_PATH_Vxx_x installation directory
-    code_string = module.file.read_text(encoding="utf-8")
+    code_string = module.file.read_text(encoding="utf_8")
     code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
     module.code = compile(code_string, os.fspath(module.file), "exec")
     # include the shared libraries in 'lib' to avoid searching through the

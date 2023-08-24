@@ -1,14 +1,12 @@
 """A collection of functions which are triggered automatically by finder when
 glib package is included.
 """
-
 from __future__ import annotations
 
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.module import Module
 
 
-def load_glib(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
+def load_glib(_, module: Module) -> None:
     """Ignore globals that are imported."""
     module.global_names.update(
         [

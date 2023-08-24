@@ -1,19 +1,18 @@
 """A collection of functions which are triggered automatically by finder when
 TKinter package is included.
 """
-
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-from .._compat import IS_WINDOWS
-from ..common import get_resource_file_path
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze.common import get_resource_file_path
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
-def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
+def load_tkinter(finder: ModuleFinder, module: Module) -> None:
     """The tkinter module has data files (also called tcl/tk libraries) that
     are required to be loaded at runtime.
     """
@@ -26,7 +25,7 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     else:
         # Windows, MSYS2, Miniconda: collect the tcl/tk libraries
         try:
-            tkinter = __import__("tkinter")
+            tkinter = __import__(module.name)
         except (ImportError, AttributeError):
             return
         root = tkinter.Tk(useTk=False)

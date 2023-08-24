@@ -1,13 +1,12 @@
 """A collection of functions which are triggered automatically by finder when
 Xlib package is included.
 """
-
 from __future__ import annotations
 
 import sys
 
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_xlib_display(
