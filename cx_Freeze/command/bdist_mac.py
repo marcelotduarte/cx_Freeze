@@ -520,6 +520,8 @@ class BdistMac(Command):
         # TODO : Add some sort of verification step / asset if macOS folder isn't just the binaries!
 
         # Sign the app bundle if a key is specified
+
+
         self._codesign()
         # if self.codesign_identity:
         #
@@ -567,9 +569,21 @@ class BdistMac(Command):
 
         signargs.append(self.bundle_dir)
 
+        # YOLO HACK - test...
+        alt = list(signargs)
+        alt.append(os.path.join(self.resources_lib_dir, "Python"))
+        try:
+            result = subprocess.run(alt, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            print(f"codesign command's output: '{result.stdout}'")
+        except subprocess.CalledProcessError as error:
+            print(f"codesign command exitcode: {error.returncode} \nstderr: '{error.stderr}'")
+            raise
+
+        root = list(signargs)
+        root.append(self.bundle_dir)
         print(f"Codesigning the bundle: '{self.bundle_dir}' containing executable '{self.bundle_executable}'")
         try:
-            result = subprocess.run(signargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            result = subprocess.run(root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
             print(f"codesign command's output: '{result.stdout}'")
         except subprocess.CalledProcessError as error:
             print(f"codesign command exitcode: {error.returncode} \nstderr: '{error.stderr}'")
