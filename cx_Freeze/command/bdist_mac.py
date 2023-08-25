@@ -579,6 +579,7 @@ class BdistMac(Command):
             print(f"codesign command exitcode: {error.returncode} \nstderr: '{error.stderr}'")
             raise
 
+        # Normal pathway
         root = list(signargs)
         root.append(self.bundle_dir)
         print(f"Codesigning the bundle: '{self.bundle_dir}' containing executable '{self.bundle_executable}'")
@@ -599,7 +600,6 @@ class BdistMac(Command):
         if self.spctl_assess:
             spctl_args = [
                 "spctl",
-                "-vvv",
                 "--assess",
                 "--raw",
                 "--verbose=10",
