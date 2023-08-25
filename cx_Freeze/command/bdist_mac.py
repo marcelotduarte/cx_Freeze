@@ -177,6 +177,10 @@ class BdistMac(Command):
             "Boolean for whether to codesign using the --deep option.",
         ),
         (
+            "codesign-timestamp",
+            None,
+            "Boolean for whether to codesign using the –-timestamp option."),
+        (
             "codesign-resource-rules",
             None,
             "Plist file to be passed to "
@@ -187,6 +191,26 @@ class BdistMac(Command):
             None,
             "Path to use for all referenced "
             "libraries instead of @executable_path.",
+        ),
+        (
+            "codesign-verify",
+            None,
+            "Boolean to verify the code signature after running the codesign command"
+        ),
+        (
+            "spctl-assess",
+            None,
+            "Use spctl command to perform an security assessment on the bundle"
+        ),
+        (
+            "codesign-strict=",
+            None,
+            "Boolean for whether to codesign using the --strict option."
+        ),
+        (
+            "codesign-options=",
+            None,
+            "Option flags to be embedded in the code signature"
         ),
     ]
 
@@ -204,7 +228,12 @@ class BdistMac(Command):
         self.codesign_deep = None
         self.codesign_entitlements = None
         self.codesign_identity = None
+        self.codesign_timestamp = None
+        self.codesign_strict = None
+        self.codesign_options = None
         self.codesign_resource_rules = None
+        self.codesign_verify = None
+        self.spctl_assess = None
         self.custom_info_plist = None
         self.iconfile = None
         self.qt_menu_nib = False
@@ -491,23 +520,84 @@ class BdistMac(Command):
         # TODO : Add some sort of verification step / asset if macOS folder isn't just the binaries!
 
         # Sign the app bundle if a key is specified
-        # TODO: try "--force" "--timestamp" "--strict {options?all,library?}" "--options"...???
-        if self.codesign_identity:
-            signargs = ["codesign", "-s", self.codesign_identity, "--force"]
+        self._codesign()
+        # if self.codesign_identity:
+        #
+        #     signargs = ["codesign", "-s", self.codesign_identity, "--force"]
+        #
+        #     if self.codesign_entitlements:
+        #         signargs.append("--entitlements")
+        #         signargs.append(self.codesign_entitlements)
+        #
+        #     if self.codesign_deep:
+        #         signargs.insert(1, "--deep")
+        #
+        #     if self.codesign_resource_rules:
+        #         signargs.insert(
+        #             1, "--resource-rules=" + self.codesign_resource_rules
+        #         )
+        #
+        #     signargs.append(self.bundle_dir)
+        #     print(f"Codesigning...")
+        #     if subprocess.call(signargs) != 0:
+        #         raise OSError("Code signing of app bundle failed")
+        #     print(f"Finished code-signing.")
 
-            if self.codesign_entitlements:
-                signargs.append("--entitlements")
-                signargs.append(self.codesign_entitlements)
+    def _codesign(self):
+        if not self.codesign_identity:
+            return
+        signargs = ['codesign', '--sign', self.codesign_identity, '--force']
 
-            if self.codesign_deep:
-                signargs.insert(1, "--deep")
+        if self.codesign_timestamp:
+            signargs.append('--timestamp')
 
-            if self.codesign_resource_rules:
-                signargs.insert(
-                    1, "--resource-rules=" + self.codesign_resource_rules
-                )
+        if self.codesign_strict:
+            signargs.append('--strict={}'.format(self.codesign_strict))
 
-            signargs.append(self.bundle_dir)
+        if self.codesign_deep:
+            signargs.append('--deep')
 
-            if subprocess.call(signargs) != 0:
-                raise OSError("Code signing of app bundle failed")
+        if self.codesign_options:  # TODO : unhooked
+            signargs.append(f'--options')
+            signargs.append(self.codesign_options)
+
+        if self.codesign_entitlements:
+            signargs.append('--entitlements')
+            signargs.append(self.codesign_entitlements)
+
+        signargs.append(self.bundle_dir)
+
+        print(f"Codesigning the bundle: '{self.bundle_dir}' containing executable '{self.bundle_executable}'")
+        try:
+            result = subprocess.run(signargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            print(f"codesign command's output: '{result.stdout}'")
+        except subprocess.CalledProcessError as error:
+            print(f"codesign command exitcode: {error.returncode} \nstderr: '{error.stderr}'")
+            raise
+
+        if self.codesign_verify:
+            verify_args = ["codesign", "-vvv", "--deep", "--strict", self.bundle_dir]
+            print("Running codesign verification")
+            result = subprocess.run(verify_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            output = f"ExitCode: {result.returncode} \n stdout: {result.stdout} \n stderr: {result.stderr}"
+            print(output)  # TODO - look at modifying this / merging with other subproc calls
+
+        if self.spctl_assess:
+            spctl_args = [
+                "spctl",
+                "-vvv",
+                "--assess",
+                "--raw",
+                "--verbose=10",
+                "--type",
+                "exec",
+                self.bundle_dir
+            ]
+            try:
+                completed_process = subprocess.run(spctl_args, check=True,
+                                                   stdout=subprocess.PIPE,
+                                                   stderr=subprocess.STDOUT)
+                print("spctl command's output: {}".format(completed_process.stdout.decode()))
+            except subprocess.CalledProcessError as error:
+                print("spctl check got an error: {}".format(error.stdout.decode()))
+                raise

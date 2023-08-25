@@ -497,7 +497,7 @@ def changeLoadReference(
 def applyAdHocSignature(fileName: str):
     if platform.machine() != "arm64":
         return
-
+    print("Applying AdHocSignature")
     args = (
         "codesign",
         "--sign",
