@@ -298,6 +298,7 @@ class BdistMac(Command):
 
         for darwin_file in self.darwin_tracker:
             # get the relative path to darwin_file in build directory
+            print(f"Setting relative_reference_path for: {darwin_file}")
             relative_copy_dest = os.path.relpath(
                 darwin_file.getBuildPath(), build_dir
             )
@@ -306,7 +307,7 @@ class BdistMac(Command):
             # bundle.  This is the file that needs to have its dynamic load
             # references updated.
             file_path_in_bin_dir = os.path.join(bin_dir, relative_copy_dest)
-
+            print(f"\tfile_path_in_bin_dir: {file_path_in_bin_dir}")
             # for each file that this darwin_file references, update the
             # reference as necessary; if the file is copied into the binary
             # package, change the reference to be relative to @executable_path
@@ -320,6 +321,7 @@ class BdistMac(Command):
                 # this is the reference in the machO file that needs to be
                 # updated
                 raw_path = reference.raw_path
+                print(f"\t\treference.raw_path: {raw_path}")
                 ref_target_file: DarwinFile = reference.target_file
                 # this is where file copied in build dir
                 abs_build_dest = ref_target_file.getBuildPath()
@@ -329,7 +331,7 @@ class BdistMac(Command):
                     file_path_in_bin_dir,
                     oldReference=raw_path,
                     newReference=exe_path,
-                    VERBOSE=False,
+                    VERBOSE=True,
                 )
 
             applyAdHocSignature(file_path_in_bin_dir)
@@ -400,6 +402,7 @@ class BdistMac(Command):
         )
         self.contents_dir = os.path.join(self.bundle_dir, "Contents")
         self.resources_dir = os.path.join(self.contents_dir, "Resources")
+        self.resources_lib_dir = os.path.join(self.contents_dir, "Resources", "lib")
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
 
@@ -413,11 +416,23 @@ class BdistMac(Command):
         _, self.bundle_executable = os.path.split(executable)
 
         # Build the app directory structure
-        self.mkpath(self.resources_dir)
-        self.mkpath(self.bin_dir)
-        self.mkpath(self.frameworks_dir)
+        self.mkpath(self.resources_dir)  # /Resources
+        self.mkpath(self.resources_lib_dir)  # /Resources/lib
+        self.mkpath(self.bin_dir)  # /MacOS
+        self.mkpath(self.frameworks_dir)  # /Frameworks
 
+        # Copy to relevent subfolders
+        print(f"Executable name: {executable} - {build_exe.build_exe}")
         self.copy_tree(build_exe.build_exe, self.bin_dir)
+        self.copy_tree(os.path.join(self.bin_dir, "lib"), self.resources_lib_dir)
+        shutil.rmtree(os.path.join(self.bin_dir, "lib"))
+        # Make symlink between contents/MacOS and resources/lib so we can use none-relative reference paths later...
+        origin = os.path.join(self.bin_dir, "lib")
+        relative_reference = os.path.relpath(self.resources_lib_dir, self.bin_dir)
+        print(f"Creating symlink - Target: {origin} <-> Source: {relative_reference}")
+        os.symlink(
+            relative_reference, origin, target_is_directory=True
+        )
 
         # Copy the icon
         if self.iconfile:
@@ -467,11 +482,13 @@ class BdistMac(Command):
         # Move license file to resources as it can't be signed
         src_lfp = os.path.join(self.bin_dir, "frozen_application_license.txt")
         if os.path.exists(src_lfp):
-            shutil.move(src_lfp, self.resources_dir)
+            shutil.move(src_lfp, self.resources_dir)  # TODO - use the internal move!
             print(f"Moved: {src_lfp} -> {self.resources_dir}")
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
+
+        # TODO : Add some sort of verification step / asset if macOS folder isn't just the binaries!
 
         # Sign the app bundle if a key is specified
         # TODO: try "--force" "--timestamp" "--strict {options?all,library?}" "--options"...???
