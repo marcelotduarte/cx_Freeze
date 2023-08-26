@@ -276,7 +276,7 @@ class Module:
         - Using ModuleHook class:
             # module and hook methods are lowercased.
             hook = pyqt5.Hook()
-            hook.qtcore()
+            hook.qt_qtcore()
         - For functions present in hooks.__init__:
             # module and load hook functions use the original case.
             load_PyQt5_QtCore()
@@ -284,7 +284,6 @@ class Module:
             # module and load hook functions are lowercased.
             pyqt5.load_pyqt5_qtcore()
         """
-        name = self.name.replace(".", "_")
         if not isinstance(self.root.hook, ModuleHook):
             try:
                 # new style hook using ModuleHook class - top-level call
@@ -295,18 +294,22 @@ class Module:
                     self.root.hook = hook_cls(self.root)
                 else:
                     # old style hook with lowercased functions
-                    func = getattr(hooks, f"load_{name.lower()}", None)
+                    name = self.name.replace(".", "_").lower()
+                    func = getattr(hooks, f"load_{name}", None)
                     self.hook = partial(func, module=self) if func else None
                     return
             except ImportError:
                 # old style hook with functions at hooks.__init__
                 hooks = import_module("cx_Freeze.hooks")
+                name = self.name.replace(".", "_")
                 func = getattr(hooks, f"load_{name}", None)
                 self.hook = partial(func, module=self) if func else None
                 return
         # new style hook using ModuleHook class - lower level call
-        if isinstance(self.root.hook, ModuleHook) and self.parent is not None:
-            func = getattr(self.root.hook, name.lower(), None)
+        root_hook = self.root.hook
+        if isinstance(root_hook, ModuleHook) and self.parent is not None:
+            name = "_".join(self.name.lower().split(".")[1:])
+            func = getattr(root_hook, f"{root_hook.name}_{name}", None)
             self.hook = partial(func, module=self) if func else None
 
     def update_distribution(self, name: str | None = None) -> None:
