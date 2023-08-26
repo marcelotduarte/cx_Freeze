@@ -53,7 +53,7 @@ class Hook(ModuleHook):
             source = f"""\
             def {name}(dir_comps, filename):
                 import os, sys
-                modulename = {self.module.root.name}
+                modulename = "{self.module.name}"
                 if dir_comps[0] != modulename:
                     raise ValueError(
                         "Only available for modules under '" + modulename + "'"
