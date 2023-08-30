@@ -545,7 +545,7 @@ class BdistMac(Command):
         print(f"About to sign: '{self.bundle_dir}'")
         bundle_dir = Path(self.bundle_dir)
         files_to_sign = set()
-        for item in bundle_dir.iterdir():
+        for item in bundle_dir.rglob('*'):
             if item.is_file():
                 if item.suffix == '':
                     print(f"Found file without extension: {item}")
