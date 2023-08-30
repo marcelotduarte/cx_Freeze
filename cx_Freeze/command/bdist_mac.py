@@ -8,7 +8,7 @@ import itertools
 import plistlib
 import shutil
 import subprocess
-
+from pathlib import Path
 from setuptools import Command
 
 from cx_Freeze.common import normalize_to_list
@@ -543,14 +543,17 @@ class BdistMac(Command):
         signargs = self._get_sign_args()
 
         print(f"About to sign: '{self.bundle_dir}'")
-        for path in itertools.chain(
-            glob.glob(f"{self.bundle_dir}/Contents/Resources/lib/**/*.so", recursive=True),
-            glob.glob(f"{self.bundle_dir}/Contents/Resources/lib/**/*.dylib", recursive=True),
-            [
-                self.bundle_dir,
-            ]
-        ):
-            self._codesign_file(path, signargs)
+        bundle_dir = Path(self.bundle_dir)
+        files_to_sign = set()
+        for item in bundle_dir.iterdir():
+            if item.is_file():
+                if item.suffix == '':
+                    print(f"Found file without extension: {item}")
+                    files_to_sign.add(item)
+                elif item.suffix in {'.so', '.dylib'}:
+                    files_to_sign.add(item)
+        for item in files_to_sign:
+            self._codesign_file(item, signargs)
 
         print("Finished .app signing")
 
@@ -580,6 +583,8 @@ class BdistMac(Command):
         sign_args.append(file_path)
         subprocess.run(sign_args)  # TODO : Protections around this?
 
+
+        # TODO : prob *don't* want to do this on a file by file basis... but maybe we do ? :D
         if self.codesign_verify:
             verify_args = ["codesign", "-vvv", "--deep", "--strict", self.bundle_dir]
             print("Running codesign verification")
