@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import glob
+import itertools
 import plistlib
 import shutil
 import subprocess
@@ -520,35 +522,40 @@ class BdistMac(Command):
         # TODO : Add some sort of verification step / asset if macOS folder isn't just the binaries!
 
         # Sign the app bundle if a key is specified
-
-
         self._codesign()
-        # if self.codesign_identity:
-        #
-        #     signargs = ["codesign", "-s", self.codesign_identity, "--force"]
-        #
-        #     if self.codesign_entitlements:
-        #         signargs.append("--entitlements")
-        #         signargs.append(self.codesign_entitlements)
-        #
-        #     if self.codesign_deep:
-        #         signargs.insert(1, "--deep")
-        #
-        #     if self.codesign_resource_rules:
-        #         signargs.insert(
-        #             1, "--resource-rules=" + self.codesign_resource_rules
-        #         )
-        #
-        #     signargs.append(self.bundle_dir)
-        #     print(f"Codesigning...")
-        #     if subprocess.call(signargs) != 0:
-        #         raise OSError("Code signing of app bundle failed")
-        #     print(f"Finished code-signing.")
 
     def _codesign(self):
+        """
+        New Pathway
+        # Gather all files to sign
+                # for path in itertools.chain(
+        #         glob.glob(f"{app_dir}/Contents/Resources/lib/**/*.so", recursive=True),
+        #         glob.glob(f"{app_dir}/Contents/Resources/lib/**/*.dylib", recursive=True),
+        + look for files that have no extension + try signing!
+        + roots
+        # Sign individually
+        # Remove / hide deep option? ( document why its bad )
+        """
+
         if not self.codesign_identity:
             return
-        signargs = ['codesign', '--sign', self.codesign_identity, '--force']
+
+        signargs = self._get_sign_args()
+
+        print(f"About to sign: '{self.bundle_dir}'")
+        for path in itertools.chain(
+            glob.glob(f"{self.bundle_dir}/Contents/Resources/lib/**/*.so", recursive=True),
+            glob.glob(f"{self.bundle_dir}/Contents/Resources/lib/**/*.dylib", recursive=True),
+            [
+                self.bundle_dir,
+            ]
+        ):
+            self._codesign_file(path, signargs)
+
+        print("Finished .app signing")
+
+    def _get_sign_args(self):
+        signargs = ['codesign', '--sign', self.codesign_identity, '--force']  # TODO : Make force an option?
 
         if self.codesign_timestamp:
             signargs.append('--timestamp')
@@ -566,29 +573,12 @@ class BdistMac(Command):
         if self.codesign_entitlements:
             signargs.append('--entitlements')
             signargs.append(self.codesign_entitlements)
+        return signargs
 
-        signargs.append(self.bundle_dir)
-
-        # YOLO HACK - test...
-        alt = list(signargs)
-        alt.append(os.path.join(self.resources_lib_dir, "Python"))
-        try:
-            result = subprocess.run(alt, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-            print(f"codesign command's output: '{result.stdout}'")
-        except subprocess.CalledProcessError as error:
-            print(f"codesign command exitcode: {error.returncode} \nstderr: '{error.stderr}'")
-            raise
-
-        # Normal pathway
-        root = list(signargs)
-        root.append(self.bundle_dir)
-        print(f"Codesigning the bundle: '{self.bundle_dir}' containing executable '{self.bundle_executable}'")
-        try:
-            result = subprocess.run(root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-            print(f"codesign command's output: '{result.stdout}'")
-        except subprocess.CalledProcessError as error:
-            print(f"codesign command exitcode: {error.returncode} \nstderr: '{error.stderr}'")
-            raise
+    def _codesign_file(self, file_path, sign_args):
+        print(f"Signing file: {file_path}")
+        sign_args.append(file_path)
+        subprocess.run(sign_args)  # TODO : Protections around this?
 
         if self.codesign_verify:
             verify_args = ["codesign", "-vvv", "--deep", "--strict", self.bundle_dir]
@@ -615,3 +605,5 @@ class BdistMac(Command):
             except subprocess.CalledProcessError as error:
                 print("spctl check got an error: {}".format(error.stdout.decode()))
                 raise
+
+
