@@ -621,6 +621,14 @@ bundle (a .app directory).
    * - .. option:: codesign_entitlements
      - The path to an entitlements file to use for your application's code
        signature.
+    * - .. option:: codesign-timestamp
+     - Use --timestamp when running codesign.
+    * - .. option:: codesign-strict
+     - Use --strict when running codesign.
+    * - .. option:: codesign-verify
+     - Use --verify when running codesign.
+    * - .. option:: spctl-assess
+     - Run spctl-assess to asses output from codesign.
    * - .. option:: codesign_deep
      - Boolean for whether to codesign using the --deep option.
    * - .. option:: codesign_options
