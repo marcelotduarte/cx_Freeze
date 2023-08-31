@@ -569,7 +569,7 @@ class BdistMac(Command):
         if self.codesign_deep:
             signargs.append('--deep')
 
-        if self.codesign_options:  # TODO : unhooked
+        if self.codesign_options:
             signargs.append(f'--options')
             signargs.append(self.codesign_options)
 

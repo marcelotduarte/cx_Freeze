@@ -623,6 +623,8 @@ bundle (a .app directory).
        signature.
    * - .. option:: codesign_deep
      - Boolean for whether to codesign using the --deep option.
+   * - .. option:: codesign_options
+     - Comma seperated string of options to use with codesign --options.
    * - .. option:: codesign_resource_rules
      - Plist file to be passed to codesign's --resource-rules option.
    * - .. option:: absolute_reference_path
