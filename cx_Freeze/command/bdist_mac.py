@@ -196,12 +196,12 @@ class BdistMac(Command):
         (
             "codesign-verify",
             None,
-            "Boolean to verify the code signature after running the codesign command"
+            "Boolean to verify codesign of the .app bundle using the codesign command"
         ),
         (
             "spctl-assess",
             None,
-            "Use spctl command to perform an security assessment on the bundle"
+            "Boolean to verify codesign of the .app bundle using the spctl command"
         ),
         (
             "codesign-strict=",
@@ -337,7 +337,6 @@ class BdistMac(Command):
             # bundle.  This is the file that needs to have its dynamic load
             # references updated.
             file_path_in_bin_dir = os.path.join(bin_dir, relative_copy_dest)
-            print(f"\tfile_path_in_bin_dir: {file_path_in_bin_dir}")
             # for each file that this darwin_file references, update the
             # reference as necessary; if the file is copied into the binary
             # package, change the reference to be relative to @executable_path
@@ -351,7 +350,6 @@ class BdistMac(Command):
                 # this is the reference in the machO file that needs to be
                 # updated
                 raw_path = reference.raw_path
-                print(f"\t\treference.raw_path: {raw_path}")
                 ref_target_file: DarwinFile = reference.target_file
                 # this is where file copied in build dir
                 abs_build_dest = ref_target_file.getBuildPath()
@@ -361,7 +359,7 @@ class BdistMac(Command):
                     file_path_in_bin_dir,
                     oldReference=raw_path,
                     newReference=exe_path,
-                    VERBOSE=True,
+                    VERBOSE=False,
                 )
 
             applyAdHocSignature(file_path_in_bin_dir)
@@ -438,7 +436,7 @@ class BdistMac(Command):
 
         # Remove App if it already exists ( avoids confusing issues where prior builds persist! )
         if os.path.exists(self.bundle_dir):
-            shutil.rmtree(self.bundle_dir) # not tested!
+            shutil.rmtree(self.bundle_dir)
             print(f"Staging - Removed existing '{self.bundle_dir}'")
 
         # Find the executable name
@@ -456,7 +454,8 @@ class BdistMac(Command):
         self.copy_tree(build_exe.build_exe, self.bin_dir)
         self.copy_tree(os.path.join(self.bin_dir, "lib"), self.resources_lib_dir)
         shutil.rmtree(os.path.join(self.bin_dir, "lib"))
-        # Make symlink between contents/MacOS and resources/lib so we can use none-relative reference paths later...
+        # Make symlink between contents/MacOS and resources/lib so we can use none-relative reference paths
+        # in order to pass codesign...
         origin = os.path.join(self.bin_dir, "lib")
         relative_reference = os.path.relpath(self.resources_lib_dir, self.bin_dir)
         print(f"Creating symlink - Target: {origin} <-> Source: {relative_reference}")
@@ -512,51 +511,15 @@ class BdistMac(Command):
         # Move license file to resources as it can't be signed
         src_lfp = os.path.join(self.bin_dir, "frozen_application_license.txt")
         if os.path.exists(src_lfp):
-            shutil.move(src_lfp, self.resources_dir)  # TODO - use the internal move!
+            shutil.move(src_lfp, self.resources_dir)
             print(f"Moved: {src_lfp} -> {self.resources_dir}")
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
 
-        # TODO : Add some sort of verification step / asset if macOS folder isn't just the binaries!
-
         # Sign the app bundle if a key is specified
-        # self._codesign()
-        self._recursive_codesign(self.bundle_dir)
+        self._codesign(self.bundle_dir)
 
-    def _codesign(self):
-        """
-        New Pathway
-        # Gather all files to sign
-                # for path in itertools.chain(
-        #         glob.glob(f"{app_dir}/Contents/Resources/lib/**/*.so", recursive=True),
-        #         glob.glob(f"{app_dir}/Contents/Resources/lib/**/*.dylib", recursive=True),
-        + look for files that have no extension + try signing!
-        + roots
-        # Sign individually
-        # Remove / hide deep option? ( document why its bad )
-        """
-
-        if not self.codesign_identity:
-            return
-
-        signargs = self._get_sign_args()
-
-        print(f"About to sign: '{self.bundle_dir}'")
-        bundle_dir = Path(self.bundle_dir)
-        files_to_sign = set()
-        for item in bundle_dir.rglob('*'):
-            if item.is_file():
-                if item.suffix == '':
-                    print(f"Found file without extension: {item}")
-                    files_to_sign.add(item)
-                elif item.suffix in {'.so', '.dylib'}:
-                    files_to_sign.add(item)
-        for item in files_to_sign:
-            self._codesign_file(item, signargs)
-
-        self._verify_signature()
-        print("Finished .app signing")
 
     @staticmethod
     def _is_binary(file_path):
@@ -579,7 +542,12 @@ class BdistMac(Command):
             return False
 
 
-    def _recursive_codesign(self, root_path):
+    def _codesign(self, root_path):
+        """Run codesign on all .so, .dylib and binary files in reverse order. Signing from inside-out."""
+        if not self.codesign_identity:
+            return
+
+        print(f"About to sign: '{self.bundle_dir}'")
         binaries_to_sign = []
 
         # Identify all binary files
@@ -596,10 +564,12 @@ class BdistMac(Command):
         for binary_path in binaries_to_sign:
             self._codesign_file(binary_path, self._get_sign_args())
 
+        self._verify_signature()
+        print("Finished .app signing")
 
 
     def _get_sign_args(self):
-        signargs = ['codesign', '--sign', self.codesign_identity, '--force']  # TODO : Make force an option?
+        signargs = ['codesign', '--sign', self.codesign_identity, '--force']
 
         if self.codesign_timestamp:
             signargs.append('--timestamp')
@@ -611,7 +581,7 @@ class BdistMac(Command):
             signargs.append('--deep')
 
         if self.codesign_options:
-            signargs.append(f'--options')
+            signargs.append('--options')
             signargs.append(self.codesign_options)
 
         if self.codesign_entitlements:
@@ -622,7 +592,7 @@ class BdistMac(Command):
     def _codesign_file(self, file_path, sign_args):
         print(f"Signing file: {file_path}")
         sign_args.append(file_path)
-        subprocess.run(sign_args)  # TODO : Protections around this?
+        subprocess.run(sign_args)
 
 
     def _verify_signature(self):
