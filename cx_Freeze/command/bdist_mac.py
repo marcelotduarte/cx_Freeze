@@ -591,7 +591,7 @@ class BdistMac(Command):
                     binaries_to_sign.append(full_path)
 
         # Sort files by depth, so we sign the deepest files first
-        binaries_to_sign.sort(key=lambda x: x.count(os.sep), reverse=True)
+        binaries_to_sign.sort(key=lambda x: str(x).count(os.sep), reverse=True)
 
         for binary_path in binaries_to_sign:
             self._codesign_file(binary_path, self._get_sign_args())
