@@ -555,6 +555,7 @@ class BdistMac(Command):
         for item in files_to_sign:
             self._codesign_file(item, signargs)
 
+        self._verify_signature()
         print("Finished .app signing")
 
     @staticmethod
@@ -624,13 +625,13 @@ class BdistMac(Command):
         subprocess.run(sign_args)  # TODO : Protections around this?
 
 
-        # TODO : prob *don't* want to do this on a file by file basis... but maybe we do ? :D
+    def _verify_signature(self):
         if self.codesign_verify:
             verify_args = ["codesign", "-vvv", "--deep", "--strict", self.bundle_dir]
             print("Running codesign verification")
             result = subprocess.run(verify_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             output = f"ExitCode: {result.returncode} \n stdout: {result.stdout} \n stderr: {result.stderr}"
-            print(output)  # TODO - look at modifying this / merging with other subproc calls
+            print(output)
 
         if self.spctl_assess:
             spctl_args = [
