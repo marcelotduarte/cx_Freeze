@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import os
-import glob
-import itertools
 import plistlib
 import shutil
 import subprocess
@@ -181,7 +179,8 @@ class BdistMac(Command):
         (
             "codesign-timestamp",
             None,
-            "Boolean for whether to codesign using the –-timestamp option."),
+            "Boolean for whether to codesign using the –-timestamp option."
+        ),
         (
             "codesign-resource-rules",
             None,
