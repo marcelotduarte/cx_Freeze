@@ -7,6 +7,7 @@ import plistlib
 import shutil
 import subprocess
 from pathlib import Path
+
 from setuptools import Command
 
 from cx_Freeze.common import normalize_to_list
@@ -179,7 +180,7 @@ class BdistMac(Command):
         (
             "codesign-timestamp",
             None,
-            "Boolean for whether to codesign using the –-timestamp option."
+            "Boolean for whether to codesign using the --timestamp option.",
         ),
         (
             "codesign-resource-rules",
@@ -196,22 +197,22 @@ class BdistMac(Command):
         (
             "codesign-verify",
             None,
-            "Boolean to verify codesign of the .app bundle using the codesign command"
+            "Boolean to verify codesign of the .app bundle using the codesign command",
         ),
         (
             "spctl-assess",
             None,
-            "Boolean to verify codesign of the .app bundle using the spctl command"
+            "Boolean to verify codesign of the .app bundle using the spctl command",
         ),
         (
             "codesign-strict=",
             None,
-            "Boolean for whether to codesign using the --strict option."
+            "Boolean for whether to codesign using the --strict option.",
         ),
         (
             "codesign-options=",
             None,
-            "Option flags to be embedded in the code signature"
+            "Option flags to be embedded in the code signature",
         ),
     ]
 
@@ -430,7 +431,9 @@ class BdistMac(Command):
         )
         self.contents_dir = os.path.join(self.bundle_dir, "Contents")
         self.resources_dir = os.path.join(self.contents_dir, "Resources")
-        self.resources_lib_dir = os.path.join(self.contents_dir, "Resources", "lib")
+        self.resources_lib_dir = os.path.join(
+            self.contents_dir, "Resources", "lib"
+        )
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
 
@@ -452,16 +455,20 @@ class BdistMac(Command):
         # Copy to relevent subfolders
         print(f"Executable name: {executable} - {build_exe.build_exe}")
         self.copy_tree(build_exe.build_exe, self.bin_dir)
-        self.copy_tree(os.path.join(self.bin_dir, "lib"), self.resources_lib_dir)
+        self.copy_tree(
+            os.path.join(self.bin_dir, "lib"), self.resources_lib_dir
+        )
         shutil.rmtree(os.path.join(self.bin_dir, "lib"))
         # Make symlink between contents/MacOS and resources/lib so we can use none-relative reference paths
         # in order to pass codesign...
         origin = os.path.join(self.bin_dir, "lib")
-        relative_reference = os.path.relpath(self.resources_lib_dir, self.bin_dir)
-        print(f"Creating symlink - Target: {origin} <-> Source: {relative_reference}")
-        os.symlink(
-            relative_reference, origin, target_is_directory=True
+        relative_reference = os.path.relpath(
+            self.resources_lib_dir, self.bin_dir
         )
+        print(
+            f"Creating symlink - Target: {origin} <-> Source: {relative_reference}"
+        )
+        os.symlink(relative_reference, origin, target_is_directory=True)
 
         # Copy the icon
         if self.iconfile:
@@ -520,27 +527,25 @@ class BdistMac(Command):
         # Sign the app bundle if a key is specified
         self._codesign(self.bundle_dir)
 
-
     @staticmethod
     def _is_binary(file_path):
         """Check if a file is binary by searching for null bytes in its content."""
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             chunk = f.read(8192)  # read 8K bytes
             while chunk:
-                if b'\0' in chunk:
+                if b"\0" in chunk:
                     return True
                 chunk = f.read(8192)
         return False
 
     @staticmethod
     def _should_sign(file_path: Path):
-        if file_path.suffix in ['.so', '.dylib']:
+        if file_path.suffix in [".so", ".dylib"]:
             return True
-        if file_path.suffix == '':
+        if file_path.suffix == "":
             return BdistMac._is_binary(file_path)
         else:
             return False
-
 
     def _codesign(self, root_path):
         """Run codesign on all .so, .dylib and binary files in reverse order. Signing from inside-out."""
@@ -567,25 +572,24 @@ class BdistMac(Command):
         self._verify_signature()
         print("Finished .app signing")
 
-
     def _get_sign_args(self):
-        signargs = ['codesign', '--sign', self.codesign_identity, '--force']
+        signargs = ["codesign", "--sign", self.codesign_identity, "--force"]
 
         if self.codesign_timestamp:
-            signargs.append('--timestamp')
+            signargs.append("--timestamp")
 
         if self.codesign_strict:
-            signargs.append('--strict={}'.format(self.codesign_strict))
+            signargs.append(f"--strict={self.codesign_strict}")
 
         if self.codesign_deep:
-            signargs.append('--deep')
+            signargs.append("--deep")
 
         if self.codesign_options:
-            signargs.append('--options')
+            signargs.append("--options")
             signargs.append(self.codesign_options)
 
         if self.codesign_entitlements:
-            signargs.append('--entitlements')
+            signargs.append("--entitlements")
             signargs.append(self.codesign_entitlements)
         return signargs
 
@@ -594,12 +598,19 @@ class BdistMac(Command):
         sign_args.append(file_path)
         subprocess.run(sign_args)
 
-
     def _verify_signature(self):
         if self.codesign_verify:
-            verify_args = ["codesign", "-vvv", "--deep", "--strict", self.bundle_dir]
+            verify_args = [
+                "codesign",
+                "-vvv",
+                "--deep",
+                "--strict",
+                self.bundle_dir,
+            ]
             print("Running codesign verification")
-            result = subprocess.run(verify_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(
+                verify_args, capture_output=True, text=True
+            )
             output = f"ExitCode: {result.returncode} \n stdout: {result.stdout} \n stderr: {result.stderr}"
             print(output)
 
@@ -611,15 +622,20 @@ class BdistMac(Command):
                 "--verbose=10",
                 "--type",
                 "exec",
-                self.bundle_dir
+                self.bundle_dir,
             ]
             try:
-                completed_process = subprocess.run(spctl_args, check=True,
-                                                   stdout=subprocess.PIPE,
-                                                   stderr=subprocess.STDOUT)
-                print("spctl command's output: {}".format(completed_process.stdout.decode()))
+                completed_process = subprocess.run(
+                    spctl_args,
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
+                print(
+                    "spctl command's output: {}".format(
+                        completed_process.stdout.decode()
+                    )
+                )
             except subprocess.CalledProcessError as error:
-                print("spctl check got an error: {}".format(error.stdout.decode()))
+                print(f"spctl check got an error: {error.stdout.decode()}")
                 raise
-
-
