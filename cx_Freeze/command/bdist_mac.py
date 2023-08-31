@@ -522,7 +522,8 @@ class BdistMac(Command):
         # TODO : Add some sort of verification step / asset if macOS folder isn't just the binaries!
 
         # Sign the app bundle if a key is specified
-        self._codesign()
+        # self._codesign()
+        self._recursive_codesign(self.bundle_dir)
 
     def _codesign(self):
         """
@@ -556,6 +557,46 @@ class BdistMac(Command):
             self._codesign_file(item, signargs)
 
         print("Finished .app signing")
+
+    @staticmethod
+    def _is_binary(file_path):
+        """Check if a file is binary by searching for null bytes in its content."""
+        with open(file_path, 'rb') as f:
+            chunk = f.read(8192)  # read 8K bytes
+            while chunk:
+                if b'\0' in chunk:
+                    return True
+                chunk = f.read(8192)
+        return False
+
+    @staticmethod
+    def _should_sign(file_path: Path):
+        if file_path.suffix in ['.so', '.dylib']:
+            return True
+        if file_path.suffix == '':
+            return BdistMac._is_binary(file_path)
+        else:
+            return False
+
+
+    def _recursive_codesign(self, root_path):
+        binaries_to_sign = []
+
+        # Identify all binary files
+        for dirpath, _, filenames in os.walk(root_path):
+            for filename in filenames:
+                full_path = Path(os.path.join(dirpath, filename))
+
+                if BdistMac._should_sign(full_path):
+                    binaries_to_sign.append(full_path)
+
+        # Sort files by depth, so we sign the deepest files first
+        binaries_to_sign.sort(key=lambda x: x.count(os.sep), reverse=True)
+
+        for binary_path in binaries_to_sign:
+            self._codesign_file(binary_path, self._get_sign_args())
+
+
 
     def _get_sign_args(self):
         signargs = ['codesign', '--sign', self.codesign_identity, '--force']  # TODO : Make force an option?
