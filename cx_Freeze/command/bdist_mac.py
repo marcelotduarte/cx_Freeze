@@ -19,6 +19,7 @@ from cx_Freeze.darwintools import (
 )
 
 from ..exception import OptionError
+from ..darwintools import isMachOFile
 
 __all__ = ["BdistDMG", "BdistMac"]
 
@@ -531,27 +532,6 @@ class BdistMac(Command):
         # Sign the app bundle if a key is specified
         self._codesign(self.bundle_dir)
 
-    @staticmethod
-    def _is_binary(file_path):
-        """Check if a file is binary by searching for null bytes in its
-        content.
-        """
-        with open(file_path, "rb") as file:
-            chunk = file.read(8192)  # read 8K bytes
-            while chunk:
-                if b"\0" in chunk:
-                    return True
-                chunk = file.read(8192)
-        return False
-
-    @staticmethod
-    def _should_sign(file_path: Path):
-        if file_path.suffix in [".so", ".dylib"]:
-            return True
-        if file_path.suffix == "":
-            return BdistMac._is_binary(file_path)
-        return False
-
     def _codesign(self, root_path):
         """Run codesign on all .so, .dylib and binary files in reverse order.
         Signing from inside-out.
@@ -567,7 +547,7 @@ class BdistMac(Command):
             for filename in filenames:
                 full_path = Path(os.path.join(dirpath, filename))
 
-                if BdistMac._should_sign(full_path):
+                if isMachOFile(full_path):
                     binaries_to_sign.append(full_path)
 
         # Sort files by depth, so we sign the deepest files first
