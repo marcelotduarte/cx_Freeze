@@ -25,7 +25,7 @@ from .exception import PlatformError
 # directories are included in the current rpath.
 
 
-def _isMachOFile(path: Path) -> bool:
+def isMachOFile(path: Path) -> bool:
     """Determines whether the file is a Mach-O file."""
     if not path.is_file():
         return False
@@ -114,7 +114,7 @@ class DarwinFile:
         # unresolved load path.
         self.machOReferenceForTargetPath: dict[Path, MachOReference] = {}
 
-        if not _isMachOFile(self.path):
+        if not isMachOFile(self.path):
             self.isMachO = False
             return
 
@@ -254,7 +254,7 @@ class DarwinFile:
     def resolveRPath(self, path: str) -> Path | None:
         for rpath in self.getRPath():
             test_path = rpath / Path(path).relative_to("@rpath")
-            if _isMachOFile(test_path):
+            if isMachOFile(test_path):
                 return test_path
         if not self.strict:
             # If not strictly enforcing rpath, return None here, and leave any
@@ -302,7 +302,7 @@ class DarwinFile:
         if test_path.is_absolute():  # just use the path, if it is absolute
             return test_path
         test_path = self.path.parent / path
-        if _isMachOFile(test_path):
+        if isMachOFile(test_path):
             return test_path.resolve()
         if self.strict:
             raise PlatformError(
