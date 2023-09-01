@@ -18,8 +18,8 @@ from cx_Freeze.darwintools import (
     changeLoadReference,
 )
 
-from ..exception import OptionError
 from ..darwintools import isMachOFile
+from ..exception import OptionError
 
 __all__ = ["BdistDMG", "BdistMac"]
 
