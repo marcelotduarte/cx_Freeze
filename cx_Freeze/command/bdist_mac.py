@@ -197,12 +197,14 @@ class BdistMac(Command):
         (
             "codesign-verify",
             None,
-            "Boolean to verify codesign of the .app bundle using the codesign command",
+            "Boolean to verify codesign of the .app bundle using the codesign "
+            "command",
         ),
         (
             "spctl-assess",
             None,
-            "Boolean to verify codesign of the .app bundle using the spctl command",
+            "Boolean to verify codesign of the .app bundle using the spctl "
+            "command",
         ),
         (
             "codesign-strict=",
@@ -437,7 +439,8 @@ class BdistMac(Command):
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
 
-        # Remove App if it already exists ( avoids confusing issues where prior builds persist! )
+        # Remove App if it already exists
+        # ( avoids confusing issues where prior builds persist! )
         if os.path.exists(self.bundle_dir):
             shutil.rmtree(self.bundle_dir)
             print(f"Staging - Removed existing '{self.bundle_dir}'")
@@ -459,14 +462,15 @@ class BdistMac(Command):
             os.path.join(self.bin_dir, "lib"), self.resources_lib_dir
         )
         shutil.rmtree(os.path.join(self.bin_dir, "lib"))
-        # Make symlink between contents/MacOS and resources/lib so we can use none-relative reference paths
-        # in order to pass codesign...
+        # Make symlink between contents/MacOS and resources/lib so we can use
+        # none-relative reference paths in order to pass codesign...
         origin = os.path.join(self.bin_dir, "lib")
         relative_reference = os.path.relpath(
             self.resources_lib_dir, self.bin_dir
         )
         print(
-            f"Creating symlink - Target: {origin} <-> Source: {relative_reference}"
+            "Creating symlink - "
+            f"Target: {origin} <-> Source: {relative_reference}"
         )
         os.symlink(relative_reference, origin, target_is_directory=True)
 
@@ -529,13 +533,15 @@ class BdistMac(Command):
 
     @staticmethod
     def _is_binary(file_path):
-        """Check if a file is binary by searching for null bytes in its content."""
-        with open(file_path, "rb") as f:
-            chunk = f.read(8192)  # read 8K bytes
+        """Check if a file is binary by searching for null bytes in its
+        content.
+        """
+        with open(file_path, "rb") as file:
+            chunk = file.read(8192)  # read 8K bytes
             while chunk:
                 if b"\0" in chunk:
                     return True
-                chunk = f.read(8192)
+                chunk = file.read(8192)
         return False
 
     @staticmethod
@@ -544,11 +550,12 @@ class BdistMac(Command):
             return True
         if file_path.suffix == "":
             return BdistMac._is_binary(file_path)
-        else:
-            return False
+        return False
 
     def _codesign(self, root_path):
-        """Run codesign on all .so, .dylib and binary files in reverse order. Signing from inside-out."""
+        """Run codesign on all .so, .dylib and binary files in reverse order.
+        Signing from inside-out.
+        """
         if not self.codesign_identity:
             return
 
@@ -596,7 +603,7 @@ class BdistMac(Command):
     def _codesign_file(self, file_path, sign_args):
         print(f"Signing file: {file_path}")
         sign_args.append(file_path)
-        subprocess.run(sign_args)
+        subprocess.run(sign_args, check=False)
 
     def _verify_signature(self):
         if self.codesign_verify:
@@ -609,10 +616,11 @@ class BdistMac(Command):
             ]
             print("Running codesign verification")
             result = subprocess.run(
-                verify_args, capture_output=True, text=True
+                verify_args, capture_output=True, text=True, check=False
             )
-            output = f"ExitCode: {result.returncode} \n stdout: {result.stdout} \n stderr: {result.stderr}"
-            print(output)
+            print("ExitCode:", result.returncode)
+            print(" stdout:", result.stdout)
+            print(" stderr:", result.stderr)
 
         if self.spctl_assess:
             spctl_args = [
@@ -632,9 +640,8 @@ class BdistMac(Command):
                     stderr=subprocess.STDOUT,
                 )
                 print(
-                    "spctl command's output: {}".format(
-                        completed_process.stdout.decode()
-                    )
+                    "spctl command's output: "
+                    f"{completed_process.stdout.decode()}"
                 )
             except subprocess.CalledProcessError as error:
                 print(f"spctl check got an error: {error.stdout.decode()}")
