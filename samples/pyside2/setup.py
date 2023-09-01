@@ -13,6 +13,7 @@ subdirectory that contains the files needed to run the application.
 from __future__ import annotations
 
 import sys
+import os
 
 from cx_Freeze import Executable, setup
 
@@ -51,7 +52,22 @@ build_exe_options = {
     "include_files": include_files,
     "zip_include_packages": ["PySide2", "shiboken2"],
 }
-
+options = {
+    "build_exe": {
+        # exclude packages that are not really needed
+        "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
+        "include_files": include_files,
+        "zip_include_packages": ["PySide2", "shiboken2"],
+    },
+    "bdist_mac": {
+        'custom_info_plist': None, # Set this to use a custom info.plist file
+        'codesign_entitlements': os.path.join(os.path.dirname(__file__), "codesign-entitlements.plist"),
+        'codesign_identity': None, # Set this to enable signing with custom identity (replaces adhoc signature)
+        'codesign_options': 'runtime', # Ensure codesign uses 'hardened runtime'
+        'codesign_verify': False, # Enable to get more verbose logging regarding codesign
+        'spctl_assess': False, # Enable to get more verbose logging regarding codesign
+    },
+}
 executables = [Executable("test_pyside2.py", base=base)]
 
 setup(
