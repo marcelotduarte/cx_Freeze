@@ -6,6 +6,7 @@ import os
 import plistlib
 import shutil
 import subprocess
+from pathlib import Path
 
 from setuptools import Command
 
@@ -17,6 +18,7 @@ from cx_Freeze.darwintools import (
     changeLoadReference,
 )
 
+from ..darwintools import isMachOFile
 from ..exception import OptionError
 
 __all__ = ["BdistDMG", "BdistMac"]
@@ -177,6 +179,11 @@ class BdistMac(Command):
             "Boolean for whether to codesign using the --deep option.",
         ),
         (
+            "codesign-timestamp",
+            None,
+            "Boolean for whether to codesign using the --timestamp option.",
+        ),
+        (
             "codesign-resource-rules",
             None,
             "Plist file to be passed to "
@@ -187,6 +194,28 @@ class BdistMac(Command):
             None,
             "Path to use for all referenced "
             "libraries instead of @executable_path.",
+        ),
+        (
+            "codesign-verify",
+            None,
+            "Boolean to verify codesign of the .app bundle using the codesign "
+            "command",
+        ),
+        (
+            "spctl-assess",
+            None,
+            "Boolean to verify codesign of the .app bundle using the spctl "
+            "command",
+        ),
+        (
+            "codesign-strict=",
+            None,
+            "Boolean for whether to codesign using the --strict option.",
+        ),
+        (
+            "codesign-options=",
+            None,
+            "Option flags to be embedded in the code signature",
         ),
     ]
 
@@ -204,7 +233,12 @@ class BdistMac(Command):
         self.codesign_deep = None
         self.codesign_entitlements = None
         self.codesign_identity = None
+        self.codesign_timestamp = None
+        self.codesign_strict = None
+        self.codesign_options = None
         self.codesign_resource_rules = None
+        self.codesign_verify = None
+        self.spctl_assess = None
         self.custom_info_plist = None
         self.iconfile = None
         self.qt_menu_nib = False
@@ -298,6 +332,7 @@ class BdistMac(Command):
 
         for darwin_file in self.darwin_tracker:
             # get the relative path to darwin_file in build directory
+            print(f"Setting relative_reference_path for: {darwin_file}")
             relative_copy_dest = os.path.relpath(
                 darwin_file.getBuildPath(), build_dir
             )
@@ -306,7 +341,6 @@ class BdistMac(Command):
             # bundle.  This is the file that needs to have its dynamic load
             # references updated.
             file_path_in_bin_dir = os.path.join(bin_dir, relative_copy_dest)
-
             # for each file that this darwin_file references, update the
             # reference as necessary; if the file is copied into the binary
             # package, change the reference to be relative to @executable_path
@@ -400,19 +434,46 @@ class BdistMac(Command):
         )
         self.contents_dir = os.path.join(self.bundle_dir, "Contents")
         self.resources_dir = os.path.join(self.contents_dir, "Resources")
+        self.resources_lib_dir = os.path.join(
+            self.contents_dir, "Resources", "lib"
+        )
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
+
+        # Remove App if it already exists
+        # ( avoids confusing issues where prior builds persist! )
+        if os.path.exists(self.bundle_dir):
+            shutil.rmtree(self.bundle_dir)
+            print(f"Staging - Removed existing '{self.bundle_dir}'")
 
         # Find the executable name
         executable = self.distribution.executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
 
         # Build the app directory structure
-        self.mkpath(self.resources_dir)
-        self.mkpath(self.bin_dir)
-        self.mkpath(self.frameworks_dir)
+        self.mkpath(self.resources_dir)  # /Resources
+        self.mkpath(self.resources_lib_dir)  # /Resources/lib
+        self.mkpath(self.bin_dir)  # /MacOS
+        self.mkpath(self.frameworks_dir)  # /Frameworks
 
+        # Copy to relevent subfolders
+        print(f"Executable name: {executable} - {build_exe.build_exe}")
         self.copy_tree(build_exe.build_exe, self.bin_dir)
+        self.copy_tree(
+            os.path.join(self.bin_dir, "lib"), self.resources_lib_dir
+        )
+        shutil.rmtree(os.path.join(self.bin_dir, "lib"))
+        # Make symlink between contents/MacOS and resources/lib so we can use
+        # none-relative reference paths in order to pass codesign...
+        origin = os.path.join(self.bin_dir, "lib")
+        relative_reference = os.path.relpath(
+            self.resources_lib_dir, self.bin_dir
+        )
+        print(
+            "Creating symlink - "
+            f"Target: {origin} <-> Source: {relative_reference}"
+        )
+        os.symlink(relative_reference, origin, target_is_directory=True)
 
         # Copy the icon
         if self.iconfile:
@@ -459,26 +520,109 @@ class BdistMac(Command):
         if self.absolute_reference_path:
             self.execute(self.set_absolute_reference_paths, ())
 
+        # Move license file to resources as it can't be signed
+        src_lfp = os.path.join(self.bin_dir, "frozen_application_license.txt")
+        if os.path.exists(src_lfp):
+            shutil.move(src_lfp, self.resources_dir)
+            print(f"Moved: {src_lfp} -> {self.resources_dir}")
+
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
 
         # Sign the app bundle if a key is specified
-        if self.codesign_identity:
-            signargs = ["codesign", "-s", self.codesign_identity]
+        self._codesign(self.bundle_dir)
 
-            if self.codesign_entitlements:
-                signargs.append("--entitlements")
-                signargs.append(self.codesign_entitlements)
+    def _codesign(self, root_path):
+        """Run codesign on all .so, .dylib and binary files in reverse order.
+        Signing from inside-out.
+        """
+        if not self.codesign_identity:
+            return
 
-            if self.codesign_deep:
-                signargs.insert(1, "--deep")
+        print(f"About to sign: '{self.bundle_dir}'")
+        binaries_to_sign = []
 
-            if self.codesign_resource_rules:
-                signargs.insert(
-                    1, "--resource-rules=" + self.codesign_resource_rules
+        # Identify all binary files
+        for dirpath, _, filenames in os.walk(root_path):
+            for filename in filenames:
+                full_path = Path(os.path.join(dirpath, filename))
+
+                if isMachOFile(full_path):
+                    binaries_to_sign.append(full_path)
+
+        # Sort files by depth, so we sign the deepest files first
+        binaries_to_sign.sort(key=lambda x: str(x).count(os.sep), reverse=True)
+
+        for binary_path in binaries_to_sign:
+            self._codesign_file(binary_path, self._get_sign_args())
+
+        self._verify_signature()
+        print("Finished .app signing")
+
+    def _get_sign_args(self):
+        signargs = ["codesign", "--sign", self.codesign_identity, "--force"]
+
+        if self.codesign_timestamp:
+            signargs.append("--timestamp")
+
+        if self.codesign_strict:
+            signargs.append(f"--strict={self.codesign_strict}")
+
+        if self.codesign_deep:
+            signargs.append("--deep")
+
+        if self.codesign_options:
+            signargs.append("--options")
+            signargs.append(self.codesign_options)
+
+        if self.codesign_entitlements:
+            signargs.append("--entitlements")
+            signargs.append(self.codesign_entitlements)
+        return signargs
+
+    def _codesign_file(self, file_path, sign_args):
+        print(f"Signing file: {file_path}")
+        sign_args.append(file_path)
+        subprocess.run(sign_args, check=False)
+
+    def _verify_signature(self):
+        if self.codesign_verify:
+            verify_args = [
+                "codesign",
+                "-vvv",
+                "--deep",
+                "--strict",
+                self.bundle_dir,
+            ]
+            print("Running codesign verification")
+            result = subprocess.run(
+                verify_args, capture_output=True, text=True, check=False
+            )
+            print("ExitCode:", result.returncode)
+            print(" stdout:", result.stdout)
+            print(" stderr:", result.stderr)
+
+        if self.spctl_assess:
+            spctl_args = [
+                "spctl",
+                "--assess",
+                "--raw",
+                "--verbose=10",
+                "--type",
+                "exec",
+                self.bundle_dir,
+            ]
+            try:
+                completed_process = subprocess.run(
+                    spctl_args,
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                 )
-
-            signargs.append(self.bundle_dir)
-
-            if subprocess.call(signargs) != 0:
-                raise OSError("Code signing of app bundle failed")
+                print(
+                    "spctl command's output: "
+                    f"{completed_process.stdout.decode()}"
+                )
+            except subprocess.CalledProcessError as error:
+                print(f"spctl check got an error: {error.stdout.decode()}")
+                raise
