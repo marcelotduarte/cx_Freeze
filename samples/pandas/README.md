@@ -7,5 +7,11 @@ Here are samples to test cx_Freeze or to show how to use a package in cx_Freeze.
 In a virtual environment, install by issuing the command:
 
 ```
-pip install cx_Freeze pandas --upgrade
+pip install --upgrade cx_Freeze pandas
+```
+
+Using conda-forge:
+
+```
+conda install --conda-forge cx_freeze pandas
 ```

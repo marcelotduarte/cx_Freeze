@@ -325,10 +325,32 @@ def load_orjson(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("zoneinfo")
 
 
-def load_pandas(finder: ModuleFinder, module: Module) -> None:
-    """The pandas has dynamic imports."""
-    finder.include_package("pandas._libs")
-    finder.exclude_module("pandas.tests")
+def load_os(finder: ModuleFinder, module: Module) -> None:
+    """The os module should filter import names."""
+    if IS_WINDOWS:
+        module.exclude_names.add("posix")
+    else:
+        module.exclude_names.add("nt")
+
+
+def load_pathlib(finder: ModuleFinder, module: Module) -> None:
+    """The pathlib module should filter import names."""
+    if IS_WINDOWS:
+        module.exclude_names.update(("grp", "pwd"))
+    else:
+        module.exclude_names.add("nt")
+
+
+def load_pickle(finder: ModuleFinder, module: Module) -> None:
+    """The pickle module uses doctest for tests and shouldn't be imported."""
+    module.exclude_names.add("doctest")
+    if not sys.platform.startswith("java"):
+        module.exclude_names.add("org.python.core")
+
+
+def load_pickletools(finder: ModuleFinder, module: Module) -> None:
+    """The pickletools module uses doctest that shouldn't be imported."""
+    module.exclude_names.add("doctest")
 
 
 def load_pikepdf(finder: ModuleFinder, module: Module) -> None:

@@ -16,12 +16,12 @@ def replace_delvewheel_patch(module: Module) -> None:
     if code is None:
         return
 
-    delvewheel_func = "_delvewheel_init_patch_"
+    delvewheel_func_names = "_delvewheel_init_patch_", "_delvewheel_patch_"
     consts = list(code.co_consts)
     for constant in consts:
         if isinstance(constant, CodeType):
             name = constant.co_name
-            if name.startswith(delvewheel_func):
+            if name.startswith(delvewheel_func_names):
                 source = f"""\
                 def {name}():
                     import os, sys
