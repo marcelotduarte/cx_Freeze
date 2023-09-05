@@ -374,12 +374,6 @@ def load_os(finder: ModuleFinder, module: Module) -> None:
         module.exclude_names.add("nt")
 
 
-def load_pandas(finder: ModuleFinder, module: Module) -> None:
-    """The pandas has dynamic imports."""
-    finder.include_package("pandas._libs")
-    finder.exclude_module("pandas.tests")
-
-
 def load_pathlib(finder: ModuleFinder, module: Module) -> None:
     """The pathlib module should filter import names."""
     if IS_WINDOWS:
