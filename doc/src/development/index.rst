@@ -32,20 +32,55 @@ You can use ``git`` to clone the repository:
 
 If you don't have make installed, run:
 
-.. code-block:: console
+  .. code-block:: console
 
-      pip install -r requirements-dev.txt
-      pip install -e . --no-build-isolation --no-deps
+      python -m pip install --upgrade pip
+      pip install -e .[dev,doc]
       pre-commit install --install-hooks --overwrite -t pre-commit
 
 .. note::
 
    #. It is recommended to use a virtual environment.
-   #. Please check the requirements for python and for your system
+   #. Please check the requirements for python on your system
       (see :doc:`../installation`).
-   #. ``python setup.py develop --no-deps`` can be used, instead of
-      ``pip install -e . --no-build-isolation --no-deps``.
 
+Building binary wheels
+~~~~~~~~~~~~~~~~~~~~~~
+
+cx_Freeze's binary wheels is built using :pypi:`cibuildwheel`.
+For instance, to build locally wheels for Python 3.10 in Linux, run:
+
+  .. code-block:: console
+
+      pip install --upgrade cibuildwheel
+      export CIBW_BUILD="cp310*"
+      cibuildwheel --output-dir wheelhouse --platform linux
+
+.. note::
+
+   #. Please read `Run cibuildwheel locally
+      <https://cibuildwheel.readthedocs.io/en/stable/setup/#local>`_.
+   #. To run a Linux build on your development machine, Docker or Podman should
+      be installed. To use podman, set `CIBW_CONTAINER_ENGINE
+      <https://cibuildwheel.readthedocs.io/en/stable/options/#container-engine>`_.
+
+
+Building documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+cx_Freeze's documentation is built using :pypi:`Sphinx`. The documentation is
+written in reStructuredText. To build it locally, run:
+
+  .. code-block:: console
+
+      make html
+
+The built documentation can be found in the ``build/doc/html`` folder and may
+be viewed by opening ``index.html`` within that folder.
+
+  .. code-block:: console
+
+      make htmltest
 
 Conda-forge
 -----------
@@ -71,24 +106,6 @@ An example for Linux:
     conda activate cx39conda
     conda install -c conda-forge c-compiler patchelf -y
     pip install --upgrade --no-binary=cx_Freeze --pre cx_Freeze -v
-
-Building documentation
-~~~~~~~~~~~~~~~~~~~~~~
-
-cx_Freeze's documentation is built using :pypi:`Sphinx`. The documentation is
-written in reStructuredText. To build it locally, run:
-
-.. code-block:: console
-
-      make html
-
-The built documentation can be found in the ``build/doc/html`` folder and may
-be viewed by opening ``index.html`` within that folder.
-
-.. code-block:: console
-
-      make htmltest
-
 
 Contributing
 -------------
