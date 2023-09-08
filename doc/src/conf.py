@@ -48,7 +48,7 @@ copyright = "2023, Marcelo Duarte"  # noqa: A001
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = "6.16.0-dev5"
+release = "6.16.0-dev6"
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 
