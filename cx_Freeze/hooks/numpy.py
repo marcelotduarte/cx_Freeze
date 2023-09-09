@@ -10,7 +10,7 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 from textwrap import dedent
 
-from cx_Freeze._compat import IS_CONDA, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_CONDA, IS_LINUX, IS_MACOS
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
@@ -69,9 +69,8 @@ def load_numpy_core__add_newdocs(
 
 
 def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
-    """Fix the location of dependent files in Windows."""
-    if not (IS_WINDOWS or IS_MINGW):
-        # In Linux and macOS it is detected correctly.
+    """Fix the location of dependent files in Windows and macOS."""
+    if IS_LINUX:  # In Linux it is detected correctly.
         return
 
     # patch the code when necessary
@@ -79,11 +78,12 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
 
     # installed from pypi, using zip_include_packages we must fix it
     numpy_dir = module.file.parent
-    libs_dir = numpy_dir / ".libs"
+    libs_dir = numpy_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
     if libs_dir.is_dir():
-        if module.in_file_system == 0:  # zip_include_packages
-            # copy any file at site-packages/numpy/.libs
-            finder.include_files(libs_dir, "lib/numpy/.libs")
+        # copy any file at site-packages/numpy/.libs
+        finder.include_files(
+            libs_dir, f"lib/numpy/{libs_dir.name}", copy_dependent_files=False
+        )
     else:
         # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl
         libs_dir = numpy_dir / "DLLs"
