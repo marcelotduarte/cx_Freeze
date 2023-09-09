@@ -28,29 +28,44 @@ from cx_Freeze.module import Module
 # conda install -c conda-forge blas=*=openblas numpy
 
 
-def load_numpy(finder: ModuleFinder, module: Module) -> None:
-    """The numpy must be loaded as a package.
+def load_numpy(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
+    """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.24.3).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.25.2).
     """
-    finder.include_package("numpy")
-    module.in_file_system = 1  # TODO: support zip or optimized mode
-    # first, exclude the tests
-    finder.exclude_module("numpy.compat.tests")
-    finder.exclude_module("numpy.core.tests")
-    finder.exclude_module("numpy.distutils.tests")
-    finder.exclude_module("numpy.f2py.tests")
-    finder.exclude_module("numpy.fft.tests")
-    finder.exclude_module("numpy.lib.tests")
-    finder.exclude_module("numpy.linalg.tests")
-    finder.exclude_module("numpy.ma.tests")
-    finder.exclude_module("numpy.matrixlib.tests")
-    finder.exclude_module("numpy.polynomial.tests")
-    finder.exclude_module("numpy.random._examples")
-    finder.exclude_module("numpy.random.tests")
-    finder.exclude_module("numpy.tests")
-    finder.exclude_module("numpy.testing")
-    finder.exclude_module("numpy.typing.tests")
+    # Exclude all tests and unnecessary modules.
+    for mod in [
+        "array_api.tests",
+        "conftest",
+        "compat.tests",
+        "core.tests",
+        "distutils",
+        "distutils.tests",
+        "f2py.tests",
+        "fft.tests",
+        "lib.tests",
+        "linalg.tests",
+        "ma.tests",
+        "matrixlib.tests",
+        "polynomial.tests",
+        "_pyinstaller",
+        "random._examples",
+        "random.tests",
+        "testing",
+        "tests",
+        "typing.tests",
+    ]:
+        finder.exclude_module(f"numpy.{mod}")
+    # Include dynamically loaded module
+    finder.include_module("numpy.core._dtype_ctypes")
+    finder.include_module("secrets")
+
+
+def load_numpy_core__add_newdocs(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
+    """Include module used by the numpy.core._add_newdocs module."""
+    finder.include_module("numpy.core._multiarray_tests")
 
 
 def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
@@ -187,6 +202,11 @@ def load_numpy_linalg(
     sure this happens.
     """
     finder.include_module("numpy.linalg.lapack_lite")
+
+
+def load_numpy__pytesttester(_, module: Module) -> None:
+    """Remove optional modules in the numpy._pytesttester module."""
+    module.exclude_names.update(["numpy.distutils", "numpy.testing", "pytest"])
 
 
 def load_numpy_random_mtrand(_, module: Module) -> None:
