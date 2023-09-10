@@ -452,17 +452,13 @@ class BdistMac(Command):
 
         # Build the app directory structure
         self.mkpath(self.resources_dir)  # /Resources
-        self.mkpath(self.resources_lib_dir)  # /Resources/lib
         self.mkpath(self.bin_dir)  # /MacOS
         self.mkpath(self.frameworks_dir)  # /Frameworks
 
         # Copy to relevent subfolders
         print(f"Executable name: {executable} - {build_exe.build_exe}")
         self.copy_tree(build_exe.build_exe, self.bin_dir)
-        self.copy_tree(
-            os.path.join(self.bin_dir, "lib"), self.resources_lib_dir
-        )
-        shutil.rmtree(os.path.join(self.bin_dir, "lib"))
+        shutil.move(os.path.join(self.bin_dir, "lib"), self.resources_lib_dir)
         # Make symlink between contents/MacOS and resources/lib so we can use
         # none-relative reference paths in order to pass codesign...
         origin = os.path.join(self.bin_dir, "lib")
