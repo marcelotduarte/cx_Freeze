@@ -1,5 +1,4 @@
 """Extends setuptools to build macOS dmg or app blundle."""
-
 from __future__ import annotations
 
 import os
@@ -16,10 +15,9 @@ from cx_Freeze.darwintools import (
     DarwinFileTracker,
     applyAdHocSignature,
     changeLoadReference,
+    isMachOFile,
 )
-
-from ..darwintools import isMachOFile
-from ..exception import OptionError
+from cx_Freeze.exception import OptionError
 
 __all__ = ["BdistDMG", "BdistMac"]
 
