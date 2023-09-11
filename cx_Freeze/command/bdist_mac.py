@@ -65,7 +65,10 @@ class BdistDMG(Command):
         dest_dir = os.path.join(
             self.dist_dir, os.path.basename(self.bundle_dir)
         )
-        self.copy_tree(self.bundle_dir, dest_dir)
+        if self.silent:
+            shutil.copytree(self.bundle_dir, dest_dir, symlinks=True)
+        else:
+            self.copy_tree(self.bundle_dir, dest_dir, preserve_symlinks=True)
 
         createargs = [
             "hdiutil",
