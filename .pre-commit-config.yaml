@@ -36,13 +36,13 @@ repos:
   - id: validate-pyproject
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.0.287
+  rev: v0.0.288
   hooks:
   - id: ruff
     args: ["--fix"]
 
 - repo: https://github.com/psf/black
-  rev: 23.7.0
+  rev: 23.9.1
   hooks:
   - id: black
 
