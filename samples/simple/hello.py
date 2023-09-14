@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 from datetime import datetime
 
@@ -12,11 +10,11 @@ print(f"Default encoding: {sys.getdefaultencoding()}")
 print(f"File system encoding: {sys.getfilesystemencoding()}\n")
 
 print("ARGUMENTS:")
-for a in sys.argv:
-    print(f"{a}")
+for arg in sys.argv:
+    print(f"{arg}")
 print()
 
 print("PATH:")
-for p in sys.path:
-    print(f"{p}")
+for path in sys.path:
+    print(f"{path}")
 print()
