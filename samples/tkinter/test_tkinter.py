@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import os
 import sys
 from tkinter import Button, Label, PhotoImage, TclVersion, Tk
@@ -20,12 +18,14 @@ def _test():
             text="[%s]" % root.test["text"]
         ),
     )
-    datadir = (
-        os.path.dirname(sys.executable)
+    # icon located in current directory is copied to "icon" folder when frozen
+    # (see setup.py)
+    icon_file = (
+        os.path.join(os.path.dirname(sys.executable), "icon", "python.png")
         if getattr(sys, "frozen", False)
-        else ".."
+        else os.path.join(os.path.dirname(__file__), "logox128.png")
     )
-    icon = PhotoImage(file=os.path.join(datadir, "icon", "favicon.png"))
+    icon = PhotoImage(file=icon_file)
     root.tk.call("wm", "iconphoto", root._w, icon)
     test.pack()
     root.test = test
