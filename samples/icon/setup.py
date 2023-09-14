@@ -1,27 +1,25 @@
 """
 A setup script to create executables and demonstrate the use icons, that can be
-valid or invalid icons. Also, it is used to demonstrate the use of manifests.
+valid or invalid icons.
 """
-
-from __future__ import annotations
-
+import sys
 from cx_Freeze import Executable, setup
 
+if sys.platform == "win32":
+    icon_ok = "icon.ico"
+    invalid = "icon.png"
+else:
+    icon_ok = "icon.png"
+    invalid = "icon.ico"
+
 executables = [
-    Executable("test_icon.py", icon="icon.ico", target_name="test_icon"),
-    Executable("test_icon.py", icon="ícone.ico", target_name="teste_ícone"),
-    Executable("test_icon.py", icon="favicon.png", target_name="test_invalid"),
-    Executable(
-        "test_icon.py",
-        icon="icon.ico",
-        target_name="test_manifest_ação",
-        uac_admin=True,  # read and write a manifest
-    ),
+    Executable("test_icon.py", icon=icon_ok),
+    Executable("test_icon.py", icon=invalid, target_name="test_invalid"),
 ]
 
 setup(
     name="Icon sample",
-    version="0.3",
+    version="0.4",
     description="Test Icon",
     executables=executables,
 )
