@@ -13,6 +13,7 @@ import stat
 from textwrap import dedent
 from urllib.request import urlretrieve
 
+from filelock import FileLock
 from setuptools import Command
 
 import cx_Freeze.icons
@@ -58,6 +59,7 @@ class BdistAppImage(Command):
 
     def initialize_options(self):
         self.appimagekit = None
+        self._appimage_extract_and_run = False
         self.bdist_base = None
         self.build_dir = None
         self.dist_dir = None
@@ -108,21 +110,25 @@ class BdistAppImage(Command):
         if self.appimagekit is None:
             self.appimagekit = APPIMAGEKIT_TOOL
         appimagekit = self.appimagekit
-        if os.path.exists(appimagekit):
-            return
-
-        self.announce(
-            f"download and install AppImageKit from {APPIMAGEKIT_URL}"
-        )
-        arch = platform.machine()
-        name = f"appimagetool-{arch}.AppImage"
-        filename = os.path.join(os.path.dirname(appimagekit), name)
-        if not os.path.exists(filename):
-            self.mkpath(os.path.dirname(filename))
-            urlretrieve(os.path.join(APPIMAGEKIT_URL, name), filename)
-            os.chmod(filename, stat.S_IRWXU)
-        if not os.path.exists(appimagekit):
-            os.symlink(filename, appimagekit)
+        appimagekit_dir = os.path.dirname(appimagekit)
+        self.mkpath(appimagekit_dir)
+        with FileLock(appimagekit + ".lock"):
+            if not os.path.exists(appimagekit):
+                self.announce(
+                    f"download and install AppImageKit from {APPIMAGEKIT_URL}"
+                )
+                arch = platform.machine()
+                name = f"appimagetool-{arch}.AppImage"
+                filename = os.path.join(appimagekit_dir, name)
+                if not os.path.exists(filename):
+                    urlretrieve(os.path.join(APPIMAGEKIT_URL, name), filename)
+                    os.chmod(filename, stat.S_IRWXU)
+                if not os.path.exists(appimagekit):
+                    os.symlink(filename, appimagekit)
+            try:
+                self.spawn([appimagekit, "--version"])
+            except Exception:  # pylint: disable=W0718
+                self._appimage_extract_and_run = True
 
     def run(self):
         # Create the application bundle
@@ -202,7 +208,10 @@ class BdistAppImage(Command):
         # Build an AppImage from an AppDir
         os.environ["ARCH"] = platform.machine()
         cmd = [self.appimagekit, "--no-appstream", appdir, output]
-        self.spawn(cmd)
+        if self._appimage_extract_and_run:
+            cmd.insert(1, "--appimage-extract-and-run")
+        with FileLock(self.appimagekit + ".lock"):
+            self.spawn(cmd)
         if not os.path.exists(output):
             raise ExecError("Could not build AppImage")
 
