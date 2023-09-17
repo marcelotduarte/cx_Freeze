@@ -157,7 +157,7 @@ class BdistAppImage(Command):
                 f"{executable.target_name}"
             )
         if executable.icon is None:
-            icon_name = "python.png"
+            icon_name = "logox128.png"
             icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
             self.copy_file(os.path.join(icon_source_dir, icon_name), icons_dir)
         else:
