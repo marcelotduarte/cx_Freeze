@@ -76,30 +76,30 @@ def test_bdist_appimage_target_name_and_version_none():
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "icon")
-def test_bdist_appimage_target_name_with_extension(
-    datafiles: Path, monkeypatch
-):
+def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     """Test the icon sample, with a specified target_name that includes an
     ".AppImage" extension.
     """
-    monkeypatch.chdir(datafiles)
     name = "output.AppImage"
-    outfile = datafiles / "dist" / name
 
     # create bdist and dist to test coverage
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
-    cmd.set_undefined_options("bdist", ("bdist_base", "bdist_base"))
-    appdir = os.path.join(cmd.bdist_base, "AppDir")
-    cmd.mkpath(appdir)
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+    cmd.mkpath(os.path.join(cmd.bdist_base, "AppDir"))
+    cmd.mkpath(cmd.dist_dir)
+    outfile = os.path.join(cmd.dist_dir, name)
     cmd.save_as_file("data", outfile, mode="rwx")
+
     output = check_output(
         [sys.executable, "setup.py", "bdist_appimage", "--target-name", name],
         text=True,
         cwd=datafiles,
     )
     print(output)
-    assert outfile.is_file()
+    file_created = Path(outfile)
+    assert file_created.is_file()
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
