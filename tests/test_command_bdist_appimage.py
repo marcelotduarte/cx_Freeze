@@ -1,6 +1,7 @@
 """Tests for cx_Freeze.command.bdist_appimage."""
 from __future__ import annotations
 
+import os
 import platform
 import sys
 from pathlib import Path
@@ -61,20 +62,44 @@ def test_bdist_appimage_target_name_and_version():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
+def test_bdist_appimage_target_name_and_version_none():
+    """Test the bdist_appimage with target options."""
+    attrs = DIST_ATTRS.copy()
+    del attrs["version"]
+    dist = Distribution(attrs)
+    cmd = bdist_appimage(dist)
+    cmd.target_name = "mytest"
+    cmd.finalize_options()  # version = None, target_version = None
+    cmd.ensure_finalized()
+    assert cmd.fullname == "mytest"
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "icon")
-def test_bdist_appimage_target_name_with_extension(datafiles: Path):
+def test_bdist_appimage_target_name_with_extension(
+    datafiles: Path, monkeypatch
+):
     """Test the icon sample, with a specified target_name that includes an
     ".AppImage" extension.
     """
+    monkeypatch.chdir(datafiles)
     name = "output.AppImage"
+    outfile = datafiles / "dist" / name
+
+    # create bdist and dist to test coverage
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_appimage(dist)
+    cmd.set_undefined_options("bdist", ("bdist_base", "bdist_base"))
+    appdir = os.path.join(cmd.bdist_base, "AppDir")
+    cmd.mkpath(appdir)
+    cmd.save_as_file("data", outfile, mode="rwx")
     output = check_output(
         [sys.executable, "setup.py", "bdist_appimage", "--target-name", name],
         text=True,
         cwd=datafiles,
     )
     print(output)
-    file_created = datafiles / "dist" / name
-    assert file_created.is_file()
+    assert outfile.is_file()
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
