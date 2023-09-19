@@ -1,24 +1,22 @@
 """A collection of functions which are triggered automatically by finder when
 scipy package is included.
 """
-
 from __future__ import annotations
 
 import os
+from importlib.machinery import EXTENSION_SUFFIXES
 
-from .._compat import IS_MINGW, IS_WINDOWS
-from ..finder import ModuleFinder
-from ..module import Module
-from ._libs import replace_delvewheel_patch
+from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.module import Module
 
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
-    """The scipy module loads items within itself in a way that causes
-    problems without libs and a number of subpackages being present.
+    """The scipy package.
+
+    Supported pypi and conda-forge versions (lasted tested version is 1.11.2).
     """
-    source_dir = module.file.parent.parent / f"{module.name}.libs"
-    if source_dir.exists():
-        finder.include_files(source_dir, f"lib/{source_dir.name}")
     replace_delvewheel_patch(module)
     finder.include_package("scipy.integrate")
     finder.include_package("scipy._lib")
@@ -26,21 +24,32 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("scipy.optimize")
 
 
-def load_scipy__distributor_init(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
-    """Fix the location of dependent files in Windows."""
-    if not (IS_WINDOWS or IS_MINGW):
-        # In Linux and macOS it is detected correctly.
+def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
+    """Fix the location of dependent files in Windows and macOS."""
+    if IS_LINUX:  # In Linux it is detected correctly.
         return
 
-    if module.in_file_system != 0:  # not in zip_include_packages
-        return
+    # patch the code when necessary
+    code_string = module.file.read_text(encoding="utf_8")
 
-    # patch the code
-    code_string = module.file.read_text(encoding="utf-8").replace(
-        "__file__", "__file__.replace('library.zip/', '')"
-    )
+    # installed from pypi?
+    module_dir = module.file.parent
+    libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
+    if libs_dir.is_dir():
+        # copy any file at site-packages/scipy/.libs
+        finder.include_files(
+            libs_dir, f"lib/scipy/{libs_dir.name}", copy_dependent_files=False
+        )
+
+    # do not check dependencies already handled
+    extension = EXTENSION_SUFFIXES[0]
+    for file in module_dir.rglob(f"*{extension}"):
+        finder.exclude_dependent_files(file)
+
+    if module.in_file_system == 0:
+        code_string = code_string.replace(
+            "__file__", "__file__.replace('library.zip/', '')"
+        )
     module.code = compile(code_string, os.fspath(module.file), "exec")
 
 
@@ -60,9 +69,7 @@ def load_scipy_linalg(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("scipy.linalg")
 
 
-def load_scipy_linalg_interface_gen(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
-) -> None:
+def load_scipy_linalg_interface_gen(_, module: Module) -> None:
     """The scipy.linalg.interface_gen module optionally imports the pre module;
     ignore the error if this module cannot be found.
     """
@@ -143,5 +150,5 @@ def load_scipy_stats(
     finder: ModuleFinder, module: Module  # noqa: ARG001
 ) -> None:
     """The scipy.stats must be loaded as a package."""
-    finder.include_package("scipy.stats")
     finder.exclude_module("scipy.stats.tests")
+    finder.include_package("scipy.stats")
