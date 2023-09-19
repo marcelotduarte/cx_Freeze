@@ -450,26 +450,30 @@ class BdistMac(Command):
         # Find the executable name
         executable = self.distribution.executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
+        print(f"Executable name: {executable} - {build_exe.build_exe}")
 
         # Build the app directory structure
         self.mkpath(self.resources_dir)  # /Resources
         self.mkpath(self.bin_dir)  # /MacOS
         self.mkpath(self.frameworks_dir)  # /Frameworks
 
-        # Copy to relevent subfolders
-        print(f"Executable name: {executable} - {build_exe.build_exe}")
-        self.copy_tree(build_exe.build_exe, self.bin_dir)
-        shutil.move(os.path.join(self.bin_dir, "lib"), self.resources_lib_dir)
-        # Make symlink between contents/MacOS and resources/lib so we can use
+        # Copy the full build_exe to Contents/Resources
+        self.copy_tree(build_exe.build_exe, self.resources_dir)
+
+        # Move only executables in Contents/Resources to Contents/MacOS
+        for executable in self.distribution.executables:
+            source = os.path.join(self.resources_dir, executable.target_name)
+            target = os.path.join(self.bin_dir, executable.target_name)
+            print(f"moving {source} -> {target}")
+            self.move_file(source, target)
+
+        # Make symlink between Resources/lib and Contents/MacOS so we can use
         # none-relative reference paths in order to pass codesign...
         origin = os.path.join(self.bin_dir, "lib")
         relative_reference = os.path.relpath(
             self.resources_lib_dir, self.bin_dir
         )
-        print(
-            "Creating symlink - "
-            f"Target: {origin} <-> Source: {relative_reference}"
-        )
+        print(f"linking {origin} -> {relative_reference}")
         os.symlink(relative_reference, origin, target_is_directory=True)
 
         # Copy the icon
@@ -516,12 +520,6 @@ class BdistMac(Command):
         # Make library references absolute if enabled
         if self.absolute_reference_path:
             self.execute(self.set_absolute_reference_paths, ())
-
-        # Move license file to resources as it can't be signed
-        src_lfp = os.path.join(self.bin_dir, "frozen_application_license.txt")
-        if os.path.exists(src_lfp):
-            shutil.move(src_lfp, self.resources_dir)
-            print(f"Moved: {src_lfp} -> {self.resources_dir}")
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
