@@ -26,8 +26,8 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
 
 def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     """Fix the location of dependent files in Windows and macOS."""
-    if IS_LINUX:  # In Linux it is detected correctly.
-        return
+    if IS_LINUX or IS_MINGW:
+        return  # it is detected correctly.
 
     # patch the code when necessary
     code_string = module.file.read_text(encoding="utf_8")
