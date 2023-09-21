@@ -1,11 +1,10 @@
 """Helper functions for hooks."""
-
 from __future__ import annotations
 
 from types import CodeType
 
-from ..common import code_object_replace_function
-from ..module import Module
+from cx_Freeze.common import code_object_replace_function
+from cx_Freeze.module import Module
 
 
 def replace_delvewheel_patch(module: Module) -> None:
