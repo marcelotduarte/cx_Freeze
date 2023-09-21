@@ -44,17 +44,28 @@ If you don't have make installed, run:
    #. Please check the requirements for python on your system
       (see :doc:`../installation`).
 
-Building binary wheels
-~~~~~~~~~~~~~~~~~~~~~~
+Building redistributable binary wheels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cx_Freeze's binary wheels is built using :pypi:`cibuildwheel`.
-For instance, to build locally wheels for Python 3.10 in Linux, run:
+When ``python -m build`` or ``pip wheel`` is used to build a cx_Freeze wheel,
+that wheel will rely on external shared libraries. Such wheels
+therefore will only run on the system on which they are built. See
+`the pypackaging-native content under "Building and installing or uploading
+artifacts" <https://pypackaging-native.github.io/meta-topics/build_steps_conceptual/#building-and-installing-or-uploading-artifacts>`__ for more context on that.
+
+A wheel like that is therefore an intermediate stage to producing a binary that
+can be distributed. That final binary may be a wheel - in that case, run
+``auditwheel`` (Linux) or ``delocate`` (macOS) to vendor the required shared
+libraries into the wheel.
+
+To reach this, cx_Freeze's binary wheels is built using :pypi:`cibuildwheel`.
+
+For instance, in a Linux environment, Python 3.10, to build locally, run:
 
   .. code-block:: console
 
       pip install --upgrade cibuildwheel
-      export CIBW_BUILD="cp310*"
-      cibuildwheel --output-dir wheelhouse --platform linux
+      CIBW_BUILD=cp310-manylinux_x86_64 cibuildwheel --platform linux
 
 .. note::
 
