@@ -17,7 +17,10 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
 
     Supported pypi and conda-forge versions (lasted tested version is 1.11.2).
     """
-    replace_delvewheel_patch(module)
+    source_dir = module.file.parent.parent / f"{module.name}.libs"
+    if source_dir.exists():  # scipy >= 1.9.2 (windows)
+        finder.include_files(source_dir, f"lib/{source_dir.name}")
+        replace_delvewheel_patch(module)
     finder.include_package("scipy.integrate")
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")
@@ -32,7 +35,7 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     # patch the code when necessary
     code_string = module.file.read_text(encoding="utf_8")
 
-    # installed from pypi?
+    # installed from pypi, scipy < 1.9.2 (windows) or all versions (macOS)
     module_dir = module.file.parent
     libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
     if libs_dir.is_dir():
@@ -40,11 +43,10 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         finder.include_files(
             libs_dir, f"lib/scipy/{libs_dir.name}", copy_dependent_files=False
         )
-
-    # do not check dependencies already handled
-    extension = EXTENSION_SUFFIXES[0]
-    for file in module_dir.rglob(f"*{extension}"):
-        finder.exclude_dependent_files(file)
+        # do not check dependencies already handled
+        extension = EXTENSION_SUFFIXES[0]
+        for file in module_dir.rglob(f"*{extension}"):
+            finder.exclude_dependent_files(file)
 
     if module.in_file_system == 0:
         code_string = code_string.replace(
