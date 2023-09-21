@@ -1,5 +1,4 @@
 """Implements the 'build_exe' command."""
-
 from __future__ import annotations
 
 import logging
@@ -9,10 +8,10 @@ from sysconfig import get_platform, get_python_version
 
 from setuptools import Command
 
-from ..common import normalize_to_list
-from ..exception import SetupError
-from ..freezer import Freezer
-from ..module import ConstantsModule
+from cx_Freeze.common import normalize_to_list
+from cx_Freeze.exception import SetupError
+from cx_Freeze.freezer import Freezer
+from cx_Freeze.module import ConstantsModule
 
 __all__ = ["BuildEXE"]
 
@@ -119,12 +118,12 @@ class BuildEXE(Command):
             " level 3: suppress all warning messages",
         ),
         (
-            "include-msvcr=",
+            "include-msvcr",
             None,
             "include the Microsoft Visual C runtime files",
         ),
     ]
-    boolean_options = ["no-compress", "include_msvcr", "silent"]
+    boolean_options = ["no-compress", "include-msvcr", "silent"]
 
     def add_to_path(self, name):
         source_dir = getattr(self, name.lower())
@@ -239,6 +238,10 @@ class BuildEXE(Command):
                 self.silent_setting = 1
         else:
             self.silent_setting = 1
+
+        #
+        if self.include_msvcr is None:
+            self.include_msvcr = False
 
         # Make sure all options of multiple values are lists
         for option in self.list_options:

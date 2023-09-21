@@ -1,5 +1,4 @@
 """Tests for cx_Freeze.command.build_exe."""
-
 from __future__ import annotations
 
 import os
@@ -10,6 +9,9 @@ from sysconfig import get_platform, get_python_version
 
 import pytest
 from generate_samples import SUB_PACKAGE_TEST, create_package
+from setuptools import Distribution
+
+from cx_Freeze.command.build_exe import BuildEXE as build_exe
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -20,6 +22,31 @@ OUTPUT1 = "Hello from cx_Freeze Advanced #1\nTest freeze module #1\n"
 OUTPUT2 = "Hello from cx_Freeze Advanced #2\nTest freeze module #2\n"
 
 OUTPUT_SUBPACKAGE_TEST = "This is p.p1\nThis is p.q.q1\n"
+
+DIST_ATTRS = {
+    "name": "foo",
+    "version": "0.0",
+    "executables": [],
+    "script_name": "setup.py",
+}
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+@pytest.mark.parametrize(
+    ("option", "value", "result"),
+    [
+        ("include_msvcr", True, True),
+        ("include_msvcr", None, False),
+        ("include_msvcr", False, False),
+    ],
+)
+def test_build_exe_with_include_msvcr_option(option, value, result):
+    """Test the bdist_exe with include-msvcr option."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = build_exe(dist, **{option: value})
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+    assert cmd.include_msvcr == result
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "advanced")
@@ -82,6 +109,30 @@ def test_build_exe_simple(datafiles: Path):
             "build_exe",
             "--silent",
             "--excludes=tkinter",
+        ],
+        text=True,
+        cwd=os.fspath(datafiles),
+    )
+    print(output)
+    suffix = ".exe" if sys.platform == "win32" else ""
+    executable = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
+    assert executable.is_file()
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    assert output.startswith("Hello from cx_Freeze")
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+def test_build_exe_simple_include_msvcr(datafiles: Path):
+    """Test the simple sample with include_msvcr option."""
+    output = check_output(
+        [
+            sys.executable,
+            "setup.py",
+            "build_exe",
+            "--silent",
+            "--excludes=tkinter",
+            "--include-msvcr",
         ],
         text=True,
         cwd=os.fspath(datafiles),
