@@ -10,8 +10,15 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 from textwrap import dedent
 
-from cx_Freeze._compat import IS_CONDA, IS_LINUX, IS_MACOS, IS_MINGW
+from cx_Freeze._compat import (
+    IS_CONDA,
+    IS_LINUX,
+    IS_MACOS,
+    IS_MINGW,
+    IS_WINDOWS,
+)
 from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.hooks._libs import replace_delvewheel_patch
 from cx_Freeze.module import Module
 
 # The sample/pandas is used to test.
@@ -28,11 +35,16 @@ from cx_Freeze.module import Module
 # conda install -c conda-forge blas=*=openblas numpy
 
 
-def load_numpy(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
+def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.25.2).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.26.0).
     """
+    source_dir = module.file.parent.parent / f"{module.name}.libs"
+    if source_dir.exists():  # numpy >= 1.26.0
+        finder.include_files(source_dir, f"lib/{source_dir.name}")
+        replace_delvewheel_patch(module)
+
     # Exclude all tests and unnecessary modules.
     for mod in [
         "array_api.tests",
@@ -76,43 +88,53 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     # patch the code when necessary
     code_string = module.file.read_text(encoding="utf_8")
 
-    # installed from pypi?
     module_dir = module.file.parent
-    libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
-    if libs_dir.is_dir():
-        # copy any file at site-packages/numpy/.libs
-        finder.include_files(
-            libs_dir, f"lib/numpy/{libs_dir.name}", copy_dependent_files=False
-        )
-    else:
+    exclude_dependent_files = False
+    if (IS_MACOS or IS_WINDOWS) and not IS_CONDA:
+        version = float(module.parent.distribution.version.rpartition(".")[0])
+        if version >= 1.26:
+            return  # for numpy >= 1.26.0 is handled in top module
+        # numpy < 1.26.0 pypi
+        libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
+        if libs_dir.is_dir():
+            # copy any file at site-packages/numpy/.libs
+            target_dir = f"lib/numpy/{libs_dir.name}"
+            finder.include_files(
+                libs_dir, target_dir, copy_dependent_files=False
+            )
+            exclude_dependent_files = True
+
         # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl
         libs_dir = module_dir / "DLLs"
         if libs_dir.is_dir():
             finder.exclude_module("numpy.DLLs")
-            finder.include_files(libs_dir, "lib/numpy/DLLs")
-        # conda-forge
-        elif IS_CONDA:
-            prefix = Path(sys.prefix)
-            conda_meta = prefix / "conda-meta"
-            packages = ["libblas", "libcblas", "liblapack"]
-            blas_options = ["libopenblas", "mkl"]
-            packages += blas_options
-            files_to_copy: list[Path] = []
-            for package in packages:
-                try:
-                    pkg = next(conda_meta.glob(f"{package}-*.json"))
-                except StopIteration:
-                    continue
-                files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
-                files_to_copy += [
-                    prefix / file
-                    for file in files
-                    if file.lower().endswith(".dll")
-                ]
-                blas = package
-            for source in files_to_copy:
-                finder.include_files(source, f"lib/{blas}/{source.name}")
-            numpy_blas = f"""
+            finder.include_files(
+                libs_dir, "lib/numpy/DLLs", copy_dependent_files=False
+            )
+            exclude_dependent_files = True
+
+    elif IS_CONDA:  # conda-forge
+        prefix = Path(sys.prefix)
+        conda_meta = prefix / "conda-meta"
+        packages = ["libblas", "libcblas", "liblapack"]
+        blas_options = ["libopenblas", "mkl"]
+        packages += blas_options
+        files_to_copy: list[Path] = []
+        for package in packages:
+            try:
+                pkg = next(conda_meta.glob(f"{package}-*.json"))
+            except StopIteration:
+                continue
+            files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
+            files_to_copy += [
+                prefix / file
+                for file in files
+                if file.lower().endswith(".dll")
+            ]
+            blas = package
+        for source in files_to_copy:
+            finder.include_files(source, f"lib/{blas}/{source.name}")
+        numpy_blas = f"""
             def init_numpy_blas():
                 import os
 
@@ -130,12 +152,14 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
 
             init_numpy_blas()
             """
-            code_string += dedent(numpy_blas)
+        code_string += dedent(numpy_blas)
+        exclude_dependent_files = True
 
     # do not check dependencies already handled
-    extension = EXTENSION_SUFFIXES[0]
-    for file in module_dir.rglob(f"*{extension}"):
-        finder.exclude_dependent_files(file)
+    if exclude_dependent_files:
+        extension = EXTENSION_SUFFIXES[0]
+        for file in module_dir.rglob(f"*{extension}"):
+            finder.exclude_dependent_files(file)
 
     if module.in_file_system == 0:
         code_string = code_string.replace(
