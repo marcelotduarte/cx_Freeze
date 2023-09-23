@@ -194,6 +194,8 @@ On Mac OS X, you can use ``bdist_mac`` to create a Mac application bundle or
 Commands
 --------
 
+.. _cx_freeze_build:
+
 build
 `````
 
@@ -436,6 +438,8 @@ This is the equivalent help to specify the same options on the command line:
       --skip-build        skip the build steps
 
 
+.. _cx_freeze_bdist_appimage:
+
 bdist_appimage
 ``````````````
 
@@ -482,6 +486,8 @@ This is the equivalent help to specify the same options on the command line:
 
   `AppImage documentation <https://docs.appimage.org/>`_
 
+
+.. _cx_freeze_bdist_msi:
 
 bdist_msi
 `````````
@@ -619,6 +625,8 @@ There are more examples in the |samples| directory.
    <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
 
 
+.. _cx_freeze_bdist_rpm:
+
 bdist_rpm
 `````````
 
@@ -647,6 +655,8 @@ Please check the options on the command line:
 
     python setup.py bdist_deb --help
 
+
+.. _cx_freeze_bdist_mac:
 
 bdist_mac
 `````````
@@ -722,6 +732,8 @@ This is the equivalent help to specify the same options on the command line:
 
     python setup.py bdist_mac --help
 
+
+.. _cx_freeze_bdist_dmg:
 
 bdist_dmg
 `````````
