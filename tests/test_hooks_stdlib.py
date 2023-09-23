@@ -1,5 +1,4 @@
 """Tests for some cx_Freeze.hooks."""
-
 from __future__ import annotations
 
 import os
