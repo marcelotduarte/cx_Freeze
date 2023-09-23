@@ -1,5 +1,4 @@
 """Tests for cx_Freeze.command.bdist_msi."""
-
 from __future__ import annotations
 
 import os
@@ -12,7 +11,7 @@ import pytest
 from setuptools import Distribution
 
 if sys.platform == "win32":
-    from cx_Freeze.command.bdist_msi import BdistMSI
+    from cx_Freeze.command.bdist_msi import BdistMSI as bdist_msi
 
 DIST_ATTRS = {
     "name": "foo",
@@ -42,7 +41,7 @@ def test_bdist_msi(datafiles: Path):
 def test_bdist_msi_target_name():
     """Test the bdist_msi with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistMSI(dist)
+    cmd = bdist_msi(dist)
     cmd.target_name = "mytest"
     cmd.finalize_options()
     cmd.ensure_finalized()
@@ -53,7 +52,7 @@ def test_bdist_msi_target_name():
 def test_bdist_msi_target_name_and_version():
     """Test the bdist_msi with extra target options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistMSI(dist)
+    cmd = bdist_msi(dist)
     cmd.target_name = "mytest"
     cmd.target_version = "0.1"
     cmd.finalize_options()

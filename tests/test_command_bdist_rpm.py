@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 from subprocess import run
@@ -11,13 +10,10 @@ from sysconfig import get_platform
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.exception import (
-    OptionError,
-    PlatformError,
-)
+from cx_Freeze.exception import OptionError, PlatformError
 
 if sys.platform == "linux":
-    from cx_Freeze.command.bdist_rpm import BdistRPM
+    from cx_Freeze.command.bdist_rpm import BdistRPM as build_rpm
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -37,7 +33,7 @@ DIST_ATTRS = {
 def test_bdist_rpm_not_posix(monkeypatch):
     """Test the bdist_rpm fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistRPM(dist)
+    cmd = build_rpm(dist)
     monkeypatch.setattr("os.name", "nt")
     with pytest.raises(PlatformError, match="don't know how to create RPM"):
         cmd.finalize_options()
@@ -47,7 +43,7 @@ def test_bdist_rpm_not_posix(monkeypatch):
 def test_bdist_rpm_not_rpmbuild(monkeypatch):
     """Test the bdist_rpm uses rpmbuild."""
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistRPM(dist)
+    cmd = build_rpm(dist)
     monkeypatch.setattr("shutil.which", lambda _cmd: None)
     with pytest.raises(PlatformError, match="failed to find rpmbuild"):
         cmd.finalize_options()
@@ -62,7 +58,7 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch):
 def test_bdist_rpm_options(options):
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistRPM(dist, **options)
+    cmd = build_rpm(dist, **options)
     try:
         cmd.ensure_finalized()
     except PlatformError as exc:
@@ -83,7 +79,7 @@ def test_bdist_rpm_options(options):
 def test_bdist_rpm_options_raises(options, expected):
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistRPM(dist, **options)
+    cmd = build_rpm(dist, **options)
     with pytest.raises(expected):
         cmd.ensure_finalized()
 
@@ -95,7 +91,7 @@ def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
     """Test the bdist_rpm with options."""
     monkeypatch.chdir(datafiles)
     dist = Distribution(DIST_ATTRS)
-    cmd = BdistRPM(dist, **options, debug=1)
+    cmd = build_rpm(dist, **options, debug=1)
     try:
         cmd.ensure_finalized()
     except PlatformError as exc:
@@ -120,7 +116,7 @@ def test_bdist_rpm_simple(datafiles: Path):
         text=True,
         capture_output=True,
         check=False,
-        cwd=os.fspath(datafiles),
+        cwd=datafiles,
     )
     print(process.stdout)
     if process.returncode != 0:
@@ -135,11 +131,11 @@ def test_bdist_rpm_simple(datafiles: Path):
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "bcrypt")
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
 def test_bdist_rpm(datafiles: Path):
-    """Test the bcrypt sample with bdist_rpm."""
-    package = "bcrypt"
-    version = "0.3"
+    """Test the sqlite sample with bdist_rpm."""
+    name = "test_sqlite3"
+    version = "0.5"
     arch = get_platform().split("-", 1)[1]
     dist_created = datafiles / "dist"
 
@@ -148,7 +144,7 @@ def test_bdist_rpm(datafiles: Path):
         text=True,
         capture_output=True,
         check=False,
-        cwd=os.fspath(datafiles),
+        cwd=datafiles,
     )
     print(process.stdout)
     if process.returncode != 0:
@@ -157,6 +153,6 @@ def test_bdist_rpm(datafiles: Path):
         else:
             pytest.fail(process.stderr)
 
-    base_name = f"test_{package}-{version}"
+    base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}-1.{arch}.rpm"
     assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
