@@ -26,7 +26,7 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
         )
     if source_path.is_dir():
         if module.in_file_system >= 1:
-            target_path = "lib/zoneinfo"
+            target_path = "share/zoneinfo"
             finder.add_constant("PYTZ_TZDATADIR", target_path)
             finder.include_files(
                 source_path, target_path, copy_dependent_files=False
