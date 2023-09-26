@@ -18,10 +18,10 @@ def _test():
             text="[%s]" % root.test["text"]
         ),
     )
-    # icon located in current directory is copied to "icon" folder when frozen
+    # icon located in current directory is copied to "share" folder when frozen
     # (see setup.py)
     icon_file = (
-        os.path.join(os.path.dirname(sys.executable), "icon", "python.png")
+        os.path.join(os.path.dirname(sys.executable), "share", "python.png")
         if getattr(sys, "frozen", False)
         else os.path.join(os.path.dirname(__file__), "logox128.png")
     )

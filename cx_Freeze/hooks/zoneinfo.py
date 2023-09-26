@@ -32,7 +32,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         finder.zip_include_files(source_path, "tzdata/zoneinfo")
     else:
-        target_path = "lib/tzdata/zoneinfo"
+        target_path = "share/zoneinfo"
         finder.add_constant("PYTHONTZPATH", target_path)
         finder.include_files(
             source_path, target_path, copy_dependent_files=False

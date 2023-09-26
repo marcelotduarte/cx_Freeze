@@ -8,6 +8,8 @@ Use the following commands to install in the development mode:
     pip install -r requirements-dev.txt
     pip install -e . --no-build-isolation --no-deps
 
+Documentation:
+    https://cx-freeze.readthedocs.io/en/stable/development/index.html
 """
 from __future__ import annotations
 
@@ -211,14 +213,11 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             return
         root = tkinter.Tk(useTk=False)
         tcl_library = Path(root.tk.exprstring("$tcl_library"))
+        tk_library = tcl_library.parent / tcl_library.name.replace("tcl", "tk")
         # source paths of tcl8.6, tcl8 and tk8.6
-        source_paths = [
-            tcl_library,
-            tcl_library.with_suffix(""),
-            tcl_library.parent / tcl_library.name.replace("tcl", "tk"),
-        ]
+        source_paths = [tcl_library, tcl_library.with_suffix(""), tk_library]
         for source_path in source_paths:
-            target_path = f"{bases}/tcltk/{source_path.name}"
+            target_path = f"{bases}/share/{source_path.name}"
             self.mkpath(target_path)
             for source in source_path.rglob("*"):
                 target = os.fspath(

@@ -12,11 +12,11 @@ from cx_Freeze import Executable, setup
 
 base = "Win32GUI" if sys.platform == "win32" else None
 executables = [Executable("test_tkinter.py", base=base)]
-include_files = [("logox128.png", "icon/python.png")]
+include_files = [("logox128.png", "share/python.png")]
 
 setup(
     name="test_tkinter",
-    version="0.3",
+    version="0.3.1",
     description="Sample cx_Freeze Tkinter script",
     options={"build_exe": {"include_files": include_files}},
     executables=executables,

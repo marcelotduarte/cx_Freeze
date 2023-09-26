@@ -85,11 +85,19 @@ def init():
         "PYTHONTZPATH",
     ):
         try:
-            value = os.path.normpath(getattr(BUILD_CONSTANTS, name))
+            value = getattr(BUILD_CONSTANTS, name)
         except AttributeError:
             pass
         else:
-            os.environ[name] = os.path.join(frozen_dir, value)
+            var_path = os.path.join(frozen_dir, os.path.normpath(value))
+            if not os.path.exists(var_path) and sys.platform == "darwin":
+                # when using bdist_mac
+                var_path = os.path.join(
+                    os.path.dirname(frozen_dir),
+                    "Resources",
+                    os.path.normpath(value),
+                )
+            os.environ[name] = var_path
 
 
 def run():
