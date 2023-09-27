@@ -71,6 +71,8 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     # Include dynamically loaded module
     finder.include_module("numpy.core._dtype_ctypes")
     finder.include_module("secrets")
+    # Fix for 6.15.x only
+    finder.include_package("numpy")
 
 
 def load_numpy_core__add_newdocs(
