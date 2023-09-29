@@ -730,7 +730,7 @@ class WinFreezer(Freezer, PEParser):
 
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        PEParser.__init__(self, self.silent)
+        PEParser.__init__(self, self.path, self.bin_path_includes, self.silent)
 
         # deal with C-runtime files
         self.runtime_files: set[str] = set()
@@ -998,7 +998,7 @@ class DarwinFreezer(Freezer, Parser):
 
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        Parser.__init__(self, self.silent)
+        Parser.__init__(self, self.path, self.bin_path_includes, self.silent)
         self.darwin_tracker: DarwinFileTracker | None = None
         self.darwin_tracker = DarwinFileTracker()
 
@@ -1124,20 +1124,20 @@ class DarwinFreezer(Freezer, Parser):
         return self._validate_bin_path(bin_path)
 
     def get_dependent_files(
-        self, path: Path, darwinFile: DarwinFile | None = None
+        self, filename: Path, darwinFile: DarwinFile | None = None
     ) -> set[Path]:
         try:
-            return self.dependent_files[path]
+            return self.dependent_files[filename]
         except KeyError:
             pass
 
         # if darwinFile is None (which means that get_dependent_files is
         # being called outside of _copy_file -- e.g., one of the
         # preliminary calls in _freeze_executable), create a temporary
-        # DarwinFile object for the path, just so we can read its
+        # DarwinFile object for the filename, just so we can read its
         # dependencies
         if darwinFile is None:
-            darwinFile = DarwinFile(path)
+            darwinFile = DarwinFile(filename)
         dependent_files = darwinFile.getDependentFilePaths()
 
         # cache the MachOReferences to the dependencies, so they can be
@@ -1148,7 +1148,7 @@ class DarwinFreezer(Freezer, Parser):
                 self.darwin_tracker.cacheReferenceTo(
                     reference.resolved_path, reference
                 )
-        self.dependent_files[path] = dependent_files
+        self.dependent_files[filename] = dependent_files
         return dependent_files
 
 
@@ -1157,7 +1157,9 @@ class LinuxFreezer(Freezer, ELFParser):
 
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
-        ELFParser.__init__(self, self.bin_path_includes, self.silent)
+        ELFParser.__init__(
+            self, self.path, self.bin_path_includes, self.silent
+        )
         self._symlinks: set[tuple[Path, str]] = set()
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
