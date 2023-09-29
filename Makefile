@@ -1,6 +1,9 @@
 # Makefile to automate some tools
 
 BUILDDIR = ./build
+EXT_SUFFIX := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
+PY_VERSION_NODOT := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'))")
+ARCH := $(shell python -c "import platform; print(platform.machine().lower())")
 
 .PHONY: all
 all: install
@@ -67,8 +70,6 @@ doc: html
 
 .PHONY: install_test
 install_test:
-	@rm -rf cx_Freeze/bases/lib cx_Freeze/bases/lib-dynload cx_Freeze/bases/ssl
-	@rm -rf cx_Freeze/bases/tcltk
 	pip install -e .[test]
 
 .PHONY: test
@@ -85,14 +86,12 @@ cov: install_test
 
 .PHONY: install_test_pre
 install_test_pre: install_test
-	# This is important for manylinux, macOS and python-dev
+	# Hack to bind to manylinux or macpython extensions
 	@mkdir -p wheelhouse
-	pip download cx_Freeze \
-		--extra-index-url https://marcelotduarte.github.io/packages/ \
-		--pre --no-deps -d wheelhouse
-	unzip -o wheelhouse/cx_Freeze*.whl "cx_Freeze/bases/*" -x "*.py"
-	pip install --upgrade cx_Freeze[test] \
-		--extra-index-url https://marcelotduarte.github.io/packages/ --pre
+	@rm -f wheelhouse/cx_Freeze-*-cp$(PY_VERSION_NODOT)*_$(ARCH).whl
+	pip download cx_Freeze --pre --no-deps \
+		--index-url https://marcelotduarte.github.io/packages/ -d wheelhouse
+	unzip -q -o wheelhouse/cx_Freeze-*-cp$(PY_VERSION_NODOT)*_$(ARCH).whl "cx_Freeze/bases/*" -x "*.py"
 
 .PHONY: test-pre
 test-pre: install_test_pre
