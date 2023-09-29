@@ -96,8 +96,8 @@ jobs:
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages_dir: wheelhouse/
-          skip_existing: true
+          packages-dir: wheelhouse/
+          skip-existing: true
           verbose: true
 
   update_bases:

@@ -11,18 +11,20 @@ from functools import cached_property
 from importlib import import_module
 from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
+from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
 from types import CodeType
 from typing import Any
 
 import opcode
 
-from ._typing import DeferredList, IncludesList, InternalIncludesList
-from .common import (
+from cx_Freeze._typing import DeferredList, IncludesList, InternalIncludesList
+from cx_Freeze.common import (
     code_object_replace,
     get_resource_file_path,
     process_path_specs,
 )
+
 from .module import ConstantsModule, Module
 
 ALL_SUFFIXES = importlib.machinery.all_suffixes()
@@ -130,7 +132,8 @@ class ModuleFinder:
         dynload = get_resource_file_path("bases", "lib-dynload", "")
         if dynload and dynload.is_dir():
             # discard modules that exist in bases/lib-dynload
-            for file in dynload.iterdir():
+            ext_suffix = get_config_var("EXT_SUFFIX")
+            for file in dynload.glob(f"*{ext_suffix}"):
                 builtin_modules.discard(file.name.partition(".")[0])
         return builtin_modules
 
