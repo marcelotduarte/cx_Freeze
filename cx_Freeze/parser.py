@@ -246,8 +246,10 @@ class ELFParser(Parser):
         split_string = " => "
         dependent_file_index = 1
         args = ("ldd", filename)
+        env = os.environ.copy()
+        env.pop("LD_PRELOAD", None)
         process = subprocess.run(
-            args, check=False, capture_output=True, encoding="utf-8"
+            args, check=False, capture_output=True, encoding="utf_8", env=env
         )
         for line in process.stdout.splitlines():
             parts = line.expandtabs().strip().split(split_string)
