@@ -1,5 +1,4 @@
 """Implements the 'install_exe' command."""
-
 from __future__ import annotations
 
 import sys
