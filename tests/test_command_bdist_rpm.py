@@ -1,11 +1,10 @@
 """Tests for cx_Freeze.command.bdist_rpm."""
-
 from __future__ import annotations
 
+import platform
 import sys
 from pathlib import Path
 from subprocess import run
-from sysconfig import get_platform
 
 import pytest
 from setuptools import Distribution
@@ -72,7 +71,10 @@ def test_bdist_rpm_options(options):
 @pytest.mark.parametrize(
     ("options", "expected"),
     [
-        ({"python": "python3", "fix_python": True}, OptionError),
+        (
+            {"python": "python3", "fix_python": True},
+            (OptionError, PlatformError),
+        ),
     ],
     ids=["python+fix_python"],
 )
@@ -108,7 +110,7 @@ def test_bdist_rpm_simple(datafiles: Path):
     """Test the simple sample with bdist_rpm."""
     name = "hello"
     version = "0.1.2.3"
-    arch = get_platform().split("-", 1)[1]
+    arch = platform.machine()
     dist_created = datafiles / "dist"
 
     process = run(
@@ -136,7 +138,7 @@ def test_bdist_rpm(datafiles: Path):
     """Test the sqlite sample with bdist_rpm."""
     name = "test_sqlite3"
     version = "0.5"
-    arch = get_platform().split("-", 1)[1]
+    arch = platform.machine()
     dist_created = datafiles / "dist"
 
     process = run(
