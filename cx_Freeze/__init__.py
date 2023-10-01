@@ -38,9 +38,10 @@ elif sys.platform == "darwin":
 
     __all__.extend([bdist_dmg.__name__, bdist_mac.__name__])
 else:
+    from .command.bdist_deb import BdistDEB as bdist_deb
     from .command.bdist_rpm import BdistRPM as bdist_rpm
 
-    __all__.append(bdist_rpm.__name__)
+    __all__.extend([bdist_deb.__name__, bdist_rpm.__name__])
 
 __version__ = "6.16.0-dev8"
 
@@ -53,6 +54,7 @@ def setup(**attrs):  # noqa: D103
         cmdclass.setdefault("bdist_dmg", bdist_dmg)
         cmdclass.setdefault("bdist_mac", bdist_mac)
     else:
+        cmdclass.setdefault("bdist_deb", bdist_deb)
         cmdclass.setdefault("bdist_rpm", bdist_rpm)
     cmdclass.setdefault("build_exe", build_exe)
     cmdclass.setdefault("install", install)
