@@ -229,6 +229,7 @@ This is the equivalent help to specify the same options on the command line:
       --compiler (-c)    specify the compiler type
       --help-compiler    list available compilers
 
+
 .. _cx_freeze_build_exe:
 
 build_exe
@@ -376,6 +377,7 @@ This is the equivalent help to specify the same options on the command line:
                             missing-module warnings level 3: suppress all
                             warning messages
     --include-msvcr         include the Microsoft Visual C runtime files
+
 
 install
 ```````
@@ -573,12 +575,16 @@ There are more examples in the |samples| directory.
 bdist_rpm
 `````````
 
-This command is a standard command which has been modified by cx_Freeze to
-ensure that packages are created with the proper architecture for the platform.
-The standard command assumes that the package should be architecture
-independent if it cannot find any extension modules.
+This command is available on Linux systems; It creates an RPM distribution.
+
+Please check the options on the command line:
+
+  .. code-block:: console
+
+    python setup.py bdist_rpm --help
 
 .. seealso:: :setuptools:`Creating RPM packages </deprecated/distutils/builtdist.html#creating-rpm-packages>`
+
 
 bdist_mac
 `````````
@@ -682,6 +688,7 @@ This is the equivalent help to specify the same options on the command line:
   .. code-block:: console
 
     python setup.py bdist_dmg --help
+
 
 .. _cx_freeze_executable:
 

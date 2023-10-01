@@ -237,7 +237,7 @@ extlinks = {
     "pypi": ("https://pypi.org/project/%s", "%s"),
     "user": ("https://github.com/%s", "@%s"),
     "packaging": ("https://packaging.python.org/en/latest/%s", "%s"),
-    "setuptools": ("https://setuptools.pypa.io/en/latest/%s.html", "%s"),
+    "setuptools": ("https://setuptools.pypa.io/en/latest/%s", "%s"),
 }
 
 # sphinx_tabs.tabs
