@@ -1,6 +1,6 @@
 """Implements the 'bdist_deb' command (create DEB binary distributions).
 
-This is a simple wraper around 'alien'.
+This is a simple wrapper around 'alien' that converts a rpm to deb.
 """
 from __future__ import annotations
 
