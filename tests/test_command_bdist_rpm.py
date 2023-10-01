@@ -12,7 +12,7 @@ from setuptools import Distribution
 from cx_Freeze.exception import PlatformError
 
 if sys.platform == "linux":
-    from cx_Freeze.command.bdist_rpm import BdistRPM as build_rpm
+    from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -32,7 +32,7 @@ DIST_ATTRS = {
 def test_bdist_rpm_not_posix(monkeypatch):
     """Test the bdist_rpm fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist)
+    cmd = bdist_rpm(dist)
     monkeypatch.setattr("os.name", "nt")
     with pytest.raises(PlatformError, match="don't know how to create RPM"):
         cmd.finalize_options()
@@ -42,7 +42,7 @@ def test_bdist_rpm_not_posix(monkeypatch):
 def test_bdist_rpm_not_rpmbuild(monkeypatch):
     """Test the bdist_rpm uses rpmbuild."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist)
+    cmd = bdist_rpm(dist)
     monkeypatch.setattr("shutil.which", lambda _cmd: None)
     with pytest.raises(PlatformError, match="failed to find rpmbuild"):
         cmd.finalize_options()
@@ -53,7 +53,7 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch):
 def test_bdist_rpm_options(options):
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist, **options)
+    cmd = bdist_rpm(dist, **options)
     try:
         cmd.ensure_finalized()
     except PlatformError as exc:
@@ -70,7 +70,7 @@ def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
     """Test the bdist_rpm with options."""
     monkeypatch.chdir(datafiles)
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist, **options, debug=1)
+    cmd = bdist_rpm(dist, **options, debug=1)
     try:
         cmd.ensure_finalized()
     except PlatformError as exc:
