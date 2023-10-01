@@ -49,18 +49,6 @@ class BdistRPM(Command):
             "directory to put final RPM files in "
             "(and .spec files if --spec-only)",
         ),
-        (
-            "python=",
-            None,
-            "path to Python interpreter to hard-code in the .spec file "
-            '(default: "python3")',
-        ),
-        (
-            "fix-python",
-            None,
-            "hard-code the exact path to the current Python interpreter in "
-            "the .spec file",
-        ),
         ("spec-only", None, "only regenerate spec file"),
         # More meta-data: too RPM-specific to put in the setup script,
         # but needs to go in the .spec file -- so we make these options
@@ -160,12 +148,6 @@ class BdistRPM(Command):
             None,
             "Specify a script for the VERIFY phase of the RPM build",
         ),
-        # Allow a packager to explicitly force an architecture
-        (
-            "force-arch=",
-            None,
-            "Force an architecture onto the RPM build process",
-        ),
         ("quiet", "q", "Run the INSTALL phase of RPM building in quiet mode"),
         ("debug", "g", "Run in debug mode"),
     ]
@@ -185,10 +167,9 @@ class BdistRPM(Command):
 
     def initialize_options(self):
         self.bdist_base = None
-        self.rpm_base = None
         self.dist_dir = None
-        self.python = None
-        self.fix_python = None
+
+        self.rpm_base = None
         self.spec_only = None
 
         self.distribution_name = None
@@ -221,7 +202,6 @@ class BdistRPM(Command):
         self.rpm3_mode = 1
         self.no_autoreq = 0
 
-        self.force_arch = None
         self.quiet = 0
         self.debug = 0
 
@@ -234,23 +214,16 @@ class BdistRPM(Command):
         if not shutil.which("rpmbuild"):
             raise PlatformError("failed to find rpmbuild for this platform.")
 
-        self.set_undefined_options("bdist", ("bdist_base", "bdist_base"))
+        self.set_undefined_options(
+            "bdist",
+            ("bdist_base", "bdist_base"),
+            ("dist_dir", "dist_dir"),
+        )
         if self.rpm_base is None:
             if not self.rpm3_mode:
                 raise OptionError("you must specify --rpm-base in RPM 2 mode")
             self.rpm_base = os.path.join(self.bdist_base, "rpm")
 
-        if self.python is None:
-            if self.fix_python:
-                self.python = sys.executable
-            else:
-                self.python = "python3"
-        elif self.fix_python:
-            raise OptionError(
-                "--python and --fix-python are mutually exclusive options"
-            )
-
-        self.set_undefined_options("bdist", ("dist_dir", "dist_dir"))
         self.finalize_package_data()
 
     def finalize_package_data(self):
@@ -296,8 +269,6 @@ class BdistRPM(Command):
         self.ensure_string_list("conflicts")
         self.ensure_string_list("build_requires")
         self.ensure_string_list("obsoletes")
-
-        self.ensure_string("force_arch")
 
     def run(self):
         if self.debug:

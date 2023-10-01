@@ -9,7 +9,7 @@ from subprocess import run
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.exception import OptionError, PlatformError
+from cx_Freeze.exception import PlatformError
 
 if sys.platform == "linux":
     from cx_Freeze.command.bdist_rpm import BdistRPM as build_rpm
@@ -49,11 +49,7 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch):
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
-@pytest.mark.parametrize(
-    "options",
-    [({"spec_only": True}), ({"python": None, "fix_python": True})],
-    ids=["spec_only", "fix_python"],
-)
+@pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
 def test_bdist_rpm_options(options):
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
@@ -65,25 +61,6 @@ def test_bdist_rpm_options(options):
             pytest.xfail("rpmbuild not installed")
         else:
             pytest.fail(exc.args[0])
-
-
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
-@pytest.mark.parametrize(
-    ("options", "expected"),
-    [
-        (
-            {"python": "python3", "fix_python": True},
-            (OptionError, PlatformError),
-        ),
-    ],
-    ids=["python+fix_python"],
-)
-def test_bdist_rpm_options_raises(options, expected):
-    """Test the bdist_rpm with options."""
-    dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist, **options)
-    with pytest.raises(expected):
-        cmd.ensure_finalized()
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
