@@ -20,8 +20,8 @@ a default *degenerate* value if not specified.
    but is a sotware layer above, to generate executables.
 
 Users are strongly encouraged to use a declarative config either via
-:setuptools:`setup.cfg </userguide/declarative_config>` or
-:setuptools:`pyproject.toml </userguide/pyproject_config>`.
+:setuptools:`setup.cfg </userguide/declarative_config.html>` or
+:setuptools:`pyproject.toml </userguide/pyproject_config.html>`.
 
 .. note::
    When using declarative configs via ``pyproject.toml``, only the basic
