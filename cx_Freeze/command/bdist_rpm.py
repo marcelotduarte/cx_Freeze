@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -15,7 +16,12 @@ from sysconfig import get_python_version
 
 from setuptools import Command
 
-from ..exception import ExecError, FileError, OptionError, PlatformError
+from cx_Freeze.exception import (
+    ExecError,
+    FileError,
+    OptionError,
+    PlatformError,
+)
 
 __all__ = ["BdistRPM"]
 
@@ -220,6 +226,14 @@ class BdistRPM(Command):
         self.debug = 0
 
     def finalize_options(self):
+        if os.name != "posix":
+            raise PlatformError(
+                "don't know how to create RPM "
+                f"distributions on platform {os.name}"
+            )
+        if not shutil.which("rpmbuild"):
+            raise PlatformError("failed to find rpmbuild for this platform.")
+
         self.set_undefined_options("bdist", ("bdist_base", "bdist_base"))
         if self.rpm_base is None:
             if not self.rpm3_mode:
@@ -236,17 +250,8 @@ class BdistRPM(Command):
                 "--python and --fix-python are mutually exclusive options"
             )
 
-        if os.name != "posix":
-            raise PlatformError(
-                "don't know how to create RPM "
-                f"distributions on platform {os.name}"
-            )
-
         self.set_undefined_options("bdist", ("dist_dir", "dist_dir"))
         self.finalize_package_data()
-
-        if not shutil.which("rpmbuild"):
-            raise PlatformError("failed to find rpmbuild for this platform.")
 
     def finalize_package_data(self):
         self.ensure_string("group", "Development/Libraries")
@@ -354,7 +359,6 @@ class BdistRPM(Command):
         rpm_cmd = ["rpmbuild"]
         # binary only
         rpm_cmd.append("-bb")
-        rpm_cmd.extend(["--define", f"__python {self.python}"])
         if self.rpm3_mode:
             topdir = os.path.abspath(self.rpm_base)
             rpm_cmd.extend(["--define", f"_topdir {topdir}"])
@@ -428,6 +432,14 @@ class BdistRPM(Command):
             "%define release " + self.release.replace("-", "_"),
             "",
             "Summary: " + self.distribution.get_description() or "UNKNOWN",
+            "Name: %{name}",
+            "Version: %{version}",
+            "Release: %{release}",
+            f"License: {self.distribution.get_license() or 'UNKNOWN'}",
+            f"Group: {self.group}",
+            "BuildRoot: %{buildroot}",
+            "Prefix: %{_prefix}",
+            f"BuildArch: {platform.machine()}",
         ]
 
         # Workaround for #14443 which affects some RPM based systems such as
@@ -443,39 +455,16 @@ class BdistRPM(Command):
         fixed = "brp-python-bytecompile %{__python} \\\n"
         fixed_hook = vendor_hook.replace(problem, fixed)
         if fixed_hook != vendor_hook:
-            spec_file.append(
-                "# Workaround for http://bugs.python.org/issue14443"
-            )
-            spec_file.append("%define __os_install_post " + fixed_hook + "\n")
-
-        # put locale summaries into spec file
-        # XXX not supported for now (hard to put a dictionary
-        # in a config file -- arg!)
-        # for locale in self.summaries.keys():
-        #    spec_file.append('Summary(%s): %s' % (locale,
-        #                                          self.summaries[locale]))
-
-        spec_file.extend(
-            ["Name: %{name}", "Version: %{version}", "Release: %{release}"]
-        )
+            spec_file += [
+                "# Workaround for http://bugs.python.org/issue14443",
+                f"%define __python {sys.executable}",
+                "%define __os_install_post " + fixed_hook + "\n",
+            ]
 
         # XXX yuck! this filename is available from the "sdist" command,
         # but only after it has run: and we create the spec file before
         # running "sdist", in case of --spec-only.
         spec_file.append("Source0: %{name}-%{unmangled_version}.tar.gz")
-
-        spec_file.extend(
-            [
-                "License: " + (self.distribution.get_license() or "UNKNOWN"),
-                "Group: " + self.group,
-                "BuildRoot: "
-                "%{_tmppath}/%{name}-%{version}-%{release}-buildroot",
-                "Prefix: %{_prefix}",
-            ]
-        )
-
-        if self.force_arch:
-            spec_file.append(f"BuildArch: {self.force_arch}")
 
         for field in (
             "Vendor",
@@ -529,7 +518,7 @@ class BdistRPM(Command):
 
         # rpm scripts
         # figure out default build script
-        def_setup_call = f"{self.python} {self.distribution.script_name}"
+        def_setup_call = f"{sys.executable} {self.distribution.script_name}"
         def_build = f"{def_setup_call} build_exe -O1"
         def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
@@ -540,17 +529,15 @@ class BdistRPM(Command):
         # are just text that we drop in as-is.  Hmmm.
 
         install_cmd = (
-            f"{def_setup_call} install --root=$RPM_BUILD_ROOT "
-            "--record=INSTALLED_FILES --skip-build; "
-            "sed -i 's/^/\"/' INSTALLED_FILES; "
-            "sed -i 's/$/\"/' INSTALLED_FILES"
+            f"{def_setup_call} install --skip-build"
+            " --prefix=%{_prefix} --root=%{buildroot}"
         )
 
         script_options = [
             ("prep", "prep_script", "%setup -n %{name}-%{unmangled_version}"),
             ("build", "build_script", def_build),
             ("install", "install_script", install_cmd),
-            ("clean", "clean_script", "rm -rf $RPM_BUILD_ROOT"),
+            ("clean", "clean_script", "rm -rf %{buildroot}"),
             ("verifyscript", "verify_script", None),
             ("pre", "pre_install", None),
             ("post", "post_install", None),
@@ -565,14 +552,21 @@ class BdistRPM(Command):
             if val or default:
                 spec_file.extend(["", "%" + rpm_opt])
                 if val:
-                    with open(val, encoding="utf-8") as file:
+                    with open(val, encoding="utf_8") as file:
                         spec_file.extend(file.read().split("\n"))
                 else:
                     spec_file.append(default)
 
         # files section
         spec_file.extend(
-            ["", "%files -f INSTALLED_FILES", "%defattr(-,root,root)"]
+            [
+                "",
+                "%files",
+                "%dir %{_prefix}/lib/%{name}-%{unmangled_version}",
+                "%{_prefix}/lib/%{name}-%{unmangled_version}/*",
+                "%{_bindir}/%{name}",
+                "%defattr(-,root,root)",
+            ]
         )
 
         if self.doc_files:
@@ -613,6 +607,6 @@ def write_file(filename, contents):
     """Create a file with the specified name and write 'contents'
     (a sequence of strings without line terminators) to it.
     """
-    with open(filename, "w", encoding="utf-8") as file:
+    with open(filename, "w", encoding="utf_8") as file:
         for line in contents:
             file.write(line + "\n")
