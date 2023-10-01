@@ -38,9 +38,14 @@ class BdistAppImage(Command):
             f"path to AppImageKit [default: {APPIMAGEKIT_TOOL}]",
         ),
         (
-            "bdist-dir=",
+            "bdist-base=",
             None,
-            "temporary directory for creating the distribution",
+            "base directory for creating built distributions",
+        ),
+        (
+            "build-dir=",
+            "b",
+            "directory of built executables and dependent files",
         ),
         ("dist-dir=", "d", "directory to put final built distributions in"),
         (
@@ -60,10 +65,12 @@ class BdistAppImage(Command):
     def initialize_options(self):
         self.appimagekit = None
         self._appimage_extract_and_run = False
+
         self.bdist_base = None
         self.build_dir = None
         self.dist_dir = None
         self.skip_build = None
+
         self.target_name = None
         self.target_version = None
         self.fullname = None
@@ -83,6 +90,7 @@ class BdistAppImage(Command):
             ("dist_dir", "dist_dir"),
             ("skip_build", "skip_build"),
         )
+
         if self.target_name is None:
             self.target_name = self.distribution.get_name()
         if self.target_version is None and self.distribution.metadata.version:
@@ -100,8 +108,10 @@ class BdistAppImage(Command):
         else:
             self.app_name = f"{name}-{arch}.AppImage"
             self.fullname = name
+
         if self.silent is not None:
             self.verbose = 0 if self.silent else 2
+
         # validate or download appimagekit
         self._get_appimagekit()
 
