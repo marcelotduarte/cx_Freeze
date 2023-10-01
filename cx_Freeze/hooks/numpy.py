@@ -120,6 +120,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         blas_options = ["libopenblas", "mkl"]
         packages += blas_options
         files_to_copy: list[Path] = []
+        blas = None
         for package in packages:
             try:
                 pkg = next(conda_meta.glob(f"{package}-*.json"))
