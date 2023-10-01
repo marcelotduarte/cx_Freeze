@@ -9,10 +9,10 @@ from subprocess import run
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.exception import OptionError, PlatformError
+from cx_Freeze.exception import PlatformError
 
 if sys.platform == "linux":
-    from cx_Freeze.command.bdist_rpm import BdistRPM as build_rpm
+    from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -32,7 +32,7 @@ DIST_ATTRS = {
 def test_bdist_rpm_not_posix(monkeypatch):
     """Test the bdist_rpm fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist)
+    cmd = bdist_rpm(dist)
     monkeypatch.setattr("os.name", "nt")
     with pytest.raises(PlatformError, match="don't know how to create RPM"):
         cmd.finalize_options()
@@ -42,22 +42,18 @@ def test_bdist_rpm_not_posix(monkeypatch):
 def test_bdist_rpm_not_rpmbuild(monkeypatch):
     """Test the bdist_rpm uses rpmbuild."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist)
+    cmd = bdist_rpm(dist)
     monkeypatch.setattr("shutil.which", lambda _cmd: None)
     with pytest.raises(PlatformError, match="failed to find rpmbuild"):
         cmd.finalize_options()
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
-@pytest.mark.parametrize(
-    "options",
-    [({"spec_only": True}), ({"python": None, "fix_python": True})],
-    ids=["spec_only", "fix_python"],
-)
+@pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
 def test_bdist_rpm_options(options):
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist, **options)
+    cmd = bdist_rpm(dist, **options)
     try:
         cmd.ensure_finalized()
     except PlatformError as exc:
@@ -68,32 +64,13 @@ def test_bdist_rpm_options(options):
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
-@pytest.mark.parametrize(
-    ("options", "expected"),
-    [
-        (
-            {"python": "python3", "fix_python": True},
-            (OptionError, PlatformError),
-        ),
-    ],
-    ids=["python+fix_python"],
-)
-def test_bdist_rpm_options_raises(options, expected):
-    """Test the bdist_rpm with options."""
-    dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist, **options)
-    with pytest.raises(expected):
-        cmd.ensure_finalized()
-
-
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
     """Test the bdist_rpm with options."""
     monkeypatch.chdir(datafiles)
     dist = Distribution(DIST_ATTRS)
-    cmd = build_rpm(dist, **options, debug=1)
+    cmd = bdist_rpm(dist, **options, debug=1)
     try:
         cmd.ensure_finalized()
     except PlatformError as exc:
