@@ -1,5 +1,4 @@
 """Module for the VersionInfo base class."""
-
 from __future__ import annotations
 
 import argparse
@@ -8,7 +7,7 @@ import os
 from pathlib import Path
 from struct import calcsize, pack
 
-from ._compat import packaging
+from cx_Freeze._compat import packaging
 
 try:
     from win32verstamp import stamp as version_stamp

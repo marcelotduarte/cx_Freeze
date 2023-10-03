@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
-from .exception import PlatformError
+from cx_Freeze.exception import PlatformError
 
 
 # In a MachO file, need to deal specially with links that use @executable_path,

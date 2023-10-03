@@ -1,5 +1,4 @@
 """Module for the Executable base class."""
-
 from __future__ import annotations
 
 import os
@@ -10,9 +9,9 @@ from sysconfig import get_config_var, get_platform
 
 from setuptools import Distribution
 
-from ._compat import IS_MINGW, IS_WINDOWS
-from .common import get_resource_file_path
-from .exception import OptionError, SetupError
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze.common import get_resource_file_path
+from cx_Freeze.exception import OptionError, SetupError
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")

@@ -1,5 +1,4 @@
 """cxfreeze command line tool."""
-
 from __future__ import annotations
 
 import argparse
@@ -7,10 +6,10 @@ import os
 import sys
 import sysconfig
 
-from . import __version__
-from .common import normalize_to_list
-from .executable import Executable
-from .freezer import Freezer
+from cx_Freeze import __version__
+from cx_Freeze.common import normalize_to_list
+from cx_Freeze.executable import Executable
+from cx_Freeze.freezer import Freezer
 
 __all__ = ["main"]
 

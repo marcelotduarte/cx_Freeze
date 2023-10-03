@@ -20,14 +20,14 @@ from sysconfig import get_config_var
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
-from ._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
-from ._typing import IncludesList, InternalIncludesList
-from .common import get_resource_file_path, process_path_specs
-from .exception import FileError, OptionError
-from .executable import Executable
-from .finder import ModuleFinder
-from .module import ConstantsModule, Module
-from .parser import ELFParser, Parser, PEParser
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._typing import IncludesList, InternalIncludesList
+from cx_Freeze.common import get_resource_file_path, process_path_specs
+from cx_Freeze.exception import FileError, OptionError
+from cx_Freeze.executable import Executable
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import ConstantsModule, Module
+from cx_Freeze.parser import ELFParser, Parser, PEParser
 
 if IS_WINDOWS or IS_MINGW:
     with suppress(ImportError):
