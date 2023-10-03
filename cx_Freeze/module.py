@@ -1,5 +1,4 @@
 """Base class for Module and ConstantsModule."""
-
 from __future__ import annotations
 
 import ast
@@ -14,8 +13,8 @@ from keyword import iskeyword
 from pathlib import Path
 from types import CodeType
 
-from ._compat import importlib_metadata
-from .exception import ModuleError, OptionError
+from cx_Freeze._compat import importlib_metadata
+from cx_Freeze.exception import ModuleError, OptionError
 
 __all__ = ["ConstantsModule", "Module", "ModuleHook"]
 

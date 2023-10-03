@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path, PurePath
 from typing import List, Optional, Tuple, Union
 
-from .module import Module
+from cx_Freeze.module import Module
 
 DeferredList = List[Tuple[Module, Module, List[str]]]
 

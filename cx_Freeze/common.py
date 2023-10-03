@@ -1,5 +1,4 @@
 """Common utility functions shared between cx_Freeze modules."""
-
 from __future__ import annotations
 
 import shutil
@@ -8,8 +7,8 @@ from pathlib import Path, PurePath
 from textwrap import dedent
 from types import CodeType
 
-from ._typing import IncludesList, InternalIncludesList
-from .exception import OptionError
+from cx_Freeze._typing import IncludesList, InternalIncludesList
+from cx_Freeze.exception import OptionError
 
 
 class FilePath(Path):

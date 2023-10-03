@@ -2,18 +2,17 @@
 and is cross-platform.
 """
 # pylint: disable=invalid-name
-
 from __future__ import annotations
 
 import sys
 
 import setuptools
 
-from .command.build_exe import BuildEXE as build_exe
-from .command.install import Install as install
-from .command.install_exe import InstallEXE as install_exe
-from .finder import Module, ModuleFinder
-from .freezer import ConstantsModule, Executable, Freezer
+from cx_Freeze.command.build_exe import BuildEXE as build_exe
+from cx_Freeze.command.install import Install as install
+from cx_Freeze.command.install_exe import InstallEXE as install_exe
+from cx_Freeze.finder import Module, ModuleFinder
+from cx_Freeze.freezer import ConstantsModule, Executable, Freezer
 
 __all__ = [
     "build_exe",
@@ -29,17 +28,17 @@ __all__ = [
 ]
 
 if sys.platform == "win32":
-    from .command.bdist_msi import BdistMSI as bdist_msi
+    from cx_Freeze.command.bdist_msi import BdistMSI as bdist_msi
 
     __all__.append(bdist_msi.__name__)
 elif sys.platform == "darwin":
-    from .command.bdist_mac import BdistDMG as bdist_dmg
-    from .command.bdist_mac import BdistMac as bdist_mac
+    from cx_Freeze.command.bdist_mac import BdistDMG as bdist_dmg
+    from cx_Freeze.command.bdist_mac import BdistMac as bdist_mac
 
     __all__.extend([bdist_dmg.__name__, bdist_mac.__name__])
 else:
-    from .command.bdist_deb import BdistDEB as bdist_deb
-    from .command.bdist_rpm import BdistRPM as bdist_rpm
+    from cx_Freeze.command.bdist_deb import BdistDEB as bdist_deb
+    from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
 
     __all__.extend([bdist_deb.__name__, bdist_rpm.__name__])
 

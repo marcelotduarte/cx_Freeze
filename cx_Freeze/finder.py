@@ -24,8 +24,7 @@ from cx_Freeze.common import (
     get_resource_file_path,
     process_path_specs,
 )
-
-from .module import ConstantsModule, Module
+from cx_Freeze.module import ConstantsModule, Module
 
 ALL_SUFFIXES = importlib.machinery.all_suffixes()
 
