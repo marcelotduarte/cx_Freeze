@@ -1,5 +1,4 @@
 """Extends setuptools to build Windows installer packages."""
-
 from __future__ import annotations
 
 import importlib
@@ -10,10 +9,10 @@ import re
 import shutil
 from sysconfig import get_platform
 
-from .._compat import packaging
-from ..exception import OptionError
-from ._bdist_msi import bdist_msi
-from ._pydialog import PyDialog
+from cx_Freeze._compat import packaging
+from cx_Freeze.command._bdist_msi import bdist_msi as _bdist_msi
+from cx_Freeze.command._pydialog import PyDialog
+from cx_Freeze.exception import OptionError
 
 __all__ = ["BdistMSI"]
 
@@ -26,7 +25,7 @@ for index, info in enumerate(sequence):
         sequence[index] = (info[0], info[1], 1450)
 
 
-class BdistMSI(bdist_msi):
+class BdistMSI(_bdist_msi):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
     description = __doc__
