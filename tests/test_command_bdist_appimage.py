@@ -10,12 +10,11 @@ from subprocess import check_output
 import pytest
 from setuptools import Distribution
 
+from cx_Freeze.command.bdist_appimage import BdistAppImage as bdist_appimage
 from cx_Freeze.exception import PlatformError
 
-if sys.platform == "linux":
-    from cx_Freeze.command.bdist_appimage import (
-        BdistAppImage as bdist_appimage,
-    )
+if sys.platform != "linux":
+    pytest.skip(reason="Linux tests", allow_module_level=True)
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -28,7 +27,6 @@ DIST_ATTRS = {
 }
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_appimage_not_posix(monkeypatch):
     """Test the bdist_appimage fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
@@ -38,7 +36,6 @@ def test_bdist_appimage_not_posix(monkeypatch):
         cmd.finalize_options()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_appimage_target_name():
     """Test the bdist_appimage with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
@@ -49,7 +46,6 @@ def test_bdist_appimage_target_name():
     assert cmd.fullname == "mytest-0.0"
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_appimage_target_name_and_version():
     """Test the bdist_appimage with extra target options."""
     dist = Distribution(DIST_ATTRS)
@@ -61,7 +57,6 @@ def test_bdist_appimage_target_name_and_version():
     assert cmd.fullname == "mytest-0.1"
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_appimage_target_name_and_version_none():
     """Test the bdist_appimage with target options."""
     attrs = DIST_ATTRS.copy()
@@ -74,7 +69,6 @@ def test_bdist_appimage_target_name_and_version_none():
     assert cmd.fullname == "mytest"
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "icon")
 def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     """Test the icon sample, with a specified target_name that includes an
@@ -102,7 +96,6 @@ def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     assert file_created.is_file()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "icon")
 def test_bdist_appimage_skip_build(datafiles: Path):
     """Test the icon sample with bdist_appimage."""
@@ -124,7 +117,6 @@ def test_bdist_appimage_skip_build(datafiles: Path):
     assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_bdist_appimage_simple(datafiles: Path):
     """Test the simple sample with bdist_appimage."""
