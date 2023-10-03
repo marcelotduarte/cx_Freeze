@@ -10,8 +10,11 @@ from subprocess import check_output
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.command.bdist_appimage import BdistAppImage as bdist_appimage
 from cx_Freeze.exception import PlatformError
+
+bdist_appimage = pytest.importorskip(
+    "cx_Freeze.command.bdist_appimage", reason="Linux tests"
+).BdistAppImage
 
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
