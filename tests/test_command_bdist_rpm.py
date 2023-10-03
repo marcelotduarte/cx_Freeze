@@ -9,10 +9,11 @@ from subprocess import run
 import pytest
 from setuptools import Distribution
 
+from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
 from cx_Freeze.exception import PlatformError
 
-if sys.platform == "linux":
-    from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
+if sys.platform != "linux":
+    pytest.skip(reason="Linux tests", allow_module_level=True)
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -28,7 +29,6 @@ DIST_ATTRS = {
 }
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_rpm_not_posix(monkeypatch):
     """Test the bdist_rpm fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
@@ -38,7 +38,6 @@ def test_bdist_rpm_not_posix(monkeypatch):
         cmd.finalize_options()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_rpm_not_rpmbuild(monkeypatch):
     """Test the bdist_rpm uses rpmbuild."""
     dist = Distribution(DIST_ATTRS)
@@ -48,7 +47,6 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch):
         cmd.finalize_options()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
 def test_bdist_rpm_options(options):
     """Test the bdist_rpm with options."""
@@ -63,7 +61,6 @@ def test_bdist_rpm_options(options):
             pytest.fail(exc.args[0])
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
@@ -81,7 +78,6 @@ def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
     cmd.run()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_bdist_rpm_simple(datafiles: Path):
     """Test the simple sample with bdist_rpm."""
@@ -109,7 +105,6 @@ def test_bdist_rpm_simple(datafiles: Path):
     assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
 def test_bdist_rpm(datafiles: Path):
     """Test the sqlite sample with bdist_rpm."""

@@ -10,8 +10,9 @@ from sysconfig import get_platform
 import pytest
 from setuptools import Distribution
 
-if sys.platform == "win32":
-    from cx_Freeze.command.bdist_msi import BdistMSI as bdist_msi
+bdist_msi = pytest.importorskip(
+    "cx_Freeze.command.bdist_msi", reason="Windows tests"
+).BdistMSI
 
 DIST_ATTRS = {
     "name": "foo",
@@ -22,7 +23,6 @@ DIST_ATTRS = {
 FIXTURE_DIR = Path(__file__).resolve().parent
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
 def test_bdist_msi(datafiles: Path):
     """Test the msi_binary_data sample."""
@@ -37,7 +37,6 @@ def test_bdist_msi(datafiles: Path):
     assert file_created.is_file()
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name():
     """Test the bdist_msi with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
@@ -48,7 +47,6 @@ def test_bdist_msi_target_name():
     assert cmd.fullname == "mytest-0.0"
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_bdist_msi_target_name_and_version():
     """Test the bdist_msi with extra target options."""
     dist = Distribution(DIST_ATTRS)
@@ -60,7 +58,6 @@ def test_bdist_msi_target_name_and_version():
     assert cmd.fullname == "mytest-0.1"
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
 def test_bdist_msi_target_name_with_extension(datafiles: Path):
     """Test the msi_binary_data sample, with a specified target_name that
