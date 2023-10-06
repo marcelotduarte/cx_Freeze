@@ -57,7 +57,7 @@ dev = [
     "bump2version==1.0.1",
     "cibuildwheel==2.16.2",
     "pre-commit==3.4.0",
-    "pylint==3.0.0",
+    "pylint==3.0.1",
 ]
 doc = [
     "sphinx<7.2.0 ;python_version == '3.8'",
