@@ -3,8 +3,6 @@ PyTorch package is included.
 """
 from __future__ import annotations
 
-import os
-
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
@@ -12,8 +10,7 @@ from cx_Freeze.module import Module
 # pip install torch
 #
 # 2) Test in Windows from pytorch
-# set PIP_FIND_LINKS=https://download.pytorch.org/whl/cu117/torch_stable.html
-# pip install torch==1.13.1+cu117
+# # https://pytorch.org/get-started/locally/
 #
 # 3) Test in Linux from pypi includes nvidia packages
 # pip install torch
@@ -27,13 +24,17 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     # patch the code to ignore CUDA_PATH_Vxx_x installation directory
     code_string = module.file.read_text(encoding="utf_8")
     code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(code_string, module.file.as_posix(), "exec")
+    # include the binaries (torch 2.1+)
+    source_bin = module.file.parent / "bin"
+    if source_bin.exists():
+        finder.include_files(source_bin, f"lib/{module.name}/bin")
     # include the shared libraries in 'lib' to avoid searching through the
     # system.
     source_lib = module.file.parent / "lib"
-    target_lib = f"lib/{module.name}/lib"
     if source_lib.exists():
-        for source in source_lib.glob("*.dll"):
+        target_lib = f"lib/{module.name}/lib"
+        for source in source_lib.glob("*.*"):
             finder.include_files(source, f"{target_lib}/{source.name}")
     # hidden modules
     finder.include_module("torch._C")
@@ -42,6 +43,5 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("torch.testing")
     # exclude C files
     finder.exclude_module("torch.include")
-    finder.exclude_module("torch.share")
     finder.exclude_module("torch.share")
     finder.exclude_module("torchgen.packaged.ATen.templates")
