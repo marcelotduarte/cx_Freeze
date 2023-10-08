@@ -33,9 +33,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     # system.
     source_lib = module.file.parent / "lib"
     if source_lib.exists():
-        target_lib = f"lib/{module.name}/lib"
-        for source in source_lib.glob("*.*"):
-            finder.include_files(source, f"{target_lib}/{source.name}")
+        finder.include_files(source_lib, f"lib/{module.name}/lib")
     # hidden modules
     finder.include_module("torch._C")
     finder.include_module("torch._VF")

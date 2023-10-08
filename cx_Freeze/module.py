@@ -283,14 +283,14 @@ class Module:
             # module and load hook functions are lowercased.
             pyqt5.load_pyqt5_qtcore()
         """
-        if self == self.root and not isinstance(self.hook, ModuleHook):
+        if not isinstance(self.root.hook, ModuleHook):
             try:
                 # new style hook using ModuleHook class - top-level call
-                root_name = self.name.lower()
+                root_name = self.root.name.lower()
                 hooks = import_module(f"cx_Freeze.hooks.{root_name}")
                 hook_cls = getattr(hooks, "Hook", None)
                 if hook_cls and issubclass(hook_cls, ModuleHook):
-                    self.hook = hook_cls(self)
+                    self.root.hook = hook_cls(self.root)
                 else:
                     # old style hook with lowercased functions
                     name = self.name.replace(".", "_").lower()
