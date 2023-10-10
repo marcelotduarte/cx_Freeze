@@ -9,6 +9,5 @@ from cx_Freeze.module import Module
 
 def load_triton(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """Hook for triton."""
-    # exclude C files and testing
+    # exclude C files that causes RecursionError
     finder.exclude_module("triton._C")
-    finder.exclude_module("triton.testing")
