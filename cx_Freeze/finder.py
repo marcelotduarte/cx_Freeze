@@ -494,10 +494,10 @@ class ModuleFinder:
         # Check if module is in a package and will be stored in library.zip
         # and is not defined in the module, like 'six' do
         if (
-            module.parent is None
-            or module.in_file_system >= 1
+            code is None
+            or module.parent is None
             or "__package__" in module.global_names
-            or code is None
+            or module.in_file_system >= 1
         ):
             return code
         # Only if the code references it.
