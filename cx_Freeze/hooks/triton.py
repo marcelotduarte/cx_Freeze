@@ -7,7 +7,11 @@ from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
 
-def load_triton(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
+def load_triton(finder: ModuleFinder, module: Module) -> None:
     """Hook for triton."""
-    # exclude C files that causes RecursionError
+    # exclude _C module that causes RecursionError
     finder.exclude_module("triton._C")
+    # but, include the module libtriton as library
+    source_lib = module.file.parent / "_C"
+    if source_lib.exists():
+        finder.include_files(source_lib, f"lib/{module.name}/_C")

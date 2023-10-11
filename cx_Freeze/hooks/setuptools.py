@@ -3,6 +3,8 @@ setuptools package is included.
 """
 from __future__ import annotations
 
+import contextlib
+
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
@@ -23,8 +25,11 @@ _setuptools_extern = [
 
 
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
-    """The setuptools must load the _vendor subpackage."""
-    finder.include_package(f"{module.name}._vendor")
+    """The setuptools must load the _distutils and _vendor subpackage."""
+    with contextlib.suppress(ImportError):
+        finder.include_package(f"{module.name}._distutils")
+    with contextlib.suppress(ImportError):
+        finder.include_package(f"{module.name}._vendor")
 
 
 def load_setuptools_command_build(_, module: Module) -> None:
@@ -121,6 +126,13 @@ def load_setuptools__itertools(_, module: Module) -> None:
 def load_setuptools__normalization(_, module: Module) -> None:
     """Ignore optional modules."""
     module.ignore_names.add("setuptools.extern.packaging")
+
+
+def load_setuptools_monkey(
+    finder: ModuleFinder, module: Module  # noqa: ARG001
+) -> None:
+    """Add hidden module."""
+    finder.include_module("setuptools.msvc")
 
 
 def load_setuptools_package_index(_, module: Module) -> None:
