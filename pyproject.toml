@@ -56,7 +56,7 @@ dependencies = [
 dev = [
     "bump2version==1.0.1",
     "cibuildwheel==2.16.2",
-    "pre-commit==3.4.0",
+    "pre-commit==3.5.0",
     "pylint==3.0.1",
 ]
 doc = [
