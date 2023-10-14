@@ -35,9 +35,13 @@ setup.py
                 "test_manifest.py",
                 manifest="simple.manifest",
                 target_name="test_simple_manifest",
-            )
+            ),
+            Executable(
+                "test_manifest.py",
+                uac_admin=True,
+                target_name="test_uac_admin",
+            ),
         ],
-        options={"build_exe": {"excludes": ["tkinter"], "silent": True}}
     )
 simple.manifest
     <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
@@ -57,7 +61,7 @@ def test_manifest(tmp_path: Path):
     """Test that the manifest is working correctly."""
     create_package(tmp_path, SOURCE)
     output = check_output(
-        [sys.executable, "setup.py", "build_exe"],
+        [sys.executable, "setup.py", "build_exe", "--excludes=tkinter"],
         text=True,
         cwd=os.fspath(tmp_path),
     )
@@ -85,3 +89,14 @@ def test_manifest(tmp_path: Path):
     print(output)
     expected = "Windows version: 6.2"
     assert output.splitlines()[0].strip() == expected
+
+    # With the uac_admin, should return WinError 740 - requires elevation
+    executable = tmp_path / BUILD_EXE_DIR / f"test_uac_admin{suffix}"
+    assert executable.is_file()
+    with pytest.raises(OSError, match="[WinError 740]"):
+        check_output(
+            [os.fspath(executable)],
+            text=True,
+            timeout=10,
+            cwd=os.fspath(tmp_path),
+        )
