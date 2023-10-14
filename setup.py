@@ -84,7 +84,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                             libraries.append(library)
                         library_dirs.append(lib_dir)
             if compiler_type == "msvc":
-                # setuptools add a option that conflicts with the use of
+                # setuptools adds an option that conflicts with the use of
                 # RT_MANIFEST, so remove it to link successfully.
                 with contextlib.suppress(ValueError):
                     self.compiler.ldflags_exe.remove("/MANIFEST:EMBED,ID=1")

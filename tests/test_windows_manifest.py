@@ -1,6 +1,7 @@
 """Tests for some cx_Freeze.hooks."""
 from __future__ import annotations
 
+import ctypes
 import os
 import sys
 from pathlib import Path
@@ -26,7 +27,7 @@ test_manifest.py
 setup.py
     from cx_Freeze import Executable, setup
     setup(
-        name="test_multiprocessing",
+        name="test_manifest",
         version="0.1",
         description="Sample for test with cx_Freeze",
         executables=[
@@ -93,6 +94,8 @@ def test_manifest(tmp_path: Path):
     # With the uac_admin, should return WinError 740 - requires elevation
     executable = tmp_path / BUILD_EXE_DIR / f"test_uac_admin{suffix}"
     assert executable.is_file()
+    if ctypes.windll.shell32.IsUserAnAdmin():
+        return
     with pytest.raises(OSError, match="[WinError 740]"):
         check_output(
             [os.fspath(executable)],
