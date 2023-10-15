@@ -11,6 +11,7 @@ Use the following commands to install in the development mode:
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import sys
 from pathlib import Path
@@ -37,7 +38,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         if "bases" not in ext.name:
             super().build_extension(ext)
             return
-        if IS_MINGW or IS_WINDOWS and self.compiler.compiler_type == "mingw32":
+        if IS_MINGW or IS_WINDOWS:
             ext.sources.append("source/bases/manifest.rc")
         objects = self.compiler.compile(
             ext.sources,
@@ -81,7 +82,10 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                             libraries.append(library)
                         library_dirs.append(lib_dir)
             if compiler_type == "msvc":
-                extra_args.append("/MANIFEST")
+                # setuptools adds an option that conflicts with the use of
+                # RT_MANIFEST, so remove it to link successfully.
+                with contextlib.suppress(ValueError):
+                    self.compiler.ldflags_exe.remove("/MANIFEST:EMBED,ID=1")
             elif compiler_type == "mingw32":
                 if "Win32GUI" in ext.name:
                     extra_args.append("-mwindows")

@@ -22,6 +22,10 @@ except ImportError:
 
 __all__ = ["Version", "VersionInfo"]
 
+# constants
+RT_VERSION = 16
+ID_VERSION = 1
+
 # types
 CHAR = "c"
 DWORD = "L"
@@ -232,7 +236,9 @@ class VersionInfo:
             if util is None:
                 raise RuntimeError("cx_Freeze.util extensions not found")
             handle = util.BeginUpdateResource(path, 0)
-            util.UpdateResource(handle, 16, 1, string_version_info.to_buffer())
+            util.UpdateResource(
+                handle, RT_VERSION, ID_VERSION, string_version_info.to_buffer()
+            )
             util.EndUpdateResource(handle, 0)
 
         if self.verbose:

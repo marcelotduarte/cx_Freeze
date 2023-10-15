@@ -8,6 +8,9 @@ print(f"Executable: {sys.executable}")
 print(f"Prefix: {sys.prefix}")
 print(f"Default encoding: {sys.getdefaultencoding()}")
 print(f"File system encoding: {sys.getfilesystemencoding()}\n")
+if sys.platform == "win32":
+    winver = sys.getwindowsversion()
+    print(f"Windows version: {winver.major}.{winver.minor}\n")
 
 print("ARGUMENTS:")
 for arg in sys.argv:
