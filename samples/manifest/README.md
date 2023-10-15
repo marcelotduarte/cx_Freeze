@@ -1,6 +1,6 @@
 # Icon sample
 
-Creates an executable to demonstrate the use of manifest.
+Creates an executable to demonstrate the use of manifest and uac_admin.
 
 
 # Installation and requirements:
