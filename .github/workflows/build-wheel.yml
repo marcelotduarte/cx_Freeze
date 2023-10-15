@@ -128,6 +128,7 @@ jobs:
           if [ $SHA256SUM1 != $SHA256SUM2 ]; then
             git config user.name "Marcelo Duarte"
             git config user.email marcelotduarte@users.noreply.github.com
+            git checkout -B update_bases ${{ inputs.branch }}
             # Remove any file that match - remove previous versions too
             git rm --ignore-unmatch 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             # Extract base executables and util module
@@ -140,5 +141,5 @@ jobs:
             git add cx_Freeze/bases/__init__.py
             # Update
             git commit -m "bases: update base executables and util module [ci skip]"
-            git push --set-upstream origin ${{ inputs.branch }}
+            git push origin update_bases
           fi
