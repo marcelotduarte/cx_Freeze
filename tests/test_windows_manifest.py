@@ -16,7 +16,6 @@ if sys.platform != "win32":
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 SOURCE = """
 test_manifest.py
@@ -58,8 +57,11 @@ simple.manifest
 """
 
 
-def test_manifest(tmp_path: Path):
-    """Test that the manifest is working correctly."""
+# pylint: disable=redefined-outer-name
+@pytest.fixture(scope="module")
+def tmp_manifest(tmp_path_factory):
+    """Temporary path to build test manifest."""
+    tmp_path = tmp_path_factory.mktemp("manifest")
     create_package(tmp_path, SOURCE)
     output = check_output(
         [sys.executable, "setup.py", "build_exe", "--excludes=tkinter"],
@@ -67,39 +69,37 @@ def test_manifest(tmp_path: Path):
         cwd=os.fspath(tmp_path),
     )
     print(output)
-    suffix = ".exe" if sys.platform == "win32" else ""
+    return tmp_path / f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
-    # With the correct manifest, windows version return 10.0 for Windows 10
-    executable = tmp_path / BUILD_EXE_DIR / f"test_manifest{suffix}"
+
+def test_manifest(tmp_manifest: Path):
+    """With the correct manifest, windows version return 10.0 in Windows 10."""
+    executable = tmp_manifest / "test_manifest.exe"
     assert executable.is_file()
-    output = check_output(
-        [os.fspath(executable)], text=True, timeout=10, cwd=os.fspath(tmp_path)
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     print(output)
     winver = sys.getwindowsversion()
     expected = f"Windows version: {winver.major}.{winver.minor}"
     assert output.splitlines()[0].strip() == expected
 
-    # With simple manifest, without "supportedOS Id", windows version returned
-    # is the compatible version for Windows 8.1, ie, 6.2
-    executable = tmp_path / BUILD_EXE_DIR / f"test_simple_manifest{suffix}"
+
+def test_simple_manifest(tmp_manifest: Path):
+    """With simple manifest, without "supportedOS Id", windows version returned
+    is the compatible version for Windows 8.1, ie, 6.2.
+    """
+    executable = tmp_manifest / "test_simple_manifest.exe"
     assert executable.is_file()
-    output = check_output(
-        [os.fspath(executable)], text=True, timeout=10, cwd=os.fspath(tmp_path)
-    )
+    output = check_output([os.fspath(executable)], text=True, timeout=10)
     print(output)
     expected = "Windows version: 6.2"
     assert output.splitlines()[0].strip() == expected
 
-    # With the uac_admin, should return WinError 740 - requires elevation
-    executable = tmp_path / BUILD_EXE_DIR / f"test_uac_admin{suffix}"
+
+def test_uac_admin(tmp_manifest: Path):
+    """With the uac_admin, should return WinError 740 - requires elevation."""
+    executable = tmp_manifest / "test_uac_admin.exe"
     assert executable.is_file()
     if ctypes.windll.shell32.IsUserAnAdmin():
-        return
+        pytest.xfail(reason="User is admin")
     with pytest.raises(OSError, match="[WinError 740]"):
-        check_output(
-            [os.fspath(executable)],
-            text=True,
-            timeout=10,
-            cwd=os.fspath(tmp_path),
-        )
+        check_output([os.fspath(executable)], text=True, timeout=10)
