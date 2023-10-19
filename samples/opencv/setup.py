@@ -29,7 +29,7 @@ options = {
             "xml",
             "pydoc",
         ],
-        "include_files": ["image.png"],
+        "include_files": [("image.png", "share/image.png")],
     }
 }
 
