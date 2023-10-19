@@ -332,6 +332,10 @@ class BdistMac(Command):
         darwin_file: DarwinFile
 
         for darwin_file in self.darwin_tracker:
+            # Skip text files
+            if darwin_file.path.suffix == ".txt":
+                continue
+
             # get the relative path to darwin_file in build directory
             print(f"Setting relative_reference_path for: {darwin_file}")
             relative_copy_dest = os.path.relpath(
