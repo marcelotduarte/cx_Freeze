@@ -926,9 +926,7 @@ class WinFreezer(Freezer, PEParser):
         return [windows_dir, system_dir, os.path.join(windows_dir, "WinSxS")]
 
     def _default_bin_path_includes(self) -> list[str]:
-        paths = {Path(path) for path in sys.path if path}
-        paths.update(self._platform_bin_path)
-        return self._validate_bin_path(paths)
+        return self._validate_bin_path(sys.path + self._platform_bin_path)
 
     @cached_property
     def _platform_bin_path(self) -> list[Path]:
@@ -1147,6 +1145,8 @@ class DarwinFreezer(Freezer, Parser):
                 )
         self.dependent_files[filename] = dependent_files
         return dependent_files
+
+    _get_dependent_files = None
 
 
 class LinuxFreezer(Freezer, ELFParser):

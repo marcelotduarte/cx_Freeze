@@ -43,35 +43,62 @@ class Parser(ABC):
         self._path: list[str] = path
         self._bin_path_includes: list[str] = bin_path_includes
         self._silent: int = silent
-        self._env_path: list[str] = os.environ["PATH"].split(os.pathsep)
 
         self.dependent_files: dict[Path, set[Path]] = {}
+        self.linker_warnings: set = set()
 
-        search_path = self._path + self._bin_path_includes + self._env_path
-        self.search_path: list[Path] = [
-            p for p in map(Path, search_path) if p.is_dir()
-        ]
+    @property
+    def search_path(self) -> list[str]:
+        """The default search path."""
+        # This cannot be cached because os.environ["PATH"] can be changed in
+        # freeze module before the call to get_dependent_files.
+        env_path = os.environ["PATH"].split(os.pathsep)
+        new_path = []
+        for path in self._path + self._bin_path_includes + env_path:
+            if path not in new_path and os.path.isdir(path):
+                new_path.append(path)
+        return new_path
 
     def find_library(
         self, name: str, search_path: list[str | Path] | None = None
     ) -> Path | None:
         if search_path is None:
             search_path = self.search_path
-        else:
-            search_path = list(map(Path, search_path))
-        for directory in search_path:
+        for directory in map(Path, search_path):
             library = directory / name
             if library.is_file():
                 return library.resolve()
         return None
 
-    @abstractmethod
     def get_dependent_files(self, filename: str | Path) -> set[Path]:
+        """Return the file's dependencies using platform-specific tools."""
+        if isinstance(filename, str):
+            filename = Path(filename)
+
+        with suppress(KeyError):
+            return self.dependent_files[filename]
+
+        if not self._is_binary(filename):
+            return set()
+
+        dependent_files: set[Path] = self._get_dependent_files(filename)
+        self.dependent_files[filename] = dependent_files
+        return dependent_files
+
+    @abstractmethod
+    def _get_dependent_files(self, filename: Path) -> set[Path]:
         """Return the file's dependencies using platform-specific tools
         (lief package or the imagehlp library on Windows, otool on Mac OS X or
         ldd on Linux); limit this list by the exclusion lists as needed.
         (Implemented separately for each platform).
         """
+
+    @staticmethod
+    def _is_binary(filename: Path) -> bool:
+        """Determines whether the file is a binary (executable, shared library)
+        file. (Overridden in each platform).
+        """
+        return filename.is_file()
 
 
 class PEParser(Parser):
@@ -110,6 +137,8 @@ class PEParser(Parser):
             filename = Path(filename)
         return filename.suffix.lower().endswith(PE_EXT) and filename.is_file()
 
+    _is_binary = is_pe
+
     def _get_dependent_files_lief(self, filename: Path) -> set[Path]:
         with filename.open("rb", buffering=0) as raw:
             binary = lief.PE.parse(raw, self.imports_only or filename.name)
@@ -123,15 +152,19 @@ class PEParser(Parser):
             libraries.append(delay_import.name)
 
         dependent_files: set[Path] = set()
-        for library_name in libraries:
-            library = self.find_library(library_name)
+        search_path = [filename.parent, *self.search_path]
+        for name in libraries:
+            library = self.find_library(name, search_path)
             if library:
                 dependent_files.add(library)
             else:
-                pass  # TODO: what to do?
+                if self._silent < 3 and name not in self.linker_warnings:
+                    print(f"WARNING: cannot find '{name}'")
+                self.linker_warnings.add(name)
         return dependent_files
 
     def _get_dependent_files_imagehlp(self, filename: Path) -> set[Path]:
+        env_path = os.environ["PATH"]
         os.environ["PATH"] = os.pathsep.join(self.search_path)
         try:
             return {Path(dep) for dep in GetDependentFiles(filename)}
@@ -142,25 +175,13 @@ class PEParser(Parser):
                 print("WARNING: ignoring error during ", end="")
                 print(f"GetDependentFiles({filename}):", exc)
         finally:
-            os.environ["PATH"] = os.pathsep.join(self._env_path)
+            os.environ["PATH"] = env_path
         return set()
 
     if LIEF_DISABLED:
         _get_dependent_files = _get_dependent_files_imagehlp
     else:
         _get_dependent_files = _get_dependent_files_lief
-
-    def get_dependent_files(self, filename: str | Path) -> set[Path]:
-        if isinstance(filename, str):
-            filename = Path(filename)
-        with suppress(KeyError):
-            return self.dependent_files[filename]
-        if not self.is_pe(filename):
-            return set()
-
-        dependent_files: set[Path] = self._get_dependent_files(filename)
-        self.dependent_files[filename] = dependent_files
-        return dependent_files
 
     def read_manifest(self, filename: str | Path) -> str:
         """:return: the XML schema of the manifest included in the executable
@@ -210,7 +231,6 @@ class ELFParser(Parser):
         self, path: list[str], bin_path_includes: list[str], silent: int = 0
     ) -> None:
         super().__init__(path, bin_path_includes, silent)
-        self.linker_warnings: set = set()
         self._patchelf = shutil.which("patchelf")
         self._verify_patchelf()
 
@@ -229,19 +249,9 @@ class ELFParser(Parser):
             four_bytes = binary.read(4)
         return bool(four_bytes == MAGIC_ELF)
 
-    def get_dependent_files(self, filename: str | Path) -> set[Path]:
-        if isinstance(filename, str):
-            filename = Path(filename)
-        with suppress(KeyError):
-            return self.dependent_files[filename]
-        if not self.is_elf(filename):
-            return set()
+    _is_binary = is_elf
 
-        files: set[Path] = self._get_dependent_files_ldd(filename)
-        self.dependent_files[filename] = files
-        return files
-
-    def _get_dependent_files_ldd(self, filename: Path) -> set[Path]:
+    def _get_dependent_files(self, filename: Path) -> set[Path]:
         dependent_files: set[Path] = set()
         split_string = " => "
         dependent_file_index = 1
