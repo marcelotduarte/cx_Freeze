@@ -333,7 +333,7 @@ class BdistMac(Command):
 
         for darwin_file in self.darwin_tracker:
             # Skip text files
-            if str(darwin_file.path).endswith(".txt"):
+            if darwin_file.path.suffix == ".txt":
                 continue
 
             # get the relative path to darwin_file in build directory
