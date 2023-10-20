@@ -373,7 +373,7 @@ class MachOCommand:
         current_command_lines = None
 
         # split the output into separate load commands
-        out = subprocess.check_output(shell_command, encoding="utf-8")
+        out = subprocess.check_output(shell_command, encoding="utf_8")
         for raw_line in out.splitlines():
             line = raw_line.strip()
             if line[:12] == "Load command":
@@ -664,3 +664,51 @@ class DarwinFileTracker:
                         )
                         reference.resolved_path = potential_target.path
                         reference.setTargetFile(potential_target)
+
+    def set_relative_reference_paths(self, build_dir: str, bin_dir: str):
+        """Make all the references from included Mach-O files to other included
+        Mach-O files relative.
+        """
+        darwin_file: DarwinFile
+
+        for darwin_file in self._copied_file_list:
+            # Skip text files
+            if darwin_file.path.suffix == ".txt":
+                continue
+
+            # get the relative path to darwin_file in build directory
+            print(f"Setting relative_reference_path for: {darwin_file}")
+            relative_copy_dest = os.path.relpath(
+                darwin_file.getBuildPath(), build_dir
+            )
+            # figure out directory where it will go in binary directory for
+            # .app bundle, this would be the Content/MacOS subdirectory in
+            # bundle.  This is the file that needs to have its dynamic load
+            # references updated.
+            file_path_in_bin_dir = os.path.join(bin_dir, relative_copy_dest)
+            # for each file that this darwin_file references, update the
+            # reference as necessary; if the file is copied into the binary
+            # package, change the reference to be relative to @executable_path
+            # (so an .app bundle will work wherever it is moved)
+            for reference in darwin_file.getMachOReferenceList():
+                if not reference.is_copied:
+                    # referenced file not copied -- assume this is a system
+                    # file that will also be present on the user's machine,
+                    # and do not change reference
+                    continue
+                # this is the reference in the machO file that needs to be
+                # updated
+                raw_path = reference.raw_path
+                ref_target_file: DarwinFile = reference.target_file
+                # this is where file copied in build dir
+                abs_build_dest = ref_target_file.getBuildPath()
+                rel_build_dest = os.path.relpath(abs_build_dest, build_dir)
+                exe_path = f"@executable_path/{rel_build_dest}"
+                changeLoadReference(
+                    file_path_in_bin_dir,
+                    oldReference=raw_path,
+                    newReference=exe_path,
+                    VERBOSE=False,
+                )
+
+            applyAdHocSignature(file_path_in_bin_dir)
