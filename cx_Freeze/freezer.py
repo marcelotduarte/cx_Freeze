@@ -16,7 +16,6 @@ from functools import cached_property
 from importlib import import_module
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
-from sysconfig import get_config_var
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
@@ -457,7 +456,7 @@ class Freezer:
         dynload = get_resource_file_path("bases", "lib-dynload", "")
         if dynload and dynload.is_dir():
             # add bases/lib-dynload to the finder path, if has modules
-            ext_suffix = get_config_var("EXT_SUFFIX")
+            ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
             if len(list(dynload.glob(f"*{ext_suffix}"))) > 0:
                 index = 0
                 dest_shared = sysconfig.get_config_var("DESTSHARED")
