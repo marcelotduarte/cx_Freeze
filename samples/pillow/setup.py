@@ -16,7 +16,7 @@ setup(
     executables=[Executable("test_pillow.py")],
     options={
         "build_exe": {
-            "include_files": ["favicon.png"],
+            "include_files": [("favicon.png", "share/favicon.png")],
             "zip_include_packages": ["*"],
             "zip_exclude_packages": [],
         }

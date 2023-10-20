@@ -473,12 +473,26 @@ class BdistMac(Command):
 
         # Make symlink between Resources/lib and Contents/MacOS so we can use
         # none-relative reference paths in order to pass codesign...
+        resources_lib_dir = os.path.join(self.resources_dir, "lib")
         origin = os.path.join(self.bin_dir, "lib")
-        relative_reference = os.path.relpath(
-            self.resources_lib_dir, self.bin_dir
+        relative_reference = os.path.relpath(resources_lib_dir, self.bin_dir)
+        self.execute(
+            os.symlink,
+            (relative_reference, origin, True),
+            msg=f"linking {origin} -> {relative_reference}",
         )
-        print(f"linking {origin} -> {relative_reference}")
-        os.symlink(relative_reference, origin, target_is_directory=True)
+        # Make symlink between Resources/share and Contents/MacOS too.
+        resource_share_dir = os.path.join(self.resources_dir, "share")
+        if os.path.exists(resource_share_dir):
+            origin = os.path.join(self.bin_dir, "share")
+            relative_reference = os.path.relpath(
+                resource_share_dir, self.bin_dir
+            )
+            self.execute(
+                os.symlink,
+                (relative_reference, origin, True),
+                msg=f"linking {origin} -> {relative_reference}",
+            )
 
         # Copy the icon
         if self.iconfile:
