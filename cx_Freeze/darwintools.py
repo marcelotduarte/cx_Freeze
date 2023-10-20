@@ -1,8 +1,8 @@
 # ruff: noqa
 from __future__ import annotations
+import sysconfig
 
 import os
-import platform
 import shutil
 import stat
 import subprocess
@@ -495,8 +495,9 @@ def changeLoadReference(
 
 
 def applyAdHocSignature(fileName: str):
-    if platform.machine() != "arm64":
+    if sysconfig.get_platform().endswith("x86_64"):
         return
+    # Apply for universal2 and arm64 machines
     print("Applying AdHocSignature")
     args = (
         "codesign",
