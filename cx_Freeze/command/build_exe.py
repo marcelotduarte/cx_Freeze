@@ -277,8 +277,6 @@ class BuildEXE(Command):
             include_msvcr=self.include_msvcr,
         )
 
-        # keep freezer around so that its data case be used in bdist_mac phase
-        self.freezer = freezer
         freezer.freeze()
 
     def set_source_location(self, name, *pathParts):
