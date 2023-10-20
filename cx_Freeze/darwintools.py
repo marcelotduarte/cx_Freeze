@@ -6,7 +6,7 @@ import os
 import shutil
 import stat
 import subprocess
-import tempfile
+from tempfile import TemporaryDirectory
 from collections.abc import Iterable
 from pathlib import Path
 from cx_Freeze.exception import PlatformError
@@ -476,25 +476,32 @@ def printMachOFiles(fileList: list[DarwinFile]):
             _printFile(file, seenFiles=seenFiles, level=0)
 
 
-def changeLoadReference(
-    fileName: str, oldReference: str, newReference: str, VERBOSE: bool = True
+def change_load_reference(
+    filename: str, old_reference: str, new_reference: str, verbose: bool = True
 ):
-    """Utility function that uses intall_name_tool to change oldReference to
-    newReference in the machO file specified by fileName.
+    """Utility function that uses intall_name_tool to change old_reference to
+    new_reference in the machO file specified by filename.
     """
-    if VERBOSE:
+    if verbose:
         print("Redirecting load reference for ", end="")
-        print(f"<{fileName}> {oldReference} -> {newReference}")
-    original = os.stat(fileName).st_mode
-    newMode = original | stat.S_IWUSR
-    os.chmod(fileName, newMode)
-    subprocess.call(
-        ("install_name_tool", "-change", oldReference, newReference, fileName)
+        print(f"<{filename}> {old_reference} -> {new_reference}")
+    original = os.stat(filename).st_mode
+    os.chmod(filename, original | stat.S_IWUSR)
+    exitcode, output = subprocess.getstatusoutput(
+        (
+            "install_name_tool",
+            "-change",
+            old_reference,
+            new_reference,
+            filename,
+        )
     )
-    os.chmod(fileName, original)
+    os.chmod(filename, original)
+    if verbose and exitcode > 0:
+        print("\tError:", exitcode, " ->", output)
 
 
-def applyAdHocSignature(fileName: str):
+def apply_adhoc_signature(filename: str):
     if sysconfig.get_platform().endswith("x86_64"):
         return
     # Apply for universal2 and arm64 machines
@@ -505,16 +512,16 @@ def applyAdHocSignature(fileName: str):
         "-",
         "--force",
         "--preserve-metadata=entitlements,requirements,flags,runtime",
-        fileName,
+        filename,
     )
     if subprocess.call(args):
         # It may be a bug in Apple's codesign utility
         # The workaround is to copy the file to another inode, then move it
         # back erasing the previous file. The sign again.
-        with tempfile.TemporaryDirectory() as dirName:
-            tempName = os.path.join(dirName, os.path.basename(fileName))
-            shutil.copy(fileName, tempName)
-            shutil.move(tempName, fileName)
+        with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
+            tempname = os.path.join(tmp_dir, os.path.basename(filename))
+            shutil.copy(filename, tempname)
+            shutil.move(tempname, filename)
         subprocess.call(args)
 
 
@@ -704,11 +711,8 @@ class DarwinFileTracker:
                 abs_build_dest = ref_target_file.getBuildPath()
                 rel_build_dest = os.path.relpath(abs_build_dest, build_dir)
                 exe_path = f"@executable_path/{rel_build_dest}"
-                changeLoadReference(
-                    file_path_in_bin_dir,
-                    oldReference=raw_path,
-                    newReference=exe_path,
-                    VERBOSE=False,
+                change_load_reference(
+                    file_path_in_bin_dir, raw_path, exe_path, verbose=False
                 )
 
-            applyAdHocSignature(file_path_in_bin_dir)
+            apply_adhoc_signature(file_path_in_bin_dir)

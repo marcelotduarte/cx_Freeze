@@ -11,8 +11,8 @@ from setuptools import Command
 
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
-    applyAdHocSignature,
-    changeLoadReference,
+    apply_adhoc_signature,
+    change_load_reference,
     isMachOFile,
 )
 from cx_Freeze.exception import OptionError
@@ -330,8 +330,8 @@ class BdistMac(Command):
                     # see if we provide the referenced file;
                     # if so, change the reference
                     if name in files:
-                        changeLoadReference(filepath, lib, replacement)
-            applyAdHocSignature(filepath)
+                        change_load_reference(filepath, lib, replacement)
+            apply_adhoc_signature(filepath)
 
     def find_qt_menu_nib(self):
         """Returns a location of a qt_menu.nib folder, or None if this is not
@@ -404,8 +404,11 @@ class BdistMac(Command):
         # Remove App if it already exists
         # ( avoids confusing issues where prior builds persist! )
         if os.path.exists(self.bundle_dir):
-            shutil.rmtree(self.bundle_dir)
-            print(f"Staging - Removed existing '{self.bundle_dir}'")
+            self.execute(
+                shutil.rmtree,
+                (self.bundle_dir,),
+                msg=f"staging - removed existing '{self.bundle_dir}'",
+            )
 
         # Find the executable name
         executable = self.distribution.executables[0].target_name
@@ -478,11 +481,16 @@ class BdistMac(Command):
                 )
 
         # Create the Info.plist file
-        self.execute(self.create_plist, ())
+        self.execute(self.create_plist, (), msg="creating Contents/Info.plist")
 
         # Make library references absolute if enabled
         if self.absolute_reference_path:
-            self.execute(self.set_absolute_reference_paths, ())
+            self.execute(
+                self.set_absolute_reference_paths,
+                (),
+                msg="set absolute reference path "
+                f"'{self.absolute_reference_path}",
+            )
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
@@ -515,7 +523,11 @@ class BdistMac(Command):
                     )
 
         # Sign the app bundle if a key is specified
-        self._codesign(self.bundle_dir)
+        self.execute(
+            self._codesign,
+            (self.bundle_dir,),
+            msg=f"sign: '{self.bundle_dir}'",
+        )
 
     def _codesign(self, root_path):
         """Run codesign on all .so, .dylib and binary files in reverse order.
@@ -524,7 +536,6 @@ class BdistMac(Command):
         if not self.codesign_identity:
             return
 
-        print(f"About to sign: '{self.bundle_dir}'")
         binaries_to_sign = []
 
         # Identify all binary files
