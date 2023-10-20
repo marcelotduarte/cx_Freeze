@@ -997,11 +997,14 @@ class DarwinFreezer(Freezer, Parser):
     def __init__(self, *args, **kwargs):
         Freezer.__init__(self, *args, **kwargs)
         Parser.__init__(self, self.path, self.bin_path_includes, self.silent)
-        self.darwin_tracker: DarwinFileTracker | None = None
-        self.darwin_tracker = DarwinFileTracker()
+        self.darwin_tracker: DarwinFileTracker = DarwinFileTracker()
 
     def _post_freeze_hook(self) -> None:
         self.darwin_tracker.finalizeReferences()
+        # Make all references to libraries relative
+        self.darwin_tracker.set_relative_reference_paths(
+            self.target_dir, self.target_dir
+        )
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths."""
