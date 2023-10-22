@@ -401,10 +401,10 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             prefix = Path(sys.prefix)
             conda_meta = prefix / "conda-meta"
             pkg = next(conda_meta.glob("nss-*.json"))
-            files = json.loads(pkg.read_text(encoding="utf-8"))["files"]
+            files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
             for file in files:
                 source = prefix / file
-                if source.match("libnss*.so") or source.match("libnss*.dylib"):
+                if source.match("lib*.so") or source.match("lib*.dylib"):
                     finder.include_files(source, f"lib/{source.name}")
         else:
             copy_qt_files(finder, name, "LibraryExecutablesPath", "libnss*.*")
