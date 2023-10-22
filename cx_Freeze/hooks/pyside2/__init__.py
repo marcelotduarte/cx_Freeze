@@ -3,13 +3,16 @@ PySide2 package is included.
 """
 from __future__ import annotations
 
-import os
 from textwrap import dedent
 
-from ..._compat import IS_CONDA, IS_MINGW
-from ...common import code_object_replace_function, get_resource_file_path
-from ...finder import ModuleFinder
-from ...module import Module
+from cx_Freeze._compat import IS_CONDA, IS_MINGW
+from cx_Freeze.common import (
+    code_object_replace_function,
+    get_resource_file_path,
+)
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
+
 from .._qthooks import copy_qt_files
 from .._qthooks import load_qt_qtdesigner as load_pyside2_qtdesigner
 from .._qthooks import load_qt_qtgui as load_pyside2_qtgui
@@ -38,7 +41,7 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         module.in_file_system = 2
 
-    # Include a module that fix an issue and inject an optional debug code
+    # Include a module that inject an optional debug code
     qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_debug")
 
@@ -70,7 +73,7 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch end
         """
     )
-    code = compile(code_string, os.fspath(module.file), "exec")
+    code = compile(code_string, module.file.as_posix(), "exec")
 
     # shiboken2 in zip_include_packages
     shiboken2 = finder.include_package("shiboken2")

@@ -1,16 +1,16 @@
 """Module used to inject a debug code to show QLibraryInfo paths if environment
 variable QT_DEBUG is set.
 """
-
-from __future__ import annotations
-
 import os
 import sys
 from pathlib import Path
 
 
-def qt_debug():
-    """Show QLibraryInfo paths."""
+def _debug():
+    # Inject a option to debug if environment variable QT_DEBUG is set.
+    if not os.environ.get("QT_DEBUG"):
+        return
+    # Show QLibraryInfo paths.
     qtcore = __import__("PyQt6", fromlist=["QtCore"]).QtCore
     lib = qtcore.QLibraryInfo
     source_paths: dict[str, Path] = {}
@@ -26,7 +26,7 @@ def qt_debug():
         print(" ", key, value, file=sys.stderr)
     print("LibraryPaths:", file=sys.stderr)
     print(" ", qtcore.QCoreApplication.libraryPaths(), file=sys.stderr)
+    print("FrozenDir:", sys.frozen_dir, file=sys.stderr)
 
 
-if os.environ.get("QT_DEBUG"):
-    qt_debug()
+_debug()

@@ -3,13 +3,15 @@ PyQt5 package is included.
 """
 from __future__ import annotations
 
-import os
 from textwrap import dedent
 
-from ..._compat import IS_CONDA
-from ...common import get_resource_file_path
-from ...finder import ModuleFinder
-from ...module import Module
+from cx_Freeze._compat import IS_CONDA
+from cx_Freeze.common import (
+    get_resource_file_path,
+)
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
+
 from .._qthooks import copy_qt_files
 from .._qthooks import load_qt_qtdesigner as load_pyqt5_qtdesigner
 from .._qthooks import load_qt_qtgui as load_pyqt5_qtgui
@@ -37,9 +39,13 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     if module.in_file_system == 0:
         module.in_file_system = 2
 
-    # Include a module that fix an issue and inject an optional debug code
+    # Include a module that fix an issue
     qt_debug = get_resource_file_path("hooks/pyqt5", "_append_to_init", ".py")
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_append_to_init")
+
+    # Include a module that inject an optional debug code
+    qt_debug = get_resource_file_path("hooks/pyqt5", "debug", ".py")
+    finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_debug")
 
     # Include a resource with qt.conf (Prefix = lib/PyQt5) for conda-forge
     if IS_CONDA:
@@ -61,10 +67,11 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
             import os
             os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
         import PyQt5._cx_freeze_append_to_init
+        import PyQt5._cx_freeze_debug
         # cx_Freeze patch end
         """
     )
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(code_string, module.file.as_posix(), "exec")
 
 
 __all__ = [
