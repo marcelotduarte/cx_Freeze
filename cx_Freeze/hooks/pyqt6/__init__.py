@@ -3,13 +3,15 @@ PyQt6 package is included.
 """
 from __future__ import annotations
 
-import os
 import sys
 from textwrap import dedent
 
-from ...common import get_resource_file_path
-from ...finder import ModuleFinder
-from ...module import Module
+from cx_Freeze.common import (
+    get_resource_file_path,
+)
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
+
 from .._qthooks import copy_qt_files
 from .._qthooks import load_qt_qtdesigner as load_pyqt6_qtdesigner
 from .._qthooks import load_qt_qtgui as load_pyqt6_qtgui
@@ -58,7 +60,7 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch end
         """
     )
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(code_string, module.file.as_posix(), "exec")
 
 
 def load_pyqt6_qtwidgets(finder: ModuleFinder, module: Module) -> None:
