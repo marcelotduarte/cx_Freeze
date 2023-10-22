@@ -11,18 +11,13 @@ def _debug():
     if not os.environ.get("QT_DEBUG"):
         return
     # Show QLibraryInfo paths.
-    qtcore = __import__("PySide6", fromlist=["QtCore"]).QtCore
-    lib = qtcore.QLibraryInfo
-    source_paths: dict[str, Path] = {}
-    if hasattr(lib.LibraryPath, "__members__"):
-        for key, value in lib.LibraryPath.__members__.items():
-            source_paths[key] = Path(lib.path(value))
-    else:
-        for key, value in lib.__dict__.items():
-            if isinstance(value, lib.LibraryPath):
-                source_paths[key] = Path(lib.path(value))
+    qtcore = __import__("PyQt5", fromlist=["QtCore"]).QtCore
+    data = {}
+    for key, value in qtcore.QLibraryInfo.__dict__.items():
+        if isinstance(value, (qtcore.QLibraryInfo.LibraryLocation, int)):
+            data[key] = Path(qtcore.QLibraryInfo.location(value))
     print("QLibraryInfo:", file=sys.stderr)
-    for key, value in source_paths.items():
+    for key, value in data.items():
         print(" ", key, value, file=sys.stderr)
     print("LibraryPaths:", file=sys.stderr)
     print(" ", qtcore.QCoreApplication.libraryPaths(), file=sys.stderr)
