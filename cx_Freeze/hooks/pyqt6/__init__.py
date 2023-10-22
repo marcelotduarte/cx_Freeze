@@ -6,9 +6,8 @@ from __future__ import annotations
 import sys
 from textwrap import dedent
 
-from cx_Freeze.common import (
-    get_resource_file_path,
-)
+from cx_Freeze._compat import IS_MACOS, IS_MINGW
+from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
@@ -66,9 +65,13 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyqt6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt6._cx_freeze_qt_debug")
 
-    # Include a qt.conf in the module path (Prefix = lib/PyQt6)
-    qt_conf = get_resource_file_path("hooks/pyqt6", "qt", ".conf")
-    finder.include_files(qt_conf, qt_conf.name)
+    # Include a qt.conf in the module path (Prefix = lib/PyQt6) for msys2
+    if IS_MACOS:
+        qt_conf = get_resource_file_path("hooks/pyqt6", "qt_macos", ".conf")
+        finder.include_files(qt_conf, "qt.conf")
+    if IS_MINGW:
+        qt_conf = get_resource_file_path("hooks/pyqt6", "qt_msys2", ".conf")
+        finder.include_files(qt_conf, "qt.conf")
 
     # Include a copy of qt.conf (used by QtWebEngine)
     copy_qt_files(finder, "PyQt6", "LibraryExecutablesPath", "qt.conf")
