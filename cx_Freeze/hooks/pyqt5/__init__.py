@@ -6,9 +6,7 @@ from __future__ import annotations
 from textwrap import dedent
 
 from cx_Freeze._compat import IS_CONDA
-from cx_Freeze.common import (
-    get_resource_file_path,
-)
+from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
