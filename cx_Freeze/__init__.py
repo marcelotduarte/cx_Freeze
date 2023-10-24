@@ -42,7 +42,7 @@ else:
 
     __all__.extend([bdist_deb.__name__, bdist_rpm.__name__])
 
-__version__ = "6.16.0-dev9"
+__version__ = "6.16.0-dev10"
 
 
 def setup(**attrs):  # noqa: D103
