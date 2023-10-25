@@ -134,7 +134,12 @@ class BdistAppImage(Command):
                     urlretrieve(os.path.join(APPIMAGEKIT_URL, name), filename)
                     os.chmod(filename, stat.S_IRWXU)
                 if not os.path.exists(appimagekit):
-                    os.symlink(filename, appimagekit)
+                    self.execute(
+                        os.symlink,
+                        (filename, appimagekit),
+                        msg=f"linking {appimagekit} -> {filename}",
+                    )
+
             try:
                 self.spawn([appimagekit, "--version"])
             except Exception:  # pylint: disable=W0718
@@ -155,7 +160,8 @@ class BdistAppImage(Command):
         # Make AppDir folder
         appdir = os.path.join(self.bdist_base, "AppDir")
         if os.path.exists(appdir):
-            shutil.rmtree(appdir)
+            self.execute(shutil.rmtree, (appdir,), msg=f"removing {appdir}")
+
         self.mkpath(appdir)
         share_icons = os.path.join("share", "icons")
         icons_dir = os.path.join(appdir, share_icons)
@@ -179,9 +185,12 @@ class BdistAppImage(Command):
         else:
             icon_name = executable.icon.name
             self.move_file(os.path.join(appdir, icon_name), icons_dir)
-        os.symlink(
-            os.path.join(share_icons, icon_name),
-            os.path.join(appdir, ".DirIcon"),
+        relative_reference = os.path.join(share_icons, icon_name)
+        origin = os.path.join(appdir, ".DirIcon")
+        self.execute(
+            os.symlink,
+            (relative_reference, origin),
+            msg=f"linking {origin} -> {relative_reference}",
         )
 
         desktop_entry = f"""\
