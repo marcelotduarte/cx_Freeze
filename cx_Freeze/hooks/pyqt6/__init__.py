@@ -6,7 +6,7 @@ from __future__ import annotations
 import sys
 from textwrap import dedent
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
@@ -79,8 +79,14 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     # Inject code to init
     code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
-        """
+        f"""
         # cx_Freeze patch start
+        if {IS_MACOS} and not {IS_CONDA}:  # conda does not support pyqt6
+            import os, sys
+            # fix an issue with bdist_mac (.app)
+            os.environ["QT_PLUGIN_PATH"] = os.path.join(
+                sys.frozen_dir, "lib/PyQt6/Qt6/plugins"
+            )
         import PyQt6._cx_freeze_qt_debug
         # cx_Freeze patch end
         """
