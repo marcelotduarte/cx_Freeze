@@ -43,10 +43,18 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     qt_debug = get_resource_file_path("hooks/pyqt6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt6._cx_freeze_qt_debug")
 
-    # Include a qt.conf in the module path (Prefix = lib/PyQt6) for msys2
+    # Include a qt.conf in the module path (Prefix = lib/PyQt6/Qt6) for macos
     if IS_MACOS:
-        qt_conf = get_resource_file_path("hooks/pyqt6", "qt_macos", ".conf")
-        finder.include_files(qt_conf, "qt.conf")
+        finder.include_files(
+            get_resource_file_path("hooks/pyqt6", "qt_macos", ".conf"),
+            "qt.conf",
+        )
+        # bdist_mac (.app) uses a different Prefix in qt.conf
+        finder.include_files(
+            get_resource_file_path("hooks/pyqt6", "qt_bdist_mac", ".conf"),
+            "qt_bdist_mac.conf",
+        )
+    # Include a qt.conf in the module path (Prefix = lib/PyQt6) for msys2
     if IS_MINGW:
         qt_conf = get_resource_file_path("hooks/pyqt6", "qt_msys2", ".conf")
         finder.include_files(qt_conf, "qt.conf")
@@ -61,10 +69,6 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch start
         if {IS_MACOS} and not {IS_CONDA}:  # conda does not support pyqt6
             import os, sys
-            # fix an issue with bdist_mac (.app)
-            os.environ["QT_PLUGIN_PATH"] = os.path.join(
-                sys.frozen_dir, "lib/PyQt6/Qt6/plugins"
-            )
         import PyQt6._cx_freeze_qt_debug
         # cx_Freeze patch end
         """
