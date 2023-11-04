@@ -374,6 +374,15 @@ class BdistMac(Command):
         """Add resource files for a Qt application. Should do nothing if the
         application does not use QtCore.
         """
+        qt_conf = os.path.join(self.resources_dir, "qt.conf")
+        qt_conf_2 = os.path.join(self.resources_dir, "qt_bdist_mac.conf")
+        if os.path.exists(qt_conf_2):
+            self.execute(
+                shutil.move,
+                (qt_conf_2, qt_conf),
+                msg=f"moving {qt_conf_2} -> {qt_conf}",
+            )
+
         nib_locn = self.find_qt_menu_nib()
         if nib_locn is None:
             return
@@ -384,8 +393,9 @@ class BdistMac(Command):
         )
 
         # qt.conf needs to exist, but needn't have any content
-        with open(os.path.join(self.resources_dir, "qt.conf"), "wb"):
-            pass
+        if not os.path.exists(qt_conf):
+            with open(qt_conf, "wb"):
+                pass
 
     def run(self):
         self.run_command("build_exe")
