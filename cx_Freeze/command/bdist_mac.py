@@ -269,6 +269,7 @@ class BdistMac(Command):
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
         self.resources_dir = os.path.join(self.contents_dir, "Resources")
+        self.helpers_dir = os.path.join(self.contents_dir, "Helpers")
 
     def create_plist(self):
         """Create the Contents/Info.plist file."""
@@ -485,6 +486,33 @@ class BdistMac(Command):
 
         # For a Qt application, run some tweaks
         self.execute(self.prepare_qt_app, ())
+
+        # Move Contents/Resources/share/*.app to Contents/Helpers
+        share_dir = os.path.join(self.resources_dir, "share")
+        if os.path.isdir(share_dir):
+            for filename in os.listdir(share_dir):
+                if not filename.endswith(".app"):
+                    continue
+                # create /Helpers only if required
+                self.mkpath(self.helpers_dir)
+                source = os.path.join(share_dir, filename)
+                target = os.path.join(self.helpers_dir, filename)
+                self.execute(
+                    shutil.move,
+                    (source, target),
+                    msg=f"moving {source} -> {target}",
+                )
+                if os.path.isdir(target):
+                    origin = os.path.join(target, "Contents", "MacOS", "lib")
+                    relative_reference = os.path.relpath(
+                        os.path.join(self.resources_dir, "lib"),
+                        os.path.join(target, "Contents", "MacOS"),
+                    )
+                    self.execute(
+                        os.symlink,
+                        (relative_reference, origin, True),
+                        msg=f"linking {origin} -> {relative_reference}",
+                    )
 
         # Sign the app bundle if a key is specified
         self._codesign(self.bundle_dir)
