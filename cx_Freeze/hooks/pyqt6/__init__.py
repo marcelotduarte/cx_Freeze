@@ -91,6 +91,15 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch start
         if {IS_MACOS} and not {IS_CONDA}:  # conda does not support pyqt6
             import os, sys
+            # Support for QtWebEngine (bdist_mac differs from build_exe)
+            helpers = os.path.join(os.path.dirname(sys.frozen_dir), "Helpers")
+            if not os.path.isdir(helpers):
+                helpers = os.path.join(sys.frozen_dir, "share")
+            os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
+                helpers,
+                "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+            )
+            os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--single-process"
         import PyQt6._cx_freeze_qt_debug
         # cx_Freeze patch end
         """

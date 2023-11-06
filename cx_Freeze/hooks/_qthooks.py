@@ -113,12 +113,18 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     return data
 
 
+def get_qt_paths(name: str, variable: str) -> tuple[Path, Path]:
+    """Helper function to get the source and target path of Qt variable."""
+    libraryinfo_paths = _qt_libraryinfo_paths(name)
+    source_path, target_path = libraryinfo_paths[variable]
+    return (source_path, target_path)
+
+
 def get_qt_plugins_paths(name: str, plugins: str) -> list[tuple[Path, Path]]:
     """Helper function to get a list of source and target paths of Qt plugins,
     indicated to be used in include_files.
     """
-    libraryinfo_paths = _qt_libraryinfo_paths(name)
-    source_path, target_path = libraryinfo_paths["PluginsPath"]
+    source_path, target_path = get_qt_paths(name, "PluginsPath")
     source_path = source_path / plugins
     if not source_path.exists():
         return []
@@ -129,9 +135,7 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
     """Helper function to find and copy Qt plugins, resources, translations,
     etc.
     """
-    variable = args[0]
-    libraryinfo_paths = _qt_libraryinfo_paths(name)
-    source_path, target_path = libraryinfo_paths[variable]  # type: Path, Path
+    source_path, target_path = get_qt_paths(name, variable=args[0])
     for arg in args[1:]:
         if "*" in arg:
             # XXX: this code needs improvement
@@ -389,9 +393,26 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             copy_qt_files(finder, name, "LibraryExecutablesPath", filename)
     elif IS_MACOS and not IS_CONDA:
         # wheels for macOS
-        copy_qt_files(
-            finder, name, "LibrariesPath", "QtWebEngineCore.framework"
-        )
+        source_path, _ = get_qt_paths(name, "LibrariesPath")
+        source_framework = source_path / "QtWebEngineCore.framework"
+        # QtWebEngineProcess
+        finder.include_files(source_framework / "Helpers", "share")
+        # QtWebEngineCore resources
+        source_resources = source_framework / "Resources"
+        if source_resources.exists():
+            target_datapath = get_qt_paths(name, "DataPath")[1]
+            for resource in source_resources.iterdir():
+                if resource.name == "Info.plist":
+                    continue
+                if resource.name == "qtwebengine_locales":
+                    target = get_qt_paths(name, "TranslationsPath")[1]
+                else:
+                    target = target_datapath / "resources"
+                finder.include_files(
+                    resource,
+                    target / resource.name,
+                    copy_dependent_files=False,
+                )
     else:
         # wheels for Linux or conda-forge Linux and macOS
         copy_qt_files(
@@ -410,7 +431,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             copy_qt_files(finder, name, "LibraryExecutablesPath", "libnss*.*")
 
     copy_qt_files(finder, name, "DataPath", "resources")
-    copy_qt_files(finder, name, "TranslationsPath")
+    copy_qt_files(finder, name, "TranslationsPath", "qtwebengine_*")
 
 
 def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
@@ -426,6 +447,8 @@ def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
     with suppress(ImportError):
         finder.include_module(f"{name}.QtWebEngineQuick")  # qt6
     copy_qt_files(finder, name, "LibrariesPath", "*WebEngineWidgets.*")
+    copy_qt_files(finder, name, "PluginsPath", "designer")
+    copy_qt_files(finder, name, "PluginsPath", "imageformats")
     copy_qt_files(finder, name, "PluginsPath", "webview")
     copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
 
