@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from textwrap import dedent
 
-from cx_Freeze._compat import IS_CONDA, IS_MINGW
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
 from cx_Freeze.common import (
     code_object_replace_function,
     get_resource_file_path,
@@ -62,6 +62,21 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch start
         if {IS_CONDA}:
             import PySide6._cx_freeze_resource
+        else:
+            # Support for QtWebEngine
+            import os, sys
+            if {IS_MACOS}:
+                # is a bdist_mac ou build_exe directory?
+                helpers = os.path.join(
+                    os.path.dirname(sys.frozen_dir), "Helpers"
+                )
+                if not os.path.isdir(helpers):
+                    helpers = os.path.join(sys.frozen_dir, "share")
+                os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
+                    helpers,
+                    "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+                )
+                os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--single-process"
         import PySide6._cx_freeze_qt_debug
         # cx_Freeze patch end
         """
