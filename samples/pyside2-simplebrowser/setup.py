@@ -9,16 +9,13 @@ Run the build process by running the command 'python setup.py build'
 If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application
 """
-
-from __future__ import annotations
-
+import os
 import sys
 
 from cx_Freeze import Executable, setup
 
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
+# base="Win32GUI" should be used only for Windows GUI app
+base = "Win32GUI" if sys.platform == "win32" else None
 
 options = {
     "build_exe": {
@@ -31,8 +28,18 @@ options = {
             "xml",
             "pydoc",
         ],
-        "zip_include_packages": ["PySide2"],
-    }
+        "zip_include_packages": ["PySide2", "shiboken2"],
+    },
+    "bdist_mac": {
+        "custom_info_plist": None,  # Set this to use a custom info.plist file
+        "codesign_entitlements": os.path.join(
+            os.path.dirname(__file__), "codesign-entitlements.plist"
+        ),
+        "codesign_identity": None,  # Set this to enable signing with custom identity (replaces adhoc signature)
+        "codesign_options": "runtime",  # Ensure codesign uses 'hardened runtime'
+        "codesign_verify": False,  # Enable to get more verbose logging regarding codesign
+        "spctl_assess": False,  # Enable to get more verbose logging regarding codesign
+    },
 }
 
 executables = [
@@ -41,7 +48,7 @@ executables = [
 
 setup(
     name="simplebrowser",
-    version="0.1",
+    version="0.1.1",
     description="Sample cx_Freeze PySide2 simplebrowser script",
     options=options,
     executables=executables,
