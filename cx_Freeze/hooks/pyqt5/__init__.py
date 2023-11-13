@@ -6,7 +6,7 @@ from __future__ import annotations
 from contextlib import suppress
 from textwrap import dedent
 
-from cx_Freeze._compat import IS_CONDA
+from cx_Freeze._compat import IS_CONDA, IS_MACOS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
@@ -36,7 +36,7 @@ from .._qthooks import load_qt_qtsvg as load_pyqt5_qtsvg
 from .._qthooks import load_qt_qttest as load_pyqt5_qttest
 from .._qthooks import load_qt_qtuitools as load_pyqt5_qtuitools
 from .._qthooks import load_qt_qtwebengine as load_pyqt5_qtwebengine
-from .._qthooks import load_qt_qtwebenginecore as load_pyqt5_qtwebenginecore
+from .._qthooks import load_qt_qtwebenginecore as _load_qt_qtwebenginecore
 from .._qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt5_qtwebenginewidgets,
 )
@@ -71,7 +71,7 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         resource = get_resource_file_path("hooks/pyqt5", "resource", ".py")
         finder.include_file_as_module(resource, "PyQt5._cx_freeze_resource")
 
-    # Include the optional qt.conf used by QtWebEngine (Prefix = ..)
+    # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)
     copy_qt_files(finder, "PyQt5", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to the end of init
@@ -79,11 +79,21 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     code_string += dedent(
         f"""
         # cx_Freeze patch start
-        if {IS_CONDA}:
+        import os, sys
+        if {IS_CONDA}:  # conda-forge linux, macos and windows
             import PyQt5._cx_freeze_resource
+        elif {IS_MACOS}:  # macos using 'pip install pyqt5'
+            # Support for QtWebEngine (bdist_mac differs from build_exe)
+            helpers = os.path.join(os.path.dirname(sys.frozen_dir), "Helpers")
+            if not os.path.isdir(helpers):
+                helpers = os.path.join(sys.frozen_dir, "share")
+            os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
+                helpers,
+                "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+            )
+            os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--single-process"
         else:
-            # Support for QtWebEngine
-            import os
+            # Support for QtWebEngine (linux and windows using pip)
             os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
         import PyQt5._cx_freeze_append_to_init
         import PyQt5._cx_freeze_debug
@@ -105,6 +115,22 @@ def load_pyqt5_qtcore(
         finder.include_module("sip")
     with suppress(ImportError):
         finder.include_module("PyQt5._qt")
+
+
+def load_pyqt5_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency and QtWebEngineProcess files."""
+    _load_qt_qtwebenginecore(finder, module)
+    if IS_MACOS and not IS_CONDA:
+        # duplicate resource files
+        for source, target in finder.included_files[:]:
+            if any(
+                filter(source.match, ("Resources/*.pak", "Resources/*.dat"))
+            ):
+                finder.include_files(
+                    source,
+                    target.parent.parent / target.name,
+                    copy_dependent_files=False,
+                )
 
 
 __all__ = [

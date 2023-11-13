@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from textwrap import dedent
 
-from cx_Freeze._compat import IS_CONDA, IS_MINGW
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
 from cx_Freeze.common import (
     code_object_replace_function,
     get_resource_file_path,
@@ -37,7 +37,7 @@ from .._qthooks import load_qt_qtsvg as load_pyside2_qtsvg
 from .._qthooks import load_qt_qttest as load_pyside2_qttest
 from .._qthooks import load_qt_qtuitools as load_pyside2_qtuitools
 from .._qthooks import load_qt_qtwebengine as load_pyside2_qtwebengine
-from .._qthooks import load_qt_qtwebenginecore as load_pyside2_qtwebenginecore
+from .._qthooks import load_qt_qtwebenginecore as _load_qt_qtwebenginecore
 from .._qthooks import (
     load_qt_qtwebenginewidgets as load_pyside2_qtwebenginewidgets,
 )
@@ -68,12 +68,12 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
+    # Include a qt.conf in the module path (Prefix = lib/PySide2) for msys2
     if IS_MINGW:
-        # Include a qt.conf in the module path (Prefix = lib/PySide2)
         qt_conf = get_resource_file_path("hooks/pyside2", "qt", ".conf")
         finder.include_files(qt_conf, qt_conf.name)
 
-    # Include the optional qt.conf used by QtWebEngine (Prefix = ..)
+    # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)
     copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to init
@@ -81,11 +81,21 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     code_string += dedent(
         f"""
         # cx_Freeze patch start
-        if {IS_CONDA}:
+        import os, sys
+        if {IS_CONDA}:  # conda-forge linux, macos and windows
             import PySide2._cx_freeze_resource
+        elif {IS_MACOS}:  # macos using 'pip install pyside2'
+            # Support for QtWebEngine (bdist_mac differs from build_exe)
+            helpers = os.path.join(os.path.dirname(sys.frozen_dir), "Helpers")
+            if not os.path.isdir(helpers):
+                helpers = os.path.join(sys.frozen_dir, "share")
+            os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
+                helpers,
+                "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
+            )
+            os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--single-process"
         else:
-            # Support for QtWebEngine
-            import os
+            # Support for QtWebEngine (linux and windows using pip)
             os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
         import PySide2._cx_freeze_debug
         # cx_Freeze patch end
@@ -105,6 +115,22 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("inspect")  # for shiboken2
 
     module.code = code
+
+
+def load_pyside2_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
+    """Include module dependency and QtWebEngineProcess files."""
+    _load_qt_qtwebenginecore(finder, module)
+    if IS_MACOS and not IS_CONDA:
+        # duplicate resource files
+        for source, target in finder.included_files[:]:
+            if any(
+                filter(source.match, ("Resources/*.pak", "Resources/*.dat"))
+            ):
+                finder.include_files(
+                    source,
+                    target.parent.parent / target.name,
+                    copy_dependent_files=False,
+                )
 
 
 __all__ = [
