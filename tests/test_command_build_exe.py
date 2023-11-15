@@ -12,6 +12,7 @@ from generate_samples import SUB_PACKAGE_TEST, create_package
 from setuptools import Distribution
 
 from cx_Freeze.command.build_exe import BuildEXE as build_exe
+from cx_Freeze.exception import SetupError
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -31,6 +32,18 @@ DIST_ATTRS = {
 }
 
 
+@pytest.mark.parametrize(
+    ("option", "value"),
+    [("build_exe", "build")],
+)
+def test_build_exe_invalid_options(option, value):
+    """Test the build_exe with invalid options."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = build_exe(dist, **{option: value})
+    with pytest.raises(SetupError):
+        cmd.finalize_options()
+
+
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 @pytest.mark.parametrize(
     ("option", "value", "result"),
@@ -41,7 +54,7 @@ DIST_ATTRS = {
     ],
 )
 def test_build_exe_with_include_msvcr_option(option, value, result):
-    """Test the bdist_exe with include-msvcr option."""
+    """Test the build_exe with include-msvcr option."""
     dist = Distribution(DIST_ATTRS)
     cmd = build_exe(dist, **{option: value})
     cmd.finalize_options()
