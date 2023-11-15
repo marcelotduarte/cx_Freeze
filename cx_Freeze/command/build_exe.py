@@ -150,7 +150,7 @@ class BuildEXE(Command):
         modules = [m for m in ext_modules if m.name == module_name]
         if not modules:
             raise SetupError(
-                "no module named '{module_name}' in '{source_dir}'"
+                f"no module named '{module_name}' in '{source_dir}'"
             )
         command = distribution.get_command_obj("build_ext")
         command.ensure_finalized()
@@ -211,6 +211,10 @@ class BuildEXE(Command):
                     "Use build_exe command with 'build-exe' option instead."
                 )
                 self.build_exe = build_exe
+        if self.build_exe == self.build_base:
+            raise SetupError(
+                "build_exe option cannot be the same as build_base directory"
+            )
         if self.build_exe is None:
             dir_name = f"exe.{get_platform()}-{get_python_version()}"
             self.build_exe = os.path.join(self.build_base, dir_name)
