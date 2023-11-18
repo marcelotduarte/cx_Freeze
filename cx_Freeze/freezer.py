@@ -842,6 +842,9 @@ class WinFreezer(Freezer, PEParser):
                     manifest = manifest.replace(
                         'uiAccess="false"', 'uiAccess="true"'
                     )
+                    manifest = manifest.replace(
+                        "uiAccess='false'", "uiAccess='true'"
+                    )
                 self.write_manifest(target_path, manifest)
             except FileNotFoundError as exc:
                 if self.silent < 3:
