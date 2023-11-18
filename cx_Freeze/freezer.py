@@ -829,11 +829,15 @@ class WinFreezer(Freezer, PEParser):
                 print(f"writing manifest -> {target_path}")
             try:
                 if exe.uac_admin:
+                    if self.silent < 1:
+                        print("manifest requires elevation")
                     manifest = manifest or self.read_manifest(target_path)
                     manifest = manifest.replace(
                         "asInvoker", "requireAdministrator"
                     )
                 if exe.uac_uiaccess:
+                    if self.silent < 1:
+                        print("manifest allow ui access")
                     manifest = manifest or self.read_manifest(target_path)
                     manifest = manifest.replace(
                         'uiAccess="false"', 'uiAccess="true"'
