@@ -763,9 +763,7 @@ class ModuleFinder:
         copy_dependent_files: bool = True,
     ) -> None:
         """Include the files in the given directory in the target build."""
-        self.included_files.extend(
-            process_path_specs([(source_path, target_path)])
-        )
+        self.included_files += process_path_specs([(source_path, target_path)])
         if not copy_dependent_files:
             self.exclude_dependent_files(source_path)
 
