@@ -115,6 +115,8 @@ class Freezer:
         self._populate_zip_options(zip_include_packages, zip_exclude_packages)
 
         self._verify_configuration()
+
+        self._symlinks: set[tuple[Path, Path, bool]] = set()
         self.files_copied: set[Path] = set()
         self.finder: ModuleFinder = self._get_module_finder()
 
@@ -217,9 +219,24 @@ class Freezer:
         }
         copy_tree(source_dir, target_dir, excludes)
 
-    @abstractmethod
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
-        """Prepare the source and target paths."""
+        """Prepare the source and target paths. In addition, it ensures that
+        the source of a symbolic link is copied by deferring the creation of
+        the link.
+        """
+        if source.is_symlink():
+            real_source = source.resolve()
+            try:
+                symlink = real_source.relative_to(source.parent)
+            except ValueError:
+                symlink = Path(os.path.relpath(real_source, source.parent))
+            real_target = target.with_name(symlink.name)
+            if self.silent < 1:
+                print(f"[delay] linking {target} -> {symlink}")
+            self._symlinks.add((target, symlink, real_source.is_dir()))
+            # return the real source to be copied
+            return real_source, real_target
+        return source, target
 
     @abstractmethod
     def _post_copy_hook(
@@ -372,7 +389,12 @@ class Freezer:
         return finder
 
     def _post_freeze_hook(self) -> None:
-        """Platform-specific post-Freeze work."""
+        """Post-Freeze work (can be overridden)."""
+        for target, symlink, symlink_is_directory in self._symlinks:
+            if self.silent < 1:
+                print(f"linking {target} -> {symlink}")
+            if not target.exists():
+                target.symlink_to(symlink, symlink_is_directory)
 
     def _print_report(self, filename: Path, modules: list[Module]) -> None:
         print(f"writing zip file {filename}\n")
@@ -999,10 +1021,7 @@ class DarwinFreezer(Freezer, Parser):
         self.darwin_tracker.set_relative_reference_paths(
             self.target_dir, self.target_dir
         )
-
-    def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
-        """Prepare the source and target paths."""
-        return source, target
+        super()._post_freeze_hook()
 
     def _post_copy_hook(
         self,
@@ -1157,20 +1176,6 @@ class LinuxFreezer(Freezer, ELFParser):
         ELFParser.__init__(
             self, self.path, self.bin_path_includes, self.silent
         )
-        self._symlinks: set[tuple[Path, str]] = set()
-
-    def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
-        """Prepare the source and target paths. In addition, it ensures that
-        the source of a symbolic link is copied by deferring the creation of
-        the link.
-        """
-        if source.is_symlink():
-            real_source = source.resolve()
-            symlink = real_source.name
-            real_target = target.with_name(symlink)
-            self._symlinks.add((target, symlink))
-            return real_source, real_target
-        return source, target
 
     def _post_copy_hook(
         self,
@@ -1223,15 +1228,6 @@ class LinuxFreezer(Freezer, ELFParser):
                 rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
                 if has_rpath != rpath:
                     self.set_rpath(target, rpath)
-
-    def _post_freeze_hook(self):
-        target: Path
-        symlink: str
-        for target, symlink in self._symlinks:
-            if self.silent < 1:
-                print(f"linking {target} -> {symlink}")
-            if not target.exists():
-                target.symlink_to(symlink)
 
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying the top dependencies in _freeze_executable."""
