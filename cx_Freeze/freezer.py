@@ -728,10 +728,6 @@ class WinFreezer(Freezer, PEParser):
         Freezer.__init__(self, *args, **kwargs)
         PEParser.__init__(self, self.path, self.bin_path_includes, self.silent)
 
-        # deal with C-runtime files
-        self.runtime_files: set[str] = set()
-        self._set_runtime_files()
-
     def _add_resources(self, exe: Executable) -> None:
         target_path: Path = self.target_dir / exe.target_name
 
@@ -978,13 +974,15 @@ class WinFreezer(Freezer, PEParser):
             if new_order != load_order:
                 loader_file.write_text("\n".join(new_order))
 
-    def _set_runtime_files(self) -> None:
+    @cached_property
+    def runtime_files(self) -> set[str]:
+        """Deal with C-runtime files."""
         winmsvcr = import_module("cx_Freeze.winmsvcr")
-        if self.include_msvcr:
-            self.runtime_files.update(winmsvcr.FILES)
-        else:
+        if not self.include_msvcr:
             # just put on the exclusion list
             self.bin_excludes.extend(list(map(Path, winmsvcr.FILES)))
+            return set()
+        return winmsvcr.FILES
 
 
 class DarwinFreezer(Freezer, Parser):
