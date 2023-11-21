@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=62.6,<69",
+    "setuptools>=62.6,<70",
     "wheel>=0.38.4",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
@@ -40,7 +40,7 @@ classifiers = [
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
 requires-python = ">=3.8"
 dependencies = [
-    "setuptools>=62.6,<69",
+    "setuptools>=62.6,<70",
     "wheel==0.41.3",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
     "lief>=0.12.0 ;sys_platform == 'win32'",
