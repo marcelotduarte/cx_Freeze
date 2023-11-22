@@ -5,6 +5,7 @@
 
 #include <compile.h>
 #include <osdefs.h>
+#include <libloaderapi.h>
 
 // define format for sys.path
 // this consists of <dir>/lib/library.zip and <dir>/lib
@@ -55,7 +56,7 @@ static int SetExecutableName(void)
     wcscpy(g_LibDirName, g_ExecutableDirName);
     wcscat(g_LibDirName, L"\\");
     wcscat(g_LibDirName, CX_LIB);
-    if (!SetDllDirectoryW(g_LibDirName))
+    if (AddDllDirectory(g_LibDirName) == 0)
         return FatalError("Unable to change DLL search path!");
 
 #else
