@@ -5,12 +5,12 @@
 
 #include <compile.h>
 #include <osdefs.h>
-#include <libloaderapi.h>
 
 // define format for sys.path
 // this consists of <dir>/lib/library.zip and <dir>/lib
 // where <dir> refers to the directory in which the executable is found
 #if defined(MS_WINDOWS)
+    #include <libloaderapi.h>
     #define CX_PATH_FORMAT              L"%ls\\lib\\library.zip;%ls\\lib"
     #define CX_LIB                      L"lib"
     #define PY3_DLLNAME                 L"python3.dll"
