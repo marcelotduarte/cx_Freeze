@@ -42,13 +42,14 @@ master_doc = "index"
 # General information about the project.
 project = "cx_Freeze"
 copyright = "2023, Marcelo Duarte"  # noqa: A001
+__version__ = "6.16.0-dev10"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = "6.15.10"
+release = __version__
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 

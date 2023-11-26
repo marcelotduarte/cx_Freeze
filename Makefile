@@ -108,20 +108,20 @@ cov-pre: install_test_pre
 
 .PHONY: release
 release:
-	@echo \
-	"# Run:\nbump2version --verbose --sign-tags release\n"\
+	@echo "# Run:\n"\
+	"bump-my-version bump release\n"\
 	"git push origin main --tags"
 
 .PHONY: release-patch
 release-patch:
-	@echo \
-	"# Run:\nbump2version --verbose --sign-tags patch --new-version=X.XX.X\n"\
+	@echo "# Run:\n"\
+	"bump-my-version bump patch --new-version=X.XX.X\n"\
 	"git push origin `git branch --show-current` --tags"
 
 .PHONY: release-dev
 release-dev:
-	if (grep "current_version" .bumpversion.cfg | grep -q "\-dev"); then\
-		bump2version --allow-dirty --verbose --no-tag build;\
+	if (grep "current_version" pyproject.toml | grep -q "\-dev"); then\
+		bump-my-version bump --allow-dirty --no-tag build;\
 	else\
-		bump2version --allow-dirty --verbose --no-tag minor;\
+		bump-my-version bump --allow-dirty --no-tag minor;\
 	fi
