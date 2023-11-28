@@ -52,6 +52,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         library_dirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
         extra_args = ext.extra_link_args or []
+        if PLATFORM.startswith("freebsd"):
+            libraries.append("pthread")
         if IS_MINGW or IS_WINDOWS:
             compiler_type = self.compiler.compiler_type
             # support for delay load [windows]
