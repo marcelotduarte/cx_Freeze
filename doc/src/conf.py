@@ -42,7 +42,7 @@ master_doc = "index"
 # General information about the project.
 project = "cx_Freeze"
 copyright = "2023, Marcelo Duarte"  # noqa: A001
-__version__ = "6.16.0-dev10"
+__version__ = "6.16.0-dev11"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
