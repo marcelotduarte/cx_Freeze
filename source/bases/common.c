@@ -10,6 +10,7 @@
 // this consists of <dir>/lib/library.zip and <dir>/lib
 // where <dir> refers to the directory in which the executable is found
 #if defined(MS_WINDOWS)
+    #include <libloaderapi.h>
     #define CX_PATH_FORMAT              L"%ls\\lib\\library.zip;%ls\\lib"
     #define CX_LIB                      L"lib"
     #define PY3_DLLNAME                 L"python3.dll"
@@ -55,7 +56,7 @@ static int SetExecutableName(void)
     wcscpy(g_LibDirName, g_ExecutableDirName);
     wcscat(g_LibDirName, L"\\");
     wcscat(g_LibDirName, CX_LIB);
-    if (!SetDllDirectoryW(g_LibDirName))
+    if (AddDllDirectory(g_LibDirName) == 0)
         return FatalError("Unable to change DLL search path!");
 
 #else
