@@ -15,7 +15,7 @@ patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'
 bump-my-version==0.12.0
 cibuildwheel==2.16.2
 pre-commit==3.5.0
-pylint==3.0.2
+pylint==3.0.3
 # doc
 sphinx<7.2.0 ;python_version == '3.8'
 sphinx==7.2.2 ;python_version >= '3.9'
