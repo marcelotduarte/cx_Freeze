@@ -429,13 +429,12 @@ class BdistMac(Command):
             target = os.path.join(self.bin_dir, executable.target_name)
             self.move_file(source, target)
 
-        # Make symlink between folders under Resources such as lib and other specified by user in include_files and Contents/MacOS so we can use
-        # none-relative reference paths in order to pass codesign...
+        # Make symlink between folders under Resources such as lib and others
+        # specified by the user in include_files and Contents/MacOS so we can
+        # use non-relative reference paths to pass codesign...
         for filename in os.listdir(self.resources_dir):
             target = os.path.join(self.resources_dir, filename)
-
             if os.path.isdir(target):
-                target
                 origin = os.path.join(self.bin_dir, filename)
                 relative_reference = os.path.relpath(target, self.bin_dir)
                 self.execute(
