@@ -444,7 +444,6 @@ class BdistMac(Command):
                     msg=f"linking {origin} -> {relative_reference}",
                 )
 
-
         # Copy the icon
         if self.iconfile:
             self.copy_file(
