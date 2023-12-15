@@ -443,18 +443,7 @@ class BdistMac(Command):
                     (relative_reference, origin, True),
                     msg=f"linking {origin} -> {relative_reference}",
                 )
-        # Make symlink between Resources/share and Contents/MacOS too.
-        resource_share_dir = os.path.join(self.resources_dir, "share")
-        if os.path.exists(resource_share_dir):
-            origin = os.path.join(self.bin_dir, "share")
-            relative_reference = os.path.relpath(
-                resource_share_dir, self.bin_dir
-            )
-            self.execute(
-                os.symlink,
-                (relative_reference, origin, True),
-                msg=f"linking {origin} -> {relative_reference}",
-            )
+
 
         # Copy the icon
         if self.iconfile:
