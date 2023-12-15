@@ -442,7 +442,7 @@ class BdistMac(Command):
                     os.symlink,
                     (relative_reference, origin, True),
                     msg=f"linking {origin} -> {relative_reference}",
-                    )
+                )
         # Make symlink between Resources/share and Contents/MacOS too.
         resource_share_dir = os.path.join(self.resources_dir, "share")
         if os.path.exists(resource_share_dir):
