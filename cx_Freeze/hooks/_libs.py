@@ -7,7 +7,9 @@ from cx_Freeze.common import code_object_replace_function
 from cx_Freeze.module import Module
 
 
-def replace_delvewheel_patch(module: Module) -> None:
+def replace_delvewheel_patch(
+    module: Module, libs_name: str | None = None
+) -> None:
     """Replace delvewheel injections of code to not find for module.libs
     directory.
     """
@@ -15,6 +17,8 @@ def replace_delvewheel_patch(module: Module) -> None:
     if code is None:
         return
 
+    if libs_name is None:
+        libs_name = f"{module.name}.libs"
     delvewheel_func_names = "_delvewheel_init_patch_", "_delvewheel_patch_"
     consts = list(code.co_consts)
     for constant in consts:
@@ -26,7 +30,7 @@ def replace_delvewheel_patch(module: Module) -> None:
                     import os, sys
 
                     libs_path = os.path.join(
-                        sys.frozen_dir, "lib", "{module.name}.libs"
+                        sys.frozen_dir, "lib", "{libs_name}"
                     )
                     try:
                         os.add_dll_directory(libs_path)
