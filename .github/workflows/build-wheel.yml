@@ -52,7 +52,7 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
 
       - name: Add sdist
-        if: runner.os == 'Linux' && '${{ matrix.python-version }}' == '3.11'
+        if: runner.os == 'Linux' && matrix.python-version == '3.11'
         run: |
           python -m pip install --upgrade pip build
           python -m build . --sdist -o wheelhouse
@@ -60,7 +60,7 @@ jobs:
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cx-freeze-wheelhouse
+          name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
           path: wheelhouse
 
   publish:
@@ -87,11 +87,15 @@ jobs:
           cache: 'pip'
           python-version: "3.11"
 
-      - name: Download the artifact
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-wheelhouse
-          path: wheelhouse
+          path: artifacts
+
+      - name: Join files to upload
+        run: |
+          mkdir -p wheelhouse
+          mv artifacts/cx-freeze-pip-*/* wheelhouse/
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -115,11 +119,10 @@ jobs:
           repository: marcelotduarte/cx_Freeze
           token: ${{ secrets.PUSH }}
 
-      - name: Download the artifact
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-wheelhouse
-          path: wheelhouse
+          path: artifacts
 
       - name: If changed, extract and update the base executables and util module
         run: |
@@ -132,7 +135,7 @@ jobs:
             # Remove any file that match - remove previous versions too
             git rm --ignore-unmatch 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             # Extract base executables and util module
-            for file in wheelhouse/*-win*.whl; do
+            for file in artifacts/cx-freeze-pip-windows-*/*-win*.whl; do
               unzip -o $file 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             done
             git add cx_Freeze/bases/*-win*.exe cx_Freeze/util.*-win*.pyd
