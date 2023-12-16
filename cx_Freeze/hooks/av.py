@@ -1,5 +1,5 @@
 """A collection of functions which are triggered automatically by finder when
-PyAV package is included.
+AV/PyAV package is included.
 """
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from cx_Freeze.module import Module
 
 
 def load_av(finder: ModuleFinder, module: Module) -> None:
-    """The PyAV package."""
+    """The AV or PyAV package."""
     if IS_WINDOWS:
         libs_name = "av.libs"
         source_dir = module.file.parent.parent / libs_name
