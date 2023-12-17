@@ -479,15 +479,17 @@ def printMachOFiles(fileList: list[DarwinFile]):
 def change_load_reference(
     filename: str, old_reference: str, new_reference: str, verbose: bool = True
 ):
-    """Utility function that uses intall_name_tool to change old_reference to
+    """Utility function that uses install_name_tool to change old_reference to
     new_reference in the machO file specified by filename.
     """
     if verbose:
         print("Redirecting load reference for ", end="")
         print(f"<{filename}> {old_reference} -> {new_reference}")
     original = os.stat(filename).st_mode
-    os.chmod(filename, original | stat.S_IWUSR)
-    exitcode, output = subprocess.getstatusoutput(
+    new_mode = original | stat.S_IWUSR
+    if new_mode != original:
+        os.chmod(filename, new_mode)
+    subprocess.call(
         (
             "install_name_tool",
             "-change",
@@ -496,9 +498,8 @@ def change_load_reference(
             filename,
         )
     )
-    os.chmod(filename, original)
-    if verbose and exitcode > 0:
-        print("\tError:", exitcode, " ->", output)
+    if new_mode != original:
+        os.chmod(filename, original)
 
 
 def apply_adhoc_signature(filename: str):
