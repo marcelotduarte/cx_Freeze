@@ -14,7 +14,7 @@ import cx_Freeze
         (None, []),
         ("win32", ["bdist_msi"]),
         ("darwin", ["bdist_dmg", "bdist_mac"]),
-        ("linux", ["bdist_rpm"]),
+        ("linux", ["bdist_appimage", "bdist_deb", "bdist_rpm"]),
     ],
 )
 def test_exposed_namespaces(platform, extra_modules):

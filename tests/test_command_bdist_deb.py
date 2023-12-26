@@ -8,10 +8,11 @@ from subprocess import run
 import pytest
 from setuptools import Distribution
 
+from cx_Freeze.command.bdist_deb import BdistDEB as bdist_deb
 from cx_Freeze.exception import PlatformError
 
-if sys.platform == "linux":
-    from cx_Freeze.command.bdist_deb import BdistDEB as bdist_deb
+if sys.platform != "linux":
+    pytest.skip(reason="Linux tests", allow_module_level=True)
 
 FIXTURE_DIR = Path(__file__).resolve().parent
 
@@ -27,7 +28,6 @@ DIST_ATTRS = {
 }
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_deb_not_posix(monkeypatch):
     """Test the bdist_deb fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
@@ -37,7 +37,6 @@ def test_bdist_deb_not_posix(monkeypatch):
         cmd.finalize_options()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 def test_bdist_deb_not_alien(monkeypatch):
     """Test the bdist_deb uses alien."""
     dist = Distribution(DIST_ATTRS)
@@ -47,7 +46,6 @@ def test_bdist_deb_not_alien(monkeypatch):
         cmd.finalize_options()
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_bdist_deb_simple(datafiles: Path):
     """Test the simple sample with bdist_deb."""
@@ -74,7 +72,6 @@ def test_bdist_deb_simple(datafiles: Path):
     assert file_created.is_file(), pattern
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="Linux tests")
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
 def test_bdist_deb(datafiles: Path):
     """Test the sqlite sample with bdist_deb."""

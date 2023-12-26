@@ -194,6 +194,8 @@ On Mac OS X, you can use ``bdist_mac`` to create a Mac application bundle or
 Commands
 --------
 
+.. _cx_freeze_build:
+
 build
 `````
 
@@ -436,6 +438,57 @@ This is the equivalent help to specify the same options on the command line:
       --skip-build        skip the build steps
 
 
+.. _cx_freeze_bdist_appimage:
+
+bdist_appimage
+``````````````
+
+This command is available on Linux systems, to create a AppImage application
+bundle (a .AppImage file); bdist_appimage automates the process.
+
+An AppImage is a downloadable file for Linux that contains an application and
+everything the application needs to run (e.g., libraries, icons, fonts,
+translations, etc.) that cannot be reasonably expected to be part of each
+target system.
+
+.. versionadded:: 6.17
+
+.. list-table::
+   :header-rows: 1
+   :widths: 240 560
+   :width: 100%
+
+   * - option name
+     - description
+   * - .. option:: appimagekit
+     - path to AppImageKit (download the latest version if not specified).
+   * - .. option:: bdist_dir
+     - temporary directory for creating the distribution
+   * - .. option:: dist_dir (-d)
+     - directory to put final built distributions in (default: dist)
+   * - .. option:: skip_build
+     - skip rebuilding everything (for testing/debugging)
+   * - .. option:: target_name
+     - name of the file to create
+   * - .. option:: target_version
+     - version of the file to create
+   * - .. option:: silent (-s)
+     - suppress all output except warnings
+
+This is the equivalent help to specify the same options on the command line:
+
+  .. code-block:: console
+
+    python setup.py bdist_appimage --help
+
+.. seealso::
+  `AppImage | Linux apps that run anywhere <https://appimage.org/>`_
+
+  `AppImage documentation <https://docs.appimage.org/>`_
+
+
+.. _cx_freeze_bdist_msi:
+
 bdist_msi
 `````````
 
@@ -572,6 +625,8 @@ There are more examples in the |samples| directory.
    <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
 
 
+.. _cx_freeze_bdist_rpm:
+
 bdist_rpm
 `````````
 
@@ -600,6 +655,8 @@ Please check the options on the command line:
 
     python setup.py bdist_deb --help
 
+
+.. _cx_freeze_bdist_mac:
 
 bdist_mac
 `````````
@@ -675,6 +732,8 @@ This is the equivalent help to specify the same options on the command line:
 
     python setup.py bdist_mac --help
 
+
+.. _cx_freeze_bdist_dmg:
 
 bdist_dmg
 `````````
