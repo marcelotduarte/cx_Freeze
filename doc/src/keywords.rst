@@ -2,12 +2,14 @@
 Keywords
 ========
 
-The following are keywords ``cx_Freeze.setup()`` accepts, that are inherited
-from ``setuptools.setup()``.
+The following are keywords ``cx_Freeze.setup()`` accepts, some of them are
+inherited from ``setuptools.setup()``.
 They allow configuring the build process for a Python distribution or adding
 metadata via a ``setup.py`` script placed at the root of your project.
-All of them are optional; you do not have to supply them unless you need the
-associated ``cx_Freeze`` feature.
+
+The keyword ``executables`` is required, while all of inherited keywords are
+optional; you do not have to supply them unless you need the associated
+``cx_Freeze`` feature.
 
 Metadata and configuration supplied via ``setup()`` is complementary to (and
 may be overwritten by) the information present in ``setup.cfg`` and
@@ -26,6 +28,13 @@ Users are strongly encouraged to use a declarative config either via
 .. note::
    When using declarative configs via ``pyproject.toml``, only the basic
    metadata are recognized.
+
+.. _keyword/executables:
+
+``executables``
+    A list of :ref:`cx_freeze_executable`, a list of map (with the same
+    key/value as Executable) or a list of strings (with only the script key of
+    Executable). Required.
 
 .. _keyword/name:
 

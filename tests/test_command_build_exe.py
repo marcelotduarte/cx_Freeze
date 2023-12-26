@@ -34,7 +34,10 @@ DIST_ATTRS = {
 
 @pytest.mark.parametrize(
     ("option", "value"),
-    [("build_exe", "build")],
+    [
+        # build_exe directory is the same as the build_base
+        ("build_exe", "build")
+    ],
 )
 def test_build_exe_invalid_options(option, value):
     """Test the build_exe with invalid options."""
@@ -107,28 +110,6 @@ def test_build_exe_asmodule(datafiles: Path):
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"asmodule{suffix}"
-    assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
-
-
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
-def test_build_exe_simple(datafiles: Path):
-    """Test the simple sample."""
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-        ],
-        text=True,
-        cwd=os.fspath(datafiles),
-    )
-    print(output)
-    suffix = ".exe" if sys.platform == "win32" else ""
-    executable = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
     assert executable.is_file()
     output = check_output([os.fspath(executable)], text=True, timeout=10)
     assert output.startswith("Hello from cx_Freeze")

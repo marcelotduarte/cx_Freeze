@@ -48,12 +48,12 @@ It looks something like this:
       .. code-block:: python
 
          import sys
-         from cx_Freeze import setup, Executable
+         from cx_Freeze import setup
 
          # base="Win32GUI" should be used only for Windows GUI app
          base = "Win32GUI" if sys.platform == "win32" else None
 
-         setup(executables=[Executable("guifoo.py", base=base)])
+         setup(executables=[{"script": "guifoo.py", "base": base}])
 
       ``pyproject.toml``
 
@@ -66,7 +66,7 @@ It looks something like this:
 
          [tool.distutils.build_exe]
          excludes = ["tkinter", "unittest"]
-         zip_include_packages = ["encodings", "PySide6"]
+         zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
    .. group-tab:: setup.cfg
 
@@ -75,12 +75,12 @@ It looks something like this:
       .. code-block:: python
 
          import sys
-         from cx_Freeze import setup, Executable
+         from cx_Freeze import setup
 
          # base="Win32GUI" should be used only for Windows GUI app
          base = "Win32GUI" if sys.platform == "win32" else None
 
-         setup(executables=[Executable("guifoo.py", base=base)])
+         setup(executables=[{"script": "guifoo.py", "base": base}])
 
       ``setup.cfg``
 
@@ -93,7 +93,7 @@ It looks something like this:
 
          [build_exe]
          excludes = tkinter,unittest
-         zip_include_packages = encodings,PySide6
+         zip_include_packages = encodings,PySide6,shiboken6
 
    .. group-tab:: command line
 
@@ -106,7 +106,7 @@ It looks something like this:
          from cx_Freeze import setup, Executable
 
          build_exe_options = {
-             "zip_include_packages": ["encodings", "PySide6"],
+             "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
          }
 
          # base="Win32GUI" should be used only for Windows GUI app
@@ -795,8 +795,9 @@ constructor are as follows:
        package is searched
    * - .. option:: target_name
      - the name of the target executable; the default value is the name of the
-       script; the extension is optional (automatically added on Windows);
-       support for names with version; if specified a pathname, raise an error.
+       script; it is recommended to NOT use an extension (automatically added
+       on Windows); target_name with version is supported; if specified a
+       pathname, raise an error.
    * - .. option:: icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
