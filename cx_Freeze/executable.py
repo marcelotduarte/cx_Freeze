@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 import string
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 from sysconfig import get_config_var, get_platform
 
@@ -213,14 +214,16 @@ class Executable:
 
 
 def validate_executables(dist: Distribution, attr: str, value):  # noqa: ARG001
-    """Verify that value is a Executable list."""
+    """Verify that value is a valid executables attribute, which could be an
+    Executable list, a mapping list or a string list.
+    """
     try:
         # verify that value is a list or tuple to exclude unordered
         # or single-use iterables
         assert isinstance(value, (list, tuple))
-        # verify that elements of value are Executable
+        # verify that elements of value are Executable, Dict or string
         for executable in value:
-            assert isinstance(executable, Executable)
+            assert isinstance(executable, (Executable, Mapping, str))
     except (TypeError, ValueError, AttributeError, AssertionError) as exc:
         raise SetupError(
             f"{attr!r} must be a list of Executable (got {value!r})"

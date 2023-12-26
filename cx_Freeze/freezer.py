@@ -10,7 +10,7 @@ import sys
 import sysconfig
 import time
 from abc import abstractmethod
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from functools import cached_property
 from importlib import import_module
@@ -51,7 +51,7 @@ class Freezer:
 
     def __init__(
         self,
-        executables: list[Executable],
+        executables: Sequence[Executable, Mapping[str, str], str],
         constants_module: ConstantsModule | None = None,
         includes: list[str] | None = None,
         excludes: list[str] | None = None,
@@ -73,7 +73,9 @@ class Freezer:
         zip_include_packages: Sequence[str] | None = None,
         zip_exclude_packages: Sequence[str] | None = None,
     ):
-        self.executables: list[Executable] = list(executables)
+        self.executables: list[Executable] = self._validate_executables(
+            executables
+        )
         if constants_module is None:
             constants_module = ConstantsModule()
         self.constants_module: ConstantsModule = constants_module
@@ -468,6 +470,19 @@ class Freezer:
                 return False
 
         return True
+
+    @staticmethod
+    def _validate_executables(
+        executables: Sequence[Executable, Mapping[str, str], str]
+    ) -> list[Executable]:
+        """Returns valid Executable list."""
+        executables = list(executables)
+        for i, executable in enumerate(executables):
+            if isinstance(executable, str):
+                executables[i] = Executable(executable)
+            elif isinstance(executable, Mapping):
+                executables[i] = Executable(**executable)
+        return executables
 
     @staticmethod
     def _validate_path(path: list[str | Path] | None = None) -> list[str]:
