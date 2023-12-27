@@ -201,7 +201,7 @@ class Executable:
             pathname = Path(name)
             if name != pathname.name:
                 raise OptionError(
-                    "target_name should only be the name, for example: "
+                    "target_name cannot contain the path, only the filename: "
                     f"{pathname.name}"
                 )
             if sys.platform == "win32" and pathname.suffix.lower() == ".exe":
@@ -213,7 +213,7 @@ class Executable:
                 name = name.replace(invalid, "_")
         name = os.path.normcase(name)
         if not name.isidentifier():
-            raise OptionError(f"Invalid name for target_name ({self._name!r})")
+            raise OptionError(f"target_name is invalid: {self._name!r}")
         self._internal_name: str = name
 
 
