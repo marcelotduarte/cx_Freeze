@@ -101,20 +101,24 @@ def test_executables(tmp_path: Path, source: str, number_of_executables: int):
         assert output.startswith("Hello from cx_Freeze")
 
 
-def test_valid():
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"base": None},
+        {"base": "console"},
+        {"base": "gui"},
+        {"base": "service"},
+        {"init_script": None},
+        {"init_script": "console"},
+        {"target_name": None},
+        {"target_name": "test"},
+        {"target_name": "test-0.1"},
+        {"target_name": "test.exe"},
+    ],
+)
+def test_valid(kwargs):
     """Test valid values to use in Executable class."""
-    assert Executable("test.py", base=None)
-    assert Executable("test.py", base="console")
-    assert Executable("test.py", base="gui")
-    assert Executable("test.py", base="service")
-
-    assert Executable("test.py", init_script=None)
-    assert Executable("test.py", init_script="console")
-
-    assert Executable("test.py", target_name=None)
-    assert Executable("test.py", target_name="test")
-    assert Executable("test.py", target_name="test-0.1")
-    assert Executable("test.py", target_name="test.exe")
+    assert Executable("test.py", **kwargs)
 
 
 @pytest.mark.parametrize(
