@@ -1,8 +1,5 @@
 """A simple setup script to create executables using matplotlib.
    This version requires the mpl-data in the zip file."""
-
-from __future__ import annotations
-
 # matplotlib_eg.py is a very simple matplotlib application that demonstrates
 # its use.
 #
@@ -11,12 +8,9 @@ from __future__ import annotations
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the application
 import os
-import sys
 import sysconfig
 
 from cx_Freeze import Executable, setup
-
-base = "Win32GUI" if sys.platform == "win32" else None
 
 platform = sysconfig.get_platform()
 python_version = sysconfig.get_python_version()
@@ -46,7 +40,7 @@ options = {
 }
 
 executables = [
-    Executable("matplotlib_eg.py", base=base),
+    Executable("matplotlib_eg.py", base="gui"),
 ]
 
 setup(

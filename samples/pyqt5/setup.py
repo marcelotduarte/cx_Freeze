@@ -10,10 +10,7 @@ Run the build process by running the command 'python setup.py build'
 If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application
 """
-
 from __future__ import annotations
-
-import sys
 
 from cx_Freeze import Executable, setup
 
@@ -43,9 +40,6 @@ if get_qt_plugins_paths:
     ):
         include_files += get_qt_plugins_paths("PyQt5", plugin_name)
 
-# base="Win32GUI" should be used only for Windows GUI app
-base = "Win32GUI" if sys.platform == "win32" else None
-
 build_exe_options = {
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
@@ -61,7 +55,7 @@ bdist_dmg_options = {
     "volume_label": "TEST",
 }
 
-executables = [Executable("test_pyqt5.py", base=base)]
+executables = [Executable("test_pyqt5.py", base="gui")]
 
 setup(
     name="simple_PyQt5",

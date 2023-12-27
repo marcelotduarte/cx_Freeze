@@ -9,10 +9,7 @@ Run the build process by running the command 'python setup.py build'
 If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application.
 """
-
 from __future__ import annotations
-
-import sys
 
 from cx_Freeze import Executable, setup
 
@@ -42,9 +39,6 @@ if get_qt_plugins_paths:
     ):
         include_files += get_qt_plugins_paths("PyQt6", plugin_name)
 
-# base="Win32GUI" should be used only for Windows GUI app
-base = "Win32GUI" if sys.platform == "win32" else None
-
 build_exe_options = {
     "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
     # exclude packages that are not really needed
@@ -53,7 +47,7 @@ build_exe_options = {
     "zip_include_packages": ["PyQt6"],
 }
 
-executables = [Executable("test_pyqt6.py", base=base)]
+executables = [Executable("test_pyqt6.py", base="gui")]
 
 setup(
     name="simple_pyqt6",
