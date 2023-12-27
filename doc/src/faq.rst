@@ -56,7 +56,7 @@ error as soon as it starts.
 
 There are two ways to debug what's going on:
 
-1. Freeze your application with the ``Win32GUI`` base (see :doc:`setup_script`
+1. Freeze your application with the ``gui`` base (see :doc:`setup_script`
    or :doc:`script`). This doesn't use a console window, and reports errors in
    a dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen

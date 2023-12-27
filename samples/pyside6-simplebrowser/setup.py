@@ -10,12 +10,8 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application
 """
 import os
-import sys
 
 from cx_Freeze import Executable, setup
-
-# base="Win32GUI" should be used only for Windows GUI app
-base = "Win32GUI" if sys.platform == "win32" else None
 
 options = {
     "build_exe": {
@@ -44,7 +40,9 @@ options = {
 }
 
 executables = [
-    Executable("simplebrowser.py", target_name="test_simplebrowser")
+    Executable(
+        "simplebrowser.py", target_name="test_simplebrowser", base="gui"
+    )
 ]
 
 setup(

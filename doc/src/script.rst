@@ -35,16 +35,16 @@ Further customization can be done using the following options:
 
 .. option:: --base-name=NAME
 
-    the filename of the base executable; if a name is given without
-    an absolute path, the subdirectory bases (rooted in the directory in
-    which the freezer is found) will be searched for a file matching the name
+    the name of the base executable; the pre-defined values are:
+    "console" (default), "gui" and "service"; a user-defined base
+    is accepted if it is given with an absolute path name
 
 .. option:: --target-name=NAME
 
     the name of the target executable; the default value is the
-    name of the script; the extension is optional (automatically added
-    on Windows); support for names with version; if specified a
-    pathname, raise an error
+    name of the script; it is recommended NOT to use an extension
+    (automatically added on Windows); target-name with version is
+    supported; if specified a path, raise an error
 
 .. option:: --icon=ICON
 

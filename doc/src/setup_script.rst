@@ -21,24 +21,20 @@ It looks something like this:
 
       .. code-block:: python
 
-         import sys
          from cx_Freeze import setup, Executable
 
          # Dependencies are automatically detected, but it might need fine tuning.
          build_exe_options = {
              "excludes": ["tkinter", "unittest"],
-             "zip_include_packages": ["encodings", "PySide6"],
+             "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
          }
-
-         # base="Win32GUI" should be used only for Windows GUI app
-         base = "Win32GUI" if sys.platform == "win32" else None
 
          setup(
              name="guifoo",
              version="0.1",
              description="My GUI application!",
              options={"build_exe": build_exe_options},
-             executables=[Executable("guifoo.py", base=base)],
+             executables=[Executable("guifoo.py", base="gui")],
          )
 
    .. group-tab:: pyproject.toml
@@ -47,13 +43,9 @@ It looks something like this:
 
       .. code-block:: python
 
-         import sys
          from cx_Freeze import setup
 
-         # base="Win32GUI" should be used only for Windows GUI app
-         base = "Win32GUI" if sys.platform == "win32" else None
-
-         setup(executables=[{"script": "guifoo.py", "base": base}])
+         setup(executables=[{"script": "guifoo.py", "base": "gui"}])
 
       ``pyproject.toml``
 
@@ -74,13 +66,9 @@ It looks something like this:
 
       .. code-block:: python
 
-         import sys
          from cx_Freeze import setup
 
-         # base="Win32GUI" should be used only for Windows GUI app
-         base = "Win32GUI" if sys.platform == "win32" else None
-
-         setup(executables=[{"script": "guifoo.py", "base": base}])
+         setup(executables=[{"script": "guifoo.py", "base": "gui"}])
 
       ``setup.cfg``
 
@@ -102,22 +90,18 @@ It looks something like this:
 
       .. code-block:: python
 
-         import sys
          from cx_Freeze import setup, Executable
 
          build_exe_options = {
              "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
          }
 
-         # base="Win32GUI" should be used only for Windows GUI app
-         base = "Win32GUI" if sys.platform == "win32" else None
-
          setup(
              name="guifoo",
              version="0.1",
              description="My GUI application!",
              options={"build_exe": build_exe_options},
-             executables=[Executable("guifoo.py", base=base)],
+             executables=[Executable("guifoo.py", base="gui")],
          )
 
 The script is invoked as follows:
@@ -172,13 +156,13 @@ To specify options in the script, use underscores in the name. For example:
   .. code-block:: python
 
      # ...
-     zip_include_packages = ["encodings", "PySide6"]
+     zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
 To specify the same options on the command line, use dashes, like this:
 
   .. code-block:: console
 
-    python setup.py build_exe --zip-include-packages=encodings,PySide6
+    python setup.py build_exe --zip-include-packages=encodings,PySide6,shiboken6
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
 includes for your application, by running the setup script as:
@@ -599,7 +583,7 @@ For example:
             Executable(
                 "hello.py",
                 copyright="Copyright (C) 2023 cx_Freeze",
-                base=base,
+                base="gui",
                 icon="icon.ico",
                 shortcut_name="My Program Name",
                 shortcut_dir="MyProgramMenu",
@@ -790,14 +774,14 @@ constructor are as follows:
        names of files in the initscripts subdirectory of the cx_Freeze package
        is searched
    * - .. option:: base
-     - the name of the base executable; if a name is given without an absolute
-       path the names of files in the bases subdirectory of the cx_Freeze
-       package is searched
+     - the name of the base executable; the pre-defined values are:
+       "console" (default), "gui" and "service"; a user-defined base
+       is accepted if it is given with an absolute path name
    * - .. option:: target_name
-     - the name of the target executable; the default value is the name of the
-       script; it is recommended to NOT use an extension (automatically added
-       on Windows); target_name with version is supported; if specified a
-       pathname, raise an error.
+     - the name of the target executable; the default value is the
+       name of the script; it is recommended NOT to use an extension
+       (automatically added on Windows); target-name with version is
+       supported; if specified a path, raise an error
    * - .. option:: icon
      - name of icon which should be included in the executable itself on
        Windows or placed in the target directory for other platforms
@@ -810,17 +794,17 @@ constructor are as follows:
        (Windows only - ignored by Python app from Microsoft Store)
    * - .. option:: shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
-       package (Windows only).
+       package (Windows only)
    * - .. option:: shortcut_dir
      - the directory in which to place the shortcut when being installed by an
        MSI package; see the MSI Shortcut table documentation for more
        information on what values can be placed here (Windows only).
    * - .. option:: copyright
      - the copyright value to include in the version resource associated with
-       executable (Windows only).
+       executable (Windows only)
    * - .. option:: trademarks
      - the trademarks value to include in the version resource associated with
-       the executable (Windows only).
+       the executable (Windows only)
 
 .. versionadded:: 6.10
     ``manifest`` and ``uac_admin`` options.

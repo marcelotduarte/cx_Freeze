@@ -11,7 +11,8 @@ import pytest
 from generate_samples import create_package
 from setuptools import Distribution
 
-from cx_Freeze.exception import SetupError
+from cx_Freeze import Executable
+from cx_Freeze.exception import OptionError, SetupError
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -100,16 +101,69 @@ def test_executables(tmp_path: Path, source: str, number_of_executables: int):
         assert output.startswith("Hello from cx_Freeze")
 
 
-def test_executables_invalid_value():
-    """Test the executables option with invalid value."""
-    with pytest.raises(
-        SetupError, match="'executables' must be a list of Executable"
-    ):
-        Distribution(
-            {
-                "name": "foo",
-                "version": "0.0",
-                "executables": "hello.py",
-                "script_name": "setup.py",
-            }
-        )
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"base": None},
+        {"base": "console"},
+        {"base": "gui"},
+        {"base": "service"},
+        {"init_script": None},
+        {"init_script": "console"},
+        {"target_name": None},
+        {"target_name": "test"},
+        {"target_name": "test-0.1"},
+        {"target_name": "test.exe"},
+    ],
+)
+def test_valid(kwargs):
+    """Test valid values to use in Executable class."""
+    assert Executable("test.py", **kwargs)
+
+
+@pytest.mark.parametrize(
+    ("class_to_test", "kwargs", "exception", "match"),
+    [
+        (
+            Distribution,
+            {"attrs": {"executables": "hello.py", "script_name": "setup.py"}},
+            SetupError,
+            "'executables' must be a list of Executable",
+        ),
+        (
+            Executable,
+            {"script": "test.py", "base": "foo"},
+            OptionError,
+            "no base named ",
+        ),
+        (
+            Executable,
+            {"script": "test.py", "init_script": "foo"},
+            OptionError,
+            "no init_script named ",
+        ),
+        (
+            Executable,
+            {"script": "test.py", "target_name": "foo/bar"},
+            OptionError,
+            "target_name cannot contain the path, only the filename: ",
+        ),
+        (
+            Executable,
+            {"script": "test.py", "target_name": "0test"},
+            OptionError,
+            "target_name is invalid: ",
+        ),
+    ],
+    ids=[
+        "executables-invalid",
+        "executable-invalid-base",
+        "executable-invalid-init_script",
+        "executable-invalid-target_name",
+        "executable-invalid-target_name-isidentifier",
+    ],
+)
+def test_invalid(class_to_test, kwargs, exception, match):
+    """Test invalid values to use in Distribution and Executable classes."""
+    with pytest.raises(exception, match=match):
+        class_to_test(**kwargs)
