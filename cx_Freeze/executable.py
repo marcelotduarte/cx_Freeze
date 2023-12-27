@@ -64,6 +64,10 @@ class Executable:
     @base.setter
     def base(self, name: str | Path | None):
         name = name or "console"
+        if name == "gui":
+            name = "Win32GUI" if IS_WINDOWS or IS_MINGW else "console"
+        elif name == "service":
+            name = "Win32Service" if IS_WINDOWS or IS_MINGW else "console"
         if IS_WINDOWS or IS_MINGW:
             platform_nodot = get_platform().replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"

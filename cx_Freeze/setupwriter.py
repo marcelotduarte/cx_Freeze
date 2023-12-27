@@ -8,7 +8,7 @@ import subprocess
 
 
 class SetupWriter:
-    bases = {"C": "console", "G": "Win32GUI", "S": "Win32Service"}
+    bases = {"C": "console", "G": "gui", "S": "service"}
 
     @property
     def base(self):
