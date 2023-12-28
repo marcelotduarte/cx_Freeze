@@ -49,8 +49,10 @@ Further customization can be done using the following options:
 .. option:: --icon=ICON
 
     name of icon which should be included in the executable itself
-    on Windows or placed in the target directory for other platforms
-    (ignored by Python app from Microsoft Store)
+    on Windows (ignored by Python app from Microsoft Store) or placed
+    in the target directory for other platforms; it is recommended
+    NOT to use an extension (automatically added ".ico" on Windows,
+    ".icns" on macOS and ".png" or ".svg" on Linux and others)
 
 .. option:: --manifest NAME
 

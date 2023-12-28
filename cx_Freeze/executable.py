@@ -10,7 +10,7 @@ from sysconfig import get_config_var, get_platform
 
 from setuptools import Distribution
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.exception import OptionError, SetupError
 
@@ -82,7 +82,7 @@ class Executable:
         self._ext: str = suffix
 
     @property
-    def icon(self) -> str:
+    def icon(self) -> Path | None:
         """:return: the path of the icon
         :rtype: Path
 
@@ -91,7 +91,19 @@ class Executable:
 
     @icon.setter
     def icon(self, name: str | Path | None):
-        self._icon: Path = Path(name) if name else None
+        iconfile: Path = Path(name) if name else None
+        if iconfile and not iconfile.suffix:
+            # add an extension
+            valid_extensions = [".png", ".svg"]
+            if IS_WINDOWS or IS_MINGW:
+                valid_extensions.insert(0, ".ico")
+            elif IS_MACOS:
+                valid_extensions.insert(0, ".icns")
+            for ext in valid_extensions:
+                iconfile = iconfile.with_suffix(ext)
+                if iconfile.exists():
+                    break
+        self._icon: Path | None = iconfile
 
     @property
     def init_module_name(self) -> str:

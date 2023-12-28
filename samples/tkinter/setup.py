@@ -9,12 +9,12 @@ subdirectory that contains the files needed to run the script without Python.
 """
 from cx_Freeze import Executable, setup
 
-executables = [Executable("test_tkinter.py", base="gui")]
+executables = [Executable("test_tkinter.py", base="gui", icon="python")]
 include_files = [("logox128.png", "share/python.png")]
 
 setup(
     name="test_tkinter",
-    version="0.3.1",
+    version="0.3.2",
     description="Sample cx_Freeze Tkinter script",
     options={"build_exe": {"include_files": include_files}},
     executables=executables,

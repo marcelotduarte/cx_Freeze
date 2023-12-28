@@ -153,6 +153,10 @@ class Freezer:
         # Copy icon into application. (Overridden on Windows)
         if exe.icon is None:
             return
+        if not exe.icon.exists():
+            if self.silent < 3:
+                print(f"WARNING: Icon file not found: {exe.icon}")
+            return
         target_icon = self.target_dir / exe.icon.name
         self._copy_file(exe.icon, target_icon, copy_dependent_files=False)
 
@@ -794,26 +798,30 @@ class WinFreezer(Freezer, PEParser):
 
         # Add icon
         if exe.icon is not None:
-            try:
-                AddIcon(target_path, exe.icon)
-            except MemoryError:
+            if not exe.icon.exists():
                 if self.silent < 3:
-                    print("WARNING: MemoryError")
-            except RuntimeError as exc:
-                if self.silent < 3:
-                    print("WARNING:", exc)
-            except OSError as exc:
-                if "\\WindowsApps\\" in sys.base_prefix:
+                    print(f"WARNING: Icon file not found: {exe.icon}")
+            else:
+                try:
+                    AddIcon(target_path, exe.icon)
+                except MemoryError:
+                    if self.silent < 3:
+                        print("WARNING: MemoryError")
+                except RuntimeError as exc:
                     if self.silent < 3:
                         print("WARNING:", exc)
-                        print(
-                            "WARNING: Because of restrictions on Microsoft "
-                            "Store apps, Python scripts may not have full "
-                            "write access to built executable. "
-                            "You will need to install the full installer."
-                        )
-                else:
-                    raise
+                except OSError as exc:
+                    if "\\WindowsApps\\" in sys.base_prefix:
+                        if self.silent < 3:
+                            print("WARNING:", exc)
+                            print(
+                                "WARNING: Because of restrictions on "
+                                "Microsoft Store apps, Python scripts may not "
+                                "have full write access to built executable. "
+                                "You will need to install the full installer."
+                            )
+                    else:
+                        raise
 
         # Change the manifest
         manifest: str | None = exe.manifest
