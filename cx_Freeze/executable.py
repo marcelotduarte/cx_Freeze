@@ -94,12 +94,15 @@ class Executable:
         iconfile: Path = Path(name) if name else None
         if iconfile and not iconfile.suffix:
             # add an extension
+            valid_extensions = [".png", ".svg"]
             if IS_WINDOWS or IS_MINGW:
-                iconfile = iconfile.with_suffix(".ico")
+                valid_extensions.insert(0, ".ico")
             elif IS_MACOS:
-                iconfile = iconfile.with_suffix(".icns")
-            else:
-                iconfile = iconfile.with_suffix(".png")
+                valid_extensions.insert(0, ".icns")
+            for ext in valid_extensions:
+                iconfile = iconfile.with_suffix(ext)
+                if iconfile.exists():
+                    break
         self._icon: Path | None = iconfile
 
     @property

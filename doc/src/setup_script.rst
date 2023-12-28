@@ -787,7 +787,7 @@ constructor are as follows:
        on Windows (ignored by Python app from Microsoft Store) or placed
        in the target directory for other platforms; it is recommended
        NOT to use an extension (automatically added ".ico" on Windows,
-       ".icns" on macOS and ".png" in Linux and others)
+       ".icns" on macOS and ".png" or ".svg" on Linux and others)
    * - .. option:: manifest
      - name of manifest which should be included in the executable itself
        (Windows only - ignored by Python app from Microsoft Store)
