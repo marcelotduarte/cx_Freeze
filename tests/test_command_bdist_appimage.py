@@ -72,9 +72,9 @@ def test_bdist_appimage_target_name_and_version_none():
     assert cmd.fullname == "mytest"
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "icon")
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "tkinter")
 def test_bdist_appimage_target_name_with_extension(datafiles: Path):
-    """Test the icon sample, with a specified target_name that includes an
+    """Test the tkinter sample, with a specified target_name that includes an
     ".AppImage" extension.
     """
     name = "output.AppImage"
@@ -99,11 +99,11 @@ def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     assert file_created.is_file()
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "icon")
+@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "tkinter")
 def test_bdist_appimage_skip_build(datafiles: Path):
-    """Test the icon sample with bdist_appimage."""
-    name = "Icon sample"
-    version = "0.4"
+    """Test the tkinter sample with bdist_appimage."""
+    name = "test_tkinter"
+    version = "0.3.2"
     arch = platform.machine()
     output = check_output(
         [sys.executable, "setup.py", "build_exe"], text=True, cwd=datafiles
