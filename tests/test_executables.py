@@ -193,7 +193,7 @@ setup.py
 
 
 def test_valid_icon(tmp_path: Path):
-    """Test the icon sample with bdist_appimage."""
+    """Test with valid icon in any OS."""
     create_package(tmp_path, SOURCE_VALID_ICON)
     for src in FIXTURE_DIR.parent.joinpath("cx_Freeze/icons").glob("py.*"):
         shutil.copyfile(src, tmp_path.joinpath("icon").with_suffix(src.suffix))
@@ -210,6 +210,17 @@ def test_valid_icon(tmp_path: Path):
 
     output = check_output([os.fspath(file_created)], text=True, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
+
+
+def test_not_found_icon(tmp_path: Path):
+    """Test with not found icon in any OS."""
+    create_package(tmp_path, SOURCE_VALID_ICON)
+    output = check_output(
+        [sys.executable, "setup.py", "build_exe"],
+        text=True,
+        cwd=os.fspath(tmp_path),
+    )
+    assert "WARNING: Icon file not found" in output, "icon file not found"
 
 
 SOURCE_INVALID_ICON = """
@@ -229,7 +240,7 @@ setup.py
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 def test_invalid_icon(tmp_path: Path):
-    """Test the icon sample with bdist_appimage."""
+    """Test with invalid icon in Windows."""
     create_package(tmp_path, SOURCE_INVALID_ICON)
     shutil.copyfile(
         FIXTURE_DIR.parent / "cx_Freeze/icons/py.png", tmp_path / "icon.png"
