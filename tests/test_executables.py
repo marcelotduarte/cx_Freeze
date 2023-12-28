@@ -117,7 +117,7 @@ def test_executables(tmp_path: Path, source: str, number_of_executables: int):
         ("target_name", "test1", f"test1{SUFFIX}"),
         ("target_name", "test-0.1", f"test-0.1{SUFFIX}"),
         ("target_name", "test.exe", "test.exe"),
-        ("icon", "icon", "icon.ico" if IS_WINDOWS else "icon.svg"),
+        ("icon", "icon", ("icon.ico", "icon.icns", "icon.png", "icon.svg")),
     ],
 )
 def test_valid(option, value, result):
