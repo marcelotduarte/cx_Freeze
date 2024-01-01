@@ -1,15 +1,13 @@
 """Test executables keyword (and Executable class)."""
 from __future__ import annotations
 
-import os
 import shutil
 import sys
 from pathlib import Path
-from subprocess import check_output
 from sysconfig import get_platform, get_python_version
 
 import pytest
-from generate_samples import create_package
+from generate_samples import create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze import Executable
@@ -33,6 +31,7 @@ pyproject.toml
 
     [tool.distutils.build_exe]
     excludes = ["tkinter", "unittest"]
+    silent = true
 setup.py
     from cx_Freeze import setup
 
@@ -70,6 +69,7 @@ setup.cfg
 
     [build_exe]
     excludes = tkinter,unittest
+    silent = true
 setup.py
     from cx_Freeze import setup
 
@@ -89,18 +89,14 @@ setup.py
 def test_executables(tmp_path: Path, source: str, number_of_executables: int):
     """Test the executables option."""
     create_package(tmp_path, source)
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe", "--silent"],
-        text=True,
-        cwd=os.fspath(tmp_path),
-    )
+    output = run_command(tmp_path)
     print(output)
 
     for i in range(1, number_of_executables):
         file_created = tmp_path / BUILD_EXE_DIR / f"test_simple{i}{SUFFIX}"
         assert file_created.is_file(), f"file not found: {file_created}"
 
-        output = check_output([os.fspath(file_created)], text=True, timeout=10)
+        output = run_command(tmp_path, file_created, timeout=10)
         assert output.startswith("Hello from cx_Freeze")
 
 
@@ -195,31 +191,24 @@ setup.py
 def test_valid_icon(tmp_path: Path):
     """Test with valid icon in any OS."""
     create_package(tmp_path, SOURCE_VALID_ICON)
+    # copy valid icons
     for src in FIXTURE_DIR.parent.joinpath("cx_Freeze/icons").glob("py.*"):
         shutil.copyfile(src, tmp_path.joinpath("icon").with_suffix(src.suffix))
-
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe"],
-        text=True,
-        cwd=os.fspath(tmp_path),
-    )
+    output = run_command(tmp_path)
     assert "WARNING: Icon file not found" not in output, "icon file not found"
 
     file_created = tmp_path / BUILD_EXE_DIR / f"test_icon{SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = check_output([os.fspath(file_created)], text=True, timeout=10)
+    output = run_command(tmp_path, file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
 def test_not_found_icon(tmp_path: Path):
     """Test with not found icon in any OS."""
+    # same test as before, without icons
     create_package(tmp_path, SOURCE_VALID_ICON)
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe"],
-        text=True,
-        cwd=os.fspath(tmp_path),
-    )
+    output = run_command(tmp_path)
     assert "WARNING: Icon file not found" in output, "icon file not found"
 
 
@@ -245,12 +234,7 @@ def test_invalid_icon(tmp_path: Path):
     shutil.copyfile(
         FIXTURE_DIR.parent / "cx_Freeze/icons/py.png", tmp_path / "icon.png"
     )
-
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe"],
-        text=True,
-        cwd=os.fspath(tmp_path),
-    )
+    output = run_command(tmp_path)
     assert "WARNING: Icon file not found" not in output, "icon file not found"
     # it is expected the folowing warning if the icon is invalid
     assert "WARNING: Icon filename 'icon.png' has invalid type." in output

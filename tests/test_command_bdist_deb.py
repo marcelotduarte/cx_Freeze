@@ -8,8 +8,11 @@ from subprocess import run
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.command.bdist_deb import BdistDEB as bdist_deb
 from cx_Freeze.exception import PlatformError
+
+bdist_deb = pytest.importorskip(
+    "cx_Freeze.command.bdist_deb", reason="Linux tests"
+).BdistDEB
 
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
