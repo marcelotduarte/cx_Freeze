@@ -9,8 +9,11 @@ from subprocess import run
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
 from cx_Freeze.exception import PlatformError
+
+bdist_rpm = pytest.importorskip(
+    "cx_Freeze.command.bdist_rpm", reason="Linux tests"
+).BdistRPM
 
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
