@@ -1,13 +1,11 @@
 """Tests for some cx_Freeze.hooks."""
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
-from subprocess import check_output
 from sysconfig import get_platform, get_python_version
 
-from generate_samples import create_package
+from generate_samples import create_package, run_command
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -35,18 +33,12 @@ setup.py
 def test_ssl(tmp_path: Path):
     """Test that the ssl is working correctly."""
     create_package(tmp_path, SOURCE)
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe"],
-        text=True,
-        cwd=os.fspath(tmp_path),
-    )
+    output = run_command(tmp_path)
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = tmp_path / BUILD_EXE_DIR / f"test_ssl{suffix}"
     assert executable.is_file()
-    output = check_output(
-        [os.fspath(executable)], text=True, timeout=10, cwd=os.fspath(tmp_path)
-    )
+    output = run_command(tmp_path, executable, timeout=10)
     print(output)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("ssl")

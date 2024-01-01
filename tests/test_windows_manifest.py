@@ -2,14 +2,12 @@
 from __future__ import annotations
 
 import ctypes
-import os
 import sys
 from pathlib import Path
-from subprocess import check_output
 from sysconfig import get_platform, get_python_version
 
 import pytest
-from generate_samples import create_package
+from generate_samples import create_package, run_command
 
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
@@ -54,6 +52,8 @@ simple.manifest
         </security>
       </trustInfo>
     </assembly>
+command
+    python setup.py build_exe --excludes=tkinter
 """
 
 
@@ -63,11 +63,7 @@ def tmp_manifest(tmp_path_factory):
     """Temporary path to build test manifest."""
     tmp_path = tmp_path_factory.mktemp("manifest")
     create_package(tmp_path, SOURCE)
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe", "--excludes=tkinter"],
-        text=True,
-        cwd=os.fspath(tmp_path),
-    )
+    output = run_command(tmp_path)
     print(output)
     return tmp_path / f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
@@ -76,7 +72,7 @@ def test_manifest(tmp_manifest: Path):
     """With the correct manifest, windows version return 10.0 in Windows 10."""
     executable = tmp_manifest / "test_manifest.exe"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(tmp_manifest, executable, timeout=10)
     print(output)
     winver = sys.getwindowsversion()
     expected = f"Windows version: {winver.major}.{winver.minor}"
@@ -89,7 +85,7 @@ def test_simple_manifest(tmp_manifest: Path):
     """
     executable = tmp_manifest / "test_simple_manifest.exe"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(tmp_manifest, executable, timeout=10)
     print(output)
     expected = "Windows version: 6.2"
     assert output.splitlines()[0].strip() == expected
@@ -102,4 +98,4 @@ def test_uac_admin(tmp_manifest: Path):
     if ctypes.windll.shell32.IsUserAnAdmin():
         pytest.xfail(reason="User is admin")
     with pytest.raises(OSError, match="[WinError 740]"):
-        check_output([os.fspath(executable)], text=True, timeout=10)
+        run_command(tmp_manifest, executable, timeout=10)

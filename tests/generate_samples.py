@@ -1,8 +1,12 @@
 """Source of samples to tests."""
 from __future__ import annotations
 
+import os
 import string
+import sys
+from collections.abc import Sequence
 from pathlib import Path
+from subprocess import check_output
 from textwrap import dedent
 
 # Each test description is a list of 5 items:
@@ -258,6 +262,8 @@ setup.py
         },
         executables=executables,
     )
+command
+    python setup.py bdist_mac
 """,
 ]
 
@@ -478,6 +484,29 @@ def create_package(test_dir: Path, source: str):
         else:
             if path:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(dedent("\n".join(buf)).encode("utf-8"))
+                path.write_bytes(dedent("\n".join(buf)).encode("utf_8"))
                 buf = []
             path = test_dir / line.strip()
+
+
+def run_command(
+    test_dir: Path, command: Sequence | Path | None = None, timeout=None
+) -> str:
+    """Execute a command, specified in 'command', or read the command contained
+    in the file named 'command', or execute the default command.
+    """
+    if command is None:
+        command_file = test_dir / "command"
+        if command_file.exists():
+            command = command_file.read_bytes().decode()
+        else:
+            command = "python setup.py build"
+    elif isinstance(command, Path):
+        command = [os.fspath(command)]
+
+    command = command.split() if isinstance(command, str) else list(command)
+    if command[0] == "python":
+        command[0] = sys.executable
+    return check_output(
+        command, text=True, timeout=timeout, cwd=os.fspath(test_dir)
+    )

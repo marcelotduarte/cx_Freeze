@@ -1,14 +1,12 @@
 """Tests for cx_Freeze.command.build_exe."""
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
-from subprocess import check_output
 from sysconfig import get_platform, get_python_version
 
 import pytest
-from generate_samples import SUB_PACKAGE_TEST, create_package
+from generate_samples import SUB_PACKAGE_TEST, create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze.command.build_exe import BuildEXE as build_exe
@@ -68,50 +66,34 @@ def test_build_exe_with_include_msvcr_option(option, value, result):
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "advanced")
 def test_build_exe_advanced(datafiles: Path):
     """Test the advanced sample."""
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-        ],
-        text=True,
-        cwd=os.fspath(datafiles),
+    output = run_command(
+        datafiles, "python setup.py build_exe --silent --excludes=tkinter"
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
 
     executable = datafiles / BUILD_EXE_DIR / f"advanced_1{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(datafiles, executable, timeout=10)
     assert output == OUTPUT1
 
     executable = datafiles / BUILD_EXE_DIR / f"advanced_2{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(datafiles, executable, timeout=10)
     assert output == OUTPUT2
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "asmodule")
 def test_build_exe_asmodule(datafiles: Path):
     """Test the asmodule sample."""
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-        ],
-        text=True,
-        cwd=os.fspath(datafiles),
+    output = run_command(
+        datafiles, "python setup.py build_exe --silent --excludes=tkinter"
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"asmodule{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(datafiles, executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
@@ -119,45 +101,30 @@ def test_build_exe_asmodule(datafiles: Path):
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
 def test_build_exe_simple_include_msvcr(datafiles: Path):
     """Test the simple sample with include_msvcr option."""
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-            "--include-msvcr",
-        ],
-        text=True,
-        cwd=os.fspath(datafiles),
+    output = run_command(
+        datafiles,
+        "python setup.py build_exe --silent --excludes=tkinter "
+        "--include-msvcr",
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(datafiles, executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
 @pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
 def test_build_exe_sqlite(datafiles: Path):
     """Test the sqlite sample."""
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-        ],
-        text=True,
-        cwd=os.fspath(datafiles),
+    output = run_command(
+        datafiles, "python setup.py build_exe --silent --excludes=tkinter"
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = datafiles / BUILD_EXE_DIR / f"test_sqlite3{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(datafiles, executable, timeout=10)
     assert output.startswith("dump.sql created")
 
 
@@ -165,24 +132,16 @@ def test_zip_include_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
     source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-            "--zip-exclude-packages=*",
-            "--zip-include-packages=p",
-        ],
-        text=True,
-        cwd=os.fspath(tmp_path),
+    output = run_command(
+        tmp_path,
+        "python setup.py build_exe --silent --excludes=tkinter "
+        "--zip-exclude-packages=* --zip-include-packages=p",
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = tmp_path / BUILD_EXE_DIR / f"main{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(tmp_path, executable, timeout=10)
     assert output == OUTPUT_SUBPACKAGE_TEST
 
 
@@ -190,22 +149,14 @@ def test_zip_exclude_packages(tmp_path):
     """Provides test cases for ModuleFinder class."""
     source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
-    output = check_output(
-        [
-            sys.executable,
-            "setup.py",
-            "build_exe",
-            "--silent",
-            "--excludes=tkinter",
-            "--zip-exclude-packages=p",
-            "--zip-include-packages=*",
-        ],
-        text=True,
-        cwd=os.fspath(tmp_path),
+    output = run_command(
+        tmp_path,
+        "python setup.py build_exe --silent --excludes=tkinter "
+        "--zip-exclude-packages=p --zip-include-packages=*",
     )
     print(output)
     suffix = ".exe" if sys.platform == "win32" else ""
     executable = tmp_path / BUILD_EXE_DIR / f"main{suffix}"
     assert executable.is_file()
-    output = check_output([os.fspath(executable)], text=True, timeout=10)
+    output = run_command(tmp_path, executable, timeout=10)
     assert output == OUTPUT_SUBPACKAGE_TEST
