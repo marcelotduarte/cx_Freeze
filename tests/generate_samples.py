@@ -262,7 +262,7 @@ setup.py
         },
         executables=executables,
     )
-command:
+command
     python setup.py bdist_mac
 """,
 ]
