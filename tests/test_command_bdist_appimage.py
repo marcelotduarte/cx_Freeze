@@ -5,9 +5,9 @@ import os
 import platform
 import sys
 from pathlib import Path
-from subprocess import check_output
 
 import pytest
+from generate_samples import run_command
 from setuptools import Distribution
 
 from cx_Freeze.exception import PlatformError
@@ -89,10 +89,8 @@ def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     outfile = os.path.join(cmd.dist_dir, name)
     cmd.save_as_file("data", outfile, mode="rwx")
 
-    output = check_output(
-        [sys.executable, "setup.py", "bdist_appimage", "--target-name", name],
-        text=True,
-        cwd=datafiles,
+    output = run_command(
+        datafiles, f"python setup.py bdist_appimage --target-name {name}"
     )
     print(output)
     file_created = Path(outfile)
@@ -105,14 +103,10 @@ def test_bdist_appimage_skip_build(datafiles: Path):
     name = "test_tkinter"
     version = "0.3.2"
     arch = platform.machine()
-    output = check_output(
-        [sys.executable, "setup.py", "build_exe"], text=True, cwd=datafiles
-    )
+    output = run_command(datafiles)
     print(output)
-    output = check_output(
-        [sys.executable, "setup.py", "bdist_appimage", "--skip-build"],
-        text=True,
-        cwd=datafiles,
+    output = run_command(
+        datafiles, "python setup.py bdist_appimage --skip-build"
     )
     print(output)
 
@@ -127,11 +121,7 @@ def test_bdist_appimage_simple(datafiles: Path):
     version = "0.1.2.3"
     arch = platform.machine()
 
-    output = check_output(
-        [sys.executable, "setup.py", "bdist_appimage", "--quiet"],
-        text=True,
-        cwd=datafiles,
-    )
+    output = run_command(datafiles, "python setup.py bdist_appimage --quiet")
     print(output)
 
     file_created = datafiles / "dist" / f"{name}-{version}-{arch}.AppImage"
