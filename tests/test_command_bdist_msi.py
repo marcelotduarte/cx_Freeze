@@ -18,14 +18,13 @@ DIST_ATTRS = {
     "executables": [],
     "script_name": "setup.py",
 }
-FIXTURE_DIR = Path(__file__).resolve().parent
+SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
+@pytest.mark.datafiles(SAMPLES_DIR / "msi_binary_data")
 def test_bdist_msi(datafiles: Path):
     """Test the msi_binary_data sample."""
-    output = run_command(datafiles, "python setup.py bdist_msi")
-    print(output)
+    run_command(datafiles, "python setup.py bdist_msi")
     platform = get_platform().replace("win-amd64", "win64")
     file_created = datafiles / "dist" / f"hello-0.1-{platform}.msi"
     assert file_created.is_file()
@@ -52,15 +51,14 @@ def test_bdist_msi_target_name_and_version():
     assert cmd.fullname == "mytest-0.1"
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "msi_binary_data")
+@pytest.mark.datafiles(SAMPLES_DIR / "msi_binary_data")
 def test_bdist_msi_target_name_with_extension(datafiles: Path):
     """Test the msi_binary_data sample, with a specified target_name that
     includes an ".msi" extension.
     """
     msi_name = "output.msi"
-    output = run_command(
+    run_command(
         datafiles, f"python setup.py bdist_msi --target-name {msi_name}"
     )
-    print(output)
     file_created = datafiles / "dist" / msi_name
     assert file_created.is_file()
