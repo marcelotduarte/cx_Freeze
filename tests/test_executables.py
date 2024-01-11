@@ -13,12 +13,12 @@ from setuptools import Distribution
 from cx_Freeze import Executable
 from cx_Freeze.exception import OptionError, SetupError
 
-FIXTURE_DIR = Path(__file__).resolve().parent
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 IS_WINDOWS = sys.platform == "win32"
 SUFFIX = ".exe" if IS_WINDOWS else ""
+TOP_DIR = Path(__file__).resolve().parent.parent
 
 SOURCE_PYPROJECT = """
 test_simple1.py
@@ -90,7 +90,6 @@ def test_executables(tmp_path: Path, source: str, number_of_executables: int):
     """Test the executables option."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
-    print(output)
 
     for i in range(1, number_of_executables):
         file_created = tmp_path / BUILD_EXE_DIR / f"test_simple{i}{SUFFIX}"
@@ -192,7 +191,7 @@ def test_valid_icon(tmp_path: Path):
     """Test with valid icon in any OS."""
     create_package(tmp_path, SOURCE_VALID_ICON)
     # copy valid icons
-    for src in FIXTURE_DIR.parent.joinpath("cx_Freeze/icons").glob("py.*"):
+    for src in TOP_DIR.joinpath("cx_Freeze/icons").glob("py.*"):
         shutil.copyfile(src, tmp_path.joinpath("icon").with_suffix(src.suffix))
     output = run_command(tmp_path)
     assert "WARNING: Icon file not found" not in output, "icon file not found"
@@ -231,9 +230,7 @@ setup.py
 def test_invalid_icon(tmp_path: Path):
     """Test with invalid icon in Windows."""
     create_package(tmp_path, SOURCE_INVALID_ICON)
-    shutil.copyfile(
-        FIXTURE_DIR.parent / "cx_Freeze/icons/py.png", tmp_path / "icon.png"
-    )
+    shutil.copyfile(TOP_DIR / "cx_Freeze/icons/py.png", tmp_path / "icon.png")
     output = run_command(tmp_path)
     assert "WARNING: Icon file not found" not in output, "icon file not found"
     # it is expected the folowing warning if the icon is invalid
