@@ -19,8 +19,6 @@ bdist_appimage = pytest.importorskip(
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
 
-FIXTURE_DIR = Path(__file__).resolve().parent
-
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
@@ -28,6 +26,7 @@ DIST_ATTRS = {
     "executables": [],
     "script_name": "setup.py",
 }
+SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_appimage_not_posix(monkeypatch):
@@ -72,7 +71,7 @@ def test_bdist_appimage_target_name_and_version_none():
     assert cmd.fullname == "mytest"
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "tkinter")
+@pytest.mark.datafiles(SAMPLES_DIR / "tkinter")
 def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     """Test the tkinter sample, with a specified target_name that includes an
     ".AppImage" extension.
@@ -89,40 +88,34 @@ def test_bdist_appimage_target_name_with_extension(datafiles: Path):
     outfile = os.path.join(cmd.dist_dir, name)
     cmd.save_as_file("data", outfile, mode="rwx")
 
-    output = run_command(
+    run_command(
         datafiles, f"python setup.py bdist_appimage --target-name {name}"
     )
-    print(output)
     file_created = Path(outfile)
     assert file_created.is_file()
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "tkinter")
+@pytest.mark.datafiles(SAMPLES_DIR / "tkinter")
 def test_bdist_appimage_skip_build(datafiles: Path):
     """Test the tkinter sample with bdist_appimage."""
     name = "test_tkinter"
     version = "0.3.2"
     arch = platform.machine()
-    output = run_command(datafiles)
-    print(output)
-    output = run_command(
-        datafiles, "python setup.py bdist_appimage --skip-build"
-    )
-    print(output)
+    run_command(datafiles)
+    run_command(datafiles, "python setup.py bdist_appimage --skip-build")
 
     file_created = datafiles / "dist" / f"{name}-{version}-{arch}.AppImage"
     assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+@pytest.mark.datafiles(SAMPLES_DIR / "simple")
 def test_bdist_appimage_simple(datafiles: Path):
     """Test the simple sample with bdist_appimage."""
     name = "hello"
     version = "0.1.2.3"
     arch = platform.machine()
 
-    output = run_command(datafiles, "python setup.py bdist_appimage --quiet")
-    print(output)
+    run_command(datafiles, "python setup.py bdist_appimage --quiet")
 
     file_created = datafiles / "dist" / f"{name}-{version}-{arch}.AppImage"
     assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"

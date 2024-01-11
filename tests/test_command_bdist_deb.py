@@ -17,8 +17,6 @@ bdist_deb = pytest.importorskip(
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
 
-FIXTURE_DIR = Path(__file__).resolve().parent
-
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
@@ -29,6 +27,7 @@ DIST_ATTRS = {
     "author_email": "marcelotduarte@users.noreply.github.com",
     "url": "https://github.com/marcelotduarte/cx_Freeze/",
 }
+SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_deb_not_posix(monkeypatch):
@@ -49,7 +48,7 @@ def test_bdist_deb_not_alien(monkeypatch):
         cmd.finalize_options()
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+@pytest.mark.datafiles(SAMPLES_DIR / "simple")
 def test_bdist_deb_simple(datafiles: Path):
     """Test the simple sample with bdist_deb."""
     name = "hello"
@@ -75,7 +74,7 @@ def test_bdist_deb_simple(datafiles: Path):
     assert file_created.is_file(), pattern
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
+@pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
 def test_bdist_deb(datafiles: Path):
     """Test the sqlite sample with bdist_deb."""
     name = "test_sqlite3"
