@@ -63,8 +63,7 @@ def tmp_manifest(tmp_path_factory):
     """Temporary path to build test manifest."""
     tmp_path = tmp_path_factory.mktemp("manifest")
     create_package(tmp_path, SOURCE)
-    output = run_command(tmp_path)
-    print(output)
+    run_command(tmp_path)
     return tmp_path / f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 
@@ -73,7 +72,6 @@ def test_manifest(tmp_manifest: Path):
     executable = tmp_manifest / "test_manifest.exe"
     assert executable.is_file()
     output = run_command(tmp_manifest, executable, timeout=10)
-    print(output)
     winver = sys.getwindowsversion()
     expected = f"Windows version: {winver.major}.{winver.minor}"
     assert output.splitlines()[0].strip() == expected
@@ -86,7 +84,6 @@ def test_simple_manifest(tmp_manifest: Path):
     executable = tmp_manifest / "test_simple_manifest.exe"
     assert executable.is_file()
     output = run_command(tmp_manifest, executable, timeout=10)
-    print(output)
     expected = "Windows version: 6.2"
     assert output.splitlines()[0].strip() == expected
 
