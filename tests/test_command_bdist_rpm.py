@@ -18,8 +18,6 @@ bdist_rpm = pytest.importorskip(
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
 
-FIXTURE_DIR = Path(__file__).resolve().parent
-
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
@@ -30,6 +28,7 @@ DIST_ATTRS = {
     "author_email": "marcelotduarte@users.noreply.github.com",
     "url": "https://github.com/marcelotduarte/cx_Freeze/",
 }
+SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_rpm_not_posix(monkeypatch):
@@ -65,7 +64,7 @@ def test_bdist_rpm_options(options):
 
 
 @pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+@pytest.mark.datafiles(SAMPLES_DIR / "simple")
 def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
     """Test the bdist_rpm with options."""
     monkeypatch.chdir(datafiles)
@@ -81,7 +80,7 @@ def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
     cmd.run()
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+@pytest.mark.datafiles(SAMPLES_DIR / "simple")
 def test_bdist_rpm_simple(datafiles: Path):
     """Test the simple sample with bdist_rpm."""
     name = "hello"
@@ -108,7 +107,7 @@ def test_bdist_rpm_simple(datafiles: Path):
     assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "sqlite")
+@pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
 def test_bdist_rpm(datafiles: Path):
     """Test the sqlite sample with bdist_rpm."""
     name = "test_sqlite3"

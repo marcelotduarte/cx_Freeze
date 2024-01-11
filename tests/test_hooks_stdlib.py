@@ -10,6 +10,8 @@ from generate_samples import create_package, run_command
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+IS_WINDOWS = sys.platform == "win32"
+SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """
 test_ssl.py
@@ -34,12 +36,9 @@ def test_ssl(tmp_path: Path):
     """Test that the ssl is working correctly."""
     create_package(tmp_path, SOURCE)
     output = run_command(tmp_path)
-    print(output)
-    suffix = ".exe" if sys.platform == "win32" else ""
-    executable = tmp_path / BUILD_EXE_DIR / f"test_ssl{suffix}"
+    executable = tmp_path / BUILD_EXE_DIR / f"test_ssl{SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
-    print(output)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("ssl")
     assert output.splitlines()[2] != ""

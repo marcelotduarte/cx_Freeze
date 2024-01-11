@@ -12,6 +12,8 @@ from generate_samples import create_package, run_command
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+IS_WINDOWS = sys.platform == "win32"
+SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """\
 sample1.py
@@ -91,10 +93,7 @@ def test_multiprocessing(
     """Provides test cases for multiprocessing."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
-    print(output)
-    suffix = ".exe" if sys.platform == "win32" else ""
-    executable = tmp_path / BUILD_EXE_DIR / f"{sample}{suffix}"
+    executable = tmp_path / BUILD_EXE_DIR / f"{sample}{SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
-    print(output)
     assert output.splitlines()[-1] == expected

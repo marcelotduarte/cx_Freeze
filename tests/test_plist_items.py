@@ -15,8 +15,7 @@ from generate_samples import PLIST_ITEMS_TEST, create_package, run_command
 def test_plist_items(tmp_path: Path):
     """Test that the plist_items option is working correctly."""
     create_package(tmp_path, source=PLIST_ITEMS_TEST[4])
-    output = run_command(tmp_path)
-    print(output)
+    run_command(tmp_path)
     # Test that the additional keys were correctly added to the plist.
     sys.path.insert(0, os.fspath(tmp_path))
     data = import_module("plist_data")

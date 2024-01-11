@@ -11,14 +11,15 @@ from generate_samples import run_command
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-FIXTURE_DIR = Path(__file__).resolve().parent
+
+SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
+IS_WINDOWS = sys.platform == "win32"
+SUFFIX = ".exe" if IS_WINDOWS else ""
 
 
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
+@pytest.mark.datafiles(SAMPLES_DIR / "simple")
 def test_build(datafiles: Path):
     """Test the simple sample."""
-    output = run_command(datafiles)
-    print(output)
-    suffix = ".exe" if sys.platform == "win32" else ""
-    file_created = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
+    run_command(datafiles)
+    file_created = datafiles / BUILD_EXE_DIR / f"hello{SUFFIX}"
     assert file_created.is_file()
