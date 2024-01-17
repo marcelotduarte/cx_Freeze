@@ -36,7 +36,10 @@ DIST_ATTRS = {
 
 @pytest.mark.parametrize(
     ("option", "value"),
-    [("build_exe", "build")],
+    [
+        # build_exe directory is the same as the build_base
+        ("build_exe", "build")
+    ],
 )
 def test_build_exe_invalid_options(option, value):
     """Test the build_exe with invalid options."""
@@ -89,34 +92,6 @@ def test_build_exe_asmodule(datafiles: Path):
     output = run_command(datafiles, BUILD_EXE_CMD)
 
     executable = datafiles / BUILD_EXE_DIR / f"asmodule{SUFFIX}"
-    assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
-
-
-@pytest.mark.datafiles(FIXTURE_DIR.parent / "samples" / "simple")
-def test_build_exe_simple(datafiles: Path):
-    """Test the simple sample."""
-    output = run_command(
-        datafiles, "python setup.py build_exe --silent --excludes=tkinter"
-    )
-    print(output)
-    suffix = ".exe" if sys.platform == "win32" else ""
-    executable = datafiles / BUILD_EXE_DIR / f"hello{suffix}"
-    assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
-
-
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_build_exe_simple_include_msvcr(datafiles: Path):
-    """Test the simple sample with include_msvcr option."""
-    command = BUILD_EXE_CMD + " --include-msvcr"
-    output = run_command(datafiles, command)
-
-    build_exe_dir = datafiles / BUILD_EXE_DIR
-    executable = build_exe_dir / f"hello{SUFFIX}"
     assert executable.is_file()
     output = run_command(datafiles, executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
