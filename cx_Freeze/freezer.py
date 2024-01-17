@@ -88,8 +88,8 @@ class Freezer:
         self.path: list[str] | None = self._validate_path(path)
         self.include_msvcr: bool = include_msvcr
         self.target_dir = target_dir
-        self.bin_includes: list[str] | None = bin_includes
-        self.bin_excludes: list[str] | None = bin_excludes
+        self.bin_includes: list[str] = self._validate_bin_file(bin_includes)
+        self.bin_excludes: list[str] = self._validate_bin_file(bin_excludes)
         self.bin_path_includes: list[str] = self._validate_bin_path(
             bin_path_includes
         )
@@ -289,7 +289,7 @@ class Freezer:
             self._copy_top_dependency(source)
             # Once copied, it should be deleted from the list to ensure
             # it will not be copied again.
-            name = Path(source.name)
+            name = os.path.normcase(source.name)
             if name in self.bin_includes:
                 self.bin_includes.remove(name)
                 self.bin_excludes.append(name)
@@ -426,35 +426,36 @@ class Freezer:
             return ".".join(parts)
         return filename
 
-    def _should_copy_file(self, path: Path) -> bool:  # noqa: PLR0911
+    def _should_copy_file(self, path: Path) -> bool:
         """Return true if the file should be copied to the target machine.
-        This is done by checking the bin_path_includes, bin_path_excludes,
-        bin_includes and bin_excludes configuration variables using first
-        the full file name, then just the base file name, then the file name
-        without any version numbers.
+
+        This is done by checking the bin_includes and bin_excludes
+        configuration variables using first the full file name, then just the
+        base file name, then the file name without any version numbers.
+        Then, bin_path_includes and bin_path_excludes are checked.
 
         Files are included unless specifically excluded but inclusions take
         precedence over exclusions.
         """
         # check the full path
-        if path in self.bin_includes:
-            return True
-        if path in self.bin_excludes:
-            return False
-
         # check the file name by itself (with any included version numbers)
-        filename = Path(path.name)
-        if filename in self.bin_includes:
-            return True
-        if filename in self.bin_excludes:
-            return False
-
         # check the file name by itself (version numbers removed)
-        filename = Path(self._remove_version_numbers(path.name))
-        if filename in self.bin_includes:
-            return True
-        if filename in self.bin_excludes:
-            return False
+        filename = Path(os.path.normcase(path.name))
+        filename_noversion = Path(self._remove_version_numbers(filename.name))
+        for binfile in self.bin_includes:
+            if (
+                path.match(binfile)
+                or filename.match(binfile)
+                or filename_noversion.match(binfile)
+            ):
+                return True
+        for binfile in self.bin_excludes:
+            if (
+                path.match(binfile)
+                or filename.match(binfile)
+                or filename_noversion.match(binfile)
+            ):
+                return False
 
         # check the path for inclusion/exclusion
         dirname = path.parent
@@ -509,6 +510,15 @@ class Freezer:
         return path
 
     @staticmethod
+    def _validate_bin_file(
+        filenames: Sequence[str | Path] | None,
+    ) -> list[str]:
+        """Returns valid filenames for bin_includes and bin_excludes."""
+        if filenames is None:
+            return []
+        return [os.path.normcase(filename) for filename in filenames]
+
+    @staticmethod
     def _validate_bin_path(bin_path: Sequence[str | Path] | None) -> list[str]:
         """Returns valid search path for bin_path_includes and
         bin_path_excludes.
@@ -522,15 +532,8 @@ class Freezer:
         return valid
 
     def _verify_configuration(self) -> None:
-        """Verify and normalize names and paths."""
-        filenames = list(self.bin_includes or [])
-        filenames += self._default_bin_includes()
-        self.bin_includes = [Path(name) for name in filenames]
-
-        filenames = list(self.bin_excludes or [])
-        filenames += self._default_bin_excludes()
-        self.bin_excludes = [Path(name) for name in filenames]
-
+        self.bin_includes += self._default_bin_includes()
+        self.bin_excludes += self._default_bin_excludes()
         self.bin_path_includes += self._default_bin_path_includes()
         self.bin_path_excludes += self._default_bin_path_excludes()
 
@@ -882,9 +885,8 @@ class WinFreezer(Freezer, PEParser):
         C runtime libraries.
         """
         # fix the target path for C runtime files
-        norm_target_name = target.name.lower()
-        if norm_target_name in self.runtime_files:
-            target = self.target_dir / norm_target_name
+        if any(filter(target.match, self.runtime_files)):
+            target = self.target_dir / target.name
         return source, target
 
     def _post_copy_hook(
@@ -1000,11 +1002,12 @@ class WinFreezer(Freezer, PEParser):
         search_dirs: set[Path] = set()
         for filename in dependent_files:
             search_dirs.add(filename.parent)
-        for filename in self.runtime_files:
-            for search_dir in search_dirs:
-                filepath = search_dir / filename
-                if filepath.exists():
-                    dependent_files.add(filepath)
+        for search_dir in search_dirs:
+            for pattern in self.runtime_files:
+                for filename in search_dir.glob(pattern):
+                    filepath = search_dir / filename
+                    if filepath.exists():
+                        dependent_files.add(filepath)
 
     def _post_freeze_hook(self) -> None:
         target_lib = self.target_dir / "lib"
@@ -1025,9 +1028,9 @@ class WinFreezer(Freezer, PEParser):
         winmsvcr = import_module("cx_Freeze.winmsvcr")
         if not self.include_msvcr:
             # just put on the exclusion list
-            self.bin_excludes.extend(list(map(Path, winmsvcr.FILES)))
+            self.bin_excludes.extend(winmsvcr.FILES)
             return set()
-        return winmsvcr.FILES
+        return set(winmsvcr.FILES)
 
 
 class DarwinFreezer(Freezer, Parser):
