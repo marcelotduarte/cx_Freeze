@@ -29,7 +29,7 @@ OUTPUT_SUBPACKAGE_TEST = "This is p.p1\nThis is p.q.q1\n"
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": [],
+    "executables": ["hello.py"],
     "script_name": "setup.py",
 }
 
