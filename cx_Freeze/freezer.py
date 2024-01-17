@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
+from setuptools import Distribution
+
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze._typing import IncludesList, InternalIncludesList
 from cx_Freeze.common import get_resource_file_path, process_path_specs
@@ -475,18 +477,12 @@ class Freezer:
 
         return True
 
-    @staticmethod
     def _validate_executables(
-        executables: Sequence[Executable, Mapping[str, str], str]
+        self, executables: Sequence[Executable, Mapping[str, str], str]
     ) -> list[Executable]:
         """Returns valid Executable list."""
-        executables = list(executables)
-        for i, executable in enumerate(executables):
-            if isinstance(executable, str):
-                executables[i] = Executable(executable)
-            elif isinstance(executable, Mapping):
-                executables[i] = Executable(**executable)
-        return executables
+        dist = Distribution(attrs={"executables": executables})
+        return dist.executables
 
     @staticmethod
     def _validate_path(path: list[str | Path] | None = None) -> list[str]:

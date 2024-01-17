@@ -23,7 +23,7 @@ DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
     "description": "cx_Freeze script to test bdist_appimage",
-    "executables": [],
+    "executables": ["hello.py"],
     "script_name": "setup.py",
 }
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"

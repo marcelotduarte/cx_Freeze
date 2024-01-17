@@ -15,7 +15,7 @@ bdist_msi = pytest.importorskip(
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": [],
+    "executables": ["hello.py"],
     "script_name": "setup.py",
 }
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"

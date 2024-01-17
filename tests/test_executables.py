@@ -129,6 +129,12 @@ def test_valid(option, value, result):
     [
         (
             Distribution,
+            {"attrs": {"executables": [], "script_name": "setup.py"}},
+            SetupError,
+            "'executables' must be a list of Executable",
+        ),
+        (
+            Distribution,
             {"attrs": {"executables": "hello.py", "script_name": "setup.py"}},
             SetupError,
             "'executables' must be a list of Executable",
@@ -159,7 +165,8 @@ def test_valid(option, value, result):
         ),
     ],
     ids=[
-        "executables-invalid",
+        "executables-invalid-empty",
+        "executables-invalid-string",
         "executable-invalid-base",
         "executable-invalid-init_script",
         "executable-invalid-target_name",

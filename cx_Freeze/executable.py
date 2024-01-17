@@ -18,7 +18,7 @@ STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
 
-__all__ = ["Executable"]
+__all__ = ["Executable", "validate_executables"]
 
 
 class Executable:
@@ -229,7 +229,7 @@ class Executable:
         self._internal_name: str = name
 
 
-def validate_executables(dist: Distribution, attr: str, value):  # noqa: ARG001
+def validate_executables(dist: Distribution, attr: str, value):
     """Verify that value is a valid executables attribute, which could be an
     Executable list, a mapping list or a string list.
     """
@@ -237,6 +237,7 @@ def validate_executables(dist: Distribution, attr: str, value):  # noqa: ARG001
         # verify that value is a list or tuple to exclude unordered
         # or single-use iterables
         assert isinstance(value, (list, tuple))
+        assert value
         # verify that elements of value are Executable, Dict or string
         for executable in value:
             assert isinstance(executable, (Executable, Mapping, str))
@@ -244,3 +245,12 @@ def validate_executables(dist: Distribution, attr: str, value):  # noqa: ARG001
         raise SetupError(
             f"{attr!r} must be a list of Executable (got {value!r})"
         ) from exc
+
+    # Returns valid Executable list
+    executables = list(getattr(dist, attr, []))
+    for i, executable in enumerate(executables):
+        if isinstance(executable, str):
+            executables[i] = Executable(executable)
+        elif isinstance(executable, Mapping):
+            executables[i] = Executable(**executable)
+    dist.executables = executables

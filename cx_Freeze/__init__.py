@@ -11,8 +11,9 @@ import setuptools
 from cx_Freeze.command.build_exe import BuildEXE as build_exe
 from cx_Freeze.command.install import Install as install
 from cx_Freeze.command.install_exe import InstallEXE as install_exe
+from cx_Freeze.executable import Executable, validate_executables
 from cx_Freeze.finder import Module, ModuleFinder
-from cx_Freeze.freezer import ConstantsModule, Executable, Freezer
+from cx_Freeze.freezer import ConstantsModule, Freezer
 
 __all__ = [
     "build_exe",
@@ -75,6 +76,7 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     """Use a setuptools extension to customize Distribution options."""
     if getattr(dist, "executables", None) is None:
         return
+    validate_executables(dist, "executables", dist.executables)
 
     # Fix package discovery (setuptools >= 61)
     if getattr(dist, "py_modules", None) is None:

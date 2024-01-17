@@ -21,7 +21,7 @@ DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
     "description": "cx_Freeze script to test bdist_deb",
-    "executables": [],
+    "executables": ["hello.py"],
     "script_name": "setup.py",
     "author": "Marcelo Duarte",
     "author_email": "marcelotduarte@users.noreply.github.com",
