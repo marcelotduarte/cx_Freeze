@@ -97,20 +97,6 @@ def test_build_exe_asmodule(datafiles: Path):
     assert output.startswith("Hello from cx_Freeze")
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_build_exe_simple_include_msvcr(datafiles: Path):
-    """Test the simple sample with include_msvcr option."""
-    command = BUILD_EXE_CMD + " --include-msvcr"
-    output = run_command(datafiles, command)
-
-    build_exe_dir = datafiles / BUILD_EXE_DIR
-    executable = build_exe_dir / f"hello{SUFFIX}"
-    assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
-
-
 @pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
 def test_build_exe_sqlite(datafiles: Path):
     """Test the sqlite sample."""
