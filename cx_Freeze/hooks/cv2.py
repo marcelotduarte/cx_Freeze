@@ -54,20 +54,32 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     # Use optmized mode
     module.in_file_system = 2
     finder.include_package("cv2")
-    for path in source_dir.glob("config*.py"):
-        finder.include_files(path, target_dir / path.name)
+    finder.exclude_module("cv2.config-3")
+    finder.exclude_module("cv2.load_config_py2")
+    module.exclude_names.add("load_config_py2")
+    # include files config.py (empty) and config-3.py (original)
+    source = finder.cache_path / "cv2-config.py"
+    source.touch()
+    finder.include_files(source, target_dir / "config.py")
+    finder.include_files(
+        source_dir / "config-3.py", target_dir / "config-3.py"
+    )
+    # data files
     data_dir = source_dir / "data"
     if data_dir.exists():
-        finder.include_files(data_dir, target_dir / "data")
+        for path in data_dir.glob("*.xml"):
+            finder.include_files(path, target_dir / "data" / path.name)
 
     # Copy all binary files
     if IS_WINDOWS:
+        for path in source_dir.glob("*.dll"):
+            finder.include_files(path, target_dir / path.name)
         return
 
     if IS_MACOS:
         libs_dir = source_dir / ".dylibs"
         if libs_dir.exists():
-            finder.include_files(libs_dir, "lib/cv2/.dylibs")
+            finder.include_files(libs_dir, target_dir / ".dylibs")
         return
 
     # Linux and others
