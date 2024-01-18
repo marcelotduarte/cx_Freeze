@@ -152,15 +152,12 @@ The script is invoked as follows:
 
    :doc:`setup() keywords <keywords>`.
 
-   :packaging:`Declaring project metadata </specifications/declaring-project-metadata/>`
+   :packaging:`Declaring project metadata <specifications/declaring-project-metadata/>`
 
    :ref:`cx_freeze_executable`
 
-.. note:: There are more examples in the |samples| directory.
-
-.. |samples| raw:: html
-
-   <a href="https://github.com/marcelotduarte/cx_Freeze/tree/main/samples" target="_blank">samples</a>
+.. note:: There are more examples in the :repository:`samples
+   <tree/main/samples/>` directory.
 
 This command will create a subdirectory called ``build`` with a further
 subdirectory starting with the letters ``exe.`` and ending with the typical
@@ -566,7 +563,8 @@ For example:
     )
 
 Samples:
-There are more examples in the |samples| directory.
+There are more examples in the :repository:`samples <tree/main/samples/>`
+directory.
 
 .. seealso:: `Windows Installer
    <https://docs.microsoft.com/en-us/windows/win32/msi/windows-installer-portal>`_
@@ -583,7 +581,8 @@ Please check the options on the command line:
 
     python setup.py bdist_rpm --help
 
-.. seealso:: :setuptools:`Creating RPM packages </deprecated/distutils/builtdist.html#creating-rpm-packages>`
+.. seealso:: :setuptools:`Creating RPM packages
+   <deprecated/distutils/builtdist.html#creating-rpm-packages>`
 
 
 bdist_mac
