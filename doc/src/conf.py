@@ -24,6 +24,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinx_new_tab_link",
     "sphinx_tabs.tabs",
 ]
 
@@ -230,14 +231,18 @@ man_pages = [
 
 # sphinx.ext.extlinks
 extlinks = {
+    # github
+    "repository": ("https://github.com/marcelotduarte/cx_Freeze/%s", "%s"),
     "issue": (
         "https://github.com/marcelotduarte/cx_Freeze/issues/%s",
         "Issue #%s",
     ),
     "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "PR #%s"),
-    "pypi": ("https://pypi.org/project/%s", "%s"),
     "user": ("https://github.com/%s", "@%s"),
-    "packaging": ("https://packaging.python.org/en/latest/%s", "%s"),
+    # python
+    "packaging": ("https://packaging.python.org/%s", "%s"),
+    "pypi": ("https://pypi.org/project/%s", "%s"),
+    "pythondocs": ("https://docs.python.org/3/%s", "%s"),
     "setuptools": ("https://setuptools.pypa.io/en/latest/%s", "%s"),
 }
 

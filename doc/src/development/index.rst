@@ -16,11 +16,7 @@ the issue tracker.
 Setup
 -----
 
-The source code can be found on |Github_main|.
-
-.. |Github_main| raw:: html
-
-   <a href="https://github.com/marcelotduarte/cx_Freeze" target="_blank">Github</a>
+The source code can be found on :repository:`Github <>`.
 
 You can use ``git`` to clone the repository:
 
@@ -50,8 +46,9 @@ Building redistributable binary wheels
 When ``python -m build`` or ``pip wheel`` is used to build a cx_Freeze wheel,
 that wheel will rely on external shared libraries. Such wheels
 therefore will only run on the system on which they are built. See
-`the pypackaging-native content under "Building and installing or uploading
-artifacts" <https://pypackaging-native.github.io/meta-topics/build_steps_conceptual/#building-and-installing-or-uploading-artifacts>`__ for more context on that.
+`Building and installing or uploading artifacts
+<https://pypackaging-native.github.io/meta-topics/build_steps_conceptual/#building-and-installing-or-uploading-artifacts>`_
+for more context on that.
 
 A wheel like that is therefore an intermediate stage to producing a binary that
 can be distributed. That final binary may be a wheel - in that case, run

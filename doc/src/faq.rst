@@ -35,16 +35,8 @@ Specifying modules and packages
 
 The definitions of modules and packages are different. See python documentation.
 
-* |modules_link|.
-* |packages_link|.
-
-.. |modules_link| raw:: html
-
-   <a href="https://docs.python.org/3/tutorial/modules.html" target="_blank">Modules</a>
-
-.. |packages_link| raw:: html
-
-   <a href="https://docs.python.org/3/tutorial/modules.html#packages" target="_blank">Packages</a>
+* :pythondocs:`Modules <tutorial/modules.html>`.
+* :pythondocs:`Packages <tutorial/modules.html#packages>`.
 
 Windows command prompt appears briefly
 --------------------------------------
@@ -71,13 +63,10 @@ makes an executable that runs on that platform. So if you want to freeze your
 programs for Windows, freeze it on Windows; if you want to run it on Macs,
 freeze it on a Mac.
 
-At a pinch, you can try to make a Windows executable using |winehq_link|. Our
-experience is that you need to copy some files in manually after **cx_Freeze**
-has run to make the executable work. We don't recommend this option.
-
-.. |winehq_link| raw:: html
-
-   <a href="https://www.winehq.org/" target="_blank">Wine</a>
+At a pinch, you can try to make a Windows executable using `Wine
+<https://www.winehq.org/>`_. Our experience is that you need to copy some files
+in manually after **cx_Freeze** has run to make the executable work. We don't
+recommend this option.
 
 .. _data_files:
 
@@ -126,16 +115,10 @@ you have installed.
 
   Download:
 
-     * |vc_redist_32|
-     * |vc_redist_64|
-
-.. |vc_redist_32| raw:: html
-
-   <a href="https://aka.ms/vs/16/release/vc_redist.x86.exe" target="_blank">for x86 (32 bit) Windows</a>
-
-.. |vc_redist_64| raw:: html
-
-   <a href="https://aka.ms/vs/16/release/vc_redist.x64.exe" target="_blank">for x64 (64 bit) Windows</a>
+     * `for x86 (32 bit) Windows
+       <https://aka.ms/vs/16/release/vc_redist.x86.exe>`_
+     * `for x64 (64 bit) Windows
+       <https://aka.ms/vs/16/release/vc_redist.x64.exe>`_
 
 Single-file executables
 -----------------------
@@ -175,11 +158,7 @@ How to install Patchelf
 -----------------------
 
 Patchelf is used in Linux and unix-like systems (FreeBSD, etc, except macOS).
-In Linux, cx_Freeze 6.10+ installs it using |PyPI_link_patchelf| wheels.
-
- .. |PyPI_link_patchelf| raw:: html
-
-   <a href="https://pypi.org/project/patchelf/" target="_blank">PyPI</a>
+In Linux, cx_Freeze 6.10+ installs it using :pypi:`Patchelf <patchelf>` wheels.
 
 If you have any trouble with it, because your platform is not supported by
 binary wheels, please install it using the system package manager or from
@@ -197,8 +176,5 @@ sources.
 
     dnf install patchelf
 
- Or install patchelf from |patchelf_sources|.
-
- .. |patchelf_sources| raw:: html
-
-   <a href="https://github.com/NixOS/patchelf#compiling-and-testing" target="_blank">sources</a>
+ Or install patchelf from `sources
+ <https://github.com/NixOS/patchelf#compiling-and-testing>`_.
