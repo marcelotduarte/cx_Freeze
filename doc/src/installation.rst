@@ -40,7 +40,8 @@ Directly from the conda-forge channel:
 
     conda install conda-forge::cx_freeze
 
-.. seealso:: `cx_freeze-feedstock <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
+.. seealso:: `cx_freeze-feedstock
+   <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
 
 Python requirements
 -------------------
