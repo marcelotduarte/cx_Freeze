@@ -542,7 +542,7 @@ For example:
         [
             Executable(
                 "hello.py",
-                copyright="Copyright (C) 2023 cx_Freeze",
+                copyright="Copyright (C) 2024 cx_Freeze",
                 base=base,
                 icon="icon.ico",
                 shortcut_name="My Program Name",

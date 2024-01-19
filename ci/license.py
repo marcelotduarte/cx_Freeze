@@ -1,11 +1,11 @@
 """License sync."""
-
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-FROZEN_HEADER = """Why this file is included
+FROZEN_HEADER = """\
+Why this file is included
 =========================
 
 This program has been frozen with cx_Freeze.  The freezing process
@@ -27,13 +27,13 @@ def update_frozen_license() -> int:
     srcpath = Path("doc/src/license.rst")
     dstpath = Path("cx_Freeze/initscripts/frozen_application_license.txt")
     try:
-        content = srcpath.read_text(encoding="utf-8")
+        content = srcpath.read_text(encoding="utf_8")
     except OSError:
         print(ERROR1, file=sys.stderr)
         return 1
     content = FROZEN_HEADER + "\n".join(content.splitlines()[1:]) + "\n"
     try:
-        dstpath.write_text(content, encoding="utf-8")
+        dstpath.write_text(content, encoding="utf_8")
         print(dstpath, "ok")
     except OSError as io_error:
         print(ERROR2, f"({io_error}).", file=sys.stderr)
