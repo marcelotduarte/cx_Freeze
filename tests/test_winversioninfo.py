@@ -2,10 +2,32 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
+from subprocess import CalledProcessError
+from sysconfig import get_platform, get_python_version
 
 import pytest
+from generate_samples import create_package, run_command
 
-from cx_Freeze.winversioninfo import Version, VersionInfo
+from cx_Freeze.winversioninfo import Version, VersionInfo, main_test
+
+PLATFORM = get_platform()
+PYTHON_VERSION = get_python_version()
+BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+
+SOURCE_SIMPLE_TEST = """
+test.py
+    print("Hello from cx_Freeze")
+setup.py
+    from cx_Freeze import setup
+
+    setup(
+        name="hello",
+        version="0.1.2.3",
+        description="Sample cx_Freeze script",
+        executables=["test.py"],
+    )
+"""
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
@@ -16,7 +38,9 @@ class TestVersionInfo:
         """Tests the default value for the VersionInfo class."""
         input_version = "9.9.9.9"
         default_version = VersionInfo(input_version)
-        assert default_version.version == Version(input_version)
+        valid_version = Version(input_version)
+        assert default_version.version == "9.9.9.9"
+        assert default_version.valid_version == valid_version
         assert default_version.internal_name is None
         assert default_version.original_filename is None
         assert default_version.comments is None
@@ -28,17 +52,6 @@ class TestVersionInfo:
         assert default_version.dll is None
         assert default_version.debug is None
         assert default_version.verbose is True
-
-    def test___init__pads_short_versions(self):
-        """Tests that short versions get padded to the expected x4 digit
-        windows versions.
-        """
-        input_version = "9"
-        default_version = VersionInfo(input_version)
-        assert (
-            default_version.version.base_version
-            == Version(input_version).base_version
-        )
 
     def test___init__with_kwargs(self):
         """Tests keyword values for the VersionInfo class."""
@@ -70,7 +83,8 @@ class TestVersionInfo:
             verbose=input_verbose,
         )
 
-        assert version_instance.version == Version(input_version)
+        assert version_instance.version == "9.9.9.9"
+        assert version_instance.valid_version == Version(input_version)
         assert version_instance.internal_name == input_internal_name
         assert version_instance.original_filename == input_original_filename
         assert version_instance.comments == input_comments
@@ -82,3 +96,70 @@ class TestVersionInfo:
         assert version_instance.dll is input_dll
         assert version_instance.debug is input_debug
         assert version_instance.verbose is input_verbose
+
+    @pytest.mark.parametrize(
+        ("input_version", "version"),
+        [
+            ("9", "9.0.0.0"),
+            ("0.1", "0.1.0.0"),
+            ("1.0", "1.0.0.0"),
+            ("1.0.1", "1.0.1.0"),
+            ("1.2.3.4", "1.2.3.4"),
+            ("6.0alpha", "6.0.0.0"),
+            ("6.0.alpha", "6.0.0.0"),
+            ("1.0.dev1", "1.0.0.0"),
+            ("1.0.post1", "1.0.0.0"),
+        ],
+    )
+    def test_windows_versions(self, input_version, version):
+        """Tests that short versions get padded to the expected x4 digit
+        windows versions.
+        """
+        default_version = VersionInfo(input_version)
+        assert default_version.version == version
+        assert default_version.version_info(Path("test.exe"))
+
+    def test_file_not_found(self):
+        """Test for FileNotFoundError exception."""
+        version = VersionInfo("0.1")
+        with pytest.raises(FileNotFoundError):
+            version.stamp("test.exe")
+
+    @pytest.fixture()
+    def tmp_test(self, tmp_path):
+        """Generate a executable file test.exe to be used in tests."""
+        create_package(tmp_path, SOURCE_SIMPLE_TEST)
+        run_command(tmp_path)
+
+        file_created = tmp_path / BUILD_EXE_DIR / "test.exe"
+        assert file_created.is_file(), f"file not found: {file_created}"
+
+        output = run_command(tmp_path, file_created, timeout=10)
+        assert output.startswith("Hello from cx_Freeze")
+
+        return file_created
+
+    @pytest.mark.parametrize(
+        "option",
+        [
+            "--dict",
+            "--raw",
+            pytest.param("--pywin32", marks=pytest.mark.xfail),
+        ],
+    )
+    def test_main(self, tmp_test, option, capsys):
+        """Test the cx_Freeze.winversioninfo __main_ entry point."""
+        main_test(args=["--version=0.2", option, f"{tmp_test}"])
+        captured = capsys.readouterr()
+        assert captured.out.splitlines()[-1].startswith("Stamped:")
+
+    def test_main_no_option(self):
+        """Test argparse error exception."""
+        with pytest.raises(SystemExit):
+            main_test(args=[])
+
+    def test_main_with_environ(self, tmp_test, monkeypatch):
+        """Test argparse error exception."""
+        monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
+        with pytest.raises(CalledProcessError):
+            run_command(tmp_test.parent, "python -m cx_Freeze.winversioninfo")

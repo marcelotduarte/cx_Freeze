@@ -1,5 +1,6 @@
 ## Test Execution
-To Execute the tests in this folder do the following steps
+To Execute the tests in this folder, do the following steps in the parent
+directory:
 
 1 - Install cx_Freeze in development mode using:
 
@@ -17,7 +18,7 @@ To Execute the tests in this folder do the following steps
 3 - Call the tests (debuggable) with:
 
  ```
- python -m pytest
+ python -m pytest -n 0
  ```
 
 3.1 - To speed up test runs using multiple CPUs: (uses pytest-xdist)
@@ -29,17 +30,17 @@ To Execute the tests in this folder do the following steps
 3.2 - With coverage (not-debuggable) with:
 
  ```
- python -m pytest --cov="cx_Freeze" --cov-report=html
+ python -m pytest --cov="cx_Freeze" --cov-report=html:./build/coverage
  ```
 
 3.2.1 - To speed up the coverage (not-debuggable) with:
 
  ```
- python -m pytest -n auto --cov="cx_Freeze" --cov-report=html
+ python -m pytest -n auto --cov="cx_Freeze" --cov-report=html:./build/coverage
  ```
 
 3.2.2 - To navigate to the coverage report:
 
  ```
- python -m webbrowser -t ./htmlcov/index.html
+ python -m webbrowser -t :./build/coverage/index.html
  ```
