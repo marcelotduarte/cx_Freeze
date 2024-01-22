@@ -5,20 +5,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from importlib import import_module
 from pathlib import Path
 from struct import calcsize, pack
 
 from ._compat import packaging
-
-try:
-    from win32verstamp import stamp as version_stamp
-except ImportError:
-    version_stamp = None
-
-try:
-    from cx_Freeze import util
-except ImportError:
-    util = None
 
 __all__ = ["Version", "VersionInfo"]
 
@@ -201,7 +192,12 @@ class VersionInfo:
         debug: bool | None = None,
         verbose: bool = True,
     ):
-        self.version: Version = Version(version)
+        valid_version = Version(version)
+        parts = list(valid_version.release)
+        while len(parts) < 4:
+            parts.append(0)
+        self.version: str = ".".join(map(str, parts))
+        self.valid_version: Version = valid_version
         self.internal_name: str | None = internal_name
         self.original_filename: str | None = original_filename
         self.comments: str | None = comments
@@ -222,19 +218,22 @@ class VersionInfo:
             raise FileNotFoundError(path)
 
         if CX_FREEZE_STAMP == "pywin32":
-            if version_stamp is None:
-                raise RuntimeError("install pywin32 extensions first")
-
-            options = self
-            setattr(options, "version", str(self.version))  # noqa: B010
-            version_stamp(os.fspath(path), options)
+            try:
+                version_stamp = import_module("win32verstamp").stamp
+            except ImportError as exc:
+                raise RuntimeError("install pywin32 extension first") from exc
+            version_stamp(os.fspath(path), self)
             return
 
         # internal
         string_version_info = self.version_info(path)
         if CX_FREEZE_STAMP == "internal":
-            if util is None:
-                raise RuntimeError("cx_Freeze.util extensions not found")
+            try:
+                util = import_module("cx_Freeze.util")
+            except ImportError as exc:
+                raise RuntimeError(
+                    "cx_Freeze.util extension not found"
+                ) from exc
             handle = util.BeginUpdateResource(path, 0)
             util.UpdateResource(
                 handle, RT_VERSION, ID_VERSION, string_version_info.to_buffer()
@@ -246,36 +245,36 @@ class VersionInfo:
 
     def version_info(self, path: Path) -> String:
         """Returns the String version info used to stamp the version."""
-        major = self.version.major
-        minor = self.version.minor
-        micro = self.version.micro
+        major = self.valid_version.major
+        minor = self.valid_version.minor
+        micro = self.valid_version.micro
         build = 0
         file_flags = 0
         if self.debug is None or path.stem.lower().endswith("_d"):
             file_flags += 1
-        if self.version.is_devrelease:
+        if self.valid_version.is_devrelease:
             file_flags += 8
-            build = self.version.dev
-        elif self.version.is_prerelease:
+            build = self.valid_version.dev
+        elif self.valid_version.is_prerelease:
             file_flags += 2
-            build = self.version.pre[1]
-        elif self.version.is_postrelease:
+            build = self.valid_version.pre[1]
+        elif self.valid_version.is_postrelease:
             file_flags += 0x20
-            build = self.version.post
-        elif len(self.version.release) >= 4:
-            build = self.version.release[3]
+            build = self.valid_version.post
+        elif len(self.valid_version.release) >= 4:
+            build = self.valid_version.release[3]
 
         data = {
             "Comments": self.comments or "",
             "CompanyName": self.company or "",
             "FileDescription": self.description or "",
-            "FileVersion": self.version.base_version,
+            "FileVersion": self.version,
             "InternalName": self.internal_name or path.name,
             "LegalCopyright": self.copyright or "",
             "LegalTrademarks": self.trademarks or "",
             "OriginalFilename": self.original_filename or path.name,
             "ProductName": self.product or "",
-            "ProductVersion": str(self.version),
+            "ProductVersion": str(self.valid_version),
         }
         is_dll = self.dll
         if is_dll is None:
@@ -316,19 +315,18 @@ class VersionInfo:
         return string_version_info
 
 
-if __name__ == "__main__":
-    # simple test
+def main_test(args=None):
+    """Command line test."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "filename",
         nargs="?",
-        metavar="NAME",
+        metavar="FILENAME",
         help="the name of the file (.dll, .pyd or .exe) to test version stamp",
     )
     parser.add_argument(
         "--version",
         action="store",
-        dest="version",
         default="0.1",
         help="version to set as test",
     )
@@ -344,11 +342,19 @@ if __name__ == "__main__":
         dest="as_raw",
         help="show version info as raw bytes",
     )
-    test_args = parser.parse_args()
+    parser.add_argument(
+        "--pywin32",
+        action="store_true",
+        help="use pywin32 (win32verstamp) to set version information",
+    )
+    test_args = parser.parse_args(args)
     if test_args.filename is None:
         parser.error("filename must be specified")
     else:
         test_filename = Path(test_args.filename)
+    if test_args.pywin32:
+        global CX_FREEZE_STAMP  # noqa: PLW0603
+        CX_FREEZE_STAMP = "pywin32"
 
     test_version = VersionInfo(
         test_args.version,
@@ -365,3 +371,8 @@ if __name__ == "__main__":
     if test_args.as_raw:
         print(test_version.version_info(test_filename).to_buffer().hex(":"))
     test_version.stamp(test_filename)
+
+
+if __name__ == "__main__":
+    # simple test
+    main_test()
