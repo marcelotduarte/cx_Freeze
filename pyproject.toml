@@ -200,11 +200,12 @@ disable = [
     "duplicate-code",
     "exec-used",
     "fixme",
+    "global-statement",              # checked by ruff PLW0603
     "import-error",
     "missing-class-docstring",       # checked by ruff D101
     "missing-function-docstring",    # checked by ruff D103
     "missing-module-docstring",      # checked by ruff D100
-    "no-member",  # not handled by ruff yet E1101
+    "no-member",                     # not handled by ruff yet E1101
     "protected-access",
     "redefined-builtin",             # checked by ruff A
     "too-few-public-methods",
@@ -219,7 +220,7 @@ disable = [
     "unbalanced-tuple-unpacking",    # not handled by ruff yet W0632
     "ungrouped-imports",             # checked by ruff C0412 (I001)
     "unused-argument",               # checked by ruff ARG
-    "useless-parent-delegation",     # not handled by ruff yet W0246"
+    "useless-parent-delegation",     # not handled by ruff yet W0246
 ]
 ignore-paths = [
     "cx_Freeze/darwintools.py",
@@ -237,7 +238,7 @@ max-line-length = 79
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-rpfEsx -nauto"
+addopts = "-rpfEsXx -nauto"
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:distutils.*",
