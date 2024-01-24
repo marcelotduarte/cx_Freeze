@@ -121,9 +121,9 @@ class PEParser(Parser):
             self.imports_only = imports_only
             resource_only = lief.PE.ParserConfig()
             resource_only.parse_exports = False
-            resource_only.parse_imports = True
+            resource_only.parse_imports = False
             resource_only.parse_reloc = False
-            resource_only.parse_rsrc = False
+            resource_only.parse_rsrc = True
             resource_only.parse_signature = False
             self.resource_only = resource_only
         else:
@@ -192,12 +192,12 @@ class PEParser(Parser):
             filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
             binary = lief.PE.parse(raw, self.resource_only or filename.name)
-        try:
-            resources_manager = binary.resources_manager
-            manifest = resources_manager.manifest
-        except lief.exception as exc:
-            raise PlatformError(exc) from None
-        return manifest
+        resources_manager = binary.resources_manager
+        return (
+            resources_manager.manifest
+            if resources_manager.has_manifest
+            else None
+        )
 
     def write_manifest(self, filename: str | Path, manifest: str) -> None:
         """:return: write the XML schema of the manifest into the executable
@@ -208,18 +208,15 @@ class PEParser(Parser):
             filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
             binary = lief.PE.parse(raw, self.resource_only or filename.name)
-        try:
-            resources_manager = binary.resources_manager
-            resources_manager.manifest = manifest
-            builder = lief.PE.Builder(binary)
-            builder.build_resources(True)
-            builder.build()
-            with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
-                tmp_path = Path(tmp_dir, "temp.exe")
-                builder.write(os.fspath(tmp_path))
-                shutil.move(tmp_path, filename)
-        except lief.exception as exc:
-            raise PlatformError(exc) from None
+        resources_manager = binary.resources_manager
+        resources_manager.manifest = manifest
+        builder = lief.PE.Builder(binary)
+        builder.build_resources(True)
+        builder.build()
+        with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
+            tmp_path = Path(tmp_dir, filename.name)
+            builder.write(os.fspath(tmp_path))
+            shutil.move(tmp_path, filename)
 
 
 class ELFParser(Parser):
