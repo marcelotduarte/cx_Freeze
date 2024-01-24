@@ -42,7 +42,7 @@ else:
 
     __all__.append(bdist_rpm.__name__)
 
-__version__ = "6.15.12"
+__version__ = "6.15.13"
 
 
 def setup(**attrs):  # noqa: D103
