@@ -9,6 +9,8 @@ from sysconfig import get_platform, get_python_version
 import pytest
 from generate_samples import create_package, run_command
 
+from cx_Freeze.parser import PEParser
+
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
 
@@ -86,6 +88,11 @@ def test_simple_manifest(tmp_manifest: Path):
     output = run_command(tmp_manifest, executable, timeout=10)
     expected = "Windows version: 6.2"
     assert output.splitlines()[0].strip() == expected
+
+    parser = PEParser([], [])
+    manifest = parser.read_manifest(executable)
+    simple = tmp_manifest.parent.parent.joinpath("simple.manifest")
+    assert manifest == simple.read_bytes().decode()
 
 
 def test_uac_admin(tmp_manifest: Path):
