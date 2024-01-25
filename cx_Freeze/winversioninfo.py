@@ -13,15 +13,15 @@ from ._compat import packaging
 
 __all__ = ["Version", "VersionInfo"]
 
+# types
+CHAR = "c"
+WCHAR = "ss"
+WORD = "=H"
+DWORD = "=L"
+
 # constants
 RT_VERSION = 16
 ID_VERSION = 1
-
-# types
-CHAR = "c"
-DWORD = "L"
-WCHAR = "H"
-WORD = "H"
 
 VS_FFI_SIGNATURE = 0xFEEF04BD
 VS_FFI_STRUCVERSION = 0x00010000
@@ -32,6 +32,8 @@ KEY_VERSION_INFO = "VS_VERSION_INFO"
 KEY_STRING_FILE_INFO = "StringFileInfo"
 KEY_STRING_TABLE = "040904E4"
 KEY_VAR_FILE_INFO = "VarFileInfo"
+
+COMMENTS_MAX_LEN = (64 - 2) * 1024 // calcsize(WCHAR)
 
 # To disable the experimental feature in Windows:
 # set CX_FREEZE_STAMP=pywin32
@@ -83,7 +85,7 @@ class Structure:
                 data = data.to_buffer()
             elif isinstance(data, str):
                 data = data.encode("utf-16le")
-            elif isinstance(fmt, str):
+            elif isinstance(data, int):
                 data = pack(fmt, data)
             buffer += data
         return buffer
@@ -143,7 +145,9 @@ class String(Structure):
             value_len = value.wLength
             fields.append(("Value", type(value)))
         elif isinstance(value, Structure):
-            value_len = calcsize("".join([f[1] for f in value._fields]))
+            value_len = 0
+            for field in value._fields:
+                value_len += calcsize(field[1])
             value_type = 0
             fields.append(("Value", type(value)))
 
@@ -200,7 +204,8 @@ class VersionInfo:
         self.valid_version: Version = valid_version
         self.internal_name: str | None = internal_name
         self.original_filename: str | None = original_filename
-        self.comments: str | None = comments
+        # comments length must be limited to 31kb
+        self.comments: str = comments[:COMMENTS_MAX_LEN] if comments else None
         self.company: str | None = company
         self.description: str | None = description
         self.copyright: str | None = copyright
@@ -222,6 +227,8 @@ class VersionInfo:
                 version_stamp = import_module("win32verstamp").stamp
             except ImportError as exc:
                 raise RuntimeError("install pywin32 extension first") from exc
+            # comments length must be limited to 15kb (uses WORD='h')
+            self.comments = (self.comments or "")[: COMMENTS_MAX_LEN // 2]
             version_stamp(os.fspath(path), self)
             return
 
@@ -264,17 +271,18 @@ class VersionInfo:
         elif len(self.valid_version.release) >= 4:
             build = self.valid_version.release[3]
 
+        # use the data in the order shown in 'pepper'
         data = {
-            "Comments": self.comments or "",
-            "CompanyName": self.company or "",
             "FileDescription": self.description or "",
             "FileVersion": self.version,
             "InternalName": self.internal_name or path.name,
+            "CompanyName": self.company or "",
             "LegalCopyright": self.copyright or "",
             "LegalTrademarks": self.trademarks or "",
             "OriginalFilename": self.original_filename or path.name,
             "ProductName": self.product or "",
             "ProductVersion": str(self.valid_version),
+            "Comments": self.comments or "",
         }
         is_dll = self.dll
         if is_dll is None:
@@ -312,6 +320,7 @@ class VersionInfo:
         string_version_info = String(KEY_VERSION_INFO, fixed_file_info)
         string_version_info.children(string_file_info)
         string_version_info.children(var_file_info)
+
         return string_version_info
 
 

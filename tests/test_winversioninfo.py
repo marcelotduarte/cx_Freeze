@@ -9,7 +9,12 @@ from sysconfig import get_platform, get_python_version
 import pytest
 from generate_samples import create_package, run_command
 
-from cx_Freeze.winversioninfo import Version, VersionInfo, main_test
+from cx_Freeze.winversioninfo import (
+    COMMENTS_MAX_LEN,
+    Version,
+    VersionInfo,
+    main_test,
+)
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -96,6 +101,14 @@ class TestVersionInfo:
         assert version_instance.dll is input_dll
         assert version_instance.debug is input_debug
         assert version_instance.verbose is input_verbose
+
+    def test_big_comment(self):
+        """Tests a big comment value for the VersionInfo class."""
+        input_version = "9.9.9.9"
+        input_comments = "TestComment" + "=" * COMMENTS_MAX_LEN
+        version_instance = VersionInfo(input_version, comments=input_comments)
+        assert version_instance.version == "9.9.9.9"
+        assert version_instance.comments == input_comments[:COMMENTS_MAX_LEN]
 
     @pytest.mark.parametrize(
         ("input_version", "version"),
