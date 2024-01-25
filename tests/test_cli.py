@@ -30,7 +30,7 @@ def test_cxfreeze(tmp_path: Path):
     assert output.startswith("Hello from cx_Freeze")
 
 
-def test_(tmp_path: Path):
+def test_cxfreeze_without_options(tmp_path: Path):
     """Test cxfreeze without options."""
     # same test as before, without icons
     create_package(tmp_path, SOURCE)
