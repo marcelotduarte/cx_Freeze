@@ -32,7 +32,6 @@ def test_cxfreeze(tmp_path: Path):
 
 def test_cxfreeze_without_options(tmp_path: Path):
     """Test cxfreeze without options."""
-    # same test as before, without icons
     create_package(tmp_path, SOURCE)
     with pytest.raises(CalledProcessError):
         run_command(tmp_path, "cxfreeze")

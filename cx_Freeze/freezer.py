@@ -103,13 +103,7 @@ class Freezer:
         self.zip_includes: InternalIncludesList = process_path_specs(
             zip_includes
         )
-        if isinstance(silent, bool):
-            if silent:
-                self.silent = 1
-            else:
-                self.silent = 0
-        else:
-            self.silent = silent
+        self.silent = int(silent)
         self.metadata: Any = metadata
 
         self.zip_exclude_packages: set[str] = {"*"}
