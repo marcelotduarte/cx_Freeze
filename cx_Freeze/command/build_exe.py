@@ -223,25 +223,7 @@ class BuildEXE(Command):
 
         # the degree of silencing, set from either the silent or silent-level
         # option, as appropriate
-        self.silent_setting = 0
-        if self.silent is not None and self.silent:
-            self.silent_setting = 1
-
-        if self.silent_level is None:
-            pass
-        elif self.silent_level is False:
-            self.silent_setting = 0
-        elif self.silent_level is True:
-            self.silent_setting = 1
-        elif isinstance(self.silent_level, int):
-            self.silent_setting = self.silent_level
-        elif isinstance(self.silent_level, str):
-            try:
-                self.silent_setting = int(self.silent_level)
-            except ValueError:
-                self.silent_setting = 1
-        else:
-            self.silent_setting = 1
+        self.silent = int(self.silent or self.silent_level or 0)
 
         #
         if self.include_msvcr is None:
@@ -276,7 +258,7 @@ class BuildEXE(Command):
             zip_includes=self.zip_includes,
             zip_include_packages=self.zip_include_packages,
             zip_exclude_packages=self.zip_exclude_packages,
-            silent=self.silent_setting,
+            silent=self.silent,
             metadata=metadata,
             include_msvcr=self.include_msvcr,
         )
