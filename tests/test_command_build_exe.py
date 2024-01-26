@@ -1,6 +1,7 @@
 """Tests for cx_Freeze.command.build_exe."""
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from sysconfig import get_platform, get_python_version
@@ -14,7 +15,7 @@ from cx_Freeze.exception import SetupError
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+BUILD_EXE_DIR = os.path.normpath(f"build/exe.{PLATFORM}-{PYTHON_VERSION}")
 
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
@@ -32,40 +33,76 @@ DIST_ATTRS = {
     "executables": ["hello.py"],
     "script_name": "setup.py",
 }
+SOURCE = """
+hello.py
+    print("Hello from cx_Freeze")
+"""
 
 
 @pytest.mark.parametrize(
-    ("option", "value"),
+    ("kwargs", "option", "result"),
     [
+        pytest.param(
+            {"build_exe": None},
+            "build_exe",
+            BUILD_EXE_DIR,
+            id="build-exe=none",
+        ),
         # build_exe directory is the same as the build_base
-        ("build_exe", "build")
+        pytest.param(
+            {"build_exe": "build"},
+            "build_exe",
+            None,
+            id="build-exe=build",
+            marks=pytest.mark.xfail(raises=SetupError),
+        ),
+        pytest.param(
+            {"build_exe": "dist"}, "build_exe", "dist", id="build-exe=dist"
+        ),
+        pytest.param(
+            {"include_msvcr": None},
+            "include_msvcr",
+            False,
+            id="include-msvcr=none",
+            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
+        ),
+        pytest.param(
+            {"include_msvcr": False},
+            "include_msvcr",
+            False,
+            id="include-msvcr=false",
+            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
+        ),
+        pytest.param(
+            {"include_msvcr": True},
+            "include_msvcr",
+            True,
+            id="include-msvcr=true",
+            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
+        ),
+        pytest.param({"silent": None}, "silent", 0, id="silent=none->0"),
+        pytest.param({"silent": False}, "silent", 0, id="silent=false->0"),
+        pytest.param({"silent": True}, "silent", 1, id="silent=true->1"),
+        pytest.param(
+            {"silent_level": None}, "silent", 0, id="silent-level=none->0"
+        ),
+        pytest.param({"silent_level": 0}, "silent", 0, id="silent-level=0->0"),
+        pytest.param({"silent_level": 1}, "silent", 1, id="silent-level=1->1"),
+        pytest.param({"silent_level": 2}, "silent", 2, id="silent-level=2->2"),
+        pytest.param(
+            {"silent_level": "3"}, "silent", 3, id="silent-level=3->3"
+        ),
     ],
 )
-def test_build_exe_invalid_options(option, value):
-    """Test the build_exe with invalid options."""
+def test_build_exe_finalize_options(
+    kwargs: dict[str, ...], option: str, result
+):
+    """Test the build_exe finalize_options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = build_exe(dist, **{option: value})
-    with pytest.raises(SetupError):
-        cmd.finalize_options()
-
-
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-@pytest.mark.parametrize(
-    ("option", "value", "result"),
-    [
-        ("include_msvcr", True, True),
-        ("include_msvcr", None, False),
-        ("include_msvcr", False, False),
-    ],
-    ids=["yes", "none", "no"],
-)
-def test_build_exe_with_include_msvcr_option(option, value, result):
-    """Test the build_exe with include_msvcr option."""
-    dist = Distribution(DIST_ATTRS)
-    cmd = build_exe(dist, **{option: value})
+    cmd = build_exe(dist, **kwargs)
     cmd.finalize_options()
     cmd.ensure_finalized()
-    assert cmd.include_msvcr == result
+    assert getattr(cmd, option) == result
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "advanced")
