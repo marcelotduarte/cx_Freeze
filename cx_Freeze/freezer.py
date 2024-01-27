@@ -521,10 +521,11 @@ class Freezer:
             name.partition(".")[0] for name in zip_exclude_packages
         }
         # check invalid usage
-        invalid = ", ".join(zip_include_packages & zip_exclude_packages)
+        invalid = sorted(zip_include_packages & zip_exclude_packages)
         if invalid:
             raise OptionError(
-                f"package{'s' if len(invalid)>1 else ''} {invalid!r} "
+                f"package{'s' if len(invalid)>1 else ''} "
+                f"{', '.join(invalid)!r} "
                 "cannot be both included and excluded from zip file"
             )
         # populate
@@ -903,11 +904,10 @@ class WinFreezer(Freezer, PEParser):
 
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[str] = []
-        if IS_MINGW:
+        name = sysconfig.get_config_var("INSTSONAME")
+        if name:
             # MSYS2 python returns a static library.
-            name = sysconfig.get_config_var("INSTSONAME")
-            if name:
-                python_shared_libs.append(name.replace(".dll.a", ".dll"))
+            python_shared_libs.append(name.replace(".dll.a", ".dll"))
         else:
             python_shared_libs += [
                 f"python{sys.version_info[0]}.dll",
