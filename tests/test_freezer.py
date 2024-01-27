@@ -78,7 +78,7 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch):
     if IS_WINDOWS:
         expected = f"python{PYTHON_VERSION.replace('.','')}.dll"
     elif IS_MACOS:
-        expected = f"libpython{PYTHON_VERSION}.dylib"
+        expected = f"Python.framework/Versions/{PYTHON_VERSION}/Python"
     else:
         expected = f"libpython{PYTHON_VERSION}.so"
     assert expected in freezer.bin_includes
