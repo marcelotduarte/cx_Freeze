@@ -25,9 +25,9 @@ jobs:
           pip install -v -e .[dev,doc]
 
       - name: Run pre-commit
-        uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --all-files --hook-stage=manual
+        run: >-
+          pre-commit run --show-diff-on-failure --color=always
+          --all-files --hook-stage manual
 
   tests:
     runs-on: ${{ matrix.os }}

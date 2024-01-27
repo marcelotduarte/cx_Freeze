@@ -10,18 +10,18 @@ all: install
 
 .PHONY: pre-commit
 pre-commit: install
-	@SKIP=pylint pre-commit run -a --hook-stage manual || true
+	@SKIP=pylint pre-commit run --show-diff-on-failure --color=always --all-files --hook-stage manual || true
 	@pre-commit gc
 
 .PHONY: pre-commit-all
 pre-commit-all: install
-	@pre-commit run -a --hook-stage manual || true
+	@pre-commit run --show-diff-on-failure --color=always --all-files --hook-stage manual || true
 	@pre-commit gc
 
 .PHONY: pylint
 pylint:
 	pip install --upgrade pylint
-	@pre-commit run pylint -a -v --hook-stage manual
+	@pre-commit run pylint --show-diff-on-failure --color=always --all-files --hook-stage manual
 
 .PHONY: clean
 clean:
