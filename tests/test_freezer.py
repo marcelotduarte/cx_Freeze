@@ -32,7 +32,7 @@ def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch):
 
     freezer = Freezer(executables=[Executable("hello.py")])
     target_dir = tmp_path / BUILD_EXE_DIR
-    assert freezer.target_dir.resolve() == target_dir
+    assert freezer.target_dir.absolute() == target_dir
 
 
 def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch):
