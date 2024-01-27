@@ -90,6 +90,13 @@ def prepare_parser():
         "tion (Windows only - ignored by Python app from Microsoft Store)",
     )
     parser.add_argument(
+        "--uac-uiaccess",
+        action="store_true",
+        dest="uac_uiaccess",
+        help="changes the application manifest to bypass user interface "
+        "control (Windows only - ignored by Python app from Microsoft Store)",
+    )
+    parser.add_argument(
         "--shortcut-name",
         dest="shortcut_name",
         metavar="NAME",
@@ -345,6 +352,7 @@ def main():
             args.trademarks,
             args.manifest,
             args.uac_admin,
+            args.uac_uiaccess,
         )
     ]
     freezer: Freezer = Freezer(

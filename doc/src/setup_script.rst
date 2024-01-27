@@ -793,6 +793,9 @@ constructor are as follows:
    * - .. option:: uac_admin
      - creates a manifest for an application that will request elevation
        (Windows only - ignored by Python app from Microsoft Store)
+   * - .. option:: uac_uiaccess
+     - changes the application manifest to bypass user interface control
+       (Windows only - ignored by Python app from Microsoft Store)
    * - .. option:: shortcut_name
      - the name to give a shortcut for the executable when included in an MSI
        package (Windows only)
@@ -810,14 +813,24 @@ constructor are as follows:
 .. versionadded:: 6.10
     ``manifest`` and ``uac_admin`` options.
 
+.. versionadded:: 6.16
+    ``uac_uiaccess`` option.
+
 .. versionchanged:: 6.5
     Arguments are all snake_case (camelCase removed in 6.15).
+
+.. seealso::
+
+   `Windows Manifest
+   <https://learn.microsoft.com/en-us/previous-versions/bb756929(v=msdn.10)#application-manifest-schema>`_
+
+   `Important note for uiaccess
+   <https://learn.microsoft.com/en-us/previous-versions/bb756929(v=msdn.10)#uiaccess-values>`_
 
 .. note::
 
    #. ``setup`` accepts a list of `Executable`
-   #. target_name has been extended to support version, like:
-      target_name="Hello-1.0"
-      target_name="Hello.0.1.exe"
+   #. target_name has been extended to support version, like
+      `target_name="Hello-0.1"` or `target_name="Hello.0.1.exe"`
    #. the name of the target executable can be modified after the build only if
       one Executable is built.

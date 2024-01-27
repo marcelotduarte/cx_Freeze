@@ -64,6 +64,11 @@ Further customization can be done using the following options:
     creates a manifest for an application that will request elevation
     (Windows only - ignored by Python app from Microsoft Store)
 
+.. option:: --uac-uiaccess
+
+    changes the application manifest to bypass user interface control
+    (Windows only - ignored by Python app from Microsoft Store)
+
 .. option:: --shortcut-name NAME
 
     the name to give a shortcut for the executable when included in
@@ -194,3 +199,9 @@ Further customization can be done using the following options:
 .. option:: --include-msvcr
 
     include the Microsoft Visual C runtime files
+
+.. versionadded:: 6.10
+    ``manifest`` and ``uac-admin`` options.
+
+.. versionadded:: 6.16
+    ``uac-uiaccess`` option.

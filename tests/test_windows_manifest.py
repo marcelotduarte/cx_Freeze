@@ -41,6 +41,12 @@ setup.py
                 uac_admin=True,
                 target_name="test_uac_admin",
             ),
+            Executable(
+                "test_manifest.py",
+                uac_admin=True,
+                uac_uiaccess=True,
+                target_name="test_uac_uiaccess",
+            ),
         ],
     )
 simple.manifest
@@ -98,6 +104,16 @@ def test_simple_manifest(tmp_manifest: Path):
 def test_uac_admin(tmp_manifest: Path):
     """With the uac_admin, should return WinError 740 - requires elevation."""
     executable = tmp_manifest / "test_uac_admin.exe"
+    assert executable.is_file()
+    if ctypes.windll.shell32.IsUserAnAdmin():
+        pytest.xfail(reason="User is admin")
+    with pytest.raises(OSError, match="[WinError 740]"):
+        run_command(tmp_manifest, executable, timeout=10)
+
+
+def test_uac_uiaccess(tmp_manifest: Path):
+    """With the uac_uiaccess, should return WinError 740."""
+    executable = tmp_manifest / "test_uac_uiaccess.exe"
     assert executable.is_file()
     if ctypes.windll.shell32.IsUserAnAdmin():
         pytest.xfail(reason="User is admin")
