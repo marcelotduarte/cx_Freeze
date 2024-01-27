@@ -16,7 +16,7 @@ pre-commit: install
 .PHONY: pre-commit-all
 pre-commit-all: install
 	@pre-commit run --show-diff-on-failure --color=always --all-files --hook-stage manual || true
-	@pre-commit gc 
+	@pre-commit gc
 
 .PHONY: pylint
 pylint:
