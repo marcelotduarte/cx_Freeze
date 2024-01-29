@@ -1,4 +1,5 @@
 """A setup script to demonstrate build using pycryptodome."""
+
 #
 # Run the build process by running the command 'python setup.py build'
 #

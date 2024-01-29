@@ -1,6 +1,7 @@
 """A collection of functions which are the base to hooks for PyQt5, PyQt6,
 PySide2 and PySide6.
 """
+
 from __future__ import annotations
 
 import json

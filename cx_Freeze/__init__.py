@@ -1,6 +1,7 @@
 """Create standalone executables from Python scripts, with the same performance
 and is cross-platform.
 """
+
 # pylint: disable=invalid-name
 from __future__ import annotations
 

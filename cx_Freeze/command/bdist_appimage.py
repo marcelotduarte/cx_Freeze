@@ -4,6 +4,7 @@ https://appimage.org/
 https://docs.appimage.org/
 https://docs.appimage.org/packaging-guide/manual.html#ref-manual
 """
+
 from __future__ import annotations
 
 import os

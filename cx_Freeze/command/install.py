@@ -1,4 +1,5 @@
 """Extends setuptools 'install' command."""
+
 from __future__ import annotations
 
 import contextlib

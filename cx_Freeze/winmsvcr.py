@@ -4,6 +4,7 @@ Extracted from:
     https://github.com/conda-forge/vc-feedstock/blob/master/recipe/meta.yaml
 
 """
+
 from __future__ import annotations
 
 FILES = (

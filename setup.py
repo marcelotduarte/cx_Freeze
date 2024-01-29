@@ -11,6 +11,7 @@ Use the following commands to install in the development mode:
 Documentation:
     https://cx-freeze.readthedocs.io/en/stable/development/index.html
 """
+
 from __future__ import annotations
 
 import contextlib

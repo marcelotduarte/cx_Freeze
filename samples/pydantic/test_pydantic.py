@@ -1,6 +1,7 @@
 """
 https://github.com/pydantic/pydantic#a-simple-example
 """
+
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel

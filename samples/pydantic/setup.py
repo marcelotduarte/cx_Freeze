@@ -1,6 +1,7 @@
 """
 A setup script to create a single executable.
 """
+
 #
 # Run the build process by running the command 'python setup.py build'
 #

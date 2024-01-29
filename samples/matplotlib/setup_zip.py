@@ -1,5 +1,6 @@
 """A simple setup script to create executables using matplotlib.
    This version requires the mpl-data in the zip file."""
+
 # matplotlib_eg.py is a very simple matplotlib application that demonstrates
 # its use.
 #

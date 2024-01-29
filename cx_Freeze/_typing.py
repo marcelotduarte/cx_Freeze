@@ -1,4 +1,5 @@
 """The internal _typing module."""
+
 from __future__ import annotations
 
 from pathlib import Path, PurePath

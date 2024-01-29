@@ -1,4 +1,5 @@
 """Test executables keyword (and Executable class)."""
+
 from __future__ import annotations
 
 import shutil

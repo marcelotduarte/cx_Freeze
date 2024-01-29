@@ -1,6 +1,7 @@
 """
 A setup script to demonstrate build using pycountry
 """
+
 from __future__ import annotations
 
 #

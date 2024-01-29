@@ -1,4 +1,5 @@
 """Extends setuptools to build macOS dmg or app blundle."""
+
 from __future__ import annotations
 
 import os
