@@ -1,4 +1,5 @@
 """Tests for 'python -m cx_Freeze'."""
+
 from __future__ import annotations
 
 import sys

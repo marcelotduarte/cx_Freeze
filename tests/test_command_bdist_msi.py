@@ -1,4 +1,5 @@
 """Tests for cx_Freeze.command.bdist_msi."""
+
 from __future__ import annotations
 
 from pathlib import Path

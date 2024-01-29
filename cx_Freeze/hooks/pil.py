@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 Pillow (PIL) package is included.
 """
+
 from __future__ import annotations
 
 from cx_Freeze._compat import IS_MACOS

@@ -1,6 +1,7 @@
 """Implements `Parser` interface to create an abstraction to parse binary
 files.
 """
+
 from __future__ import annotations
 
 import os

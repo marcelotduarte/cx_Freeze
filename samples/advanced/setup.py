@@ -1,5 +1,6 @@
 """An advanced setup script to create multiple executables and demonstrate a
 few of the features available to setup scripts."""
+
 #
 # Run the build process by running the command 'python setup.py build'
 #

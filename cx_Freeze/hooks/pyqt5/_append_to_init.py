@@ -1,4 +1,5 @@
 """Module used to inject a code to guessing and set the plugins directory."""
+
 import sys
 from pathlib import Path
 

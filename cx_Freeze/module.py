@@ -1,4 +1,5 @@
 """Base class for Module and ConstantsModule."""
+
 from __future__ import annotations
 
 import ast

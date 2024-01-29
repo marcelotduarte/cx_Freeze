@@ -1,4 +1,5 @@
 """Tests for cx_Freeze.command.build."""
+
 from __future__ import annotations
 
 import sys

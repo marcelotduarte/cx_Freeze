@@ -1,4 +1,5 @@
 """code sample found in the openpyxl documentation"""
+
 # https://openpyxl.readthedocs.io/en/default.
 
 from __future__ import annotations

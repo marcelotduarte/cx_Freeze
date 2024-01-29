@@ -2,6 +2,7 @@
 
 This is a simple wrapper around 'alien' that converts a rpm to deb.
 """
+
 from __future__ import annotations
 
 import logging

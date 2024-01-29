@@ -1,5 +1,6 @@
 """A simple setup script to create executable using matplotlib
    This version requires the mpl-data in the zip file."""
+
 # test_matplotlib_tk.py is a very simple matplotlib application that
 # demonstrates its use.
 #

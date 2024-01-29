@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 scikit-image package is included.
 """
+
 from __future__ import annotations
 
 from cx_Freeze.finder import ModuleFinder

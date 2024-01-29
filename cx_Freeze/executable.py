@@ -1,4 +1,5 @@
 """Module for the Executable base class."""
+
 from __future__ import annotations
 
 import os

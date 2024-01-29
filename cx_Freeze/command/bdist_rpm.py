@@ -3,6 +3,7 @@
 Borrowed from distutils.command.bdist_rpm of Python 3.10 and merged with
 bdist_rpm subclass of cx_Freeze 6.10.
 """
+
 from __future__ import annotations
 
 import logging

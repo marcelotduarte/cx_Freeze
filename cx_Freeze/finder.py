@@ -1,4 +1,5 @@
 """Module Finder - discovers what modules are required by the code."""
+
 from __future__ import annotations
 
 import importlib.machinery

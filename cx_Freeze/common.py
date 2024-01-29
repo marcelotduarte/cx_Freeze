@@ -1,4 +1,5 @@
 """Common utility functions shared between cx_Freeze modules."""
+
 from __future__ import annotations
 
 import shutil

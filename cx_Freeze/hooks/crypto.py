@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 pycryptodome package is included.
 """
+
 from cx_Freeze.hooks.cryptodome import Hook as CryptoHook
 
 

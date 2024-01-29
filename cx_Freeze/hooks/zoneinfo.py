@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 zoneinfo package is included.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
