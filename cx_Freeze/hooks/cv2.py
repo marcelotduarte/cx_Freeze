@@ -62,7 +62,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("cv2.load_config_py2")
     module.exclude_names.add("load_config_py2")
     # include files config.py (empty) and config-3.py (original)
-    source = finder.cache_path / "cv2-config.py"
+    source = temp_path.path / "cv2-config.py"
     source.touch()
     finder.include_files(source, target_dir / "config.py")
     finder.include_files(
