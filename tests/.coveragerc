@@ -1,9 +1,0 @@
-[run]
-branch = True
-include =
-    ../cx_Freeze/*
-
-omit =
-
-[html]
-directory = coverage_html_report
