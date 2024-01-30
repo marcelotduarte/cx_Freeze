@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           cache: 'pip'
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     defaults:
       run:
         shell: bash
@@ -54,13 +54,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt --pre
           pip install -v -e .[test] --no-build-isolation
-          if [[ ${{ matrix.os }} == windows-* ]] && [ "${{ matrix.python-version }}" == "3.10" ]; then
-            # to coverage winversioninfo
-            pip install pywin32
-          fi
 
       - name: Generate coverage report
-        run: python -m pytest --cov="cx_Freeze" --cov-report=xml
+        run: |
+          mkdir -p coverage
+          python -m pytest -nauto\
+            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage0.xml
+
+      - name: Extra coverage for Windows
+        if: runner.os == 'Windows' && matrix.python-version == '3.10'
+        run: |
+          # to test lief < 0.14
+          pip install "lief==0.13.2"
+          python -m pytest -nauto\
+            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage1.xml\
+            tests/test_command_build.py tests/test_command_build_exe.py\
+            tests/test_winversioninfo.py
+          # to test without lief (LIEF_DISABLED)
+          export CX_FREEZE_BIND=imagehlp
+          python -m pytest -nauto\
+            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage2.xml\
+            tests/test_command_build.py tests/test_command_build_exe.py\
+            tests/test_winversioninfo.py
+          # to coverage winversioninfo using pywin32
+          pip install --upgrade pywin32
+          python -m pytest -nauto\
+            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage3.xml\
+            tests/test_winversioninfo.py
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          directory: coverage

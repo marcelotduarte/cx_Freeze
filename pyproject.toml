@@ -67,9 +67,10 @@ doc = [
     "furo==2023.9.10",
 ]
 test = [
-    "pluggy==1.4.0",
     "pytest==8.0.0",
+        "pluggy==1.4.0",
     "pytest-cov==4.1.0",
+        "coverage==7.4.1",
     "pytest-datafiles==3.0.0",
     "pytest-mock==3.12.0",
     "pytest-timeout==2.2.0",
@@ -140,6 +141,27 @@ values = [
 	"dev",
 	"prod"
 ]
+
+[tool.coverage.html]
+directory = "build/coverage"
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+ignore_errors = true
+omit = [
+    "cx_Freeze/hooks/*",
+    "cx_Freeze/initscripts/*",
+]
+
+[tool.coverage.run]
+relative_files = true
 
 [tool.isort]
 profile = "black"
@@ -238,7 +260,7 @@ max-line-length = 79
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-rpfEsXx -nauto"
+addopts = "-rpfEsXx"
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:distutils.*",
