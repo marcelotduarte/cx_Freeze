@@ -5,7 +5,7 @@ directory:
 1 - Install cx_Freeze in development mode using:
 
  ```
- pip install -e .[test] --no-build-isolation
+ pip install -e .[test]
  ```
 
 1.1 - Another method:
@@ -18,7 +18,7 @@ directory:
 2 - Call the tests (debuggable) with:
 
  ```
- python -m pytest --no-cov
+ python -m pytest -n0 --no-cov
  ```
 
 2.1 - To speed up test runs using multiple CPUs: (uses pytest-xdist)
