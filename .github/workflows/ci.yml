@@ -47,7 +47,41 @@ jobs:
         with:
           cache: 'pip'
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --pre
+          pip install -v -e .[test] --no-build-isolation
+
+      - name: Generate coverage report
+        run: python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+  tests_extra:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest ]
+        python-version: ['3.10']
+        extra-requirement:
+          - lief==0.13.2
+          - lief-disabled
+          - pywin32
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          cache: 'pip'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
@@ -57,32 +91,12 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          mkdir -p coverage
-          python -m pytest -nauto\
-            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage0.xml
-
-      - name: Extra coverage for Windows
-        if: runner.os == 'Windows' && matrix.python-version == '3.10'
-        run: |
-          # to test lief < 0.14
-          pip install "lief==0.13.2"
-          python -m pytest -nauto\
-            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage1.xml\
-            tests/test_command_build.py tests/test_command_build_exe.py\
-            tests/test_winversioninfo.py
-          # to test without lief (LIEF_DISABLED)
-          export CX_FREEZE_BIND=imagehlp
-          python -m pytest -nauto\
-            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage2.xml\
-            tests/test_command_build.py tests/test_command_build_exe.py\
-            tests/test_winversioninfo.py
-          # to coverage winversioninfo using pywin32
-          pip install --upgrade pywin32
-          python -m pytest -nauto\
-            --cov="cx_Freeze" --cov-report=xml:./coverage/coverage3.xml\
-            tests/test_winversioninfo.py
+          if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
+            export CX_FREEZE_BIND=imagehlp
+          else
+            pip install "${{ matrix.extra-requirement }}"
+          fi
+          python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          directory: coverage
