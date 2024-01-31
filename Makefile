@@ -1,4 +1,5 @@
 # Makefile to automate some tools
+SHELL=/bin/bash
 
 BUILDDIR := ./build
 EXT_SUFFIX := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
@@ -33,7 +34,7 @@ clean:
 		pre-commit uninstall;\
 		rm -f .git/hooks/pre-commit;\
 	fi
-	@make -C doc clean
+	@$(MAKE) -C doc clean
 	@COVERAGE_FILE=$(COVERAGE_FILE) coverage erase
 	@coverage erase
 
@@ -51,7 +52,7 @@ upgrade: clean
 	pip uninstall -y cx_Freeze || true
 	pip install --upgrade pre-commit
 	pre-commit autoupdate
-	make pre-commit
+	$(MAKE) pre-commit
 
 .PHONY: html
 html: install
@@ -60,22 +61,22 @@ html: install
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
 		pip install -e .[doc] --no-build-isolation &&\
-		make -C doc html;\
+		$(MAKE) -C doc html;\
 	fi
 
 .PHONY: htmltest
 htmltest:
-	make -C doc test
+	$(MAKE) -C doc test
 
 .PHONY: doc
 doc: html
-	make -C doc epub
-	make -C doc pdf
+	$(MAKE) -C doc epub
+	$(MAKE) -C doc pdf
 
 .PHONY: install_test
 install_test:
 	if ! which pytest || ! which cxfreeze; then\
-		pip install -e .[test] --no-build-isolation;\
+		pip install -e .[test];\
 	fi
 
 .PHONY: test

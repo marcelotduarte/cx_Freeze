@@ -81,28 +81,28 @@ test = [
 file = "README.md"
 content-type = "text/markdown"
 
-[project.urls]
-Home = "https://marcelotduarte.github.io/cx_Freeze"
-Changelog = "https://cx-freeze.readthedocs.io/en/latest/releasenotes.html"
-Documentation = "https://cx-freeze.readthedocs.io"
-Source = "https://github.com/marcelotduarte/cx_Freeze"
-Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
-Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
-
-[project.scripts]
-cxfreeze = "cx_Freeze.cli:main"
-cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
-
 [project.entry-points."distutils.setup_keywords"]
 executables = "cx_Freeze.executable:validate_executables"
 
 [project.entry-points."setuptools.finalize_distribution_options"]
 cxfreeze-plugin = "cx_Freeze:plugin_install"
 
+[project.scripts]
+cxfreeze = "cx_Freeze.cli:main"
+cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
+
+[project.urls]
+Home = "https://marcelotduarte.github.io/cx_Freeze"
+Changelog = "https://cx-freeze.readthedocs.io/en/stable/releasenotes.html"
+Documentation = "https://cx-freeze.readthedocs.io"
+Source = "https://github.com/marcelotduarte/cx_Freeze"
+Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
+Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
+
 [tool.setuptools]
 include-package-data = true
-zip-safe = false
 license-files = ["doc/src/license.rst"]
+zip-safe = false
 
 [tool.setuptools.dynamic]
 version = {attr = "cx_Freeze.__version__"}
@@ -142,6 +142,29 @@ values = [
 	"prod"
 ]
 
+[tool.cibuildwheel]
+before-build = "pip install -r requirements.txt"
+build = "cp3*"
+build-frontend = "build"
+build-verbosity = "1"
+manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
+
+[tool.cibuildwheel.linux]
+archs = "x86_64 aarch64 ppc64le"
+skip = "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}"
+before-build = """
+cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
+"""
+repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.macos]
+archs = "x86_64 arm64"
+skip = "cp3{8,9}-macosx_arm64"
+repair-wheel-command = """
+delocate-listdeps {wheel} &&
+delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
+"""
+
 [tool.coverage.html]
 directory = "build/coverage"
 
@@ -161,59 +184,10 @@ omit = [
 ]
 
 [tool.coverage.run]
-relative_files = true
+#relative_files = true
 
-[tool.isort]
-profile = "black"
-line_length = 79
-skip_gitignore = true
-add_imports = ["from __future__ import annotations"]
-
-[tool.ruff]
-select = [
-    "A",    # flake8-builtins
-    "E", "F", "W",  # flake8
-    "B",  "B904",  # flake8-bugbear
-    "D",    # pydocstyle
-    "I",    # isort
-    "ARG",  # flake8-unused-arguments
-    "C4",   # flake8-comprehensions
-    #"EM",  # flake8-errmsg
-    "ICN",  # flake8-import-conventions
-    "ISC",  # flake8-implicit-str-concat
-    "PGH",  # pygrep-hooks
-    "PIE",  # flake8-pie
-    "PLC", "PLE", "PLR", "PLW",  # pylint
-    "PT",   # flake8-pytest-style
-    "RSE",  # flake8-raise
-    "RET",  # flake8-return
-    "RUF",  # Ruff-specific
-    "SIM",  # flake8-simplify
-    "UP",   # pyupgrade
-    "YTT",  # flake8-2020
-]
-ignore = [
-    # ignored for now, but should be revised in future
-    "D102",  # Missing docstring in public method
-    "D401",  # First line of docstring should be in imperative mood
-    # ignore the following
-    "D104",  # Missing docstring in public package
-    "D105",  # Missing docstring in magic method
-    "D107",  # Missing docstring in `__init__`
-    "D203", "D205", "D213",
-    "PLR2004", "E501",
-    "PLR0912",  # too-many-branches
-    "PLR0913",  # too-many-arguments
-    "PLR0915",  # too-many-statements
-    "RUF012",
-]
-line-length = 79
-target-version = "py38"
-flake8-unused-arguments.ignore-variadic-names = true
-extend-exclude = [
-    "cx_Freeze/importshed/*.pyi",
-    "samples/*.py"
-]
+[tool.pylint.format]
+max-line-length = 79
 
 [tool.pylint.main]
 disable = [
@@ -255,9 +229,6 @@ jobs = 0
 output-format = "colorized"
 py-version = [3, 8]
 
-[tool.pylint.format]
-max-line-length = 79
-
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-rpfEsXx"
@@ -268,25 +239,52 @@ filterwarnings = [
     "ignore::DeprecationWarning:setuptools.*",
 ]
 
-[tool.cibuildwheel]
-before-build = "pip install -r requirements.txt"
-build = "cp3*"
-build-frontend = "build"
-build-verbosity = "1"
-manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
+[tool.ruff]
+extend-exclude = [
+    "cx_Freeze/importshed/*.pyi",
+    "samples/*.py"
+]
+line-length = 79
+target-version = "py38"
 
-[tool.cibuildwheel.linux]
-archs = "x86_64 aarch64 ppc64le"
-skip = "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}"
-before-build = """
-cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
-"""
-repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
+[tool.ruff.lint]
+select = [
+    "A",    # flake8-builtins
+    "E", "F", "W",  # flake8
+    "B",  "B904",  # flake8-bugbear
+    "D",    # pydocstyle
+    "I",    # isort
+    "ARG",  # flake8-unused-arguments
+    "C4",   # flake8-comprehensions
+    #"EM",  # flake8-errmsg
+    "ICN",  # flake8-import-conventions
+    "ISC",  # flake8-implicit-str-concat
+    "PGH",  # pygrep-hooks
+    "PIE",  # flake8-pie
+    "PLC", "PLE", "PLR", "PLW",  # pylint
+    "PT",   # flake8-pytest-style
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "RUF",  # Ruff-specific
+    "SIM",  # flake8-simplify
+    "UP",   # pyupgrade
+    "YTT",  # flake8-2020
+]
+ignore = [
+    # ignored for now, but should be revised in future
+    "D102",  # Missing docstring in public method
+    "D401",  # First line of docstring should be in imperative mood
+    # ignore the following
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in `__init__`
+    "D203", "D205", "D213",
+    "PLR2004", "E501",
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
+    "RUF012",
+]
 
-[tool.cibuildwheel.macos]
-archs = "x86_64 arm64"
-skip = "cp3{8,9}-macosx_arm64"
-repair-wheel-command = """
-delocate-listdeps {wheel} &&
-delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
-"""
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
