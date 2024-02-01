@@ -70,6 +70,8 @@ jobs:
           - lief==0.13.2
           - lief-disabled
           - pywin32
+        include:
+          - { os: ubuntu-latest, python-version: '3.10' }
     defaults:
       run:
         shell: bash
@@ -89,7 +91,17 @@ jobs:
           pip install -r requirements.txt --pre
           pip install -v -e .[test] --no-build-isolation
 
-      - name: Generate coverage report
+      - name: Generate coverage report (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          pip install "`grep cibuildwheel requirements-dev.txt`"
+          PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
+          cibuildwheel --only cp${PY_VERSION_NODOT}-manylinux_x86_64
+          unzip -q -o wheelhouse/cx_Freeze-*.whl "cx_Freeze/bases/*" -x "*.py"
+          python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml
+
+      - name: Generate coverage report (Windows)
+        if: runner.os == 'Windows'
         run: |
           if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
             export CX_FREEZE_BIND=imagehlp
