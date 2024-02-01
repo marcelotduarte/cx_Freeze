@@ -3,11 +3,14 @@ SHELL=/bin/bash
 
 BUILDDIR := ./build
 EXT_SUFFIX := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
-PY_VERSION_NODOT := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'))")
 ARCH := $(shell python -c "import platform; print(platform.machine().lower())")
 PY_PLATFORM := $(shell python -c "import sysconfig; print(sysconfig.get_platform())")
+PY_VERSION_NODOT := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'))")
 COVERAGE_FILE := $(BUILDDIR)/.coverage-$(PY_VERSION_NODOT)-$(PY_PLATFORM)
 PRE_COMMIT_OPTIONS := --show-diff-on-failure --color=always --all-files --hook-stage=manual
+CIBW_ONLY := cp$(PY_VERSION_NODOT)-manylinux_$(ARCH)
+CX_FREEZE_VERSION := $(shell bump-my-version show current_version|sed 's/-/./')
+CX_FREEZE_WHEEL := $(shell ls wheelhouse/cx_Freeze-$(CX_FREEZE_VERSION)-cp$(PY_VERSION_NODOT)-cp$(PY_VERSION_NODOT)-manylinux_*_$(ARCH).whl)
 
 .PHONY: all
 all: install
@@ -92,50 +95,38 @@ cov: install_test
 cov2: install_test
 	coverage erase
 	COVERAGE_FILE=$(COVERAGE_FILE) coverage erase
-	COVERAGE_FILE=$(COVERAGE_FILE) python -m pytest -nauto --cov=cx_Freeze
+	COVERAGE_FILE=$(COVERAGE_FILE) python -m pytest -nauto --cov="cx_Freeze"
 ifeq ($(PY_PLATFORM),win-amd64)
 	# Extra coverage for Windows
 	# to test lief < 0.14
 	pip install "lief==0.13.2"
-	COVERAGE_FILE=$(COVERAGE_FILE)-1 python -m pytest -nauto --cov=cx_Freeze\
-		tests/test_command_build.py tests/test_command_build_exe.py\
+	COVERAGE_FILE=$(COVERAGE_FILE)-1 python -m pytest -nauto --cov="cx_Freeze" \
+		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py
 	# to test without lief (LIEF_DISABLED)
 	CX_FREEZE_BIND=imagehlp \
-	COVERAGE_FILE=$(COVERAGE_FILE)-2 python -m pytest -nauto --cov=cx_Freeze\
-		--cov=cx_Freeze --cov-report=xml:./coverage/coverage2.xml\
-		tests/test_command_build.py tests/test_command_build_exe.py\
+	COVERAGE_FILE=$(COVERAGE_FILE)-2 python -m pytest -nauto --cov="cx_Freeze" \
+		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py
 	# to coverage winversioninfo using pywin32
 	pip install --upgrade pywin32
-	COVERAGE_FILE=$(COVERAGE_FILE)-3 python -m pytest -nauto --cov=cx_Freeze\
-		--cov=cx_Freeze --cov-report=xml:./coverage/coverage3.xml\
+	COVERAGE_FILE=$(COVERAGE_FILE)-3 python -m pytest -nauto --cov="cx_Freeze" \
 		tests/test_winversioninfo.py
 	pip uninstall -y pywin32
 	pip install "lief>0.13.2"
 endif
+ifeq ($(PY_PLATFORM),linux-x86_64)
+	if [ -z "$(CX_FREEZE_WHEEL)" ] && which podman; then\
+		CIBW_CONTAINER_ENGINE=podman cibuildwheel --only $(CIBW_ONLY);\
+	fi
+	unzip -q -o $(CX_FREEZE_WHEEL) \
+		"cx_Freeze/bases/*" -x "*.py"
+	COVERAGE_FILE=$(COVERAGE_FILE)-4 python -m pytest -nauto --cov="cx_Freeze" \
+		tests/test_command_build.py tests/test_command_build_exe.py
+endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
 	rm -rf $(BUILDDIR)/coverage
 	coverage html
-	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
-
-.PHONY: install_test_pre
-install_test_pre: install_test
-	# Hack to bind to manylinux or macpython extensions
-	@mkdir -p wheelhouse
-	@rm -f wheelhouse/cx_Freeze-*-cp$(PY_VERSION_NODOT)*_$(ARCH).whl
-	pip download cx_Freeze --pre --no-deps \
-		--index-url https://marcelotduarte.github.io/packages/ -d wheelhouse
-	unzip -q -o wheelhouse/cx_Freeze-*-cp$(PY_VERSION_NODOT)*_$(ARCH).whl "cx_Freeze/bases/*" -x "*.py"
-
-.PHONY: test-pre
-test-pre: install_test_pre
-	python -m pytest -o pythonpath=cx_Freeze/bases/lib-dynload/
-
-.PHONY: cov-pre
-cov-pre: install_test_pre
-	python -m pytest --cov=cx_Freeze --cov-report=html\
-		-o pythonpath=cx_Freeze/bases/lib-dynload/
 	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: release
