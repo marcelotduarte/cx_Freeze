@@ -78,9 +78,7 @@ doc: html
 
 .PHONY: install_test
 install_test:
-	if ! which pytest || ! which cxfreeze; then\
-		pip install -e .[test];\
-	fi
+	if ! which pytest; then pip install -e .[test]; else pip install -e .; fi
 
 .PHONY: test
 test: install_test

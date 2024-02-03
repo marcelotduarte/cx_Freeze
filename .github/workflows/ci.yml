@@ -48,6 +48,10 @@ jobs:
           cache: 'pip'
           python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y alien fakeroot rpm
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -98,7 +102,8 @@ jobs:
           PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
           cibuildwheel --only cp${PY_VERSION_NODOT}-manylinux_x86_64
           unzip -q -o wheelhouse/cx_Freeze-*.whl "cx_Freeze/bases/*" -x "*.py"
-          python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml
+          python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml\
+            -o pythonpath=cx_Freeze/bases/lib-dynload
 
       - name: Generate coverage report (Windows)
         if: runner.os == 'Windows'
