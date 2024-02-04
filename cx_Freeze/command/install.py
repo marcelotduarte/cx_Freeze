@@ -53,7 +53,7 @@ class Install(_install):
             )
             prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
             metadata = self.distribution.metadata
-            self.prefix = f"{prefix}\\{metadata.name}"
+            self.prefix = f"{prefix}\\{metadata.get_name()}"
         super().finalize_options()
         self.convert_paths("exe")
         if self.root is not None:
@@ -66,7 +66,7 @@ class Install(_install):
                 self.install_exe = "$base"
             else:
                 metadata = self.distribution.metadata
-                dir_name = f"{metadata.name}-{metadata.version}"
+                dir_name = f"{metadata.get_name()}-{metadata.get_version()}"
                 self.install_exe = f"$base/lib/{dir_name}"
 
     def run(self):
