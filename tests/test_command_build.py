@@ -12,7 +12,6 @@ PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 SUFFIX = ".exe" if sys.platform == "win32" else ""
 
 SOURCE = """
