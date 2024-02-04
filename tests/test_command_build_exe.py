@@ -34,10 +34,6 @@ DIST_ATTRS = {
     "executables": ["hello.py"],
     "script_name": "setup.py",
 }
-SOURCE = """
-hello.py
-    print("Hello from cx_Freeze")
-"""
 
 
 @pytest.mark.parametrize(
