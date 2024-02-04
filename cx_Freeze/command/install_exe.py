@@ -1,8 +1,9 @@
 """Implements the 'install_exe' command."""
 from __future__ import annotations
 
+import os
+import shutil
 import sys
-from pathlib import Path
 
 from setuptools import Command
 
@@ -26,6 +27,7 @@ class InstallEXE(Command):
         self.force = 0
         self.build_dir = None
         self.skip_build = None
+        self.outfiles = None
 
     def finalize_options(self):
         self.set_undefined_options("build_exe", ("build_exe", "build_dir"))
@@ -39,22 +41,36 @@ class InstallEXE(Command):
     def run(self):
         if not self.skip_build:
             self.run_command("build_exe")
+
+        # copy the files to a clean directory
+        self.execute(
+            shutil.rmtree,
+            (self.install_dir, True),
+            msg=f"removing {self.install_dir}",
+        )
+        self.mkpath(self.install_dir)
         self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
-        if sys.platform != "win32":
-            install_dir = Path(self.install_dir)
-            base_dir = install_dir.parent.parent
-            bin_dir: Path = base_dir / "bin"
-            if not bin_dir.exists():
-                bin_dir.mkdir(parents=True)
-            source_dir = ".." / install_dir.relative_to(base_dir)
-            for executable in self.distribution.executables:
-                name = executable.target_name
-                source = source_dir / name
-                target = bin_dir / name
-                if target.exists():
-                    target.unlink()
-                target.symlink_to(source)
-                self.outfiles.append(target.as_posix())
+
+        if sys.platform == "win32":
+            return
+
+        # in posix, make symlinks to the executables
+        install_dir = self.install_dir
+        bin_dir = os.path.join(
+            os.path.dirname(os.path.dirname(install_dir)), "bin"
+        )
+        self.mkpath(bin_dir)
+        for executable in self.get_inputs():
+            name = executable.target_name
+            target = os.path.join(install_dir, name)
+            origin = os.path.join(bin_dir, name)
+            relative_reference = os.path.relpath(target, bin_dir)
+            self.execute(
+                os.symlink,
+                (relative_reference, origin, True),
+                msg=f"linking {origin} -> {relative_reference}",
+            )
+            self.outfiles.append(origin)
 
     def get_inputs(self):
         return self.distribution.executables or []
