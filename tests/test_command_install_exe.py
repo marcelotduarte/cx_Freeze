@@ -10,12 +10,13 @@ from sysconfig import get_config_var
 import pytest
 from setuptools import Distribution
 
+from cx_Freeze import Executable
 from cx_Freeze.command.install_exe import InstallEXE as install_exe
 
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": ["hello.py"],
+    "executables": [Executable("hello.py")],
     "script_name": "setup.py",
 }
 
