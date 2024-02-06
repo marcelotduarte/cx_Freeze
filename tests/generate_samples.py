@@ -464,12 +464,12 @@ p/q/__init__.py
 p/q/q1.py
     print('This is p.q.q1')
 setup.py
-    from cx_Freeze import Executable, setup
+    from cx_Freeze import setup
     setup(
         name="test",
         version="0.1",
         description="Sample for test with cx_Freeze",
-        executables=[Executable("main.py")],
+        executables=["main.py"],
     )
 """,
 ]
@@ -500,6 +500,8 @@ def run_command(
         command_file = test_dir / "command"
         if command_file.exists():
             command = command_file.read_bytes().decode()
+        elif test_dir.joinpath("pyproject.toml").exists():
+            command = "cxfreeze build"
         else:
             command = "python setup.py build"
     elif isinstance(command, Path):
