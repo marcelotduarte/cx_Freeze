@@ -250,10 +250,12 @@ def validate_executables(dist: Distribution, attr: str, value):
         ) from exc
 
     # Returns valid Executable list
-    executables = list(getattr(dist, attr, []))
+    if dist.executables == value:
+        dist.executables = []
+    executables = list(value)
     for i, executable in enumerate(executables):
         if isinstance(executable, str):
             executables[i] = Executable(executable)
         elif isinstance(executable, Mapping):
             executables[i] = Executable(**executable)
-    dist.executables = executables
+    dist.executables.extend(executables)
