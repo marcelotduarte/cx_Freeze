@@ -21,7 +21,7 @@ IS_WINDOWS = sys.platform == "win32"
 SUFFIX = ".exe" if IS_WINDOWS else ""
 TOP_DIR = Path(__file__).resolve().parent.parent
 
-SOURCE_PYPROJECT = """
+SOURCE_SETUP_TOML = """
 test_simple1.py
     print("Hello from cx_Freeze")
 pyproject.toml
@@ -30,16 +30,21 @@ pyproject.toml
     version = "0.1.2.3"
     description = "Sample cx_Freeze script"
 
-    [tool.distutils.build_exe]
+    [[tool.cxfreeze.executables]]
+    script = "test_simple1.py"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_simple1.py"
+    target_name = "test_simple2"
+
+    [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
     silent = true
-setup.py
-    from cx_Freeze import setup
-
-    setup(executables=["test_simple1.py"])
+command
+    cxfreeze build_exe --excludes=tkinter
 """
 
-SOURCE_SETUP = """
+SOURCE_SETUP_PY = """
 test_simple1.py
     print("Hello from cx_Freeze")
 setup.py
@@ -57,6 +62,8 @@ setup.py
         description="Sample cx_Freeze script",
         executables=executables,
     )
+command
+    python setup.py build_exe --excludes=tkinter,unittest --silent
 """
 
 SOURCE_SETUP_CFG = """
@@ -71,26 +78,50 @@ setup.cfg
     [build_exe]
     excludes = tkinter,unittest
     silent = true
+command
+    cxfreeze test_simple1.py
+"""
+
+SOURCE_SETUP_MIX = """
+test_simple1.py
+    print("Hello from cx_Freeze")
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_simple1.py"
+    target_name = "test_simple2"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+    silent = true
 setup.py
     from cx_Freeze import setup
 
     setup(executables=["test_simple1.py"])
+command
+    python setup.py build
 """
 
 
 @pytest.mark.parametrize(
     ("source", "number_of_executables"),
     [
-        (SOURCE_PYPROJECT, 1),
-        (SOURCE_SETUP, 3),
+        (SOURCE_SETUP_TOML, 2),
+        (SOURCE_SETUP_PY, 3),
         (SOURCE_SETUP_CFG, 1),
+        (SOURCE_SETUP_MIX, 2),
     ],
-    ids=["pyproject", "setup_py", "setup_cfg"],
+    ids=["setup_toml", "setup_py", "setup_cfg", "setup_mix"],
 )
 def test_executables(tmp_path: Path, source: str, number_of_executables: int):
     """Test the executables option."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
+    print(output)
 
     for i in range(1, number_of_executables):
         file_created = tmp_path / BUILD_EXE_DIR / f"test_simple{i}{SUFFIX}"
@@ -183,15 +214,20 @@ def test_invalid(class_to_test, kwargs, exception, match):
 SOURCE_VALID_ICON = """
 test_icon.py
     print("Hello from cx_Freeze")
-setup.py
-    from cx_Freeze import setup
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
 
-    setup(
-        name="hello",
-        version="0.1.2.3",
-        description="Sample cx_Freeze script",
-        executables=[{"script": "test_icon.py", "icon": "icon"}],
-    )
+    [[tool.cxfreeze.executables]]
+    script = "test_icon.py"
+    icon = "icon"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+command
+    cxfreeze build
 """
 
 
@@ -216,21 +252,27 @@ def test_not_found_icon(tmp_path: Path):
     # same test as before, without icons
     create_package(tmp_path, SOURCE_VALID_ICON)
     output = run_command(tmp_path)
+    print(output)
     assert "WARNING: Icon file not found" in output, "icon file not found"
 
 
 SOURCE_INVALID_ICON = """
 test_icon.py
     print("Hello from cx_Freeze")
-setup.py
-    from cx_Freeze import setup
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
 
-    setup(
-        name="hello",
-        version="0.1.2.3",
-        description="Sample cx_Freeze script",
-        executables=[{"script": "test_icon.py", "icon": "icon.png"}],
-    )
+    [[tool.cxfreeze.executables]]
+    script = "test_icon.py"
+    icon = "icon.png"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+command
+    cxfreeze build
 """
 
 

@@ -17,18 +17,18 @@ all: install
 
 .PHONY: pre-commit
 pre-commit: install
-	@SKIP=pylint pre-commit run $(PRE_COMMIT_OPTIONS) || true
+	@(SKIP=pylint pre-commit run $(PRE_COMMIT_OPTIONS) || true) | more
 	@pre-commit gc
 
 .PHONY: pre-commit-all
 pre-commit-all: install
-	@pre-commit run $(PRE_COMMIT_OPTIONS) || true
+	@(pre-commit run $(PRE_COMMIT_OPTIONS) || true) | more
 	@pre-commit gc
 
 .PHONY: pylint
 pylint:
 	@if ! which pylint; then pip install --upgrade pylint; fi
-	@pre-commit run pylint $(PRE_COMMIT_OPTIONS)
+	@(pre-commit run pylint $(PRE_COMMIT_OPTIONS) || true) | more
 
 .PHONY: clean
 clean:

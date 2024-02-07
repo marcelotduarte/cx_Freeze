@@ -52,7 +52,7 @@ else:
 __version__ = "6.16.0-dev12"
 
 
-def setup(**attrs):  # noqa: D103
+def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     cmdclass = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
         cmdclass.setdefault("bdist_msi", bdist_msi)
@@ -67,7 +67,7 @@ def setup(**attrs):  # noqa: D103
     cmdclass.setdefault("install", install)
     cmdclass.setdefault("install_exe", install_exe)
     attrs.setdefault("executables", [])
-    setuptools.setup(**attrs)
+    return setuptools.setup(**attrs)
 
 
 setup.__doc__ = setuptools.setup.__doc__

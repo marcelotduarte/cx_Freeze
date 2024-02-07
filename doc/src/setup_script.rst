@@ -39,14 +39,6 @@ It looks something like this:
 
    .. group-tab:: pyproject.toml
 
-      A minimal ``setup.py`` is required (for now).
-
-      .. code-block:: python
-
-         from cx_Freeze import setup
-
-         setup(executables=[{"script": "guifoo.py", "base": "gui"}])
-
       ``pyproject.toml``
 
       .. code-block:: toml
@@ -56,19 +48,19 @@ It looks something like this:
          version = "0.1"
          description = "My GUI application!"
 
-         [tool.distutils.build_exe]
+         [tool.cxfreeze]
+         executables = [
+             {script = "guifoo.py", base = "gui"}
+         ]
+
+         [tool.cxfreeze.build_exe]
          excludes = ["tkinter", "unittest"]
          zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
    .. group-tab:: setup.cfg
 
-      A minimal ``setup.py`` is required.
-
-      .. code-block:: python
-
-         from cx_Freeze import setup
-
-         setup(executables=[{"script": "guifoo.py", "base": "gui"}])
+      Is required to pass one executable at command line or a minimal
+      ``setup.py`` for more than one executable.
 
       ``setup.cfg``
 
@@ -118,13 +110,13 @@ The script is invoked as follows:
 
       .. code-block:: console
 
-         python setup.py build
+         cxfreeze build
 
    .. group-tab:: setup.cfg
 
       .. code-block:: console
 
-         python setup.py build
+         cxfreeze --script=guifoo.py --base=gui
 
    .. group-tab:: command line
 
