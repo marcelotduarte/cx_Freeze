@@ -33,6 +33,10 @@ pyproject.toml
     [[tool.cxfreeze.executables]]
     script = "test_simple1.py"
 
+    [[tool.cxfreeze.executables]]
+    script = "test_simple1.py"
+    target_name = "test_simple2"
+
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
     silent = true
@@ -87,6 +91,10 @@ pyproject.toml
     version = "0.1.2.3"
     description = "Sample cx_Freeze script"
 
+    [[tool.cxfreeze.executables]]
+    script = "test_simple1.py"
+    target_name = "test_simple2"
+
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
     silent = true
@@ -102,10 +110,10 @@ command
 @pytest.mark.parametrize(
     ("source", "number_of_executables"),
     [
-        (SOURCE_SETUP_TOML, 1),
+        (SOURCE_SETUP_TOML, 2),
         (SOURCE_SETUP_PY, 3),
         (SOURCE_SETUP_CFG, 1),
-        (SOURCE_SETUP_MIX, 1),
+        (SOURCE_SETUP_MIX, 2),
     ],
     ids=["setup_toml", "setup_py", "setup_cfg", "setup_mix"],
 )

@@ -162,7 +162,11 @@ def main():
         if command is None:
             parser.print_help()
         else:
-            setup(script_args=[command, "--help"], script_name=parser.prog)
+            setup(
+                executables=None,
+                script_args=[command, "--help"],
+                script_name=parser.prog,
+            )
         parser.exit()
 
     # usage
@@ -172,7 +176,7 @@ def main():
             parser.error("--script or command must be specified")
         elif not command.startswith(("build", "bdist")):
             args.script, command = command, script  # backwards compatible
-            deprecated.append("use --script to pass the script name")
+            deprecated.append("usage: required to use --script NAME")
     if command is None:
         command = "build_exe"
     # deprecated options
@@ -194,11 +198,11 @@ def main():
                 if arg.startswith(search):
                     new_argv.pop()
                     if replace is None:
-                        deprecated.append(f"{search} option is removed")
+                        deprecated.append(f"{search} option removed")
                     else:
                         new_argv.append(arg.replace(search, replace))
                         deprecated.append(
-                            f"{search} option is replaced by {replace}"
+                            f"{search} option replaced by {replace}"
                         )
                     break
         argv = new_argv
@@ -223,3 +227,7 @@ def main():
         script_args=script_args,
         script_name=parser.prog,
     )
+
+    if deprecated:
+        for msg in deprecated:
+            print("WARNING: deprecated", msg)
