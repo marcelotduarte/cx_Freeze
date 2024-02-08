@@ -43,12 +43,6 @@ class InstallEXE(Command):
         if not self.skip_build:
             self.run_command("build_exe")
 
-        # copy the files to a clean directory
-        self.execute(
-            shutil.rmtree,
-            (self.install_dir, True),
-            msg=f"removing {self.install_dir}",
-        )
         self.mkpath(self.install_dir)
         self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
 
@@ -60,6 +54,7 @@ class InstallEXE(Command):
         bin_dir = os.path.join(
             os.path.dirname(os.path.dirname(install_dir)), "bin"
         )
+        self.execute(shutil.rmtree, (bin_dir, True), msg=f"removing {bin_dir}")
         self.mkpath(bin_dir)
         for executable in self.get_inputs():
             name = executable.target_name
