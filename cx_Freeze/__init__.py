@@ -79,9 +79,9 @@ def plugin_install(dist: setuptools.Distribution) -> None:
         return
     validate_executables(dist, "executables", dist.executables)
 
-    # Fix package discovery (setuptools >= 61)
-    if getattr(dist, "py_modules", None) is None:
-        dist.py_modules = []
+    # Disable package discovery (setuptools >= 61) and/or misuse of packages
+    dist.py_modules = []
+    dist.packages = []
 
     # Add/update commands (provisional)
     cmdclass = dist.cmdclass
