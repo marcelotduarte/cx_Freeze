@@ -121,7 +121,6 @@ def test_executables(tmp_path: Path, source: str, number_of_executables: int):
     """Test the executables option."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
-    print(output)
 
     for i in range(1, number_of_executables):
         file_created = tmp_path / BUILD_EXE_DIR / f"test_simple{i}{SUFFIX}"
