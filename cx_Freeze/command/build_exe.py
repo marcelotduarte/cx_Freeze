@@ -53,6 +53,11 @@ class BuildEXE(Command):
             "comma-separated list of paths to search for modules; the default "
             "value is sys.path (use only if you know what you are doing)",
         ),
+        (
+            "include-path=",
+            None,
+            "comma-separated list of paths to modify the search for modules",
+        ),
         ("no-compress", None, "create a zipfile with no compression"),
         ("constants=", None, "comma-separated list of constants to include"),
         (
@@ -185,16 +190,16 @@ class BuildEXE(Command):
             "zip_include_packages",
             "zip_exclude_packages",
         ]
-
         for option in self.list_options:
             setattr(self, option, [])
-
         self.zip_exclude_packages = ["*"]
-        self.optimize = 0
+
         self.build_exe = None
-        self.no_compress = False
-        self.path = None
         self.include_msvcr = None
+        self.include_path = None
+        self.no_compress = False
+        self.optimize = 0
+        self.path = None
         self.silent = None
         self.silent_level = None
 
@@ -220,19 +225,28 @@ class BuildEXE(Command):
             dir_name = f"exe.{get_platform()}-{get_python_version()}"
             self.build_exe = os.path.join(self.build_base, dir_name)
 
-        self.optimize = int(self.optimize)
+        # make sure all options of multiple values are lists
+        for option in self.list_options:
+            setattr(self, option, normalize_to_list(getattr(self, option)))
+
+        # path - accepts os.pathsep to be backwards compatible with CLI
+        if self.path and isinstance(self.path, str):
+            self.path = self.path.replace(os.pathsep, ",")
+        include_path = self.include_path
+        if include_path is not None:
+            include_path = normalize_to_list(
+                include_path.replace(os.pathsep, ",")
+            )
+            self.path = include_path + normalize_to_list(self.path or sys.path)
 
         # the degree of silencing, set from either the silent or silent-level
         # option, as appropriate
         self.silent = int(self.silent or self.silent_level or 0)
 
-        #
+        # other options
         if self.include_msvcr is None:
             self.include_msvcr = False
-
-        # Make sure all options of multiple values are lists
-        for option in self.list_options:
-            setattr(self, option, normalize_to_list(getattr(self, option)))
+        self.optimize = int(self.optimize)
 
     def run(self):
         metadata = self.distribution.metadata

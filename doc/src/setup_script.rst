@@ -241,6 +241,8 @@ It can be further customized:
    * - .. option:: path
      - comma-separated list of paths to search for modules; the default value
        is sys.path (use only if you know what you are doing)
+   * - .. option:: include_path
+     - comma-separated list of paths to modify the search for modules
    * - .. option:: no_compress
      - create a zipfile with no compression
    * - .. option:: constants
@@ -322,6 +324,8 @@ This is the equivalent help to specify the same options on the command line:
     --path                  comma-separated list of paths to search for modules;
                             the default value is sys.path (use only if you know
                             what you are doing)
+    --include-path          comma-separated list of paths to modify the search
+                            for modules
     --no-compress           create a zipfile with no compression
     --constants             comma-separated list of constants to include
     --bin-includes          list of files to include when determining

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import sys
 from importlib import import_module
 from pathlib import Path
@@ -82,3 +83,54 @@ def test_import_tomli(monkeypatch):
         pytest.xfail(reason=f"ImportError: {exc.args[0]}")
     assert pyproject.get_pyproject_tool_data
     assert pyproject.toml_loads.__module__.startswith("tomli.")
+
+
+SOURCE_TEST_PATH = f"""
+advanced_1.py
+    print("Hello from cx_Freeze Advanced #1")
+    module = __import__("testfreeze_1")
+advanced_2.py
+    print("Hello from cx_Freeze Advanced #2")
+    module = __import__("testfreeze_2")
+modules/testfreeze_1.py
+    print("Test freeze module #1")
+modules/testfreeze_2.py
+    print("Test freeze module #2")
+pyproject.toml
+    [project]
+    name = "advanced"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "advanced_1.py"
+
+    [[tool.cxfreeze.executables]]
+    script = "advanced_2.py"
+
+    [tool.cxfreeze.build_exe]
+    build_exe = "dist"
+    excludes = ["tkinter", "unittest"]
+    includes = ["testfreeze_1", "testfreeze_2"]
+    #silent = true
+command
+    cxfreeze build_exe --include-path=modules --default-path={os.pathsep.join(sys.path)}
+"""
+OUTPUT1 = "Hello from cx_Freeze Advanced #1\nTest freeze module #1\n"
+OUTPUT2 = "Hello from cx_Freeze Advanced #2\nTest freeze module #2\n"
+
+
+def test_cxfreeze_include_path(tmp_path: Path):
+    """Test cxfreeze."""
+    create_package(tmp_path, SOURCE_TEST_PATH)
+    output = run_command(tmp_path)
+
+    executable = tmp_path / "dist" / f"advanced_1{SUFFIX}"
+    assert executable.is_file()
+    output = run_command(tmp_path, executable, timeout=10)
+    assert output == OUTPUT1
+
+    executable = tmp_path / "dist" / f"advanced_2{SUFFIX}"
+    assert executable.is_file()
+    output = run_command(tmp_path, executable, timeout=10)
+    assert output == OUTPUT2
