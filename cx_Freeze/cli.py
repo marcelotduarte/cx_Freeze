@@ -179,6 +179,7 @@ def main():
             deprecated.append("usage: required to use --script NAME")
     if command is None:
         command = "build_exe"
+
     # deprecated options
     if command == "build_exe" or "build_exe" in argv:
         args_to_replace = [
@@ -189,6 +190,7 @@ def main():
             ("-c", None),
             ("--compress", None),
             ("-z", "--zip-includes"),
+            ("--default-path", "--path"),
             ("-s", "--silent"),
         ]
         new_argv = []
