@@ -87,9 +87,9 @@ class Freezer:
         self.packages: set[str] = set(packages or [])
         self.replace_paths: list[str] = list(replace_paths or [])
         self.compress = True if compress is None else compress
-        self.optimize: int = optimize
+        self.optimize: int = int(optimize or 0)
         self.path: list[str] | None = self._validate_path(path)
-        self.include_msvcr: bool = include_msvcr
+        self.include_msvcr: bool = bool(include_msvcr)
         self.target_dir = target_dir
         self.bin_includes: list[str] = self._validate_bin_file(bin_includes)
         self.bin_excludes: list[str] = self._validate_bin_file(bin_excludes)
@@ -105,7 +105,7 @@ class Freezer:
         self.zip_includes: InternalIncludesList = process_path_specs(
             zip_includes
         )
-        self.silent = int(silent)
+        self.silent = int(silent or 0)
         self.metadata: Any = metadata
 
         self.zip_exclude_packages: set[str] = {"*"}
