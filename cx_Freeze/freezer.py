@@ -87,7 +87,7 @@ class Freezer:
         self.compress = True if compress is None else compress
         self.optimize: int = int(optimize or 0)
         self.path: list[str] | None = self._validate_path(path)
-        self.include_msvcr: bool = include_msvcr
+        self.include_msvcr: bool = bool(include_msvcr)
         self.target_dir = target_dir
         self.bin_includes: list[str] = self._validate_bin_file(bin_includes)
         self.bin_excludes: list[str] = self._validate_bin_file(bin_excludes)
