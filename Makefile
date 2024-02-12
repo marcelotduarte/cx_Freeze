@@ -38,8 +38,10 @@ clean:
 		rm -f .git/hooks/pre-commit;\
 	fi
 	@$(MAKE) -C doc clean
-	@COVERAGE_FILE=$(COVERAGE_FILE) coverage erase
-	@coverage erase
+	if which coverage; then\
+		@COVERAGE_FILE=$(COVERAGE_FILE) coverage erase;\
+		@coverage erase;\
+	fi
 
 .PHONY: install
 install:

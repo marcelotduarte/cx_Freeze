@@ -57,14 +57,14 @@ dynamic = ["version"]
 dev = [
     "bump-my-version==0.17.4",
     "cibuildwheel==2.16.5",
-    "pre-commit>=3.5.0,<=3.6.0",
+    "pre-commit>=3.5.0,<=3.6.1",
     "pylint==3.0.3",
 ]
 doc = [
     "sphinx>=7.1.2,<=7.2.6",
     "sphinx-new-tab-link==0.2.2",
     "sphinx-tabs==3.4.5",
-    "furo==2023.9.10",
+    "furo==2024.1.29",
 ]
 test = [
     "pytest==8.0.0",
