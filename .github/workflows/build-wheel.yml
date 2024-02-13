@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     name: Build [${{ matrix.os }}-${{ matrix.python-version }}]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -47,8 +47,8 @@ jobs:
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
-          pyver=$(python -c "print('${{ matrix.python-version }}'.partition('-')[0].replace('.',''))")
-          export CIBW_BUILD="cp${pyver}*"
+          PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
+          export CIBW_BUILD="cp${PY_VERSION_NODOT}-*"
           python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
 
       - name: Add sdist
