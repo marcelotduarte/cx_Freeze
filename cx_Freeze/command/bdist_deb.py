@@ -12,6 +12,7 @@ import subprocess
 
 from setuptools import Command
 
+from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
 from cx_Freeze.exception import ExecError, PlatformError
 
 __all__ = ["BdistDEB"]
@@ -61,18 +62,23 @@ class BdistDEB(Command):
 
     def run(self):
         # make a binary RPM to convert
-        bdist_rpm = self.reinitialize_command(
-            "bdist_rpm", bdist_base=self.bdist_base, dist_dir=self.dist_dir
+        cmd_rpm = bdist_rpm(
+            self.distribution,
+            bdist_base=self.bdist_base,
+            dist_dir=self.dist_dir,
         )
-        bdist_rpm.ensure_finalized()
-        bdist_rpm.run()
-        rpm_filename = None
-        for command, _, filename in self.distribution.dist_files:
-            if command == "bdist_rpm":
-                rpm_filename = filename
-                break
-        if rpm_filename is None:
-            raise ExecError("could not build rpm")
+        cmd_rpm.ensure_finalized()
+        if not self.dry_run:
+            cmd_rpm.run()
+            rpm_filename = None
+            for command, _, filename in self.distribution.dist_files:
+                if command == "bdist_rpm":
+                    rpm_filename = filename
+                    break
+            if rpm_filename is None:
+                raise ExecError("could not build rpm")
+        else:
+            rpm_filename = "filename.rpm"
 
         # convert rpm to deb (by default in dist directory)
         logging.info("building DEB")
