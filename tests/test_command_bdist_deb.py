@@ -44,9 +44,34 @@ def test_bdist_deb_not_alien(monkeypatch):
     """Test the bdist_deb uses alien."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
-    monkeypatch.setattr("shutil.which", lambda _cmd: None)
+    monkeypatch.setattr("shutil.which", lambda cmd: cmd != "alien")
     with pytest.raises(PlatformError, match="failed to find 'alien'"):
         cmd.finalize_options()
+
+
+def test_bdist_deb_not_fakeroot(monkeypatch):
+    """Test the bdist_deb uses fakeroot."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_deb(dist)
+    monkeypatch.setattr("os.getuid", lambda: 1000)
+    monkeypatch.setattr("shutil.which", lambda cmd: cmd != "fakeroot")
+    with pytest.raises(PlatformError, match="failed to find 'fakeroot'"):
+        cmd.finalize_options()
+
+
+def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path):
+    """Test the bdist_deb dry_run."""
+    monkeypatch.chdir(tmp_path)
+    attrs = DIST_ATTRS.copy()
+    attrs["dry_run"] = True
+    dist = Distribution(attrs)
+    cmd = bdist_deb(dist)
+    monkeypatch.setattr("os.getuid", lambda: 1000)
+    monkeypatch.setattr(
+        "shutil.which", lambda cmd: cmd != "alien" or cmd != "fakeroot"
+    )
+    cmd.finalize_options()
+    cmd.run()
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
