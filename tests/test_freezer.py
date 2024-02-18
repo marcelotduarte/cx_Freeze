@@ -151,6 +151,11 @@ def test_freezer_populate_zip_options_invalid_values(
     ("kwargs", "expected"),
     [
         pytest.param(
+            {"excludes": ["tkinter", "unittest"]},
+            {"excludes": ["tkinter", "unittest"]},
+            id="excludes=['tkinter','unittest']",
+        ),
+        pytest.param(
             {"include_msvcr": None},
             {"include_msvcr": False},
             id="include_msvcr=none",
@@ -167,6 +172,16 @@ def test_freezer_populate_zip_options_invalid_values(
             {"include_msvcr": True},
             id="include_msvcr=true",
             marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
+        ),
+        pytest.param(
+            {"replace_paths": [("*", "")]},
+            {"replace_paths": [("*", "")]},
+            id="replace_paths=*",
+        ),
+        pytest.param(
+            {"replace_paths": ["*="]},
+            {"replace_paths": ["*="]},
+            id="replace_paths=[*=]",
         ),
         # optimize values
         pytest.param(

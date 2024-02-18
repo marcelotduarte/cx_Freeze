@@ -13,6 +13,7 @@ from setuptools import Distribution
 
 from cx_Freeze.command.build_exe import BuildEXE as build_exe
 from cx_Freeze.exception import SetupError
+from cx_Freeze.executable import Executable
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -31,75 +32,133 @@ OUTPUT_SUBPACKAGE_TEST = "This is p.p1\nThis is p.q.q1\n"
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": ["hello.py"],
+    "executables": [Executable("hello.py")],
     "script_name": "setup.py",
 }
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "option", "result"),
+    ("kwargs", "expected"),
     [
         pytest.param(
             {"build_exe": None},
-            "build_exe",
-            BUILD_EXE_DIR,
+            {"build_exe": BUILD_EXE_DIR},
             id="build-exe=none",
         ),
         # build_exe directory is the same as the build_base
         pytest.param(
             {"build_exe": "build"},
-            "build_exe",
-            None,
+            {"build_exe": None},
             id="build-exe=build",
             marks=pytest.mark.xfail(raises=SetupError),
         ),
         pytest.param(
-            {"build_exe": "dist"}, "build_exe", "dist", id="build-exe=dist"
+            {"build_exe": "dist"}, {"build_exe": "dist"}, id="build-exe=dist"
+        ),
+        pytest.param(
+            {"excludes": "tkinter,unittest"},
+            {"excludes": ["tkinter", "unittest"]},
+            id="excludes='tkinter,unittest'",
+        ),
+        pytest.param(
+            {"excludes": ["tkinter", "unittest"]},
+            {"excludes": ["tkinter", "unittest"]},
+            id="excludes=['tkinter','unittest']",
         ),
         pytest.param(
             {"include_msvcr": None},
-            "include_msvcr",
-            False,
+            {"include_msvcr": False},
             id="include-msvcr=none",
             marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"include_msvcr": False},
-            "include_msvcr",
-            False,
+            {"include_msvcr": False},
             id="include-msvcr=false",
             marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"include_msvcr": True},
-            "include_msvcr",
-            True,
+            {"include_msvcr": True},
             id="include-msvcr=true",
             marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
-        pytest.param({"silent": None}, "silent", 0, id="silent=none->0"),
-        pytest.param({"silent": False}, "silent", 0, id="silent=false->0"),
-        pytest.param({"silent": True}, "silent", 1, id="silent=true->1"),
         pytest.param(
-            {"silent_level": None}, "silent", 0, id="silent-level=none->0"
+            {"replace_paths": [("*", "")]},
+            {"replace_paths": [("*", "")]},
+            id="replace_paths=*",
         ),
-        pytest.param({"silent_level": 0}, "silent", 0, id="silent-level=0->0"),
-        pytest.param({"silent_level": 1}, "silent", 1, id="silent-level=1->1"),
-        pytest.param({"silent_level": 2}, "silent", 2, id="silent-level=2->2"),
         pytest.param(
-            {"silent_level": "3"}, "silent", 3, id="silent-level=3->3"
+            {"replace_paths": "*="},
+            {"replace_paths": ["*="]},
+            id="replace_paths=*=",
+        ),
+        pytest.param(
+            {"replace_paths": ["*="]},
+            {"replace_paths": ["*="]},
+            id="replace_paths=[*=]",
+        ),
+        pytest.param({"silent": None}, {"silent": 0}, id="silent=none->0"),
+        pytest.param({"silent": False}, {"silent": 0}, id="silent=false->0"),
+        pytest.param({"silent": True}, {"silent": 1}, id="silent=true->1"),
+        pytest.param(
+            {"silent_level": None}, {"silent": 0}, id="silent-level=none->0"
+        ),
+        pytest.param(
+            {"silent_level": 0}, {"silent": 0}, id="silent-level=0->0"
+        ),
+        pytest.param(
+            {"silent_level": 1}, {"silent": 1}, id="silent-level=1->1"
+        ),
+        pytest.param(
+            {"silent_level": 2}, {"silent": 2}, id="silent-level=2->2"
+        ),
+        pytest.param(
+            {"silent_level": "3"}, {"silent": 3}, id="silent-level=3->3"
+        ),
+        pytest.param(
+            {"zip_include_packages": None, "zip_exclude_packages": None},
+            {"zip_include_packages": [], "zip_exclude_packages": []},
+            id="zip_include_packages/zip_exclude_packages=none/none",
+        ),
+        pytest.param(
+            {"zip_include_packages": ["*"], "zip_exclude_packages": None},
+            {"zip_include_packages": ["*"], "zip_exclude_packages": []},
+            id="zip_include_package=[*]",
+        ),
+        pytest.param(
+            {"zip_include_packages": None, "zip_exclude_packages": ["*"]},
+            {"zip_include_packages": [], "zip_exclude_packages": ["*"]},
+            id="zip_exclude_packages=*",
+        ),
+        pytest.param(  # zip_*_packages are namespace packages
+            {
+                "zip_include_packages": ["namespace.test"],
+                "zip_exclude_packages": ["zope.event", "zope.interface"],
+            },
+            {
+                "zip_include_packages": ["namespace.test"],
+                "zip_exclude_packages": ["zope.event", "zope.interface"],
+            },
+            id="zip_include_packages/zip_exclude_packages=namespace/namespace",
+        ),
+        pytest.param(
+            {"zip_include_packages": "*", "zip_exclude_packages": []},
+            {"zip_include_packages": ["*"], "zip_exclude_packages": []},
+            id="zip_include_package=*",
         ),
     ],
 )
 def test_build_exe_finalize_options(
-    kwargs: dict[str, ...], option: str, result
+    kwargs: dict[str, ...], expected: dict[str, ...]
 ):
     """Test the build_exe finalize_options."""
     dist = Distribution(DIST_ATTRS)
     cmd = build_exe(dist, **kwargs)
     cmd.finalize_options()
     cmd.ensure_finalized()
-    assert getattr(cmd, option) == result
+    for option, value in expected.items():
+        assert getattr(cmd, option) == value
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "advanced")
