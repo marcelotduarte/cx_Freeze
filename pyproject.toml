@@ -67,7 +67,7 @@ doc = [
     "furo==2024.1.29",
 ]
 test = [
-    "pytest==8.0.0",
+    "pytest==8.0.1",
         "pluggy==1.4.0",
     "pytest-cov==4.1.0",
         "coverage==7.4.1",
