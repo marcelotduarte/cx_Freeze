@@ -1012,19 +1012,6 @@ class WinFreezer(Freezer, PEParser):
                     if filepath.exists():
                         dependent_files.add(filepath)
 
-    def _post_freeze_hook(self) -> None:
-        target_lib = self.target_dir / "lib"
-        # Recursing into directories to search for load order files.
-        # Some libraries use delvewheel to patch them.
-        for loader_file in target_lib.rglob(".load-order-*"):
-            load_order = loader_file.read_text(encoding="utf-8").split()
-            load_dir = loader_file.parent
-            new_order = [
-                f for f in load_order if load_dir.joinpath(f).is_file()
-            ]
-            if new_order != load_order:
-                loader_file.write_text("\n".join(new_order))
-
     @cached_property
     def runtime_files(self) -> set[str]:
         """Deal with C-runtime files."""
