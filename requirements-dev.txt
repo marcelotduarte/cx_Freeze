@@ -3,7 +3,7 @@
 setuptools>=62.6,<70
 wheel>=0.38.4,<=0.42.0
 cx_Logging>=3.1 ;sys_platform == 'win32'
-lief>=0.12.0,<=0.14.0 ;sys_platform == 'win32'
+lief>=0.12.0,<0.15.0 ;sys_platform == 'win32'
 filelock>=3.11.0 ;sys_platform == 'linux'
 patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'x86_64'
 patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'i686'
@@ -15,7 +15,7 @@ patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'
 # dev
 bump-my-version==0.17.4
 cibuildwheel==2.16.5
-pre-commit>=3.5.0,<=3.6.1
+pre-commit>=3.5.0,<3.7.0
 pylint==3.0.3
 # doc
 sphinx>=7.1.2,<=7.2.6
