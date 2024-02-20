@@ -27,7 +27,11 @@ clean:
 		pre-commit uninstall;\
 		rm -f .git/hooks/pre-commit;\
 	fi
-	@make -C doc clean
+	@$(MAKE) -C doc clean
+	@if which coverage; then\
+		coverage erase --data-file=$(COVERAGE_FILE);\
+		coverage erase;\
+	fi
 
 .PHONY: install
 install:
