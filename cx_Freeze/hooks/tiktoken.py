@@ -9,7 +9,8 @@ from cx_Freeze.module import Module
 
 
 def load_tiktoken(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The tiktoken must include extension."""
     finder.include_module("tiktoken_ext.openai_public")

@@ -60,7 +60,6 @@ command
 """
 
 
-# pylint: disable=redefined-outer-name
 @pytest.fixture(scope="module")
 def tmp_manifest(tmp_path_factory):
     """Temporary path to build test manifest."""

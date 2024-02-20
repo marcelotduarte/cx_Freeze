@@ -1,7 +1,7 @@
 --extra-index-url https://marcelotduarte.github.io/packages/
 
 setuptools>=62.6,<70
-wheel>=0.38.4
+wheel>=0.38.4,<=0.42.0
 cx_Logging>=3.1 ;sys_platform == 'win32'
 lief>=0.12.0,<0.15.0 ;sys_platform == 'win32'
 patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'x86_64'
@@ -15,16 +15,15 @@ patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'
 bump-my-version==0.11.0
 cibuildwheel>=2.13.1
 pre-commit>=2.21.0
-pylint>=2.17.6
 # doc
 sphinx>=7.1.2,<=7.2.6
-sphinx-new-tab-link==0.2.1
+sphinx-new-tab-link==0.2.2
 sphinx-tabs==3.4.5
-furo==2023.9.10
+furo==2024.1.29
 # test
 pytest>=7.4.0
 pytest-cov>=4.1.0
-pytest-datafiles>=3.0.0
+pytest-datafiles==3.0.0
 pytest-mock>=3.11.1
 pytest-timeout>=2.1.0
 pytest-xdist[psutil]>=3.3.1

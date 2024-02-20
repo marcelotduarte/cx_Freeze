@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools>=62.6,<70",
-    "wheel>=0.38.4",
+    "wheel>=0.38.4,<=0.42.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
@@ -40,7 +40,7 @@ keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
 requires-python = ">=3.7.4"
 dependencies = [
     "setuptools>=62.6,<70",
-    "wheel>=0.38.4",
+    "wheel>=0.38.4,<=0.42.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
     "lief>=0.12.0,<0.15.0 ;sys_platform == 'win32'",
     "patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
@@ -57,18 +57,17 @@ dev = [
     "bump-my-version==0.11.0",
     "cibuildwheel>=2.13.1",
     "pre-commit>=2.21.0",
-    "pylint>=2.17.6",
 ]
 doc = [
     "sphinx>=7.1.2,<=7.2.6",
-    "sphinx-new-tab-link==0.2.1",
+    "sphinx-new-tab-link==0.2.2",
     "sphinx-tabs==3.4.5",
-    "furo==2023.9.10",
+    "furo==2024.1.29",
 ]
 test = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
-    "pytest-datafiles>=3.0.0",
+    "pytest-datafiles==3.0.0",
     "pytest-mock>=3.11.1",
     "pytest-timeout>=2.1.0",
     "pytest-xdist[psutil]>=3.3.1",
@@ -78,37 +77,34 @@ test = [
 file = "README.md"
 content-type = "text/markdown"
 
-[project.urls]
-Home = "https://marcelotduarte.github.io/cx_Freeze"
-Changelog = "https://cx-freeze.readthedocs.io/en/latest/releasenotes.html"
-Documentation = "https://cx-freeze.readthedocs.io"
-Source = "https://github.com/marcelotduarte/cx_Freeze"
-Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
-Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
-
-[project.scripts]
-cxfreeze = "cx_Freeze.cli:main"
-cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
-
 [project.entry-points."distutils.setup_keywords"]
 executables = "cx_Freeze.executable:validate_executables"
 
 [project.entry-points."setuptools.finalize_distribution_options"]
 cxfreeze-plugin = "cx_Freeze:plugin_install"
 
+[project.scripts]
+cxfreeze = "cx_Freeze.cli:main"
+cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
+
+[project.urls]
+Home = "https://marcelotduarte.github.io/cx_Freeze"
+Changelog = "https://cx-freeze.readthedocs.io/en/stable/releasenotes.html"
+Documentation = "https://cx-freeze.readthedocs.io"
+Source = "https://github.com/marcelotduarte/cx_Freeze"
+Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
+Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
+
 [tool.setuptools]
 include-package-data = true
-zip-safe = false
 license-files = ["doc/src/license.rst"]
+zip-safe = false
 
 [tool.setuptools.dynamic]
 version = {attr = "cx_Freeze.__version__"}
 
 [tool.setuptools.packages]
 find = {namespaces = false}
-
-[tool.distutils.bdist_wheel]
-universal = 0
 
 [tool.black]
 line-length = 79
@@ -142,107 +138,6 @@ values = [
 	"prod"
 ]
 
-[tool.isort]
-profile = "black"
-line_length = 79
-skip_gitignore = true
-add_imports = ["from __future__ import annotations"]
-
-[tool.ruff]
-select = [
-    "A",   # flake8-builtins
-    "E", "F", "W",  # flake8
-    "B",  "B904",  # flake8-bugbear
-    "D",  # pydocstyle
-    "I",  # isort
-    "ARG",  # flake8-unused-arguments
-    "C4",  # flake8-comprehensions
-    #"EM",  # flake8-errmsg
-    "ICN",  # flake8-import-conventions
-    "ISC",  # flake8-implicit-str-concat
-    "PGH",  # pygrep-hooks
-    "PIE",  # flake8-pie
-    "PLC", "PLE", "PLR", "PLW",  # pylint
-    "PT",  # flake8-pytest-style
-    "RSE",  # flake8-raise
-    "RET",  # flake8-return
-    "RUF",  # Ruff-specific
-    "SIM",  # flake8-simplify
-    "UP",  # pyupgrade
-    "YTT",  # flake8-2020
-]
-ignore = [
-    # ignored for now, but should be revised in future
-    "D102",  # Missing docstring in public method
-    "D401",  # First line of docstring should be in imperative mood
-    # ignore the following
-    "D104",  # Missing docstring in public package
-    "D105",  # Missing docstring in magic method
-    "D107",  # Missing docstring in `__init__`
-    "D203", "D205", "D213",
-    "PLR2004", "E501",
-    "PLR0912",  # too-many-branches
-    "PLR0913",  # too-many-arguments
-    "PLR0915",  # too-many-statements
-    "RUF012",
-]
-line-length = 79
-target-version = "py37"
-flake8-unused-arguments.ignore-variadic-names = true
-extend-exclude = ["samples/*.py"]
-
-[tool.pylint.main]
-disable = [
-    "attribute-defined-outside-init",
-    "c-extension-no-member",
-    "duplicate-code",
-    "exec-used",
-    "fixme",
-    "global-statement",              # checked by ruff PLW0603
-    "import-error",
-    "missing-class-docstring",       # checked by ruff D101
-    "missing-function-docstring",    # checked by ruff D103
-    "missing-module-docstring",      # checked by ruff D100
-    "no-member",                     # not handled by ruff yet E1101
-    "protected-access",
-    "redefined-builtin",  # checked by ruff A
-    "too-few-public-methods",
-    "too-many-arguments",  # ignore by ruff too
-    "too-many-branches",  # ignore by ruff too
-    "too-many-instance-attributes",
-    "too-many-lines",
-    "too-many-locals",
-    "too-many-nested-blocks",
-    "too-many-return-statements",    # checked by ruff PLR0911
-    "too-many-statements",           # also ignored in ruff
-    "unbalanced-tuple-unpacking",    # not handled by ruff yet W0632
-    "ungrouped-imports",             # checked by ruff C0412 (I001)
-    "unused-argument",               # checked by ruff ARG
-    "useless-parent-delegation",     # not handled by ruff yet W0246
-]
-ignore-paths = [
-    "cx_Freeze/darwintools.py",
-    "cx_Freeze/hooks/pyqt5/resource.py",
-    "cx_Freeze/hooks/pyside2/resource.py",
-    "cx_Freeze/hooks/pyside6/resource.py",
-    "^samples/.*.py$",
-]
-py-version = [3, 7]
-output-format = "colorized"
-
-[tool.pylint.format]
-max-line-length = 79
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-rpfEsXx -nauto"
-testpaths = ["tests"]
-filterwarnings = [
-    "ignore::DeprecationWarning:distutils.*",
-    "ignore::DeprecationWarning:pkg_resources.*",
-    "ignore::DeprecationWarning:setuptools.*",
-]
-
 [tool.cibuildwheel]
 before-build = "pip install -r requirements.txt"
 build = "cp3*"
@@ -264,3 +159,131 @@ repair-wheel-command = """
 delocate-listdeps {wheel} &&
 delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
 """
+
+[tool.coverage.html]
+directory = "build/coverage"
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+ignore_errors = true
+omit = [
+    "cx_Freeze/hooks/*",
+    "cx_Freeze/initscripts/*",
+]
+
+[tool.coverage.run]
+#relative_files = true
+
+[tool.pylint.format]
+max-line-length = 79
+
+[tool.pylint.main]
+disable = [
+    "attribute-defined-outside-init",
+    "c-extension-no-member",
+    "duplicate-code",
+    "exec-used",
+    "fixme",
+    "global-statement",              # checked by ruff PLW0603
+    "import-error",
+    "missing-class-docstring",       # checked by ruff D101
+    "missing-function-docstring",    # checked by ruff D103
+    "missing-module-docstring",      # checked by ruff D100
+    "no-member",                     # not handled by ruff yet E1101
+    "protected-access",
+    "redefined-builtin",             # checked by ruff A
+    "too-few-public-methods",
+    "too-many-arguments",            # also ignored in ruff
+    "too-many-branches",             # also ignored in ruff
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-nested-blocks",
+    "too-many-return-statements",    # checked by ruff PLR0911
+    "too-many-statements",           # also ignored in ruff
+    "unbalanced-tuple-unpacking",    # not handled by ruff yet W0632
+    "ungrouped-imports",             # checked by ruff C0412 (I001)
+    "unused-argument",               # checked by ruff ARG
+    "useless-parent-delegation",     # not handled by ruff yet W0246
+]
+ignore-paths = [
+    "cx_Freeze/__init__.py",
+    "cx_Freeze/darwintools.py",
+    "cx_Freeze/hooks/__init__.py",
+    "cx_Freeze/hooks/pyqt5/resource.py",
+    "cx_Freeze/hooks/pyside2/resource.py",
+    "cx_Freeze/hooks/pyside6/resource.py",
+    "^samples/.*.py$",
+    "^tests/.*.py$",
+]
+jobs = 0
+output-format = "colorized"
+py-version = [3, 7]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-rpfEsXx"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning:distutils.*",
+    "ignore::DeprecationWarning:pkg_resources.*",
+    "ignore::DeprecationWarning:setuptools.*",
+]
+
+[tool.ruff]
+extend-exclude = [
+    "cx_Freeze/importshed/*.pyi",
+    "samples/*.py"
+]
+line-length = 79
+target-version = "py37"
+
+[tool.ruff.lint]
+select = [
+    "A",    # flake8-builtins
+    "E", "F", "W",  # flake8
+    "B",  "B904",  # flake8-bugbear
+    "D",    # pydocstyle
+    "I",    # isort
+    "ARG",  # flake8-unused-arguments
+    "C4",   # flake8-comprehensions
+    #"EM",  # flake8-errmsg
+    "ICN",  # flake8-import-conventions
+    "ISC",  # flake8-implicit-str-concat
+    "PGH",  # pygrep-hooks
+    "PIE",  # flake8-pie
+    "PLC", "PLE", "PLR", "PLW",  # pylint
+    "PT",   # flake8-pytest-style
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "RUF",  # Ruff-specific
+    "SIM",  # flake8-simplify
+    "UP",   # pyupgrade
+    "YTT",  # flake8-2020
+]
+ignore = [
+    # ignored for now, but should be revised in future
+    "D102",  # Missing docstring in public method
+    "D401",  # First line of docstring should be in imperative mood
+    # ignore the following
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in `__init__`
+    "D203", "D205", "D213",
+    "ISC001",
+    "PLR2004", "E501",
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
+    "RUF012",
+]
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true

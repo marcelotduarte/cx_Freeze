@@ -40,7 +40,11 @@ class TemporaryPath(TemporaryDirectory):
     """Create and return a Path-like temporary directory."""
 
     def __init__(
-        self, filename=None, suffix=None, prefix=None, dir=None  # noqa: A002
+        self,
+        filename=None,
+        suffix=None,
+        prefix=None,
+        dir=None,  # noqa: A002
     ):
         super().__init__(suffix, prefix or "cxfreeze-", dir)
         if filename:
@@ -76,7 +80,7 @@ def get_resource_file_path(
 
 
 def normalize_to_list(
-    value: str | list[str] | tuple[str, ...] | None
+    value: str | list[str] | tuple[str, ...] | None,
 ) -> list[str]:
     """Takes the different formats of options containing multiple values and
     returns the value as a list object.

@@ -46,7 +46,8 @@ def load_crypto_util(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_crypto_util__file_system(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,  # noqa: ARG001
+    module: Module,
 ) -> None:
     """The patch for pycryptodome package."""
     code = module.code

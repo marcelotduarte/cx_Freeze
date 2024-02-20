@@ -130,7 +130,8 @@ def load_setuptools__normalization(_, module: Module) -> None:
 
 
 def load_setuptools_monkey(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """Add hidden module."""
     finder.include_module("setuptools.msvc")

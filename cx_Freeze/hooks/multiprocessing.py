@@ -13,7 +13,8 @@ from cx_Freeze.module import Module
 
 
 def load_multiprocessing(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,  # noqa: ARG001
+    module: Module,
 ) -> None:
     """The forkserver method calls utilspawnv_passfds in ensure_running to
     pass a command line to python. In cx_Freeze the running executable

@@ -17,14 +17,16 @@ def load_backports_zoneinfo(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_backports_zoneinfo__common(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,  # noqa: ARG001
+    module: Module,
 ) -> None:
     """Ignore module not used in Python 3.8."""
     module.ignore_names.add("importlib_resources")
 
 
 def load_backports_zoneinfo__tzpath(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,  # noqa: ARG001
+    module: Module,
 ) -> None:
     """Ignore module not used in Python 3.8."""
     module.ignore_names.add("importlib_resources")

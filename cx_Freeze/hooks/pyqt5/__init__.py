@@ -105,7 +105,8 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pyqt5_qtcore(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The PyQt5.QtCore module implicitly imports the sip module and,
     depending on configuration, the PyQt5._qt module.
