@@ -38,9 +38,9 @@ clean:
 		rm -f .git/hooks/pre-commit;\
 	fi
 	@$(MAKE) -C doc clean
-	if which coverage; then\
-		@COVERAGE_FILE=$(COVERAGE_FILE) coverage erase;\
-		@coverage erase;\
+	@if which coverage; then\
+		coverage erase --data-file=$(COVERAGE_FILE);\
+		coverage erase;\
 	fi
 
 .PHONY: install
