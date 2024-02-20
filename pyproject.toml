@@ -58,7 +58,6 @@ dev = [
     "bump-my-version==0.17.4",
     "cibuildwheel==2.16.5",
     "pre-commit>=3.5.0,<3.7.0",
-    "pylint==3.0.3",
 ]
 doc = [
     "sphinx>=7.1.2,<=7.2.6",
@@ -218,11 +217,14 @@ disable = [
     "useless-parent-delegation",     # not handled by ruff yet W0246
 ]
 ignore-paths = [
+    "cx_Freeze/__init__.py",
     "cx_Freeze/darwintools.py",
+    "cx_Freeze/hooks/__init__.py",
     "cx_Freeze/hooks/pyqt5/resource.py",
     "cx_Freeze/hooks/pyside2/resource.py",
     "cx_Freeze/hooks/pyside6/resource.py",
     "^samples/.*.py$",
+    "^tests/.*.py$",
 ]
 jobs = 0
 output-format = "colorized"
@@ -278,6 +280,7 @@ ignore = [
     "D105",  # Missing docstring in magic method
     "D107",  # Missing docstring in `__init__`
     "D203", "D205", "D213",
+    "ISC001",
     "PLR2004", "E501",
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments

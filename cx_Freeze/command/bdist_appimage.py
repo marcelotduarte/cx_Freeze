@@ -143,7 +143,7 @@ class BdistAppImage(Command):
 
             try:
                 self.spawn([appimagekit, "--version"])
-            except Exception:  # pylint: disable=W0718
+            except Exception:
                 self._appimage_extract_and_run = True
 
     def run(self):

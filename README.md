@@ -1,6 +1,6 @@
 | Version | Downloads | Python | Code |
 | --- | --- | --- | --- |
-| [![PyPI version](https://img.shields.io/pypi/v/cx_Freeze)](https://pypi.org/project/cx-freeze/) | [![PyPi Downloads](https://img.shields.io/pypi/dm/cx_Freeze)](https://pypistats.org/packages/cx-freeze) | [![Python](https://img.shields.io/pypi/pyversions/cx-freeze)](https://www.python.org/) | ![CodeQL](https://github.com/marcelotduarte/cx_Freeze/workflows/CodeQL/badge.svg) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) |
+| [![PyPI version](https://img.shields.io/pypi/v/cx_Freeze)](https://pypi.org/project/cx-freeze/) | [![PyPi Downloads](https://img.shields.io/pypi/dm/cx_Freeze)](https://pypistats.org/packages/cx-freeze) | [![Python](https://img.shields.io/pypi/pyversions/cx-freeze)](https://www.python.org/) | ![CodeQL](https://github.com/marcelotduarte/cx_Freeze/workflows/CodeQL/badge.svg) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) |
 | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/cx_freeze.svg)](https://anaconda.org/conda-forge/cx_freeze) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/cx_freeze.svg)](https://anaconda.org/conda-forge/cx_freeze) | | |
 
 **cx\_Freeze** creates standalone executables from Python scripts, with the same
@@ -21,13 +21,13 @@ To install the latest development build:
 pip install --upgrade --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
 ```
 
-Please check the [installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
+Please check the [installation](https://cx-freeze.readthedocs.io/en/stable/installation.html)
 for more information and how to install in others environment such as pipenv,
 conda-forge, etc.
 
 # Documentation
 
-[![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=latest)](https://cx-freeze.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=stable)](https://cx-freeze.readthedocs.io/en/stable/?badge=stable)
 
 The official documentation is available
 [here](https://cx-freeze.readthedocs.io).
@@ -67,10 +67,10 @@ If you need help you can also ask on the [discussion](https://github.com/marcelo
 
 # License
 
-[![License](https://img.shields.io/pypi/l/cx_Freeze.svg)](https://cx-freeze.readthedocs.io/en/latest/license.html)
+[![License](https://img.shields.io/pypi/l/cx_Freeze.svg)](https://cx-freeze.readthedocs.io/en/stable/license.html)
 
 cx\_Freeze uses a license derived from the
 [Python Software Foundation License](https://www.python.org/psf/license).
 You can read the cx\_Freeze license in the
-[documentation](https://cx-freeze.readthedocs.io/en/latest/license.html)
+[documentation](https://cx-freeze.readthedocs.io/en/stable/license.html)
 or in the [source repository](doc/src/license.rst).

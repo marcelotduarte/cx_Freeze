@@ -1,5 +1,5 @@
 ci:
-    skip: [build-docs, license, pylint]
+    skip: [blacken-docs, build-docs]
 
 exclude: |
     (?x)^(
@@ -41,17 +41,14 @@ repos:
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
+  - id: ruff-format
 
-- repo: https://github.com/psf/black
-  rev: 24.2.0
-  hooks:
-  - id: black
-
-- repo: https://github.com/asottile/blacken-docs
+- repo: https://github.com/adamchainz/blacken-docs
   rev: 1.16.0
   hooks:
   - id: blacken-docs
-    additional_dependencies: [black==24.2.0]
+    additional_dependencies:
+    - black==24.2.0
     args: ["-l", "79"]
 
 - repo: local
@@ -78,11 +75,3 @@ repos:
     language: system
     entry: python ci/requirements.py
     files: ^(pyproject.toml|requirements.*.txt)$
-
-- repo: local
-  hooks:
-  - id: pylint
-    name: pylint
-    entry: pylint
-    language: system
-    types: [python]

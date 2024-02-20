@@ -86,7 +86,6 @@ class ModuleFinder:
         self._modules: dict[str, Module | None] = dict.fromkeys(excludes or [])
         self._bad_modules = {}
         self._exclude_unused_modules()
-        # pylint: disable-next=consider-using-with
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
 

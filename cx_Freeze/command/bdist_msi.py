@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import importlib
 import logging
-import msilib  # pylint: disable=deprecated-module
+import msilib
 import os
 import re
 import shutil

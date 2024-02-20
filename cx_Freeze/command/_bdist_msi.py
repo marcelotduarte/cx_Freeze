@@ -12,7 +12,7 @@ import logging
 import os
 import shutil
 import sys
-from msilib import (  # pylint: disable=deprecated-module
+from msilib import (
     CAB,
     Binary,
     Dialog,
@@ -36,7 +36,6 @@ from ..exception import OptionError
 from ._pydialog import PyDialog
 
 
-# pylint: disable=invalid-name
 class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 

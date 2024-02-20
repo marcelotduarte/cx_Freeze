@@ -2,7 +2,6 @@
 certain packages are included or not found.
 """
 
-# pylint: disable=invalid-name
 # ruff: noqa: ARG001
 from __future__ import annotations
 
