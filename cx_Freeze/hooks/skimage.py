@@ -32,7 +32,8 @@ def load_skimage(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
 
 
 def load_skimage_feature_orb_cy(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The skimage.feature.orb_cy is an extension that load a module."""
     finder.include_module("skimage.feature._orb_descriptor_positions")

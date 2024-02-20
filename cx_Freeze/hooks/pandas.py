@@ -30,7 +30,8 @@ def load_pandas_io_formats_style(_, module: Module) -> None:
 
 
 def load_pandas__libs_testing(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """Include module used by the pandas._libs.testing module."""
     finder.include_module("cmath")

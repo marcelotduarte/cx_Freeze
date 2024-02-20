@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from msilib import Dialog  # pylint: disable=deprecated-module
+from msilib import Dialog
 
 
 class PyDialog(Dialog):
@@ -25,7 +25,7 @@ class PyDialog(Dialog):
         default,
         cancel,
         bitmap=True,  # noqa: ARG002
-    ):  # pylint: disable=invalid-name
+    ):
         Dialog.__init__(
             self, db, name, x, y, w, h, attr, title, first, default, cancel
         )

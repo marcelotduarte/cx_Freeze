@@ -11,7 +11,8 @@ from cx_Freeze.module import Module
 
 
 def load_xlib_display(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The Xlib.display module implicitly loads a number of extension modules;
     make sure this happens.
@@ -25,7 +26,8 @@ def load_xlib_display(
 
 
 def load_xlib_support_connect(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The Xlib.support.connect module implicitly loads a platform specific
     module; make sure this happens.

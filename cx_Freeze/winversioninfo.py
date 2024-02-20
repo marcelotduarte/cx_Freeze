@@ -91,7 +91,7 @@ class Structure:
         return buffer
 
 
-class VS_FIXEDFILEINFO(Structure):  # pylint: disable=invalid-name
+class VS_FIXEDFILEINFO(Structure):
     """Version information for a Win32 file."""
 
     _fields = [
@@ -114,9 +114,7 @@ class VS_FIXEDFILEINFO(Structure):  # pylint: disable=invalid-name
 class String(Structure):
     """File version resource representation of the data."""
 
-    def __init__(
-        self, key: str, value: int | str | Structure | None = None
-    ):  # pylint: disable=W0231
+    def __init__(self, key: str, value: int | str | Structure | None = None):
         key = key + "\0"
         key_len = len(key)
         fields = [
@@ -151,7 +149,6 @@ class String(Structure):
             value_type = 0
             fields.append(("Value", type(value)))
 
-        # pylint: disable=invalid-name
         self._fields = fields
         self.wValueLength = value_len
         self.wType = value_type

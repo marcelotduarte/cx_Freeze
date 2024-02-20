@@ -75,7 +75,8 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_numpy_core__add_newdocs(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """Include module used by the numpy.core._add_newdocs module."""
     finder.include_module("numpy.core._multiarray_tests")
@@ -222,7 +223,8 @@ def load_numpy_f2py___version__(_, module: Module) -> None:
 
 
 def load_numpy_linalg(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The numpy.linalg module implicitly loads the lapack_lite module; make
     sure this happens.

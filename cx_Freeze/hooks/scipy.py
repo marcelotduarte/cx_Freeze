@@ -57,7 +57,8 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_scipy_interpolate(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.interpolate must be loaded as a package."""
     finder.exclude_module("scipy.interpolate.tests")
@@ -80,7 +81,8 @@ def load_scipy_linalg_interface_gen(_, module: Module) -> None:
 
 
 def load_scipy_ndimage(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.ndimage must be loaded as a package."""
     finder.exclude_module("scipy.ndimage.tests")
@@ -88,7 +90,8 @@ def load_scipy_ndimage(
 
 
 def load_scipy_sparse(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.sparse must be loaded as a package."""
     finder.exclude_module("scipy.sparse.tests")
@@ -96,7 +99,8 @@ def load_scipy_sparse(
 
 
 def load_scipy_sparse_csgraph(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.sparse.csgraph must be loaded as a package."""
     finder.exclude_module("scipy.sparse.csgraph.tests")
@@ -104,7 +108,8 @@ def load_scipy_sparse_csgraph(
 
 
 def load_scipy_sparse_linalg__dsolve_linsolve(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,  # noqa: ARG001
+    module: Module,
 ) -> None:
     """The scipy.sparse.linalg._dsolve.linsolve optionally loads
     scikits.umfpack.
@@ -113,7 +118,8 @@ def load_scipy_sparse_linalg__dsolve_linsolve(
 
 
 def load_scipy_spatial(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.spatial must be loaded as a package."""
     finder.include_package("scipy.spatial")
@@ -123,7 +129,8 @@ def load_scipy_spatial(
 
 
 def load_scipy_spatial_transform(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.spatial.transform must be loaded as a package."""
     finder.include_package("scipy.spatial.transform")
@@ -131,7 +138,8 @@ def load_scipy_spatial_transform(
 
 
 def load_scipy_special(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.special must be loaded as a package."""
     finder.exclude_module("scipy.special.tests")
@@ -140,7 +148,8 @@ def load_scipy_special(
 
 
 def load_scipy_special__cephes(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,  # noqa: ARG001
+    module: Module,
 ) -> None:
     """The scipy.special._cephes is an extension module and the scipy module
     imports * from it in places; advertise the global names that are used
@@ -150,7 +159,8 @@ def load_scipy_special__cephes(
 
 
 def load_scipy_stats(
-    finder: ModuleFinder, module: Module  # noqa: ARG001
+    finder: ModuleFinder,
+    module: Module,  # noqa: ARG001
 ) -> None:
     """The scipy.stats must be loaded as a package."""
     finder.exclude_module("scipy.stats.tests")

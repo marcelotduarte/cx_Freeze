@@ -1,5 +1,4 @@
-# ruff: noqa
-# pylint: skip-file
+"""cxfreeze-quickstart command line tool."""
 
 from __future__ import annotations
 
@@ -8,6 +7,8 @@ import subprocess
 
 
 class SetupWriter:
+    """SetupWriter class."""
+
     bases = {"C": "console", "G": "gui", "S": "service"}
 
     @property
@@ -88,8 +89,7 @@ class SetupWriter:
             w("executables = [")
             if self.executable_name != self.default_executable_name:
                 w(
-                    "    Executable(%r, base=base, target_name = %r)"
-                    % (self.script, self.executable_name)
+                    f"    Executable({self.script!r}, base=base, target_name = {self.executable_name!r})"
                 )
             else:
                 w("    Executable(%r, base=base)" % self.script)
@@ -97,18 +97,16 @@ class SetupWriter:
             w("")
 
             w(
-                (
-                    "setup(name=%r,\n"
-                    "      version = %r,\n"
-                    "      description = %r,\n"
-                    "      options = {'build_exe': build_options},\n"
-                    "      executables = executables)"
-                )
-                % (self.name, self.version, self.description)
+                f"setup(name={self.name!r},\n"
+                f"      version = {self.version!r},\n"
+                f"      description = {self.description!r},\n"
+                "      options = {'build_exe': build_options},\n"
+                "      executables = executables)"
             )
 
 
 def main():
+    """Entry point for cxfreeze-quickstart command line tool."""
     writer = SetupWriter()
     writer.populate_from_command_line()
     writer.write()

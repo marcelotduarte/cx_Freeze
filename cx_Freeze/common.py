@@ -51,7 +51,7 @@ def get_resource_file_path(
 
 
 def normalize_to_list(
-    value: str | list[str] | tuple[str, ...] | None
+    value: str | list[str] | tuple[str, ...] | None,
 ) -> list[str]:
     """Takes the different formats of options containing multiple values and
     returns the value as a list object.
