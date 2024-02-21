@@ -2,16 +2,32 @@
 
 from __future__ import annotations
 
-import importlib
 import logging
-import msilib
 import os
 import re
 import shutil
+from msilib import (  # pylint: disable=deprecated-module
+    CAB,
+    PID_AUTHOR,
+    PID_COMMENTS,
+    PID_KEYWORDS,
+    Binary,
+    Dialog,
+    Directory,
+    Feature,
+    add_data,
+    add_tables,
+    gen_uuid,
+    init_database,
+    make_id,
+    schema,
+    sequence,
+)
 from sysconfig import get_platform
 
+from setuptools import Command
+
 from cx_Freeze._compat import packaging
-from cx_Freeze.command._bdist_msi import bdist_msi as _bdist_msi
 from cx_Freeze.command._pydialog import PyDialog
 from cx_Freeze.exception import OptionError
 
@@ -20,13 +36,13 @@ __all__ = ["BdistMSI"]
 # force the remove existing products action to happen first since Windows
 # installer appears to be braindead and doesn't handle files shared between
 # different "products" very well
-sequence = msilib.sequence.InstallExecuteSequence
-for index, info in enumerate(sequence):
+install_execute_sequence = sequence.InstallExecuteSequence
+for index, info in enumerate(install_execute_sequence):
     if info[0] == "RemoveExistingProducts":
-        sequence[index] = (info[0], info[1], 1450)
+        install_execute_sequence[index] = (info[0], info[1], 1450)
 
 
-class BdistMSI(_bdist_msi):
+class BdistMSI(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
     description = __doc__
@@ -113,23 +129,23 @@ class BdistMSI(_bdist_msi):
             path = "Path"
             if self.all_users:
                 path = "=-*" + path
-            msilib.add_data(
+            add_data(
                 self.db,
                 "Environment",
                 [("E_PATH", path, r"[~];[TARGETDIR]", "TARGETDIR")],
             )
         if self.directories:
-            msilib.add_data(self.db, "Directory", self.directories)
+            add_data(self.db, "Directory", self.directories)
         if self.environment_variables:
-            msilib.add_data(self.db, "Environment", self.environment_variables)
+            add_data(self.db, "Environment", self.environment_variables)
         # This is needed in case the AlwaysInstallElevated policy is set.
         # Otherwise installation will not end up in TARGETDIR.
-        msilib.add_data(
+        add_data(
             self.db,
             "Property",
             [("SecureCustomProperties", "TARGETDIR;REINSTALLMODE")],
         )
-        msilib.add_data(
+        add_data(
             self.db,
             "CustomAction",
             [
@@ -147,7 +163,7 @@ class BdistMSI(_bdist_msi):
                 ),
             ],
         )
-        msilib.add_data(
+        add_data(
             self.db,
             "InstallExecuteSequence",
             [
@@ -155,7 +171,7 @@ class BdistMSI(_bdist_msi):
                 ("A_SET_REINSTALL_MODE", 'REINSTALLMODE=""', 402),
             ],
         )
-        msilib.add_data(
+        add_data(
             self.db,
             "InstallUISequence",
             [
@@ -177,7 +193,7 @@ class BdistMSI(_bdist_msi):
                 and executable.shortcut_dir is not None
             ):
                 base_name = os.path.basename(executable.target_name)
-                msilib.add_data(
+                add_data(
                     self.db,
                     "Shortcut",
                     [
@@ -201,12 +217,12 @@ class BdistMSI(_bdist_msi):
             col = self._binary_columns.get(table_name)
             if col is not None:
                 data = [
-                    (*row[:col], msilib.Binary(row[col]), *row[col + 1 :])
+                    (*row[:col], Binary(row[col]), *row[col + 1 :])
                     for row in table_data
                 ]
             else:
                 data = table_data
-            msilib.add_data(self.db, table_name, data)
+            add_data(self.db, table_name, data)
 
         # If provided, add data to MSI's summary information stream
         if len(self.summary_data) > 0:
@@ -219,20 +235,20 @@ class BdistMSI(_bdist_msi):
             summary_info = self.db.GetSummaryInformation(5)
             if "author" in self.summary_data:
                 summary_info.SetProperty(
-                    msilib.PID_AUTHOR, self.summary_data["author"]
+                    PID_AUTHOR, self.summary_data["author"]
                 )
             if "comments" in self.summary_data:
                 summary_info.SetProperty(
-                    msilib.PID_COMMENTS, self.summary_data["comments"]
+                    PID_COMMENTS, self.summary_data["comments"]
                 )
             if "keywords" in self.summary_data:
                 summary_info.SetProperty(
-                    msilib.PID_KEYWORDS, self.summary_data["keywords"]
+                    PID_KEYWORDS, self.summary_data["keywords"]
                 )
             summary_info.Persist()
 
     def add_cancel_dialog(self):
-        dialog = msilib.Dialog(
+        dialog = Dialog(
             self.db,
             "CancelDlg",
             50,
@@ -260,7 +276,7 @@ class BdistMSI(_bdist_msi):
         button.event("EndDialog", "Return")
 
     def add_error_dialog(self):
-        dialog = msilib.Dialog(
+        dialog = Dialog(
             self.db,
             "ErrorDlg",
             50,
@@ -357,8 +373,8 @@ class BdistMSI(_bdist_msi):
 
     def add_files(self):
         database = self.db
-        cab = msilib.CAB("distfiles")
-        feature = msilib.Feature(
+        cab = CAB("distfiles")
+        feature = Feature(
             database,
             "default",
             "Default Feature",
@@ -368,7 +384,7 @@ class BdistMSI(_bdist_msi):
         )
         feature.set_current()
         rootdir = os.path.abspath(self.bdist_dir)
-        root = msilib.Directory(
+        root = Directory(
             database, cab, None, rootdir, "TARGETDIR", "SourceDir"
         )
         database.Commit()
@@ -394,7 +410,7 @@ class BdistMSI(_bdist_msi):
                     directory.component = restore_component
                 elif os.path.isdir(os.path.join(directory.absolute, file)):
                     sfile = directory.make_short(file)
-                    new_dir = msilib.Directory(
+                    new_dir = Directory(
                         database, cab, directory, file, file, f"{sfile}|{file}"
                     )
                     todo.append(new_dir)
@@ -641,12 +657,12 @@ class BdistMSI(_bdist_msi):
             props.append(("UpgradeCode", self.upgrade_code.upper()))
         if self.install_icon:
             props.append(("ARPPRODUCTICON", "InstallIcon"))
-        msilib.add_data(self.db, "Property", props)
+        add_data(self.db, "Property", props)
         if self.install_icon:
-            msilib.add_data(
+            add_data(
                 self.db,
                 "Icon",
-                [("InstallIcon", msilib.Binary(self.install_icon))],
+                [("InstallIcon", Binary(self.install_icon))],
             )
 
     def add_select_directory_dialog(self):
@@ -716,7 +732,7 @@ class BdistMSI(_bdist_msi):
         button.event("DirectoryListNew", "0")
 
     def add_text_styles(self):
-        msilib.add_data(
+        add_data(
             self.db,
             "TextStyle",
             [
@@ -743,7 +759,7 @@ class BdistMSI(_bdist_msi):
 
     def add_upgrade_config(self, sversion):
         if self.upgrade_code is not None:
-            msilib.add_data(
+            add_data(
                 self.db,
                 "Upgrade",
                 [
@@ -809,7 +825,7 @@ class BdistMSI(_bdist_msi):
         button.event("EndDialog", "Exit")
 
     def add_wait_for_costing_dialog(self):
-        dialog = msilib.Dialog(
+        dialog = Dialog(
             self.db,
             "WaitForCostingDlg",
             50,
@@ -920,7 +936,7 @@ class BdistMSI(_bdist_msi):
         for idx, executable in enumerate(self.distribution.executables):
             base_name = os.path.basename(executable.target_name)
             # Trying to make these names unique from any directory name
-            self.separate_components[base_name] = msilib.make_id(
+            self.separate_components[base_name] = make_id(
                 f"_cx_executable{idx}_{executable}"
             )
         if self.extensions is None:
@@ -943,7 +959,7 @@ class BdistMSI(_bdist_msi):
                     "distribution's executables"
                 ) from None
             stem = os.path.splitext(executable)[0]
-            progid = msilib.make_id(f"{name}.{stem}.{version}")
+            progid = make_id(f"{name}.{stem}.{version}")
             mime = extension.get("mime", None)
             # "%1" a better default for argument?
             argument = extension.get("argument", None)
@@ -1035,19 +1051,19 @@ class BdistMSI(_bdist_msi):
         # the current instance of the python interpreter -- if so, it could
         # prevent the root from getting the logical name TARGETDIR, breaking
         # the MSI.
-        importlib.reload(msilib)
+        # importlib.reload(msilib)
 
         if self.product_code is None:
-            self.product_code = msilib.gen_uuid()
-        self.db = msilib.init_database(
+            self.product_code = gen_uuid()
+        self.db = init_database(
             installer_name,
-            msilib.schema,
+            schema,
             self.target_name,
             self.product_code,
             base_version,
             author,
         )
-        msilib.add_tables(self.db, msilib.sequence)
+        add_tables(self.db, sequence)
         self.add_properties()
         self.add_config()
         self.add_upgrade_config(base_version)
