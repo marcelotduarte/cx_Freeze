@@ -42,7 +42,6 @@ executables = [
     Executable(
         "hello.py",
         copyright="Copyright (C) 2024 cx_Freeze",
-        base="gui",
         icon="icon.ico",
         shortcut_name="My Program Name",
         shortcut_dir="MyProgramMenu",
