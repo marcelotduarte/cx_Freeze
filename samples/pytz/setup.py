@@ -2,6 +2,7 @@
 A setup script to demonstrate build using pytz
 This version requires the zoneinfo in the file system
 """
+
 from __future__ import annotations
 
 #

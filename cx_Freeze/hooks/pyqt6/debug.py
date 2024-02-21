@@ -1,6 +1,7 @@
 """Module used to inject a debug code to show QLibraryInfo paths if environment
 variable QT_DEBUG is set.
 """
+
 import os
 import sys
 from pathlib import Path

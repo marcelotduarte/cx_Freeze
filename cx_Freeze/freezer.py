@@ -1,4 +1,5 @@
 """The core class for freezing scripts into executables."""
+
 from __future__ import annotations
 
 import marshal

@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 multiprocessing package is included.
 """
+
 from __future__ import annotations
 
 import os

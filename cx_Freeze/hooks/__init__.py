@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 certain packages are included or not found.
 """
+
 # pylint: disable=invalid-name
 # ruff: noqa: ARG001
 

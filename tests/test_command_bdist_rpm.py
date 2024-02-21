@@ -1,4 +1,5 @@
 """Tests for cx_Freeze.command.bdist_rpm."""
+
 from __future__ import annotations
 
 import platform

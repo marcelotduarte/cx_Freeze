@@ -2,6 +2,7 @@
 A setup script to create executables and demonstrate the use icons, that can be
 valid or invalid icons.
 """
+
 import sys
 from cx_Freeze import Executable, setup
 

@@ -1,6 +1,7 @@
 """A collection of functions which are triggered automatically by finder when
 PyQt5 package is included.
 """
+
 from __future__ import annotations
 
 from contextlib import suppress
