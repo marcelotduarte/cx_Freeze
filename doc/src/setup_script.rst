@@ -571,18 +571,16 @@ For example:
 
     build_exe_options = {"excludes": ["tkinter"], "include_msvcr": True}
 
-    executables = (
-        [
-            Executable(
-                "hello.py",
-                copyright="Copyright (C) 2024 cx_Freeze",
-                base="gui",
-                icon="icon.ico",
-                shortcut_name="My Program Name",
-                shortcut_dir="MyProgramMenu",
-            ),
-        ],
-    )
+    executables = [
+        Executable(
+            "hello.py",
+            copyright="Copyright (C) 2024 cx_Freeze",
+            base="gui",
+            icon="icon.ico",
+            shortcut_name="My Program Name",
+            shortcut_dir="MyProgramMenu",
+        )
+    ]
 
     setup(
         name="hello",
