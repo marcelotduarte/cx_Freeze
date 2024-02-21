@@ -9,6 +9,8 @@ import pytest
 from generate_samples import create_package, run_command
 from setuptools import Distribution
 
+from cx_Freeze import Executable
+
 bdist_msi = pytest.importorskip(
     "cx_Freeze.command.bdist_msi", reason="Windows tests"
 ).BdistMSI
@@ -16,10 +18,12 @@ bdist_msi = pytest.importorskip(
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": [],
+    "executables": [Executable("hello.py")],
     "script_name": "setup.py",
 }
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
+
+TOP_DIR = Path(__file__).resolve().parent.parent
+SAMPLES_DIR = TOP_DIR / "samples"
 
 
 def test_bdist_msi_target_name():
@@ -48,16 +52,27 @@ def test_bdist_msi_default(datafiles: Path):
     """Test the msi_binary_data sample."""
     run_command(datafiles, "python setup.py bdist_msi")
     platform = get_platform().replace("win-amd64", "win64")
-    file_created = datafiles / "dist" / f"hello-0.1-{platform}.msi"
+    file_created = datafiles / "dist" / f"hello-0.1.2.3-{platform}.msi"
     assert file_created.is_file()
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "msi_binary_data")
+@pytest.mark.datafiles(SAMPLES_DIR / "msi_extensions")
 def test_bdist_msi_target_name_with_extension(datafiles: Path):
-    """Test the msi_binary_data sample, with a specified target_name that
+    """Test the msi_extensions sample, with a specified target_name that
     includes an ".msi" extension.
     """
     msi_name = "output.msi"
+    run_command(
+        datafiles, f"python setup.py bdist_msi --target-name {msi_name}"
+    )
+    file_created = datafiles / "dist" / msi_name
+    assert file_created.is_file()
+
+
+@pytest.mark.datafiles(SAMPLES_DIR / "msi_summary_data")
+def test_bdist_msi_target_name_with_extension_1(datafiles: Path):
+    """Test the msi_summary_data sample."""
+    msi_name = "output.1.msi"
     run_command(
         datafiles, f"python setup.py bdist_msi --target-name {msi_name}"
     )
@@ -102,6 +117,8 @@ SOURCE_HELLO = """
 hello.py
     import pkg.hi
     print("Hello from cx_Freeze")
+pkg/hi.py
+    print("Hi!")
 setup.py
     from cx_Freeze import Executable, setup
 
@@ -111,8 +128,6 @@ setup.py
         description="Sample cx_Freeze script",
         executables=[Executable("hello.py")],
     )
-pkg/hi.py
-    print("Hi!")
 """
 
 

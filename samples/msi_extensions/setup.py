@@ -6,10 +6,8 @@ files, that are registered in the operating system.
 hello.py is a very simple 'Hello, world' type script which also displays the
 environment in which the script runs
 
-Run the build process by running the command 'python setup.py bdist_msi'"""
-
-from __future__ import annotations
-
+Run the build process by running the command 'python setup.py bdist_msi'
+"""
 from cx_Freeze import Executable, setup
 
 executables = [Executable("hello.py")]
