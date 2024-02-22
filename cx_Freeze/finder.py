@@ -463,13 +463,16 @@ class ModuleFinder:
             module.hook(self)
 
         import threading
+
         if module.code is not None:
             if self.replace_paths:
                 module.code = self._replace_paths_in_code(module)
 
             # Scan the module code for import statements
             # self._scan_code(module, deferred_imports)
-            thr = threading.Thread(target=self._scan_code, args=(module, deferred_imports))
+            thr = threading.Thread(
+                target=self._scan_code, args=(module, deferred_imports)
+            )
             thr.start()
             thr.join()
 
@@ -478,7 +481,10 @@ class ModuleFinder:
 
         elif module.stub_code is not None:
             # self._scan_code(module, deferred_imports, module.stub_code)
-            thr = threading.Thread(target=self._scan_code, args=(module, deferred_imports, module.stub_code))
+            thr = threading.Thread(
+                target=self._scan_code,
+                args=(module, deferred_imports, module.stub_code),
+            )
             thr.start()
             thr.join()
 
