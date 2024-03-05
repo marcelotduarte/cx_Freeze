@@ -96,10 +96,11 @@ system <https://doc.qt.io/qt-5/resources.html>`_.
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------
 
-Python 3.7-3.11 on Windows requires the Visual C++ Redistributable for Visual
-Studio 2017, 2019 or 2022 (the redistributables are shared), and because of
-how this is installed, **cx_Freeze** doesn't automatically copy it for your
-application.
+Python 3.7-3.11 on Windows requires the `Microsoft Visual C++ Redistributable
+<https://docs.microsoft.com/en-US/cpp/windows/
+latest-supported-vc-redist#visual-studio-2015-2017-2019-and-2022>`_,
+and because of how this is installed, **cx_Freeze** doesn't automatically copy
+it for your application.
 
 You're responsible for checking the license conditions associated with the DLLs
 you have installed.
@@ -109,16 +110,16 @@ you have installed.
   distributed automatically.
 
 * If not, your users or your installer will need to install the Microsoft
-  Visual C++ Redistributable Package (a free download from Microsoft).
+  Visual C++ Redistributable Package.
   It's not uncommon for this to already be present on modern computers, but
   it's not, as far as we know, part of a standard Windows installation.
 
-  Download:
+  Download from Microsoft:
 
      * `for x86 (32 bit) Windows
-       <https://aka.ms/vs/16/release/vc_redist.x86.exe>`_
+       <https://aka.ms/vs/17/release/vc_redist.x86.exe>`_
      * `for x64 (64 bit) Windows
-       <https://aka.ms/vs/16/release/vc_redist.x64.exe>`_
+       <https://aka.ms/vs/17/release/vc_redist.x64.exe>`_
 
 Single-file executables
 -----------------------
