@@ -4,6 +4,8 @@ PyTorch package is included.
 
 from __future__ import annotations
 
+import os
+
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import Module
 
@@ -58,3 +60,13 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
         config = module.file.parent / config_file
         if config.exists():
             finder.include_files(config, f"lib/{module.name}/{config_file}")
+
+
+def load_torch__dynamo_skipfiles(_, module: Module) -> None:
+    """Patch to work with Python 3.11+."""
+    code_string = module.file.read_text(encoding="utf_8")
+    code_string = code_string.replace(
+        "return _strip_init_py(m.__file__)",
+        'return _strip_init_py(getattr(m, "__file__", ""))',
+    )
+    module.code = compile(code_string, os.fspath(module.file), "exec")
