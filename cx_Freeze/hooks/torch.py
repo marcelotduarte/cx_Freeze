@@ -44,3 +44,17 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("torch.include")
     finder.exclude_module("torch.share")
     finder.exclude_module("torchgen.packaged.ATen.templates")
+    # torch 2.2
+    finder.include_module("torch.return_types")
+    for config_file in (
+        "_dynamo/config.py",
+        "_functorch/config.py",
+        "_inductor/config.py",
+        "_lazy/config.py",
+        "distributed/_spmd/config.py",
+        "fx/config.py",
+        "fx/experimental/_config.py",
+    ):
+        config = module.file.parent / config_file
+        if config.exists():
+            finder.include_files(config, f"lib/{module.name}/{config_file}")
