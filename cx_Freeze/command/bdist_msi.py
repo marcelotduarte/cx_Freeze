@@ -1,4 +1,4 @@
-"""Extends setuptools to build Windows installer packages."""
+"""Implements the 'bdist_msi' command (create Windows installer packages)."""
 
 from __future__ import annotations
 

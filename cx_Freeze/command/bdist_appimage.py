@@ -1,4 +1,4 @@
-"""Extends setuptools to build Linux AppImage format.
+"""Implements the 'bdist_appimage' command (create Linux AppImage format).
 
 https://appimage.org/
 https://docs.appimage.org/

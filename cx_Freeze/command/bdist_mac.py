@@ -1,4 +1,6 @@
-"""Extends setuptools to build macOS dmg or app blundle."""
+"""Implements the 'bdist_dmg' and 'bdist_mac' commands (create macOS dmg and/or
+app blundle.
+"""
 
 from __future__ import annotations
 
