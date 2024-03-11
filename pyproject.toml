@@ -61,7 +61,7 @@ dev = [
 ]
 doc = [
     "sphinx>=7.1.2,<=7.2.6",
-    "sphinx-new-tab-link==0.3.0",
+    "sphinx-new-tab-link==0.3.1",
     "sphinx-tabs==3.4.5",
     "furo==2024.1.29",
 ]
