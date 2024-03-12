@@ -27,6 +27,7 @@ pylint:
 
 .PHONY: clean
 clean:
+	@pip uninstall -y cx_Freeze || true
 	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		pre-commit clean;\
 		pre-commit uninstall;\
@@ -42,20 +43,18 @@ clean:
 install:
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
-		pip install -e .[dev,doc] --no-build-isolation &&\
+		pip install -r requirements-dev.txt --upgrade --upgrade-strategy=eager &&\
+		pip install -e . --no-build-isolation --no-deps &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
 .PHONY: upgrade
-upgrade: clean
-	@rm -f .git/hooks/pre-commit || true
-	pip uninstall -y cx_Freeze || true
-	pip install --upgrade pre-commit
+upgrade: clean install
 	pre-commit autoupdate
 	$(MAKE) pre-commit
 
 .PHONY: html
-html: install
+html:
 	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
@@ -75,7 +74,11 @@ doc: html
 
 .PHONY: install_test
 install_test:
-	if ! which pytest; then pip install -e .[test]; else pip install -e .; fi
+	if ! which pytest; then\
+		pip install -e .[test] --no-build-isolation;\
+	else\
+		pip install -e . --no-build-isolation;\
+	fi
 
 .PHONY: test
 test: install_test
