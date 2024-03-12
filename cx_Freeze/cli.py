@@ -189,6 +189,8 @@ def main():
             ("--include-modules", "--includes"),
             ("-c", None),
             ("--compress", None),
+            ("-OO", "--optimize=2"),  # test -OO before -O
+            ("-O", "--optimize=1"),
             ("-z", "--zip-includes"),
             ("--default-path", "--path"),
             ("-s", "--silent"),

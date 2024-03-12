@@ -246,7 +246,7 @@ class BuildEXE(Command):
         # other options
         if self.include_msvcr is None:
             self.include_msvcr = False
-        self.optimize = int(self.optimize)
+        self.optimize = int(self.optimize or 0)
 
     def run(self):
         metadata = self.distribution.metadata
