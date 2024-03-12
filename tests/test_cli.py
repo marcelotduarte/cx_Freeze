@@ -1,4 +1,4 @@
-"""Tests for 'cxfreeze'."""
+"""Tests for 'cxfreeze' command."""
 
 from __future__ import annotations
 
@@ -48,11 +48,27 @@ def test_cxfreeze_additional_help(tmp_path: Path):
     assert "usage: " in output
 
 
+def test_cxfreeze_deprecated_behavior(tmp_path: Path):
+    """Test cxfreeze deprecated behavior."""
+    create_package(tmp_path, SOURCE)
+    tmp_path.joinpath("test.py").rename(tmp_path / "test2")
+    output = run_command(
+        tmp_path, "cxfreeze --target-dir=dist --excludes=tkinter test2"
+    )
+
+    file_created = tmp_path / "dist" / f"test2{SUFFIX}"
+    assert file_created.is_file(), f"file not found: {file_created}"
+
+    output = run_command(tmp_path, file_created, timeout=10)
+    assert output.startswith("Hello from cx_Freeze")
+
+
 def test_cxfreeze_deprecated_option(tmp_path: Path):
     """Test cxfreeze deprecated option."""
     create_package(tmp_path, SOURCE)
     output = run_command(
-        tmp_path, "cxfreeze -c test.py --target-dir=dist --excludes=tkinter"
+        tmp_path,
+        "cxfreeze -c -O -OO test.py --target-dir=dist --excludes=tkinter",
     )
     assert "WARNING: deprecated" in output
 
