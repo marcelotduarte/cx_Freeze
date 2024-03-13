@@ -16,8 +16,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        exclude:
+          - os: macos-14  # macos-14 is apple silicon
+            python-version: '3.8'
+          - os: macos-14
+            python-version: '3.9'
     name: Build [${{ matrix.os }}-${{ matrix.python-version }}]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -43,11 +48,18 @@ jobs:
           platforms: arm64,ppc64le
 
       - name: Install cibuildwheel
-        run: python -m pip install "`grep cibuildwheel requirements-dev.txt`"
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "`grep cibuildwheel requirements-dev.txt`"
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
           PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
+          if [ "${{ matrix.os }}" == "macos-13" ]; then
+            export CIBW_ARCHS="x86_64"
+          elif [ "${{ matrix.os }}" == "macos-14" ]; then
+            export CIBW_ARCHS="arm64"
+          fi
           export CIBW_BUILD="cp${PY_VERSION_NODOT}-*"
           python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
 
