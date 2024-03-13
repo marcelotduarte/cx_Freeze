@@ -13,7 +13,7 @@ patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'
 
 # dev
 bump-my-version==0.11.0
-cibuildwheel==2.17.0
+cibuildwheel>=2.13.1
 pre-commit>=2.21.0
 # doc
 sphinx>=7.1.2,<=7.2.6
