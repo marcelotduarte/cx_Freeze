@@ -18,4 +18,3 @@ def load_torchvision(finder: ModuleFinder, module: Module) -> None:
     for source in source_path.rglob("*.py"):  # type: Path
         target = "lib" / source.relative_to(site_packages_path)
         finder.include_files(source, target)
-    finder.exclude_module("torchvision.models")
