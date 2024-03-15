@@ -620,13 +620,6 @@ def load_tarfile(finder: ModuleFinder, module: Module) -> None:
         module.exclude_names.update(("grp", "pwd"))
 
 
-def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
-    """The tensorflow package implicitly loads some packages."""
-    finder.include_package("tensorboard")
-    finder.include_package("tensorflow.compiler")
-    finder.include_package("tensorflow.python")
-
-
 def load_time(finder: ModuleFinder, module: Module) -> None:
     """The time module implicitly loads _strptime; make sure this happens."""
     finder.include_module("_strptime")
