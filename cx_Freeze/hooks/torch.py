@@ -63,16 +63,18 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
         config = module.file.parent / config_file
         if config.exists():
             finder.include_files(config, f"lib/{module.name}/{config_file}")
-    # include source of torch.ao
+    # include source files for torch.jit._overload
     source_path = site_packages_path / "torch/ao"
     for source in source_path.rglob("*.py"):  # type: Path
         target = "lib" / source.relative_to(site_packages_path)
         finder.include_files(source, target)
-    # include source of torch.nn
     source_path = site_packages_path / "torch/nn"
     for source in source_path.rglob("*.py"):  # type: Path
         target = "lib" / source.relative_to(site_packages_path)
         finder.include_files(source, target)
+    source = site_packages_path / "torch/functional.py"
+    target = "lib" / source.relative_to(site_packages_path)
+    finder.include_files(source, target)
 
 
 def load_torch__dynamo_skipfiles(_, module: Module) -> None:
