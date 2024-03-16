@@ -10,6 +10,7 @@ from ..module import Module
 
 def load_skimage(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     """The skimage package."""
+    # skickit-image 0.17.2
     finder.include_package("skimage.io")
     # exclude all tests
     finder.exclude_module("skimage.color.tests")
@@ -29,6 +30,8 @@ def load_skimage(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     finder.exclude_module("skimage.transform.tests")
     finder.exclude_module("skimage.util.tests")
     finder.exclude_module("skimage.viewer.tests")
+    # skickit-image 0.22
+    finder.include_module("skimage.exposure.exposure")
 
 
 def load_skimage_feature_orb_cy(
