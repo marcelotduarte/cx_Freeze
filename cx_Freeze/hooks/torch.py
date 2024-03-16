@@ -21,6 +21,9 @@ from cx_Freeze.module import Module
 
 def load_torch(finder: ModuleFinder, module: Module) -> None:
     """Hook for PyTorch. Tested in Windows and Linux."""
+    module_path = module.file.parent
+    site_packages_path = module_path.parent
+
     # Activate an optimized mode when torch is in zip_include_packages
     if module.in_file_system == 0:
         module.in_file_system = 2
@@ -60,6 +63,16 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
         config = module.file.parent / config_file
         if config.exists():
             finder.include_files(config, f"lib/{module.name}/{config_file}")
+    # include source of torch.ao
+    source_path = site_packages_path / "torch/ao"
+    for source in source_path.rglob("*.py"):  # type: Path
+        target = "lib" / source.relative_to(site_packages_path)
+        finder.include_files(source, target)
+    # include source of torch.nn
+    source_path = site_packages_path / "torch/nn"
+    for source in source_path.rglob("*.py"):  # type: Path
+        target = "lib" / source.relative_to(site_packages_path)
+        finder.include_files(source, target)
 
 
 def load_torch__dynamo_skipfiles(_, module: Module) -> None:
