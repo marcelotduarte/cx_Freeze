@@ -558,11 +558,10 @@ def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
         finder.include_module(get_data_name())
 
 
-def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
-    """The tensorflow package implicitly loads some packages."""
-    finder.include_package("tensorboard")
-    finder.include_package("tensorflow.compiler")
-    finder.include_package("tensorflow.python")
+def load_tarfile(finder: ModuleFinder, module: Module) -> None:
+    """The tarfile module should filter import names."""
+    if IS_WINDOWS:
+        module.exclude_names.update(("grp", "pwd"))
 
 
 def load_time(finder: ModuleFinder, module: Module) -> None:
