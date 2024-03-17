@@ -54,7 +54,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         fullname = os.fspath(Path(self.build_lib, filename))
         library_dirs = ext.library_dirs or []
         libraries = self.get_libraries(ext)
-        extra_args = ext.extra_link_args or []
+        extra_args: list = ext.extra_link_args or []
         if PLATFORM.startswith("freebsd"):
             libraries.append("pthread")
         if IS_MINGW or IS_WINDOWS:
@@ -111,6 +111,9 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 extra_args.extend(get_config_var("BASEMODLIBS").split())
             if get_config_var("LOCALMODLIBS"):
                 extra_args.extend(get_config_var("LOCALMODLIBS").split())
+                # fix for Python 3.12 Ubuntu Linux 24.04 (Noble Nimbat)
+                with contextlib.suppress(ValueError):
+                    extra_args.remove("Modules/_hacl/libHacl_Hash_SHA2.a")
             if IS_MACOS:
                 extra_args.append("-Wl,-export_dynamic")
                 extra_args.append("-Wl,-rpath,@loader_path/lib")
@@ -121,6 +124,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 extra_args.append("-Wl,-rpath,$ORIGIN/../lib")
                 if not self.debug:
                     extra_args.append("-s")
+        link_error = None
         for arg in (None, "-fno-lto", "--no-lto"):
             try:
                 self.compiler.link_executable(
@@ -132,12 +136,17 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                     extra_postargs=extra_args + ([arg] if arg else []),
                     debug=self.debug,
                 )
-            except LinkError:
+            except LinkError as exc:
                 if IS_MINGW or IS_WINDOWS:
                     raise
+                if arg is None:
+                    link_error = exc.args
                 continue
             else:
+                link_error = None
                 break
+            if link_error is not None:
+                raise LinkError from link_error
 
     def get_ext_filename(self, fullname):
         if fullname.endswith("util"):
