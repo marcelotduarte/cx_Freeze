@@ -34,10 +34,12 @@ def main():
 
     try:
         dependencies = config["project"]["dependencies"]
-        for dependency in dependencies:
-            contents.append(
+        contents.extend(
+            [
                 dependency.replace(" and python_version < '3.10'", "")
-            )
+                for dependency in dependencies
+            ]
+        )
         contents.append("")
         with requirements.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(contents))
@@ -50,8 +52,7 @@ def main():
         extras_require = config["project"]["optional-dependencies"]
         for extra, dependencies in extras_require.items():
             contents.append(f"# {extra}")
-            for dependency in dependencies:
-                contents.append(dependency)
+            contents.extend(dependencies)
         contents.append("")
         with requires_dev.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(contents))

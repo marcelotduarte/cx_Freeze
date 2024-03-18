@@ -251,41 +251,64 @@ target-version = "py38"
 [tool.ruff.lint]
 select = [
     "A",    # flake8-builtins
-    "E", "F", "W",  # flake8
-    "B",  "B904",  # flake8-bugbear
-    "D",    # pydocstyle
-    "I",    # isort
     "ARG",  # flake8-unused-arguments
+    "B",    # flake8-bugbear
+    "BLE",  # flake8-blind-except
     "C4",   # flake8-comprehensions
+    "D",    # pydocstyle
+    "E", "W",  # pycodestyle
+    "EXE",  # flake8-executable
     "EM",   # flake8-errmsg
+    "F",    # flake8
+    "FA",   # flake8-future-annotations
+    "FLY",  # flynt
+    "G",    # flake8-logging-format
+    "I",    # isort
     "ICN",  # flake8-import-conventions
-    "ISC",  # flake8-implicit-str-concat
+    "INT",  # flake8-gettext
+    "ISC003",  # flake8-implicit-str-concat - explicit-string-concatenation
+    "LOG",  # flake8-logging
+    "PERF", # Perflint
     "PGH",  # pygrep-hooks
     "PIE",  # flake8-pie
     "PLC", "PLE", "PLR", "PLW",  # pylint
     "PT",   # flake8-pytest-style
-    "RSE",  # flake8-raise
+    "Q004", # flake8-quotes - unnecessary-escaped-quote
     "RET",  # flake8-return
+    "RSE",  # flake8-raise
     "RUF",  # Ruff-specific
     "SIM",  # flake8-simplify
+    "SLF",  # flake8-self
+    "SLOT", # flake8-slots
+    "T10",  # flake8-debugger
+    "TID",  # flake8-tidy-imports
+    "TRY",  # tryceratops
     "UP",   # pyupgrade
     "YTT",  # flake8-2020
 ]
 ignore = [
     # ignored for now, but should be revised in future
+    # last revised using ruff 0.3.3
+    "C901",  # mccabe - {name} is too complex ({complexity} > {max_complexity})
     "D102",  # Missing docstring in public method
     "D401",  # First line of docstring should be in imperative mood
+    "DTZ",   # flake8-datetimez
+    "ERA",   # eradicate
+    "FIX",   # flake8-fixme
+    "TD",    # flake8-todos
+    "TCH",   # flake8-type-checking
+    "PERF203",
     # ignore the following
     "D104",  # Missing docstring in public package
     "D105",  # Missing docstring in magic method
     "D107",  # Missing docstring in `__init__`
     "D203", "D205", "D213",
-    "ISC001",
     "PLR2004", "E501",
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
     "RUF012",
+    "T20",      # flake8-print
 ]
 
 [tool.ruff.lint.flake8-unused-arguments]

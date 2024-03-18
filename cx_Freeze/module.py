@@ -109,9 +109,9 @@ class DistributionCache(importlib_metadata.PathDistribution):
     def _write_record_distinfo(target_path: Path):
         """Recreate a minimal RECORD file."""
         target_name = target_path.name
-        record = []
-        for file in target_path.iterdir():
-            record.append(f"{target_name}/{file.name},,")
+        record = [
+            f"{target_name}/{file.name},," for file in target_path.iterdir()
+        ]
         record.append(f"{target_name}/RECORD,,")
         target = target_path / "RECORD"
         with target.open(mode="w", encoding="utf_8", newline="") as file:

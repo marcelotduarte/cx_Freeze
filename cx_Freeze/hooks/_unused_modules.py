@@ -118,8 +118,7 @@ MODULES = [
     "multiprocessing.Process",
 ]
 # old collections modules
-for name in collections.abc.__all__:
-    MODULES.append(f"collections.{name}")
+MODULES.extend([f"collections.{name}" for name in collections.abc.__all__])
 # exclusion by platform/os
 if os.name != "nt":
     MODULES += (

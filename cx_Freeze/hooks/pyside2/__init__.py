@@ -12,26 +12,39 @@ from cx_Freeze.common import (
     get_resource_file_path,
 )
 from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
-
-from .._qthooks import copy_qt_files
-from .._qthooks import load_qt_qtdesigner as load_pyside2_qtdesigner
-from .._qthooks import load_qt_qtgui as load_pyside2_qtgui
-from .._qthooks import load_qt_qtmultimedia as load_pyside2_qtmultimedia
-from .._qthooks import load_qt_qtnetwork as load_pyside2_qtnetwork
-from .._qthooks import load_qt_qtopengl as load_pyside2_qtopengl
-from .._qthooks import load_qt_qtpositioning as load_pyside2_qtpositioning
-from .._qthooks import load_qt_qtprintsupport as load_pyside2_qtprintsupport
-from .._qthooks import load_qt_qtqml as load_pyside2_qtqml
-from .._qthooks import load_qt_qtscript as load_pyside2_qtscript
-from .._qthooks import load_qt_qtsql as load_pyside2_qtsql
-from .._qthooks import load_qt_qtsvg as load_pyside2_qtsvg
-from .._qthooks import load_qt_qtwebenginecore as _load_qt_qtwebenginecore
-from .._qthooks import (
+from cx_Freeze.hooks._qthooks import copy_qt_files
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtdesigner as load_pyside2_qtdesigner,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyside2_qtgui
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtmultimedia as load_pyside2_qtmultimedia,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtnetwork as load_pyside2_qtnetwork,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyside2_qtopengl
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtpositioning as load_pyside2_qtpositioning,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtprintsupport as load_pyside2_qtprintsupport,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyside2_qtqml
+from cx_Freeze.hooks._qthooks import load_qt_qtscript as load_pyside2_qtscript
+from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyside2_qtsql
+from cx_Freeze.hooks._qthooks import load_qt_qtsvg as load_pyside2_qtsvg
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebenginecore as _load_qt_qtwebenginecore,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginewidgets as load_pyside2_qtwebenginewidgets,
 )
-from .._qthooks import load_qt_qtwidgets as load_pyside2_qtwidgets
-from .._qthooks import load_qt_uic as load_pyside2_uic
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwidgets as load_pyside2_qtwidgets,
+)
+from cx_Freeze.hooks._qthooks import load_qt_uic as load_pyside2_uic
+from cx_Freeze.module import Module
 
 
 def load_pyside2(finder: ModuleFinder, module: Module) -> None:
