@@ -7,10 +7,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from .._compat import IS_MACOS, IS_MINGW, IS_MINGW64, IS_WINDOWS
-from ..common import TemporaryPath
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_MINGW64, IS_WINDOWS
+from cx_Freeze.common import TemporaryPath
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 temp_path = TemporaryPath()
 

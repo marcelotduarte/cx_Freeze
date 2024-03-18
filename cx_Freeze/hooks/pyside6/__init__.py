@@ -12,43 +12,74 @@ from cx_Freeze.common import (
     get_resource_file_path,
 )
 from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
-
-from .._qthooks import load_qt_qaxcontainer as load_pyside6_qaxcontainer
-from .._qthooks import load_qt_qt as load_pyside6_qt
-from .._qthooks import load_qt_qtcharts as load_pyside6_qtcharts
-from .._qthooks import (
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qaxcontainer as load_pyside6_qaxcontainer,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qt as load_pyside6_qt
+from cx_Freeze.hooks._qthooks import load_qt_qtcharts as load_pyside6_qtcharts
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtdatavisualization as load_pyside6_qtdatavisualization,
 )
-from .._qthooks import load_qt_qtdesigner as load_pyside6_qtdesigner
-from .._qthooks import load_qt_qtgui as load_pyside6_qtgui
-from .._qthooks import load_qt_qthelp as load_pyside6_qthelp
-from .._qthooks import load_qt_qtlocation as load_pyside6_qtlocation
-from .._qthooks import load_qt_qtmultimedia as load_pyside6_qtmultimedia
-from .._qthooks import (
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtdesigner as load_pyside6_qtdesigner,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyside6_qtgui
+from cx_Freeze.hooks._qthooks import load_qt_qthelp as load_pyside6_qthelp
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtlocation as load_pyside6_qtlocation,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtmultimedia as load_pyside6_qtmultimedia,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtmultimediawidgets as load_pyside6_qtmultimediawidgets,
 )
-from .._qthooks import load_qt_qtnetwork as load_pyside6_qtnetwork
-from .._qthooks import load_qt_qtopengl as load_pyside6_qtopengl
-from .._qthooks import load_qt_qtopenglwidgets as load_pyside6_qtopenglwidgets
-from .._qthooks import load_qt_qtpositioning as load_pyside6_qtpositioning
-from .._qthooks import load_qt_qtprintsupport as load_pyside6_qtprintsupport
-from .._qthooks import load_qt_qtqml as load_pyside6_qtqml
-from .._qthooks import load_qt_qtquick as load_pyside6_qtquick
-from .._qthooks import load_qt_qtquickwidgets as load_pyside6_qtquickwidgets
-from .._qthooks import load_qt_qtscripttools as load_pyside6_qtscripttools
-from .._qthooks import load_qt_qtsql as load_pyside6_qtsql
-from .._qthooks import load_qt_qtsvg as load_pyside6_qtsvg
-from .._qthooks import load_qt_qtsvgwidgets as load_pyside6_qtsvgwidgets
-from .._qthooks import load_qt_qttest as load_pyside6_qttest
-from .._qthooks import load_qt_qtuitools as load_pyside6_qtuitools
-from .._qthooks import load_qt_qtwebengine as load_pyside6_qtwebengine
-from .._qthooks import load_qt_qtwebenginecore as load_pyside6_qtwebenginecore
-from .._qthooks import (
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtnetwork as load_pyside6_qtnetwork,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyside6_qtopengl
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtopenglwidgets as load_pyside6_qtopenglwidgets,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtpositioning as load_pyside6_qtpositioning,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtprintsupport as load_pyside6_qtprintsupport,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyside6_qtqml
+from cx_Freeze.hooks._qthooks import load_qt_qtquick as load_pyside6_qtquick
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtquickwidgets as load_pyside6_qtquickwidgets,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtscripttools as load_pyside6_qtscripttools,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyside6_qtsql
+from cx_Freeze.hooks._qthooks import load_qt_qtsvg as load_pyside6_qtsvg
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtsvgwidgets as load_pyside6_qtsvgwidgets,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qttest as load_pyside6_qttest
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtuitools as load_pyside6_qtuitools,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebengine as load_pyside6_qtwebengine,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebenginecore as load_pyside6_qtwebenginecore,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginewidgets as load_pyside6_qtwebenginewidgets,
 )
-from .._qthooks import load_qt_qtwebsockets as load_pyside6_qtwebsockets
-from .._qthooks import load_qt_qtwidgets as load_pyside6_qtwidgets
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebsockets as load_pyside6_qtwebsockets,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwidgets as load_pyside6_qtwidgets,
+)
+from cx_Freeze.module import Module
 
 
 def load_pyside6(finder: ModuleFinder, module: Module) -> None:

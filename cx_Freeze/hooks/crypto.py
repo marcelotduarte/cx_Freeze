@@ -4,9 +4,9 @@ pycryptodome package is included.
 
 from __future__ import annotations
 
-from ..common import code_object_replace_function
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.common import code_object_replace_function
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_crypto_cipher(finder: ModuleFinder, module: Module) -> None:

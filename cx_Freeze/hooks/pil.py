@@ -4,9 +4,9 @@ Pillow (PIL) package is included.
 
 from __future__ import annotations
 
-from .._compat import IS_MACOS
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_MACOS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_pil(finder: ModuleFinder, module: Module) -> None:

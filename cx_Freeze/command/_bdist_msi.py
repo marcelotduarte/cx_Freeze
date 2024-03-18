@@ -31,8 +31,9 @@ from sysconfig import get_platform, get_python_version
 
 from setuptools import Command
 
-from .._compat import packaging
-from ..exception import OptionError
+from cx_Freeze._compat import packaging
+from cx_Freeze.exception import OptionError
+
 from ._pydialog import PyDialog
 
 

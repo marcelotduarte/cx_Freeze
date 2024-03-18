@@ -7,9 +7,10 @@ from __future__ import annotations
 from contextlib import suppress
 from pathlib import Path
 
-from ..common import code_object_replace_function
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.common import code_object_replace_function
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
+
 from ._libs import replace_delvewheel_patch
 
 

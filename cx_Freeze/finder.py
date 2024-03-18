@@ -126,13 +126,15 @@ class ModuleFinder:
         have references to finder.
         """
         hooks = get_resource_file_path("hooks", "__init__", ".py")
-        fromlist = []
         # add python files (modules)
-        for path in hooks.parent.glob("*.py"):
-            fromlist.append("hooks" if path.stem == "__init__" else path.stem)
+        fromlist = [
+            "hooks" if path.stem == "__init__" else path.stem
+            for path in hooks.parent.glob("*.py")
+        ]
         # add directories (subpackages)
-        for path in hooks.parent.glob("*/__init__.py"):
-            fromlist.append(path.parent.stem)
+        fromlist.extend(
+            [path.parent.stem for path in hooks.parent.glob("*/__init__.py")]
+        )
         return __import__("cx_Freeze.hooks", fromlist=fromlist)
 
     @cached_property

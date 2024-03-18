@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import os
 
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_sklearn__distributor_init(

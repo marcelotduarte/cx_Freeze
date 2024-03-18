@@ -11,9 +11,10 @@ import sysconfig
 from contextlib import suppress
 from pathlib import Path
 
-from .._compat import IS_MINGW, IS_WINDOWS
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
+
 from ._qthooks import get_qt_plugins_paths  # noqa: F401
 
 

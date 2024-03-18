@@ -7,10 +7,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from .._compat import IS_WINDOWS
-from ..common import get_resource_file_path
-from ..finder import ModuleFinder
-from ..module import Module
+from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze.common import get_resource_file_path
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.module import Module
 
 
 def load_tkinter(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001

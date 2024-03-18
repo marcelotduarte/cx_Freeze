@@ -22,7 +22,7 @@ InternalIncludesList = List[Tuple[Path, PurePath]]
 class FilePath(Path):
     """Subclass of concrete Path to be used in TemporaryPath."""
 
-    _flavour = type(Path())._flavour
+    _flavour = type(Path())._flavour  # noqa: SLF001
 
     def replace(self, target):
         """Rename this path to the target path, overwriting if that path
