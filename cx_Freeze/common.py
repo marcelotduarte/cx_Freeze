@@ -87,7 +87,8 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
             source, target = spec
         source = Path(source)
         if not source.exists():
-            raise OptionError(f"cannot find file/directory named {source!s}")
+            msg = f"cannot find file/directory named {source!s}"
+            raise OptionError(msg)
         target = PurePath(target or source.name)
         if target.is_absolute():
             error = f"target path named {target!s} cannot be absolute"

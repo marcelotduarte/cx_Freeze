@@ -208,12 +208,14 @@ class BdistRPM(Command):
 
     def finalize_options(self):
         if os.name != "posix":
-            raise PlatformError(
+            msg = (
                 "don't know how to create RPM "
                 f"distributions on platform {os.name}"
             )
+            raise PlatformError(msg)
         if not shutil.which("rpmbuild"):
-            raise PlatformError("failed to find rpmbuild for this platform.")
+            msg = "failed to find rpmbuild for this platform."
+            raise PlatformError(msg)
 
         self.set_undefined_options(
             "bdist",
@@ -222,7 +224,8 @@ class BdistRPM(Command):
         )
         if self.rpm_base is None:
             if not self.rpm3_mode:
-                raise OptionError("you must specify --rpm-base in RPM 2 mode")
+                msg = "you must specify --rpm-base in RPM 2 mode"
+                raise OptionError(msg)
             self.rpm_base = os.path.join(self.bdist_base, "rpm")
 
         self.finalize_package_data()
@@ -324,7 +327,8 @@ class BdistRPM(Command):
             if os.path.exists(self.icon):
                 self.copy_file(self.icon, source_dir)
             else:
-                raise FileError(f"icon file {self.icon!r} does not exist")
+                msg = f"icon file {self.icon!r} does not exist"
+                raise FileError(msg)
 
         # build package
         logging.info("building RPMs")
@@ -370,7 +374,8 @@ class BdistRPM(Command):
 
             status = out.close()
             if status:
-                raise ExecError(f"Failed to execute: {q_cmd!r}")
+                msg = f"Failed to execute: {q_cmd!r}"
+                raise ExecError(msg)
 
         finally:
             out.close()

@@ -97,7 +97,8 @@ class BdistDMG(Command):
 
         # Create the dmg
         if subprocess.call(createargs) != 0:
-            raise OSError("creation of the dmg failed")
+            msg = "creation of the dmg failed"
+            raise OSError(msg)
 
     def run(self):
         # Create the application bundle
@@ -254,10 +255,11 @@ class BdistMac(Command):
             setattr(self, option, normalize_to_list(getattr(self, option)))
         for item in self.plist_items:
             if not isinstance(item, tuple) or len(item) != 2:
-                raise OptionError(
+                msg = (
                     "Error, plist_items must be a list of key, value pairs "
                     "(list[tuple[str, str]]) (bad list item)."
                 )
+                raise OptionError(msg)
 
         # Define the paths within the application bundle
         self.set_undefined_options(
@@ -372,7 +374,8 @@ class BdistMac(Command):
                 return path
 
         print("Could not find qt_menu.nib")
-        raise OSError("Could not find qt_menu.nib")
+        msg = "Could not find qt_menu.nib"
+        raise OSError(msg)
 
     def prepare_qt_app(self):
         """Add resource files for a Qt application. Should do nothing if the

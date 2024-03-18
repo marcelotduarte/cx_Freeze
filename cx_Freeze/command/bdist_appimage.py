@@ -79,10 +79,11 @@ class BdistAppImage(Command):
 
     def finalize_options(self):
         if os.name != "posix":
-            raise PlatformError(
+            msg = (
                 "don't know how to create AppImage "
                 f"distributions on platform {os.name}"
             )
+            raise PlatformError(msg)
 
         self.set_undefined_options("build_exe", ("build_exe", "build_dir"))
         self.set_undefined_options(
@@ -233,7 +234,8 @@ class BdistAppImage(Command):
         with FileLock(self.appimagekit + ".lock"):
             self.spawn(cmd)
         if not os.path.exists(output):
-            raise ExecError("Could not build AppImage")
+            msg = "Could not build AppImage"
+            raise ExecError(msg)
 
     def save_as_file(self, data, outfile, mode="r"):
         """Save an input data to a file respecting verbose, dry-run and force

@@ -44,14 +44,17 @@ class BdistDEB(Command):
 
     def finalize_options(self):
         if os.name != "posix":
-            raise PlatformError(
+            msg = (
                 "don't know how to create DEB "
                 f"distributions on platform {os.name}"
             )
+            raise PlatformError(msg)
         if not shutil.which("alien"):
-            raise PlatformError("failed to find 'alien' for this platform.")
+            msg = "failed to find 'alien' for this platform."
+            raise PlatformError(msg)
         if os.getuid() != 0 and not shutil.which("fakeroot"):
-            raise PlatformError("failed to find 'fakeroot' for this platform.")
+            msg = "failed to find 'fakeroot' for this platform."
+            raise PlatformError(msg)
 
         self.set_undefined_options("bdist", ("bdist_base", "bdist_base"))
         self.set_undefined_options(
@@ -76,7 +79,8 @@ class BdistDEB(Command):
                     rpm_filename = filename
                     break
             if rpm_filename is None:
-                raise ExecError("could not build rpm")
+                msg = "could not build rpm"
+                raise ExecError(msg)
         else:
             rpm_filename = "filename.rpm"
 
@@ -94,5 +98,6 @@ class BdistDEB(Command):
             filename = output.splitlines()[0].split()[0]
             filename = os.path.join(self.dist_dir, filename)
             if not os.path.exists(filename):
-                raise ExecError("could not build deb")
+                msg = "could not build deb"
+                raise ExecError(msg)
             self.distribution.dist_files.append(("bdist_deb", "any", filename))

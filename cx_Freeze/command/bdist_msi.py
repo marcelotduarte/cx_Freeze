@@ -228,9 +228,8 @@ class BdistMSI(Command):
         if len(self.summary_data) > 0:
             for k in self.summary_data:
                 if k not in ["author", "comments", "keywords"]:
-                    raise OptionError(
-                        f"Unknown key provided in summary-data: {k!r}"
-                    )
+                    msg = f"Unknown key provided in summary-data: {k!r}"
+                    raise OptionError(msg)
 
             summary_info = self.db.GetSummaryInformation(5)
             if "author" in self.summary_data:
@@ -653,7 +652,8 @@ class BdistMSI(Command):
             props.append(("ARPURLINFOABOUT", metadata.url))
         if self.upgrade_code is not None:
             if not _is_valid_guid(self.upgrade_code):
-                raise ValueError("upgrade-code must be in valid GUID format")
+                msg = "upgrade-code must be in valid GUID format"
+                raise ValueError(msg)
             props.append(("UpgradeCode", self.upgrade_code.upper()))
         if self.install_icon:
             props.append(("ARPPRODUCTICON", "InstallIcon"))
@@ -892,19 +892,19 @@ class BdistMSI(Command):
         self.set_undefined_options("bdist", ("dist_dir", "dist_dir"))
 
         if self.pre_install_script:
-            raise OptionError(
-                "the pre-install-script feature is not yet implemented"
-            )
+            msg = "the pre-install-script feature is not yet implemented"
+            raise OptionError(msg)
 
         if self.install_script:
             for script in self.distribution.scripts:
                 if self.install_script == os.path.basename(script):
                     break
             else:
-                raise OptionError(
+                msg = (
                     f"install_script '{self.install_script}' not found in "
                     "scripts"
                 )
+                raise OptionError(msg)
         self.install_script_key = None
 
         # cx_Freeze specific
@@ -947,17 +947,19 @@ class BdistMSI(Command):
                 verb = extension["verb"]
                 executable = extension["executable"]
             except KeyError:
-                raise ValueError(
+                msg = (
                     "Each extension must have at least extension, verb, "
                     "and executable"
-                ) from None
+                )
+                raise ValueError(msg) from None
             try:
                 component = self.separate_components[executable]
             except KeyError:
-                raise ValueError(
+                msg = (
                     "Executable must be the base target name of one of the "
                     "distribution's executables"
-                ) from None
+                )
+                raise ValueError(msg) from None
             stem = os.path.splitext(executable)[0]
             progid = make_id(f"{name}.{stem}.{version}")
             mime = extension.get("mime", None)
