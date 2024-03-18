@@ -137,10 +137,11 @@ class bdist_msi(Command):
                 and self.distribution.has_ext_modules()
                 and self.target_version != short_version
             ):
-                raise OptionError(
+                msg = (
                     f"target version can only be {short_version}, or the "
                     "'--skip-build' option must be specified"
                 )
+                raise OptionError(msg)
         else:
             self.versions = list(self.all_versions)
 
@@ -151,19 +152,19 @@ class bdist_msi(Command):
         )
 
         if self.pre_install_script:
-            raise OptionError(
-                "the pre-install-script feature is not yet implemented"
-            )
+            msg = "the pre-install-script feature is not yet implemented"
+            raise OptionError(msg)
 
         if self.install_script:
             for script in self.distribution.scripts:
                 if self.install_script == os.path.basename(script):
                     break
             else:
-                raise OptionError(
+                msg = (
                     f"install_script '{self.install_script}' not found in "
                     "scripts"
                 )
+                raise OptionError(msg)
         self.install_script_key = None
 
     def run(self):
@@ -315,9 +316,8 @@ class bdist_msi(Command):
                             key = seen[afile] = directory.add_file(file)
                             if file == self.install_script:
                                 if self.install_script_key:
-                                    raise OptionError(
-                                        f"Multiple files with name {file}"
-                                    )
+                                    msg = f"Multiple files with name {file}"
+                                    raise OptionError(msg)
                                 self.install_script_key = f"[#{key}]"
                         else:
                             key = seen[afile]

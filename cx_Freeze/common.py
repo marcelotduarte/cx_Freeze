@@ -49,7 +49,8 @@ class TemporaryPath(TemporaryDirectory):
         super().__init__(suffix, prefix or "cxfreeze-", dir)
         if filename:
             if Path(filename).parent.name:
-                raise ValueError("filename cannot contain directory")
+                msg = "filename cannot contain directory"
+                raise ValueError(msg)
             self.path = FilePath(self.name, filename)
         else:
             self.path = FilePath(self.name)
@@ -116,7 +117,8 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
             source, target = spec
         source = Path(source)
         if not source.exists():
-            raise OptionError(f"cannot find file/directory named {source!s}")
+            msg = f"cannot find file/directory named {source!s}"
+            raise OptionError(msg)
         target = PurePath(target or source.name)
         if target.is_absolute():
             error = f"target path named {target!s} cannot be absolute"

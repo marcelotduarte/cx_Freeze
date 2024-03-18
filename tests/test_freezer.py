@@ -57,7 +57,8 @@ def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     def t_rmtree(path, _ignore_errors=False, _onerror=None):
-        raise OSError(f"cannot clean {path}")
+        msg = f"cannot clean {path}"
+        raise OSError(msg)
 
     monkeypatch.setattr("shutil.rmtree", t_rmtree)
 

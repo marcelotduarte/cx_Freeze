@@ -216,9 +216,8 @@ class ModuleFinder:
                 )
                 if sub_module is None:
                     if sub_module_name not in self.excludes:
-                        raise ImportError(
-                            f"No module named {sub_module_name!r}"
-                        )
+                        msg = f"No module named {sub_module_name!r}"
+                        raise ImportError(msg)
                 else:
                     module.global_names.add(name)
                     if sub_module.path and recursive:
@@ -296,7 +295,8 @@ class ModuleFinder:
         # if module not found, track that fact
         if module is None:
             if caller is None:
-                raise ImportError(f"No module named {name!r}")
+                msg = f"No module named {name!r}"
+                raise ImportError(msg)
             self._run_hook("missing", name, caller)
             if name not in caller.ignore_names:
                 callers = self._bad_modules.setdefault(name, {})
@@ -434,21 +434,22 @@ class ModuleFinder:
                 )
             except SyntaxError:
                 logging.debug("Invalid syntax in [%s]", name)
-                raise ImportError(
-                    f"Invalid syntax in {path}", name=name
-                ) from None
+                msg = f"Invalid syntax in {path}"
+                raise ImportError(msg, name=name) from None
         elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
             logging.debug("Adding module [%s] [BYTECODE]", name)
             # Load Python bytecode
             module.code = loader.get_code(name)
             if module.code is None:
-                raise ImportError(f"Bad magic number in {path}", name=name)
+                msg = f"Bad magic number in {path}"
+                raise ImportError(msg, name=name)
         elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
             logging.debug("Adding module [%s] [EXTENSION]", name)
         elif module.source_is_string:
             module.code = compile("", path, "exec")
         else:
-            raise ImportError(f"Unknown module loader in {path}", name=name)
+            msg = f"Unknown module loader in {path}"
+            raise ImportError(msg, name=name)
 
         # If there's a custom hook for this module, run it.
         self._run_hook("load", module.name, module)
