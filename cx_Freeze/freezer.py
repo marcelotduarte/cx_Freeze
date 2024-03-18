@@ -515,11 +515,9 @@ class Freezer:
         """
         if bin_path is None:
             return []
-        valid = []
-        for path in map(Path, bin_path):
-            if path.is_dir():
-                valid.append(os.fspath(path))
-        return valid
+        return [
+            os.fspath(path) for path in map(Path, bin_path) if path.is_dir()
+        ]
 
     def _verify_configuration(self) -> None:
         self.bin_includes += self._default_bin_includes()

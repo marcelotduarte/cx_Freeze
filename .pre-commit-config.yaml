@@ -21,7 +21,6 @@ repos:
   - id: check-symlinks
   - id: check-toml
   - id: check-yaml
-  - id: debug-statements
   - id: end-of-file-fixer
   - id: fix-byte-order-marker
   - id: fix-encoding-pragma

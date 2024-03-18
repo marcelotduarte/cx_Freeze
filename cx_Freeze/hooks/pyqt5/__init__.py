@@ -9,25 +9,34 @@ from textwrap import dedent
 from cx_Freeze._compat import IS_CONDA, IS_MACOS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
-
-from .._qthooks import copy_qt_files
-from .._qthooks import load_qt_qtdesigner as load_pyqt5_qtdesigner
-from .._qthooks import load_qt_qtgui as load_pyqt5_qtgui
-from .._qthooks import load_qt_qtmultimedia as load_pyqt5_qtmultimedia
-from .._qthooks import load_qt_qtnetwork as load_pyqt5_qtnetwork
-from .._qthooks import load_qt_qtopengl as load_pyqt5_qtopengl
-from .._qthooks import load_qt_qtpositioning as load_pyqt5_qtpositioning
-from .._qthooks import load_qt_qtprintsupport as load_pyqt5_qtprintsupport
-from .._qthooks import load_qt_qtqml as load_pyqt5_qtqml
-from .._qthooks import load_qt_qtsql as load_pyqt5_qtsql
-from .._qthooks import load_qt_qtsvg as load_pyqt5_qtsvg
-from .._qthooks import load_qt_qtwebenginecore as _load_qt_qtwebenginecore
-from .._qthooks import (
+from cx_Freeze.hooks._qthooks import copy_qt_files
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtdesigner as load_pyqt5_qtdesigner,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyqt5_qtgui
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtmultimedia as load_pyqt5_qtmultimedia,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtnetwork as load_pyqt5_qtnetwork
+from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyqt5_qtopengl
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtpositioning as load_pyqt5_qtpositioning,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtprintsupport as load_pyqt5_qtprintsupport,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyqt5_qtqml
+from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyqt5_qtsql
+from cx_Freeze.hooks._qthooks import load_qt_qtsvg as load_pyqt5_qtsvg
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebenginecore as _load_qt_qtwebenginecore,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt5_qtwebenginewidgets,
 )
-from .._qthooks import load_qt_qtwidgets as load_pyqt5_qtwidgets
-from .._qthooks import load_qt_uic as load_pyqt5_uic
+from cx_Freeze.hooks._qthooks import load_qt_qtwidgets as load_pyqt5_qtwidgets
+from cx_Freeze.hooks._qthooks import load_qt_uic as load_pyqt5_uic
+from cx_Freeze.module import Module
 
 
 def load_pyqt5(finder: ModuleFinder, module: Module) -> None:

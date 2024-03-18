@@ -10,26 +10,39 @@ from textwrap import dedent
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
-
-from .._qthooks import copy_qt_files
-from .._qthooks import load_qt_qtdesigner as load_pyqt6_qtdesigner
-from .._qthooks import load_qt_qtgui as load_pyqt6_qtgui
-from .._qthooks import load_qt_qtmultimedia as load_pyqt6_qtmultimedia
-from .._qthooks import load_qt_qtnetwork as load_pyqt6_qtnetwork
-from .._qthooks import load_qt_qtopengl as load_pyqt6_qtopengl
-from .._qthooks import load_qt_qtopenglwidgets as load_pyqt6_qtopenglwidgets
-from .._qthooks import load_qt_qtpositioning as load_pyqt6_qtpositioning
-from .._qthooks import load_qt_qtprintsupport as load_pyqt6_qtprintsupport
-from .._qthooks import load_qt_qtqml as load_pyqt6_qtqml
-from .._qthooks import load_qt_qtquick as load_pyqt6_qtquick
-from .._qthooks import load_qt_qtsql as load_pyqt6_qtsql
-from .._qthooks import load_qt_qtsvg as load_pyqt6_qtsvg
-from .._qthooks import load_qt_qtwebenginecore as load_pyqt6_qtwebenginecore
-from .._qthooks import (
+from cx_Freeze.hooks._qthooks import copy_qt_files
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtdesigner as load_pyqt6_qtdesigner,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyqt6_qtgui
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtmultimedia as load_pyqt6_qtmultimedia,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtnetwork as load_pyqt6_qtnetwork
+from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyqt6_qtopengl
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtopenglwidgets as load_pyqt6_qtopenglwidgets,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtpositioning as load_pyqt6_qtpositioning,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtprintsupport as load_pyqt6_qtprintsupport,
+)
+from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyqt6_qtqml
+from cx_Freeze.hooks._qthooks import load_qt_qtquick as load_pyqt6_qtquick
+from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyqt6_qtsql
+from cx_Freeze.hooks._qthooks import load_qt_qtsvg as load_pyqt6_qtsvg
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebenginecore as load_pyqt6_qtwebenginecore,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt6_qtwebenginewidgets,
 )
-from .._qthooks import load_qt_qtwidgets as load_pyqt6_qtwidgets_base
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwidgets as load_pyqt6_qtwidgets_base,
+)
+from cx_Freeze.module import Module
 
 
 def load_pyqt6(finder: ModuleFinder, module: Module) -> None:

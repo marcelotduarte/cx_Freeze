@@ -144,7 +144,7 @@ class BdistAppImage(Command):
 
             try:
                 self.spawn([appimagekit, "--version"])
-            except Exception:
+            except Exception:  # noqa: BLE001
                 self._appimage_extract_and_run = True
 
     def run(self):

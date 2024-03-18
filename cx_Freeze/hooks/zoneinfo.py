@@ -16,9 +16,10 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     """
     try:
         finder.include_package("tzdata")
-        return
     except ImportError:
         pass
+    else:
+        return
 
     # without tzdata, copy only zoneinfo directory
     source_path = None

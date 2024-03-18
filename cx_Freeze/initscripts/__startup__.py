@@ -117,7 +117,7 @@ def run():
     except ModuleNotFoundError:
         names = [
             f.rpartition("__init__")[0]
-            for f in __loader__._files
+            for f in __loader__._files  # noqa: SLF001
             if f.endswith("__init__.pyc")
             and f.rpartition("__init__")[0].isidentifier()
         ]
