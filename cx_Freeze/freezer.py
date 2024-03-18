@@ -132,17 +132,15 @@ class Freezer:
             path = f"build/exe.{platform}-{python_version}"
         path = Path(path).resolve()
         if os.fspath(path) in self.path:
-            raise OptionError(
-                "the build_exe directory cannot be used as search path"
-            )
+            msg = "the build_exe directory cannot be used as search path"
+            raise OptionError(msg)
         if path.is_dir():
             # starts in a clean directory
             try:
                 shutil.rmtree(path)
             except OSError:
-                raise OptionError(
-                    "the build_exe directory cannot be cleaned"
-                ) from None
+                msg = "the build_exe directory cannot be cleaned"
+                raise OptionError(msg) from None
         self._targetdir: Path = path
 
     def _add_resources(self, exe: Executable) -> None:
@@ -304,7 +302,8 @@ class Freezer:
             "initscripts", "frozen_application_license", ".txt"
         )
         if respath is None:
-            raise FileError("Unable to find license for frozen application.")
+            msg = "Unable to find license for frozen application."
+            raise FileError(msg)
         self._copy_file(
             respath.absolute(),
             self.target_dir / "frozen_application_license.txt",
@@ -546,10 +545,11 @@ class Freezer:
         zip_exclude_all_packages = "*" in zip_exclude_packages
         # check the '*' option
         if zip_exclude_all_packages and zip_include_all_packages:
-            raise OptionError(
+            msg = (
                 "all packages cannot be included and excluded "
                 "from the zip file at the same time"
             )
+            raise OptionError(msg)
         # normalize namespace packages - syntax suggar
         zip_include_packages = {
             name.partition(".")[0] for name in zip_include_packages
@@ -560,11 +560,12 @@ class Freezer:
         # check invalid usage
         invalid = sorted(zip_include_packages & zip_exclude_packages)
         if invalid:
-            raise OptionError(
+            msg = (
                 f"package{'s' if len(invalid)>1 else ''} "
                 f"{', '.join(invalid)!r} "
                 "cannot be both included and excluded from zip file"
             )
+            raise OptionError(msg)
         # populate
         self.zip_include_packages = zip_include_packages
         self.zip_exclude_packages = zip_exclude_packages

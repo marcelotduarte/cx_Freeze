@@ -223,7 +223,8 @@ class VersionInfo:
             try:
                 version_stamp = import_module("win32verstamp").stamp
             except ImportError as exc:
-                raise RuntimeError("install pywin32 extension first") from exc
+                msg = "install pywin32 extension first"
+                raise RuntimeError(msg) from exc
             # comments length must be limited to 15kb (uses WORD='h')
             self.comments = (self.comments or "")[: COMMENTS_MAX_LEN // 2]
             version_stamp(os.fspath(path), self)
@@ -235,9 +236,8 @@ class VersionInfo:
             try:
                 util = import_module("cx_Freeze.util")
             except ImportError as exc:
-                raise RuntimeError(
-                    "cx_Freeze.util extension not found"
-                ) from exc
+                msg = "cx_Freeze.util extension not found"
+                raise RuntimeError(msg) from exc
             handle = util.BeginUpdateResource(path, 0)
             util.UpdateResource(
                 handle, RT_VERSION, ID_VERSION, string_version_info.to_buffer()

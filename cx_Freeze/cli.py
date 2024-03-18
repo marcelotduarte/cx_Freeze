@@ -233,5 +233,5 @@ def main():
     )
 
     if deprecated:
-        for msg in deprecated:
-            print("WARNING: deprecated", msg)
+        for warning_msg in deprecated:
+            print("WARNING: deprecated", warning_msg)

@@ -122,11 +122,12 @@ def run():
             and f.rpartition("__init__")[0].isidentifier()
         ]
         if len(names) != 1:
-            raise RuntimeError(
+            msg = (
                 "Apparently, the original executable has been renamed to "
                 f"{name!r}. When multiple executables are generated, "
                 "renaming is not allowed."
-            ) from None
+            )
+            raise RuntimeError(msg) from None
         name = names[0]
         module_init = __import__(name + "__init__")
     module_init.run(name + "__main__")

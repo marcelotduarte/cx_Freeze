@@ -81,7 +81,8 @@ class Executable:
         name_base = f"{name}-{soabi}"
         self._base: Path = get_resource_file_path("bases", name_base, suffix)
         if self._base is None:
-            raise OptionError(f"no base named {name!r} ({name_base!r})")
+            msg = f"no base named {name!r} ({name_base!r})"
+            raise OptionError(msg)
         self._ext: str = suffix
 
     @property
@@ -132,7 +133,8 @@ class Executable:
             "initscripts", name, ".py"
         )
         if self._init_script is None:
-            raise OptionError(f"no init_script named {name}")
+            msg = f"no init_script named {name}"
+            raise OptionError(msg)
 
     @property
     def main_module_name(self) -> str:
@@ -215,10 +217,11 @@ class Executable:
         else:
             pathname = Path(name)
             if name != pathname.name:
-                raise OptionError(
+                msg = (
                     "target_name cannot contain the path, only the filename: "
                     f"{pathname.name}"
                 )
+                raise OptionError(msg)
             if sys.platform == "win32" and pathname.suffix.lower() == ".exe":
                 name = pathname.stem
         self._name: str = name
@@ -228,7 +231,8 @@ class Executable:
                 name = name.replace(invalid, "_")
         name = os.path.normcase(name)
         if not name.isidentifier():
-            raise OptionError(f"target_name is invalid: {self._name!r}")
+            msg = f"target_name is invalid: {self._name!r}"
+            raise OptionError(msg)
         self._internal_name: str = name
 
 
@@ -245,9 +249,8 @@ def validate_executables(dist: Distribution, attr: str, value):
         for executable in value:
             assert isinstance(executable, (Executable, Mapping, str))
     except (TypeError, ValueError, AttributeError, AssertionError) as exc:
-        raise SetupError(
-            f"{attr!r} must be a list of Executable (got {value!r})"
-        ) from exc
+        msg = f"{attr!r} must be a list of Executable (got {value!r})"
+        raise SetupError(msg) from exc
 
     # Returns valid Executable list
     if dist.executables == value:

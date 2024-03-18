@@ -375,9 +375,10 @@ class ConstantsModule:
                     name, string_value = parts
                     value = ast.literal_eval(string_value)
                 if (not name.isidentifier()) or iskeyword(name):
-                    raise OptionError(
+                    msg = (
                         f"Invalid constant name in ConstantsModule ({name!r})"
                     )
+                    raise OptionError(msg)
                 self.values[name] = value
 
     def create(self, tmp_path: Path, modules: list[Module]) -> Path:
@@ -392,9 +393,10 @@ class ConstantsModule:
             if module.source_is_zip_file:
                 continue
             if not module.file.exists():
-                raise OptionError(
+                msg = (
                     f"No file named {module.file!s} (for module {module.name})"
                 )
+                raise OptionError(msg)
             timestamp = module.file.stat().st_mtime
             source_timestamp = max(source_timestamp, timestamp)
         stamp = datetime.datetime.fromtimestamp(source_timestamp)

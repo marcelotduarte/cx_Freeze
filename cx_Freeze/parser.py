@@ -334,17 +334,16 @@ class ELFParser(Parser):
         can't be found. Otherwise, silence is golden.
         """
         if not self._patchelf:
-            raise PlatformError(
-                "Cannot find required utility `patchelf` in PATH"
-            )
+            msg = "Cannot find required utility `patchelf` in PATH"
+            raise PlatformError(msg)
         try:
             version = self.run_patchelf(["--version"])
         except subprocess.CalledProcessError:
-            raise PlatformError("Could not call `patchelf` binary") from None
+            msg = "Could not call `patchelf` binary"
+            raise PlatformError(msg) from None
 
         mobj = re.match(r"patchelf\s+(\d+(.\d+)?)", version)
         if mobj and tuple(map(int, mobj.group(1).split("."))) >= (0, 14):
             return
-        raise ValueError(
-            f"patchelf {version} found. cx_Freeze requires patchelf >= 0.14."
-        )
+        msg = f"patchelf {version} found. cx_Freeze requires patchelf >= 0.14."
+        raise ValueError(msg)
