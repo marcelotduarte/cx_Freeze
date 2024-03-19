@@ -6,11 +6,14 @@ from __future__ import annotations
 
 import sysconfig
 from ctypes.util import find_library
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
 from cx_Freeze.parser import ELFParser
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_tidylib(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001

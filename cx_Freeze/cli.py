@@ -148,7 +148,7 @@ def prepare_parser():
     return parser
 
 
-def main():
+def main() -> None:
     """Entry point for cxfreeze command line tool."""
     sys.setrecursionlimit(sys.getrecursionlimit() * 10)
 

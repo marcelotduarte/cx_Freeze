@@ -18,7 +18,7 @@ import cx_Freeze
         ("linux", ["bdist_appimage", "bdist_deb", "bdist_rpm"]),
     ],
 )
-def test_exposed_namespaces(platform, extra_modules):
+def test_exposed_namespaces(platform, extra_modules) -> None:
     """Test asserts all the namespaces that should be exposed when
     `importing cx_Freeze` are available.
     """

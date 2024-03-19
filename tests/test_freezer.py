@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from sysconfig import get_config_vars, get_platform, get_python_version
+from typing import TYPE_CHECKING, NoReturn
 
 import pytest
 from generate_samples import create_package
 
 from cx_Freeze import Executable, Freezer
 from cx_Freeze.exception import OptionError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 PLATFORM = get_platform()
 IS_LINUX = PLATFORM.startswith("linux")
@@ -25,7 +28,7 @@ hello.py
 """
 
 
-def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch):
+def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch) -> None:
     """Test freezer target_dir empty."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
@@ -35,7 +38,7 @@ def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch):
     assert freezer.target_dir.absolute() == target_dir
 
 
-def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch):
+def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch) -> None:
     """Test freezer target_dir in path."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
@@ -51,12 +54,12 @@ def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch):
         )
 
 
-def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch):
+def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch) -> None:
     """Test freezer target_dir locked."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    def t_rmtree(path, _ignore_errors=False, _onerror=None):
+    def t_rmtree(path, _ignore_errors=False, _onerror=None) -> NoReturn:
         msg = f"cannot clean {path}"
         raise OSError(msg)
 
@@ -70,7 +73,7 @@ def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch):
         Freezer(executables=[Executable("hello.py")], target_dir=target_dir)
 
 
-def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch):
+def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
     """Test freezer _default_bin_includes."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
@@ -88,7 +91,9 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch):
     assert expected in freezer.bin_includes
 
 
-def test_freezer_default_bin_includes_emulated(tmp_path: Path, monkeypatch):
+def test_freezer_default_bin_includes_emulated(
+    tmp_path: Path, monkeypatch
+) -> None:
     """Test freezer _default_bin_includes in conda/mingw environments."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
@@ -116,7 +121,7 @@ def test_freezer_default_bin_includes_emulated(tmp_path: Path, monkeypatch):
 
 def test_freezer_populate_zip_options_invalid_values(
     tmp_path: Path, monkeypatch
-):
+) -> None:
     """Test freezer _populate_zip_options invalid values."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
@@ -246,7 +251,7 @@ def test_freezer_options(
     monkeypatch,
     kwargs: dict[str, ...],
     expected: dict[str, ...],
-):
+) -> None:
     """Test freezer options."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)

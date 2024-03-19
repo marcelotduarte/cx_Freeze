@@ -1,16 +1,17 @@
 """Compiled functions for cx_Freeze itself."""
 
 # ruff: noqa: ARG001
-from __future__ import annotations
 
 from pathlib import Path
 
-HANDLE = int | None
+import typing_extensions
+
+HANDLE: typing_extensions.TypeAlias = int | None
 
 class BindError(Exception):
     """BindError Exception."""
 
-def AddIcon(target_path: str | Path, exe_icon: str | Path):
+def AddIcon(target_path: str | Path, exe_icon: str | Path) -> None:
     """Add the icon as a resource to the specified file."""
 
 def BeginUpdateResource(
@@ -23,10 +24,10 @@ def UpdateResource(
 ) -> None:
     """Wrapper for UpdateResource."""
 
-def EndUpdateResource(handle: HANDLE, discard_changes: bool):
+def EndUpdateResource(handle: HANDLE, discard_changes: bool) -> None:
     """Wrapper for EndUpdateResource."""
 
-def UpdateCheckSum(target_path: str | Path):
+def UpdateCheckSum(target_path: str | Path) -> None:
     """Update the CheckSum into the specified executable."""
 
 def GetSystemDir() -> str:

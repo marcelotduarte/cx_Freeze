@@ -5,8 +5,10 @@ RNS package is included.
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
-from cx_Freeze.module import Module
+if TYPE_CHECKING:
+    from cx_Freeze.module import Module
 
 
 def load_rns(_, module: Module) -> None:

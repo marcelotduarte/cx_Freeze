@@ -14,10 +14,10 @@ from cx_Freeze.exception import SetupError
 from cx_Freeze.freezer import Freezer
 from cx_Freeze.module import ConstantsModule
 
-__all__ = ["BuildEXE"]
+__all__ = ["build_exe"]
 
 
-class BuildEXE(Command):
+class build_exe(Command):
     """Build executables from Python scripts."""
 
     description = "build executables from Python scripts"
@@ -131,12 +131,12 @@ class BuildEXE(Command):
     ]
     boolean_options = ["no-compress", "include-msvcr", "silent"]
 
-    def add_to_path(self, name):
+    def add_to_path(self, name) -> None:
         source_dir = getattr(self, name.lower())
         if source_dir is not None:
             sys.path.insert(0, source_dir)
 
-    def build_extension(self, name, module_name=None):
+    def build_extension(self, name, module_name=None) -> str | None:
         # XXX: This method, add_to_path and set_source_location can be deleted?
         if module_name is None:
             module_name = name
@@ -173,7 +173,7 @@ class BuildEXE(Command):
             command.get_ext_filename(module_name),
         )
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.list_options = [
             "excludes",
             "includes",
@@ -202,7 +202,7 @@ class BuildEXE(Command):
         self.silent = None
         self.silent_level = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         build = self.get_finalized_command("build")
         self.build_base = build.build_base
         if self.build_exe is None:
@@ -246,7 +246,7 @@ class BuildEXE(Command):
             self.include_msvcr = False
         self.optimize = int(self.optimize or 0)
 
-    def run(self):
+    def run(self) -> None:
         metadata = self.distribution.metadata
         constants_module = ConstantsModule(
             metadata.version, constants=self.constants
@@ -278,7 +278,7 @@ class BuildEXE(Command):
 
         freezer.freeze()
 
-    def set_source_location(self, name, *pathParts):
+    def set_source_location(self, name, *pathParts) -> None:
         env_name = f"{name.upper()}_BASE"
         attr_name = name.lower()
         source_dir = getattr(self, attr_name)
@@ -292,5 +292,5 @@ class BuildEXE(Command):
 
     # -- Predicates for the sub-command list ---------------------------
 
-    def has_executables(self):
+    def has_executables(self) -> bool:
         return getattr(self.distribution, "executables", None) is not None

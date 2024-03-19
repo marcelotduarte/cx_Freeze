@@ -57,7 +57,7 @@ def _do_test(
     debug=0,  # noqa: ARG001
     modulefinder_class=ModuleFinder,
     **kwargs,
-):
+) -> None:
     create_package(test_dir, source)
     finder = modulefinder_class(
         ConstantsModule(),
@@ -123,12 +123,12 @@ def test_finder(
     missing,
     maybe_missing,
     source,
-):
+) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(tmp_path, import_this, modules, missing, maybe_missing, source)
 
 
-def test_bytecode(tmp_path):
+def test_bytecode(tmp_path) -> None:
     """Provides bytecode test case for ModuleFinder class."""
     base_path = tmp_path / "a"
     source_path = base_path.with_suffix(SOURCE_SUFFIXES[0])
@@ -140,7 +140,7 @@ def test_bytecode(tmp_path):
     _do_test(tmp_path, *BYTECODE_TEST)
 
 
-def test_zip_include_packages(tmp_path):
+def test_zip_include_packages(tmp_path) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(
         tmp_path,
@@ -150,7 +150,7 @@ def test_zip_include_packages(tmp_path):
     )
 
 
-def test_zip_exclude_packages(tmp_path):
+def test_zip_exclude_packages(tmp_path) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(
         tmp_path,

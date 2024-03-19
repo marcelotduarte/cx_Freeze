@@ -11,25 +11,28 @@ import sys
 import sysconfig
 import time
 from abc import abstractmethod
-from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from functools import cached_property
 from importlib import import_module
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
 
 from setuptools import Distribution
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze._typing import IncludesList, InternalIncludesList
 from cx_Freeze.common import get_resource_file_path, process_path_specs
 from cx_Freeze.exception import FileError, OptionError
 from cx_Freeze.executable import Executable
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import ConstantsModule, Module
 from cx_Freeze.parser import ELFParser, Parser, PEParser
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from cx_Freeze._typing import IncludesList, InternalIncludesList
 
 if IS_WINDOWS or IS_MINGW:
     with suppress(ImportError):
@@ -75,7 +78,7 @@ class Freezer:
         include_msvcr: bool = False,
         zip_include_packages: Sequence[str] | None = None,
         zip_exclude_packages: Sequence[str] | None = None,
-    ):
+    ) -> None:
         self.executables: list[Executable] = self._validate_executables(
             executables
         )
@@ -125,7 +128,7 @@ class Freezer:
         return self._targetdir
 
     @target_dir.setter
-    def target_dir(self, path: str | Path | None):
+    def target_dir(self, path: str | Path | None) -> None:
         if path is None:
             platform = sysconfig.get_platform()
             python_version = sysconfig.get_python_version()
@@ -161,7 +164,7 @@ class Freezer:
         target: Path,
         copy_dependent_files: bool,
         include_mode: bool = False,
-    ):
+    ) -> None:
         if not self._should_copy_file(source):
             return
 
@@ -184,11 +187,13 @@ class Freezer:
         # handle post-copy tasks, including copying dependencies
         self._post_copy_hook(source, target, copy_dependent_files)
 
-    def _copy_package_data(self, module: Module, target_dir: Path):
+    def _copy_package_data(self, module: Module, target_dir: Path) -> None:
         """Copy any non-Python files to the target directory."""
         ignore_patterns = ("__pycache__", "*.py", "*.pyc", "*.pyo")
 
-        def copy_tree(source_dir: Path, target_dir: Path, excludes: set[str]):
+        def copy_tree(
+            source_dir: Path, target_dir: Path, excludes: set[str]
+        ) -> None:
             self._create_directory(target_dir)
             for source in source_dir.iterdir():
                 if any(filter(source.match, ignore_patterns)):
@@ -248,7 +253,7 @@ class Freezer:
     ):
         """Post-copy task."""
 
-    def _create_directory(self, path: str | Path):
+    def _create_directory(self, path: str | Path) -> None:
         if isinstance(path, str):
             path = Path(path)
         if not path.is_dir():
@@ -569,7 +574,7 @@ class Freezer:
         self.zip_exclude_packages = zip_exclude_packages
         self.zip_include_all_packages = zip_include_all_packages
 
-    def _write_modules(self, filename: Path):
+    def _write_modules(self, filename: Path) -> None:
         finder: ModuleFinder = self.finder
         cache_path = finder.cache_path
 
@@ -716,7 +721,7 @@ class Freezer:
             finally:
                 os.environ["PATH"] = orig_path
 
-    def freeze(self):
+    def freeze(self) -> None:
         """Do the freeze."""
         finder: ModuleFinder = self.finder
 
@@ -759,7 +764,7 @@ class Freezer:
 class WinFreezer(Freezer, PEParser):
     """Freezer base class for Windows OS."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         PEParser.__init__(self, self.path, self.bin_path_includes, self.silent)
 
@@ -1025,7 +1030,7 @@ class WinFreezer(Freezer, PEParser):
 class DarwinFreezer(Freezer, Parser):
     """Freezer base class for macOS."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         Parser.__init__(self, self.path, self.bin_path_includes, self.silent)
         self.darwin_tracker: DarwinFileTracker = DarwinFileTracker()
@@ -1186,7 +1191,7 @@ class DarwinFreezer(Freezer, Parser):
 class LinuxFreezer(Freezer, ELFParser):
     """Freezer base class for Linux and Posix OSes."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         ELFParser.__init__(
             self, self.path, self.bin_path_includes, self.silent
@@ -1197,7 +1202,7 @@ class LinuxFreezer(Freezer, ELFParser):
         source: Path,
         target: Path,
         copy_dependent_files: bool,
-    ):
+    ) -> None:
         if (
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files

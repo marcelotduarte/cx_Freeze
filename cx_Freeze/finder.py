@@ -6,26 +6,33 @@ import importlib.machinery
 import logging
 import os
 import sys
-from collections.abc import Sequence
 from contextlib import suppress
 from functools import cached_property
 from importlib import import_module
-from importlib.abc import ExecutionLoader
 from pathlib import Path, PurePath
 from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
-from types import CodeType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import opcode
 
-from cx_Freeze._typing import DeferredList, IncludesList, InternalIncludesList
 from cx_Freeze.common import (
     code_object_replace,
     get_resource_file_path,
     process_path_specs,
 )
 from cx_Freeze.module import ConstantsModule, Module
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from importlib.abc import ExecutionLoader
+    from types import CodeType
+
+    from cx_Freeze._typing import (
+        DeferredList,
+        IncludesList,
+        InternalIncludesList,
+    )
 
 ALL_SUFFIXES = importlib.machinery.all_suffixes()
 
@@ -65,7 +72,7 @@ class ModuleFinder:
         zip_include_packages: Sequence[str] | None = None,
         zip_include_all_packages: bool = False,
         zip_includes: IncludesList | None = None,
-    ):
+    ) -> None:
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
@@ -184,7 +191,7 @@ class ModuleFinder:
         module: Module,
         deferred_imports: DeferredList,
         recursive: bool = True,
-    ):
+    ) -> None:
         """Import all sub modules to the given package."""
         for path in module.path:
             for fullname in path.iterdir():
@@ -229,7 +236,7 @@ class ModuleFinder:
 
     def _import_deferred_imports(
         self, deferred_imports: DeferredList, skip_in_import: bool = False
-    ):
+    ) -> None:
         """Import any sub modules that were deferred, if applicable."""
         while deferred_imports:
             new_deferred_imports: DeferredList = []
@@ -581,7 +588,7 @@ class ModuleFinder:
         deferred_imports: DeferredList,
         code: CodeType | None = None,
         top_level: bool = True,
-    ):
+    ) -> None:
         """Scan code, looking for imported modules and keeping track of the
         constants that have been created in order to better tell which
         modules are truly missing.
@@ -812,7 +819,7 @@ class ModuleFinder:
         return self._optimize_flag
 
     @optimize.setter
-    def optimize(self, value: int):
+    def optimize(self, value: int) -> None:
         # The value of optimize is checked in '.command.build_exe' or '.cli'.
         # This value is unlikely to be wrong, yet we check and ignore any
         # divergent value.

@@ -9,11 +9,14 @@ import sys
 import sysconfig
 from contextlib import suppress
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.hooks._qthooks import get_qt_plugins_paths  # noqa: F401
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:

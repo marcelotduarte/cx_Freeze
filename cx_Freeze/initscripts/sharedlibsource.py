@@ -21,5 +21,5 @@ with open(filename, encoding="utf-8") as in_file:
     sys.path = [s.strip() for s in in_file.read().splitlines()] + sys.path
 
 
-def run():  # noqa: D103
+def run() -> None:  # noqa: D103
     pass

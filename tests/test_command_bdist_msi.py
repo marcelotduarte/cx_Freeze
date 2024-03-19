@@ -13,7 +13,7 @@ from cx_Freeze import Executable
 
 bdist_msi = pytest.importorskip(
     "cx_Freeze.command.bdist_msi", reason="Windows tests"
-).BdistMSI
+).bdist_msi
 
 DIST_ATTRS = {
     "name": "foo",
@@ -26,7 +26,7 @@ TOP_DIR = Path(__file__).resolve().parent.parent
 SAMPLES_DIR = TOP_DIR / "samples"
 
 
-def test_bdist_msi_target_name():
+def test_bdist_msi_target_name() -> None:
     """Test the bdist_msi with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_msi(dist)
@@ -36,7 +36,7 @@ def test_bdist_msi_target_name():
     assert cmd.fullname == "mytest-0.0"
 
 
-def test_bdist_msi_target_name_and_version():
+def test_bdist_msi_target_name_and_version() -> None:
     """Test the bdist_msi with extra target options."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_msi(dist)
@@ -48,7 +48,7 @@ def test_bdist_msi_target_name_and_version():
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_binary_data")
-def test_bdist_msi_default(datafiles: Path):
+def test_bdist_msi_default(datafiles: Path) -> None:
     """Test the msi_binary_data sample."""
     run_command(datafiles, "python setup.py bdist_msi")
     platform = get_platform().replace("win-amd64", "win64")
@@ -57,7 +57,7 @@ def test_bdist_msi_default(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_extensions")
-def test_bdist_msi_target_name_with_extension(datafiles: Path):
+def test_bdist_msi_target_name_with_extension(datafiles: Path) -> None:
     """Test the msi_extensions sample, with a specified target_name that
     includes an ".msi" extension.
     """
@@ -70,7 +70,7 @@ def test_bdist_msi_target_name_with_extension(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_summary_data")
-def test_bdist_msi_target_name_with_extension_1(datafiles: Path):
+def test_bdist_msi_target_name_with_extension_1(datafiles: Path) -> None:
     """Test the msi_summary_data sample."""
     msi_name = "output.1.msi"
     run_command(
@@ -81,7 +81,7 @@ def test_bdist_msi_target_name_with_extension_1(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "advanced")
-def test_bdist_msi_advanced(datafiles: Path):
+def test_bdist_msi_advanced(datafiles: Path) -> None:
     """Test the advanced sample."""
     msi_name = "output.msi"
     run_command(
@@ -92,7 +92,7 @@ def test_bdist_msi_advanced(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "asmodule")
-def test_bdist_msi_asmodule(datafiles: Path):
+def test_bdist_msi_asmodule(datafiles: Path) -> None:
     """Test the asmodule sample."""
     msi_name = "output.msi"
     run_command(
@@ -103,7 +103,7 @@ def test_bdist_msi_asmodule(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_bdist_msi_sqlite(datafiles: Path):
+def test_bdist_msi_sqlite(datafiles: Path) -> None:
     """Test the sqlite sample."""
     msi_name = "output.msi"
     run_command(
@@ -131,7 +131,7 @@ setup.py
 """
 
 
-def test_bdist_msi_advanced2(tmp_path: Path):
+def test_bdist_msi_advanced2(tmp_path: Path) -> None:
     """Test the executables option."""
     create_package(tmp_path, SOURCE_HELLO)
     msi_name = "output.msi"

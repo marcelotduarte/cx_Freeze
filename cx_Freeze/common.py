@@ -7,9 +7,12 @@ from contextlib import suppress
 from pathlib import Path, PurePath
 from textwrap import dedent
 from types import CodeType
+from typing import TYPE_CHECKING
 
-from cx_Freeze._typing import IncludesList, InternalIncludesList
 from cx_Freeze.exception import OptionError
+
+if TYPE_CHECKING:
+    from cx_Freeze._typing import IncludesList, InternalIncludesList
 
 
 class FilePath(Path):
@@ -17,7 +20,7 @@ class FilePath(Path):
 
     _flavour = type(Path())._flavour  # noqa: SLF001
 
-    def replace(self, target):
+    def replace(self, target):  # noqa: ANN201
         """Rename this path to the target path, overwriting if that path
         exists. Extended to support move between file systems.
         """
@@ -81,8 +84,8 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
             source = spec
             target = None
         elif len(spec) != 2:
-            error = "path spec must be a list or tuple of length two"
-            raise OptionError(error)
+            msg = "path spec must be a list or tuple of length two"
+            raise OptionError(msg)
         else:
             source, target = spec
         source = Path(source)
@@ -91,8 +94,8 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
             raise OptionError(msg)
         target = PurePath(target or source.name)
         if target.is_absolute():
-            error = f"target path named {target!s} cannot be absolute"
-            raise OptionError(error)
+            msg = f"target path named {target!s} cannot be absolute"
+            raise OptionError(msg)
         processed_specs.append((source, target))
     return processed_specs
 

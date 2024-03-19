@@ -5,9 +5,11 @@ Xlib package is included.
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_xlib_display(

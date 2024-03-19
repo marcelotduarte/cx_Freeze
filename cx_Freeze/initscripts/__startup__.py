@@ -25,7 +25,12 @@ class ExtensionFinder(PathFinder):
     """A Finder for extension modules of packages in zip files."""
 
     @classmethod
-    def find_spec(cls, fullname, path=None, target=None):  # noqa: ARG003
+    def find_spec(
+        cls,
+        fullname,
+        path=None,
+        target=None,  # noqa: ARG003
+    ) -> ModuleSpec | None:
         """Finder only for extension modules found within packages that
         are included in the zip file (instead of as files on disk);
         extension modules cannot be found within zip files but are stored in
@@ -46,7 +51,7 @@ class ExtensionFinder(PathFinder):
         return None
 
 
-def init():
+def init() -> None:
     """Basic initialization of the startup script."""
     # to avoid bugs (especially in MSYS2) use normpath after any change
     sys.executable = os.path.normpath(sys.executable)
@@ -100,7 +105,7 @@ def init():
             os.environ[name] = var_path
 
 
-def run():
+def run() -> None:
     """Determines the name of the initscript and execute it."""
     # get the real name of __init__ script
     # basically, the basename of executable plus __init__

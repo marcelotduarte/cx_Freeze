@@ -5,13 +5,13 @@ PySide2 package is included.
 from __future__ import annotations
 
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
 from cx_Freeze.common import (
     code_object_replace_function,
     get_resource_file_path,
 )
-from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.hooks._qthooks import copy_qt_files
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtdesigner as load_pyside2_qtdesigner,
@@ -44,7 +44,10 @@ from cx_Freeze.hooks._qthooks import (
     load_qt_qtwidgets as load_pyside2_qtwidgets,
 )
 from cx_Freeze.hooks._qthooks import load_qt_uic as load_pyside2_uic
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_pyside2(finder: ModuleFinder, module: Module) -> None:

@@ -40,7 +40,7 @@ setup.py
 class TestVersionInfo:
     """Test VersionInfo class."""
 
-    def test___init__(self):
+    def test___init__(self) -> None:
         """Tests the default value for the VersionInfo class."""
         input_version = "9.9.9.9"
         default_version = VersionInfo(input_version)
@@ -59,7 +59,7 @@ class TestVersionInfo:
         assert default_version.debug is None
         assert default_version.verbose is True
 
-    def test___init__with_kwargs(self):
+    def test___init__with_kwargs(self) -> None:
         """Tests keyword values for the VersionInfo class."""
         input_version = "9.9.9.9"
         input_internal_name = "Test Internal Name"
@@ -103,7 +103,7 @@ class TestVersionInfo:
         assert version_instance.debug is input_debug
         assert version_instance.verbose is input_verbose
 
-    def test_big_comment(self):
+    def test_big_comment(self) -> None:
         """Tests a big comment value for the VersionInfo class."""
         input_version = "9.9.9.9"
         input_comments = "TestComment" + "=" * COMMENTS_MAX_LEN
@@ -125,7 +125,7 @@ class TestVersionInfo:
             ("1.0.post1", "1.0.0.0"),
         ],
     )
-    def test_windows_versions(self, input_version, version):
+    def test_windows_versions(self, input_version, version) -> None:
         """Tests that short versions get padded to the expected x4 digit
         windows versions.
         """
@@ -133,14 +133,14 @@ class TestVersionInfo:
         assert default_version.version == version
         assert default_version.version_info(Path("test.exe"))
 
-    def test_file_not_found(self):
+    def test_file_not_found(self) -> None:
         """Test for FileNotFoundError exception."""
         version = VersionInfo("0.1")
         with pytest.raises(FileNotFoundError):
             version.stamp("test.exe")
 
     @pytest.fixture()
-    def tmp_test(self, tmp_path):
+    def tmp_test(self, tmp_path) -> Path:
         """Generate a executable file test.exe to be used in tests."""
         create_package(tmp_path, SOURCE_SIMPLE_TEST)
         run_command(tmp_path)
@@ -161,18 +161,18 @@ class TestVersionInfo:
             pytest.param("--pywin32", marks=pytest.mark.xfail),
         ],
     )
-    def test_main(self, tmp_test, option, capsys):
+    def test_main(self, tmp_test, option, capsys) -> None:
         """Test the cx_Freeze.winversioninfo __main_ entry point."""
         main_test(args=["--version=0.2", option, f"{tmp_test}"])
         captured = capsys.readouterr()
         assert captured.out.splitlines()[-1].startswith("Stamped:")
 
-    def test_main_no_option(self):
+    def test_main_no_option(self) -> None:
         """Test argparse error exception."""
         with pytest.raises(SystemExit):
             main_test(args=[])
 
-    def test_main_with_environ(self, tmp_test, monkeypatch):
+    def test_main_with_environ(self, tmp_test, monkeypatch) -> None:
         """Test argparse error exception."""
         monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
         with pytest.raises(CalledProcessError):

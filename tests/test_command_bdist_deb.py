@@ -13,7 +13,7 @@ from cx_Freeze.exception import PlatformError
 
 bdist_deb = pytest.importorskip(
     "cx_Freeze.command.bdist_deb", reason="Linux tests"
-).BdistDEB
+).bdist_deb
 
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
@@ -31,7 +31,7 @@ DIST_ATTRS = {
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-def test_bdist_deb_not_posix(monkeypatch):
+def test_bdist_deb_not_posix(monkeypatch) -> None:
     """Test the bdist_deb fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
@@ -40,7 +40,7 @@ def test_bdist_deb_not_posix(monkeypatch):
         cmd.finalize_options()
 
 
-def test_bdist_deb_not_alien(monkeypatch):
+def test_bdist_deb_not_alien(monkeypatch) -> None:
     """Test the bdist_deb uses alien."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
@@ -49,7 +49,7 @@ def test_bdist_deb_not_alien(monkeypatch):
         cmd.finalize_options()
 
 
-def test_bdist_deb_not_fakeroot(monkeypatch):
+def test_bdist_deb_not_fakeroot(monkeypatch) -> None:
     """Test the bdist_deb uses fakeroot."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
@@ -59,7 +59,7 @@ def test_bdist_deb_not_fakeroot(monkeypatch):
         cmd.finalize_options()
 
 
-def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path):
+def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path) -> None:
     """Test the bdist_deb dry_run."""
     monkeypatch.chdir(tmp_path)
     attrs = DIST_ATTRS.copy()
@@ -75,7 +75,7 @@ def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_deb_simple(datafiles: Path):
+def test_bdist_deb_simple(datafiles: Path) -> None:
     """Test the simple sample with bdist_deb."""
     name = "hello"
     version = "0.1.2.3"
@@ -101,7 +101,7 @@ def test_bdist_deb_simple(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_bdist_deb(datafiles: Path):
+def test_bdist_deb(datafiles: Path) -> None:
     """Test the sqlite sample with bdist_deb."""
     name = "test_sqlite3"
     version = "0.5"

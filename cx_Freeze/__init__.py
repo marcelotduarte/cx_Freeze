@@ -8,9 +8,9 @@ import sys
 
 import setuptools
 
-from cx_Freeze.command.build_exe import BuildEXE as build_exe
+from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.command.install import Install as install
-from cx_Freeze.command.install_exe import InstallEXE as install_exe
+from cx_Freeze.command.install_exe import install_exe
 from cx_Freeze.executable import Executable, validate_executables
 from cx_Freeze.finder import Module, ModuleFinder
 from cx_Freeze.freezer import ConstantsModule, Freezer
@@ -29,24 +29,20 @@ __all__ = [
 ]
 
 if sys.platform == "win32":
-    from cx_Freeze.command.bdist_msi import BdistMSI as bdist_msi
+    from cx_Freeze.command.bdist_msi import bdist_msi
 
-    __all__.append(bdist_msi.__name__)
+    __all__ += ["bdist_msi"]
 elif sys.platform == "darwin":
-    from cx_Freeze.command.bdist_mac import BdistDMG as bdist_dmg
-    from cx_Freeze.command.bdist_mac import BdistMac as bdist_mac
+    from cx_Freeze.command.bdist_mac import bdist_dmg, bdist_mac
 
-    __all__.extend([bdist_dmg.__name__, bdist_mac.__name__])
+    __all__ += ["bdist_dmg", "bdist_mac"]
 else:
-    from cx_Freeze.command.bdist_appimage import (
-        BdistAppImage as bdist_appimage,
-    )
-    from cx_Freeze.command.bdist_deb import BdistDEB as bdist_deb
-    from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
+    from cx_Freeze.command.bdist_appimage import bdist_appimage
+    from cx_Freeze.command.bdist_deb import bdist_deb
+    from cx_Freeze.command.bdist_rpm import bdist_rpm
 
-    __all__.extend(
-        [bdist_appimage.__name__, bdist_deb.__name__, bdist_rpm.__name__]
-    )
+    __all__ += ["bdist_appimage", "bdist_deb", "bdist_rpm"]
+
 
 __version__ = "6.16.0-dev12"
 

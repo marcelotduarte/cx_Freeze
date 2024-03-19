@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import (
@@ -16,16 +16,21 @@ from generate_samples import (
 
 from cx_Freeze import ConstantsModule, ModuleFinder
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 class TestModuleFinder:
     """Provides test cases for ModuleFinder class."""
 
     @pytest.fixture()
-    def fix_module_finder(self):
+    def fix_module_finder(self) -> ModuleFinder:
         constants = ConstantsModule()
         return ModuleFinder(constants_module=constants)
 
-    def test_scan_code(self, tmp_path: Path, fix_module_finder, mocker):
+    def test_scan_code(
+        self, tmp_path: Path, fix_module_finder, mocker
+    ) -> None:
         create_package(tmp_path, source=SCAN_CODE_TEST[4])
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
@@ -49,7 +54,7 @@ class TestModuleFinder:
 
     def test_not_import_invalid_module_name(
         self, tmp_path: Path, fix_module_finder
-    ):
+    ) -> None:
         """testpkg1 contains not.importable.py, which shouldn't be included."""
         create_package(tmp_path, source=INVALID_MODULE_NAME_TEST[4])
         fix_module_finder.path.insert(0, os.fspath(tmp_path))
@@ -60,7 +65,7 @@ class TestModuleFinder:
             "be imported"
         )
 
-    def test_invalid_syntax(self, tmp_path: Path, fix_module_finder):
+    def test_invalid_syntax(self, tmp_path: Path, fix_module_finder) -> None:
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         create_package(tmp_path, source=SYNTAX_ERROR_TEST[4])
         fix_module_finder.path.insert(0, os.fspath(tmp_path))
@@ -68,7 +73,7 @@ class TestModuleFinder:
             # Threw SyntaxError before the bug was fixed
             fix_module_finder.include_module("invalid_syntax")
 
-    def test_find_spec(self, tmp_path: Path, fix_module_finder):
+    def test_find_spec(self, tmp_path: Path, fix_module_finder) -> None:
         """Sample find_spec contains broken modules."""
         create_package(tmp_path, source=FIND_SPEC_TEST[4])
         fix_module_finder.path.insert(0, os.fspath(tmp_path / "find_spec"))

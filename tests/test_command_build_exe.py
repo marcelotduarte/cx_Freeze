@@ -11,7 +11,7 @@ import pytest
 from generate_samples import SUB_PACKAGE_TEST, create_package, run_command
 from setuptools import Distribution
 
-from cx_Freeze.command.build_exe import BuildEXE as build_exe
+from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 from cx_Freeze.executable import Executable
 
@@ -151,7 +151,7 @@ DIST_ATTRS = {
 )
 def test_build_exe_finalize_options(
     kwargs: dict[str, ...], expected: dict[str, ...]
-):
+) -> None:
     """Test the build_exe finalize_options."""
     dist = Distribution(DIST_ATTRS)
     cmd = build_exe(dist, **kwargs)
@@ -162,7 +162,7 @@ def test_build_exe_finalize_options(
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "advanced")
-def test_build_exe_advanced(datafiles: Path):
+def test_build_exe_advanced(datafiles: Path) -> None:
     """Test the advanced sample."""
     output = run_command(
         datafiles, "python setup.py build_exe --silent --excludes=tkinter"
@@ -180,7 +180,7 @@ def test_build_exe_advanced(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "asmodule")
-def test_build_exe_asmodule(datafiles: Path):
+def test_build_exe_asmodule(datafiles: Path) -> None:
     """Test the asmodule sample."""
     output = run_command(datafiles, BUILD_EXE_CMD)
 
@@ -191,7 +191,7 @@ def test_build_exe_asmodule(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_build_exe_sqlite(datafiles: Path):
+def test_build_exe_sqlite(datafiles: Path) -> None:
     """Test the sqlite sample."""
     output = run_command(datafiles, BUILD_EXE_CMD)
 
@@ -201,7 +201,7 @@ def test_build_exe_sqlite(datafiles: Path):
     assert output.startswith("dump.sql created")
 
 
-def test_zip_include_packages(tmp_path):
+def test_zip_include_packages(tmp_path) -> None:
     """Test the simple sample with zip_include_packages option."""
     source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)
@@ -216,7 +216,7 @@ def test_zip_include_packages(tmp_path):
     assert output == OUTPUT_SUBPACKAGE_TEST
 
 
-def test_zip_exclude_packages(tmp_path):
+def test_zip_exclude_packages(tmp_path) -> None:
     """Test the simple sample with zip_exclude_packages option."""
     source = SUB_PACKAGE_TEST[4]
     create_package(tmp_path, source)

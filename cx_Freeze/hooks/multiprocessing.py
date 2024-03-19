@@ -6,9 +6,12 @@ from __future__ import annotations
 
 import os
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_WINDOWS
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.module import Module
 
 
 def load_multiprocessing(_, module: Module) -> None:

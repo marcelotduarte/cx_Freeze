@@ -24,10 +24,10 @@ from cx_Freeze.exception import (
     PlatformError,
 )
 
-__all__ = ["BdistRPM"]
+__all__ = ["bdist_rpm"]
 
 
-class BdistRPM(Command):
+class bdist_rpm(Command):
     """Create an RPM distribution."""
 
     description = "create an RPM distribution"
@@ -166,7 +166,7 @@ class BdistRPM(Command):
         "rpm2-mode": "rpm3-mode",
     }
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.bdist_base = None
         self.dist_dir = None
 
@@ -206,7 +206,7 @@ class BdistRPM(Command):
         self.quiet = 0
         self.debug = 0
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         if os.name != "posix":
             msg = (
                 "don't know how to create RPM "
@@ -230,7 +230,7 @@ class BdistRPM(Command):
 
         self.finalize_package_data()
 
-    def finalize_package_data(self):
+    def finalize_package_data(self) -> None:
         self.ensure_string("group", "Development/Libraries")
         contact = self.distribution.get_contact() or "UNKNOWN"
         contact_email = self.distribution.get_contact_email() or "UNKNOWN"
@@ -274,7 +274,7 @@ class BdistRPM(Command):
         self.ensure_string_list("build_requires")
         self.ensure_string_list("obsoletes")
 
-    def run(self):
+    def run(self) -> None:
         if self.debug:
             print("before _get_package_data():")
             print("vendor =", self.vendor)
@@ -559,7 +559,7 @@ class BdistRPM(Command):
         return spec_file
 
     @staticmethod
-    def _format_changelog(changelog):
+    def _format_changelog(changelog) -> list[str]:
         """Format the changelog correctly and convert it to a string list."""
         if not changelog:
             return changelog
@@ -580,7 +580,7 @@ class BdistRPM(Command):
         return new_changelog
 
 
-def write_file(filename, contents):
+def write_file(filename, contents) -> None:
     """Create a file with the specified name and write 'contents'
     (a sequence of strings without line terminators) to it.
     """

@@ -4,10 +4,14 @@ AV/PyAV package is included.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from cx_Freeze._compat import IS_WINDOWS
-from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.hooks._libs import replace_delvewheel_patch
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_av(finder: ModuleFinder, module: Module) -> None:

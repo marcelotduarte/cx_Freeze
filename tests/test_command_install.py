@@ -27,7 +27,7 @@ command
 """
 
 
-def test_install(tmp_path: Path):
+def test_install(tmp_path: Path) -> None:
     """Test a simple install."""
     create_package(tmp_path, SOURCE)
 

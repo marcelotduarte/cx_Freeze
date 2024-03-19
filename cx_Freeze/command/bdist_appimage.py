@@ -20,7 +20,7 @@ from setuptools import Command
 import cx_Freeze.icons
 from cx_Freeze.exception import ExecError, PlatformError
 
-__all__ = ["BdistAppImage"]
+__all__ = ["bdist_appimage"]
 
 APPIMAGEKIT_URL = (
     "https://github.com/AppImage/AppImageKit/releases/download/continuous"
@@ -28,7 +28,7 @@ APPIMAGEKIT_URL = (
 APPIMAGEKIT_TOOL = os.path.expanduser("~/.local/bin/appimagetool")
 
 
-class BdistAppImage(Command):
+class bdist_appimage(Command):
     """Create a Linux AppImage."""
 
     description = "create a Linux AppImage"
@@ -63,7 +63,7 @@ class BdistAppImage(Command):
         "silent",
     ]
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.appimagekit = None
         self._appimage_extract_and_run = False
 
@@ -77,7 +77,7 @@ class BdistAppImage(Command):
         self.fullname = None
         self.silent = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         if os.name != "posix":
             msg = (
                 "don't know how to create AppImage "
@@ -117,7 +117,7 @@ class BdistAppImage(Command):
         # validate or download appimagekit
         self._get_appimagekit()
 
-    def _get_appimagekit(self):
+    def _get_appimagekit(self) -> None:
         """Fetch AppImageKit from the web if not available locally."""
         if self.appimagekit is None:
             self.appimagekit = APPIMAGEKIT_TOOL
@@ -147,7 +147,7 @@ class BdistAppImage(Command):
             except Exception:  # noqa: BLE001
                 self._appimage_extract_and_run = True
 
-    def run(self):
+    def run(self) -> None:
         # Create the application bundle
         if not self.skip_build:
             self.run_command("build_exe")
@@ -237,7 +237,7 @@ class BdistAppImage(Command):
             msg = "Could not build AppImage"
             raise ExecError(msg)
 
-    def save_as_file(self, data, outfile, mode="r"):
+    def save_as_file(self, data, outfile, mode="r") -> tuple[str, int]:
         """Save an input data to a file respecting verbose, dry-run and force
         flags.
         """

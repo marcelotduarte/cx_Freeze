@@ -12,13 +12,13 @@ import subprocess
 
 from setuptools import Command
 
-from cx_Freeze.command.bdist_rpm import BdistRPM as bdist_rpm
+from cx_Freeze.command.bdist_rpm import bdist_rpm
 from cx_Freeze.exception import ExecError, PlatformError
 
-__all__ = ["BdistDEB"]
+__all__ = ["bdist_deb"]
 
 
-class BdistDEB(Command):
+class bdist_deb(Command):
     """Create an DEB distribution."""
 
     description = "create an DEB distribution"
@@ -37,12 +37,12 @@ class BdistDEB(Command):
         ("dist-dir=", "d", "directory to put final built distributions in"),
     ]
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.bdist_base = None
         self.build_dir = None
         self.dist_dir = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         if os.name != "posix":
             msg = (
                 "don't know how to create DEB "
@@ -63,7 +63,7 @@ class BdistDEB(Command):
             ("dist_dir", "dist_dir"),
         )
 
-    def run(self):
+    def run(self) -> None:
         # make a binary RPM to convert
         cmd_rpm = bdist_rpm(
             self.distribution,

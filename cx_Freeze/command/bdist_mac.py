@@ -20,10 +20,10 @@ from cx_Freeze.darwintools import (
 )
 from cx_Freeze.exception import OptionError
 
-__all__ = ["BdistDMG", "BdistMac"]
+__all__ = ["bdist_dmg", "bdist_mac"]
 
 
-class BdistDMG(Command):
+class bdist_dmg(Command):
     """Create a Mac DMG disk image containing the Mac application bundle."""
 
     description = (
@@ -40,16 +40,16 @@ class BdistDMG(Command):
         ("silent", "s", "suppress all output except warnings"),
     ]
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.volume_label = self.distribution.get_fullname()
         self.applications_shortcut = False
         self.silent = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         if self.silent is None:
             self.silent = False
 
-    def build_dmg(self):
+    def build_dmg(self) -> None:
         # Remove DMG if it already exists
         if os.path.exists(self.dmg_name):
             os.unlink(self.dmg_name)
@@ -100,7 +100,7 @@ class BdistDMG(Command):
             msg = "creation of the dmg failed"
             raise OSError(msg)
 
-    def run(self):
+    def run(self) -> None:
         # Create the application bundle
         self.run_command("bdist_mac")
 
@@ -116,7 +116,7 @@ class BdistDMG(Command):
         self.execute(self.build_dmg, ())
 
 
-class BdistMac(Command):
+class bdist_mac(Command):
     """Create a Mac application bundle."""
 
     description = "create a Mac application bundle"
@@ -222,7 +222,7 @@ class BdistMac(Command):
         ),
     ]
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.list_options = [
             "plist_items",
             "include_frameworks",
@@ -249,7 +249,7 @@ class BdistMac(Command):
         self.build_base = None
         self.build_dir = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         # Make sure all options of multiple values are lists
         for option in self.list_options:
             setattr(self, option, normalize_to_list(getattr(self, option)))
@@ -276,7 +276,7 @@ class BdistMac(Command):
         self.resources_dir = os.path.join(self.contents_dir, "Resources")
         self.helpers_dir = os.path.join(self.contents_dir, "Helpers")
 
-    def create_plist(self):
+    def create_plist(self) -> None:
         """Create the Contents/Info.plist file."""
         # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
@@ -305,7 +305,7 @@ class BdistMac(Command):
         with open(os.path.join(self.contents_dir, "Info.plist"), "wb") as file:
             plistlib.dump(contents, file)
 
-    def set_absolute_reference_paths(self, path=None):
+    def set_absolute_reference_paths(self, path=None) -> None:
         """For all files in Contents/MacOS, set their linked library paths to
         be absolute paths using the given path instead of @executable_path.
         """
@@ -338,7 +338,7 @@ class BdistMac(Command):
                         change_load_reference(filepath, lib, replacement)
             apply_adhoc_signature(filepath)
 
-    def find_qt_menu_nib(self):
+    def find_qt_menu_nib(self) -> str | None:
         """Returns a location of a qt_menu.nib folder, or None if this is not
         a Qt application.
         """
@@ -377,7 +377,7 @@ class BdistMac(Command):
         msg = "Could not find qt_menu.nib"
         raise OSError(msg)
 
-    def prepare_qt_app(self):
+    def prepare_qt_app(self) -> None:
         """Add resource files for a Qt application. Should do nothing if the
         application does not use QtCore.
         """
@@ -404,7 +404,7 @@ class BdistMac(Command):
             with open(qt_conf, "wb"):
                 pass
 
-    def run(self):
+    def run(self) -> None:
         self.run_command("build_exe")
 
         # Remove App if it already exists
@@ -526,7 +526,7 @@ class BdistMac(Command):
             msg=f"sign: '{self.bundle_dir}'",
         )
 
-    def _codesign(self, root_path):
+    def _codesign(self, root_path) -> None:
         """Run codesign on all .so, .dylib and binary files in reverse order.
         Signing from inside-out.
         """
@@ -573,12 +573,12 @@ class BdistMac(Command):
             signargs.append(self.codesign_entitlements)
         return signargs
 
-    def _codesign_file(self, file_path, sign_args):
+    def _codesign_file(self, file_path, sign_args) -> None:
         print(f"Signing file: {file_path}")
         sign_args.append(file_path)
         subprocess.run(sign_args, check=False)
 
-    def _verify_signature(self):
+    def _verify_signature(self) -> None:
         if self.codesign_verify:
             verify_args = [
                 "codesign",

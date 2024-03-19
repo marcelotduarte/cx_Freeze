@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 
-def _debug():
+def _debug() -> None:
     # Inject a option to debug if environment variable QT_DEBUG is set.
     if not os.environ.get("QT_DEBUG"):
         return

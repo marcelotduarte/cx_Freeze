@@ -37,7 +37,7 @@ IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 class BuildBases(setuptools.command.build_ext.build_ext):
     """Build C bases and extension."""
 
-    def build_extension(self, ext):
+    def build_extension(self, ext) -> None:
         if "bases" not in ext.name:
             super().build_extension(ext)
             return
@@ -148,7 +148,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             if link_error is not None:
                 raise LinkError from link_error
 
-    def get_ext_filename(self, fullname):
+    def get_ext_filename(self, fullname) -> str:
         if fullname.endswith("util"):
             return super().get_ext_filename(fullname)
         # Examples of returned names:
@@ -206,7 +206,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             library = name
         return os.fspath(library_dir), library
 
-    def _copy_libraries_to_bases(self):
+    def _copy_libraries_to_bases(self) -> None:
         """Copy standard libraries to cx_Freeze wheel, on posix systems, when
         python is compiled with --disable-shared, as is done in manylinux and
         macpython. Modules such as math, _struct and zlib, which are normally
@@ -256,7 +256,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
                 else:
                     self.copy_file(source.as_posix(), target)
 
-    def run(self):
+    def run(self) -> None:
         self._copy_libraries_to_bases()
         super().run()
 
@@ -268,7 +268,7 @@ def _make_strs(paths: list[str | Path]) -> list[str]:
     return list(map(os.fspath, paths))
 
 
-def get_extensions():
+def get_extensions() -> list[Extension]:
     """Build base executables and util module extension."""
     # [Windows only] With binaries included in bases, the compilation is
     # optional in the development mode.

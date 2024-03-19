@@ -42,7 +42,7 @@ SUFFIX = ".exe" if IS_WINDOWS else ""
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-def test_files():
+def test_files() -> None:
     """Test winmsvcr.FILES."""
     assert EXPECTED == FILES
 
@@ -50,7 +50,9 @@ def test_files():
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
 @pytest.mark.parametrize("include_msvcr", [False, True], ids=["no", "yes"])
 @pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_build_exe_with_include_msvcr(datafiles: Path, include_msvcr: bool):
+def test_build_exe_with_include_msvcr(
+    datafiles: Path, include_msvcr: bool
+) -> None:
     """Test the simple sample with include_msvcr option."""
     command = BUILD_EXE_CMD
     if include_msvcr:
