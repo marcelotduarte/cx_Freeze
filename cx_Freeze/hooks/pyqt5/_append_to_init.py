@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 
-def _run():
+def _run() -> None:
     qtcore = __import__("PyQt5", fromlist=["QtCore"]).QtCore
 
     # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the

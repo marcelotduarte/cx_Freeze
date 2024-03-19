@@ -14,7 +14,7 @@ from cx_Freeze.exception import PlatformError
 
 bdist_rpm = pytest.importorskip(
     "cx_Freeze.command.bdist_rpm", reason="Linux tests"
-).BdistRPM
+).bdist_rpm
 
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
@@ -32,7 +32,7 @@ DIST_ATTRS = {
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-def test_bdist_rpm_not_posix(monkeypatch):
+def test_bdist_rpm_not_posix(monkeypatch) -> None:
     """Test the bdist_rpm fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist)
@@ -41,7 +41,7 @@ def test_bdist_rpm_not_posix(monkeypatch):
         cmd.finalize_options()
 
 
-def test_bdist_rpm_not_rpmbuild(monkeypatch):
+def test_bdist_rpm_not_rpmbuild(monkeypatch) -> None:
     """Test the bdist_rpm uses rpmbuild."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist)
@@ -51,7 +51,7 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch):
 
 
 @pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
-def test_bdist_rpm_options(options):
+def test_bdist_rpm_options(options) -> None:
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist, **options)
@@ -66,7 +66,7 @@ def test_bdist_rpm_options(options):
 
 @pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
+def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options) -> None:
     """Test the bdist_rpm with options."""
     monkeypatch.chdir(datafiles)
     dist = Distribution(DIST_ATTRS)
@@ -82,7 +82,7 @@ def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_rpm_simple(datafiles: Path):
+def test_bdist_rpm_simple(datafiles: Path) -> None:
     """Test the simple sample with bdist_rpm."""
     name = "hello"
     version = "0.1.2.3"
@@ -109,7 +109,7 @@ def test_bdist_rpm_simple(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_bdist_rpm(datafiles: Path):
+def test_bdist_rpm(datafiles: Path) -> None:
     """Test the sqlite sample with bdist_rpm."""
     name = "test_sqlite3"
     version = "0.5"

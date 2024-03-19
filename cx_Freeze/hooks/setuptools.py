@@ -5,9 +5,11 @@ setuptools package is included.
 from __future__ import annotations
 
 import contextlib
+from typing import TYPE_CHECKING
 
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 _setuptools_extern = [
     "setuptools.extern.jaraco.functools",

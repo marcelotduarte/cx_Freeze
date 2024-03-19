@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from sysconfig import get_platform, get_python_version
+from typing import TYPE_CHECKING
 
 from generate_samples import create_package, run_command
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -33,7 +36,7 @@ setup.py
 """
 
 
-def test_ssl(tmp_path: Path):
+def test_ssl(tmp_path: Path) -> None:
     """Test that the ssl is working correctly."""
     create_package(tmp_path, SOURCE)
     output = run_command(tmp_path)

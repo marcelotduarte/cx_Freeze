@@ -14,7 +14,7 @@ except ImportError:
         from tomli import load as toml_load
 
 
-def main():
+def main() -> None:
     """Entry point."""
     pyproject_toml = Path("pyproject.toml")
     if not pyproject_toml.exists():

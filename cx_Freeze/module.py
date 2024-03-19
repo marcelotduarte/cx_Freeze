@@ -5,17 +5,20 @@ from __future__ import annotations
 import ast
 import datetime
 import socket
-from collections.abc import Callable, Sequence
 from contextlib import suppress
 from functools import cached_property, partial
 from importlib import import_module
 from importlib.machinery import EXTENSION_SUFFIXES
 from keyword import iskeyword
 from pathlib import Path
-from types import CodeType
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import importlib_metadata
 from cx_Freeze.exception import ModuleError, OptionError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from types import CodeType
 
 __all__ = ["ConstantsModule", "Module", "ModuleHook"]
 
@@ -23,7 +26,7 @@ __all__ = ["ConstantsModule", "Module", "ModuleHook"]
 class DistributionCache(importlib_metadata.PathDistribution):
     """Cache the distribution package."""
 
-    def __init__(self, cache_path: Path, name: str):
+    def __init__(self, cache_path: Path, name: str) -> None:
         """Construct a distribution.
 
         :param cache_path: Path indicating where to store the cache.
@@ -89,7 +92,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
         self._write_record_distinfo(target_path)
 
     @staticmethod
-    def _write_wheel_distinfo(target_path: Path, purelib: bool):
+    def _write_wheel_distinfo(target_path: Path, purelib: bool) -> None:
         """Create a WHEEL file if it doesn't exist."""
         target = target_path / "WHEEL"
         if not target.exists():
@@ -106,7 +109,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
                 file.write("\n".join(text))
 
     @staticmethod
-    def _write_record_distinfo(target_path: Path):
+    def _write_record_distinfo(target_path: Path) -> None:
         """Recreate a minimal RECORD file."""
         target_name = target_path.name
         record = [
@@ -131,7 +134,7 @@ class Module:
         path: Sequence[Path | str] | None = None,
         filename: Path | str | None = None,
         parent: Module | None = None,
-    ):
+    ) -> None:
         self.name: str = name
         self.path: list[Path] | None = list(map(Path, path)) if path else None
         self._file: Path | None = self._file_validate(filename)
@@ -166,7 +169,7 @@ class Module:
         return self._file
 
     @file.setter
-    def file(self, filename: Path | str | None):
+    def file(self, filename: Path | str | None) -> None:
         self._file = self._file_validate(filename)
 
     def _file_validate(self, filename: Path | str | None) -> Path | None:
@@ -338,7 +341,7 @@ class Module:
 class ModuleHook:
     """The Module Hook class."""
 
-    def __init__(self, module: Module):
+    def __init__(self, module: Module) -> None:
         self.module = module
         self.name = module.name.replace(".", "_").lower()
 
@@ -359,7 +362,7 @@ class ConstantsModule:
         module_name: str = "BUILD_CONSTANTS",
         time_format: str = "%B %d, %Y %H:%M:%S",
         constants: list[str] | None = None,
-    ):
+    ) -> None:
         self.module_name: str = module_name
         self.time_format: str = time_format
         self.values: dict[str, str] = {}

@@ -31,7 +31,7 @@ from cx_Freeze._compat import packaging
 from cx_Freeze.command._pydialog import PyDialog
 from cx_Freeze.exception import OptionError
 
-__all__ = ["BdistMSI"]
+__all__ = ["bdist_msi"]
 
 # force the remove existing products action to happen first since Windows
 # installer appears to be braindead and doesn't handle files shared between
@@ -42,7 +42,7 @@ for index, info in enumerate(install_execute_sequence):
         install_execute_sequence[index] = (info[0], info[1], 1450)
 
 
-class BdistMSI(Command):
+class bdist_msi(Command):
     """Create a Microsoft Installer (.msi) binary distribution."""
 
     description = __doc__
@@ -124,7 +124,7 @@ class BdistMSI(Command):
         "MsiPatchHeaders": 1,
     }
 
-    def add_config(self):
+    def add_config(self) -> None:
         if self.add_to_path:
             path = "Path"
             if self.all_users:
@@ -246,7 +246,7 @@ class BdistMSI(Command):
                 )
             summary_info.Persist()
 
-    def add_cancel_dialog(self):
+    def add_cancel_dialog(self) -> None:
         dialog = Dialog(
             self.db,
             "CancelDlg",
@@ -274,7 +274,7 @@ class BdistMSI(Command):
         button = dialog.pushbutton("No", 132, 57, 56, 17, 3, "No", "Yes")
         button.event("EndDialog", "Return")
 
-    def add_error_dialog(self):
+    def add_error_dialog(self) -> None:
         dialog = Dialog(
             self.db,
             "ErrorDlg",
@@ -301,7 +301,7 @@ class BdistMSI(Command):
             button = dialog.pushbutton(text[0], pos, 72, 81, 21, 3, text, None)
             button.event("EndDialog", f"Error{text}")
 
-    def add_exit_dialog(self):
+    def add_exit_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "ExitDialog",
@@ -330,7 +330,7 @@ class BdistMSI(Command):
         button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Return")
 
-    def add_fatal_error_dialog(self):
+    def add_fatal_error_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "FatalError",
@@ -370,7 +370,7 @@ class BdistMSI(Command):
         button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Exit")
 
-    def add_files(self):
+    def add_files(self) -> None:
         database = self.db
         cab = CAB("distfiles")
         feature = Feature(
@@ -417,7 +417,7 @@ class BdistMSI(Command):
                     directory.add_file(file)
         cab.commit(database)
 
-    def add_files_in_use_dialog(self):
+    def add_files_in_use_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "FilesInUse",
@@ -475,7 +475,7 @@ class BdistMSI(Command):
         button = dialog.cancelbutton("Retry", "Exit", name="Retry")
         button.event("EndDialog", "Retry")
 
-    def add_maintenance_type_dialog(self):
+    def add_maintenance_type_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "MaintenanceTypeDlg",
@@ -538,7 +538,7 @@ class BdistMSI(Command):
         button = dialog.cancelbutton("Cancel", "RepairRadioGroup")
         button.event("SpawnDialog", "CancelDlg")
 
-    def add_prepare_dialog(self):
+    def add_prepare_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "PrepareDlg",
@@ -574,7 +574,7 @@ class BdistMSI(Command):
         button = dialog.cancelbutton("Cancel", None)
         button.event("SpawnDialog", "CancelDlg")
 
-    def add_progress_dialog(self):
+    def add_progress_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "ProgressDlg",
@@ -631,7 +631,7 @@ class BdistMSI(Command):
         button = dialog.cancelbutton("Cancel", "Back")
         button.event("SpawnDialog", "CancelDlg")
 
-    def add_properties(self):
+    def add_properties(self) -> None:
         metadata = self.distribution.metadata
         props = [
             ("DistVersion", metadata.get_version()),
@@ -665,7 +665,7 @@ class BdistMSI(Command):
                 [("InstallIcon", Binary(self.install_icon))],
             )
 
-    def add_select_directory_dialog(self):
+    def add_select_directory_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "SelectDirectoryDlg",
@@ -731,7 +731,7 @@ class BdistMSI(Command):
         button = dialog.pushbutton("NewDir", 324, 70, 30, 18, 3, "New", None)
         button.event("DirectoryListNew", "0")
 
-    def add_text_styles(self):
+    def add_text_styles(self) -> None:
         add_data(
             self.db,
             "TextStyle",
@@ -743,7 +743,7 @@ class BdistMSI(Command):
             ],
         )
 
-    def add_ui(self):
+    def add_ui(self) -> None:
         self.add_text_styles()
         self.add_error_dialog()
         self.add_fatal_error_dialog()
@@ -757,7 +757,7 @@ class BdistMSI(Command):
         self.add_progress_dialog()
         self.add_maintenance_type_dialog()
 
-    def add_upgrade_config(self, sversion):
+    def add_upgrade_config(self, sversion) -> None:
         if self.upgrade_code is not None:
             add_data(
                 self.db,
@@ -784,7 +784,7 @@ class BdistMSI(Command):
                 ],
             )
 
-    def add_user_exit_dialog(self):
+    def add_user_exit_dialog(self) -> None:
         dialog = PyDialog(
             self.db,
             "UserExit",
@@ -824,7 +824,7 @@ class BdistMSI(Command):
         button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Exit")
 
-    def add_wait_for_costing_dialog(self):
+    def add_wait_for_costing_dialog(self) -> None:
         dialog = Dialog(
             self.db,
             "WaitForCostingDlg",
@@ -853,13 +853,13 @@ class BdistMSI(Command):
         )
         button.event("EndDialog", "Exit")
 
-    def _append_to_data(self, table, *line):
+    def _append_to_data(self, table, *line) -> None:
         rows = self.data.setdefault(table, [])
         line = tuple(line)
         if line not in rows:
             rows.append(line)
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.bdist_dir = None
         self.keep_temp = 0
         self.dist_dir = None
@@ -882,7 +882,7 @@ class BdistMSI(Command):
         self.all_users = False
         self.extensions = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         self.set_undefined_options("bdist", ("skip_build", "skip_build"))
 
         if self.bdist_dir is None:
@@ -1011,7 +1011,7 @@ class BdistMSI(Command):
                 component,
             )
 
-    def run(self):
+    def run(self) -> None:
         if not self.skip_build:
             self.run_command("build")
 

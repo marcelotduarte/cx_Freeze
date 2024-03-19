@@ -8,10 +8,10 @@ import sys
 
 from setuptools import Command
 
-__all__ = ["InstallEXE"]
+__all__ = ["install_exe"]
 
 
-class InstallEXE(Command):
+class install_exe(Command):
     """Install executables built from Python scripts."""
 
     command_name = "install_exe"
@@ -23,14 +23,14 @@ class InstallEXE(Command):
         ("skip-build", None, "skip the build steps"),
     ]
 
-    def initialize_options(self):
+    def initialize_options(self) -> None:
         self.install_dir: str | None = None
         self.force = 0
         self.build_dir = None
         self.skip_build = None
         self.outfiles = None
 
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         self.set_undefined_options("build_exe", ("build_exe", "build_dir"))
         self.set_undefined_options(
             "install",
@@ -39,7 +39,7 @@ class InstallEXE(Command):
             ("skip_build", "skip_build"),
         )
 
-    def run(self):
+    def run(self) -> None:
         if not self.skip_build:
             self.run_command("build_exe")
 
@@ -68,8 +68,8 @@ class InstallEXE(Command):
             )
             self.outfiles.append(origin)
 
-    def get_inputs(self):
+    def get_inputs(self) -> list[str]:
         return self.distribution.executables or []
 
-    def get_outputs(self):
+    def get_outputs(self) -> list[str]:
         return self.outfiles or []

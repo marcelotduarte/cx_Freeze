@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path, PurePath
-from typing import List, Optional, Tuple, Union
+
+from typing_extensions import TypeAlias
 
 from cx_Freeze.module import Module
 
-DeferredList = List[Tuple[Module, Module, List[str]]]
+DeferredList: TypeAlias = list[tuple[Module, Module, list[str]]]
 
-IncludesList = List[
-    Union[str, Path, Tuple[Union[str, Path], Optional[Union[str, Path]]]]
+IncludesList: TypeAlias = list[
+    str | Path | tuple[str | Path, str | Path | None]
 ]
 
-InternalIncludesList = List[Tuple[Path, PurePath]]
+InternalIncludesList: TypeAlias = list[tuple[Path, PurePath]]

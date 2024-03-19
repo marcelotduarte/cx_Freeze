@@ -117,7 +117,9 @@ command
     ],
     ids=["setup_toml", "setup_py", "setup_cfg", "setup_mix"],
 )
-def test_executables(tmp_path: Path, source: str, number_of_executables: int):
+def test_executables(
+    tmp_path: Path, source: str, number_of_executables: int
+) -> None:
     """Test the executables option."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
@@ -146,7 +148,7 @@ def test_executables(tmp_path: Path, source: str, number_of_executables: int):
         ("icon", "icon", ("icon.ico", "icon.icns", "icon.png", "icon.svg")),
     ],
 )
-def test_valid(option, value, result):
+def test_valid(option, value, result) -> None:
     """Test valid values to use in Executable class."""
     executable = Executable("test.py", **{option: value})
     returned = getattr(executable, option)
@@ -204,7 +206,7 @@ def test_valid(option, value, result):
         "executable-invalid-target_name-isidentifier",
     ],
 )
-def test_invalid(class_to_test, kwargs, exception, match):
+def test_invalid(class_to_test, kwargs, exception, match) -> None:
     """Test invalid values to use in Distribution and Executable classes."""
     with pytest.raises(exception, match=match):
         class_to_test(**kwargs)
@@ -230,7 +232,7 @@ command
 """
 
 
-def test_valid_icon(tmp_path: Path):
+def test_valid_icon(tmp_path: Path) -> None:
     """Test with valid icon in any OS."""
     create_package(tmp_path, SOURCE_VALID_ICON)
     # copy valid icons
@@ -246,7 +248,7 @@ def test_valid_icon(tmp_path: Path):
     assert output.startswith("Hello from cx_Freeze")
 
 
-def test_not_found_icon(tmp_path: Path):
+def test_not_found_icon(tmp_path: Path) -> None:
     """Test with not found icon in any OS."""
     # same test as before, without icons
     create_package(tmp_path, SOURCE_VALID_ICON)
@@ -276,7 +278,7 @@ command
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
-def test_invalid_icon(tmp_path: Path):
+def test_invalid_icon(tmp_path: Path) -> None:
     """Test with invalid icon in Windows."""
     create_package(tmp_path, SOURCE_INVALID_ICON)
     shutil.copyfile(TOP_DIR / "cx_Freeze/icons/py.png", tmp_path / "icon.png")

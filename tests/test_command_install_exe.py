@@ -10,7 +10,7 @@ from sysconfig import get_config_var
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze.command.install_exe import InstallEXE as install_exe
+from cx_Freeze.command.install_exe import install_exe
 
 DIST_ATTRS = {
     "name": "foo",
@@ -43,7 +43,7 @@ DIST_ATTRS = {
 )
 def test_install_exe_finalize_options(
     kwargs: dict[str, ...], option: str, result
-):
+) -> None:
     """Test the install_exe finalize_options."""
     dist = Distribution(DIST_ATTRS)
     cmd = install_exe(dist, **kwargs)

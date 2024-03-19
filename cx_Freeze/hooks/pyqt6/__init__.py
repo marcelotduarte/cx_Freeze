@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import sys
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
 from cx_Freeze.common import get_resource_file_path
-from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.hooks._qthooks import copy_qt_files
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtdesigner as load_pyqt6_qtdesigner,
@@ -42,7 +42,10 @@ from cx_Freeze.hooks._qthooks import (
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtwidgets as load_pyqt6_qtwidgets_base,
 )
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_pyqt6(finder: ModuleFinder, module: Module) -> None:

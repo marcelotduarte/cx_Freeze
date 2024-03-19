@@ -4,9 +4,13 @@ pandas package is included.
 
 from __future__ import annotations
 
-from cx_Freeze.finder import ModuleFinder
+from typing import TYPE_CHECKING
+
 from cx_Freeze.hooks._libs import replace_delvewheel_patch
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_pandas(finder: ModuleFinder, module: Module) -> None:

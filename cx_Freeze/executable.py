@@ -8,12 +8,14 @@ import sys
 from collections.abc import Mapping
 from pathlib import Path
 from sysconfig import get_config_var, get_platform
-
-from setuptools import Distribution
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.exception import OptionError, SetupError
+
+if TYPE_CHECKING:
+    from setuptools import Distribution
 
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
@@ -39,7 +41,7 @@ class Executable:
         manifest: str | Path | None = None,
         uac_admin: bool = False,
         uac_uiaccess: bool = False,
-    ):
+    ) -> None:
         self.main_script = script
         self.init_script = init_script
         self.base = base
@@ -53,7 +55,7 @@ class Executable:
         self.uac_admin = uac_admin
         self.uac_uiaccess = uac_uiaccess
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Executable script={self.main_script}>"
 
     @property
@@ -65,7 +67,7 @@ class Executable:
         return self._base
 
     @base.setter
-    def base(self, name: str | Path | None):
+    def base(self, name: str | Path | None) -> None:
         name = name or "console"
         if name == "gui":
             name = "Win32GUI" if IS_WINDOWS or IS_MINGW else "console"
@@ -94,7 +96,7 @@ class Executable:
         return self._icon
 
     @icon.setter
-    def icon(self, name: str | Path | None):
+    def icon(self, name: str | Path | None) -> None:
         iconfile: Path = Path(name) if name else None
         if iconfile and not iconfile.suffix:
             # add an extension
@@ -127,7 +129,7 @@ class Executable:
         return self._init_script
 
     @init_script.setter
-    def init_script(self, name: str | Path | None):
+    def init_script(self, name: str | Path | None) -> None:
         name = name or "console"
         self._init_script: Path = get_resource_file_path(
             "initscripts", name, ".py"
@@ -154,7 +156,7 @@ class Executable:
         return self._main_script
 
     @main_script.setter
-    def main_script(self, name: str | Path):
+    def main_script(self, name: str | Path) -> None:
         self._main_script: Path = Path(name)
 
     @property
@@ -185,7 +187,7 @@ class Executable:
         return self._shortcut_name
 
     @shortcut_name.setter
-    def shortcut_name(self, name: str):
+    def shortcut_name(self, name: str) -> None:
         self._shortcut_name: str = name
 
     @property
@@ -199,7 +201,7 @@ class Executable:
         return self._shortcut_dir
 
     @shortcut_dir.setter
-    def shortcut_dir(self, name: str | Path):
+    def shortcut_dir(self, name: str | Path) -> None:
         self._shortcut_dir: Path = Path(name) if name else None
 
     @property
@@ -211,7 +213,7 @@ class Executable:
         return self._name + self._ext
 
     @target_name.setter
-    def target_name(self, name: str | None):
+    def target_name(self, name: str | None) -> None:
         if name is None:
             name = self.main_script.stem
         else:
@@ -236,7 +238,7 @@ class Executable:
         self._internal_name: str = name
 
 
-def validate_executables(dist: Distribution, attr: str, value):
+def validate_executables(dist: Distribution, attr: str, value) -> None:
     """Verify that value is a valid executables attribute, which could be an
     Executable list, a mapping list or a string list.
     """

@@ -4,9 +4,13 @@ backports namespace is included.
 
 from __future__ import annotations
 
-from cx_Freeze.finder import ModuleFinder
+from typing import TYPE_CHECKING
+
 from cx_Freeze.hooks.zoneinfo import load_zoneinfo
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_backports_zoneinfo(finder: ModuleFinder, module: Module) -> None:

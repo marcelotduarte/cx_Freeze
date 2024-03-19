@@ -25,7 +25,7 @@ class PyDialog(Dialog):
         default,
         cancel,
         bitmap=True,  # noqa: ARG002
-    ):
+    ) -> None:
         Dialog.__init__(
             self, db, name, x, y, w, h, attr, title, first, default, cancel
         )
@@ -35,7 +35,7 @@ class PyDialog(Dialog):
         #    self.bitmap("Bitmap", 0, 0, bmwidth, ruler, "PythonWin")
         self.line("BottomLine", 0, ruler, self.w, 0)
 
-    def title(self, title):
+    def title(self, title) -> None:
         """Set the title text of the dialog at the top."""
         # name, x, y, w, h, flags=Visible|Enabled|Transparent|NoPrefix,
         # text, in VerdanaBold10

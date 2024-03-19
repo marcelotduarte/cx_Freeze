@@ -6,10 +6,13 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_MINGW64, IS_WINDOWS
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_cv2(finder: ModuleFinder, module: Module) -> None:

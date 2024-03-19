@@ -15,7 +15,7 @@ from cx_Freeze.exception import PlatformError
 
 bdist_appimage = pytest.importorskip(
     "cx_Freeze.command.bdist_appimage", reason="Linux tests"
-).BdistAppImage
+).bdist_appimage
 
 if sys.platform != "linux":
     pytest.skip(reason="Linux tests", allow_module_level=True)
@@ -30,7 +30,7 @@ DIST_ATTRS = {
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-def test_bdist_appimage_not_posix(monkeypatch):
+def test_bdist_appimage_not_posix(monkeypatch) -> None:
     """Test the bdist_appimage fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
@@ -39,7 +39,7 @@ def test_bdist_appimage_not_posix(monkeypatch):
         cmd.finalize_options()
 
 
-def test_bdist_appimage_target_name():
+def test_bdist_appimage_target_name() -> None:
     """Test the bdist_appimage with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
@@ -49,7 +49,7 @@ def test_bdist_appimage_target_name():
     assert cmd.fullname == "mytest-0.0"
 
 
-def test_bdist_appimage_target_name_and_version():
+def test_bdist_appimage_target_name_and_version() -> None:
     """Test the bdist_appimage with extra target options."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
@@ -60,7 +60,7 @@ def test_bdist_appimage_target_name_and_version():
     assert cmd.fullname == "mytest-0.1"
 
 
-def test_bdist_appimage_target_name_and_version_none():
+def test_bdist_appimage_target_name_and_version_none() -> None:
     """Test the bdist_appimage with target options."""
     attrs = DIST_ATTRS.copy()
     del attrs["version"]
@@ -73,7 +73,7 @@ def test_bdist_appimage_target_name_and_version_none():
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "tkinter")
-def test_bdist_appimage_target_name_with_extension(datafiles: Path):
+def test_bdist_appimage_target_name_with_extension(datafiles: Path) -> None:
     """Test the tkinter sample, with a specified target_name that includes an
     ".AppImage" extension.
     """
@@ -97,7 +97,7 @@ def test_bdist_appimage_target_name_with_extension(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "tkinter")
-def test_bdist_appimage_skip_build(datafiles: Path):
+def test_bdist_appimage_skip_build(datafiles: Path) -> None:
     """Test the tkinter sample with bdist_appimage."""
     name = "test_tkinter"
     version = "0.3.2"
@@ -110,7 +110,7 @@ def test_bdist_appimage_skip_build(datafiles: Path):
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_appimage_simple(datafiles: Path):
+def test_bdist_appimage_simple(datafiles: Path) -> None:
     """Test the simple sample with bdist_appimage."""
     name = "hello"
     version = "0.1.2.3"

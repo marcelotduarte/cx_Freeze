@@ -25,7 +25,7 @@ sys.frozen = True
 sys.path = sys.path[:4]
 
 
-def run(name):
+def run(name) -> None:
     """Execute the main script of the frozen application."""
     code = __loader__.get_code(name)
     module_main = __import__("__main__")

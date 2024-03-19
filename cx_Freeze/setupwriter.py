@@ -12,21 +12,21 @@ class SetupWriter:
     bases = {"C": "console", "G": "gui", "S": "service"}
 
     @property
-    def base(self):
+    def base(self) -> str:
         return self.bases[self.base_code]
 
     @property
-    def default_executable_name(self):
+    def default_executable_name(self) -> str:
         return os.path.splitext(self.script)[0]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.name = self.description = self.script = ""
         self.executable_name = self.default_executable_name
         self.setup_file_name = "setup.py"
         self.version = "1.0"
         self.base_code = "C"
 
-    def get_boolean_value(self, label, default=False):
+    def get_boolean_value(self, label, default=False) -> bool:
         default_response = "y" if default else "n"
         while True:
             response = self.get_value(
@@ -36,12 +36,12 @@ class SetupWriter:
                 break
         return response in ("y", "yes")
 
-    def get_value(self, label, default="", separator=": "):
+    def get_value(self, label, default="", separator=": ") -> str:
         if default:
             label += " [%s]" % default
         return input(label + separator).strip() or default
 
-    def populate_from_command_line(self):
+    def populate_from_command_line(self) -> None:
         self.name = self.get_value("Project name", self.name)
         self.version = self.get_value("Version", self.version)
         self.description = self.get_value("Description", self.description)
@@ -65,7 +65,7 @@ class SetupWriter:
             if self.get_boolean_value("Overwrite %s" % self.setup_file_name):
                 break
 
-    def write(self):
+    def write(self) -> None:
         with open(self.setup_file_name, "w", encoding="UTF-8") as output:
 
             def w(s):
@@ -105,7 +105,7 @@ class SetupWriter:
             )
 
 
-def main():
+def main() -> None:
     """Entry point for cxfreeze-quickstart command line tool."""
     writer = SetupWriter()
     writer.populate_from_command_line()

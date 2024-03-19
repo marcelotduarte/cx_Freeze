@@ -6,11 +6,14 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_tkinter(finder: ModuleFinder, module: Module) -> None:

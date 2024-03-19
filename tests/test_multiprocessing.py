@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import multiprocessing as mp
 import sys
-from pathlib import Path
 from sysconfig import get_platform, get_python_version
+from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import create_package, run_command
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
@@ -90,7 +93,7 @@ def _parameters_data():
 @pytest.mark.parametrize(("source", "sample", "expected"), _parameters_data())
 def test_multiprocessing(
     tmp_path: Path, source: str, sample: str, expected: str
-):
+) -> None:
     """Provides test cases for multiprocessing."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)

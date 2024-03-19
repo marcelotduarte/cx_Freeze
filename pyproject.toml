@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools>=62.6,<70",
-    "wheel>=0.38.4,<=0.43.0",
+    "wheel>=0.42.0,<=0.43.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
@@ -40,7 +40,8 @@ keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
 requires-python = ">=3.8"
 dependencies = [
     "setuptools>=62.6,<70",
-    "wheel>=0.38.4,<=0.43.0",
+    "typing_extensions>=4.10.0",
+    "wheel>=0.42.0,<=0.43.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
     "lief>=0.12.0,<0.15.0 ;sys_platform == 'win32'",
     "filelock>=3.11.0 ;sys_platform == 'linux'",
@@ -191,16 +192,17 @@ max-line-length = 79
 disable = [
     "attribute-defined-outside-init",
     "c-extension-no-member",
+    "broad-exception-caught",       # checked by ruff BLE001
     "duplicate-code",
     "exec-used",
-    "fixme",
+    "fixme",                         # also ignored in ruff
     "global-statement",              # checked by ruff PLW0603
     "import-error",
     "missing-class-docstring",       # checked by ruff D101
     "missing-function-docstring",    # checked by ruff D103
     "missing-module-docstring",      # checked by ruff D100
     "no-member",                     # not handled by ruff yet E1101
-    "protected-access",
+    "protected-access",              # checked by ruff SLF001
     "redefined-builtin",             # checked by ruff A
     "too-few-public-methods",
     "too-many-arguments",            # also ignored in ruff
@@ -251,6 +253,7 @@ target-version = "py38"
 [tool.ruff.lint]
 select = [
     "A",    # flake8-builtins
+    "ANN2", # flake8-annotations - missing return type
     "ARG",  # flake8-unused-arguments
     "B",    # flake8-bugbear
     "BLE",  # flake8-blind-except
@@ -273,22 +276,28 @@ select = [
     "PIE",  # flake8-pie
     "PLC", "PLE", "PLR", "PLW",  # pylint
     "PT",   # flake8-pytest-style
+    "PYI",  # flake8-pyi
     "Q004", # flake8-quotes - unnecessary-escaped-quote
     "RET",  # flake8-return
     "RSE",  # flake8-raise
     "RUF",  # Ruff-specific
+    #"S",    # flake8-bandit
     "SIM",  # flake8-simplify
     "SLF",  # flake8-self
     "SLOT", # flake8-slots
     "T10",  # flake8-debugger
+    "TCH",  # flake8-type-checking
     "TID",  # flake8-tidy-imports
     "TRY",  # tryceratops
     "UP",   # pyupgrade
     "YTT",  # flake8-2020
 ]
+#fixable = []
 ignore = [
     # ignored for now, but should be revised in future
     # last revised using ruff 0.3.3
+    "ANN202",# Missing return type annotation for private function
+    "ANN204",
     "C901",  # mccabe - {name} is too complex ({complexity} > {max_complexity})
     "D102",  # Missing docstring in public method
     "D401",  # First line of docstring should be in imperative mood
@@ -296,20 +305,30 @@ ignore = [
     "ERA",   # eradicate
     "FIX",   # flake8-fixme
     "TD",    # flake8-todos
-    "TCH",   # flake8-type-checking
     "PERF203",
     # ignore the following
     "D104",  # Missing docstring in public package
     "D105",  # Missing docstring in magic method
     "D107",  # Missing docstring in `__init__`
     "D203", "D205", "D213",
-    "PLR2004", "E501",
+    "PLR2004",  # magic-value-comparison
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
+    "PYI021",   # Docstrings should not be included in stubs
     "RUF012",
     "T20",      # flake8-print
+    # avoid the rules that may cause conflict with formatter
+    "COM812", "COM819",
+    "D206", "D300",
+    "E111", "E114", "E117", "E501",
+    "ISC001", "ISC002",
+    "Q000", "Q001", "Q002", "Q003",
+    "W191",
 ]
+[tool.ruff.lint.per-file-ignores]
+"cx_Freeze/initscripts/*" = ["S102"]
+"tests/*" = ["S101"]
 
 [tool.ruff.lint.flake8-unused-arguments]
 ignore-variadic-names = true

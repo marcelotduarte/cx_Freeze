@@ -4,8 +4,11 @@ triton package is included.
 
 from __future__ import annotations
 
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import Module
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_triton(finder: ModuleFinder, module: Module) -> None:

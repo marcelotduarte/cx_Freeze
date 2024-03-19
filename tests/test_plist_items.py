@@ -6,14 +6,17 @@ import os
 import plistlib
 import sys
 from importlib import import_module
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import PLIST_ITEMS_TEST, create_package, run_command
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="macOS tests")
-def test_plist_items(tmp_path: Path):
+def test_plist_items(tmp_path: Path) -> None:
     """Test that the plist_items option is working correctly."""
     create_package(tmp_path, source=PLIST_ITEMS_TEST[4])
     run_command(tmp_path)

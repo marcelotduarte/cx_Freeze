@@ -54,13 +54,13 @@ class Structure:
     types, and at least define a _fields class variable.
     """
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         if not hasattr(self, "_fields"):
             self._fields: list[tuple[str, str]] = []
         for i, (field, _) in enumerate(self._fields):
             setattr(self, field, args[i])
 
-    def __str__(self):
+    def __str__(self) -> str:
         dump = json.dumps(self.as_dict(), indent=2)
         return self.__class__.__name__ + ": " + dump
 
@@ -114,7 +114,9 @@ class VS_FIXEDFILEINFO(Structure):
 class String(Structure):
     """File version resource representation of the data."""
 
-    def __init__(self, key: str, value: int | str | Structure | None = None):
+    def __init__(
+        self, key: str, value: int | str | Structure | None = None
+    ) -> None:
         key = key + "\0"
         key_len = len(key)
         fields = [
@@ -160,7 +162,7 @@ class String(Structure):
         )
         self._children = 0
 
-    def children(self, value: String):
+    def children(self, value: String) -> None:
         """Represents the child String object."""
         pad_len = 4 - (self.wLength & 3)
         if 0 < pad_len < 4:
@@ -192,7 +194,7 @@ class VersionInfo:
         dll: bool | None = None,
         debug: bool | None = None,
         verbose: bool = True,
-    ):
+    ) -> None:
         valid_version = Version(version)
         parts = list(valid_version.release)
         while len(parts) < 4:
@@ -321,7 +323,7 @@ class VersionInfo:
         return string_version_info
 
 
-def main_test(args=None):
+def main_test(args=None) -> None:
     """Command line test."""
     parser = argparse.ArgumentParser()
     parser.add_argument(

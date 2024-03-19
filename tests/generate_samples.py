@@ -5,10 +5,13 @@ from __future__ import annotations
 import os
 import string
 import sys
-from collections.abc import Sequence
 from pathlib import Path
 from subprocess import check_output
 from textwrap import dedent
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Each test description is a list of 5 items:
 #
@@ -475,7 +478,7 @@ setup.py
 ]
 
 
-def create_package(test_dir: Path, source: str):
+def create_package(test_dir: Path, source: str) -> None:
     """Create package in test_dir, based on source."""
     buf = []
     path: Path | None = None

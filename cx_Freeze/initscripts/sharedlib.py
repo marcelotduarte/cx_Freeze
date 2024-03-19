@@ -13,5 +13,5 @@ if not hasattr(sys, "frozen"):
     sys.path = sys.path[:4]
 
 
-def run():  # noqa: D103
+def run() -> None:  # noqa: D103
     pass

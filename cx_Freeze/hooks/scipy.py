@@ -6,11 +6,14 @@ from __future__ import annotations
 
 import os
 from importlib.machinery import EXTENSION_SUFFIXES
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.hooks._libs import replace_delvewheel_patch
-from cx_Freeze.module import Module
+
+if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
+    from cx_Freeze.module import Module
 
 
 def load_scipy(finder: ModuleFinder, module: Module) -> None:

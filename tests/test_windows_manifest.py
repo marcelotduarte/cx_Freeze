@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import ctypes
 import sys
-from pathlib import Path
 from sysconfig import get_platform, get_python_version
+from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import create_package, run_command
 
 from cx_Freeze.parser import PEParser
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
@@ -67,7 +70,7 @@ command
 
 
 @pytest.fixture(scope="module")
-def tmp_manifest(tmp_path_factory):
+def tmp_manifest(tmp_path_factory) -> Path:
     """Temporary path to build test manifest."""
     tmp_path = tmp_path_factory.mktemp("manifest")
     create_package(tmp_path, SOURCE)
@@ -75,7 +78,7 @@ def tmp_manifest(tmp_path_factory):
     return tmp_path / f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 
-def test_manifest(tmp_manifest: Path):
+def test_manifest(tmp_manifest: Path) -> None:
     """With the correct manifest, windows version return 10.0 in Windows 10."""
     executable = tmp_manifest / "test_manifest.exe"
     assert executable.is_file()
@@ -85,7 +88,7 @@ def test_manifest(tmp_manifest: Path):
     assert output.splitlines()[0].strip() == expected
 
 
-def test_simple_manifest(tmp_manifest: Path):
+def test_simple_manifest(tmp_manifest: Path) -> None:
     """With simple manifest, without "supportedOS Id", windows version returned
     is the compatible version for Windows 8.1, ie, 6.2.
     """
@@ -101,7 +104,7 @@ def test_simple_manifest(tmp_manifest: Path):
     assert manifest == simple.read_bytes().decode()
 
 
-def test_uac_admin(tmp_manifest: Path):
+def test_uac_admin(tmp_manifest: Path) -> None:
     """With the uac_admin, should return WinError 740 - requires elevation."""
     executable = tmp_manifest / "test_uac_admin.exe"
     assert executable.is_file()
@@ -111,7 +114,7 @@ def test_uac_admin(tmp_manifest: Path):
         run_command(tmp_manifest, executable, timeout=10)
 
 
-def test_uac_uiaccess(tmp_manifest: Path):
+def test_uac_uiaccess(tmp_manifest: Path) -> None:
     """With the uac_uiaccess, should return WinError 740."""
     executable = tmp_manifest / "test_uac_uiaccess.exe"
     assert executable.is_file()
