@@ -10,9 +10,9 @@ import logging
 import os
 import platform
 import shutil
-import subprocess
 import sys
 import tarfile
+from subprocess import CalledProcessError, check_output
 from sysconfig import get_python_version
 
 from setuptools import Command
@@ -213,7 +213,10 @@ class bdist_rpm(Command):
                 f"distributions on platform {os.name}"
             )
             raise PlatformError(msg)
-        if not shutil.which("rpmbuild"):
+
+        self._rpm = shutil.which("rpm")
+        self._rpmbuild = shutil.which("rpmbuild")
+        if not self._rpmbuild:
             msg = "failed to find rpmbuild for this platform."
             raise PlatformError(msg)
 
@@ -332,7 +335,7 @@ class bdist_rpm(Command):
 
         # build package
         logging.info("building RPMs")
-        rpm_cmd = ["rpmbuild"]
+        rpm_cmd = [self._rpmbuild]
         # binary only
         rpm_cmd.append("-bb")
         if self.rpm3_mode:
@@ -352,33 +355,25 @@ class bdist_rpm(Command):
         nvr_string = "%{name}-%{version}-%{release}"
         src_rpm = nvr_string + ".src.rpm"
         non_src_rpm = "%{arch}/" + nvr_string + ".%{arch}.rpm"
-        q_cmd = (
-            rf"rpm -q --qf '{src_rpm} {non_src_rpm}\n'"
-            rf" --specfile '{spec_path}'"
-        )
-
-        out = os.popen(q_cmd)
+        q_cmd = [
+            self._rpm,
+            "-q",
+            "--qf",
+            rf"{src_rpm} {non_src_rpm}\n",
+            "--specfile",
+            spec_path,
+        ]
         try:
-            binary_rpms = []
-            source_rpm = None
-            while True:
-                line = out.readline()
-                if not line:
-                    break
-                rows = line.strip().split()
-                assert len(rows) == 2
-                binary_rpms.append(rows[1])
-                # The source rpm is named after the first entry in the specfile
-                if source_rpm is None:
-                    source_rpm = rows[0]
+            out = check_output(q_cmd, text=True)
+        except CalledProcessError as exc:
+            msg = f"Failed to execute: {' '.join(q_cmd)!r}"
+            raise ExecError(msg) from exc
 
-            status = out.close()
-            if status:
-                msg = f"Failed to execute: {q_cmd!r}"
-                raise ExecError(msg)
-
-        finally:
-            out.close()
+        binary_rpms = []
+        for line in out.splitlines():
+            rows = line.split()
+            assert len(rows) == 2  # noqa: S101
+            binary_rpms.append(rows[1])
 
         self.spawn(rpm_cmd)
 
@@ -421,7 +416,9 @@ class bdist_rpm(Command):
 
         # Workaround for #14443 which affects some RPM based systems such as
         # RHEL6 (and probably derivatives)
-        vendor_hook = subprocess.getoutput("rpm --eval %{__os_install_post}")
+        vendor_hook = check_output(
+            [self._rpm, "--eval", "%{__os_install_post}"], text=True
+        )
         # Generate a potential replacement value for __os_install_post (whilst
         # normalizing the whitespace to simplify the test for whether the
         # invocation of brp-python-bytecompile passes in __python):
@@ -496,7 +493,7 @@ class bdist_rpm(Command):
         # rpm scripts
         # figure out default build script
         def_setup_call = f"{sys.executable} {self.distribution.script_name}"
-        def_build = f"{def_setup_call} build_exe -O1"
+        def_build = f"{def_setup_call} build_exe -O1 --silent"
         def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
         # insert contents of files

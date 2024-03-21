@@ -19,7 +19,7 @@ paths = os.environ.get("LD_LIBRARY_PATH", "").split(os.pathsep)
 if DIR_NAME not in paths:
     paths.insert(0, DIR_NAME)
     os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(paths)
-    os.execv(sys.executable, sys.argv)
+    os.execv(sys.executable, sys.argv)  # noqa: S606
 
 sys.frozen = True
 sys.path = sys.path[:4]

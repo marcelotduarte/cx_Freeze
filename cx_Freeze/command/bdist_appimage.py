@@ -133,7 +133,9 @@ class bdist_appimage(Command):
                 name = f"appimagetool-{arch}.AppImage"
                 filename = os.path.join(appimagekit_dir, name)
                 if not os.path.exists(filename):
-                    urlretrieve(os.path.join(APPIMAGEKIT_URL, name), filename)
+                    urlretrieve(  # noqa: S310
+                        os.path.join(APPIMAGEKIT_URL, name), filename
+                    )
                     os.chmod(filename, stat.S_IRWXU)
                 if not os.path.exists(appimagekit):
                     self.execute(

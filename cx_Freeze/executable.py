@@ -245,11 +245,11 @@ def validate_executables(dist: Distribution, attr: str, value) -> None:
     try:
         # verify that value is a list or tuple to exclude unordered
         # or single-use iterables
-        assert isinstance(value, (list, tuple))
-        assert value
+        assert isinstance(value, (list, tuple))  # noqa: S101
+        assert value  # noqa: S101
         # verify that elements of value are Executable, Dict or string
         for executable in value:
-            assert isinstance(executable, (Executable, Mapping, str))
+            assert isinstance(executable, (Executable, Mapping, str))  # noqa: S101
     except (TypeError, ValueError, AttributeError, AssertionError) as exc:
         msg = f"{attr!r} must be a list of Executable (got {value!r})"
         raise SetupError(msg) from exc
