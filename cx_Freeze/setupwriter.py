@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 
 
 class SetupWriter:
@@ -114,4 +115,4 @@ def main() -> None:
     print("Setup script written to %s; run it as:" % writer.setup_file_name)
     print("    python %s build" % writer.setup_file_name)
     if writer.get_boolean_value("Run this now"):
-        subprocess.call(["python", writer.setup_file_name, "build"])
+        subprocess.call([sys.executable, writer.setup_file_name, "build"])

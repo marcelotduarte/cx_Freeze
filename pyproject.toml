@@ -281,7 +281,7 @@ select = [
     "RET",  # flake8-return
     "RSE",  # flake8-raise
     "RUF",  # Ruff-specific
-    #"S",    # flake8-bandit
+    "S",    # flake8-bandit
     "SIM",  # flake8-simplify
     "SLF",  # flake8-self
     "SLOT", # flake8-slots
@@ -292,7 +292,6 @@ select = [
     "UP",   # pyupgrade
     "YTT",  # flake8-2020
 ]
-#fixable = []
 ignore = [
     # ignored for now, but should be revised in future
     # last revised using ruff 0.3.3
@@ -325,6 +324,8 @@ ignore = [
     "ISC001", "ISC002",
     "Q000", "Q001", "Q002", "Q003",
     "W191",
+    # prone to false positives (https://github.com/astral-sh/ruff/issues/4045)
+    "S603",
 ]
 [tool.ruff.lint.per-file-ignores]
 "cx_Freeze/initscripts/*" = ["S102"]
