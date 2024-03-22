@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 from sysconfig import get_platform, get_python_version
+from typing import ClassVar
 
 from setuptools import Command
 
@@ -21,7 +22,7 @@ class build_exe(Command):
     """Build executables from Python scripts."""
 
     description = "build executables from Python scripts"
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         (
             "build-exe=",
             "b",
@@ -129,7 +130,11 @@ class build_exe(Command):
             "include the Microsoft Visual C runtime files",
         ),
     ]
-    boolean_options = ["no-compress", "include-msvcr", "silent"]
+    boolean_options: ClassVar[list[str]] = [
+        "no-compress",
+        "include-msvcr",
+        "silent",
+    ]
 
     def add_to_path(self, name) -> None:
         source_dir = getattr(self, name.lower())

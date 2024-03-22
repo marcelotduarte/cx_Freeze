@@ -8,6 +8,7 @@ import os
 from importlib import import_module
 from pathlib import Path
 from struct import calcsize, pack
+from typing import ClassVar
 
 from cx_Freeze._compat import packaging
 
@@ -64,7 +65,7 @@ class Structure:
         dump = json.dumps(self.as_dict(), indent=2)
         return self.__class__.__name__ + ": " + dump
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, str]:
         """Return the field values as dictionary."""
         fields = {}
         for fieldname, _ in self._fields:
@@ -76,7 +77,7 @@ class Structure:
             fields[fieldname] = data
         return fields
 
-    def to_buffer(self):
+    def to_buffer(self) -> bytes:
         """Return the field values to a buffer."""
         buffer = b""
         for fieldname, fmt in self._fields:
@@ -94,7 +95,7 @@ class Structure:
 class VS_FIXEDFILEINFO(Structure):
     """Version information for a Win32 file."""
 
-    _fields = [
+    _fields: ClassVar[list[tuple[str, str]]] = [
         ("dwSignature", DWORD),
         ("dwStrucVersion", DWORD),
         ("dwFileVersionMS", DWORD),

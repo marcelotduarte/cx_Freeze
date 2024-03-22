@@ -9,6 +9,7 @@ import plistlib
 import shutil
 import subprocess
 from pathlib import Path
+from typing import ClassVar
 
 from setuptools import Command
 
@@ -29,7 +30,7 @@ class bdist_dmg(Command):
     description = (
         "create a Mac DMG disk image containing the Mac application bundle"
     )
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         ("volume-label=", None, "Volume label of the DMG disk image"),
         (
             "applications-shortcut=",
@@ -125,7 +126,7 @@ class bdist_mac(Command):
     include_frameworks: list[str]
     include_resources: list[str]
 
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         ("iconfile=", None, "Path to an icns icon file for the application."),
         (
             "qt-menu-nib=",
@@ -552,7 +553,7 @@ class bdist_mac(Command):
         self._verify_signature()
         print("Finished .app signing")
 
-    def _get_sign_args(self):
+    def _get_sign_args(self) -> list[str]:
         signargs = ["codesign", "--sign", self.codesign_identity, "--force"]
 
         if self.codesign_timestamp:

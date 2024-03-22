@@ -258,7 +258,7 @@ class ModuleFinder:
         deferred_imports: DeferredList,
         caller: Module | None = None,
         relative_import_index: int = 0,
-    ):
+    ) -> Module:
         """Attempt to find the named module and return it or None if no module
         by that name could be found.
         """
@@ -532,8 +532,7 @@ class ModuleFinder:
                 # Don't touch modules with many constants or names;
                 # This is good for now.
                 return code
-            # Insert a bytecode to represent the code:
-            # __package__ = module.parent.name
+            # Insert a bytecode to set __package__ as module.parent.name
             codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
             codestring = bytes(codes) + code.co_code
             consts.append(module.parent.name)
@@ -616,7 +615,7 @@ class ModuleFinder:
                 arguments.append(code.co_consts[arg])
                 continue
 
-            # __import__()
+            # __import__ call
             if opc == LOAD_NAME:
                 name = code.co_names[arg]
                 continue

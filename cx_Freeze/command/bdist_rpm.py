@@ -14,6 +14,7 @@ import sys
 import tarfile
 from subprocess import CalledProcessError, check_output
 from sysconfig import get_python_version
+from typing import ClassVar
 
 from setuptools import Command
 
@@ -32,7 +33,7 @@ class bdist_rpm(Command):
 
     description = "create an RPM distribution"
 
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         (
             "bdist-base=",
             None,
@@ -153,7 +154,7 @@ class bdist_rpm(Command):
         ("debug", "g", "Run in debug mode"),
     ]
 
-    boolean_options = [
+    boolean_options: ClassVar[list[str]] = [
         "keep-temp",
         "rpm3-mode",
         "no-autoreq",
@@ -161,7 +162,7 @@ class bdist_rpm(Command):
         "debug",
     ]
 
-    negative_opt = {
+    negative_opt: ClassVar[dict[str, str]] = {
         "no-keep-temp": "keep-temp",
         "rpm2-mode": "rpm3-mode",
     }
@@ -266,9 +267,6 @@ class bdist_rpm(Command):
         self.ensure_filename("post_install")
         self.ensure_filename("pre_uninstall")
         self.ensure_filename("post_uninstall")
-
-        # XXX don't forget we punted on summaries and descriptions -- they
-        # should be handled here eventually!
 
         # Now *this* is some meta-data that belongs in the setup script...
         self.ensure_string_list("provides")
@@ -391,7 +389,7 @@ class bdist_rpm(Command):
                         ("bdist_rpm", pyversion, filename)
                     )
 
-    def _make_spec_file(self):
+    def _make_spec_file(self) -> list[str]:
         """Generate the text of an RPM spec file and return it as a
         list of strings (one per line).
         """
@@ -435,9 +433,7 @@ class bdist_rpm(Command):
                 "%define __os_install_post " + fixed_hook + "\n",
             ]
 
-        # XXX yuck! this filename is available from the "sdist" command,
-        # but only after it has run: and we create the spec file before
-        # running "sdist", in case of --spec-only.
+        # we create the spec file before running 'tar' in case of --spec-only.
         spec_file.append("Source0: %{name}-%{unmangled_version}.tar.gz")
 
         for field in (
@@ -480,27 +476,16 @@ class bdist_rpm(Command):
             ]
         )
 
-        # put locale descriptions into spec file
-        # XXX again, suppressed because config file syntax doesn't
-        # easily support this ;-(
-        # for locale in self.descriptions.keys():
-        #    spec_file.extend([
-        #        '',
-        #        '%description -l ' + locale,
-        #        self.descriptions[locale],
-        #        ])
-
-        # rpm scripts
-        # figure out default build script
+        # rpm scripts - figure out default build script
         def_setup_call = f"{sys.executable} {self.distribution.script_name}"
         def_build = f"{def_setup_call} build_exe -O1 --silent"
         def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
         # insert contents of files
 
-        # XXX this is kind of misleading: user-supplied options are files
+        # this is kind of misleading: user-supplied options are files
         # that we open and interpolate into the spec file, but the defaults
-        # are just text that we drop in as-is.  Hmmm.
+        # are just text that we drop in as-is.
 
         install_cmd = (
             f"{def_setup_call} install --skip-build"

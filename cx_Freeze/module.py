@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import ast
-import datetime
 import socket
 from contextlib import suppress
+from datetime import datetime, timezone
 from functools import cached_property, partial
 from importlib import import_module
 from importlib.machinery import EXTENSION_SUFFIXES
@@ -345,7 +345,7 @@ class ModuleHook:
         self.module = module
         self.name = module.name.replace(".", "_").lower()
 
-    def __call__(self, finder):
+    def __call__(self, finder) -> None:
         # redirect to the top level hook
         method = getattr(self, self.name, None)
         if method:
@@ -388,7 +388,7 @@ class ConstantsModule:
         """Create the module which consists of declaration statements for each
         of the values.
         """
-        today = datetime.datetime.today()
+        today = datetime.now(tz=timezone.utc)
         source_timestamp = 0
         for module in modules:
             if module.file is None or module.source_is_string:
@@ -402,7 +402,7 @@ class ConstantsModule:
                 raise OptionError(msg)
             timestamp = module.file.stat().st_mtime
             source_timestamp = max(source_timestamp, timestamp)
-        stamp = datetime.datetime.fromtimestamp(source_timestamp)
+        stamp = datetime.fromtimestamp(source_timestamp, tz=timezone.utc)
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
         self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
