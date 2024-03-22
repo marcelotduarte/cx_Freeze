@@ -60,7 +60,7 @@ def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
                 break
 
     # remove run-time warning
-    # 'WARNING:tensorflow:AutoGraph is not available in this environment: ...'
+    # WARNING:tensorflow:AutoGraph is not available in this environment: ...
     source_path = site_packages_path / "tensorflow/python/autograph"
     for source in source_path.rglob("*.py"):  # type: Path
         target = "lib" / source.relative_to(site_packages_path)

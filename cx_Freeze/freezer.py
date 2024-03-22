@@ -46,7 +46,9 @@ __all__ = ["ConstantsModule", "Executable", "Freezer"]
 class Freezer:
     """Freezer base class."""
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(
+        cls, *args, **kwargs
+    ) -> WinFreezer | DarwinFreezer | LinuxFreezer:
         # create instance of appropriate sub-class, depending on the platform.
         if IS_WINDOWS or IS_MINGW:
             return super().__new__(WinFreezer)
@@ -250,7 +252,7 @@ class Freezer:
         source: Path,
         target: Path,
         copy_dependent_files: bool,
-    ):
+    ) -> None:
         """Post-copy task."""
 
     def _create_directory(self, path: str | Path) -> None:
@@ -1147,7 +1149,7 @@ class DarwinFreezer(Freezer, Parser):
             reference=cached_reference,
         )
 
-    def _default_bin_path_excludes(self):
+    def _default_bin_path_excludes(self) -> list[str]:
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
     def _default_bin_path_includes(self) -> list[str]:

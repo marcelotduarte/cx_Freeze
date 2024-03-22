@@ -259,9 +259,11 @@ select = [
     "BLE",  # flake8-blind-except
     "C4",   # flake8-comprehensions
     "D",    # pydocstyle
+    "DTZ",  # flake8-datetimez
     "E", "W",  # pycodestyle
     "EXE",  # flake8-executable
     "EM",   # flake8-errmsg
+    "ERA",  # eradicate
     "F",    # flake8
     "FA",   # flake8-future-annotations
     "FLY",  # flynt
@@ -294,17 +296,12 @@ select = [
 ]
 ignore = [
     # ignored for now, but should be revised in future
-    # last revised using ruff 0.3.3
-    "ANN202",# Missing return type annotation for private function
-    "ANN204",
+    # last revised using ruff 0.3.4
     "C901",  # mccabe - {name} is too complex ({complexity} > {max_complexity})
     "D102",  # Missing docstring in public method
     "D401",  # First line of docstring should be in imperative mood
-    "DTZ",   # flake8-datetimez
-    "ERA",   # eradicate
     "FIX",   # flake8-fixme
-    "TD",    # flake8-todos
-    "PERF203",
+    "PERF203",# `try`-`except` within a loop incurs performance overhead
     # ignore the following
     "D104",  # Missing docstring in public package
     "D105",  # Missing docstring in magic method
@@ -315,8 +312,8 @@ ignore = [
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
     "PYI021",   # Docstrings should not be included in stubs
-    "RUF012",
     "T20",      # flake8-print
+    "TD",       # flake8-todos
     # avoid the rules that may cause conflict with formatter
     "COM812", "COM819",
     "D206", "D300",
@@ -327,7 +324,11 @@ ignore = [
     # prone to false positives (https://github.com/astral-sh/ruff/issues/4045)
     "S603",
 ]
+typing-modules = ["cx_Freeze._typing"]
+
 [tool.ruff.lint.per-file-ignores]
+"cx_Freeze/command/_pydialog.py" = ["ERA001"]
+"cx_Freeze/command/bdist_msi.py" = ["ERA001"]
 "cx_Freeze/initscripts/*" = ["S102"]
 "tests/*" = ["S101"]
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import multiprocessing as mp
 import sys
 from sysconfig import get_platform, get_python_version
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 import pytest
 from generate_samples import create_package, run_command
@@ -80,7 +80,7 @@ setup.py
 EXPECTED_OUTPUT = ["hello", "hello", "creating dict...done!"]
 
 
-def _parameters_data():
+def _parameters_data() -> Iterator:
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")

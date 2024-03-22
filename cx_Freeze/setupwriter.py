@@ -5,12 +5,17 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from typing import ClassVar
 
 
 class SetupWriter:
     """SetupWriter class."""
 
-    bases = {"C": "console", "G": "gui", "S": "service"}
+    bases: ClassVar[dict[str, str]] = {
+        "C": "console",
+        "G": "gui",
+        "S": "service",
+    }
 
     @property
     def base(self) -> str:
@@ -67,9 +72,9 @@ class SetupWriter:
                 break
 
     def write(self) -> None:
-        with open(self.setup_file_name, "w", encoding="UTF-8") as output:
+        with open(self.setup_file_name, "w", encoding="utf_8") as output:
 
-            def w(s):
+            def w(s) -> int:
                 return output.write(s + "\n")
 
             w("from cx_Freeze import setup, Executable")

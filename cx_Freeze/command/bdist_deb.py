@@ -9,6 +9,7 @@ import logging
 import os
 import shutil
 import subprocess
+from typing import ClassVar
 
 from setuptools import Command
 
@@ -23,7 +24,7 @@ class bdist_deb(Command):
 
     description = "create an DEB distribution"
 
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         (
             "bdist-base=",
             None,

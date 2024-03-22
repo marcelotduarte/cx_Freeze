@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import sys
 import warnings
+from typing import ClassVar, ContextManager
 
 from setuptools.command.install import install as _install
 
@@ -12,7 +13,7 @@ __all__ = ["Install"]
 
 
 @contextlib.contextmanager
-def suppress_known_deprecation():
+def suppress_known_deprecation() -> ContextManager:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "setup.py install is deprecated")
         yield
@@ -22,7 +23,7 @@ class Install(_install):
     """Install everything from build directory."""
 
     command_name = "install"
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         *_install.user_options,
         ("install-exe=", None, "installation directory for executables"),
     ]

@@ -60,10 +60,7 @@ def _do_test(
 ) -> None:
     create_package(test_dir, source)
     finder = modulefinder_class(
-        ConstantsModule(),
-        path=[test_dir, *sys.path],
-        # debug=debug,
-        **kwargs,
+        ConstantsModule(), path=[test_dir, *sys.path], **kwargs
     )
     finder.include_module(import_this)
     if report:
@@ -72,11 +69,6 @@ def _do_test(
     found = sorted([module.name for module in finder.modules])
     # check if we found what we expected, not more, not less
     assert found == modules
-
-    # check for missing and maybe missing modules
-    # bad, maybe = finder.any_missing_maybe()
-    # self.assertEqual(bad, missing)
-    # self.assertEqual(maybe, maybe_missing)
 
 
 @pytest.mark.parametrize(

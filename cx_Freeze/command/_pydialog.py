@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from msilib import Dialog
+from msilib import Control, Dialog
 
 
 class PyDialog(Dialog):
@@ -37,12 +37,12 @@ class PyDialog(Dialog):
 
     def title(self, title) -> None:
         """Set the title text of the dialog at the top."""
-        # name, x, y, w, h, flags=Visible|Enabled|Transparent|NoPrefix,
+        # flags=0x30003=Visible|Enabled|Transparent|NoPrefix
         # text, in VerdanaBold10
         font = r"{\VerdanaBold10}"
         self.text("Title", 15, 10, 320, 60, 0x30003, f"{font}{title}")
 
-    def backbutton(self, title, tabnext, name="Back", active=1):
+    def backbutton(self, title, tabnext, name="Back", active=1) -> Control:
         """Add a back button with a given title, the tab-next button,
         its name in the Control table, possibly initially disabled.
 
@@ -53,7 +53,7 @@ class PyDialog(Dialog):
             name, 180, self.h - 27, 56, 17, flags, title, tabnext
         )
 
-    def cancelbutton(self, title, tabnext, name="Cancel", active=1):
+    def cancelbutton(self, title, tabnext, name="Cancel", active=1) -> Control:
         """Add a cancel button with a given title, the tab-next button,
         its name in the Control table, possibly initially disabled.
 
@@ -64,7 +64,7 @@ class PyDialog(Dialog):
             name, 304, self.h - 27, 56, 17, flags, title, tabnext
         )
 
-    def nextbutton(self, title, tabnext, name="Next", active=1):
+    def nextbutton(self, title, tabnext, name="Next", active=1) -> Control:
         """Add a Next button with a given title, the tab-next button,
         its name in the Control table, possibly initially disabled.
 
@@ -75,7 +75,7 @@ class PyDialog(Dialog):
             name, 236, self.h - 27, 56, 17, flags, title, tabnext
         )
 
-    def xbutton(self, name, title, tabnext, xpos):
+    def xbutton(self, name, title, tabnext, xpos) -> Control:
         """Add a button with a given title, the tab-next button,
         its name in the Control table, giving its x position; the
         y-position is aligned with the other buttons.

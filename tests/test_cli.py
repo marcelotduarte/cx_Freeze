@@ -95,7 +95,6 @@ def test_import_tomli(monkeypatch) -> None:
         monkeypatch.delattr("tomllib.loads")
     with contextlib.suppress(AttributeError, ModuleNotFoundError):
         monkeypatch.delattr("setuptools.extern.tomli.loads")
-    # monkeypatch.delattr("tomli.loads")
     try:
         pyproject = import_module("cx_Freeze._pyproject")
     except ImportError as exc:

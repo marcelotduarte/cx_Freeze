@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 from sysconfig import get_config_vars, get_platform, get_python_version
-from typing import TYPE_CHECKING, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 import pytest
 from generate_samples import create_package
@@ -98,7 +98,7 @@ def test_freezer_default_bin_includes_emulated(
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    def t_get_config_var(name):
+    def t_get_config_var(name) -> dict[str, Any]:
         if name == "INSTSONAME":
             # emulate conda and/or mingw
             soname = f"libpython{PYTHON_VERSION}.a"

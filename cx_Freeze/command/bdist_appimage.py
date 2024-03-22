@@ -12,6 +12,7 @@ import platform
 import shutil
 import stat
 from textwrap import dedent
+from typing import ClassVar
 from urllib.request import urlretrieve
 
 from filelock import FileLock
@@ -32,7 +33,7 @@ class bdist_appimage(Command):
     """Create a Linux AppImage."""
 
     description = "create a Linux AppImage"
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         (
             "appimagekit=",
             None,
@@ -58,7 +59,7 @@ class bdist_appimage(Command):
         ("target-version=", None, "version of the file to create"),
         ("silent", "s", "suppress all output except warnings"),
     ]
-    boolean_options = [
+    boolean_options: ClassVar[list[str]] = [
         "skip-build",
         "silent",
     ]

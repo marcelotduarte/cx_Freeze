@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+from typing import ClassVar
 
 from setuptools import Command
 
@@ -16,7 +17,7 @@ class install_exe(Command):
 
     command_name = "install_exe"
     description = "install executables built from Python scripts"
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         ("install-dir=", "d", "directory to install executables to"),
         ("build-dir=", "b", "build directory (where to install from)"),
         ("force", "f", "force installation (overwrite existing files)"),

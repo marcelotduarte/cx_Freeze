@@ -24,6 +24,7 @@ from msilib import (  # pylint: disable=deprecated-module
     sequence,
 )
 from sysconfig import get_platform
+from typing import ClassVar
 
 from setuptools import Command
 
@@ -47,7 +48,7 @@ class bdist_msi(Command):
 
     description = __doc__
 
-    user_options = [
+    user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         (
             "bdist-dir=",
             None,
@@ -104,7 +105,7 @@ class bdist_msi(Command):
         ("upgrade-code=", None, "upgrade code to use"),
     ]
 
-    boolean_options = [
+    boolean_options: ClassVar[list[str]] = [
         "keep-temp",
         "skip-build",
     ]
@@ -115,7 +116,7 @@ class bdist_msi(Command):
     title = "[ProductName] Setup"
     modeless = 1
     modal = 3
-    _binary_columns = {
+    _binary_columns: ClassVar[dict[str, int]] = {
         "Binary": 1,
         "Icon": 1,
         "Patch": 4,
@@ -1092,7 +1093,7 @@ class bdist_msi(Command):
         self.db = None
 
 
-def _is_valid_guid(code):
+def _is_valid_guid(code) -> bool:
     pattern = re.compile(
         r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$", re.IGNORECASE
     )
