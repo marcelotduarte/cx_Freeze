@@ -175,6 +175,9 @@ exclude_also = [
 
     # Don't complain about abstract methods, they aren't run:
     "@(abc\\.)?abstractmethod",
+
+    # TYPE_CHECKING block is never executed during pytest run
+    "if TYPE_CHECKING:",
 ]
 ignore_errors = true
 omit = [
