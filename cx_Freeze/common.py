@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import shutil
 from contextlib import suppress
 from pathlib import Path, PurePath
 from textwrap import dedent
@@ -13,23 +12,6 @@ from cx_Freeze.exception import OptionError
 
 if TYPE_CHECKING:
     from cx_Freeze._typing import IncludesList, InternalIncludesList
-
-
-class FilePath(Path):
-    """Subclass of concrete Path to be used in TemporaryPath."""
-
-    _flavour = type(Path())._flavour  # noqa: SLF001
-
-    def replace(self, target):  # noqa: ANN201
-        """Rename this path to the target path, overwriting if that path
-        exists. Extended to support move between file systems.
-        """
-        with suppress(OSError):
-            return super().replace(target)
-        shutil.copyfile(self, target)
-        with suppress(FileNotFoundError):
-            self.unlink()
-        return self.__class__(target)
 
 
 def get_resource_file_path(
