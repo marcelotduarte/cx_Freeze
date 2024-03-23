@@ -624,7 +624,7 @@ bdist_deb
 This command is available on Linux systems; It is a simple wrapper around
 'alien' that creates an RPM distribution, then converts to a DEB distribution.
 
-.. versionadded:: 6.16
+.. versionadded:: 7.0
 
 Please check the options on the command line:
 
@@ -807,7 +807,7 @@ constructor are as follows:
 .. versionadded:: 6.10
     ``manifest`` and ``uac_admin`` options.
 
-.. versionadded:: 6.16
+.. versionadded:: 7.0
     ``uac_uiaccess`` option.
 
 .. versionchanged:: 6.5
