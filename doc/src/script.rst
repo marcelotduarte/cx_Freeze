@@ -97,5 +97,5 @@ Further customization can be done using the following options:
 .. versionadded:: 6.10
     ``manifest`` and ``uac-admin`` options.
 
-.. versionadded:: 6.16
+.. versionadded:: 7.0
     ``uac-uiaccess`` option.
