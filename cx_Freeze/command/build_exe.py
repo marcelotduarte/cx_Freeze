@@ -11,7 +11,7 @@ from typing import ClassVar
 from setuptools import Command
 
 from cx_Freeze.common import normalize_to_list
-from cx_Freeze.exception import SetupError
+from cx_Freeze.exception import OptionError, SetupError
 from cx_Freeze.freezer import Freezer
 from cx_Freeze.module import ConstantsModule
 
@@ -209,18 +209,18 @@ class build_exe(Command):
 
     def finalize_options(self) -> None:
         build = self.get_finalized_command("build")
+        # check use of deprecated option
+        options = build.distribution.get_option_dict("build")
+        build_build_exe = options.get("build_exe", (None, None))[1]
+        if build_build_exe:
+            msg = (
+                "[REMOVED] The use of build command with 'build-exe' "
+                "option is deprecated.\n\t\t"
+                "Use build_exe command with 'build-exe' option instead."
+            )
+            raise OptionError(msg)
+        # check values of build_base and build_exe
         self.build_base = build.build_base
-        if self.build_exe is None:
-            # get the value from deprecated option
-            options = build.distribution.get_option_dict("build")
-            build_exe = options.get("build_exe", (None, None))[1]
-            if build_exe:
-                build.warn(
-                    "[DEPRECATED] The use of build command with 'build-exe' "
-                    "option is deprecated.\n\t\t"
-                    "Use build_exe command with 'build-exe' option instead."
-                )
-                self.build_exe = build_exe
         if self.build_exe == self.build_base:
             msg = "build_exe option cannot be the same as build_base directory"
             raise SetupError(msg)
