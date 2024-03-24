@@ -88,11 +88,7 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     build = dist.get_command_obj("build")
     build.user_options.insert(
         1,
-        (
-            "build-exe=",
-            None,
-            "directory for built executables and dependent files [DEPRECATED]",
-        ),
+        ("build-exe=", None, "[REMOVED]"),
     )
     build.sub_commands = [*build.sub_commands, ("build_exe", None)]
     build.build_exe = None

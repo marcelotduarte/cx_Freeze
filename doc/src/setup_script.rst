@@ -173,24 +173,10 @@ build
 `````
 
 This command is a standard command which has been modified by cx_Freeze to
-build any executables that are defined. The following options were added to
-the standard set of options for the command:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 200 600
-   :width: 100%
-
-   * - option name
-     - description
-   * - .. option:: build_exe
-     - directory for built executables and dependent files, defaults to
-       the value of the "build_exe" option on the build_exe command (see
-       below); note that this option is overwritten by the corresponding
-       option on the build_exe command
+build any executables that are defined.
 
 .. deprecated:: 6.14
-    ``build_exe`` option. To be removed in version 6.18 or 7.0.
+    ``build_exe`` option. Removed in version 7.0.
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -199,7 +185,6 @@ This is the equivalent help to specify the same options on the command line:
     python setup.py build --help
     Options for 'build' command:
       --build-base (-b)  base directory for build library
-      --build-exe        directory for built executables and dependent files
       (...)
       --compiler (-c)    specify the compiler type
       --help-compiler    list available compilers
