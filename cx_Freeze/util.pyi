@@ -4,9 +4,9 @@
 
 from pathlib import Path
 
-import typing_extensions
+from cx_Freeze._typing import TypeAlias
 
-HANDLE: typing_extensions.TypeAlias = int | None
+HANDLE: TypeAlias = int | None
 
 class BindError(Exception):
     """BindError Exception."""

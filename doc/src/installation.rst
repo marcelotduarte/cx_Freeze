@@ -51,8 +51,11 @@ Python requirements are installed automatically by pip, pipenv or conda.
   .. code-block:: console
 
    setuptools >= 62.6
+   typing_extensions >= 4.10.0 (Python 3.8, 3.9)
+   wheel >= 0.42.0
    cx_Logging >= 3.1           (Windows only)
    lief >= 0.12.0              (Windows only)
+   filelock >=3.11.0           (Linux)
    patchelf >= 0.14            (Linux)
    C compiler                  (required only if installing from sources)
 

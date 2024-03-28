@@ -10,9 +10,9 @@ from pathlib import Path
 from struct import calcsize, pack
 from typing import ClassVar
 
-from cx_Freeze._compat import packaging
+from cx_Freeze._packaging import Version
 
-__all__ = ["Version", "VersionInfo"]
+__all__ = ["VersionInfo"]
 
 # types
 CHAR = "c"
@@ -43,10 +43,6 @@ if os.environ.get("CX_FREEZE_STAMP", "") == "pywin32":
     CX_FREEZE_STAMP = "pywin32"
 else:
     CX_FREEZE_STAMP = "internal"
-
-
-class Version(packaging.version.Version):
-    """A valid PEP440 version."""
 
 
 class Structure:

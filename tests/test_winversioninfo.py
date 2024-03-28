@@ -10,12 +10,8 @@ from sysconfig import get_platform, get_python_version
 import pytest
 from generate_samples import create_package, run_command
 
-from cx_Freeze.winversioninfo import (
-    COMMENTS_MAX_LEN,
-    Version,
-    VersionInfo,
-    main_test,
-)
+from cx_Freeze._packaging import Version
+from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 PLATFORM = get_platform()
 PYTHON_VERSION = get_python_version()
