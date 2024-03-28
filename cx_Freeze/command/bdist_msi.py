@@ -28,7 +28,7 @@ from typing import ClassVar
 
 from setuptools import Command
 
-from cx_Freeze._compat import packaging
+from cx_Freeze._packaging import Version
 from cx_Freeze.command._pydialog import PyDialog
 from cx_Freeze.exception import OptionError
 
@@ -1045,7 +1045,7 @@ class bdist_msi(Command):
         author = self.distribution.metadata.get_contact() or "UNKNOWN"
         version = self.target_version or self.distribution.get_version()
         # ProductVersion must be strictly numeric
-        base_version = packaging.version.Version(version).base_version
+        base_version = Version(version).base_version
 
         # msilib is reloaded in order to reset the "_directories" global member
         # in that module.  That member is used by msilib to prevent any two

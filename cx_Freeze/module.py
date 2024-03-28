@@ -13,7 +13,7 @@ from keyword import iskeyword
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import importlib_metadata
+from cx_Freeze._importlib import metadata
 from cx_Freeze.exception import ModuleError, OptionError
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 __all__ = ["ConstantsModule", "Module", "ModuleHook"]
 
 
-class DistributionCache(importlib_metadata.PathDistribution):
+class DistributionCache(metadata.PathDistribution):
     """Cache the distribution package."""
 
     def __init__(self, cache_path: Path, name: str) -> None:
@@ -35,15 +35,15 @@ class DistributionCache(importlib_metadata.PathDistribution):
             metadata cannot be found.
         """
         try:
-            distribution = importlib_metadata.PathDistribution.from_name(name)
-        except importlib_metadata.PackageNotFoundError:
+            distribution = metadata.PathDistribution.from_name(name)
+        except metadata.PackageNotFoundError:
             distribution = None
         if distribution is None:
             raise ModuleError(name)
         # Cache dist-info files in a temporary directory
         normalized_name = getattr(distribution, "_normalized_name", None)
         if normalized_name is None:
-            normalized_name = importlib_metadata.Prepared.normalize(name)
+            normalized_name = metadata.Prepared.normalize(name)
         source_path = getattr(distribution, "_path", None)
         if source_path is None:
             mask = f"{normalized_name}-{distribution.version}.*-info"
@@ -97,7 +97,7 @@ class DistributionCache(importlib_metadata.PathDistribution):
         target = target_path / "WHEEL"
         if not target.exists():
             project = Path(__file__).parent.name
-            version = importlib_metadata.version(project)
+            version = metadata.version(project)
             root_is_purelib = "true" if purelib else "false"
             text = [
                 "Wheel-Version: 1.0",
