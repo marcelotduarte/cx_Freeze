@@ -13,7 +13,7 @@ import cx_Freeze
     ("platform", "extra_modules"),
     [
         (None, []),
-        ("win32", ["bdist_msi"]),
+        ("win32", ["bdist_msi"] if sys.version_info[:2] < (3, 13) else []),
         ("darwin", ["bdist_dmg", "bdist_mac"]),
         ("linux", ["bdist_appimage", "bdist_deb", "bdist_rpm"]),
     ],

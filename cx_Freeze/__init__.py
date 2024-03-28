@@ -29,9 +29,10 @@ __all__ = [
 ]
 
 if sys.platform == "win32":
-    from cx_Freeze.command.bdist_msi import bdist_msi
+    if sys.version_info[:2] < (3, 13):
+        from cx_Freeze.command.bdist_msi import bdist_msi
 
-    __all__ += ["bdist_msi"]
+        __all__ += ["bdist_msi"]
 elif sys.platform == "darwin":
     from cx_Freeze.command.bdist_mac import bdist_dmg, bdist_mac
 
@@ -50,7 +51,8 @@ __version__ = "7.0.0-dev88"
 def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     cmdclass = attrs.setdefault("cmdclass", {})
     if sys.platform == "win32":
-        cmdclass.setdefault("bdist_msi", bdist_msi)
+        if sys.version_info[:2] < (3, 13):
+            cmdclass.setdefault("bdist_msi", bdist_msi)
     elif sys.platform == "darwin":
         cmdclass.setdefault("bdist_dmg", bdist_dmg)
         cmdclass.setdefault("bdist_mac", bdist_mac)
