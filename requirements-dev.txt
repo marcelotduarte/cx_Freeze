@@ -14,7 +14,7 @@ patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 'ppc64le'
 patchelf>=0.14 ;sys_platform == 'linux' and platform_machine == 's390x'
 
 # dev
-bump-my-version==0.19.3
+bump-my-version==0.20.0
 cibuildwheel==2.17.0
 pre-commit==3.7.0
 # doc
