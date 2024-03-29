@@ -20,6 +20,7 @@ Contents:
    script.rst
    setup_script.rst
    keywords.rst
+   builtdist.rst
    faq.rst
    releasenotes.rst
    versions.rst

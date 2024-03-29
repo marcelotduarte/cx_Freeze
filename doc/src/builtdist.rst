@@ -154,9 +154,9 @@ options to the :command:`bdist_rpm` command as follows:
 
 Obviously, supplying even a few of these options on the command-line would be
 tedious and error-prone, so it's usually best to put them in the
-``pyproject.toml`` configuration file \ ---see section :ref:`setup-config`.
+``pyproject.toml`` configuration file \ --- see section :ref:`setup_script`.
 
-.. % FIXME
+.. % FIXME: ---see section :ref:`setup_script`.
 
 There are three steps to building a binary RPM package, all of which are
 handled automatically by the cx_Freeze:
