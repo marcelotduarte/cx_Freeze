@@ -1,4 +1,5 @@
 """cx_Freeze documentation build configuration file."""
+
 # Created by sphinx-quickstart on Wed Feb  1 22:01:33 2012.
 #
 # This file is executed with the current directory set to its containing dir.
@@ -98,7 +99,11 @@ html_theme = "furo"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# html_theme_options = {}
+html_theme_options = {
+    "source_repository": "https://github.com/marcelotduarte/cx_Freeze/",
+    "source_branch": "main",
+    "source_directory": "doc/src/",
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
