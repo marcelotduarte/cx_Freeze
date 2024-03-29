@@ -27,6 +27,7 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx_new_tab_link",
     "sphinx_tabs.tabs",
+    "myst_parser",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

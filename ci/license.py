@@ -6,8 +6,7 @@ import sys
 from pathlib import Path
 
 FROZEN_HEADER = """\
-Why this file is included
-=========================
+## Why this file is included
 
 This program has been frozen with cx_Freeze.  The freezing process
 resulted in certain components from the cx_Freeze software being included
@@ -25,16 +24,16 @@ def update_frozen_license() -> int:
     (in cx_Freeze/initscripts/frozen_application_license.txt) to ensure
     it is in sync with the cx_Freeze license in documentation.
     """
-    srcpath = Path("doc/src/license.rst")
+    srcpath = Path("LICENSE.md")
     dstpath = Path("cx_Freeze/initscripts/frozen_application_license.txt")
     try:
         content = srcpath.read_text(encoding="utf_8")
     except OSError:
         print(ERROR1, file=sys.stderr)
         return 1
-    content = FROZEN_HEADER + "\n".join(content.splitlines()[1:]) + "\n"
+    content = content.replace('\\"', '"').replace("\\'", "'")
     try:
-        dstpath.write_text(content, encoding="utf_8")
+        dstpath.write_text(FROZEN_HEADER + "\n" + content, encoding="utf_8")
         print(dstpath, "ok")
     except OSError as io_error:
         print(ERROR2, f"({io_error}).", file=sys.stderr)
