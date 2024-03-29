@@ -22,6 +22,7 @@ sphinx==7.2.6
 sphinx-new-tab-link==0.4.0
 sphinx-tabs==3.4.5
 furo==2024.1.29
+myst-parser==2.0.0
 # test
 pytest==8.1.1
 pluggy==1.4.0

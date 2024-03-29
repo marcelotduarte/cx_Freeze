@@ -1,11 +1,3 @@
-## Why this file is included
-
-This program has been frozen with cx_Freeze.  The freezing process
-resulted in certain components from the cx_Freeze software being included
-in the frozen application, in particular bootstrap code for launching
-the frozen python script.  The cx_Freeze software is subject to the
-license set out below.
-
 # Licensing
 
 -   Copyright © 2020-2024, Marcelo Duarte.
@@ -21,7 +13,7 @@ License which can be found at
 ## License for cx_Freeze
 
 1.  This LICENSE AGREEMENT is between the copyright holders and the
-    Individual or Organization ("Licensee") accessing and otherwise
+    Individual or Organization (\"Licensee\") accessing and otherwise
     using cx_Freeze software in source or binary form and its associated
     documentation.
 2.  Subject to the terms and conditions of this License Agreement, the
@@ -38,7 +30,7 @@ License which can be found at
     Licensee hereby agrees to include in any such work a brief summary
     of the changes made to cx_Freeze.
 4.  The copyright holders are making cx_Freeze available to Licensee on
-    an "AS IS" basis. THE COPYRIGHT HOLDERS MAKE NO REPRESENTATIONS OR
+    an \"AS IS\" basis. THE COPYRIGHT HOLDERS MAKE NO REPRESENTATIONS OR
     WARRANTIES, EXPRESS OR IMPLIED. BY WAY OF EXAMPLE, BUT NOT
     LIMITATION, THE COPYRIGHT HOLDERS MAKE NO AND DISCLAIM ANY
     REPRESENTATION OR WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY
@@ -54,7 +46,7 @@ License which can be found at
 7.  Nothing in this License Agreement shall be deemed to create any
     relationship of agency, partnership, or joint venture between the
     copyright holders and Licensee. This License Agreement does not
-    grant permission to use copyright holder's trademarks or trade name
+    grant permission to use copyright holder\'s trademarks or trade name
     in a trademark sense to endorse or promote products or services of
     Licensee, or any third party.
 8.  By copying, installing or otherwise using cx_Freeze, Licensee agrees
