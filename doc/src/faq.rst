@@ -124,13 +124,13 @@ you have installed.
 Single-file executables
 -----------------------
 
-Recently, the :ref:`cx_freeze_bdist_appimage` command was introduced for Linux,
+Recently, the :ref:`bdist_appimage` command was introduced for Linux,
 which supports the construction of a single exe file, where all your
 application's libraries are incorporated into an executable file.
 
 On other systems, this is not supported by **cx_Freeze**, however, for
-distribution, on Windows, you can use :ref:`cx_freeze_bdist_msi` and on macOS,
-you can use :ref:`cx_freeze_bdist_dmg`.
+distribution, on Windows, you can use :ref:`bdist_msi` and on macOS,
+you can use :ref:`bdist_dmg`.
 
 Also, you can use other tools to compress the build directory from
 **cx_Freeze** into a self-extracting archive:

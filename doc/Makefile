@@ -4,10 +4,11 @@ SPHINXOPTS    = -d ../build/doc/.doctrees -j auto -T -W --keep-going
 SPHINXBUILD   = python -m sphinx
 SOURCEDIR     = src
 BUILDDIR      = ../build/doc
+BUILDDIRHTML  = ../build/doc/html
 
 .PHONY: html
 html:
-	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS) -b html
+	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIRHTML) $(SPHINXOPTS) -b html
 
 .PHONY: epub
 epub:
@@ -19,7 +20,7 @@ pdf:
 
 .PHONY: test
 test:
-	(cd $(BUILDDIR)/html && python -m webbrowser -t index.html)
+	(cd $(BUILDDIRHTML) && python -m webbrowser -t index.html)
 
 .PHONY: clean
 clean:
