@@ -1,5 +1,3 @@
-.. _bdist_dmg:
-
 bdist_dmg
 `````````
 

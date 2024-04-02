@@ -50,14 +50,26 @@ The available commands for built distributions are:
 The following sections give details on the individual :command:`bdist_\*`
 commands.
 
+.. _bdist_appimage:
+
 .. include:: bdist_appimage.rst
+
+.. _bdist_deb:
 
 .. include:: bdist_deb.rst
 
+.. _bdist_dmg:
+
 .. include:: bdist_dmg.rst
+
+.. _bdist_mac:
 
 .. include:: bdist_mac.rst
 
+.. _bdist_msi:
+
 .. include:: bdist_msi.rst
+
+.. _bdist_rpm:
 
 .. include:: bdist_rpm.rst

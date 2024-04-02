@@ -1,5 +1,3 @@
-.. _bdist_appimage:
-
 bdist_appimage
 ``````````````
 

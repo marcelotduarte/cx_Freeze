@@ -1,5 +1,3 @@
-.. _bdist_mac:
-
 bdist_mac
 `````````
 

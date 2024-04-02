@@ -1,5 +1,3 @@
-.. _bdist_deb:
-
 bdist_deb
 `````````
 

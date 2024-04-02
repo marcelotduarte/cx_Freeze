@@ -1,5 +1,3 @@
-.. _bdist_msi:
-
 bdist_msi
 `````````
 

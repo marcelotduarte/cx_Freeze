@@ -1,5 +1,3 @@
-.. _bdist_rpm:
-
 bdist_rpm: Creating RPM packages
 ````````````````````````````````
 
