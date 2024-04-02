@@ -17,6 +17,24 @@ It looks something like this:
 
 .. tabs::
 
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: toml
+
+         [project]
+         name = "guifoo"
+         version = "0.1"
+         description = "My GUI application!"
+
+         [tool.cxfreeze]
+         executables = [
+             {script = "guifoo.py", base = "gui"}
+         ]
+
+         [tool.cxfreeze.build_exe]
+         excludes = ["tkinter", "unittest"]
+         zip_include_packages = ["encodings", "PySide6", "shiboken6"]
+
    .. group-tab:: setup.py
 
       .. code-block:: python
@@ -36,26 +54,6 @@ It looks something like this:
              options={"build_exe": build_exe_options},
              executables=[Executable("guifoo.py", base="gui")],
          )
-
-   .. group-tab:: pyproject.toml
-
-      ``pyproject.toml``
-
-      .. code-block:: toml
-
-         [project]
-         name = "guifoo"
-         version = "0.1"
-         description = "My GUI application!"
-
-         [tool.cxfreeze]
-         executables = [
-             {script = "guifoo.py", base = "gui"}
-         ]
-
-         [tool.cxfreeze.build_exe]
-         excludes = ["tkinter", "unittest"]
-         zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
    .. group-tab:: setup.cfg
 
@@ -100,17 +98,17 @@ The script is invoked as follows:
 
 .. tabs::
 
-   .. group-tab:: setup.py
-
-      .. code-block:: console
-
-         python setup.py build
-
    .. group-tab:: pyproject.toml
 
       .. code-block:: console
 
          cxfreeze build
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+         python setup.py build
 
    .. group-tab:: setup.cfg
 
