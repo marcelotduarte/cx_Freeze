@@ -1,5 +1,5 @@
 bdist_dmg
-`````````
+=========
 
 This command is available on Mac OS X systems; it creates an application
 bundle, then packages it into a DMG disk image suitable for distribution and

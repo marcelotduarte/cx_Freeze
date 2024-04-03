@@ -1,5 +1,3 @@
-.. _setup_script:
-
 Setup script
 ============
 

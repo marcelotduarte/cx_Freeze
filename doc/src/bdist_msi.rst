@@ -1,5 +1,5 @@
 bdist_msi
-`````````
+=========
 
 This command is a standard command in Python 2.5 and higher which has been
 modified by cx_Freeze to handle installing executables and their dependencies.

@@ -1,5 +1,3 @@
-.. _built_dist:
-
 ****************************
 Creating Built Distributions
 ****************************
@@ -16,23 +14,33 @@ users, it's a Debian package; and so forth.
 
 The available commands for built distributions are:
 
-+--------------------+----------------------------------+-----------+
-| Command            | Description                      | Notes     |
-+====================+==================================+===========+
-| ``bdist_appimage`` | AppImage application bundle      | \(1)      |
-|                    | (:file:`.AppImage`)              |           |
-+--------------------+----------------------------------+-----------+
-| ``bdist_deb``      | DEB distribution (:file:`.deb`)  | \(2) \(3) |
-+--------------------+----------------------------------+-----------+
-| ``bdist_dmg``      | DMG disk image (:file:`.dmg`)    |           |
-+--------------------+----------------------------------+-----------+
-| ``bdist_mac``      | Mac application bundle           |           |
-|                    | (:file:`.app`)                   |           |
-+--------------------+----------------------------------+-----------+
-| ``bdist_msi``      | Windows installer (:file:`.msi`) |           |
-+--------------------+----------------------------------+-----------+
-| ``bdist_rpm``      | RPM distribution (:file:`.rpm`)  | \(3)      |
-+--------------------+----------------------------------+-----------+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   bdist_appimage.rst
+   bdist_deb.rst
+   bdist_dmg.rst
+   bdist_mac.rst
+   bdist_msi.rst
+   bdist_rpm.rst
+
++-----------------------+---------------------------------------+-----------+
+| Command               | Description                           | Notes     |
++=======================+=======================================+===========+
+| :doc:`bdist_appimage` | AppImage application bundle           | \(1)      |
+|                       | (:file:`.AppImage`)                   |           |
++-----------------------+---------------------------------------+-----------+
+| :doc:`bdist_deb`      | DEB distribution (:file:`.deb`)       | \(2) \(3) |
++-----------------------+---------------------------------------+-----------+
+| :doc:`bdist_dmg`      | DMG disk image (:file:`.dmg`)         |           |
++-----------------------+---------------------------------------+-----------+
+| :doc:`bdist_mac`      | Mac application bundle (:file:`.app`) |           |
++-----------------------+---------------------------------------+-----------+
+| :doc:`bdist_msi`      | Windows installer (:file:`.msi`)      |           |
++-----------------------+---------------------------------------+-----------+
+| :doc:`bdist_rpm`      | RPM distribution (:file:`.rpm`)       | \(3)      |
++-----------------------+---------------------------------------+-----------+
 
 .. versionadded:: 7.0
    Support for the ``bdist_appimage`` and ``bdist_deb`` commands.
@@ -46,30 +54,3 @@ The available commands for built distributions are:
 
    #. requires external :program:`rpm` utility, version 3.0.4 or better
       (use ``rpm --version`` to find out which version you have).
-
-The following sections give details on the individual :command:`bdist_\*`
-commands.
-
-.. _bdist_appimage:
-
-.. include:: bdist_appimage.rst
-
-.. _bdist_deb:
-
-.. include:: bdist_deb.rst
-
-.. _bdist_dmg:
-
-.. include:: bdist_dmg.rst
-
-.. _bdist_mac:
-
-.. include:: bdist_mac.rst
-
-.. _bdist_msi:
-
-.. include:: bdist_msi.rst
-
-.. _bdist_rpm:
-
-.. include:: bdist_rpm.rst

@@ -24,7 +24,7 @@ The project's code layout
     by ``finder.py`` when certain packages are included or not found.
   * ``initscripts/`` - Python scripts which set up the interpreter to run from
     frozen code, then load the code from the zip file and set it running.
-  * ``cli.py`` - The code behind the :ref:`cxfreeze script <script>`.
+  * ``cli.py`` - The code behind the :doc:`cxfreeze script <../script>`.
   * ``common.py`` - Common utility functions shared between cx_Freeze modules.
   * ``exception.py`` - Internal exception classes.
   * ``executable.py`` - Module for the Executable base class.
@@ -46,4 +46,4 @@ The project's code layout
     application on Windows (GUI, console application or service). The base
     executable calls the initscript, which in turn calls the user's code.
   * ``util.c`` - Compiled functions for cx_Freeze itself. Compiles to
-    :mod:`cx_Freeze.util`. Functions are used only on Windows.
+    :file:`cx_Freeze.util`. Functions are used only on Windows.

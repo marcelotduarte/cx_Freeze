@@ -1,5 +1,5 @@
 bdist_deb
-`````````
+=========
 
 This command is available on Linux systems; It is a simple wrapper around
 'alien' that creates an RPM distribution, then converts to a DEB distribution.

@@ -55,7 +55,7 @@ repos:
   - id: build-docs
     name: build sphinx docs
     language: system
-    entry: python -m sphinx doc/src build/doc/html -d build/doc/.doctrees -j auto -b html
+    entry: python -m sphinx doc/src build/doc/html -d build/doc/.doctrees -j auto  -T -W --keep-going -n -b html
     always_run: true
     pass_filenames: false
 
