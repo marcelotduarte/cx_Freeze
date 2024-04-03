@@ -1,5 +1,3 @@
-.. _script:
-
 cxfreeze script
 ===============
 

@@ -74,7 +74,7 @@ Using data files
 ----------------
 
 Applications often need data files besides the code, such as icons. Using a
-:ref:`setup script <setup_script>`, you can list data files or directories in the
+:doc:`setup script <setup_script>`, you can list data files or directories in the
 ``include_files`` option to ``build_exe``. They'll be copied to the build
 directory alongside the executable. Then to find them, use code like this:
 
@@ -124,13 +124,13 @@ you have installed.
 Single-file executables
 -----------------------
 
-Recently, the :ref:`bdist_appimage` command was introduced for Linux,
+Recently, the :doc:`bdist_appimage` command was introduced for Linux,
 which supports the construction of a single exe file, where all your
 application's libraries are incorporated into an executable file.
 
 On other systems, this is not supported by **cx_Freeze**, however, for
-distribution, on Windows, you can use :ref:`bdist_msi` and on macOS,
-you can use :ref:`bdist_dmg`.
+distribution, on Windows, you can use :doc:`bdist_msi` and on macOS,
+you can use :doc:`bdist_dmg`.
 
 Also, you can use other tools to compress the build directory from
 **cx_Freeze** into a self-extracting archive:

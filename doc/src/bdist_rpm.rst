@@ -1,5 +1,8 @@
-bdist_rpm: Creating RPM packages
-````````````````````````````````
+bdist_rpm
+=========
+
+Creating RPM packages
+---------------------
 
 The RPM format is used by many popular Linux distributions, including Red Hat,
 SuSE, and Mandrake.  If one of these (or any of the other RPM-based Linux
@@ -99,9 +102,9 @@ options to the :command:`bdist_rpm` command as follows:
 
 Obviously, supplying even a few of these options on the command-line would be
 tedious and error-prone, so it's usually best to put them in the
-``pyproject.toml`` configuration file \ --- see section :ref:`setup_script`.
+``pyproject.toml`` configuration file \ --- see section :doc:`setup_script`.
 
-.. % FIXME: ---see section :ref:`setup_script`.
+.. % FIXME: ---see section :doc:`setup_script`.
 
 There are three steps to building a binary RPM package, all of which are
 handled automatically by the cx_Freeze:

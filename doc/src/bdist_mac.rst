@@ -1,5 +1,5 @@
 bdist_mac
-`````````
+=========
 
 This command is available on Mac OS X systems, to create a Mac application
 bundle (a .app directory).
