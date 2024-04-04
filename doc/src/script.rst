@@ -3,8 +3,8 @@ cxfreeze script
 
 The ``cxfreeze`` script is included with other Python scripts. On Windows and
 the Mac this is in the ``Scripts`` subdirectory of your Python installation
-whereas on Unix platforms this in the bin directory of the prefix where Python
-is installed.
+whereas on Unix platforms this is in the bin directory of the prefix where
+Python is installed.
 
 Assuming you have a script called ``hello.py`` which you want to turn into an
 executable, this can be accomplished by this command:
@@ -86,7 +86,7 @@ Further customization can be done using the following options:
 
 .. option:: --version
 
-   show version number and exit
+   show program's version number and exit
 
 .. option:: -h, --help
 

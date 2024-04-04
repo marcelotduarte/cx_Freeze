@@ -4,7 +4,7 @@ Creating Built Distributions
 
 A "built distribution" is what you're probably used to thinking of either as a
 "binary package" or an "installer" (depending on your background).  It's not
-necessarily binary, though, because it might contain byte-code.  (And
+necessarily binary, though, because it might contain bytecode.  (And
 "installer" is a term specific to the world of mainstream desktop systems.)
 
 A built distribution is how you make life as easy as possible for installers of

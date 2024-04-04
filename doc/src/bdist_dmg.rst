@@ -2,7 +2,7 @@ bdist_dmg
 =========
 
 This command is available on Mac OS X systems; it creates an application
-bundle, then packages it into a DMG disk image suitable for distribution and
+bundle, then package it into a DMG disk image suitable for distribution and
 installation.
 
 .. list-table::
@@ -15,7 +15,7 @@ installation.
    * - .. option:: volume_label
      - Volume label of the DMG disk image
    * - .. option:: applications_shortcut
-     - Boolean for whether to include shortcut to Applications in the DMG disk
+     - Boolean for whether to include shortcuts to Applications in the DMG disk
        image
    * - .. option:: silent (-s)
      - suppress all output except warnings

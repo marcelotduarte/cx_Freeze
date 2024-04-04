@@ -100,7 +100,7 @@ options to the :command:`bdist_rpm` command as follows:
      - Icon
      - (none)
 
-Obviously, supplying even a few of these options on the command-line would be
+Obviously, supplying even a few of these options on the command line would be
 tedious and error-prone, so it's usually best to put them in the
 ``pyproject.toml`` configuration file \ --- see section :doc:`setup_script`.
 

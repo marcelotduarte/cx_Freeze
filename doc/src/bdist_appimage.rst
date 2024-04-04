@@ -1,7 +1,7 @@
 bdist_appimage
 ``````````````
 
-This command is available on Linux systems, to create a AppImage application
+This command is available on Linux systems, to create an AppImage application
 bundle (a .AppImage file); bdist_appimage automates the process.
 
 An AppImage is a downloadable file for Linux that contains an application and

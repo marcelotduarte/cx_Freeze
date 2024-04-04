@@ -7,7 +7,7 @@ inherited from ``setuptools.setup()``.
 They allow configuring the build process for a Python distribution or adding
 metadata via a ``setup.py`` script placed at the root of your project.
 
-The keyword ``executables`` is required, while all of inherited keywords are
+The keyword ``executables`` is required, while all inherited keywords are
 optional; you do not have to supply them unless you need the associated
 ``cx_Freeze`` feature.
 
@@ -19,22 +19,21 @@ a default *degenerate* value if not specified.
 
 .. warning::
    cx_Freeze inherits keywords, metadata and configuration from setuptools,
-   but is a sotware layer above, to generate executables.
+   but it is a software layer on top, to generate executables.
 
-Users are strongly encouraged to use a declarative config either via
-:setuptools:`setup.cfg <userguide/declarative_config.html>` or
+Users are strongly encouraged to use a declarative config via
 :setuptools:`pyproject.toml <userguide/pyproject_config.html>`.
-
-.. note::
-   When using declarative configs via ``pyproject.toml``, only the basic
-   metadata are recognized.
 
 .. _keyword/executables:
 
 ``executables``
-    A list of :ref:`cx_freeze_executable`, a list of map (with the same
-    key/value as Executable) or a list of strings (with only the script key of
+    A list of :ref:`cx_freeze_executable`, a mapping list (with the same
+    key/value as Executable), or a list of strings (with only the script key of
     Executable). Required.
+
+    .. note::
+       When using declarative configs via ``setup.cfg``, executables
+       metadata isn't recognized.
 
 .. _keyword/name:
 
@@ -108,7 +107,7 @@ Users are strongly encouraged to use a declarative config either via
 .. _keyword/license_files:
 
 ``license_files``
-    A list of glob patterns for license related files that should be included.
+    A list of glob patterns for license-related files that should be included.
     If neither ``license_file`` nor ``license_files`` is specified, this option
     defaults to ``LICEN[CS]E*``, ``COPYING*``, ``NOTICE*``, and ``AUTHORS*``.
 

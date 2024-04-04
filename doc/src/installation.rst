@@ -24,7 +24,7 @@ You should install the latest version of :pypi:`cx_Freeze` using :pypi:`pip`:
 Pipenv
 ------
 
-Using pipenv, install or update by issuing one of the folowing command:
+Using pipenv, install or update by issuing one of the following commands:
 
   .. code-block:: console
 
@@ -46,7 +46,7 @@ Directly from the conda-forge channel:
 Python requirements
 -------------------
 
-Python requirements are installed automatically by pip, pipenv or conda.
+Python requirements are installed automatically by pip, pipenv, or conda.
 
   .. code-block:: console
 
@@ -59,7 +59,7 @@ Python requirements are installed automatically by pip, pipenv or conda.
    patchelf >= 0.14            (Linux)
    C compiler                  (required only if installing from sources)
 
-.. note:: If you have any trouble with patchelf, check :ref:`patchelf`.
+.. note:: If you have trouble with patchelf, check :ref:`patchelf`.
 
 Download the source code
 ------------------------

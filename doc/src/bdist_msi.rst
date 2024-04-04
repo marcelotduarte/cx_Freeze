@@ -15,11 +15,11 @@ command:
      - description
    * - .. option:: add_to_path
      - add the target directory to the PATH environment variable; the default
-       value is True if there are any console based executables and False
-       otherwise
+       value is True if there are any console-based executables and False
+       otherwise.
    * - .. option:: all_users
-     - perform installation for all users; the default value is False and
-       results in an installation for just the installing user
+     - install for all users; the default value is False and results in an
+       installation for just the installing user.
    * - .. option:: data
      - dictionary of arbitrary MSI data indexed by table name; for each table,
        a list of tuples should be provided, representing the rows that should
@@ -27,32 +27,32 @@ command:
        to the file containing the data.
    * - .. option:: summary_data
      - dictionary of data to include in MSI summary information stream
-       (allowable keys are "author", "comments", "keywords")
+       (allowable keys are "author", "comments", and "keywords").
    * - .. option:: directories
-     - list of directories that should be created during installation
+     - list of directories that should be created during installation.
    * - .. option:: environment_variables
      - list of environment variables that should be added to the system during
-       installation
+       installation.
    * - .. option:: initial_target_dir
      - defines the initial target directory supplied to the user during
-       installation; in order to specify a target directory of "XYZ" in the
+       installation; to specify a target directory of "XYZ" in the
        default program directory use "[ProgramFiles64Folder]\XYZ" or
-       "[ProgramFilesFolder]\XYZ" (for the default 64-bit or non-64 bit
-       locations, respectively)
+       "[ProgramFilesFolder]\XYZ" (for the default 64-bit or non-64-bit
+       locations, respectively).
    * - .. option:: install_icon
      - path of icon to use for the add/remove programs window that pops up
-       during installation
+       during installation.
    * - .. option:: product_code
-     - define the product code for the package that is created
+     - define the product code for the package that is created.
    * - .. option:: target_name
      - specifies the name of the file that is to be created; if the name
-       ends with ".msi" then it is used verbatim, otherwise information
-       about program version and platform will be added to the installer
-       name
+       ends with ".msi" then it is used verbatim, otherwise, information
+       about the program version and platform will be added to the installer
+       name.
    * - .. option:: upgrade_code
      - define the GUID of the upgrade code for the package that is created;
-       this is used to force removal of any packages created with the same
-       upgrade code prior to the installation of this one; the valid format for
+       this is used to force the removal of any packages created with the same
+       upgrade code before the installation of this one; the valid format for
        a GUID is {XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX} where X is a hex digit.
        Refer to `Windows GUID
        <https://docs.microsoft.com/en-us/windows/win32/api/guiddef/ns-guiddef-guid>`_.
