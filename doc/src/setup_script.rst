@@ -1,12 +1,12 @@
 Setup script
 ============
 
-cx_Freeze creates four new commands and subclasses four others in order to
-provide the ability to both build and install executables. In typical
-setuptools fashion they can be provided in the setup script (it is called
+cx_Freeze creates four new commands and subclasses four others to provide
+the ability to build and install executables. In typical setuptools fashion
+they can be provided in the setup script (it is called
 ``setup.py`` by convention, although it can have any name), in a
 ``pyproject.toml`` configuration file, in a ``setup.cfg`` configuration file,
-or on the command line. They are described in further detail below.
+or on the command line. They are described in detail below.
 
 Example
 -------
@@ -39,7 +39,7 @@ It looks something like this:
 
          from cx_Freeze import setup, Executable
 
-         # Dependencies are automatically detected, but it might need fine tuning.
+         # Dependencies are automatically detected, but they might need fine-tuning.
          build_exe_options = {
              "excludes": ["tkinter", "unittest"],
              "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
@@ -55,7 +55,7 @@ It looks something like this:
 
    .. group-tab:: setup.cfg
 
-      Is required to pass one executable at command line or a minimal
+      Is required to pass one executable at the command line or a minimal
       ``setup.py`` for more than one executable.
 
       ``setup.cfg``
@@ -133,7 +133,7 @@ The script is invoked as follows:
 
 This command will create a subdirectory called ``build`` with a further
 subdirectory starting with the letters ``exe.`` and ending with the typical
-identifier for the platform and python version. This allows for multiple
+identifier for the platform and Python version. This allows for multiple
 platforms to be built without conflicts.
 
 To specify options in the script, use underscores in the name. For example:
@@ -225,7 +225,7 @@ It can be further customized:
    * - .. option:: include_path
      - comma-separated list of paths to modify the search for modules
    * - .. option:: no_compress
-     - create a zipfile with no compression
+     - create a zip file with no compression
    * - .. option:: constants
      - comma-separated list of constant values to include in the constants
        module called BUILD_CONSTANTS in the form <name>=<value>
@@ -234,13 +234,13 @@ It can be further customized:
        that would normally be excluded, using first the full file name, then
        just the base file name, then the file name without any version numbers
        (the version numbers that normally follow the shared object extension
-       are stripped prior to performing the comparison)
+       are stripped before performing the comparison)
    * - .. option:: bin_excludes
      - list of files to exclude when determining dependencies of binary files
        that would normally be included, using first the full file name, then
        just the base file name, then the file name without any version numbers
        (the version numbers that normally follow the shared object extension
-       are stripped prior to performing the comparison)
+       are stripped before performing the comparison)
    * - .. option:: bin_path_includes
      - list of paths from which to include files when determining dependencies
        of binary files
@@ -264,16 +264,16 @@ It can be further customized:
        included if desired; use * to specify that all packages should be
        included in the zip file
    * - .. option:: zip_exclude_packages
-     - list of packages which should be excluded from the zip file and placed
-       in the file system instead; the default is for all packages to be placed
-       in the file system since a number of packages assume that is where they
+     - list of packages to exclude from the zip file and place in the file
+       system instead; the default is for all packages to be placed in the
+       file system since several packages assume that is where they
        are found and will fail when placed in a zip file; use * to specify that
        all packages should be placed in the file system and excluded from the
        zip file (the default)
    * - .. option:: silent
      - suppress all output except warnings (equivalent to silent_level=1)
    * - .. option:: silent_level
-     - suppress output from freeze process; can provide a value to specify
+     - suppress output from the freeze process; can provide a value to specify
        what messages should be suppressed, with the possible values being:
 
        0. do not suppress any output [default];

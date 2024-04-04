@@ -14,7 +14,7 @@ they're dynamically loaded - e.g. by a plugin system - you have to tell
 * List the module's compiled libraries (.dll or .so files) in the
   :option:`include_files` option.
 * Use :option:`bin_includes` to include dependencies of binary files that would
-  normally be excluded (a common use is to include "libffi.so").
+  normally be excluded (common use is to include "libffi.so").
 * Data files are a bit more complex - see :ref:`data_files`.
 
 Problems with freezing programs
@@ -26,14 +26,14 @@ packages, this may lead to undesired behavior, such as **cx_Freeze**
 encountering a recursion error when trying to compute the list of dependencies,
 or the `lib` folder of the frozen application containing many unnecessary
 packages.
-In this case, you may want to use **cx_Freeze** in a virtualenv. Alternatively,
-the `setup_script` also offers the :option:`excludes` option to explicitly
-exclude dependencies which would otherwise be included.
+In this case, use **cx_Freeze** in a virtualenv. Alternatively, the
+`setup_script` also offers the :option:`excludes` option to explicitly
+exclude dependencies that would otherwise be included.
 
 Specifying modules and packages
 -------------------------------
 
-The definitions of modules and packages are different. See python documentation.
+The definitions of modules and packages are different. See Python documentation.
 
 * :pythondocs:`Modules <tutorial/modules.html>`.
 * :pythondocs:`Packages <tutorial/modules.html#packages>`.
@@ -49,7 +49,7 @@ error as soon as it starts.
 There are two ways to debug what's going on:
 
 1. Freeze your application with the ``gui`` base (see :doc:`setup_script`
-   or :doc:`script`). This doesn't use a console window, and reports errors in
+   or :doc:`script`). This doesn't use a console window and reports errors in
    a dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen
    executable from the command line. This will let you see any error messages
@@ -58,14 +58,14 @@ There are two ways to debug what's going on:
 Freezing for other platforms
 ----------------------------
 
-**cx_Freeze** works on Windows, Mac and Linux, but on each platform it only
+**cx_Freeze** works on Windows, Mac, and Linux, but on each platform, it only
 makes an executable that runs on that platform. So if you want to freeze your
 programs for Windows, freeze it on Windows; if you want to run it on Macs,
 freeze it on a Mac.
 
 At a pinch, you can try to make a Windows executable using `Wine
 <https://www.winehq.org/>`_. Our experience is that you need to copy some files
-in manually after **cx_Freeze** has run to make the executable work. We don't
+manually after **cx_Freeze** has run to make the executable work. We don't
 recommend this option.
 
 .. _data_files:
@@ -111,8 +111,8 @@ you have installed.
 
 * If not, your users or your installer will need to install the Microsoft
   Visual C++ Redistributable Package.
-  It's not uncommon for this to already be present on modern computers, but
-  it's not, as far as we know, part of a standard Windows installation.
+  It's not uncommon for this to already be present on modern computers, but,
+  as far as we know, it's not part of a standard Windows installation.
 
   Download from Microsoft:
 
@@ -129,7 +129,7 @@ which supports the construction of a single exe file, where all your
 application's libraries are incorporated into an executable file.
 
 On other systems, this is not supported by **cx_Freeze**, however, for
-distribution, on Windows, you can use :doc:`bdist_msi` and on macOS,
+distribution, on Windows, you can use :doc:`bdist_msi`, and on macOS,
 you can use :doc:`bdist_dmg`.
 
 Also, you can use other tools to compress the build directory from
@@ -143,9 +143,9 @@ License for frozen programs
 ---------------------------
 
 When a python script is frozen with **cx_Freeze**, a small amount of **cx_Freeze**
-code is incorporated into the frozen program.  That code is used to
-setup and start python, and execute the frozen script, when the frozen program
-is launched. The incorporated **cx_Freeze** code is covered by the terms of the
+code is incorporated into the frozen program.  That code is used to configure
+and start Python, running the script when the frozen program is launched.
+The incorporated **cx_Freeze** code is covered by the terms of the
 **cx_Freeze** :doc:`license`, which requires a copy of the license to be
 included with the frozen program.
 
@@ -158,7 +158,7 @@ the frozen program.
 How to install Patchelf
 -----------------------
 
-Patchelf is used in Linux and unix-like systems (FreeBSD, etc, except macOS).
+Patchelf is used in Linux and Unix-like systems (FreeBSD, etc, except macOS).
 In Linux, cx_Freeze 6.10+ installs it using :pypi:`Patchelf <patchelf>` wheels.
 
 If you have any trouble with it, because your platform is not supported by

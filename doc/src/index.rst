@@ -2,14 +2,13 @@
 Welcome to cx_Freeze's documentation!
 =====================================
 
-**cx_Freeze** creates standalone executables from Python scripts, with the same
+**cx_Freeze** creates standalone executables from Python scripts with the same
 performance, is cross-platform and should work on any platform that Python_
-itself works on.
+works on.
 
-Current version of **cx_Freeze** is 7.0 and its supports Python 3.8 to 3.12.
+The current version of **cx_Freeze** is 7.0 and supports Python 3.8 to 3.12.
 
-**cx_Freeze** is distributed under an open-source :ref:`license <license>`
-(the PSF license).
+**cx_Freeze** is distributed under an open-source :ref:`PSF license <license>`.
 
 Contents:
 
