@@ -1,5 +1,6 @@
 # Makefile to automate some tools
 SHELL=/bin/bash
+PATH := $(shell python -c "import sysconfig; print(sysconfig.get_path('scripts'))"):$(PATH)
 
 BUILDDIR := ./build
 EXT_SUFFIX := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
@@ -9,8 +10,6 @@ PY_VERSION_NODOT := $(shell python -c "import sysconfig; print(sysconfig.get_con
 COVERAGE_FILE := $(BUILDDIR)/.coverage-$(PY_VERSION_NODOT)-$(PY_PLATFORM)
 PRE_COMMIT_OPTIONS := --show-diff-on-failure --color=always --all-files --hook-stage=manual
 CIBW_ONLY := cp$(PY_VERSION_NODOT)-manylinux_$(ARCH)
-CX_FREEZE_VERSION := $(shell bump-my-version show current_version|sed 's/-/./')
-CX_FREEZE_WHEEL := $(shell ls wheelhouse/cx_Freeze-$(CX_FREEZE_VERSION)-cp$(PY_VERSION_NODOT)-cp$(PY_VERSION_NODOT)-manylinux_*_$(ARCH).whl)
 
 .PHONY: all
 all: install
@@ -26,8 +25,7 @@ pylint:
 	@pylint cx_Freeze
 
 .PHONY: clean
-clean:
-	@pip uninstall -y cx_Freeze || true
+clean: uninstall
 	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		pre-commit clean;\
 		pre-commit uninstall;\
@@ -43,10 +41,17 @@ clean:
 install:
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
-		pip install -r requirements-dev.txt --upgrade --upgrade-strategy=eager &&\
+		pip install --upgrade --upgrade-strategy=eager\
+			-r requirements.txt -r requirements-dev.txt &&\
 		pip install -e . --no-build-isolation --no-deps &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
+
+.PHONY: uninstall
+uninstall:
+	@pip uninstall -y cx_Freeze || true
+	# remove editable wheel modules that exist in bases/lib-dynload
+	rm -rf cx_Freeze/bases/lib-dynload/*$(EXT_SUFFIX)
 
 .PHONY: upgrade
 upgrade: clean install
@@ -59,7 +64,7 @@ html:
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
-		pip install -e .[doc] --no-build-isolation &&\
+		pip install -r requirements-doc.txt --upgrade --upgrade-strategy=eager &&\
 		$(MAKE) -C doc html;\
 	fi
 
@@ -73,12 +78,12 @@ doc: html
 	$(MAKE) -C doc pdf
 
 .PHONY: install_test
-install_test:
+install_test: uninstall
 	if ! which pytest; then\
-		pip install -e .[test] --no-build-isolation;\
-	else\
-		pip install -e . --no-build-isolation;\
+		pip install --upgrade --upgrade-strategy=eager\
+		-r requirements.txt -r requirements-dev.txt  -r requirements-test.txt;\
 	fi
+	pip install -e . --no-build-isolation --no-deps;\
 
 .PHONY: test
 test: install_test
@@ -114,13 +119,13 @@ ifeq ($(PY_PLATFORM),win-amd64)
 	pip install "lief>0.13.2"
 endif
 ifeq ($(PY_PLATFORM),linux-x86_64)
-	if [ -z "$(CX_FREEZE_WHEEL)" ] && which podman; then\
+	if ! ls wheelhouse/cx_Freeze-$(bump-my-version show current_version|sed 's/-/./')-cp$(PY_VERSION_NODOT)-cp$(PY_VERSION_NODOT)-manylinux_*_$(ARCH).whl 1> /dev/null 2>&1 \
+	&& which podman; then\
 		CIBW_CONTAINER_ENGINE=podman cibuildwheel --only $(CIBW_ONLY);\
 	fi
-	unzip -q -o $(CX_FREEZE_WHEEL) \
-		"cx_Freeze/bases/*" -x "*.py"
-	COVERAGE_FILE=$(COVERAGE_FILE)-4 python -m pytest -nauto --cov="cx_Freeze" \
-		tests/test_command_build.py tests/test_command_build_exe.py
+	make uninstall
+	pip install cx_Freeze --no-index --no-deps -f wheelhouse
+	COVERAGE_FILE=$(COVERAGE_FILE)-4 python -m pytest -nauto --cov="cx_Freeze"
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
 	rm -rf $(BUILDDIR)/coverage

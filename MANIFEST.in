@@ -1,6 +1,8 @@
 include Makefile
 include requirements.txt
 include requirements-dev.txt
+include requirements-doc.txt
+include requirements-test.txt
 include cx_Freeze/util.pyi
 recursive-include cx_Freeze/hooks *.conf *.sh *.qrc
 recursive-include cx_Freeze/icons *.icns *.ico *.png *.svg
