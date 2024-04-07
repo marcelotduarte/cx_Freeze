@@ -11,7 +11,7 @@ directory:
 1.1 - Another method:
 
  ```
- pip install -r requirements-dev.txt --upgrade
+ pip install -r requirements-test.txt --upgrade
  python setup.py develop --no-deps
  ```
 

@@ -188,7 +188,7 @@ omit = [
 ]
 
 [tool.coverage.run]
-#relative_files = true
+relative_files = true
 
 [tool.pylint.format]
 max-line-length = 79

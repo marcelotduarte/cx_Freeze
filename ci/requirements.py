@@ -25,7 +25,6 @@ def main() -> None:
 
     root_dir = pyproject_toml.parent
     requirements = root_dir / "requirements.txt"
-    requires_dev = root_dir / "requirements-dev.txt"
 
     contents = [
         "--extra-index-url https://marcelotduarte.github.io/packages/",
@@ -49,17 +48,18 @@ def main() -> None:
         print(requirements, "ok")
 
     try:
-        extras_require = config["project"]["optional-dependencies"]
-        for extra, dependencies in extras_require.items():
-            contents.append(f"# {extra}")
-            contents.extend(dependencies)
-        contents.append("")
-        with requires_dev.open(mode="w", encoding="utf_8", newline="") as file:
-            file.write("\n".join(contents))
+        optional_dependencies = config["project"]["optional-dependencies"]
+        for extra, dependencies in optional_dependencies.items():
+            requirements = root_dir / f"requirements-{extra}.txt"
+            contents = dependencies.copy()
+            contents.append("")
+            with requirements.open(
+                mode="w", encoding="utf_8", newline=""
+            ) as file:
+                file.write("\n".join(contents))
+            print(requirements, "ok")
     except KeyError:
         pass
-    else:
-        print(requires_dev, "ok")
 
 
 if __name__ == "__main__":
