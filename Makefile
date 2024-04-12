@@ -87,33 +87,33 @@ install_test: uninstall
 
 .PHONY: test
 test: install_test
-	python -m pytest -nauto --no-cov
+	pytest -nauto --no-cov
 
 .PHONY: cov
 cov: install_test
-	python -m pytest -nauto --cov="cx_Freeze" --cov-report=html
+	pytest -nauto --cov="cx_Freeze" --cov-report=html
 	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: cov2
 cov2: install_test
 	coverage erase
 	COVERAGE_FILE=$(COVERAGE_FILE) coverage erase
-	COVERAGE_FILE=$(COVERAGE_FILE) python -m pytest -nauto --cov="cx_Freeze"
+	COVERAGE_FILE=$(COVERAGE_FILE) pytest -nauto --cov="cx_Freeze"
 ifeq ($(PY_PLATFORM),win-amd64)
 	# Extra coverage for Windows
 	# to test lief < 0.14
 	pip install "lief==0.13.2"
-	COVERAGE_FILE=$(COVERAGE_FILE)-1 python -m pytest -nauto --cov="cx_Freeze" \
+	COVERAGE_FILE=$(COVERAGE_FILE)-1 pytest -nauto --cov="cx_Freeze" \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py
 	# to test without lief (LIEF_DISABLED)
 	CX_FREEZE_BIND=imagehlp \
-	COVERAGE_FILE=$(COVERAGE_FILE)-2 python -m pytest -nauto --cov="cx_Freeze" \
+	COVERAGE_FILE=$(COVERAGE_FILE)-2 pytest -nauto --cov="cx_Freeze" \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py
 	# to coverage winversioninfo using pywin32
 	pip install --upgrade pywin32
-	COVERAGE_FILE=$(COVERAGE_FILE)-3 python -m pytest -nauto --cov="cx_Freeze" \
+	COVERAGE_FILE=$(COVERAGE_FILE)-3 pytest -nauto --cov="cx_Freeze" \
 		tests/test_winversioninfo.py
 	pip uninstall -y pywin32
 	pip install "lief>0.13.2"
@@ -125,7 +125,7 @@ ifeq ($(PY_PLATFORM),linux-x86_64)
 	fi
 	make uninstall
 	pip install cx_Freeze --no-index --no-deps -f wheelhouse
-	COVERAGE_FILE=$(COVERAGE_FILE)-4 python -m pytest -nauto --cov="cx_Freeze"
+	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze"
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
 	rm -rf $(BUILDDIR)/coverage
