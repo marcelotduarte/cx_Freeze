@@ -27,7 +27,7 @@ jobs:
       - name: Run pre-commit
         run: >-
           pre-commit run --show-diff-on-failure --color=always
-          --all-files --hook-stage manual
+          --all-files --hook-stage=manual
 
   tests:
     runs-on: ${{ matrix.os }}
@@ -59,7 +59,7 @@ jobs:
           pip install -v -e .[test] --no-build-isolation
 
       - name: Generate coverage report
-        run: python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml
+        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -78,8 +78,6 @@ jobs:
           - lief==0.13.2
           - lief-disabled
           - pywin32
-        include:
-          - { os: ubuntu-latest, python-version: '3.10' }
     defaults:
       run:
         shell: bash
@@ -99,25 +97,68 @@ jobs:
           pip install -r requirements.txt --pre
           pip install -v -e .[test] --no-build-isolation
 
-      - name: Generate coverage report (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          pip install "`grep cibuildwheel requirements-dev.txt`"
-          PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
-          cibuildwheel --only cp${PY_VERSION_NODOT}-manylinux_x86_64
-          unzip -q -o wheelhouse/cx_Freeze-*.whl "cx_Freeze/bases/*" -x "*.py"
-          python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml\
-            -o pythonpath=cx_Freeze/bases/lib-dynload
-
-      - name: Generate coverage report (Windows)
-        if: runner.os == 'Windows'
+      - name: Generate coverage report
         run: |
           if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
             export CX_FREEZE_BIND=imagehlp
           else
             pip install "${{ matrix.extra-requirement }}"
           fi
-          python -m pytest -nauto --cov="cx_Freeze" --cov-report=xml
+          pytest -nauto --cov="cx_Freeze" --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  tests_unix_binary_wheel:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: ['3.12']
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          repository: marcelotduarte/cx_Freeze
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          cache: 'pip'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies - build wheel
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install "`grep cibuildwheel requirements-dev.txt`"
+
+      - name: Build wheel for Python ${{ matrix.python-version }}
+        run: |
+          PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
+          cibuildwheel --only cp${PY_VERSION_NODOT}-manylinux_x86_64
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
+          path: wheelhouse
+
+      - name: Install dependencies - tests
+        run: |
+          pip install -r requirements.txt --pre
+          pip install -r requirements-test.txt
+          pip install cx_Freeze --no-index --no-deps -f wheelhouse
+
+      - name: Generate coverage report
+        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

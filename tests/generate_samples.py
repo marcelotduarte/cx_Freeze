@@ -6,6 +6,7 @@ import os
 import string
 import sys
 from pathlib import Path
+from shutil import which
 from subprocess import check_output
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -511,6 +512,14 @@ def run_command(
         command = [os.fspath(command)]
 
     command = command.split() if isinstance(command, str) else list(command)
+    if command[0] == "cxfreeze":
+        cxfreeze = which("cxfreeze")
+        if not cxfreeze:
+            cxfreeze = which("cxfreeze", path=os.pathsep.join(sys.path))
+        if cxfreeze:
+            command[0] = cxfreeze
+        else:
+            command = "python -m cx_Freeze".split() + command[1:]
     if command[0] == "python":
         command[0] = sys.executable
     return check_output(
