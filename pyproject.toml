@@ -182,9 +182,9 @@ exclude_also = [
 ]
 ignore_errors = true
 omit = [
-    "cx_Freeze/hooks/*",
-    "cx_Freeze/initscripts/*",
-    "cx_Freeze/_typing.py",
+    "*/cx_Freeze/hooks/*",
+    "*/cx_Freeze/initscripts/*",
+    "*/cx_Freeze/_typing.py",
 ]
 
 [tool.coverage.run]

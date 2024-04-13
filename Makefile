@@ -50,8 +50,8 @@ install:
 .PHONY: uninstall
 uninstall:
 	@pip uninstall -y cx_Freeze || true
-	# remove editable wheel modules that exist in bases/lib-dynload
-	rm -rf cx_Freeze/bases/lib-dynload/*$(EXT_SUFFIX)
+	@# remove editable wheel modules that exist in bases/lib-dynload
+	@rm -rf cx_Freeze/bases/lib-dynload/*$(EXT_SUFFIX)
 
 .PHONY: upgrade
 upgrade: clean install
@@ -91,8 +91,10 @@ test: install_test
 
 .PHONY: cov
 cov: install_test
+	@rm -rf $(BUILDDIR)/coverage
 	pytest -nauto --cov="cx_Freeze" --cov-report=html
-	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
+	coverage report
+	@python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: cov2
 cov2: install_test
@@ -123,14 +125,15 @@ ifeq ($(PY_PLATFORM),linux-x86_64)
 	&& which podman; then\
 		CIBW_CONTAINER_ENGINE=podman cibuildwheel --only $(CIBW_ONLY);\
 	fi
-	make uninstall
+	$(MAKE) uninstall
 	pip install cx_Freeze --no-index --no-deps -f wheelhouse
 	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze"
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
-	rm -rf $(BUILDDIR)/coverage
+	@rm -rf $(BUILDDIR)/coverage
 	coverage html
-	python -m webbrowser -t $(BUILDDIR)/coverage/index.html
+	coverage report
+	@python -m webbrowser -t $(BUILDDIR)/coverage/index.html
 
 .PHONY: release
 release:
