@@ -42,7 +42,8 @@ install:
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
 		pip install --upgrade --upgrade-strategy=eager\
-			-r requirements.txt -r requirements-dev.txt &&\
+			-r requirements.txt \
+			-r requirements-dev.txt -r requirements-doc.txt &&\
 		pip install -e . --no-build-isolation --no-deps &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
