@@ -81,7 +81,7 @@ doc: html
 install_test: uninstall
 	if ! which pytest; then\
 		pip install --upgrade --upgrade-strategy=eager\
-		-r requirements.txt -r requirements-dev.txt  -r requirements-test.txt;\
+		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt;\
 	fi
 	pip install -e . --no-build-isolation --no-deps;\
 

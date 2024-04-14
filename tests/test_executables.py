@@ -158,7 +158,7 @@ def test_valid(option, value, result) -> None:
 
 
 @pytest.mark.parametrize(
-    ("class_to_test", "kwargs", "exception", "match"),
+    ("class_to_test", "kwargs", "expected_exception", "expected_match"),
     [
         (
             Distribution,
@@ -206,9 +206,11 @@ def test_valid(option, value, result) -> None:
         "executable-invalid-target_name-isidentifier",
     ],
 )
-def test_invalid(class_to_test, kwargs, exception, match) -> None:
+def test_invalid(
+    class_to_test, kwargs, expected_exception, expected_match
+) -> None:
     """Test invalid values to use in Distribution and Executable classes."""
-    with pytest.raises(exception, match=match):
+    with pytest.raises(expected_exception, match=expected_match):
         class_to_test(**kwargs)
 
 

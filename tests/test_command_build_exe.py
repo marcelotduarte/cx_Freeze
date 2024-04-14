@@ -45,13 +45,6 @@ DIST_ATTRS = {
             {"build_exe": BUILD_EXE_DIR},
             id="build-exe=none",
         ),
-        # build_exe directory is the same as the build_base
-        pytest.param(
-            {"build_exe": "build"},
-            {"build_exe": None},
-            id="build-exe=build",
-            marks=pytest.mark.xfail(raises=SetupError),
-        ),
         pytest.param(
             {"build_exe": "dist"}, {"build_exe": "dist"}, id="build-exe=dist"
         ),
@@ -159,6 +152,27 @@ def test_build_exe_finalize_options(
     cmd.ensure_finalized()
     for option, value in expected.items():
         assert getattr(cmd, option) == value
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected_exception", "expected_match"),
+    [
+        pytest.param(
+            {"build_exe": "build"},
+            SetupError,
+            "build_exe option cannot be the same as build_base directory",
+            id="build-exe=build",
+        ),
+    ],
+)
+def test_build_exe_finalize_options_raises(
+    kwargs: dict[str, ...], expected_exception, expected_match: str
+) -> None:
+    """Test the build_exe finalize_options that raises an exception."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = build_exe(dist, **kwargs)
+    with pytest.raises(expected_exception, match=expected_match):
+        cmd.finalize_options()
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "advanced")
