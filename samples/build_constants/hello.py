@@ -14,7 +14,7 @@ print(
 print(f"Executable: {sys.executable!r}\n")
 
 
-excludedVars = [
+excluded_vars = [
     "__builtins__",
     "__cached__",
     "__doc__",
@@ -25,7 +25,7 @@ excludedVars = [
 
 print("== variables in BUILD_CONSTANTS ==\n")
 for var in dir(BUILD_CONSTANTS):
-    if var in excludedVars:
+    if var in excluded_vars:
         continue
     attr = BUILD_CONSTANTS.__getattribute__(var)
     print(f"{var} = {attr!r}")
