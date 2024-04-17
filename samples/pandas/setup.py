@@ -10,17 +10,18 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application.
 """
 
+import sys
 from cx_Freeze import Executable, setup
 
+sys.setrecursionlimit(sys.getrecursionlimit() * 10)
+
+executables = [Executable("test_pandas.py")]
 options = {
     "build_exe": {
         # exclude packages that are not really needed
         "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     },
 }
-executables = [
-    Executable("test_pandas.py"),
-]
 
 setup(
     name="test_pandas",

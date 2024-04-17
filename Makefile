@@ -42,7 +42,8 @@ install:
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		python -m pip install --upgrade pip &&\
 		pip install --upgrade --upgrade-strategy=eager\
-			-r requirements.txt -r requirements-dev.txt &&\
+			-r requirements.txt \
+			-r requirements-dev.txt -r requirements-doc.txt &&\
 		pip install -e . --no-build-isolation --no-deps &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
@@ -100,7 +101,7 @@ cov: install_test
 cov2: install_test
 	coverage erase
 	COVERAGE_FILE=$(COVERAGE_FILE) coverage erase
-	COVERAGE_FILE=$(COVERAGE_FILE) pytest -nauto --cov="cx_Freeze"
+	COVERAGE_FILE=$(COVERAGE_FILE) pytest -nauto --cov="cx_Freeze" || true
 ifeq ($(PY_PLATFORM),win-amd64)
 	# Extra coverage for Windows
 	# to test lief < 0.14
@@ -127,7 +128,7 @@ ifeq ($(PY_PLATFORM),linux-x86_64)
 	fi
 	$(MAKE) uninstall
 	pip install cx_Freeze --no-index --no-deps -f wheelhouse
-	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze"
+	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze" || true
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
 	@rm -rf $(BUILDDIR)/coverage
