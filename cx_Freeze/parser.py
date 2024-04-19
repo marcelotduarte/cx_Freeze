@@ -316,9 +316,14 @@ class ELFParser(Parser):
         self.run_patchelf(["--set-soname", new_so_name, filename])
 
     def run_patchelf(self, args: list[str]) -> str:
-        return subprocess.check_output(
-            [self._patchelf, *args], encoding="utf_8"
+        process = subprocess.run(
+            [self._patchelf, *args], check=True, capture_output=True, text=True
         )
+        if self._silent < 1:
+            print("patchelf", *args, "returns:", repr(process.stdout))
+            if process.stderr:
+                print("patchelf errors:", repr(process.stderr))
+        return process.stdout
 
     @staticmethod
     def _set_write_mode(filename: str | Path) -> None:
