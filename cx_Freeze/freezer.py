@@ -237,7 +237,9 @@ class Freezer:
             try:
                 symlink = real_source.relative_to(source.parent)
             except ValueError:
-                symlink = Path(os.path.relpath(real_source, source.parent))
+                symlink = Path(
+                    os.path.relpath(real_source, source.parent.resolve())
+                )
             real_target = target.with_name(symlink.name)
             if self.silent < 1:
                 print(f"[delay] linking {target} -> {symlink}")
