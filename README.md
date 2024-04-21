@@ -19,7 +19,9 @@ itself works on.
 
 In a virtual environment, install by issuing the command:
 
-`pip install --upgrade cx_Freeze`
+```
+pip install --upgrade cx_Freeze
+```
 
 To install the latest development build:
 
@@ -27,8 +29,8 @@ To install the latest development build:
 pip install --force --no-cache --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
 ```
 
-Please check the [installation]
-(https://cx-freeze.readthedocs.io/en/latest/installation.html)
+Please check the
+[installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
 for more information and how to install in other environments such as pipenv,
 conda-forge, etc.
 
