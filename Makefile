@@ -140,7 +140,7 @@ endif
 release:
 	@echo "# Run:\n"\
 	"bump-my-version bump release\n"\
-	"git push origin main --tags"
+	"git push origin `git branch --show-current` --tags"
 
 .PHONY: release-patch
 release-patch:
