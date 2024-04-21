@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.26.0).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.26.4).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # numpy >= 1.26.0
@@ -73,7 +73,9 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     ]:
         finder.exclude_module(f"numpy.{mod}")
     # Include dynamically loaded module
-    finder.include_module("numpy.core._dtype_ctypes")
+    finder.include_package("numpy.core")  # numpy.core._dtype_ctypes
+    finder.include_module("numpy.lib.format")
+    finder.include_module("numpy.polynomial")
     finder.include_module("secrets")
 
 
