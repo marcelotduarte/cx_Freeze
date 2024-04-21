@@ -14,6 +14,7 @@ Release notes
 Version 7.0 (April 21)
 ----------------------
 
+#)  hooks: support numpy in python 3.12 (:pull:`2345`) :user:`marcelotduarte`
 #)  test: add simple test for bdist_mac (:pull:`2343`) :user:`marcelotduarte`
 #)  fix: regression in _pre_copy_hook (Linux) (:pull:`2342`) :user:`marcelotduarte`
 #)  build(deps): update dev dependencies (:pull:`2341`) :user:`marcelotduarte`
