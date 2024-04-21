@@ -243,7 +243,7 @@ extlinks = {
         "https://github.com/marcelotduarte/cx_Freeze/issues/%s",
         "Issue #%s",
     ),
-    "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "PR #%s"),
+    "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "#%s"),
     "user": ("https://github.com/%s", "@%s"),
     # python
     "packaging": ("https://packaging.python.org/%s", "%s"),
