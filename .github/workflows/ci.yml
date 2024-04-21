@@ -118,7 +118,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        python-version: ['3.11']
+        python-version: ['3.12']
     defaults:
       run:
         shell: bash
@@ -142,8 +142,8 @@ jobs:
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
-          PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
-          cibuildwheel --only cp${PY_VERSION_NODOT}-manylinux_x86_64
+          PYTHON_TAG=cp$(echo ${{ matrix.python-version }}|sed 's/\.//')
+          cibuildwheel --only ${PYTHON_TAG}-manylinux_x86_64
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
