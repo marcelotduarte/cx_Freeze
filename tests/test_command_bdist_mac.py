@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from subprocess import CalledProcessError
 
 import pytest
 from generate_samples import run_command
@@ -43,13 +44,22 @@ def test_bdist_mac(datafiles: Path) -> None:
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_dmg(datafiles: Path) -> None:
+def test_bdist_dmg(datafiles: Path, capsys) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "hello"
     version = "0.1.2.3"
     dist_created = datafiles / "build"
 
-    run_command(datafiles, "python setup.py bdist_dmg")
+    try:
+        run_command(datafiles, "python setup.py bdist_dmg")
+    except CalledProcessError as exc:
+        if exc.stderr.startswith("hdiutil: create failed - Resource busy"):
+            pytest.xfail(
+                reason=f"CalledProcessError: {exc.args[0]} - exc.stderr"
+            )
+        captured = capsys.readouterr()
+        if captured.err.startswith("hdiutil: create failed - Resource busy"):
+            pytest.xfail(reason=captured.err[:-1])
 
     base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}.dmg"
