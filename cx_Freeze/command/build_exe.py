@@ -28,12 +28,6 @@ class build_exe(Command):
             "b",
             "directory for built executables and dependent files",
         ),
-        (
-            "optimize=",
-            "O",
-            'optimization level: -O1 for "python -O", '
-            '-O2 for "python -OO" and -O0 to disable [default: -O0]',
-        ),
         ("excludes=", "e", "comma-separated list of modules to exclude"),
         ("includes=", "i", "comma-separated list of modules to include"),
         (
@@ -62,27 +56,27 @@ class build_exe(Command):
         ("no-compress", None, "create a zipfile with no compression"),
         ("constants=", None, "comma-separated list of constants to include"),
         (
-            "bin-includes",
-            None,
-            "list of files to include when determining "
-            "dependencies of binary files that would normally be excluded",
-        ),
-        (
-            "bin-excludes",
+            "bin-excludes=",
             None,
             "list of files to exclude when determining "
             "dependencies of binary files that would normally be included",
         ),
         (
-            "bin-path-includes",
+            "bin-includes=",
             None,
-            "list of paths from which to include files when determining "
+            "list of files to include when determining "
+            "dependencies of binary files that would normally be excluded",
+        ),
+        (
+            "bin-path-excludes=",
+            None,
+            "list of paths from which to exclude files when determining "
             "dependencies of binary files",
         ),
         (
-            "bin-path-excludes",
+            "bin-path-includes=",
             None,
-            "list of paths from which to exclude files when determining "
+            "list of paths from which to include files when determining "
             "dependencies of binary files",
         ),
         (
@@ -96,17 +90,23 @@ class build_exe(Command):
             "list of tuples of additional files to include in zip file",
         ),
         (
+            "zip-exclude-packages=",
+            None,
+            "comma-separated list of packages to exclude from the zip file "
+            "and place in the file system instead (or * for all) "
+            "[default: *]",
+        ),
+        (
             "zip-include-packages=",
             None,
             "comma-separated list of packages to include in the zip file "
             "(or * for all) [default: none]",
         ),
         (
-            "zip-exclude-packages=",
-            None,
-            "comma-separated list of packages to exclude from the zip file "
-            "and place in the file system instead (or * for all) "
-            "[default: *]",
+            "optimize=",
+            "O",
+            'optimization level: -O1 for "python -O", '
+            '-O2 for "python -OO" and -O0 to disable [default: -O0]',
         ),
         (
             "silent",
@@ -187,12 +187,12 @@ class build_exe(Command):
             "constants",
             "bin_excludes",
             "bin_includes",
-            "bin_path_includes",
             "bin_path_excludes",
+            "bin_path_includes",
             "include_files",
             "zip_includes",
-            "zip_include_packages",
             "zip_exclude_packages",
+            "zip_include_packages",
         ]
         for option in self.list_options:
             setattr(self, option, [])
@@ -211,8 +211,7 @@ class build_exe(Command):
         build = self.get_finalized_command("build")
         # check use of deprecated option
         options = build.distribution.get_option_dict("build")
-        build_build_exe = options.get("build_exe", (None, None))[1]
-        if build_build_exe:
+        if options.get("build_exe", (None, None)) != (None, None):
             msg = (
                 "[REMOVED] The use of build command with 'build-exe' "
                 "option is deprecated.\n\t\t"
@@ -224,7 +223,7 @@ class build_exe(Command):
         if self.build_exe == self.build_base:
             msg = "build_exe option cannot be the same as build_base directory"
             raise SetupError(msg)
-        if self.build_exe is None:
+        if not self.build_exe:  # empty or None
             dir_name = f"exe.{get_platform()}-{get_python_version()}"
             self.build_exe = os.path.join(self.build_base, dir_name)
 
@@ -236,7 +235,7 @@ class build_exe(Command):
         if self.path and isinstance(self.path, str):
             self.path = self.path.replace(os.pathsep, ",")
         include_path = self.include_path
-        if include_path is not None:
+        if include_path:  # not empty nor None
             include_path = normalize_to_list(
                 include_path.replace(os.pathsep, ",")
             )
@@ -247,8 +246,7 @@ class build_exe(Command):
         self.silent = int(self.silent or self.silent_level or 0)
 
         # other options
-        if self.include_msvcr is None:
-            self.include_msvcr = False
+        self.include_msvcr = bool(self.include_msvcr)
         self.optimize = int(self.optimize or 0)
 
     def run(self) -> None:
