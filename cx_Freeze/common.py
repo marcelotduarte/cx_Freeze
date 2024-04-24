@@ -41,7 +41,7 @@ def normalize_to_list(
     """Takes the different formats of options containing multiple values and
     returns the value as a list object.
     """
-    if value is None:
+    if not value:  # empty or None
         return []
     if isinstance(value, str):
         return value.split(",")

@@ -6,7 +6,11 @@ import sys
 from sysconfig import get_platform, get_python_version
 from typing import TYPE_CHECKING
 
+import pytest
 from generate_samples import create_package, run_command
+from setuptools import Distribution
+
+from cx_Freeze.exception import OptionError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -59,3 +63,34 @@ def test_build(tmp_path: Path) -> None:
 
     # compare
     assert files1 == files2
+
+
+@pytest.mark.parametrize(
+    ("build_args", "expected_exception", "expected_match"),
+    [
+        pytest.param(
+            ["--build-exe="], OptionError, "[REMOVED]", id="build-exe="
+        ),
+    ],
+)
+def test_build_raises(
+    tmp_path: Path,
+    monkeypatch,
+    build_args: list[str],
+    expected_exception,
+    expected_match: str,
+) -> None:
+    """Test the build with an option that raises an exception."""
+    create_package(tmp_path, SOURCE)
+    monkeypatch.chdir(tmp_path)
+    dist = Distribution(
+        {
+            "executables": ["test.py"],
+            "script_name": "setup.py",
+            "script_args": ["build", *build_args],
+        }
+    )
+    dist.parse_command_line()
+    dist.dump_option_dicts()
+    with pytest.raises(expected_exception, match=expected_match):
+        dist.run_command("build")

@@ -175,6 +175,144 @@ def test_build_exe_finalize_options_raises(
         cmd.finalize_options()
 
 
+@pytest.mark.parametrize(
+    ("build_args", "expected"),
+    [
+        pytest.param(
+            [], {"build_exe": BUILD_EXE_DIR}, id="--build-exe(notused)"
+        ),
+        pytest.param(
+            ["--build-exe="], {"build_exe": BUILD_EXE_DIR}, id="--build-exe="
+        ),
+        pytest.param(
+            ["--build-exe=dist"], {"build_exe": "dist"}, id="--build-exe=dist"
+        ),
+        pytest.param(["--excludes="], {"excludes": []}, id="--excludes="),
+        pytest.param(
+            ["--excludes=tkinter,unittest"],
+            {"excludes": ["tkinter", "unittest"]},
+            id="--excludes=tkinter,unittest",
+        ),
+        pytest.param(["--includes="], {"includes": []}, id="--includes="),
+        pytest.param(
+            ["--includes=tkinter,unittest"],
+            {"includes": ["tkinter", "unittest"]},
+            id="--includes=tkinter,unittest",
+        ),
+        pytest.param(["--packages="], {"packages": []}, id="--packages="),
+        pytest.param(
+            ["--packages=tkinter,unittest"],
+            {"packages": ["tkinter", "unittest"]},
+            id="--packages=tkinter,unittest",
+        ),
+        pytest.param(
+            ["--replace-paths=*="],
+            {"replace_paths": ["*="]},
+            id="--replace-paths=*=",
+        ),
+        pytest.param(
+            ["--bin-excludes="], {"bin_excludes": []}, id="--bin-excludes="
+        ),
+        pytest.param(
+            ["--bin-includes="], {"bin_includes": []}, id="--bin-includes="
+        ),
+        pytest.param(
+            ["--bin-path-excludes="],
+            {"bin_path_excludes": []},
+            id="--bin-path-excludes=",
+        ),
+        pytest.param(
+            ["--bin-path-includes="],
+            {"bin_path_includes": []},
+            id="--bin-path-includes=",
+        ),
+        pytest.param(
+            ["--include-files="], {"include_files": []}, id="--include-files="
+        ),
+        pytest.param(
+            ["--zip-includes="], {"zip_includes": []}, id="--zip-includes="
+        ),
+        pytest.param(
+            [],
+            {"zip_include_packages": [], "zip_exclude_packages": ["*"]},
+            id="--zip-include-packages/--zip-exclude-packages(notused)",
+        ),
+        pytest.param(
+            ["--zip-include-packages=", "--zip-exclude-packages="],
+            {"zip_include_packages": [], "zip_exclude_packages": []},
+            id="--zip-include-packages=/--zip-exclude-packages=",
+        ),
+        pytest.param(
+            ["--zip-include-packages=*", "--zip-exclude-packages="],
+            {"zip_include_packages": ["*"], "zip_exclude_packages": []},
+            id="--zip-include-package=*/--zip-exclude-packages=",
+        ),
+        pytest.param(
+            ["--zip-include-packages=", "--zip-exclude-packages=*"],
+            {"zip_include_packages": [], "zip_exclude_packages": ["*"]},
+            id="--zip-include-packages=/--zip-exclude-packages=*",
+        ),
+        pytest.param(  # zip_*_packages are namespace packages
+            [
+                "--zip-include-packages=namespace.test",
+                "--zip-exclude-packages=zope.event,zope.interface",
+            ],
+            {
+                "zip_include_packages": ["namespace.test"],
+                "zip_exclude_packages": ["zope.event", "zope.interface"],
+            },
+            id="--zip-include-packages/--zip-exclude-packages=namespace/namespace",
+        ),
+        pytest.param([], {"optimize": 0}, id="--optimize(notused)"),
+        pytest.param(["--optimize=0"], {"optimize": 0}, id="--optimize=0"),
+        pytest.param(["--optimize=1"], {"optimize": 1}, id="--optimize=1"),
+        pytest.param(["--optimize=2"], {"optimize": 2}, id="--optimize=2"),
+        pytest.param(["-O0"], {"optimize": 0}, id="--optimize(-O0"),
+        pytest.param(["-O1"], {"optimize": 1}, id="--optimize(-O1"),
+        pytest.param(["-O2"], {"optimize": 2}, id="--optimize(-O2"),
+        pytest.param([], {"silent": 0}, id="--silent(notused)"),
+        pytest.param(["--silent"], {"silent": 1}, id="--silent"),
+        pytest.param(
+            ["--silent-level=0"], {"silent": 0}, id="--silent-level=0->0"
+        ),
+        pytest.param(
+            ["--silent-level=1"], {"silent": 1}, id="--silent-level=1->1"
+        ),
+        pytest.param(
+            ["--silent-level=2"], {"silent": 2}, id="--silent-level=2->2"
+        ),
+        pytest.param(
+            ["--silent-level=3"], {"silent": 3}, id="--silent-level=3->3"
+        ),
+        pytest.param(
+            [],
+            {"include_msvcr": False},
+            id="--include-msvcr(notused)",
+            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
+        ),
+        pytest.param(
+            ["--include-msvcr"],
+            {"include_msvcr": True},
+            id="--include-msvcr",
+            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
+        ),
+    ],
+)
+def test_build_exe_script_args(
+    build_args: list[str], expected: dict[str, ...]
+) -> None:
+    """Test the build_exe with command line parameters."""
+    attrs = DIST_ATTRS.copy()
+    attrs["script_args"] = ["build_exe", *build_args]
+    dist = Distribution(attrs)
+    dist.parse_command_line()
+    dist.dump_option_dicts()
+    cmd_obj = dist.get_command_obj("build_exe")
+    cmd_obj.ensure_finalized()
+    for option, value in expected.items():
+        assert getattr(cmd_obj, option) == value
+
+
 @pytest.mark.datafiles(SAMPLES_DIR / "advanced")
 def test_build_exe_advanced(datafiles: Path) -> None:
     """Test the advanced sample."""
