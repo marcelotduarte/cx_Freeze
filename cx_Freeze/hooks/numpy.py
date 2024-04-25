@@ -87,6 +87,20 @@ def load_numpy_core__add_newdocs(
     finder.include_module("numpy.core._multiarray_tests")
 
 
+def load_numpy_core_overrides(finder: ModuleFinder, module: Module) -> None:
+    """Recompile the numpy.core.overrides module to limit optimization by
+    avoiding removing docstrings, which are required for this module.
+    """
+    code_string = module.file.read_text(encoding="utf_8")
+    module.code = compile(
+        code_string.replace("dispatcher.__doc__", "dispatcher.__doc__ or ''"),
+        os.fspath(module.file),
+        "exec",
+        dont_inherit=True,
+        optimize=min(finder.optimize, 1),
+    )
+
+
 def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     """Fix the location of dependent files in Windows and macOS."""
     if IS_LINUX or IS_MINGW:

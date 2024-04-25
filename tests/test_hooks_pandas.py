@@ -24,7 +24,7 @@ pytest.importorskip("numpy", reason="Depends on extra package: numpy")
 @pytest.mark.datafiles(SAMPLES_DIR / "pandas")
 def test_pandas(datafiles: Path) -> None:
     """Test that the pandas/numpy is working correctly."""
-    output = run_command(datafiles)
+    output = run_command(datafiles, "python setup.py build_exe -O2")
     executable = datafiles / BUILD_EXE_DIR / f"test_pandas{SUFFIX}"
     assert executable.is_file()
 
