@@ -53,13 +53,20 @@ def test_bdist_dmg(datafiles: Path, capsys) -> None:
     try:
         run_command(datafiles, "python setup.py bdist_dmg")
     except CalledProcessError as exc:
-        if exc.stderr.startswith("hdiutil: create failed - Resource busy"):
+        expected_err = "hdiutil: create failed - Resource busy"
+        if exc.stderr and exc.stderr.startswith(expected_err):
             pytest.xfail(
                 reason=f"CalledProcessError: {exc.args[0]} - exc.stderr"
             )
+        if exc.stdout and exc.stdout.startswith(expected_err):
+            pytest.xfail(
+                reason=f"CalledProcessError: {exc.args[0]} - exc.stdout"
+            )
         captured = capsys.readouterr()
-        if captured.err.startswith("hdiutil: create failed - Resource busy"):
+        if captured.err.startswith(expected_err):
             pytest.xfail(reason=captured.err[:-1])
+        if captured.out.startswith(expected_err):
+            pytest.xfail(reason=captured.out[:-1])
 
     base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}.dmg"
