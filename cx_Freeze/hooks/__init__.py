@@ -602,6 +602,8 @@ def load_subprocess(finder: ModuleFinder, module: Module) -> None:
         exclude_names = ("_posixsubprocess", "fcntl", "grp", "pwd")
     elif not IS_MINGW:
         exclude_names = ("msvcrt", "_winapi")
+    else:
+        return
     module.exclude_names.update(exclude_names)
 
 
