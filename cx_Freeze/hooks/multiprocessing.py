@@ -8,7 +8,7 @@ import os
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from cx_Freeze.module import Module
@@ -27,7 +27,7 @@ def load_multiprocessing(_, module: Module) -> None:
     # - fork in Unix (including macOS) is native;
     # - spawn in Windows is native (since 4.3.4) but was improved in v6.2;
     # - spawn and forkserver in Unix is implemented here.
-    if IS_WINDOWS:
+    if IS_MINGW or IS_WINDOWS:
         return
     if module.file.suffix == ".pyc":  # source unavailable
         return
@@ -54,7 +54,7 @@ def load_multiprocessing(_, module: Module) -> None:
 
 def load_multiprocessing_connection(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if not IS_WINDOWS:
+    if not IS_MINGW and not IS_WINDOWS:
         module.exclude_names.update({"_winapi"})
     module.ignore_names.update(
         {
@@ -66,7 +66,7 @@ def load_multiprocessing_connection(_, module: Module) -> None:
 
 def load_multiprocessing_heap(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if not IS_WINDOWS:
+    if not IS_MINGW and not IS_WINDOWS:
         module.exclude_names.add("_winapi")
 
 
@@ -84,19 +84,19 @@ def load_multiprocessing_pool(_, module: Module) -> None:
 
 def load_multiprocessing_popen_spawn_win32(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if not IS_WINDOWS:
+    if not IS_MINGW and not IS_WINDOWS:
         module.exclude_names.update({"msvcrt", "_winapi"})
 
 
 def load_multiprocessing_reduction(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if not IS_WINDOWS:
+    if not IS_MINGW and not IS_WINDOWS:
         module.exclude_names.add("_winapi")
 
 
 def load_multiprocessing_resource_tracker(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if IS_WINDOWS:
+    if IS_MINGW or IS_WINDOWS:
         module.exclude_names.add("_posixshmem")
 
 
@@ -107,7 +107,7 @@ def load_multiprocessing_sharedctypes(_, module: Module) -> None:
 
 def load_multiprocessing_shared_memory(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if not IS_WINDOWS:
+    if not IS_MINGW and not IS_WINDOWS:
         module.exclude_names.add("_winapi")
     else:
         module.exclude_names.add("_posixshmem")
@@ -115,7 +115,7 @@ def load_multiprocessing_shared_memory(_, module: Module) -> None:
 
 def load_multiprocessing_spawn(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
-    if not IS_WINDOWS:
+    if not IS_MINGW and not IS_WINDOWS:
         module.exclude_names.update({"msvcrt", "_winapi"})
     module.ignore_names.update(
         {
@@ -128,5 +128,5 @@ def load_multiprocessing_spawn(_, module: Module) -> None:
 def load_multiprocessing_util(_, module: Module) -> None:
     """The module uses test for tests and shouldn't be imported."""
     module.exclude_names.add("test")
-    if IS_WINDOWS:
+    if IS_MINGW or IS_WINDOWS:
         module.exclude_names.add("_posixsubprocess")
