@@ -2,45 +2,59 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import os
 import re
 import shutil
-from msilib import (  # pylint: disable=deprecated-module
-    CAB,
-    PID_AUTHOR,
-    PID_COMMENTS,
-    PID_KEYWORDS,
-    Binary,
-    Dialog,
-    Directory,
-    Feature,
-    add_data,
-    add_tables,
-    gen_uuid,
-    init_database,
-    make_id,
-    schema,
-    sequence,
-)
+import warnings
 from sysconfig import get_platform
-from typing import ClassVar
+from typing import ClassVar, ContextManager
 
 from setuptools import Command
 
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze._packaging import Version
-from cx_Freeze.command._pydialog import PyDialog
 from cx_Freeze.exception import OptionError
 
 __all__ = ["bdist_msi"]
 
-# force the remove existing products action to happen first since Windows
-# installer appears to be braindead and doesn't handle files shared between
-# different "products" very well
-install_execute_sequence = sequence.InstallExecuteSequence
-for index, info in enumerate(install_execute_sequence):
-    if info[0] == "RemoveExistingProducts":
-        install_execute_sequence[index] = (info[0], info[1], 1450)
+if IS_MINGW or IS_WINDOWS:
+
+    @contextlib.contextmanager
+    def suppress_known_deprecation() -> ContextManager:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", "'msilib' is deprecated")
+            yield
+
+    with suppress_known_deprecation():
+        from msilib import (  # pylint: disable=deprecated-module
+            CAB,
+            PID_AUTHOR,
+            PID_COMMENTS,
+            PID_KEYWORDS,
+            Binary,
+            Dialog,
+            Directory,
+            Feature,
+            add_data,
+            add_tables,
+            gen_uuid,
+            init_database,
+            make_id,
+            schema,
+            sequence,
+        )
+
+        from cx_Freeze.command._pydialog import PyDialog
+
+        # force the remove existing products action to happen first since Windows
+        # installer appears to be braindead and doesn't handle files shared between
+        # different "products" very well
+        install_execute_sequence = sequence.InstallExecuteSequence
+        for index, info in enumerate(install_execute_sequence):
+            if info[0] == "RemoveExistingProducts":
+                install_execute_sequence[index] = (info[0], info[1], 1450)
 
 
 class bdist_msi(Command):
