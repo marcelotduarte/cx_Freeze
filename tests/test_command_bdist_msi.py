@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from sysconfig import get_platform
 
@@ -14,6 +15,9 @@ from cx_Freeze import Executable
 bdist_msi = pytest.importorskip(
     "cx_Freeze.command.bdist_msi", reason="Windows tests"
 ).bdist_msi
+
+if sys.platform != "win32":
+    pytest.skip(reason="Windows tests", allow_module_level=True)
 
 DIST_ATTRS = {
     "name": "foo",
