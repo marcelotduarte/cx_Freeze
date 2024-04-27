@@ -44,7 +44,7 @@ class SetupWriter:
 
     def get_value(self, label, default="", separator=": ") -> str:
         if default:
-            label += " [%s]" % default
+            label += f" [{default}]"
         return input(label + separator).strip() or default
 
     def populate_from_command_line(self) -> None:
@@ -68,7 +68,7 @@ class SetupWriter:
             )
             if not os.path.exists(self.setup_file_name):
                 break
-            if self.get_boolean_value("Overwrite %s" % self.setup_file_name):
+            if self.get_boolean_value(f"Overwrite {self.setup_file_name}"):
                 break
 
     def write(self) -> None:
@@ -87,9 +87,9 @@ class SetupWriter:
 
             if self.base.startswith("Win32"):
                 w("import sys")
-                w("base = %r if sys.platform=='win32' else None" % self.base)
+                w(f"base = {self.base!r} if sys.platform=='win32' else None")
             else:
-                w("base = %r" % self.base)
+                w(f"base = {self.base!r}")
             w("")
 
             w("executables = [")
@@ -98,7 +98,7 @@ class SetupWriter:
                     f"    Executable({self.script!r}, base=base, target_name = {self.executable_name!r})"
                 )
             else:
-                w("    Executable(%r, base=base)" % self.script)
+                w(f"    Executable({self.script!r}, base=base)")
             w("]")
             w("")
 
@@ -117,7 +117,7 @@ def main() -> None:
     writer.populate_from_command_line()
     writer.write()
     print("")
-    print("Setup script written to %s; run it as:" % writer.setup_file_name)
-    print("    python %s build" % writer.setup_file_name)
+    print(f"Setup script written to {writer.setup_file_name}; run it as:")
+    print(f"    python {writer.setup_file_name} build")
     if writer.get_boolean_value("Run this now"):
         subprocess.call([sys.executable, writer.setup_file_name, "build"])
