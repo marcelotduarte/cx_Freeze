@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import sys
 import warnings
 from typing import ClassVar, ContextManager
@@ -52,9 +53,11 @@ class Install(_install):
                 winreg.HKEY_LOCAL_MACHINE,
                 r"Software\Microsoft\Windows\CurrentVersion",
             )
-            prefix = str(winreg.QueryValueEx(key, "ProgramFilesDir")[0])
+            base = winreg.QueryValueEx(key, "ProgramFilesDir")[0]
             metadata = self.distribution.metadata
-            self.prefix = f"{prefix}\\{metadata.get_name()}"
+            self.prefix = os.path.join(
+                os.path.normpath(base), metadata.get_name()
+            )
         super().finalize_options()
         self.convert_paths("exe")
         if self.root is not None:

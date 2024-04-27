@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -34,7 +34,7 @@ def load_importlib__bootstrap_external(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
     if IS_WINDOWS:
         module.exclude_names.add("posix")
-    else:
+    elif not IS_MINGW:
         module.exclude_names.update(("nt", "winreg"))
 
 

@@ -26,7 +26,7 @@ DIST_ATTRS = {
         pytest.param(
             {"install_dir": None},
             "install_dir",
-            os.fspath(
+            os.path.normpath(
                 Path(os.getenv("PROGRAMFILES"), "foo")
                 if sys.platform == "win32"
                 else Path(get_config_var("base"), "lib/foo-0.0")

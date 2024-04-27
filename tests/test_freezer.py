@@ -3,22 +3,19 @@
 from __future__ import annotations
 
 import sys
-from sysconfig import get_config_vars, get_platform, get_python_version
+from sysconfig import get_config_vars, get_python_version
 from typing import TYPE_CHECKING, Any, NoReturn
 
 import pytest
 from generate_samples import create_package
 
 from cx_Freeze import Executable, Freezer
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.exception import OptionError
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-PLATFORM = get_platform()
-IS_LINUX = PLATFORM.startswith("linux")
-IS_MACOS = PLATFORM.startswith("macos")
-IS_WINDOWS = PLATFORM.startswith("win")
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
@@ -79,13 +76,15 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
 
     freezer = Freezer(executables=[Executable("hello.py")])
-    if IS_WINDOWS:
-        expected = f"python{PYTHON_VERSION.replace('.','')}.dll"
-    elif IS_MACOS:
+    if IS_MACOS:
         if sys.version_info[:2] <= (3, 10):
             expected = f"libpython{PYTHON_VERSION}.dylib"
         else:
             expected = f"Python.framework/Versions/{PYTHON_VERSION}/Python"
+    elif IS_WINDOWS:
+        expected = f"python{PYTHON_VERSION.replace('.','')}.dll"
+    elif IS_MINGW:
+        expected = f"libpython{PYTHON_VERSION}.dll"
     else:
         expected = f"libpython{PYTHON_VERSION}.so"
     assert expected in freezer.bin_includes
@@ -102,7 +101,7 @@ def test_freezer_default_bin_includes_emulated(
         if name == "INSTSONAME":
             # emulate conda and/or mingw
             soname = f"libpython{PYTHON_VERSION}.a"
-            if IS_WINDOWS:  # emulate mingw
+            if IS_MINGW or IS_WINDOWS:  # emulate mingw
                 soname = soname.replace(".a", ".dll.a")
             return soname
         return get_config_vars().get(name)
@@ -110,10 +109,10 @@ def test_freezer_default_bin_includes_emulated(
     monkeypatch.setattr("sysconfig.get_config_var", t_get_config_var)
 
     freezer = Freezer(executables=[Executable("hello.py")])
-    if IS_WINDOWS:
-        expected = f"libpython{PYTHON_VERSION}.dll"
-    elif IS_MACOS:
+    if IS_MACOS:
         expected = f"libpython{PYTHON_VERSION}.dylib"
+    elif IS_MINGW or IS_WINDOWS:
+        expected = f"libpython{PYTHON_VERSION}.dll"
     else:
         expected = f"libpython{PYTHON_VERSION}.so"
     assert expected in freezer.bin_includes
