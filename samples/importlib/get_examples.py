@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+from pathlib import Path
 from urllib.request import urlopen
 
 GITHUBUSERCONTENT = "https://raw.githubusercontent.com"
@@ -11,7 +10,7 @@ examples = [
 ]
 
 for example in examples:
-    filename = example.split("/")[-1]
-    with urlopen(example) as source, open(filename, "w+b") as target:
-        target.write(source.read())
+    filename = Path(example.split("/")[-1])
+    with urlopen(example) as source:  # noqa: S310
+        filename.write_bytes(source.read())
         print("Wrote", filename)

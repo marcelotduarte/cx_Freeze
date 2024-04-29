@@ -1,4 +1,4 @@
-"""A setup script to demonstrate build using orjson"""
+"""A setup script to demonstrate build using orjson."""
 
 #
 # Run the build process by running the command 'python setup.py build'

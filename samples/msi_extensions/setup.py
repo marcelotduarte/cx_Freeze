@@ -8,6 +8,7 @@ environment in which the script runs
 
 Run the build process by running the command 'python setup.py bdist_msi'
 """
+
 from cx_Freeze import Executable, setup
 
 executables = [Executable("hello.py")]

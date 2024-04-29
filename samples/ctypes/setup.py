@@ -1,4 +1,4 @@
-"""A setup script to demonstrate build using ctypes"""
+"""A setup script to demonstrate build using ctypes."""
 
 #
 # Run the build process by running the command 'python setup.py build'

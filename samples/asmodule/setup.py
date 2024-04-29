@@ -1,6 +1,6 @@
 """A very simple setup script to create a single executable built from a module
 which includes an executable section protected by:
-if __name__ == '__main__'
+if __name__ == '__main__'.
 """
 
 #

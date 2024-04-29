@@ -1,10 +1,8 @@
-"""code sample found in the openpyxl documentation"""
+"""code sample found in the openpyxl documentation."""
 
 # https://openpyxl.readthedocs.io/en/default.
 
-from __future__ import annotations
-
-import datetime
+from datetime import datetime, timezone
 
 from openpyxl import Workbook
 
@@ -20,7 +18,7 @@ ws["A1"] = 42
 ws.append([1, 2, 3])
 
 # Python types will automatically be converted
-ws["A2"] = datetime.datetime.now()
+ws["A2"] = datetime.now(tz=timezone.utc)
 
 # Save the file
 fileName = "sample.xlsx"

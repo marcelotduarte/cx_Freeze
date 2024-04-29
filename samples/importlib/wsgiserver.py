@@ -1,11 +1,11 @@
-"""WSGI server example"""
+"""WSGI server example."""
 
 from __future__ import annotations
 
 from gevent.pywsgi import WSGIServer
 
 
-def application(env, start_response):
+def application(env, start_response) -> list[bytes]:
     if env["PATH_INFO"] == "/":
         start_response("200 OK", [("Content-Type", "text/html")])
         return [b"<b>hello world</b>"]

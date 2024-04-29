@@ -1,20 +1,18 @@
 """A simple script to demonstrate matplotlib."""
 
-import tkinter
+import tkinter as tk
 
+import numpy as np
+
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg,
     NavigationToolbar2Tk,
 )
-
-# Implement the default Matplotlib key bindings.
-from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 
-import numpy as np
-
-
-root = tkinter.Tk()
+root = tk.Tk()
 root.wm_title("Embedding in Tk")
 
 fig = Figure(figsize=(5, 4), dpi=100)
@@ -36,10 +34,10 @@ canvas.mpl_connect(
 )
 canvas.mpl_connect("key_press_event", key_press_handler)
 
-button_quit = tkinter.Button(master=root, text="Quit", command=root.destroy)
+button_quit = tk.Button(master=root, text="Quit", command=root.destroy)
 
 
-def update_frequency(new_val):
+def update_frequency(new_val) -> None:
     # retrieve frequency
     f = float(new_val)
 
@@ -51,11 +49,11 @@ def update_frequency(new_val):
     canvas.draw()
 
 
-slider_update = tkinter.Scale(
+slider_update = tk.Scale(
     root,
     from_=1,
     to=5,
-    orient=tkinter.HORIZONTAL,
+    orient=tk.HORIZONTAL,
     command=update_frequency,
     label="Frequency [Hz]",
 )
@@ -64,9 +62,9 @@ slider_update = tkinter.Scale(
 # is no space left, because the window is too small, they are not displayed.
 # The canvas is rather flexible in its size, so we pack it last which makes
 # sure the UI controls are displayed as long as possible.
-button_quit.pack(side=tkinter.BOTTOM)
-slider_update.pack(side=tkinter.BOTTOM)
-toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
+button_quit.pack(side=tk.BOTTOM)
+slider_update.pack(side=tk.BOTTOM)
+toolbar.pack(side=tk.BOTTOM, fill=tk.X)
+canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-tkinter.mainloop()
+tk.mainloop()

@@ -9,11 +9,9 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-from __future__ import annotations
-
 from cx_Freeze import Executable, setup
 
-buildOptions = dict(zip_include_packages=["*"], zip_exclude_packages=[])
+buildOptions = {"zip_include_packages": ["*"], "zip_exclude_packages": []}
 executables = [
     Executable("server_simple.py"),
     Executable("web_srv.py"),
@@ -25,5 +23,5 @@ setup(
     version="0.1",
     description="cx_Freeze script for web servers that test importlib",
     executables=executables,
-    options=dict(build_exe=buildOptions),
+    options={"build_exe": buildOptions},
 )

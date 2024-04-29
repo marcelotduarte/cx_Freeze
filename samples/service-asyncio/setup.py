@@ -1,5 +1,4 @@
-"""
-A simple setup script for creating a Windows service.
+"""A simple setup script for creating a Windows service.
 See the comments in the Config.py and ServiceHandler.py files for more
 information on how to set this up.
 

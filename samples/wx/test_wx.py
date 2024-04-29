@@ -4,7 +4,7 @@ import wx
 
 
 class Frame(wx.Frame):
-    def __init__(self):
+    def __init__(self) -> None:
         wx.Frame.__init__(self, parent=None, title="Hello from cx_Freeze")
         panel = wx.Panel(self)
         closeMeButton = wx.Button(panel, -1, "Close Me")
@@ -24,18 +24,18 @@ class Frame(wx.Frame):
         topSizer.Add(panel, flag=wx.ALL | wx.EXPAND)
         topSizer.Fit(self)
 
-    def OnCloseMe(self, event):
+    def OnCloseMe(self, event) -> None:  # noqa: ARG002
         self.Close(True)
 
-    def OnPushMe(self, event):
+    def OnPushMe(self, event) -> None:  # noqa: ARG002
         wx.MessageBox("I was pushed!", "Informational message")
 
-    def OnCloseWindow(self, event):
+    def OnCloseWindow(self, event) -> None:  # noqa: ARG002
         self.Destroy()
 
 
 class App(wx.App):
-    def OnInit(self):
+    def OnInit(self) -> bool:
         frame = Frame()
         frame.Show(True)
         self.SetTopWindow(frame)

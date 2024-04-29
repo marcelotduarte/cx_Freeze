@@ -1,5 +1,4 @@
-"""
-A simple setup script to create an executable using opencv-python. This also
+"""A simple setup script to create an executable using opencv-python. This also
 demonstrates how to use excludes to get minimal package size.
 
 test_opencv.py is a very simple type of opencv-python application.

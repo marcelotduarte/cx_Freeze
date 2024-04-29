@@ -1,3 +1,1 @@
-from __future__ import annotations
-
-import pkg1  # noqa
+import pkg1  # noqa: F401

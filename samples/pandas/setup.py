@@ -1,5 +1,4 @@
-"""
-A simple setup script to create an executable using pandas. This also
+"""A simple setup script to create an executable using pandas. This also
 demonstrates how to use excludes to get minimal package size.
 
 test_pandas.py is a very simple type of pandas application.
@@ -11,6 +10,7 @@ subdirectory that contains the files needed to run the application.
 """
 
 import sys
+
 from cx_Freeze import Executable, setup
 
 sys.setrecursionlimit(sys.getrecursionlimit() * 10)

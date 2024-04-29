@@ -1,17 +1,20 @@
-"""
-https://github.com/pydantic/pydantic#a-simple-example
-"""
+"""https://github.com/pydantic/pydantic#a-simple-example."""
 
-from datetime import datetime
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 class User(BaseModel):
     id: int
     name: str = "John Doe"
-    signup_ts: Optional[datetime] = None
-    friends: List[int] = []
+    signup_ts: datetime | None = None
+    friends: list[int] = []
 
 
 external_data = {

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import sys
 
 import clr
@@ -7,14 +5,14 @@ import clr
 if sys.platform.lower() not in ["cli", "win32"]:
     print("only windows is supported for wpf")
 clr.AddReference(r"wpf\PresentationFramework")
-from System.IO import StreamReader  # noqa
-from System.Threading import ApartmentState, Thread, ThreadStart  # noqa
-from System.Windows import Application, Window  # noqa
-from System.Windows.Markup import XamlReader  # noqa
+from System.IO import StreamReader  # noqa: E402
+from System.Threading import ApartmentState, Thread, ThreadStart  # noqa: E402
+from System.Windows import Application, Window  # noqa: E402
+from System.Windows.Markup import XamlReader  # noqa: E402
 
 
 class MyWindow(Window):
-    def __init__(self):
+    def __init__(self) -> None:
         stream = StreamReader("DynamicGrid.xaml")
         window = XamlReader.Load(stream.BaseStream)
         Application().Run(window)

@@ -1,8 +1,9 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
+today = datetime.now(tz=timezone.utc)
 print("Hello from cx_Freeze")
-print(f"The current date is {datetime.today():%B %d, %Y %H:%M:%S}\n")
+print(f"The current date is {today:%B %d, %Y %H:%M:%S}\n")
 
 print(f"Executable: {sys.executable}")
 print(f"Prefix: {sys.prefix}")

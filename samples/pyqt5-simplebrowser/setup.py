@@ -1,5 +1,4 @@
-"""
-A simple setup script to create an executable using PyQt5 QtWebEngineWidgets.
+"""A simple setup script to create an executable using PyQt5 QtWebEngineWidgets.
 This also demonstrates how to use excludes to get minimal package size.
 
 Run the build process by running the command 'python setup.py build'

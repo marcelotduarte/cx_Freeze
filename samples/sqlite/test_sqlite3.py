@@ -30,7 +30,7 @@ cur.executescript(
 )
 with open("dump.sql", "w") as f:
     for line in con.iterdump():
-        f.write("%s\n" % line)
+        f.write(f"{line}\n")
 
 print("dump.sql created")
 con.close()

@@ -1,4 +1,4 @@
-"""Use getdependentfiles.py in a batch of tests"""
+"""Use getdependentfiles.py in a batch of tests."""
 
 # This sample uses the getdependentfiles.py script to try to get the
 # dependents of some predetermined files.
@@ -35,7 +35,7 @@ dependencies_to_check = [
 
 print("testing with default PATH environ")
 cmdline = program + " " + " ".join(dependencies_to_check)
-for line in os.popen(cmdline):
+for line in os.popen(cmdline):  # noqa: S605
     print(line, end="")
 print()
 
@@ -44,6 +44,6 @@ os.environ["PATH"] = (
     os.pathsep.join(sys.path) + os.pathsep + os.environ["PATH"]
 )
 cmdline = program + " " + " ".join(dependencies_to_check)
-for line in os.popen(cmdline):
+for line in os.popen(cmdline):  # noqa: S605
     print(line, end="")
 print()

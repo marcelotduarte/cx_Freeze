@@ -1,10 +1,11 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 
-def say_hello():
+def say_hello() -> None:
+    today = datetime.now(tz=timezone.utc)
     print("Hello from cx_Freeze")
-    print(f"The current date is {datetime.today():%B %d, %Y %H:%M:%S}\n")
+    print(f"The current date is {today:%B %d, %Y %H:%M:%S}\n")
 
     print(f"Executable: {sys.executable}")
     print(f"Prefix: {sys.prefix}")
@@ -12,15 +13,14 @@ def say_hello():
     print(f"File system encoding: {sys.getfilesystemencoding()}\n")
 
     print("ARGUMENTS:")
-    for a in sys.argv:
-        print(f"{a}")
-    print("")
+    for arg in sys.argv:
+        print(f"{arg}")
+    print()
 
     print("PATH:")
-    for p in sys.path:
-        print(f"{p}")
+    for path in sys.path:
+        print(f"{path}")
     print()
-    return
 
 
 if __name__ == "__main__":

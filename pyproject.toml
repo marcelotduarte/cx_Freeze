@@ -250,7 +250,6 @@ filterwarnings = [
 [tool.ruff]
 extend-exclude = [
     "cx_Freeze/importshed/*.pyi",
-    "samples/*.py"
 ]
 line-length = 79
 target-version = "py38"
@@ -335,6 +334,7 @@ typing-modules = ["cx_Freeze._typing"]
 "cx_Freeze/command/_pydialog.py" = ["ERA001"]
 "cx_Freeze/command/bdist_msi.py" = ["ERA001"]
 "cx_Freeze/initscripts/*" = ["S102"]
+"samples/*" = ["D1"]
 "tests/*" = ["S101"]
 
 [tool.ruff.lint.flake8-unused-arguments]
