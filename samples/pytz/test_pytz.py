@@ -1,5 +1,4 @@
-"""
-Sample to show the datetime in RFC1123 (timezone is required)
+"""Sample to show the datetime in RFC1123 (timezone is required).
 
 pytz version
 """

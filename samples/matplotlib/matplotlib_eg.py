@@ -1,18 +1,18 @@
 """A simple script to demonstrate matplotlib."""
 
+import numpy as np
+import wx
 from matplotlib.backends.backend_wxagg import (
     FigureCanvasWxAgg as FigureCanvas,
+)
+from matplotlib.backends.backend_wxagg import (
     NavigationToolbar2WxAgg as NavigationToolbar,
 )
 from matplotlib.figure import Figure
 
-import numpy as np
-
-import wx
-
 
 class CanvasFrame(wx.Frame):
-    def __init__(self):
+    def __init__(self) -> None:
         wx.Frame.__init__(self, None, -1, "CanvasFrame", size=(550, 350))
 
         self.figure = Figure()
@@ -30,7 +30,7 @@ class CanvasFrame(wx.Frame):
 
         self.add_toolbar()  # comment this out for no toolbar
 
-    def add_toolbar(self):
+    def add_toolbar(self) -> None:
         self.toolbar = NavigationToolbar(self.canvas)
         self.toolbar.Realize()
         # By adding toolbar in sizer, we are able to put it at the bottom
@@ -41,7 +41,7 @@ class CanvasFrame(wx.Frame):
 
 
 class App(wx.App):
-    def OnInit(self):
+    def OnInit(self) -> bool:
         """Create the main window and insert the custom frame."""
         frame = CanvasFrame()
         frame.Show(True)

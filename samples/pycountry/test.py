@@ -1,7 +1,4 @@
-"""
-Sample to test the 'pycountry' hook
-
-"""
+"""Sample to test the 'pycountry' hook."""
 
 from __future__ import annotations
 

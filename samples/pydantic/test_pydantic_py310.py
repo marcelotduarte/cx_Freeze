@@ -1,6 +1,11 @@
-from datetime import datetime
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 class User(BaseModel):
@@ -17,7 +22,6 @@ external_data = {
 }
 user = User(**external_data)
 print(user)
-# > User id=123 name='John Doe' signup_ts=datetime.datetime(2017, 6, 1, 12, 22)
-# friends=[1, 2, 3]
+# > User id=123 name='John Doe' signup_ts=datetime.datetime(2017, 6, 1, 12, 22) friends=[1, 2, 3]
 print(user.id)
 # > 123

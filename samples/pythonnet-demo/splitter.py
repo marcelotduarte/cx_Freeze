@@ -1,18 +1,17 @@
-from __future__ import annotations
-
 import clr
-import System  # noqa
+import System
 
 clr.AddReference("System.Windows.Forms")
-import System.Windows.Forms as WinForms  # noqa
-from System.Drawing import Color  # noqa
+import System.Windows.Forms as WinForms  # noqa: E402
+from System.Drawing import Color  # noqa: E402
 
 
 class Splitter(WinForms.Form):
     """A WinForms example transcribed to Python from the MSDN article:
-    'Creating a Multipane User Interface with Windows Forms'."""
+    'Creating a Multipane User Interface with Windows Forms'.
+    """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # Create an instance of each control being used.
@@ -77,12 +76,12 @@ class Splitter(WinForms.Form):
 
         self.Text = "Intricate UI Example"
 
-    def Dispose(self):
+    def Dispose(self) -> None:
         self.components.Dispose()
         WinForms.Form.Dispose(self)
 
 
-def main():
+def main() -> None:
     app = Splitter()
     WinForms.Application.Run(app)
     app.Dispose()

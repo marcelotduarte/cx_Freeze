@@ -1,6 +1,4 @@
-"""
-A setup script to create an executable to demonstrate the use of manifest.
-"""
+"""A setup script to create an executable to demonstrate the use of manifest."""
 
 from cx_Freeze import Executable, setup
 

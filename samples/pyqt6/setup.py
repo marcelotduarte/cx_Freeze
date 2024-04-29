@@ -1,5 +1,4 @@
-"""
-A simple setup script to create an executable using PyQt6. This also
+"""A simple setup script to create an executable using PyQt6. This also
 demonstrates how to use excludes to get minimal package size.
 
 test_pyqt6.py is a very simple type of PyQt6 application.

@@ -1,4 +1,4 @@
-"""A setup script to demonstrate build using cffi (used by cryptography)"""
+"""A setup script to demonstrate build using cffi (used by cryptography)."""
 
 #
 # Run the build process by running the command 'python setup.py build'

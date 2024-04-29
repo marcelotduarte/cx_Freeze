@@ -1,5 +1,6 @@
 """A simple setup script to create executables using scipy.
-   This version requires the libs in the zip file."""
+This version requires the libs in the zip file.
+"""
 
 # test_scipy.py is a very simple scipy application that demonstrates
 # its use.

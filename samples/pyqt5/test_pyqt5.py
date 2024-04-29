@@ -1,14 +1,12 @@
 """A simple script to demonstrate PyQt5."""
 
-from __future__ import annotations
-
 import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget
 
 
-def main():
+def main() -> int:
     app = QApplication(sys.argv)
     window = QWidget()
     window.setWindowTitle("Simple")

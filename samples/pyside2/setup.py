@@ -1,5 +1,4 @@
-"""
-A simple setup script to create an executable using PySide2. This also
+"""A simple setup script to create an executable using PySide2. This also
 demonstrates how to use excludes to get minimal package size.
 
 test_pyside2.py is a very simple type of PySide2 application.

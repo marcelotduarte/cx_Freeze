@@ -1,14 +1,12 @@
 """A simple script to demonstrate PySide6."""
 
-from __future__ import annotations
-
 import sys
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 
-def main():
+def main() -> int:
     app = QApplication(sys.argv)
     window = QWidget()
     window.setWindowTitle("Simple")

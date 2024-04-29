@@ -1,19 +1,17 @@
-from __future__ import annotations
-
 import clr
-import System  # noqa
+import System
 
 clr.AddReference("System.Windows.Forms")
-import System.Windows.Forms as WinForms  # noqa
-from System.IO import File  # noqa
-from System.Text import Encoding  # noqa
-from System.Threading import ApartmentState, Thread, ThreadStart  # noqa
+import System.Windows.Forms as WinForms  # noqa: E402
+from System.IO import File  # noqa: E402
+from System.Text import Encoding  # noqa: E402
+from System.Threading import ApartmentState, Thread, ThreadStart  # noqa: E402
 
 
 class Wordpad(WinForms.Form):
     """A simple example winforms application similar to wordpad."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.filename = ""
         self.word_wrap = True
@@ -21,7 +19,7 @@ class Wordpad(WinForms.Form):
         self.InitializeComponent()
         self.NewDocument()
 
-    def InitializeComponent(self):
+    def InitializeComponent(self) -> None:
         """Initialize form components."""
         self.components = System.ComponentModel.Container()
 
@@ -225,7 +223,7 @@ class Wordpad(WinForms.Form):
         self.openFileDialog.Title = "Open document"
 
         self.saveFileDialog.Filter = (
-            "Text Documents|*.txt|" "Rich Text Format|*.rtf"
+            "Text Documents|*.txt|Rich Text Format|*.rtf"
         )
         self.saveFileDialog.Title = "Save document"
         self.saveFileDialog.FileName = "Untitled"
@@ -239,68 +237,68 @@ class Wordpad(WinForms.Form):
         self.Controls.Add(self.richTextBox)
         self.statusBarPanel1.EndInit()
 
-    def Dispose(self):
+    def Dispose(self) -> None:
         self.components.Dispose()
         WinForms.Form.Dispose(self)
 
-    def OnClickFileNew(self, sender, args):
+    def OnClickFileNew(self, sender, args) -> None:  # noqa: ARG002
         self.SaveChangesDialog()
         self.NewDocument()
 
-    def OnClickFileOpen(self, sender, args):
+    def OnClickFileOpen(self, sender, args) -> None:  # noqa: ARG002
         self.SaveChangesDialog()
         self.OpenDocument()
 
-    def OnClickFileSave(self, sender, args):
+    def OnClickFileSave(self, sender, args) -> None:  # noqa: ARG002
         self.SaveDocument()
 
-    def OnClickFileSaveAs(self, sender, args):
+    def OnClickFileSaveAs(self, sender, args) -> None:  # noqa: ARG002
         self.filename = ""
         self.SaveDocument()
 
-    def OnClickFileExit(self, sender, args):
+    def OnClickFileExit(self, sender, args) -> None:  # noqa: ARG002
         self.SaveChangesDialog()
         self.Close()
 
-    def OnClickEditUndo(self, sender, args):
+    def OnClickEditUndo(self, sender, args) -> None:  # noqa: ARG002
         self.richTextBox.Undo()
 
-    def OnClickEditRedo(self, sender, args):
+    def OnClickEditRedo(self, sender, args) -> None:  # noqa: ARG002
         self.richTextBox.Redo()
 
-    def OnClickEditCut(self, sender, args):
+    def OnClickEditCut(self, sender, args) -> None:  # noqa: ARG002
         self.richTextBox.Cut()
 
-    def OnClickEditCopy(self, sender, args):
+    def OnClickEditCopy(self, sender, args) -> None:  # noqa: ARG002
         self.richTextBox.Copy()
 
-    def OnClickEditPaste(self, sender, args):
+    def OnClickEditPaste(self, sender, args) -> None:  # noqa: ARG002
         self.richTextBox.Paste()
 
-    def OnClickEditSelectAll(self, sender, args):
+    def OnClickEditSelectAll(self, sender, args) -> None:  # noqa: ARG002
         self.richTextBox.SelectAll()
 
-    def OnClickFormatWordWrap(self, sender, args):
+    def OnClickFormatWordWrap(self, sender, args) -> None:  # noqa: ARG002
         value = not self.word_wrap
         self.richTextBox.WordWrap = value
         self.menuFormatWordWrap.Checked = value
         self.word_wrap = value
 
-    def OnClickFormatFont(self, sender, args):
+    def OnClickFormatFont(self, sender, args) -> None:  # noqa: ARG002
         if self.fontDialog.ShowDialog() == WinForms.DialogResult.OK:
             self.richTextBox.SelectionFont = self.fontDialog.Font
 
-    def OnClickHelpAbout(self, sender, args):
+    def OnClickHelpAbout(self, sender, args) -> None:  # noqa: ARG002
         AboutForm().ShowDialog(self)
 
-    def NewDocument(self):
+    def NewDocument(self) -> None:
         self.doctype = 1
         self.richTextBox.Rtf = ""
         self.richTextBox.Text = ""
         self.Text = "Python Wordpad - (New Document)"
         self.filename = ""
 
-    def OpenDocument(self):
+    def OpenDocument(self) -> None:
         if self.openFileDialog.ShowDialog() != WinForms.DialogResult.OK:
             return
 
@@ -330,10 +328,10 @@ class Wordpad(WinForms.Form):
             self.richTextBox.Text = data
             self.doctype = 1
 
-        self.Text = "Python Wordpad - %s" % filename
+        self.Text = f"Python Wordpad - {filename}"
         self.richTextBox.Select(0, 0)
 
-    def SaveDocument(self):
+    def SaveDocument(self) -> None:
         filename = self.filename
 
         if not filename:
@@ -342,7 +340,7 @@ class Wordpad(WinForms.Form):
             filename = self.saveFileDialog.FileName
 
         filename = self.filename = filename.lower()
-        self.Text = "Python Wordpad - %s" % filename
+        self.Text = f"Python Wordpad - {filename}"
 
         self.richTextBox.Select(0, 0)
 
@@ -358,28 +356,27 @@ class Wordpad(WinForms.Form):
         stream.Write(data, 0, data.Length)
         stream.Close()
 
-    def SaveChangesDialog(self):
-        if self.richTextBox.Modified:
-            if (
-                WinForms.MessageBox.Show(
-                    "Save changes?",
-                    "Word Pad",
-                    WinForms.MessageBoxButtons.OK
-                    | WinForms.MessageBoxButtons.YesNo,
-                )
-                == WinForms.DialogResult.Yes
-            ):
-                self.SaveDocument()
-                return 1
+    def SaveChangesDialog(self) -> int:
+        if self.richTextBox.Modified and (
+            WinForms.MessageBox.Show(
+                "Save changes?",
+                "Word Pad",
+                WinForms.MessageBoxButtons.OK
+                | WinForms.MessageBoxButtons.YesNo,
+            )
+            == WinForms.DialogResult.Yes
+        ):
+            self.SaveDocument()
+            return 1
         return 0
 
 
 class AboutForm(WinForms.Form):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.InitializeComponent()
 
-    def InitializeComponent(self):
+    def InitializeComponent(self) -> None:
         """Initialize form components."""
         self.Text = "Python Wordpad"
         self.components = System.ComponentModel.Container()
@@ -417,17 +414,17 @@ class AboutForm(WinForms.Form):
         self.Text = "About"
         self.ResumeLayout(False)
 
-    def OnClickClose(self, sender, args):
+    def OnClickClose(self, sender, args) -> None:  # noqa: ARG002
         self.Close()
 
 
-def app_thread():
+def app_thread() -> None:
     app = Wordpad()
     WinForms.Application.Run(app)
     app.Dispose()
 
 
-def main():
+def main() -> None:
     thread = Thread(ThreadStart(app_thread))
     thread.SetApartmentState(ApartmentState.STA)
     thread.Start()

@@ -1,17 +1,16 @@
-from __future__ import annotations
-
 import clr
 
 clr.AddReference("System.Windows.Forms")
-import System.Windows.Forms as WinForms  # noqa
-from System.Drawing import Point, Size  # noqa
+import System.Windows.Forms as WinForms  # noqa: E402
+from System.Drawing import Point, Size  # noqa: E402
 
 
 class HelloApp(WinForms.Form):
     """A simple hello world app that demonstrates the essentials of
-    winforms programming and event-based programming in Python."""
+    winforms programming and event-based programming in Python.
+    """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.Text = "Hello World From Python"
         self.AutoScaleBaseSize = Size(5, 13)
@@ -41,16 +40,16 @@ class HelloApp(WinForms.Form):
         self.Controls.Add(self.button)
         self.Controls.Add(self.textbox)
 
-    def button_Click(self, sender, args):
-        """Button click event handler"""
+    def button_Click(self, sender, args) -> None:  # noqa: ARG002
+        """Button click event handler."""
         print("Click")
         WinForms.MessageBox.Show("Please do not press this button again.")
 
-    def run(self):
+    def run(self) -> None:
         WinForms.Application.Run(self)
 
 
-def main():
+def main() -> None:
     form = HelloApp()
     print("form created")
     app = WinForms.Application

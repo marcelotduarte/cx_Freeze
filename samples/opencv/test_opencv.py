@@ -1,15 +1,13 @@
 """A simple script to demonstrate opencv-python."""
 
-from __future__ import annotations
-
 import os
 import sys
 
 sys.OpenCV_LOADER_DEBUG = True
-import cv2 as cv  # noqa
+import cv2 as cv  # noqa: E402
 
 
-def find_data_file(filename):
+def find_data_file(filename) -> str:
     if getattr(sys, "frozen", False):
         # The application is frozen
         datadir = os.path.join(os.path.dirname(sys.executable), "share")

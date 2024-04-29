@@ -1,4 +1,4 @@
-"""PyQt6 WebEngineWidgets Example"""
+"""PyQt6 WebEngineWidgets Example."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.setWindowTitle("PyQt6 WebEngineWidgets Example")
@@ -50,18 +50,18 @@ class MainWindow(QMainWindow):
         self.webEngineView.page().titleChanged.connect(self.setWindowTitle)
         self.webEngineView.page().urlChanged.connect(self.urlChanged)
 
-    def load(self):
+    def load(self) -> None:
         url = QUrl.fromUserInput(self.addressLineEdit.text())
         if url.isValid():
             self.webEngineView.load(url)
 
-    def back(self):
+    def back(self) -> None:
         self.webEngineView.page().triggerAction(QWebEnginePage.Back)
 
-    def forward(self):
+    def forward(self) -> None:
         self.webEngineView.page().triggerAction(QWebEnginePage.Forward)
 
-    def urlChanged(self, url):
+    def urlChanged(self, url) -> None:
         self.addressLineEdit.setText(url.toString())
 
 

@@ -1,12 +1,10 @@
-from __future__ import annotations
-
 import os.path
 import sys
 
 from PIL import Image
 
 
-def find_data_file(filename):
+def find_data_file(filename) -> str:
     if getattr(sys, "frozen", False):
         # The application is frozen
         datadir = os.path.join(os.path.dirname(sys.executable), "share")
@@ -23,6 +21,8 @@ filename_png = find_data_file("favicon.png")
 filename_pdf = os.path.join(os.path.dirname(filename_png), "test_pillow.pdf")
 with Image.open(filename_png) as im, open(filename_pdf, "w+b") as fp:
     if im.mode == "RGBA":
-        im = im.convert("RGB")
-    im.save(fp, format="PDF")
+        im2 = im.convert("RGB")
+        im2.save(fp, format="PDF")
+    else:
+        im.save(fp, format="PDF")
 print("OK")

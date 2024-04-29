@@ -10,7 +10,6 @@
 
 from cx_Freeze import Executable, setup
 
-
 executables = [
     Executable("test_scipy.py"),
 ]

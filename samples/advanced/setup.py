@@ -1,5 +1,6 @@
 """An advanced setup script to create multiple executables and demonstrate a
-few of the features available to setup scripts."""
+few of the features available to setup scripts.
+"""
 
 #
 # Run the build process by running the command 'python setup.py build'
@@ -13,7 +14,7 @@ from cx_Freeze import Executable, setup
 options = {
     "build_exe": {
         "includes": ["testfreeze_1", "testfreeze_2"],
-        "path": sys.path + ["modules"],
+        "path": [*sys.path, "modules"],
     }
 }
 

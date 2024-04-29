@@ -1,6 +1,4 @@
-"""
-A simple Quote of the Day server
-"""
+"""A simple Quote of the Day server."""
 
 from __future__ import annotations
 
@@ -9,7 +7,7 @@ from twisted.internet.protocol import Factory, Protocol
 
 
 class QOTD(Protocol):
-    def connectionMade(self):
+    def connectionMade(self) -> None:
         self.transport.write(b"An apple a day keeps the doctor away\r\n")
         self.transport.loseConnection()
 

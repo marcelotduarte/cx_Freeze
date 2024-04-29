@@ -1,4 +1,4 @@
-"""sample to show GetDependentFiles in action - for Windows only"""
+"""sample to show GetDependentFiles in action - for Windows only."""
 
 # This sample is a piece of code extracted from the freeze module,
 # in order to demonstrate the dependencies of the specified file.
@@ -21,13 +21,13 @@ except ImportError:
     sys.exit(-1)
 
 
-def print_usage():
+def print_usage() -> int:
     print("cx_Freeze dependencies demo (for windows only)", file=sys.stderr)
-    print("usage:\n\t%s FILE..." % sys.argv[0], file=sys.stderr)
+    print(f"usage:\n\t{sys.argv[0]} FILE...", file=sys.stderr)
     return -1
 
 
-def main():
+def main() -> int:
     if len(sys.argv) <= 1:
         return print_usage()
     if sys.platform != "win32":

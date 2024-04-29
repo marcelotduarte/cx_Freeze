@@ -13,7 +13,7 @@ from sysconfig import get_platform
 from cx_Freeze import Executable, setup
 
 arch_dir = Path.cwd() / f"lib-{get_platform()}"
-search_path = [arch_dir] + sys.path
+search_path = [arch_dir, *sys.path]
 
 setup(
     name="test_sqlite3",
