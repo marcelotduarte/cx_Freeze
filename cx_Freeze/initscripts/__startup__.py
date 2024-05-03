@@ -4,6 +4,7 @@ the initscript that is to be executed after a basic initialization.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import string
 import sys
@@ -71,14 +72,11 @@ def init() -> None:
         env_path = os.environ.get("PATH", "").split(os.pathsep)
         env_path = list(map(os.path.normpath, env_path))
         for directory in search_path:
-            try:
+            with contextlib.suppress(OSError):
                 os.add_dll_directory(directory)
-            except OSError:
-                pass
-            except AttributeError:
-                # XXX: we need to add to path only when python < 3.8
-                if directory not in env_path:
-                    env_path.insert(0, directory)
+            # we need to add to path for packages like 'gi' in MSYS2
+            if directory not in env_path:
+                env_path.insert(0, directory)
         env_path = [entry.replace(os.sep, "\\") for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
 
