@@ -16,13 +16,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        os: [ubuntu-latest, windows-latest, macos-13]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        exclude:
+        include:
           - os: macos-14  # macos-14 is apple silicon
-            python-version: '3.8'
+            python-version: '3.11'
           - os: macos-14
-            python-version: '3.9'
+            python-version: '3.12'
     name: Build [${{ matrix.os }}-${{ matrix.python-version }}]
     runs-on: ${{ matrix.os }}
     defaults:
@@ -58,7 +58,7 @@ jobs:
           if [ "${{ matrix.os }}" == "macos-13" ]; then
             export CIBW_ARCHS="x86_64"
           elif [ "${{ matrix.os }}" == "macos-14" ]; then
-            export CIBW_ARCHS="arm64"
+            export CIBW_ARCHS="universal2 arm64"
           fi
           export CIBW_BUILD="cp${PY_VERSION_NODOT}-*"
           python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
