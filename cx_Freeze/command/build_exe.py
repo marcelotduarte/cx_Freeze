@@ -129,6 +129,12 @@ class build_exe(Command):
             None,
             "include the Microsoft Visual C runtime files",
         ),
+        (
+            "zip-filename=",
+            None,
+            "filename for the shared zipfile (.zip) "
+            "[default: library.zip or None if no-compress is used]",
+        ),
     ]
     boolean_options: ClassVar[list[str]] = [
         "no-compress",
@@ -206,6 +212,7 @@ class build_exe(Command):
         self.path = None
         self.silent = None
         self.silent_level = None
+        self.zip_filename = None
 
     def finalize_options(self) -> None:
         build = self.get_finalized_command("build")
@@ -245,6 +252,15 @@ class build_exe(Command):
         # option, as appropriate
         self.silent = int(self.silent or self.silent_level or 0)
 
+        # compression options
+        self.no_compress = bool(self.no_compress)
+        if self.zip_filename:
+            self.zip_filename = os.path.basename(
+                os.path.splitext(self.zip_filename)[0] + ".zip"
+            )
+        elif self.no_compress is False:
+            self.zip_filename = "library.zip"
+
         # other options
         self.include_msvcr = bool(self.include_msvcr)
         self.optimize = int(self.optimize or 0)
@@ -277,6 +293,7 @@ class build_exe(Command):
             silent=self.silent,
             metadata=metadata,
             include_msvcr=self.include_msvcr,
+            zip_filename=self.zip_filename,
         )
 
         freezer.freeze()

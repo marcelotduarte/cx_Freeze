@@ -223,18 +223,19 @@ static int Service_StartLogging(void)
 {
     wchar_t defaultLogFileName[PATH_MAX + 1], logFileName[PATH_MAX + 1];
     unsigned logLevel, maxFiles, maxFileSize;
-    wchar_t *ptr, prefix[CX_LOGGING_PREFIX_SIZE];
+    wchar_t *executable, *ptr, prefix[CX_LOGGING_PREFIX_SIZE];
     size_t size;
 
     // determine the default log file name and ini file name
-    ptr = wcsrchr(g_ExecutableName, '.');
+    executable = get_executable_name();
+    ptr = wcsrchr(executable, '.');
     if (ptr)
-       size = ptr - g_ExecutableName;
-    else size = wcslen(g_ExecutableName);
-    wcscpy(defaultLogFileName, g_ExecutableName);
+       size = ptr - executable;
+    else size = wcslen(executable);
+    wcscpy(defaultLogFileName, executable);
     wcscpy(&defaultLogFileName[size], CX_SERVICE_LOGGING_EXTENSION);
     if (wcslen(gIniFileName) == 0) {
-        wcscpy(gIniFileName, g_ExecutableName);
+        wcscpy(gIniFileName, executable);
         wcscpy(&gIniFileName[size], CX_SERVICE_INI_EXTENSION);
     }
 
@@ -352,7 +353,7 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
 {
     PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
-    wchar_t *wfullName, *wdisplayName, *wcommand, *wdescription;
+    wchar_t *wfullName, *wdisplayName, *wcommand, *wdescription, *executable;
     wchar_t fullPathConfigFileName[PATH_MAX + 1];
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_DESCRIPTIONW sd;
@@ -383,7 +384,8 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
     Py_CLEAR(nameObj);
 
     // determine command to use for the service
-    executableNameObj = PyUnicode_FromWideChar(g_ExecutableName, -1);
+    executable = get_executable_name();
+    executableNameObj = PyUnicode_FromWideChar(executable, -1);
     if (!executableNameObj)
         return LogPythonException("cannot create executable name obj");
     if (!configFileName) {

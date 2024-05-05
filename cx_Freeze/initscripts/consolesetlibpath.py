@@ -9,6 +9,7 @@ the environment variable LD_LIBRARY_PATH is only checked at startup.
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import sys
 
@@ -27,7 +28,8 @@ sys.path = sys.path[:4]
 
 def run(name) -> None:
     """Execute the main script of the frozen application."""
-    code = __spec__.loader.get_code(name)
+    spec = importlib.util.find_spec(name)
+    code = spec.loader.get_code(name)
     module_main = __import__("__main__")
     module_main.__dict__["__file__"] = code.co_filename
     exec(code, module_main.__dict__)

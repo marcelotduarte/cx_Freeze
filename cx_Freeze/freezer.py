@@ -17,7 +17,7 @@ from importlib import import_module
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
-from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipInfo
+from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 
 from setuptools import Distribution
 
@@ -65,7 +65,7 @@ class Freezer:
         excludes: list[str] | None = None,
         packages: list[str] | None = None,
         replace_paths: list[str] | None = None,
-        compress: bool = True,
+        compress: bool | None = True,
         optimize: int = 0,
         path: list[str | Path] | None = None,
         target_dir: str | Path | None = None,
@@ -80,6 +80,7 @@ class Freezer:
         include_msvcr: bool = False,
         zip_include_packages: Sequence[str] | None = None,
         zip_exclude_packages: Sequence[str] | None = None,
+        zip_filename: Path | str | None = None,
     ) -> None:
         self.executables: list[Executable] = self._validate_executables(
             executables
@@ -91,7 +92,7 @@ class Freezer:
         self.excludes: list[str] = list(excludes or [])
         self.packages: set[str] = set(packages or [])
         self.replace_paths: list[str] = list(replace_paths or [])
-        self.compress = True if compress is None else compress
+        self.compress: bool = True if compress is None else compress
         self.optimize: int = int(optimize or 0)
         self.path: list[str] | None = self._validate_path(path)
         self.include_msvcr: bool = bool(include_msvcr)
@@ -118,6 +119,13 @@ class Freezer:
         self.zip_include_all_packages: bool = False
         self._populate_zip_options(zip_include_packages, zip_exclude_packages)
 
+        self.zip_filename: Path | None = None
+        if zip_filename is None and self.compress:
+            zip_filename = "library"
+        if zip_filename:
+            zip_filename = Path(zip_filename).with_suffix(".zip").name
+            self.zip_filename = self.target_dir / "lib" / zip_filename
+
         self._verify_configuration()
 
         self._symlinks: set[tuple[Path, Path, bool]] = set()
@@ -135,7 +143,7 @@ class Freezer:
             platform = sysconfig.get_platform()
             python_version = sysconfig.get_python_version()
             path = f"build/exe.{platform}-{python_version}"
-        path = Path(path).resolve()
+        path = Path(os.path.abspath(path)).resolve()
         if os.fspath(path) in self.path:
             msg = "the build_exe directory cannot be used as search path"
             raise OptionError(msg)
@@ -493,7 +501,7 @@ class Freezer:
         """Returns valid search path for modules, and fix the path for built-in
         modules when it differs from the running python built-in modules.
         """
-        path = list(map(os.fspath, path or sys.path))
+        path = list(map(os.path.normpath, path or sys.path))
         dynload = get_resource_file_path("bases", "lib-dynload", "")
         if dynload and dynload.is_dir():
             # add bases/lib-dynload to the finder path, if has modules
@@ -505,7 +513,7 @@ class Freezer:
                     with suppress(ValueError, IndexError):
                         index = path.index(dest_shared)
                         path.pop(index)
-                path.insert(index, os.fspath(dynload))
+                path.insert(index, os.path.normpath(dynload))
         return path
 
     @staticmethod
@@ -578,7 +586,8 @@ class Freezer:
         self.zip_exclude_packages = zip_exclude_packages
         self.zip_include_all_packages = zip_include_all_packages
 
-    def _write_modules(self, filename: Path) -> None:
+    def _write_modules(self) -> None:
+        filename: Path = self.target_dir / "lib" / "library.zip"
         finder: ModuleFinder = self.finder
         cache_path = finder.cache_path
 
@@ -725,18 +734,34 @@ class Freezer:
             finally:
                 os.environ["PATH"] = orig_path
 
+        # plain file system or name differs from default
+        if self.zip_filename is None:
+            with ZipFile(filename) as outfile:
+                outfile.extractall(target_lib_dir)
+            filename.unlink()
+        else:
+            if self.zip_filename.name != filename.name:
+                # not library.zip
+                filename.rename(self.zip_filename)
+            library_data = self.target_dir / "lib" / "library.dat"
+            library_data.write_bytes(self.zip_filename.name.encode())
+
     def freeze(self) -> None:
         """Do the freeze."""
         finder: ModuleFinder = self.finder
 
         # Add the executables to target
-        for executable in self.executables:
+        for i, executable in enumerate(self.executables):
             self._freeze_executable(executable)
+            finder.add_constant(
+                f"_EXECUTABLE_NAME_{i}", executable.target_name
+            )
+        finder.add_constant("_EXECUTABLES_NUMBER", len(self.executables))
 
         # Write the modules
-        target_dir = self.target_dir
-        self._write_modules(target_dir / "lib" / "library.zip")
+        self._write_modules()
 
+        target_dir = self.target_dir
         excluded_dependent_files = finder.excluded_dependent_files
         for source_path, target_path in finder.included_files:
             copy_dependent_files = source_path not in excluded_dependent_files
