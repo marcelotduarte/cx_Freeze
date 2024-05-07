@@ -734,14 +734,14 @@ class Freezer:
             finally:
                 os.environ["PATH"] = orig_path
 
-        # plain file system or name differs from default
+        # put all files in file system or keep in zip file
         if self.zip_filename is None:
             with ZipFile(filename) as outfile:
                 outfile.extractall(target_lib_dir)
             filename.unlink()
         else:
             if self.zip_filename.name != filename.name:
-                # not library.zip
+                # zip_filename differs from default
                 filename.rename(self.zip_filename)
             library_data = self.target_dir / "lib" / "library.dat"
             library_data.write_bytes(self.zip_filename.name.encode())

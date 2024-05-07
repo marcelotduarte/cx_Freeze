@@ -28,8 +28,8 @@ class build_exe(Command):
             "b",
             "directory for built executables and dependent files",
         ),
-        ("excludes=", "e", "comma-separated list of modules to exclude"),
         ("includes=", "i", "comma-separated list of modules to include"),
+        ("excludes=", "e", "comma-separated list of modules to exclude"),
         (
             "packages=",
             "p",
@@ -53,14 +53,7 @@ class build_exe(Command):
             None,
             "comma-separated list of paths to modify the search for modules",
         ),
-        ("no-compress", None, "create a zipfile with no compression"),
         ("constants=", None, "comma-separated list of constants to include"),
-        (
-            "bin-excludes=",
-            None,
-            "list of files to exclude when determining "
-            "dependencies of binary files that would normally be included",
-        ),
         (
             "bin-includes=",
             None,
@@ -68,15 +61,21 @@ class build_exe(Command):
             "dependencies of binary files that would normally be excluded",
         ),
         (
-            "bin-path-excludes=",
+            "bin-excludes=",
             None,
-            "list of paths from which to exclude files when determining "
-            "dependencies of binary files",
+            "list of files to exclude when determining "
+            "dependencies of binary files that would normally be included",
         ),
         (
             "bin-path-includes=",
             None,
             "list of paths from which to include files when determining "
+            "dependencies of binary files",
+        ),
+        (
+            "bin-path-excludes=",
+            None,
+            "list of paths from which to exclude files when determining "
             "dependencies of binary files",
         ),
         (
@@ -90,6 +89,12 @@ class build_exe(Command):
             "list of tuples of additional files to include in zip file",
         ),
         (
+            "zip-include-packages=",
+            None,
+            "comma-separated list of packages to include in the zip file "
+            "(or * for all) [default: none]",
+        ),
+        (
             "zip-exclude-packages=",
             None,
             "comma-separated list of packages to exclude from the zip file "
@@ -97,10 +102,15 @@ class build_exe(Command):
             "[default: *]",
         ),
         (
-            "zip-include-packages=",
+            "zip-filename=",
             None,
-            "comma-separated list of packages to include in the zip file "
-            "(or * for all) [default: none]",
+            "filename for the shared zipfile (.zip) "
+            "[default: library.zip or None if --no-compress is used]",
+        ),
+        (
+            "no-compress",
+            None,
+            "create a zip file with no compression (See also --zip-filename)",
         ),
         (
             "optimize=",
@@ -128,12 +138,6 @@ class build_exe(Command):
             "include-msvcr",
             None,
             "include the Microsoft Visual C runtime files",
-        ),
-        (
-            "zip-filename=",
-            None,
-            "filename for the shared zipfile (.zip) "
-            "[default: library.zip or None if no-compress is used]",
         ),
     ]
     boolean_options: ClassVar[list[str]] = [
