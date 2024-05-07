@@ -78,13 +78,10 @@ static wchar_t *get_sys_path(wchar_t *lib_dir)
     wcscpy(filename, lib_dir);
     wcscat(filename, L"\\");
     wcscat(filename, L"library.dat");
-    fprintf(stderr, "--filename: %ls\n", filename);
-    fprintf(stderr, "--MAXPATHLEN: %zd/%zd\n", wcslen(filename), (size_t)MAXPATHLEN);
     if ((fp = _wfopen(filename, L"rt")) != NULL) {
         int i = fread(buffer, sizeof(*buffer), sizeof(buffer), fp);
         buffer[i] = 0;
         fclose(fp);
-        fprintf(stderr, "--buffer: %s=%zd\n", buffer, strlen(buffer));
         wbuffer = Py_DecodeLocale(buffer, NULL);
         if (!wbuffer) {
             FatalError("Unable to convert path to string!");
@@ -93,23 +90,18 @@ static wchar_t *get_sys_path(wchar_t *lib_dir)
             wcscat(filename, L"\\");
             wcscat(filename, wbuffer);
             PyMem_RawFree(wbuffer);
-            fprintf(stderr, "--filename: %ls=%zd\n", filename, wcslen(filename));
             wcscat(buf_path, filename);
-            fprintf(stderr, "--buf_path: %ls\n", buf_path);
         }
     }
     if (wcslen(buf_path) != 0)
         wcscat(buf_path, L";");
-    fprintf(stderr, "--buf_path: %ls\n", buf_path);
     wcscat(buf_path, lib_dir);
-    fprintf(stderr, "--buf_path: %ls\n", buf_path);
 
     sys_path = PyMem_RawMalloc(sizeof(wchar_t) * wcslen(buf_path) + 1);
     if (!sys_path) {
         FatalError("Out of memory creating sys_path!");
         return NULL;
     }
-    fprintf(stderr, "--sys_path: %ls\n", wcscpy(sys_path, buf_path));
     return wcscpy(sys_path, buf_path);
 }
 #else
@@ -207,8 +199,6 @@ static char *get_sys_path(char *lib_dir)
     strcpy(filename, lib_dir);
     strcat(filename, "/");
     strcat(filename, "library.dat");
-    fprintf(stderr, "--filename: %s\n", filename);
-    fprintf(stderr, "--MAXPATHLEN: %d\n", MAXPATHLEN);
     if ((fp = fopen(filename, "r")) != NULL) {
         int i = fread(buffer, sizeof(*buffer), sizeof(buffer), fp);
         buffer[i] = 0;
@@ -216,7 +206,6 @@ static char *get_sys_path(char *lib_dir)
         strcpy(filename, lib_dir);
         strcat(filename, "/");
         strcat(filename, buffer);
-        fprintf(stderr, "--filename: %s\n", filename);
         strcat(buf_path, filename);
     }
     if (strlen(buf_path) != 0)

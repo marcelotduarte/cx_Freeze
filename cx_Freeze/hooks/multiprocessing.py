@@ -25,8 +25,9 @@ def load_multiprocessing(_, module: Module) -> None:
     """
     # Support for:
     # - fork in Unix (including macOS) is native;
-    # - spawn in Windows is native (since 4.3.4) but was improved in v6.2;
-    # - spawn and forkserver in Unix is implemented here.
+    # - spawn in Windows is native since 4.3.4, but was improved in 6.2;
+    # - spawn and forkserver in Unix is implemented here in 6.15.4 #1956;
+    # - monkeypath get_context to do automatic freeze_support in 7.1 #2382;
     if IS_MINGW or IS_WINDOWS:
         return
     if module.file.suffix == ".pyc":  # source unavailable
