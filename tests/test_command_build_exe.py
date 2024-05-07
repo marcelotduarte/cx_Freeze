@@ -140,6 +140,41 @@ DIST_ATTRS = {
             {"zip_include_packages": ["*"], "zip_exclude_packages": []},
             id="zip_include_package=*",
         ),
+        pytest.param(
+            {"zip_filename": None},
+            {"zip_filename": "library.zip"},
+            id="zip_filename=none",
+        ),
+        pytest.param(
+            {"zip_filename": "test"},
+            {"zip_filename": "test.zip"},
+            id="zip_filename=test",
+        ),
+        pytest.param(
+            {"zip_filename": "test.zip"},
+            {"zip_filename": "test.zip"},
+            id="zip_filename=test.zip",
+        ),
+        pytest.param(
+            {},
+            {"no_compress": False, "zip_filename": "library.zip"},
+            id="zip_filename=",
+        ),
+        pytest.param(
+            {"no_compress": None},
+            {"no_compress": False, "zip_filename": "library.zip"},
+            id="zip_filename=",
+        ),
+        pytest.param(
+            {"no_compress": False},
+            {"no_compress": False, "zip_filename": "library.zip"},
+            id="no_compress=false",
+        ),
+        pytest.param(
+            {"no_compress": True},
+            {"no_compress": True, "zip_filename": None},
+            id="no_compress=true",
+        ),
     ],
 )
 def test_build_exe_finalize_options(
@@ -149,7 +184,6 @@ def test_build_exe_finalize_options(
     dist = Distribution(DIST_ATTRS)
     cmd = build_exe(dist, **kwargs)
     cmd.finalize_options()
-    cmd.ensure_finalized()
     for option, value in expected.items():
         assert getattr(cmd, option) == value
 
@@ -262,6 +296,31 @@ def test_build_exe_finalize_options_raises(
                 "zip_exclude_packages": ["zope.event", "zope.interface"],
             },
             id="--zip-include-packages/--zip-exclude-packages=namespace/namespace",
+        ),
+        pytest.param(
+            ["--zip-filename="],
+            {"zip_filename": "library.zip"},
+            id="--zip-filename=",
+        ),
+        pytest.param(
+            ["--zip-filename=test"],
+            {"zip_filename": "test.zip"},
+            id="--zip-filename=test",
+        ),
+        pytest.param(
+            ["--zip-filename=test.zip"],
+            {"zip_filename": "test.zip"},
+            id="--zip-filename=test.zip",
+        ),
+        pytest.param(
+            [],
+            {"no_compress": False, "zip_filename": "library.zip"},
+            id="--no-compress(notused),--zip-filename(notused)",
+        ),
+        pytest.param(
+            ["--no-compress"],
+            {"no_compress": True, "zip_filename": None},
+            id="--no-compress",
         ),
         pytest.param([], {"optimize": 0}, id="--optimize(notused)"),
         pytest.param(["--optimize=0"], {"optimize": 0}, id="--optimize=0"),

@@ -288,3 +288,39 @@ def test_invalid_icon(tmp_path: Path) -> None:
     assert "WARNING: Icon file not found" not in output, "icon file not found"
     # it is expected the folowing warning if the icon is invalid
     assert "WARNING: Icon filename 'icon.png' has invalid type." in output
+
+
+SOURCE_RENAME = """
+test_0.py
+    print("Hello from cx_Freeze")
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_0.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+command
+    cxfreeze build
+"""
+
+
+def test_executable_rename(tmp_path: Path) -> None:
+    """Test if the executable can be renamed."""
+    create_package(tmp_path, SOURCE_RENAME)
+    output = run_command(tmp_path)
+    file_created = tmp_path / BUILD_EXE_DIR / f"test_0{SUFFIX}"
+    assert file_created.is_file(), f"file not found: {file_created}"
+
+    output = run_command(tmp_path, file_created, timeout=10)
+    assert output.startswith("Hello from cx_Freeze")
+
+    file_renamed = file_created.rename(
+        file_created.parent / "test_zero{SUFFIX}"
+    )
+    output = run_command(tmp_path, file_renamed, timeout=10)
+    assert output.startswith("Hello from cx_Freeze")

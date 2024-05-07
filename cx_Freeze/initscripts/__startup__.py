@@ -52,6 +52,18 @@ class ExtensionFinder(PathFinder):
         return None
 
 
+def get_name(executable) -> str:
+    """Get the module basename to search for init and main scripts."""
+    name = os.path.normcase(os.path.basename(executable))
+    if sys.platform.startswith("win"):
+        name, _ = os.path.splitext(name)
+    name = name.partition(".")[0]
+    if not name.isidentifier():
+        for char in STRINGREPLACE:
+            name = name.replace(char, "_")
+    return name
+
+
 def init() -> None:
     """Basic initialization of the startup script."""
     # to avoid bugs (especially in MSYS2) use normpath after any change
@@ -59,15 +71,20 @@ def init() -> None:
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
     sys.meta_path.append(ExtensionFinder)
 
-    sys.path = list(map(os.path.normpath, sys.path))
+    # normalize and check sys.path, preserving the reference
+    j = 0
+    for path in list(map(os.path.normpath, sys.path)):
+        if os.path.exists(path):
+            sys.path[j] = path
+            j = j + 1
+        else:
+            sys.path.remove(path)
+
     if sys.platform.startswith("win"):
-        # for python >= 3.8, the search for dlls is sandboxed
+        # the search path for dependencies
         search_path: list[str] = [
             entry for entry in sys.path if os.path.isdir(entry)
         ]
-        add_to_path = os.path.join(frozen_dir, "lib")
-        if add_to_path not in search_path:
-            search_path.insert(0, add_to_path)
         # add to dll search path (or to path)
         env_path = os.environ.get("PATH", "").split(os.pathsep)
         env_path = list(map(os.path.normpath, env_path))
@@ -105,32 +122,20 @@ def init() -> None:
 
 def run() -> None:
     """Determines the name of the initscript and execute it."""
-    # get the real name of __init__ script
-    # basically, the basename of executable plus __init__
-    # but can be renamed when only one executable exists
-    name = os.path.normcase(os.path.basename(sys.executable))
-    if sys.platform.startswith("win"):
-        name, _ = os.path.splitext(name)
-    name = name.partition(".")[0]
-    if not name.isidentifier():
-        for char in STRINGREPLACE:
-            name = name.replace(char, "_")
+    name = get_name(sys.executable)
     try:
+        # basically, the basename of the executable plus __init__
         module_init = __import__(name + "__init__")
     except ModuleNotFoundError:
-        names = [
-            f.rpartition("__init__")[0]
-            for f in __spec__.loader._files  # noqa: SLF001
-            if f.endswith("__init__.pyc")
-            and f.rpartition("__init__")[0].isidentifier()
-        ]
-        if len(names) != 1:
+        # but can be renamed when only one executable exists
+        num = BUILD_CONSTANTS._EXECUTABLES_NUMBER  # noqa: SLF001
+        if num > 1:
             msg = (
                 "Apparently, the original executable has been renamed to "
                 f"{name!r}. When multiple executables are generated, "
                 "renaming is not allowed."
             )
             raise RuntimeError(msg) from None
-        name = names[0]
+        name = get_name(BUILD_CONSTANTS._EXECUTABLE_NAME_0)  # noqa: SLF001
         module_init = __import__(name + "__init__")
     module_init.run(name + "__main__")

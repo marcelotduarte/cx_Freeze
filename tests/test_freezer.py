@@ -7,7 +7,7 @@ from sysconfig import get_config_vars, get_python_version
 from typing import TYPE_CHECKING, Any, NoReturn
 
 import pytest
-from generate_samples import create_package
+from generate_samples import create_package, run_command
 
 from cx_Freeze import Executable, Freezer
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, PLATFORM
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 PYTHON_VERSION = get_python_version()
 BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+SUFFIX = ".exe" if (IS_MINGW or IS_WINDOWS) else ""
 
 SOURCE = """
 hello.py
@@ -32,7 +33,29 @@ def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch) -> None:
 
     freezer = Freezer(executables=[Executable("hello.py")])
     target_dir = tmp_path / BUILD_EXE_DIR
-    assert freezer.target_dir.absolute() == target_dir
+    assert freezer.target_dir == target_dir
+
+
+def test_freezer_target_dir_dist(tmp_path: Path, monkeypatch) -> None:
+    """Test freezer target_dir='dist'."""
+    create_package(tmp_path, SOURCE)
+    monkeypatch.chdir(tmp_path)
+
+    freezer = Freezer(executables=[Executable("hello.py")], target_dir="dist")
+    target_dir = tmp_path / "dist"
+    assert freezer.target_dir == target_dir
+
+
+def test_freezer_target_dir_utf8(tmp_path: Path, monkeypatch) -> None:
+    """Test freezer target_dir with a name in utf_8."""
+    create_package(tmp_path, SOURCE)
+    monkeypatch.chdir(tmp_path)
+
+    target_dir = tmp_path / "ação"
+    freezer = Freezer(
+        executables=[Executable("hello.py")], target_dir=target_dir
+    )
+    assert freezer.target_dir == target_dir
 
 
 def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch) -> None:
@@ -156,6 +179,15 @@ def test_freezer_populate_zip_options_invalid_values(
     ("kwargs", "expected"),
     [
         pytest.param(
+            {"compress": None}, {"compress": True}, id="compress=none"
+        ),
+        pytest.param(
+            {"compress": False}, {"compress": False}, id="compress=false"
+        ),
+        pytest.param(
+            {"compress": True}, {"compress": True}, id="compress=true"
+        ),
+        pytest.param(
             {"excludes": ["tkinter", "unittest"]},
             {"excludes": ["tkinter", "unittest"]},
             id="excludes=['tkinter','unittest']",
@@ -258,3 +290,81 @@ def test_freezer_options(
     freezer = Freezer(executables=[Executable("hello.py")], **kwargs)
     for option, value in expected.items():
         assert getattr(freezer, option) == value
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected"),
+    [
+        pytest.param(
+            {"zip_filename": None},
+            {"zip_filename": "library.zip"},  # default compress is True
+            id="zip_filename=none",
+        ),
+        pytest.param(
+            {"zip_filename": "test"},
+            {"zip_filename": "test.zip"},
+            id="zip_filename=test",
+        ),
+        pytest.param(
+            {"zip_filename": "test.zip"},
+            {"zip_filename": "test.zip"},
+            id="zip_filename=test.zip",
+        ),
+        pytest.param(
+            {"zip_filename": "test.zip", "target_dir": "ação"},
+            {"zip_filename": "test.zip"},
+            id="zip_filename=test.zip/target_dir=utf_8/portuguese",
+        ),
+        pytest.param(
+            {"zip_filename": "test.zip", "target_dir": "行動"},
+            {"zip_filename": "test.zip"},
+            id="zip_filename=test.zip/target_dir=utf_8/chinese",
+        ),
+        pytest.param(
+            {"compress": True},
+            {"compress": True, "zip_filename": "library.zip"},
+            id="zip_filename=none/compress=true",
+        ),
+        pytest.param(
+            {"compress": False},
+            {"compress": False, "zip_filename": None},
+            id="zip_filename=none/compress=false",
+        ),
+        pytest.param(
+            {"compress": False, "zip_filename": "library.zip"},
+            {"compress": False, "zip_filename": "library.zip"},
+            id="zip_filename=name/compress=false",
+        ),
+    ],
+)
+def test_freezer_zip_filename(
+    tmp_path: Path,
+    monkeypatch,
+    kwargs: dict[str, ...],
+    expected: dict[str, ...],
+) -> None:
+    """Test freezer zip_filename option."""
+    create_package(tmp_path, SOURCE)
+    monkeypatch.chdir(tmp_path)
+
+    freezer = Freezer(
+        executables=[Executable("hello.py")], silent=True, **kwargs
+    )
+    target_dir = freezer.target_dir
+
+    freezer.freeze()
+    for option, value in expected.items():
+        if option == "zip_filename":
+            if value:
+                assert freezer.zip_filename == target_dir / "lib" / value
+                assert freezer.zip_filename.is_file()
+            else:
+                assert not (target_dir / "lib" / "library.zip").is_file()
+        else:
+            assert getattr(freezer, option) == value
+
+    executable = target_dir / f"hello{SUFFIX}"
+    assert executable.is_file()
+
+    output = run_command(tmp_path, executable, timeout=10)
+    assert output.startswith("Hello from cx_Freeze")

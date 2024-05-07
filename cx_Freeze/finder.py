@@ -510,11 +510,11 @@ class ModuleFinder:
 
     @staticmethod
     def _replace_package_in_code(module: Module) -> CodeType:
-        """Replace the value of __package__ directly in the code,
-        when the module is in a package and will be stored in library.zip.
+        """Replace the value of __package__ directly in the code, when the
+        module is in a package and will be stored in shared zip file.
         """
         code = module.code
-        # Check if module is in a package and will be stored in library.zip
+        # Check if module is in a package and will be stored in zip file
         # and is not defined in the module, like 'six' do
         if (
             code is None
