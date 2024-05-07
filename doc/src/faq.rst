@@ -179,3 +179,37 @@ sources.
 
  Or install patchelf from `sources
  <https://github.com/NixOS/patchelf#compiling-and-testing>`_.
+
+
+Multiprocessing support
+-----------------------
+
+On Linux and macOS, multiprocessing support is automatically managed by
+cx_Freeze, including supporting it in pyTorch.
+
+However, to produce a Windows executable, you must use
+`multiprocessing.freeze_support()`.
+
+One needs to call this function straight after the if __name__ == '__main__'
+line of the main module. For example:
+
+  .. code-block:: python
+
+    from multiprocessing import Process, freeze_support
+
+
+    def f():
+        print("Hello from cx_Freeze")
+
+
+    if __name__ == "__main__":
+        freeze_support()
+        Process(target=f).start()
+
+If the freeze_support() line is omitted then trying to run the frozen
+executable will raise RuntimeError.
+
+Calling freeze_support() has no effect when invoked on any operating system
+other than Windows. In addition, if the module is being run normally by the
+Python interpreter on Windows (the program has not been frozen), then
+freeze_support() has no effect.

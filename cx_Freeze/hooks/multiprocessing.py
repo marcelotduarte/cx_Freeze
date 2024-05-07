@@ -25,8 +25,9 @@ def load_multiprocessing(_, module: Module) -> None:
     """
     # Support for:
     # - fork in Unix (including macOS) is native;
-    # - spawn in Windows is native (since 4.3.4) but was improved in v6.2;
-    # - spawn and forkserver in Unix is implemented here.
+    # - spawn in Windows is native since 4.3.4, but was improved in 6.2;
+    # - spawn and forkserver in Unix is implemented here in 6.15.4 #1956;
+    # - monkeypath get_context to do automatic freeze_support in 7.1 #2382;
     if IS_MINGW or IS_WINDOWS:
         return
     if module.file.suffix == ".pyc":  # source unavailable
@@ -40,12 +41,18 @@ def load_multiprocessing(_, module: Module) -> None:
         if re.search(r"^from multiprocessing.* import main.*", cmd):
             exec(cmd)
             sys.exit()
-    # workaround for python docs: run the freeze_support to avoid infinite loop
-    from multiprocessing.spawn import freeze_support as spawn_freeze_support
-    spawn_freeze_support()
-    del spawn_freeze_support
-    # disable it, cannot run twice
-    freeze_support = lambda: None
+    # workaround: inject freeze_support call to avoid an infinite loop
+    from multiprocessing.spawn import freeze_support as _spawn_freeze_support
+    from multiprocessing.context import BaseContext
+    BaseContext._get_context = BaseContext.get_context
+    def _get_freeze_context(self, method=None):
+        ctx = self._get_context(method)
+        _spawn_freeze_support()
+        return ctx
+    BaseContext.get_context = \
+        lambda self, method=None: _get_freeze_context(self, method)
+    # disable freeze_support, because it cannot be run twice
+    BaseContext.freeze_support = lambda self: None
     # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)
