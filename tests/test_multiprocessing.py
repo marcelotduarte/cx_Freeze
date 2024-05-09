@@ -21,13 +21,14 @@ SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """\
 sample1.py
-    import multiprocessing
+    import multiprocessing, sys
 
     def foo(q):
         q.put('hello')
 
     if __name__ == '__main__':
-        multiprocessing.freeze_support()
+        if sys.platform == 'win32':  # the conditional is unecessary
+            multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         q = multiprocessing.SimpleQueue()
         p = multiprocessing.Process(target=foo, args=(q,))
@@ -35,14 +36,15 @@ sample1.py
         print(q.get())
         p.join()
 sample2.py
-    import multiprocessing
+    import multiprocessing, sys
 
     def foo(q):
         q.put('hello')
 
     if __name__ == '__main__':
         ctx = multiprocessing.get_context('spawn')
-        ctx.freeze_support()
+        if sys.platform == 'win32':  # the conditional is unecessary
+            ctx.freeze_support()
         q = ctx.Queue()
         p = ctx.Process(target=foo, args=(q,))
         p.start()
@@ -50,8 +52,9 @@ sample2.py
         p.join()
 sample3.py
     if __name__ ==  "__main__":
-        import multiprocessing
-        multiprocessing.freeze_support()
+        import multiprocessing, sys
+        if sys.platform == 'win32':  # the conditional is unecessary
+            multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         mgr = multiprocessing.Manager()
         var = [1] * 10000000
@@ -85,6 +88,8 @@ def _parameters_data() -> Iterator:
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
         for i, expected in enumerate(EXPECTED_OUTPUT):
+            if method == "forkserver" and i != 3:
+                continue  # only sample3 works with forkserver method
             sample = f"sample{i+1}"
             test_id = f"{sample},{method}"
             yield pytest.param(source, sample, expected, id=test_id)
@@ -97,7 +102,8 @@ def test_multiprocessing(
     """Provides test cases for multiprocessing."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
-    executable = tmp_path / BUILD_EXE_DIR / f"{sample}{SUFFIX}"
+    target_dir = tmp_path / BUILD_EXE_DIR
+    executable = target_dir / f"{sample}{SUFFIX}"
     assert executable.is_file()
-    output = run_command(tmp_path, executable, timeout=10)
+    output = run_command(target_dir, executable, timeout=10)
     assert output.splitlines()[-1] == expected
