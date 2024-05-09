@@ -14,6 +14,12 @@ def run(name) -> None:
     """Execute the main script of the frozen application."""
     spec = importlib.util.find_spec(name)
     code = spec.loader.get_code(name)
-    module_main = __import__("__main__")
-    module_main.__dict__["__file__"] = code.co_filename
-    exec(code, module_main.__dict__)
+    main_module = sys.modules["__main__"]
+    main_globals = main_module.__dict__
+    main_globals.update(
+        __cached__=spec.cached,
+        __file__=spec.cached,
+        __loader__=spec.loader,
+        __spec__=spec,
+    )
+    exec(code, main_globals)
