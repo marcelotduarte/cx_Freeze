@@ -6,6 +6,10 @@
 #include <compile.h>
 #include <osdefs.h>
 
+#if MAXPATHLEN < 1024
+#define MAXPATHLEN 1024
+#endif
+
 #if defined(MS_WINDOWS)
     #include <libloaderapi.h>
     #define PY3_DLLNAME                 L"python3.dll"
