@@ -141,7 +141,7 @@ def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
     """
     source_path, target_path = get_qt_paths(name, variable=args[0])
     for arg in args[1:]:
-        if "*" in arg:
+        if "*" in arg or "?" in arg:
             # XXX: this code needs improvement
             for source in source_path.glob(arg):
                 if source.is_file():
@@ -167,6 +167,7 @@ def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "designer")
+    copy_qt_files(finder, name, "TranslationsPath", "designer_*.qm")
 
 
 def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
@@ -182,6 +183,9 @@ def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "platforminputcontexts")
     copy_qt_files(finder, name, "PluginsPath", "platforms")
     copy_qt_files(finder, name, "PluginsPath", "platformthemes")
+    copy_qt_files(finder, name, "TranslationsPath", "qt_??.qm")
+    copy_qt_files(finder, name, "TranslationsPath", "qt_??_??.qm")
+    copy_qt_files(finder, name, "TranslationsPath", "qtbase_*.qm")
 
 
 def load_qt_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
@@ -193,6 +197,7 @@ def load_qt_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "playlistformats")
     copy_qt_files(finder, name, "PluginsPath", "resourcepolicy")
     copy_qt_files(finder, name, "PluginsPath", "video")
+    copy_qt_files(finder, name, "TranslationsPath", "qtmultimedia_*.qm")
 
 
 def load_qt_qtnetwork(finder: ModuleFinder, module: Module) -> None:
@@ -322,7 +327,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             copy_qt_files(finder, name, "LibraryExecutablesPath", "libnss*.*")
 
     copy_qt_files(finder, name, "DataPath", "resources")
-    copy_qt_files(finder, name, "TranslationsPath", "qtwebengine_*")
+    copy_qt_files(finder, name, "TranslationsPath", "qtwebengine_*.qm")
 
 
 def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
