@@ -121,6 +121,22 @@ you have installed.
      * `for x64 (64 bit) Windows
        <https://aka.ms/vs/17/release/vc_redist.x64.exe>`_
 
+Removing the MAX_PATH Limitation
+--------------------------------
+
+Windows historically has limited path lengths to 260 characters. This meant
+that paths longer than this would not resolve and errors would result.
+
+Support for long paths is enabled for executables built in **cx_Freeze** as
+long as the administrator activate the "Enable Win32 long paths" group policy
+or sets ``LongPathsEnabled`` to ``1`` in the registry key
+``HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem``.
+
+After changing the above option, no further configuration is required.
+
+.. seealso:: `Enable Long Paths in Windows 10, Version 1607, and Later
+   <https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry#enable-long-paths-in-windows-10-version-1607-and-later>`_
+
 Single-file executables
 -----------------------
 
