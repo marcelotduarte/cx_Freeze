@@ -92,7 +92,13 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch end
         """
     )
-    module.code = compile(code_string, module.file.as_posix(), "exec")
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
 
 
 def load_pyqt5_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:

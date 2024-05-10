@@ -4,7 +4,6 @@ scipy package is included.
 
 from __future__ import annotations
 
-import os
 from importlib.machinery import EXTENSION_SUFFIXES
 from typing import TYPE_CHECKING
 
@@ -56,7 +55,13 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         code_string = code_string.replace(
             "__file__", "__file__.replace('library.zip/', '')"
         )
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
 
 
 def load_scipy_interpolate(

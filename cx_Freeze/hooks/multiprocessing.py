@@ -4,17 +4,17 @@ multiprocessing package is included.
 
 from __future__ import annotations
 
-import os
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
 
 
-def load_multiprocessing(_, module: Module) -> None:
+def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
     """The forkserver method calls utilspawnv_passfds in ensure_running to
     pass a command line to python. In cx_Freeze the running executable
     is called, then we need to catch this and use exec function.
@@ -56,7 +56,13 @@ def load_multiprocessing(_, module: Module) -> None:
     # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
 
 
 def load_multiprocessing_connection(_, module: Module) -> None:

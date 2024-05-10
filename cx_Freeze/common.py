@@ -98,7 +98,9 @@ def code_object_replace_function(
     if code is None:
         return code
 
-    new_code = compile(dedent(source), code.co_filename, "exec")
+    new_code = compile(
+        dedent(source), code.co_filename, "exec", dont_inherit=True
+    )
     new_co_func = None
     for constant in new_code.co_consts:
         if isinstance(constant, CodeType) and constant.co_name == name:

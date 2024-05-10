@@ -5,7 +5,6 @@ numpy package is included.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
@@ -94,7 +93,7 @@ def load_numpy_core_overrides(finder: ModuleFinder, module: Module) -> None:
     code_string = module.file.read_text(encoding="utf_8")
     module.code = compile(
         code_string.replace("dispatcher.__doc__", "dispatcher.__doc__ or ''"),
-        os.fspath(module.file),
+        module.file.as_posix(),
         "exec",
         dont_inherit=True,
         optimize=min(finder.optimize, 1),
@@ -187,7 +186,13 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         code_string = code_string.replace(
             "__file__", "__file__.replace('library.zip/', '')"
         )
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
 
 
 def load_numpy_core_numerictypes(_, module: Module) -> None:
