@@ -4,7 +4,6 @@ tensorflow package is included.
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
@@ -42,7 +41,13 @@ def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
         "_current_file_location = ",
         "_current_file_location = __file__.replace('library.zip/', '')  #",
     )
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
 
     # installed version of tensorflow is a variant?
     if module.distribution is None:

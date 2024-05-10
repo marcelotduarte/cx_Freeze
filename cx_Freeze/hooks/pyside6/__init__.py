@@ -100,7 +100,13 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch end
         """
     )
-    code = compile(code_string, module.file.as_posix(), "exec")
+    code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
 
     # shiboken6 in zip_include_packages
     shiboken6 = finder.include_package("shiboken6")

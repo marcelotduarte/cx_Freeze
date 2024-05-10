@@ -32,7 +32,14 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     # patch the code to ignore CUDA_PATH_Vxx_x installation directory
     code_string = module.file.read_text(encoding="utf_8")
     code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
-    module.code = compile(code_string, module.file.as_posix(), "exec")
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
+
     # include the binaries (torch 2.1+)
     source_bin = module.file.parent / "bin"
     if source_bin.exists():
@@ -79,11 +86,17 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     finder.include_files(source, target)
 
 
-def load_torch__dynamo_skipfiles(_, module: Module) -> None:
+def load_torch__dynamo_skipfiles(finder: ModuleFinder, module: Module) -> None:
     """Patch to work with Python 3.11+."""
     code_string = module.file.read_text(encoding="utf_8")
     code_string = code_string.replace(
         "return _strip_init_py(m.__file__)",
         'return _strip_init_py(getattr(m, "__file__", ""))',
     )
-    module.code = compile(code_string, os.fspath(module.file), "exec")
+    module.code = compile(
+        code_string,
+        os.fspath(module.file),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )

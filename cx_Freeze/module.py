@@ -200,7 +200,9 @@ class Module:
         if source_file.exists():
             imports_only = source_file.read_text(encoding="utf_8")
             if imports_only:
-                return compile(imports_only, stub_name, "exec")
+                return compile(
+                    imports_only, stub_name, "exec", dont_inherit=True
+                )
         # search for a stub file along side the python extension module
         source_file = filename.parent / stub_name
         if not source_file.exists():
@@ -222,7 +224,7 @@ class Module:
         else:
             imports_only = self.get_imports_from_file(source_file)
         if imports_only:
-            return compile(imports_only, stub_name, "exec")
+            return compile(imports_only, stub_name, "exec", dont_inherit=True)
         return None
 
     def get_imports_from_file(self, source_file: Path) -> str | None:

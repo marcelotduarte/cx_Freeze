@@ -453,7 +453,9 @@ class ModuleFinder:
         elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
             logging.debug("Adding module [%s] [EXTENSION]", name)
         elif module.source_is_string:
-            module.code = compile("", path, "exec")
+            module.code = compile(
+                "", path, "exec", dont_inherit=True, optimize=self.optimize
+            )
         else:
             msg = f"Unknown module loader in {path}"
             raise ImportError(msg, name=name)
