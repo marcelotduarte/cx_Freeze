@@ -176,36 +176,51 @@ def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     """
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "accessiblebridge")
-    copy_qt_files(finder, name, "PluginsPath", "generic")
-    copy_qt_files(finder, name, "PluginsPath", "imageformats")
-    copy_qt_files(finder, name, "PluginsPath", "pictureformats")  # obsolete
-    # For simplicity, we just copy the platform plugins that are installed.
-    copy_qt_files(finder, name, "PluginsPath", "platforminputcontexts")
     copy_qt_files(finder, name, "PluginsPath", "platforms")
+    if IS_MACOS:
+        copy_qt_files(finder, name, "PluginsPath", "platforms/darwin")
+    copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
     copy_qt_files(finder, name, "PluginsPath", "platformthemes")
+    copy_qt_files(finder, name, "PluginsPath", "platforminputcontexts")
+    copy_qt_files(finder, name, "PluginsPath", "generic")
+    copy_qt_files(finder, name, "PluginsPath", "iconengines")
+    copy_qt_files(finder, name, "PluginsPath", "imageformats")
+    copy_qt_files(finder, name, "PluginsPath", "egldeviceintegrations")
     copy_qt_files(finder, name, "TranslationsPath", "qt_??.qm")
     copy_qt_files(finder, name, "TranslationsPath", "qt_??_??.qm")
     copy_qt_files(finder, name, "TranslationsPath", "qtbase_*.qm")
+    # old names?
+    copy_qt_files(finder, name, "PluginsPath", "accessible")
+    copy_qt_files(finder, name, "PluginsPath", "pictureformats")
+
+
+def load_qt_qtlocation(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "geoservices")
+    copy_qt_files(finder, name, "TranslationsPath", "qtlocation_*.qm")
 
 
 def load_qt_qtmultimedia(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "multimedia")
+    copy_qt_files(finder, name, "TranslationsPath", "qtmultimedia_*.qm")
+    # ?
     copy_qt_files(finder, name, "PluginsPath", "audio")
     copy_qt_files(finder, name, "PluginsPath", "mediaservice")
-    copy_qt_files(finder, name, "PluginsPath", "multimedia")
     copy_qt_files(finder, name, "PluginsPath", "playlistformats")
     copy_qt_files(finder, name, "PluginsPath", "resourcepolicy")
     copy_qt_files(finder, name, "PluginsPath", "video")
-    copy_qt_files(finder, name, "TranslationsPath", "qtmultimedia_*.qm")
 
 
 def load_qt_qtnetwork(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "bearer")
+    copy_qt_files(finder, name, "PluginsPath", "networkaccess")
     copy_qt_files(finder, name, "PluginsPath", "networkinformation")
     copy_qt_files(finder, name, "PluginsPath", "tls")
+    copy_qt_files(finder, name, "PluginsPath", "bearer")  # ?
 
 
 def load_qt_qtopengl(finder: ModuleFinder, module: Module) -> None:
@@ -237,12 +252,20 @@ def load_qt_qtqml(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "qmltooling")
+    copy_qt_files(finder, name, "PluginsPath", "qmllint")  # pyqt6
 
 
 def load_qt_qtquick(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "scenegraph")
+    copy_qt_files(finder, name, "PluginsPath", "sceneparsers")  # pyqt6
+
+
+def load_qt_qtquick3d(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "assetimporters")
 
 
 def load_qt_qtscript(finder: ModuleFinder, module: Module) -> None:
@@ -251,23 +274,35 @@ def load_qt_qtscript(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "script")
 
 
+def load_qt_qtscxml(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "scxmldatamodel")
+
+
 def load_qt_qtsensors(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "sensorgestures")
     copy_qt_files(finder, name, "PluginsPath", "sensors")
+    copy_qt_files(finder, name, "PluginsPath", "sensorgestures")  # pyqt6
+
+
+def load_qt_qtserialbus(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "canbus")
+
+
+def load_qt_qtserialport(finder: ModuleFinder, module: Module) -> None:
+    """Include translations for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "TranslationsPath", "qtserialport_*.qm")
 
 
 def load_qt_qtsql(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "sqldrivers")
-
-
-def load_qt_qtsvg(finder: ModuleFinder, module: Module) -> None:
-    """Include plugins for the module."""
-    name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "iconengines")
 
 
 def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
@@ -328,22 +363,25 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
 
     copy_qt_files(finder, name, "DataPath", "resources")
     copy_qt_files(finder, name, "TranslationsPath", "qtwebengine_*.qm")
+    copy_qt_files(finder, name, "TranslationsPath", "qtwebengine_locales")
 
 
 def load_qt_qtwebenginewidgets(finder: ModuleFinder, module: Module) -> None:
     """Include data and plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "LibrariesPath", "*WebEngineWidgets.*")
-    copy_qt_files(finder, name, "PluginsPath", "designer")
-    copy_qt_files(finder, name, "PluginsPath", "imageformats")
     copy_qt_files(finder, name, "PluginsPath", "webview")
-    copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
+
+
+def load_qt_qtwebsockets(finder: ModuleFinder, module: Module) -> None:
+    """Include translations for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "TranslationsPath", "qtwebsockets_*.qm")
 
 
 def load_qt_qtwidgets(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "accessible")
     copy_qt_files(finder, name, "PluginsPath", "styles")
 
 

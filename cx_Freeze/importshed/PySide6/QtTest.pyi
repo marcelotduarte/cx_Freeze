@@ -5,5 +5,5 @@ import PySide6.QtCore
 import PySide6.QtGui
 import PySide6.QtWidgets
 import enum
-from PySide6.QtCore import Signal, SignalInstance
+from PySide6.QtCore import SignalInstance
 from shiboken6 import Shiboken

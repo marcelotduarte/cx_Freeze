@@ -16,6 +16,9 @@ from cx_Freeze.hooks._qthooks import (
 )
 from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyqt6_qtgui
 from cx_Freeze.hooks._qthooks import (
+    load_qt_qtlocation as load_pyqt6_qtlocation,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtmultimedia as load_pyqt6_qtmultimedia,
 )
 from cx_Freeze.hooks._qthooks import load_qt_qtnetwork as load_pyqt6_qtnetwork
@@ -31,13 +34,23 @@ from cx_Freeze.hooks._qthooks import (
 )
 from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyqt6_qtqml
 from cx_Freeze.hooks._qthooks import load_qt_qtquick as load_pyqt6_qtquick
+from cx_Freeze.hooks._qthooks import load_qt_qtquick3d as load_pyqt6_qtquick3d
+from cx_Freeze.hooks._qthooks import load_qt_qtscxml as load_pyqt6_qtscxml
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtserialbus as load_pyqt6_qtserialbus,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtserialport as load_pyqt6_qtserialport,
+)
 from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyqt6_qtsql
-from cx_Freeze.hooks._qthooks import load_qt_qtsvg as load_pyqt6_qtsvg
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginecore as load_pyqt6_qtwebenginecore,
 )
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt6_qtwebenginewidgets,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtwebsockets as load_pyqt6_qtwebsockets,
 )
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtwidgets as load_pyqt6_qtwidgets_base,
@@ -119,6 +132,7 @@ __all__ = [
     "load_pyqt6",
     "load_pyqt6_qtdesigner",
     "load_pyqt6_qtgui",
+    "load_pyqt6_qtlocation",
     "load_pyqt6_qtmultimedia",
     "load_pyqt6_qtnetwork",
     "load_pyqt6_qtopengl",
@@ -126,10 +140,15 @@ __all__ = [
     "load_pyqt6_qtpositioning",
     "load_pyqt6_qtprintsupport",
     "load_pyqt6_qtquick",
+    "load_pyqt6_qtquick3d",
+    "load_pyqt6_qtscxml",
+    "load_pyqt6_qtserialbus",
+    "load_pyqt6_qtserialport",
     "load_pyqt6_qtqml",
     "load_pyqt6_qtsql",
     "load_pyqt6_qtsvg",
     "load_pyqt6_qtwebenginecore",
     "load_pyqt6_qtwebenginewidgets",
+    "load_pyqt6_qtwebsockets",
     "load_pyqt6_qtwidgets",
 ]

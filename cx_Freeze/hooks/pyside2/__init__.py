@@ -33,7 +33,6 @@ from cx_Freeze.hooks._qthooks import (
 from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyside2_qtqml
 from cx_Freeze.hooks._qthooks import load_qt_qtscript as load_pyside2_qtscript
 from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyside2_qtsql
-from cx_Freeze.hooks._qthooks import load_qt_qtsvg as load_pyside2_qtsvg
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginecore as _load_qt_qtwebenginecore,
 )

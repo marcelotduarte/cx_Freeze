@@ -3,5 +3,4 @@
 import PySide6.QtConcurrent
 import PySide6.QtCore
 import enum
-from PySide6.QtCore import Signal
 from shiboken6 import Shiboken
