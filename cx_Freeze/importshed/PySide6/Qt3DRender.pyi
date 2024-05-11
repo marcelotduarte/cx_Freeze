@@ -3,6 +3,7 @@
 import PySide6.Qt3DRender
 import PySide6.QtCore
 import PySide6.QtGui
+import PySide6.QtOpenGL
 import PySide6.Qt3DCore
 import enum
 from PySide6.QtCore import Signal
