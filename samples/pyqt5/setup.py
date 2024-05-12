@@ -22,23 +22,9 @@ except ImportError:
 include_files = []
 if get_qt_plugins_paths:
     # Inclusion of extra plugins (since cx_Freeze 6.8b2)
-    # cx_Freeze imports automatically the following plugins depending of the
-    # use of some modules:
-    # imageformats, platforms, platformthemes, styles - QtGui
-    # mediaservice - QtMultimedia
-    # printsupport - QtPrintSupport
-    for plugin_name in (
-        # "accessible",
-        # "iconengines",
-        # "platforminputcontexts",
-        # "xcbglintegrations",
-        # "egldeviceintegrations",
-        "wayland-decoration-client",
-        "wayland-graphics-integration-client",
-        # "wayland-graphics-integration-server",
-        "wayland-shell-integration",
-    ):
-        include_files += get_qt_plugins_paths("PyQt5", plugin_name)
+    # cx_Freeze automatically imports the following plugins depending on the
+    # module used, but suppose we need the following:
+    include_files += get_qt_plugins_paths("PyQt5", "multimedia")
 
 build_exe_options = {
     # exclude packages that are not really needed
@@ -59,7 +45,7 @@ executables = [Executable("test_pyqt5.py", base="gui")]
 
 setup(
     name="simple_PyQt5",
-    version="0.4",
+    version="0.5",
     description="Sample cx_Freeze PyQt5 script",
     options={
         "build_exe": build_exe_options,
