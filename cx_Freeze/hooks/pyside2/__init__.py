@@ -23,7 +23,6 @@ from cx_Freeze.hooks._qthooks import (
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtnetwork as load_pyside2_qtnetwork,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyside2_qtopengl
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtpositioning as load_pyside2_qtpositioning,
 )
@@ -143,13 +142,11 @@ __all__ = [
     "load_pyside2_qtgui",
     "load_pyside2_qtmultimedia",
     "load_pyside2_qtnetwork",
-    "load_pyside2_qtopengl",
     "load_pyside2_qtpositioning",
     "load_pyside2_qtprintsupport",
     "load_pyside2_qtqml",
     "load_pyside2_qtscript",
     "load_pyside2_qtsql",
-    "load_pyside2_qtsvg",
     "load_pyside2_qtwebenginecore",
     "load_pyside2_qtwebenginewidgets",
     "load_pyside2_qtwidgets",

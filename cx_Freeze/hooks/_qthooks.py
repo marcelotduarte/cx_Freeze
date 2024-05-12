@@ -163,6 +163,27 @@ def load_qt_phonon(finder: ModuleFinder, module: Module) -> None:
         copy_qt_files(finder, name, "PluginsPath", "phonon_backend")
 
 
+def load_qt_qt3dinput(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "3dinputdevices")
+
+
+def load_qt_qt3drender(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "sceneparsers")
+    copy_qt_files(finder, name, "PluginsPath", "geometryloaders")
+    copy_qt_files(finder, name, "PluginsPath", "renderplugins")
+    copy_qt_files(finder, name, "PluginsPath", "renderers")
+
+
+def load_qt_qtbluetooth(finder: ModuleFinder, module: Module) -> None:
+    """Include translations for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "TranslationsPath", "qtconnectivity_*.qm")
+
+
 def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
@@ -223,18 +244,6 @@ def load_qt_qtnetwork(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, name, "PluginsPath", "bearer")  # ?
 
 
-def load_qt_qtopengl(finder: ModuleFinder, module: Module) -> None:
-    """Include plugins for the module."""
-    name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "renderers")
-
-
-def load_qt_qtopenglwidgets(finder: ModuleFinder, module: Module) -> None:
-    """Include plugins for the module."""
-    name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "renderers")
-
-
 def load_qt_qtpositioning(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
@@ -259,7 +268,6 @@ def load_qt_qtquick(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "scenegraph")
-    copy_qt_files(finder, name, "PluginsPath", "sceneparsers")  # pyqt6
 
 
 def load_qt_qtquick3d(finder: ModuleFinder, module: Module) -> None:
@@ -303,6 +311,18 @@ def load_qt_qtsql(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "sqldrivers")
+
+
+def load_qt_qttexttospeech(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "texttospeech")
+
+
+def load_qt_qtvirtualkeyboard(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    copy_qt_files(finder, name, "PluginsPath", "virtualkeyboard")
 
 
 def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:

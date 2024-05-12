@@ -18,7 +18,6 @@ from cx_Freeze.hooks._qthooks import (
     load_qt_qtmultimedia as load_pyqt5_qtmultimedia,
 )
 from cx_Freeze.hooks._qthooks import load_qt_qtnetwork as load_pyqt5_qtnetwork
-from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyqt5_qtopengl
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtpositioning as load_pyqt5_qtpositioning,
 )
@@ -122,12 +121,10 @@ __all__ = [
     "load_pyqt5_qtgui",
     "load_pyqt5_qtmultimedia",
     "load_pyqt5_qtnetwork",
-    "load_pyqt5_qtopengl",
     "load_pyqt5_qtpositioning",
     "load_pyqt5_qtprintsupport",
     "load_pyqt5_qtqml",
     "load_pyqt5_qtsql",
-    "load_pyqt5_qtsvg",
     "load_pyqt5_qtwebenginecore",
     "load_pyqt5_qtwebenginewidgets",
     "load_pyqt5_qtwidgets",
