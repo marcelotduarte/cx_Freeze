@@ -13,6 +13,15 @@ from cx_Freeze.common import (
     get_resource_file_path,
 )
 from cx_Freeze.hooks._qthooks import (
+    load_qt_qt3dinput as load_pyside6_qt3dinput,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qt3drender as load_pyside6_qt3drender,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtbluetooth as load_pyside6_qtbluetooth,
+)
+from cx_Freeze.hooks._qthooks import (
     load_qt_qtdesigner as load_pyside6_qtdesigner,
 )
 from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyside6_qtgui
@@ -24,10 +33,6 @@ from cx_Freeze.hooks._qthooks import (
 )
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtnetwork as load_pyside6_qtnetwork,
-)
-from cx_Freeze.hooks._qthooks import load_qt_qtopengl as load_pyside6_qtopengl
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtopenglwidgets as load_pyside6_qtopenglwidgets,
 )
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtpositioning as load_pyside6_qtpositioning,
@@ -48,6 +53,12 @@ from cx_Freeze.hooks._qthooks import (
     load_qt_qtserialport as load_pyside6_qtserialport,
 )
 from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyside6_qtsql
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qttexttospeech as load_pyside6_qttexttospeech,
+)
+from cx_Freeze.hooks._qthooks import (
+    load_qt_qtvirtualkeyboard as load_pyside6_qtvirtualkeyboard,
+)
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtwebenginecore as load_pyside6_qtwebenginecore,
 )
@@ -132,20 +143,22 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
             return []
         """
         code = code_object_replace_function(code, name, source)
-    finder.include_module("inspect")  # for shiboken6
-
     module.code = code
+
+    # extra modules
+    finder.include_module("inspect")  # for shiboken6
 
 
 __all__ = [
     "load_pyside6",
+    "load_pyside6_qt3dinput",
+    "load_pyside6_qt3drender",
+    "load_pyside6_qtbluetooth",
     "load_pyside6_qtdesigner",
     "load_pyside6_qtgui",
     "load_pyside6_qtlocation",
     "load_pyside6_qtmultimedia",
     "load_pyside6_qtnetwork",
-    "load_pyside6_qtopengl",
-    "load_pyside6_qtopenglwidgets",
     "load_pyside6_qtpositioning",
     "load_pyside6_qtprintsupport",
     "load_pyside6_qtquick",
@@ -155,7 +168,8 @@ __all__ = [
     "load_pyside6_qtserialport",
     "load_pyside6_qtqml",
     "load_pyside6_qtsql",
-    "load_pyside6_qtsvg",
+    "load_pyside6_qttexttospeech",
+    "load_pyside6_qtvirtualkeyboard",
     "load_pyside6_qtwebenginecore",
     "load_pyside6_qtwebenginewidgets",
     "load_pyside6_qtwebsockets",
