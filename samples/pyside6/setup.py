@@ -21,23 +21,9 @@ except ImportError:
 include_files = []
 if get_qt_plugins_paths:
     # Inclusion of extra plugins (since cx_Freeze 6.8b2)
-    # cx_Freeze imports automatically the following plugins depending of the
-    # use of some modules:
-    # imageformats, platforms, platformthemes, styles - QtGui
-    # mediaservice - QtMultimedia
-    # printsupport - QtPrintSupport
-    for plugin_name in (
-        # "accessible",
-        # "iconengines",
-        # "platforminputcontexts",
-        # "xcbglintegrations",
-        # "egldeviceintegrations",
-        "wayland-decoration-client",
-        "wayland-graphics-integration-client",
-        # "wayland-graphics-integration-server",
-        "wayland-shell-integration",
-    ):
-        include_files += get_qt_plugins_paths("PySide6", plugin_name)
+    # cx_Freeze automatically imports the following plugins depending on the
+    # module used, but suppose we need the following:
+    include_files += get_qt_plugins_paths("PySide6", "multimedia")
 
 build_exe_options = {
     "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
@@ -51,7 +37,7 @@ executables = [Executable("test_pyside6.py", base="gui")]
 
 setup(
     name="simple_PySide6",
-    version="0.2",
+    version="0.3",
     description="Sample cx_Freeze PySide6 script",
     options={"build_exe": build_exe_options},
     executables=executables,

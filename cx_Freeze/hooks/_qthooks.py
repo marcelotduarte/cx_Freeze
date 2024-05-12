@@ -196,17 +196,25 @@ def load_qt_qtgui(finder: ModuleFinder, module: Module) -> None:
     image format plugins.
     """
     name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "accessiblebridge")
-    copy_qt_files(finder, name, "PluginsPath", "platforms")
-    if IS_MACOS:
-        copy_qt_files(finder, name, "PluginsPath", "platforms/darwin")
-    copy_qt_files(finder, name, "PluginsPath", "xcbglintegrations")
-    copy_qt_files(finder, name, "PluginsPath", "platformthemes")
-    copy_qt_files(finder, name, "PluginsPath", "platforminputcontexts")
-    copy_qt_files(finder, name, "PluginsPath", "generic")
-    copy_qt_files(finder, name, "PluginsPath", "iconengines")
-    copy_qt_files(finder, name, "PluginsPath", "imageformats")
-    copy_qt_files(finder, name, "PluginsPath", "egldeviceintegrations")
+    for plugin_name in (
+        "accessiblebridge",
+        "platforms",
+        "platforms/darwin",
+        "xcbglintegrations",
+        "platformthemes",
+        "platforminputcontexts",
+        "generic",
+        "iconengines",
+        "imageformats",
+        "egldeviceintegrations",
+        "wayland-graphics-integration-client",
+        "wayland-inputdevice-integration",
+        "wayland-decoration-client",
+        "wayland-shell-integration",
+        "wayland-graphics-integration-server",
+        "wayland-hardware-layer-integration",
+    ):
+        copy_qt_files(finder, name, "PluginsPath", plugin_name)
     copy_qt_files(finder, name, "TranslationsPath", "qt_??.qm")
     copy_qt_files(finder, name, "TranslationsPath", "qt_??_??.qm")
     copy_qt_files(finder, name, "TranslationsPath", "qtbase_*.qm")
