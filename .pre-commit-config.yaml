@@ -30,13 +30,13 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.16
+  rev: v0.17
   hooks:
   - id: validate-pyproject
     additional_dependencies: ["validate-pyproject-schema-store[all]"]
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.4.3
+  rev: v0.4.4
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
