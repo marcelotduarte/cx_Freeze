@@ -26,19 +26,9 @@ def main() -> None:
     root_dir = pyproject_toml.parent
     requirements = root_dir / "requirements.txt"
 
-    contents = [
-        "--extra-index-url https://marcelotduarte.github.io/packages/",
-        "",
-    ]
-
     try:
         dependencies = config["project"]["dependencies"]
-        contents.extend(
-            [
-                dependency.replace(" and python_version < '3.10'", "")
-                for dependency in dependencies
-            ]
-        )
+        contents = list(dependencies)
         contents.append("")
         with requirements.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(contents))

@@ -49,8 +49,8 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install "`grep cibuildwheel requirements-dev.txt`"
+          python -m pip install --upgrade uv --disable-pip-version-check
+          uv pip install --system "`grep cibuildwheel requirements-dev.txt`"
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
@@ -61,12 +61,12 @@ jobs:
             export CIBW_ARCHS="universal2 arm64"
           fi
           export CIBW_BUILD="cp${PY_VERSION_NODOT}-*"
-          python -m cibuildwheel --output-dir wheelhouse --prerelease-pythons
+          cibuildwheel --output-dir wheelhouse --prerelease-pythons
 
       - name: Add sdist
         if: runner.os == 'Linux' && matrix.python-version == '3.11'
         run: |
-          python -m pip install --upgrade pip build
+          uv pip install --system --upgrade build
           python -m build . --sdist -o wheelhouse
 
       - name: Upload the artifact
