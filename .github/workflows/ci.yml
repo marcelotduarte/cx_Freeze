@@ -172,7 +172,9 @@ jobs:
           uv pip install pandas
 
       - name: Generate coverage report
-        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
+        run: |
+          source .venv/bin/activate
+          pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
