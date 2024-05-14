@@ -1,18 +1,17 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 version: 2
-
-sphinx:
-  builder: html
-  configuration: doc/src/conf.py
-  fail_on_warning: true
 
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.11"
-
-python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - doc
+    python: "3.12"
+  commands:
+    - asdf plugin add uv
+    - asdf install uv latest
+    - asdf global uv latest
+    - uv venv $READTHEDOCS_VIRTUALENV_PATH
+    - . $READTHEDOCS_VIRTUALENV_PATH/bin/activate &&
+      uv pip install -e.[doc] &&
+      python -m sphinx doc/src $READTHEDOCS_OUTPUT/html
+        -j auto -T -W --keep-going -n -b html
