@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from subprocess import CalledProcessError
+from subprocess import run
 
 import pytest
 from generate_samples import run_command
@@ -44,29 +44,25 @@ def test_bdist_mac(datafiles: Path) -> None:
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_dmg(datafiles: Path, capsys) -> None:
+def test_bdist_dmg(datafiles: Path) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "hello"
     version = "0.1.2.3"
     dist_created = datafiles / "build"
 
-    try:
-        run_command(datafiles, "python setup.py bdist_dmg")
-    except CalledProcessError as exc:
+    process = run(
+        [sys.executable, "setup.py", "bdist_dmg"],
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=datafiles,
+    )
+    if process.returncode != 0:
         expected_err = "hdiutil: create failed - Resource busy"
-        if exc.stderr and exc.stderr.startswith(expected_err):
-            pytest.xfail(
-                reason=f"CalledProcessError: {exc.args[0]} - exc.stderr"
-            )
-        if exc.stdout and exc.stdout.startswith(expected_err):
-            pytest.xfail(
-                reason=f"CalledProcessError: {exc.args[0]} - exc.stdout"
-            )
-        captured = capsys.readouterr()
-        if captured.err.startswith(expected_err):
-            pytest.xfail(reason=captured.err[:-1])
-        if captured.out.startswith(expected_err):
-            pytest.xfail(reason=captured.out[:-1])
+        if expected_err in process.stderr:
+            pytest.xfail(expected_err)
+        else:
+            pytest.fail(process.stderr)
 
     base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}.dmg"
