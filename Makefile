@@ -21,7 +21,7 @@ pre-commit: install
 
 .PHONY: pylint
 pylint:
-	@if ! which pylint; then pip install --upgrade pylint; fi
+	@if ! which pylint; then uv pip install --upgrade pylint; fi
 	@pylint cx_Freeze
 
 .PHONY: clean
@@ -39,18 +39,20 @@ clean: uninstall
 
 .PHONY: install
 install:
+	if ! which uv; then\
+		python -m pip install --upgrade uv --disable-pip-version-check;\
+	fi
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
-		python -m pip install --upgrade pip &&\
-		pip install --upgrade --upgrade-strategy=eager\
+		uv pip install --upgrade --resolution=highest\
 			-r requirements.txt \
 			-r requirements-dev.txt -r requirements-doc.txt &&\
-		pip install -e . --no-build-isolation --no-deps &&\
+		uv pip install -e. --no-build-isolation --no-deps &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
 .PHONY: uninstall
 uninstall:
-	@pip uninstall -y cx_Freeze || true
+	@uv pip uninstall cx_Freeze || true
 	@# remove editable wheel modules that exist in bases/lib-dynload
 	@rm -rf cx_Freeze/bases/lib-dynload/*$(EXT_SUFFIX)
 
@@ -65,7 +67,7 @@ html:
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
-		pip install -r requirements-doc.txt --upgrade --upgrade-strategy=eager &&\
+		uv pip install -r requirements-doc.txt --upgrade --resolution=highest &&\
 		$(MAKE) -C doc html;\
 	fi
 
@@ -81,10 +83,10 @@ doc: html
 .PHONY: install_test
 install_test: uninstall
 	if ! which pytest; then\
-		pip install --upgrade --upgrade-strategy=eager\
+		uv pip install --upgrade --upgrade-strategy=eager\
 		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt;\
 	fi
-	pip install -e . --no-build-isolation --no-deps;\
+	uv pip install -e. --no-build-isolation --no-deps
 
 .PHONY: test
 test: install_test
@@ -105,7 +107,7 @@ cov2: install_test
 ifeq ($(PY_PLATFORM),win-amd64)
 	# Extra coverage for Windows
 	# to test lief < 0.14
-	pip install "lief==0.13.2"
+	uv pip install "lief==0.13.2"
 	COVERAGE_FILE=$(COVERAGE_FILE)-1 pytest -nauto --cov="cx_Freeze" \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py
@@ -115,11 +117,11 @@ ifeq ($(PY_PLATFORM),win-amd64)
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py
 	# to coverage winversioninfo using pywin32
-	pip install --upgrade pywin32
+	uv pip install --upgrade pywin32
 	COVERAGE_FILE=$(COVERAGE_FILE)-3 pytest -nauto --cov="cx_Freeze" \
 		tests/test_winversioninfo.py
-	pip uninstall -y pywin32
-	pip install "lief>0.13.2"
+	uv pip uninstall pywin32
+	uv pip install "lief>0.13.2"
 endif
 ifeq ($(PY_PLATFORM),linux-x86_64)
 	if ! ls wheelhouse/cx_Freeze-$(bump-my-version show current_version|sed 's/-/./')-cp$(PY_VERSION_NODOT)-cp$(PY_VERSION_NODOT)-manylinux_*_$(ARCH).whl 1> /dev/null 2>&1 \
@@ -127,7 +129,7 @@ ifeq ($(PY_PLATFORM),linux-x86_64)
 		CIBW_CONTAINER_ENGINE=podman cibuildwheel --only $(CIBW_ONLY);\
 	fi
 	$(MAKE) uninstall
-	pip install cx_Freeze --no-index --no-deps -f wheelhouse
+	uv pip install cx_Freeze --no-index --no-deps -f wheelhouse
 	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze" || true
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*

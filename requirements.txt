@@ -1,5 +1,3 @@
---extra-index-url https://marcelotduarte.github.io/packages/
-
 setuptools>=62.6,<70
 typing_extensions>=4.10.0 ;python_version < '3.10'
 wheel>=0.42.0,<=0.43.0
