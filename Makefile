@@ -83,7 +83,7 @@ doc: html
 .PHONY: install_test
 install_test: uninstall
 	if ! which pytest; then\
-		uv pip install --upgrade --upgrade-strategy=eager\
+		uv pip install --upgrade --resolution=highest\
 		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt;\
 	fi
 	uv pip install -e. --no-build-isolation --no-deps
