@@ -13,6 +13,7 @@ from keyword import iskeyword
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze._importlib import metadata
 from cx_Freeze.exception import ModuleError, OptionError
 
@@ -56,9 +57,12 @@ class DistributionCache(metadata.PathDistribution):
         if source_path is None or not source_path.exists():
             raise ModuleError(name)
 
-        target_name = f"{normalized_name}-{distribution.version}.dist-info"
-        target_path = cache_path / target_name
+        dist_name = f"{normalized_name}-{distribution.version}.dist-info"
+        target_path = cache_path / dist_name
         super().__init__(target_path)
+        self.original = distribution
+        self.normalized_name = normalized_name
+        self.distinfo_name = dist_name
         if target_path.exists():  # cached
             return
         target_path.mkdir(parents=True)
@@ -88,15 +92,14 @@ class DistributionCache(metadata.PathDistribution):
                 target.write_bytes(source.read_bytes())
             purelib = not source_path.joinpath("not-zip-safe").is_file()
 
-        self._write_wheel_distinfo(target_path, purelib)
-        self._write_record_distinfo(target_path)
+        self._write_wheel_distinfo(purelib)
+        self._write_record_distinfo()
 
-    @staticmethod
-    def _write_wheel_distinfo(target_path: Path, purelib: bool) -> None:
+    def _write_wheel_distinfo(self, purelib: bool) -> None:
         """Create a WHEEL file if it doesn't exist."""
-        target = target_path / "WHEEL"
+        target = self.locate_file(f"{self.distinfo_name}/WHEEL")
         if not target.exists():
-            project = Path(__file__).parent.name
+            project = Path(__file__).parent.name  # cx_Freeze
             version = metadata.version(project)
             root_is_purelib = "true" if purelib else "false"
             text = [
@@ -108,21 +111,51 @@ class DistributionCache(metadata.PathDistribution):
             with target.open(mode="w", encoding="utf_8", newline="") as file:
                 file.write("\n".join(text))
 
-    @staticmethod
-    def _write_record_distinfo(target_path: Path) -> None:
+    def _write_record_distinfo(self) -> None:
         """Recreate a minimal RECORD file."""
-        target_name = target_path.name
+        distinfo_name = self.distinfo_name
+        target = self.locate_file(f"{distinfo_name}/RECORD")
+        target_dir = target.parent
         record = [
-            f"{target_name}/{file.name},," for file in target_path.iterdir()
+            f"{distinfo_name}/{file.name},," for file in target_dir.iterdir()
         ]
-        record.append(f"{target_name}/RECORD,,")
-        target = target_path / "RECORD"
+        record.append(f"{distinfo_name}/RECORD,,")
         with target.open(mode="w", encoding="utf_8", newline="") as file:
             file.write("\n".join(record))
 
     @property
+    def binary_files(self) -> list[str]:
+        """Return the binary files included in the package."""
+        if IS_MINGW or IS_WINDOWS:
+            return [
+                file
+                for file in self.original.files
+                if file.name.lower().endswith("*.dll")
+            ]
+        extensions = tuple([ext for ext in EXTENSION_SUFFIXES if ext != ".so"])
+        return [
+            file
+            for file in self.original.files
+            if file.match("*.so*") and not file.name.endswith(extensions)
+        ]
+
+    @property
+    def installer(self) -> str:
+        """Return the installer (pip, conda) for the distribution package."""
+        return self.read_text("INSTALLER") or "pip"
+
+    @property
     def requires(self) -> list[str]:
+        """Generated requirements specified for this Distribution."""
         return super().requires or []
+
+    @property
+    def version(self) -> tuple[int] | str:
+        """Return the 'Version' metadata for the distribution package."""
+        _version = super().version
+        with suppress(ValueError):
+            _version = tuple(map(int, _version.split(".")))
+        return _version
 
 
 class Module:
