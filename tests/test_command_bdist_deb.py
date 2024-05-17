@@ -88,10 +88,12 @@ def test_bdist_deb_simple(datafiles: Path) -> None:
         check=False,
         cwd=datafiles,
     )
-    print(process.stdout)
     if process.returncode != 0:
-        if "failed to find 'alien'" in process.stderr:
+        msg = process.stderr
+        if "failed to find 'alien'" in msg:
             pytest.xfail("alien not installed")
+        elif "Unpacking of '" in msg and "' failed at" in msg:
+            pytest.xfail("cpio 2.13 bug")
         else:
             pytest.fail(process.stderr)
 
@@ -114,10 +116,12 @@ def test_bdist_deb(datafiles: Path) -> None:
         check=False,
         cwd=datafiles,
     )
-    print(process.stdout)
     if process.returncode != 0:
-        if "failed to find 'alien'" in process.stderr:
+        msg = process.stderr
+        if "failed to find 'alien'" in msg:
             pytest.xfail("alien not installed")
+        elif "Unpacking of '" in msg and "' failed at" in msg:
+            pytest.xfail("cpio 2.13 bug")
         else:
             pytest.fail(process.stderr)
 
