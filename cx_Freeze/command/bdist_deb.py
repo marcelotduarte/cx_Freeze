@@ -77,7 +77,7 @@ class bdist_deb(Command):
             rpm_filename = None
             for command, _, filename in self.distribution.dist_files:
                 if command == "bdist_rpm":
-                    rpm_filename = filename
+                    rpm_filename = os.path.basename(filename)
                     break
             if rpm_filename is None:
                 msg = "could not build rpm"
@@ -87,14 +87,32 @@ class bdist_deb(Command):
 
         # convert rpm to deb (by default in dist directory)
         logging.info("building DEB")
-        cmd = ["alien", "--to-deb", os.path.basename(rpm_filename)]
+        cmd = ["alien", "--to-deb", rpm_filename]
         if os.getuid() != 0:
             cmd.insert(0, "fakeroot")
         if self.dry_run:
             self.spawn(cmd)
         else:
             logging.info(subprocess.list2cmdline(cmd))
-            output = subprocess.check_output(cmd, text=True, cwd=self.dist_dir)
+            process = subprocess.run(
+                cmd,
+                text=True,
+                capture_output=True,
+                check=False,
+                cwd=self.dist_dir,
+            )
+            if process.returncode != 0:
+                msg = process.stderr.splitlines()[0]
+                if msg.startswith(f"Unpacking of '{rpm_filename}' failed at"):
+                    info = [
+                        "\n\t\x08Please check if you have `cpio 2.13` on "
+                        "Ubuntu 22.04.",
+                        "\t\x08You can try to install a previous version:",
+                        "\t\x08$ sudo apt-get install cpio=2.13+dfsg-7",
+                    ]
+                    msg += "\n".join(info)
+                raise ExecError(msg)
+            output = process.stdout
             logging.info(output)
             filename = output.splitlines()[0].split()[0]
             filename = os.path.join(self.dist_dir, filename)
