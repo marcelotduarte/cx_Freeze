@@ -104,7 +104,13 @@ class bdist_deb(Command):
             if process.returncode != 0:
                 msg = process.stderr.splitlines()[0]
                 if msg.startswith(f"Unpacking of '{rpm_filename}' failed at"):
-                    msg = f"{msg}\n\t\x08Please check if you have `cpio 2.13` on Ubuntu 22.04.\n\t\x08You can try to install a previous version:\n\t\x08$ sudo apt-get install cpio=2.13+dfsg-7"
+                    info = [
+                        "\n\t\x08Please check if you have `cpio 2.13` on "
+                        "Ubuntu 22.04.",
+                        "\t\x08You can try to install a previous version:",
+                        "\t\x08$ sudo apt-get install cpio=2.13+dfsg-7",
+                    ]
+                    msg += "\n".join(info)
                 raise ExecError(msg)
             output = process.stdout
             logging.info(output)
