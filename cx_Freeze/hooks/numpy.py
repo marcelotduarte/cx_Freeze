@@ -11,13 +11,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import (
-    IS_CONDA,
-    IS_LINUX,
-    IS_MACOS,
-    IS_MINGW,
-    IS_WINDOWS,
-)
+from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.hooks._libs import replace_delvewheel_patch
 
 if TYPE_CHECKING:
@@ -26,16 +20,16 @@ if TYPE_CHECKING:
 
 # The sample/pandas is used to test.
 # Using pip (pip install numpy) in Windows/Linux/macOS from pypi (w/ OpenBLAS)
-# And using cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl in windows:
-# https://github.com/cgohlke/numpy-mkl.whl/releases/download/v2023.1.4/numpy-1.23.5+mkl-cp311-cp311-win_amd64.whl
+#
+# Also, using: https://github.com/cgohlke/numpy-mkl-wheels/releases/
 #
 # Read the numpy documentation, especially if using conda-forge and MKL:
 # https://numpy.org/install/#numpy-packages--accelerated-linear-algebra-libraries
 #
-# For conda-forge we can use the default installation with MKL:
-# conda install -c conda-forge numpy
-# Or use OpenBLAS:
-# conda install -c conda-forge blas=*=openblas numpy
+# For conda-forge we can use the default or switch BLAS implementation:
+# https://conda-forge.org/docs/maintainer/knowledge_base/#switching-blas-implementation
+# conda install "libblas=*=*mkl" numpy
+# conda install "libblas=*=*openblas" numpy
 
 
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
@@ -101,19 +95,24 @@ def load_numpy_core_overrides(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
-    """Fix the location of dependent files in Windows and macOS."""
-    if IS_LINUX or IS_MINGW:
-        return  # it is detected correctly.
+    """Fix the location of dependent files in all OS."""
+    # check versions that are handled correctly
+    if IS_MINGW:
+        return
+    distribution = module.parent.distribution
+    if distribution.installer == "pip":
+        if IS_LINUX:
+            return
+        if (IS_MACOS or IS_WINDOWS) and distribution.version >= (1, 26):
+            return  # handled in top module in numpy >= 1.26.0
 
     # patch the code when necessary
     code_string = module.file.read_text(encoding="utf_8")
 
     module_dir = module.file.parent
     exclude_dependent_files = False
-    if (IS_MACOS or IS_WINDOWS) and not IS_CONDA:
-        if module.parent.distribution.version >= (1, 26):
-            return  # for numpy >= 1.26.0 is handled in top module
-        # numpy < 1.26.0 pypi
+    if distribution.installer == "pip":
+        # numpy < 1.26.0 - macOS or Windows
         libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
         if libs_dir.is_dir():
             # copy any file at site-packages/numpy/.libs
@@ -123,7 +122,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             )
             exclude_dependent_files = True
 
-        # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl
+        # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl (Windows)
         libs_dir = module_dir / "DLLs"
         if libs_dir.is_dir():
             finder.exclude_module("numpy.DLLs")
@@ -132,10 +131,10 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             )
             exclude_dependent_files = True
 
-    elif IS_CONDA:  # conda-forge
+    elif distribution.installer == "conda":
         prefix = Path(sys.prefix)
         conda_meta = prefix / "conda-meta"
-        packages = ["libblas", "libcblas", "liblapack"]
+        packages = ["libblas", "libcblas", "liblapack", "llvm-openmp"]
         blas_options = ["libopenblas", "mkl"]
         packages += blas_options
         files_to_copy: list[Path] = []
@@ -146,34 +145,48 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             except StopIteration:
                 continue
             files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
-            files_to_copy += [
-                prefix / file
-                for file in files
-                if file.lower().endswith(".dll")
-            ]
-            blas = package
-        for source in files_to_copy:
-            finder.include_files(source, f"lib/{blas}/{source.name}")
-        numpy_blas = f"""
-            def init_numpy_blas():
-                import os
-
-                blas_path = os.path.join(
-                    os.path.dirname(os.path.dirname(__file__)), "{blas}"
+            if IS_WINDOWS:
+                files_to_copy += [
+                    prefix / file
+                    for file in files
+                    if file.lower().endswith(".dll")
+                ]
+            else:
+                extensions = tuple(
+                    [ext for ext in EXTENSION_SUFFIXES if ext != ".so"]
                 )
-                try:
-                    os.add_dll_directory(blas_path)
-                except (OSError, AttributeError):
-                    pass
-                env_path = os.environ.get("PATH", "").split(os.pathsep)
-                if blas_path not in env_path:
-                    env_path.insert(0, blas_path)
-                    os.environ["PATH"] = os.pathsep.join(env_path)
+                files_to_copy += [
+                    prefix / file
+                    for file in map(Path, files)
+                    if file.match("*.so*")
+                    and not file.name.endswith(extensions)
+                ]
+            blas = package
+        target_blas = f"lib/{blas}" if IS_WINDOWS else "lib"
+        for source in files_to_copy:
+            finder.include_files(source, f"{target_blas}/{source.name}")
+        if IS_WINDOWS:
+            code_string += dedent(
+                f"""
+                def _init_numpy_blas():
+                    import os
 
-            init_numpy_blas()
-            """
-        code_string += dedent(numpy_blas)
-        exclude_dependent_files = True
+                    blas_path = os.path.join(
+                        os.path.dirname(os.path.dirname(__file__)), "{blas}"
+                    )
+                    try:
+                        os.add_dll_directory(blas_path)
+                    except (OSError, AttributeError):
+                        pass
+                    env_path = os.environ.get("PATH", "").split(os.pathsep)
+                    if blas_path not in env_path:
+                        env_path.insert(0, blas_path)
+                        os.environ["PATH"] = os.pathsep.join(env_path)
+
+                _init_numpy_blas()
+                """
+            )
+            exclude_dependent_files = True
 
     # do not check dependencies already handled
     if exclude_dependent_files:
