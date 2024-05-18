@@ -130,7 +130,7 @@ class DistributionCache(metadata.PathDistribution):
             return [
                 file
                 for file in self.original.files
-                if file.name.lower().endswith("*.dll")
+                if file.suffix.lower() == ".dll"
             ]
         extensions = tuple([ext for ext in EXTENSION_SUFFIXES if ext != ".so"])
         return [
@@ -142,12 +142,13 @@ class DistributionCache(metadata.PathDistribution):
     @property
     def installer(self) -> str:
         """Return the installer (pip, conda) for the distribution package."""
-        return self.read_text("INSTALLER") or "pip"
+        # consider 'uv' as 'pip'
+        return (self.read_text("INSTALLER") or "pip").replace("uv", "pip")
 
     @property
     def requires(self) -> list[str]:
         """Generated requirements specified for this Distribution."""
-        return super().requires or []
+        return [require.split()[0] for require in (super().requires or [])]
 
     @property
     def version(self) -> tuple[int] | str:
@@ -366,8 +367,7 @@ class Module:
             distribution = DistributionCache(cache_path, name)
         except ModuleError:
             return
-        for req in distribution.requires:
-            req_name = req.partition(" ")[0]
+        for req_name in distribution.requires:
             with suppress(ModuleError):
                 DistributionCache(cache_path, req_name)
         self.distribution = distribution

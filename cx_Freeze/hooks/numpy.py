@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.module import DistributionCache
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -100,11 +101,8 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     if IS_MINGW:
         return
     distribution = module.parent.distribution
-    if distribution.installer == "pip":
-        if IS_LINUX:
-            return
-        if (IS_MACOS or IS_WINDOWS) and distribution.version >= (1, 26):
-            return  # handled in top module in numpy >= 1.26.0
+    if IS_LINUX and distribution.installer == "pip":
+        return
 
     # patch the code when necessary
     code_string = module.file.read_text(encoding="utf_8")
@@ -129,6 +127,20 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             finder.include_files(
                 libs_dir, "lib/numpy/DLLs", copy_dependent_files=False
             )
+            exclude_dependent_files = True
+
+        # cgohlke/numpy-mkl-wheels, numpy 1.26.3 and mkl
+        if "def init_numpy_mkl():" in code_string:
+            code_string = code_string.replace(
+                "path = ", "path = f'{sys.frozen_dir}\\lib\\mkl'  # "
+            )
+            for req_name in distribution.requires:
+                req = DistributionCache(finder.cache_path, req_name)
+                for source in req.binary_files:
+                    src = source.locate().resolve()
+                    finder.include_files(
+                        src, f"lib/mkl/{src.name}", copy_dependent_files=False
+                    )
             exclude_dependent_files = True
 
     elif distribution.installer == "conda":
