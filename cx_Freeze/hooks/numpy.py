@@ -111,8 +111,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     module_dir = module.file.parent
     exclude_dependent_files = False
     if (IS_MACOS or IS_WINDOWS) and not IS_CONDA:
-        version = float(module.parent.distribution.version.rpartition(".")[0])
-        if version >= 1.26:
+        if module.parent.distribution.version >= (1, 26):
             return  # for numpy >= 1.26.0 is handled in top module
         # numpy < 1.26.0 pypi
         libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")

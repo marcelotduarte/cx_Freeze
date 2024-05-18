@@ -35,10 +35,7 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     (loaded implicitly).
     """
     include_cffi = True
-    if (
-        module.distribution
-        and int(module.distribution.version.split(".")[0]) >= 4
-    ):
+    if module.distribution and module.distribution.version[0] >= 4:
         include_cffi = False
     if include_cffi:
         finder.include_module("_cffi_backend")
@@ -309,7 +306,7 @@ def load_jpype(finder: ModuleFinder, module: Module) -> None:
 
 def load_lazy_loader(finder: ModuleFinder, module: Module) -> None:
     """Use load_lazy_loader 0.2+ to work with .pyc files."""
-    if module.distribution.version < "0.2":
+    if module.distribution.version < (0, 2):
         msg = "Please upgrade 'lazy_loader>=0.2' to support cx_Freeze"
         raise SystemExit(msg)
 
