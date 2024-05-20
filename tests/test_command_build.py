@@ -48,7 +48,7 @@ def test_build(tmp_path: Path) -> None:
     output = run_command(tmp_path, file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
-    files1 = list(build_exe_dir.rglob("*"))
+    files1 = sorted(build_exe_dir.rglob("*"))
 
     # second run to test target_dir "starts in a clean directory"
     output = run_command(tmp_path)
@@ -59,7 +59,7 @@ def test_build(tmp_path: Path) -> None:
     output = run_command(tmp_path, file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
-    files2 = list(build_exe_dir.rglob("*"))
+    files2 = sorted(build_exe_dir.rglob("*"))
 
     # compare
     assert files1 == files2
