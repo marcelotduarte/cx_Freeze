@@ -758,9 +758,7 @@ class Freezer:
             )
         finder.add_constant("_EXECUTABLES_NUMBER", len(self.executables))
 
-        # Write the modules
-        self._write_modules()
-
+        # Include user-defined files and hooks-defined files
         target_dir = self.target_dir
         excluded_dependent_files = finder.excluded_dependent_files
         for source_path, target_path in finder.included_files:
@@ -785,6 +783,9 @@ class Freezer:
                 # Copy regular files.
                 fulltarget = target_dir / target_path
                 self._copy_file(source_path, fulltarget, copy_dependent_files)
+
+        # Write the modules after the included files to avoid duplicate files
+        self._write_modules()
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
@@ -963,8 +964,8 @@ class WinFreezer(Freezer, PEParser):
                             dependent_target = Path(*parts) / dependent_name
                         except ValueError:
                             dependent_target = target_dir / dependent_name
-                # check to make sure the dependency is in the correct place
-                # because it can be outside of the python subtree
+                # make sure the dependency is in the correct directory because
+                # it cannot be outside the library_dir directory subtree
                 try:
                     dependent_target.relative_to(library_dir)
                 except ValueError:
@@ -1236,42 +1237,44 @@ class LinuxFreezer(Freezer, ELFParser):
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
         ):
-            library_dir = self.target_dir / "lib"
             source_dir = source.parent
             target_dir = target.parent
             fix_rpath = set()
-            for dependent_file in self.get_dependent_files(source):
-                if not self._should_copy_file(dependent_file):
+            for dependent in self.get_dependent_files(source):
+                if not self._should_copy_file(dependent):
                     continue
+                dependent_file = dependent.resolve()
+                # put the dependency (relatively) in the target_dir subtree
+                # this is possible with most packages installed by pip
+                dependent_name = dependent_file.name
                 try:
                     relative = dependent_file.relative_to(source_dir)
                 except ValueError:
-                    # put it in the target_dir if not already copied
-                    dependent_filename = dependent_file.name
-                    dependent_target = target_dir / dependent_filename
-                    relative = Path(dependent_filename)
-                    if dependent_target not in self.files_copied:
-                        for file in self.files_copied:
-                            if file.name == dependent_filename:
-                                relative = file.relative_to(library_dir)
-                                dependent_target = library_dir / relative
-                                break
+                    # put the dependency in target_dir along with the binary
+                    # file being copied, unless the dependency has already been
+                    # copied to another location and is relative to the source
+                    dependent_target = target_dir / dependent_name
+                    relative = Path(dependent_name)
+                    for file in self.files_copied:
+                        if file.name == dependent_name:
+                            try:
+                                relative = file.relative_to(target_dir)
+                            except ValueError:
+                                relative = Path(
+                                    os.path.relpath(file, target_dir)
+                                )
+                            else:
+                                dependent_target = file
+                            break
                 else:
                     dependent_target = target_dir / relative
-                    dependent_target = dependent_target.resolve()
-                    try:
-                        dependent_target.relative_to(library_dir)
-                    except ValueError:
-                        parts = list(relative.parts)
-                        while parts[0] == os.pardir:
-                            parts.pop(0)
-                        relative = Path(*parts)
-                        dependent_target = library_dir / relative
                 dep_libs = os.fspath(relative.parent)
                 fix_rpath.add(dep_libs)
                 self._copy_file(
                     dependent_file, dependent_target, copy_dependent_files
                 )
+                if dependent.name != dependent_name:
+                    self.replace_needed(target, dependent.name, dependent_name)
             if fix_rpath:
                 has_rpath = self.get_rpath(target)
                 rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
