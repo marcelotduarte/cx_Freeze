@@ -240,21 +240,19 @@ class Freezer:
         the source of a symbolic link is copied by deferring the creation of
         the link.
         """
+        real_source = source.resolve()
         if source.is_symlink():
-            real_source = source.resolve()
             try:
-                symlink = real_source.relative_to(source.parent)
-            except ValueError:
-                symlink = Path(
-                    os.path.relpath(real_source, source.parent.resolve())
-                )
+                symlink = source.readlink()
+            except AttributeError:
+                symlink = Path(os.readlink(source))  # python 3.8
             real_target = target.with_name(symlink.name)
             if self.silent < 1:
                 print(f"[delay] linking {target} -> {symlink}")
             self._symlinks.add((target, symlink, real_source.is_dir()))
             # return the real source to be copied
             return real_source, real_target
-        return source, target
+        return real_source, target
 
     @abstractmethod
     def _post_copy_hook(
