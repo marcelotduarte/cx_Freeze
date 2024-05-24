@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.hooks._libs import replace_delvewheel_patch
-from cx_Freeze.module import DistributionCache
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -134,13 +133,10 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             code_string = code_string.replace(
                 "path = ", "path = f'{sys.frozen_dir}\\lib\\mkl'  # "
             )
-            for req_name in distribution.requires:
-                req = DistributionCache(finder.cache_path, req_name)
-                for source in req.binary_files:
-                    src = source.locate().resolve()
-                    finder.include_files(
-                        src, f"lib/mkl/{src.name}", copy_dependent_files=False
-                    )
+            # create a fake module to activate mkl hook
+            mkl_path = finder.cache_path.joinpath("mkl")
+            mkl_path.touch()
+            finder.include_file_as_module(mkl_path)
             exclude_dependent_files = True
 
     elif distribution.installer == "conda":
