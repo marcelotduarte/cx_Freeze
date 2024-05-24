@@ -143,7 +143,8 @@ class DistributionCache(metadata.PathDistribution):
     def installer(self) -> str:
         """Return the installer (pip, conda) for the distribution package."""
         # consider 'uv' as 'pip'
-        return (self.read_text("INSTALLER") or "pip").replace("uv", "pip")
+        value = self.read_text("INSTALLER") or "pip"
+        return value.splitlines()[0].replace("uv", "pip")
 
     @property
     def requires(self) -> list[str]:
@@ -151,12 +152,12 @@ class DistributionCache(metadata.PathDistribution):
         return [require.split()[0] for require in (super().requires or [])]
 
     @property
-    def version(self) -> tuple[int] | str:
+    def version(self) -> tuple[int, ...] | str | None:
         """Return the 'Version' metadata for the distribution package."""
-        _version = super().version
+        value = super().version
         with suppress(ValueError):
-            _version = tuple(map(int, _version.split(".")))
-        return _version
+            value = tuple(map(int, value.split(".")))
+        return value
 
 
 class Module:
