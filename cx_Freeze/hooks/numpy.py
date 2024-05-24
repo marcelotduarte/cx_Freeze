@@ -167,17 +167,25 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
                 extensions = tuple(
                     [ext for ext in EXTENSION_SUFFIXES if ext != ".so"]
                 )
-                files_to_copy += [
-                    prefix / file
-                    for file in map(Path, files)
-                    if file.match("*.so*")
-                    and not file.name.endswith(extensions)
-                ]
+                for file in files:
+                    if file.endswith(extensions):
+                        continue
+                    source = prefix.joinpath(file).resolve()
+                    if not source.match("*.so*"):
+                        continue
+                    target = f"lib/{source.name}"
+                    finder.include_files(
+                        source, target, copy_dependent_files=False
+                    )
             blas = package
-        target_blas = f"lib/{blas}" if IS_WINDOWS else "lib"
-        for source in files_to_copy:
-            finder.include_files(source, f"{target_blas}/{source.name}")
         if IS_WINDOWS:
+            for source in files_to_copy:
+                finder.include_files(
+                    source,
+                    f"lib/{blas}/{source.name}",
+                    copy_dependent_files=False,
+                )
+            exclude_dependent_files = True
             code_string += dedent(
                 f"""
                 def _init_numpy_blas():
@@ -198,7 +206,6 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
                 _init_numpy_blas()
                 """
             )
-            exclude_dependent_files = True
 
     # do not check dependencies already handled
     if exclude_dependent_files:
