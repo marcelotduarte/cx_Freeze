@@ -42,7 +42,11 @@ The official documentation is available
 If you need help you can also ask on the
 [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
-# What's New:
+# What's New v7.1:
+- Added new option --zip-filename in build_exe
+- Bug fixes and improvements
+
+# What's New v7.0:
 - Added support for [pyproject.toml](https://cx-freeze.readthedocs.io/en/stable/setup_script.html)
 - Create Linux AppImage format: [bdist_appimage](https://cx-freeze.readthedocs.io/en/stable/bdist_appimage.html)
 - Create an DEB distribution: [bdist_deb](https://cx-freeze.readthedocs.io/en/stable/bdist_deb.html)
