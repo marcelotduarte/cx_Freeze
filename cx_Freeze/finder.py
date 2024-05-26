@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.machinery
 import logging
+import opcode
 import os
 import sys
 from contextlib import suppress
@@ -13,8 +14,6 @@ from pathlib import Path, PurePath
 from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
-
-import opcode
 
 from cx_Freeze.common import (
     code_object_replace,
