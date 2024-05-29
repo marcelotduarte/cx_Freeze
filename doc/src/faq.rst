@@ -74,9 +74,10 @@ Using data files
 ----------------
 
 Applications often need data files besides the code, such as icons. Using a
-:doc:`setup script <setup_script>`, you can list data files or directories in the
-``include_files`` option to ``build_exe``. They'll be copied to the build
-directory alongside the executable. Then to find them, use code like this:
+:doc:`setup script <setup_script>`, you can list data files or directories in
+the :option:`include_files` option to :ref:`cx_freeze_build_exe`. They'll be
+copied to the build directory alongside the executable. Then to find them,
+use code like this:
 
   .. code-block:: python
 
@@ -90,15 +91,11 @@ directory alongside the executable. Then to find them, use code like this:
             datadir = os.path.dirname(__file__)
         return os.path.join(datadir, filename)
 
-An alternative is to embed data in code, for example by using `Qt's resource
-system <https://doc.qt.io/qt-5/resources.html>`_.
-
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------
 
 Python 3.8-3.12 on Windows requires the `Microsoft Visual C++ Redistributable
-<https://docs.microsoft.com/en-US/cpp/windows/
-latest-supported-vc-redist#visual-studio-2015-2017-2019-and-2022>`_,
+<https://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist>`_,
 and because of how this is installed, **cx_Freeze** doesn't automatically copy
 it for your application.
 
@@ -106,20 +103,29 @@ You're responsible for checking the license conditions associated with the DLLs
 you have installed.
 
 * If your license allows you to distribute these files, specify the
-  ``include_msvcr`` option to :ref:`cx_freeze_build_exe` to have them
+  :option:`include_msvcr` option to :ref:`cx_freeze_build_exe` to have them
   distributed automatically.
 
-* If not, your users or your installer will need to install the Microsoft
-  Visual C++ Redistributable Package.
+* If not, your users or installers must install the Microsoft Visual C++
+  Redistributable Package.
   It's not uncommon for this to already be present on modern computers, but,
   as far as we know, it's not part of a standard Windows installation.
+  Download the `latest version <https://learn.microsoft.com/en-US/cpp/windows/
+  latest-supported-vc-redist?view=msvc-170#
+  latest-microsoft-visual-c-redistributable-version>`_ or use the `Winget tool
+  <https://learn.microsoft.com/en-us/windows/package-manager/winget/>`_ on
+  Windows 10 (build 16299 or later) or Windows 11 computers, using one of the
+  following commands:
 
-  Download from Microsoft:
+  .. code-block:: console
 
-     * `for x86 (32 bit) Windows
-       <https://aka.ms/vs/17/release/vc_redist.x86.exe>`_
-     * `for x64 (64 bit) Windows
-       <https://aka.ms/vs/17/release/vc_redist.x64.exe>`_
+    winget upgrade Microsoft.VCRedist.2015+.x64
+    winget upgrade Microsoft.VCRedist.2015+.x86
+
+  If you are using an older Windows version than Windows 10 and the latest
+  system updates are not installed, `Universal C Runtime
+  <https://support.microsoft.com/en-us/help/2999226/
+  update-for-universal-c-runtime-in-windows>`_ might also be required.
 
 Removing the MAX_PATH Limitation
 --------------------------------
@@ -128,7 +134,7 @@ Windows historically has limited path lengths to 260 characters. This meant
 that paths longer than this would not resolve and errors would result.
 
 Support for long paths is enabled for executables built in **cx_Freeze** as
-long as the administrator activate the "Enable Win32 long paths" group policy
+long as the administrator activates the "Enable Win32 long paths" group policy
 or sets ``LongPathsEnabled`` to ``1`` in the registry key
 ``HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem``.
 
