@@ -112,9 +112,10 @@ you have installed.
   as far as we know, it's not part of a standard Windows installation.
   Download the `latest version <https://learn.microsoft.com/en-US/cpp/windows/
   latest-supported-vc-redist?view=msvc-170#
-  latest-microsoft-visual-c-redistributable-version>`_ or use the Winget
-  utility, in an updated Windows 10 or Windows 11, using one of the following
-  commands:
+  latest-microsoft-visual-c-redistributable-version>`_ or use the `Winget tool
+  <https://learn.microsoft.com/en-us/windows/package-manager/winget/>`_ on
+  Windows 10 (build 16299 or later) or Windows 11 computers, using one of the
+  following commands:
 
   .. code-block:: console
 
