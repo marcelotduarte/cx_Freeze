@@ -21,7 +21,7 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 
 from setuptools import Distribution
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path, process_path_specs
 from cx_Freeze.exception import FileError, OptionError
 from cx_Freeze.executable import Executable
@@ -756,6 +756,10 @@ class Freezer:
             )
         finder.add_constant("_EXECUTABLES_NUMBER", len(self.executables))
 
+        # Write the modules baefore the included files to fix an issue
+        if IS_WINDOWS and not IS_CONDA:
+            self._write_modules()
+
         # Include user-defined files and hooks-defined files
         target_dir = self.target_dir
         excluded_dependent_files = finder.excluded_dependent_files
@@ -783,7 +787,8 @@ class Freezer:
                 self._copy_file(source_path, fulltarget, copy_dependent_files)
 
         # Write the modules after the included files to avoid duplicate files
-        self._write_modules()
+        if not (IS_WINDOWS and not IS_CONDA):
+            self._write_modules()
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
