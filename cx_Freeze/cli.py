@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+from pathlib import Path
 
 from cx_Freeze import __version__, setup
 from cx_Freeze._pyproject import get_pyproject_tool_data
@@ -220,9 +222,16 @@ def main() -> None:
     if script_args[0] == "build" and "build_exe" not in script_args:
         script_args.insert(1, "build_exe")
 
+    # fix sys.path for cxfreeze command line
+    command = Path(sys.argv[0])
+    if command.stem == "cxfreeze":
+        path_to_remove = os.fspath(command.parent)
+        if path_to_remove in sys.path:
+            sys.path.remove(path_to_remove)
+        sys.path.insert(0, os.getcwd())
+
     # get options from pyproject.toml
     options = get_pyproject_tool_data()
-
     executables.extend(options.pop("executables", []))
 
     setup(

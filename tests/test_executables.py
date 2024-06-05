@@ -22,7 +22,7 @@ SUFFIX = ".exe" if IS_WINDOWS else ""
 TOP_DIR = Path(__file__).resolve().parent.parent
 
 SOURCE_SETUP_TOML = """
-test_simple1.py
+test_1.py
     print("Hello from cx_Freeze")
 pyproject.toml
     [project]
@@ -31,11 +31,11 @@ pyproject.toml
     description = "Sample cx_Freeze script"
 
     [[tool.cxfreeze.executables]]
-    script = "test_simple1.py"
+    script = "test_1.py"
 
     [[tool.cxfreeze.executables]]
-    script = "test_simple1.py"
-    target_name = "test_simple2"
+    script = "test_1.py"
+    target_name = "test_2"
 
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
@@ -45,15 +45,15 @@ command
 """
 
 SOURCE_SETUP_PY = """
-test_simple1.py
+test_1.py
     print("Hello from cx_Freeze")
 setup.py
     from cx_Freeze import Executable, setup
 
     executables = [
-        "test_simple1.py",
-        {"script": "test_simple1.py", "target_name": "test_simple2"},
-        Executable("test_simple1.py", target_name="test_simple3"),
+        "test_1.py",
+        {"script": "test_1.py", "target_name": "test_2"},
+        Executable("test_1.py", target_name="test_3"),
     ]
 
     setup(
@@ -67,7 +67,7 @@ command
 """
 
 SOURCE_SETUP_CFG = """
-test_simple1.py
+test_1.py
     print("Hello from cx_Freeze")
 setup.cfg
     [metadata]
@@ -79,11 +79,11 @@ setup.cfg
     excludes = tkinter,unittest
     silent = true
 command
-    cxfreeze test_simple1.py
+    cxfreeze test_1.py
 """
 
 SOURCE_SETUP_MIX = """
-test_simple1.py
+test_1.py
     print("Hello from cx_Freeze")
 pyproject.toml
     [project]
@@ -92,8 +92,8 @@ pyproject.toml
     description = "Sample cx_Freeze script"
 
     [[tool.cxfreeze.executables]]
-    script = "test_simple1.py"
-    target_name = "test_simple2"
+    script = "test_1.py"
+    target_name = "test_2"
 
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
@@ -101,9 +101,86 @@ pyproject.toml
 setup.py
     from cx_Freeze import setup
 
-    setup(executables=["test_simple1.py"])
+    setup(executables=["test_1.py"])
 command
     python setup.py build
+"""
+
+SOURCE_ADV_SETUP_TOML = """
+test_1.py
+    from modules.testfreeze_1 import func1
+    print("Hello from cx_Freeze #1")
+    func1()
+test_2.py
+    from modules.testfreeze_2 import func2
+    print("Hello from cx_Freeze #2")
+    func2()
+test_3.py
+    def say_hello():
+        print("Hello from cx_Freeze #3")
+    if __name__ == "__main__":
+        say_hello()
+modules/testfreeze_1.py
+    def func1():
+        print("Test freeze module #1")
+modules/testfreeze_2.py
+    def func2():
+        print("Test freeze module #2")
+pyproject.toml
+    [project]
+    name = "advanced"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_1.py"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_2.py"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_3.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+    silent = true
+command
+    cxfreeze build
+"""
+
+SOURCE_ADV_SETUP_PY = """
+test_1.py
+    from modules.testfreeze_1 import func1
+    print("Hello from cx_Freeze #1")
+    func1()
+test_2.py
+    from modules.testfreeze_2 import func2
+    print("Hello from cx_Freeze #2")
+    func2()
+test_3.py
+    def say_hello():
+        print("Hello from cx_Freeze #3")
+    if __name__ == "__main__":
+        say_hello()
+modules/testfreeze_1.py
+    def func1():
+        print("Test freeze module #1")
+modules/testfreeze_2.py
+    def func2():
+        print("Test freeze module #2")
+setup.py
+    from cx_Freeze import Executable, setup
+
+    executables = ["test_1.py", "test_2.py", "test_3.py"]
+
+    setup(
+        name="advanced",
+        version="0.1.2.3",
+        description="Sample cx_Freeze script",
+        executables=executables,
+    )
+command
+    python setup.py build_exe --excludes=tkinter,unittest --silent
 """
 
 
@@ -114,8 +191,17 @@ command
         (SOURCE_SETUP_PY, 3),
         (SOURCE_SETUP_CFG, 1),
         (SOURCE_SETUP_MIX, 2),
+        (SOURCE_ADV_SETUP_TOML, 3),
+        (SOURCE_ADV_SETUP_PY, 3),
     ],
-    ids=["setup_toml", "setup_py", "setup_cfg", "setup_mix"],
+    ids=[
+        "setup_toml",
+        "setup_py",
+        "setup_cfg",
+        "setup_mix",
+        "setup_adv_toml",
+        "setup_adv_py",
+    ],
 )
 def test_executables(
     tmp_path: Path, source: str, number_of_executables: int
@@ -125,7 +211,7 @@ def test_executables(
     output = run_command(tmp_path)
 
     for i in range(1, number_of_executables):
-        file_created = tmp_path / BUILD_EXE_DIR / f"test_simple{i}{SUFFIX}"
+        file_created = tmp_path / BUILD_EXE_DIR / f"test_{i}{SUFFIX}"
         assert file_created.is_file(), f"file not found: {file_created}"
 
         output = run_command(tmp_path, file_created, timeout=10)
