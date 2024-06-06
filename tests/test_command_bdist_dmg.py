@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.command.bdist_mac."""
+"""Tests for cx_Freeze.command.bdist_dmg."""
 
 from __future__ import annotations
 
@@ -29,14 +29,14 @@ SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 @pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_mac(datafiles: Path) -> None:
-    """Test the simple sample with bdist_mac."""
+def test_bdist_dmg(datafiles: Path) -> None:
+    """Test the simple sample with bdist_dmg."""
     name = "hello"
     version = "0.1.2.3"
     dist_created = datafiles / "build"
 
-    run_command(datafiles, "python setup.py bdist_mac")
+    run_command(datafiles, "python setup.py bdist_dmg")
 
     base_name = f"{name}-{version}"
-    file_created = dist_created / f"{base_name}.app"
-    assert file_created.is_dir(), f"{base_name}.app"
+    file_created = dist_created / f"{base_name}.dmg"
+    assert file_created.is_file(), f"{base_name}.dmg"
