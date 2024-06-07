@@ -43,16 +43,65 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
             sys.exit()
     # workaround: inject freeze_support call to avoid an infinite loop
     from multiprocessing.spawn import freeze_support as _spawn_freeze_support
-    from multiprocessing.context import BaseContext
-    BaseContext._get_context = BaseContext.get_context
-    def _get_freeze_context(self, method=None):
-        ctx = self._get_context(method)
-        _spawn_freeze_support()
-        return ctx
-    BaseContext.get_context = \
-        lambda self, method=None: _get_freeze_context(self, method)
-    # disable freeze_support, because it cannot be run twice
-    BaseContext.freeze_support = lambda self: None
+    from multiprocessing.spawn import is_forking as _spawn_is_forking
+    from multiprocessing.context import BaseContext, DefaultContext
+    BaseContext.freeze_support = lambda self: _spawn_freeze_support()
+    DefaultContext.freeze_support = lambda self: _spawn_freeze_support()
+    if _spawn_is_forking(sys.argv):
+        main_module = sys.modules["__main__"]
+        main_spec = main_module.__spec__
+        main_code = main_spec.loader.get_code(main_spec.name)
+        if "freeze_support" not in main_code.co_names:
+            print('''
+        An attempt has been made to start a new process before the
+        current process has finished its bootstrapping phase.
+
+        This probably means that you are not using fork to start your
+        child processes and you have forgotten to use the proper idiom
+        in the main module:
+
+            if __name__ == "__main__":
+                freeze_support()
+                ...
+
+        To fix this issue, refer to the documentation:\n    \
+    https://cx-freeze.readthedocs.io/en/stable/faq.html#multiprocessing-support
+        ''', file=sys.stderr)
+            #import os, signal
+            #os.kill(os.getppid(), signal.SIGHUP)
+            #sys.exit(os.EX_SOFTWARE)
+            _spawn_freeze_support()
+        del main_module, main_spec, main_code
+    # cx_Freeze patch end
+    """
+    code_string = module.file.read_text(encoding="utf_8") + dedent(source)
+    module.code = compile(
+        code_string,
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
+
+
+def load_multiprocessing_context(finder: ModuleFinder, module: Module) -> None:
+    """Monkeypath get_context to do automatic freeze_support."""
+    if IS_MINGW or IS_WINDOWS:
+        return
+    if module.file.suffix == ".pyc":  # source unavailable
+        return
+    source = r"""
+    # cx_Freeze patch start
+    BaseContext._get_base_context = BaseContext.get_context
+    def _get_base_context(self, method=None):
+        self.freeze_support()
+        return self._get_base_context(method)
+    BaseContext.get_context = _get_base_context
+    DefaultContext._get_default_context = DefaultContext.get_context
+    def _get_default_context(self, method=None):
+        self.freeze_support()
+        return self._get_default_context(method)
+    DefaultContext.get_context = _get_default_context
     # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)

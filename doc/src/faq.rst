@@ -206,10 +206,10 @@ sources.
 Multiprocessing support
 -----------------------
 
-On Linux and macOS, multiprocessing support is automatically managed by
-cx_Freeze, including supporting it in pyTorch.
+On Linux, macOS and Windows, multiprocessing support is managed by cx_Freeze,
+including support for pyTorch.
 
-However, to produce a Windows executable, you must use
+However, to produce an executable, you must use
 `multiprocessing.freeze_support()`.
 
 One needs to call this function straight after the if __name__ == '__main__'
@@ -228,10 +228,11 @@ line of the main module. For example:
         freeze_support()
         Process(target=f).start()
 
-If the freeze_support() line is omitted then trying to run the frozen
-executable will raise RuntimeError.
+If the freeze_support() line is omitted, then running the frozen executable
+will raise RuntimeError on Windows. On Linux and macOS a similar message is
+shown but cx_Freeze tries to run the program by injecting a freeze_support.
 
-Calling freeze_support() has no effect when invoked on any operating system
-other than Windows. In addition, if the module is being run normally by the
-Python interpreter on Windows (the program has not been frozen), then
-freeze_support() has no effect.
+Contrary to what is stated in the Python documentation, freeze_support() is
+required on all operating systems. In addition, if the module is being run
+normally by the Python interpreter on any OS (the program has not been frozen),
+then freeze_support() has no effect.

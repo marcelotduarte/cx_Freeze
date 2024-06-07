@@ -27,8 +27,7 @@ sample1.py
         q.put('hello')
 
     if __name__ == '__main__':
-        if sys.platform == 'win32':  # the conditional is unecessary
-            multiprocessing.freeze_support()
+        multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         q = multiprocessing.SimpleQueue()
         p = multiprocessing.Process(target=foo, args=(q,))
@@ -43,8 +42,7 @@ sample2.py
 
     if __name__ == '__main__':
         ctx = multiprocessing.get_context('spawn')
-        if sys.platform == 'win32':  # the conditional is unecessary
-            ctx.freeze_support()
+        ctx.freeze_support()
         q = ctx.Queue()
         p = ctx.Process(target=foo, args=(q,))
         p.start()
@@ -53,8 +51,7 @@ sample2.py
 sample3.py
     if __name__ ==  "__main__":
         import multiprocessing, sys
-        if sys.platform == 'win32':  # the conditional is unecessary
-            multiprocessing.freeze_support()
+        multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         mgr = multiprocessing.Manager()
         var = [1] * 10000000
@@ -91,7 +88,7 @@ def _parameters_data() -> Iterator:
             if method == "forkserver" and i != 3:
                 continue  # only sample3 works with forkserver method
             sample = f"sample{i+1}"
-            test_id = f"{sample},{method}"
+            test_id = f"{sample}-{method}"
             yield pytest.param(source, sample, expected, id=test_id)
 
 
