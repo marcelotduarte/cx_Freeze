@@ -232,7 +232,7 @@ If the freeze_support() line is omitted, then running the frozen executable
 will raise RuntimeError on Windows. On Linux and macOS a similar message is
 shown but cx_Freeze tries to run the program by injecting a freeze_support.
 
-Contrary to what is stated in the Python documentation, freeze_support() is
+Contrary to what the Python docs may state, you MUST use `multiprocessing.freeze_support()` on MacOS, Windows, and Linux. On Mac and Linux, cx_Freeze patches the call to also handle `multiprocessing.spawn.freeze_support()` when needed.
 required on all operating systems. In addition, if the module is being run
 normally by the Python interpreter on any OS (the program has not been frozen),
 then freeze_support() has no effect.
