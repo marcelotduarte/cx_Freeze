@@ -84,10 +84,10 @@ def _parameters_data() -> Iterator:
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
-        for i, expected in enumerate(EXPECTED_OUTPUT):
+        for i, expected in enumerate(EXPECTED_OUTPUT, 1):
             if method == "forkserver" and i != 3:
                 continue  # only sample3 works with forkserver method
-            sample = f"sample{i+1}"
+            sample = f"sample{i}"
             test_id = f"{sample}-{method}"
             yield pytest.param(source, sample, expected, id=test_id)
 
