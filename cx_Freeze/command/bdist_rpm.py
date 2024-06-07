@@ -401,7 +401,7 @@ class bdist_rpm(Command):
             "%define unmangled_version " + self.distribution.get_version(),
             "%define release " + self.release.replace("-", "_"),
             "",
-            "Summary: " + self.distribution.get_description() or "UNKNOWN",
+            f"Summary: {self.distribution.get_description() or "UNKNOWN"}",
             "Name: %{name}",
             "Version: %{version}",
             "Release: %{release}",
