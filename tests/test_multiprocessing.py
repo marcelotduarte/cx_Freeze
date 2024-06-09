@@ -21,12 +21,12 @@ SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """\
 sample1.py
-    import multiprocessing, sys
+    import multiprocessing
 
     def foo(q):
-        q.put('hello')
+        q.put("Hello from cx_Freeze")
 
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         q = multiprocessing.SimpleQueue()
@@ -35,12 +35,12 @@ sample1.py
         print(q.get())
         p.join()
 sample2.py
-    import multiprocessing, sys
+    import multiprocessing
 
     def foo(q):
-        q.put('hello')
+        q.put("Hello from cx_Freeze")
 
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         ctx = multiprocessing.get_context('spawn')
         ctx.freeze_support()
         q = ctx.Queue()
@@ -49,7 +49,7 @@ sample2.py
         print(q.get())
         p.join()
 sample3.py
-    if __name__ ==  "__main__":
+    if __name__ == "__main__":
         import multiprocessing, sys
         multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
@@ -77,7 +77,11 @@ setup.py
         }
     )
 """
-EXPECTED_OUTPUT = ["hello", "hello", "creating dict...done!"]
+EXPECTED_OUTPUT = [
+    "Hello from cx_Freeze",
+    "Hello from cx_Freeze",
+    "creating dict...done!",
+]
 
 
 def _parameters_data() -> Iterator:

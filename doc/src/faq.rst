@@ -206,14 +206,18 @@ sources.
 Multiprocessing support
 -----------------------
 
-On Linux, macOS, and Windows, multiprocessing support is managed by cx_Freeze,
-including support for pyTorch.
+On Linux, macOS, and Windows, :pythondocs:`multiprocessing
+<library/multiprocessing.html>` support is managed by **cx_Freeze**,
+including support for PyTorch.
+
+Depending on the platform, multiprocessing supports three ways to start a
+process. These start methods are: spawn, fork, and forkserver.
 
 However, to produce an executable, you must use
 `multiprocessing.freeze_support()`.
 
-One needs to call this function straight after the if __name__ == '__main__'
-line of the main module. For example:
+One needs to call this function straight after the
+``if __name__ == "__main__"`` line of the main module. For example:
 
   .. code-block:: python
 
@@ -228,13 +232,16 @@ line of the main module. For example:
         freeze_support()
         Process(target=f).start()
 
-If the freeze_support() line is omitted, then running the frozen executable
+If the `freeze_support()` line is omitted, then running the frozen executable
 will raise RuntimeError on Windows. On Linux and macOS a similar message is
-shown but cx_Freeze tries to run the program by injecting a freeze_support.
+shown but cx_Freeze tries to run the program by injecting a `freeze_support`.
+In addition, if the module is being run normally by the Python interpreter on
+any OS (the program has not been frozen), then `freeze_support()` has no
+effect.
 
-Contrary to what the Python docs may state, you MUST use
-`multiprocessing.freeze_support()` on Linux, macOS, and Windows. On Linux and
-macOS, cx_Freeze patches the call to also handle
-`multiprocessing.spawn.freeze_support()` when needed. In addition, if the
-module is being run normally by the Python interpreter on any OS
-(the program has not been frozen), then freeze_support() has no effect.
+.. note::
+
+  Contrary to what the Python docs may state, you MUST use
+  `multiprocessing.freeze_support()` on Linux, macOS, and Windows.
+  On Linux and macOS, cx_Freeze patches the call to also handle
+  `multiprocessing.spawn.freeze_support()` when needed.
