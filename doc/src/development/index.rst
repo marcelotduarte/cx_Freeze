@@ -57,20 +57,39 @@ libraries into the wheel.
 
 To reach this, cx_Freeze's binary wheels is built using :pypi:`cibuildwheel`.
 
+  .. code-block:: console
+
+      pip install --upgrade cibuildwheel
+
 For instance, in a Linux environment, Python 3.10, to build locally, run:
 
   .. code-block:: console
 
-      pip install --upgrade cibuildwheel
-      CIBW_BUILD=cp310-manylinux_x86_64 cibuildwheel --platform linux
+      cibuildwheel --only cp310-manylinux_x86_64
+
+To run a Linux build on your development machine, Docker or Podman should be
+installed. To use podman:
+
+  .. code-block:: console
+
+      CIBW_CONTAINER_ENGINE=podman cibuildwheel --only cp310-manylinux_x86_64
+
+Using macOS:
+
+  .. code-block:: console
+
+      cibuildwheel --only cp310-macosx_universal2
 
 .. note::
 
-   #. Please read `Run cibuildwheel locally
+   Please read:
+
+   #. `Run cibuildwheel locally
       <https://cibuildwheel.readthedocs.io/en/stable/setup/#local>`_.
-   #. To run a Linux build on your development machine, Docker or Podman should
-      be installed. To use podman, set `CIBW_CONTAINER_ENGINE
-      <https://cibuildwheel.readthedocs.io/en/stable/options/#container-engine>`_.
+   #. `Linux builds
+      <https://cibuildwheel.pypa.io/en/stable/setup/#linux-builds>`_.
+   #. `macOS / Windows builds
+      <https://cibuildwheel.pypa.io/en/stable/setup/#macos-windows-builds>`_.
 
 
 Building documentation
@@ -102,18 +121,16 @@ using the conda-forge channel:
     c-compiler
     py-lief (Windows)
     patchelf (Linux)
-    # declare SDKROOT or CONDA_BUILD_SYSROOT (for python 3.9+ in macOS)
-    # for example, in Github Actions CI, macOS:
-    export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk
+    # declare SDKROOT or CONDA_BUILD_SYSROOT (not required in Github Actions)
 
 An example for Linux:
 
   .. code-block:: console
 
-    conda create -n cx39conda -c conda-forge python=3.9 -y
-    conda activate cx39conda
+    conda create -n cx311conda -c conda-forge python=3.11 -y
+    conda activate cx311conda
     conda install -c conda-forge c-compiler patchelf -y
-    pip install --upgrade --no-binary=cx_Freeze --pre cx_Freeze -v
+    pip install git+https://github.com/marcelotduarte/cx_Freeze@develop
 
 Contributing
 -------------
@@ -121,26 +138,26 @@ Contributing
 Submitting pull requests
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Submit pull requests against the ``main`` branch, providing a good
-description of what you're doing and why. You must have legal permission to
+Submit pull requests against the ``main`` branch providing a good
+description of what you are doing and why. You must have legal permission to
 distribute any code you contribute to cx_Freeze and it must be available under
 the PSF License.
-Any pull request must consider and work on the supported platforms.
+Any pull request should consider that it needs to work on supported platforms.
 
 Pull Requests should be small to facilitate review. Keep them self-contained,
 and limited in scope. `Studies have shown
-<https://www.kessler.de/prd/smartbear/BestPracticesForPeerCodeReview.pdf>`_
+<https://smartbear.com/learn/code-review/best-practices-for-peer-code-review/>`_
 that review quality falls off as patch size grows. Sometimes this will result
 in many small PRs to land a single large feature. In particular, pull requests
 must not be treated as "feature branches", with ongoing development work
-happening within the PR. Instead, the feature should be broken up into smaller,
+within the PR. Instead, the feature should be broken up into smaller,
 independent parts which can be reviewed and merged individually.
 
-Additionally, avoid including "cosmetic" changes to code that is unrelated to
+Additionally, avoid including "cosmetic" changes to code that are unrelated to
 your change, as these make reviewing the PR more difficult. Examples include
-re-flowing text in comments or documentation, or addition or removal of blank
-lines or whitespace within lines. Such changes can be made separately, as a
-"formatting cleanup" PR, if needed.
+re-flowing text in comments or documentation or adding or removing blank lines
+or whitespace within lines. Such changes can be made separately, as a
+"formatting cleanup" PR as required.
 
 Contents:
 
