@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-from optparse import OptionError
 import os
 import shutil
 import subprocess
+from optparse import OptionError
 from typing import ClassVar
 
 from setuptools import Command
-
-import cx_Freeze.icons
-from cx_Freeze.exception import ExecError
 
 __all__ = ["bdist_dmg"]
 
@@ -126,13 +123,13 @@ class bdist_dmg(Command):
         if not self.volume_label:
             raise OptionError(msg="volume-label must be set")
         if self.applications_shortcut:
-            self._symlinks = {'Applications': '/Applications'}
+            self._symlinks = {"Applications": "/Applications"}
         if self.silent is None:
             self.silent = False
         if self.background:
             self.background = self.background.strip()
 
-    def finalize_dmgbuild_options(self):
+    def finalize_dmgbuild_options(self) -> None:
         pass
 
     def build_dmg(self) -> None:
@@ -169,7 +166,6 @@ class bdist_dmg(Command):
         # else:
         #     icon_name = executable.icon.name
         #     self.move_file(os.path.join(appdir, icon_name), icons_dir)
-
 
         with open("settings.py", "w") as f:
             # Disk Image Settings
@@ -229,8 +225,14 @@ class bdist_dmg(Command):
             # License Settings
             f.write(f"license = {self.license}\n")
 
-        print('\n\n\n\n')
-        dmgargs = ['dmgbuild', '-s', 'settings.py', self.volume_label, self.dmg_name]
+        print("\n\n\n\n")
+        dmgargs = [
+            "dmgbuild",
+            "-s",
+            "settings.py",
+            self.volume_label,
+            self.dmg_name,
+        ]
 
         # Create the dmg
         if subprocess.call(dmgargs) != 0:
