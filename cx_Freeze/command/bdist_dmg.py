@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from optparse import OptionError
 import os
 import shutil
 import subprocess
 from typing import ClassVar
 
 from setuptools import Command
+
+import cx_Freeze.icons
+from cx_Freeze.exception import ExecError
 
 __all__ = ["bdist_dmg"]
 
@@ -39,7 +43,7 @@ class bdist_dmg(Command):
             "background",
             "b",
             "A rgb color in the form #3344ff, svg "
-            "named color like goldenrod, a path to an image, or the words 'builtin-arrow'",
+            "named color like goldenrod, a path to an image, or the words 'builtin-arrow'. Default is None.",
         ),
         (
             "show-status-bar",
@@ -119,8 +123,17 @@ class bdist_dmg(Command):
         self.license = None
 
     def finalize_options(self) -> None:
+        if not self.volume_label:
+            raise OptionError(msg="volume-label must be set")
+        if self.applications_shortcut:
+            self._symlinks = {'Applications': '/Applications'}
         if self.silent is None:
             self.silent = False
+        if self.background:
+            self.background = self.background.strip()
+
+    def finalize_dmgbuild_options(self):
+        pass
 
     def build_dmg(self) -> None:
         # Remove DMG if it already exists
@@ -142,34 +155,85 @@ class bdist_dmg(Command):
         else:
             self.copy_tree(self.bundle_dir, dest_dir, preserve_symlinks=True)
 
-        createargs = [
-            "hdiutil",
-            "create",
-        ]
-        if self.silent:
-            createargs += ["-quiet"]
-        createargs += [
-            "-fs",
-            "HFSX",
-            "-format",
-            "UDZO",
-            self.dmg_name,
-            "-imagekey",
-            "zlib-level=9",
-            "-srcfolder",
-            self.dist_dir,
-            "-volname",
-            self.volume_label,
-        ]
+        # executables = self.distribution.executables
+        # executable = executables[0]
+        # if len(executables) > 1:
+        #     self.warn(
+        #         "using the first executable as entrypoint: "
+        #         f"{executable.target_name}"
+        #     )
+        # if executable.icon is None:
+        #     icon_name = "logox128.png"
+        #     icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
+        #     self.copy_file(os.path.join(icon_source_dir, icon_name), icons_dir)
+        # else:
+        #     icon_name = executable.icon.name
+        #     self.move_file(os.path.join(appdir, icon_name), icons_dir)
 
-        if self.applications_shortcut:
-            apps_folder_link = os.path.join(self.dist_dir, "Applications")
-            os.symlink(
-                "/Applications", apps_folder_link, target_is_directory=True
-            )
+
+        with open("settings.py", "w") as f:
+            # Disk Image Settings
+            f.write(f"filename = '{self.dmg_name}'\n")
+            f.write(f"volume_label = '{self.volume_label}'\n")
+            f.write(f"format = '{self.format}'\n")
+            f.write(f"filesystem = '{self.filesystem}'\n")
+            # f.write(f"size = {self.size}\n")
+
+            # Content Settings
+            f.write(f"files = ['{self.dist_dir}']\n")
+            f.write(f"symlinks = {self._symlinks}\n")
+            # f.write(f"hide = [{self.hide}]\n")
+            # f.write(f"hide_extensions = [{self.hide_extensions}]\n")
+            if self.icon_locations:
+                f.write(f"icon_locations = { self.icon_locations}\n")
+            # Only one of these can be set
+            # f.write(f"icon = {self.icon}\n")
+            # f.write(f"badge_icon = {self.badge_icon}\n")
+
+            # Window Settings
+            f.write(f"background = {self.background}\n")
+            f.write(f"show_status_bar = {self.show_status_bar}\n")
+            f.write(f"show_tab_view = {self.show_tab_view}\n")
+            f.write(f"show_pathbar = {self.show_path_bar}\n")
+            f.write(f"show_sidebar = {self.show_sidebar}\n")
+            f.write(f"sidebar_width = {self.sidebar_width}\n")
+            if self.window_rect:
+                f.write(f"window_rect = {self.window_rect}\n")
+            f.write(f"default_view = {self.default_view}\n")
+            f.write(f"show_icon_preview = {self.show_icon_preview}\n")
+            # f.write(f"include_icon_view_settings = {self.include_icon_view_settings}\n")
+            # f.write(f"include_list_view_settings = {self.include_list_view_settings}\n")
+
+            # Icon View Settings
+            # f.write(f"arrange_by = {self.arrange_by}\n")
+            # f.write(f"grid_offset = {self.grid_offset}\n")
+            # f.write(f"grid_spacing = {self.grid_spacing}\n")
+            # f.write(f"scroll_position = {self.scroll_position}\n")
+            # f.write(f"label_pos = {self.label_pos}\n")
+            # f.write(f"text_size = {self.text_size}\n")
+            # f.write(f"icon_size = {self.icon_size}\n")
+            if self.icon_locations:
+                f.write(f"icon_locations = {self.icon_locations}\n")
+
+            # List View Settings
+            # f.write(f"list_icon_size = {self.list_icon_size}\n")
+            # f.write(f"list_text_size = {self.list_text_size}\n")
+            # f.write(f"list_scroll_position = {self.list_scroll_position}\n")
+            # f.write(f"list_sort_by = {self.list_sort_by}\n")
+            # f.write(f"list_use_relative_dates = {self.list_use_relative_dates}\n")
+            # f.write(f"list_calculate_all_sizes = {self.list_calculate_all_sizes}\n")
+            # f.write(f"list_columns = {self.list_columns}\n")
+            # f.write(f"list_column_widths = {self.list_column_widths}\n")
+            # f.write(f"list_column_sort_directions = {self.list_column_sort_directions}\n")
+
+            # License Settings
+            f.write(f"license = {self.license}\n")
+
+        print('\n\n\n\n')
+        dmgargs = ['dmgbuild', '-s', 'settings.py', self.volume_label, self.dmg_name]
 
         # Create the dmg
-        if subprocess.call(createargs) != 0:
+        if subprocess.call(dmgargs) != 0:
             msg = "creation of the dmg failed"
             raise OSError(msg)
 
