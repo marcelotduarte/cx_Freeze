@@ -5,10 +5,11 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-from optparse import OptionError
 from typing import ClassVar
 
 from setuptools import Command
+
+from cx_Freeze.exception import OptionError
 
 __all__ = ["bdist_dmg"]
 
