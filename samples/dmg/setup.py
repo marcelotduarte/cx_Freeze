@@ -11,7 +11,9 @@ subdirectory that contains the files needed to run the script without Python
 
 from cx_Freeze import Executable, setup
 
-executables = [Executable("hello.py")]
+executables = [
+    Executable("hello.py", icon="../../cx_Freeze/icons/python.icns")
+]
 
 setup(
     name="hello",
@@ -19,9 +21,31 @@ setup(
     description="Sample cx_Freeze script",
     executables=executables,
     options={
+        "bdist_mac": {
+            "bundle_name": "hello",
+        },
         "bdist_dmg": {
             "applications_shortcut": True,
             "volume_label": "Howdy Yall",
+            "background": "builtin-arrow",
+            # "icon_locations": {
+            #     "Applications": (300, 100),
+            #     "hello.app": (100, 100),
+            # },
+            "license": {
+                "default-language": "en_US",
+                "licenses": {"en_US": "Do it right, do it legal, do it safe."},
+                "buttons": {
+                    "en_US": [
+                        "English",
+                        "Agree",
+                        "Disagree",
+                        "Print",
+                        "Save",
+                        "If you agree, click Agree to continue the installation. If you do not agree, click Disagree to cancel the installation.",
+                    ]
+                },
+            },
         },
     },
 )

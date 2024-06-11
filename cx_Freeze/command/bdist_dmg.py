@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import os
+import pathlib
 import shutil
 import subprocess
 from typing import ClassVar
 
 from setuptools import Command
 
+import cx_Freeze.icons
 from cx_Freeze.exception import OptionError
 
 __all__ = ["bdist_dmg"]
@@ -102,10 +104,11 @@ class bdist_dmg(Command):
     ]
 
     def initialize_options(self) -> None:
+        self.silent = None
         self.volume_label = self.distribution.get_fullname()
         self.applications_shortcut = False
         self._symlinks = {}
-        self.silent = None
+        self._files = []
         self.format = "UDZO"
         self.filesystem = "HFS+"
         self.size = None
@@ -116,9 +119,29 @@ class bdist_dmg(Command):
         self.show_sidebar = False
         self.sidebar_width = None
         self.window_rect = None
+        self.hide = None
+        self.hide_extensions = None
         self.icon_locations = None
         self.default_view = None
         self.show_icon_preview = False
+        self.include_icon_view_settings = "auto"
+        self.include_list_view_settings = "auto"
+        self.arrange_by = None
+        self.grid_offset = None
+        self.grid_spacing = None
+        self.scroll_position = None
+        self.label_pos = None
+        self.text_size = None
+        self.icon_size = None
+        self.list_icon_size = None
+        self.list_text_size = None
+        self.list_scroll_position = None
+        self.list_sort_by = None
+        self.list_use_relative_dates = None
+        self.list_calculate_all_sizes = None
+        self.list_columns = None
+        self.list_column_widths = None
+        self.list_column_sort_directions = None
         self.license = None
 
     def finalize_options(self) -> None:
@@ -129,11 +152,31 @@ class bdist_dmg(Command):
             self._symlinks["Applications"] = "/Applications"
         if self.silent is None:
             self.silent = False
-        if self.background:
-            self.background = self.background.strip()
+
+        self.finalize_dmgbuild_options()
 
     def finalize_dmgbuild_options(self) -> None:
-        pass
+        if self.background:
+            self.background = self.background.strip()
+        if self.background == "builtin-arrow" and (
+            self.icon_locations or self.window_rect
+        ):
+            msg = "background='builtin-arrow' cannot be used with icon_locations or window_rect"
+            raise OptionError(msg)
+        if not self.arrange_by:
+            self.arrange_by = None
+        if not self.grid_offset:
+            self.grid_offset = (0, 0)
+        if not self.grid_spacing:
+            self.grid_spacing = 100
+        if not self.scroll_position:
+            self.scroll_position = (0, 0)
+        if not self.label_pos:
+            self.label_pos = "bottom"
+        if not self.text_size:
+            self.text_size = 16
+        if not self.icon_size:
+            self.icon_size = 128
 
     def build_dmg(self) -> None:
         # Remove DMG if it already exists
@@ -155,78 +198,116 @@ class bdist_dmg(Command):
         else:
             self.copy_tree(self.bundle_dir, dest_dir, preserve_symlinks=True)
 
-        # executables = self.distribution.executables
-        # executable = executables[0]
-        # if len(executables) > 1:
-        #     self.warn(
-        #         "using the first executable as entrypoint: "
-        #         f"{executable.target_name}"
-        #     )
-        # if executable.icon is None:
-        #     icon_name = "logox128.png"
-        #     icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
-        #     self.copy_file(os.path.join(icon_source_dir, icon_name), icons_dir)
-        # else:
-        #     icon_name = executable.icon.name
-        #     self.move_file(os.path.join(appdir, icon_name), icons_dir)
+        # Add the App Bundle to the list of files
+        self._files.append(self.bundle_dir)
+
+        # set the app_name for the application bundle
+        app_name = os.path.basename(self.bundle_dir)
+        # Set the defaults
+        if (
+            self.background == "builtin-arrow"
+            and not self.icon_locations
+            and not self.window_rect
+        ):
+            self.icon_locations = {
+                "Applications": (500, 120),
+                app_name: (140, 120),
+            }
+            self.window_rect = ((100, 100), (640, 380))
+
+        executables = self.distribution.executables  # type: ignore
+        executable = executables[0]
+        if len(executables) > 1:
+            self.warn(
+                "using the first executable as entrypoint: "
+                f"{executable.target_name}"
+            )
+        if executable.icon is None:
+            icon_name = "setup.icns"
+            icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
+            self.icon = os.path.join(icon_source_dir, icon_name)
+        else:
+            self.icon = pathlib.Path(executable.icon).resolve()
 
         with open("settings.py", "w") as f:
+
+            def add_param(name, value) -> None:
+                # if value is a string, add quotes
+                if isinstance(value, (str, pathlib.Path)):
+                    f.write(f"{name} = '{value}'\n")
+                else:
+                    f.write(f"{name} = {value}\n")
+
             # Disk Image Settings
-            f.write(f"filename = '{self.dmg_name}'\n")
-            f.write(f"volume_label = '{self.volume_label}'\n")
-            f.write(f"format = '{self.format}'\n")
-            f.write(f"filesystem = '{self.filesystem}'\n")
-            # f.write(f"size = {self.size}\n")
+            add_param("filename", self.dmg_name)
+            add_param("volume_label", self.volume_label)
+            add_param("format", self.format)
+            add_param("filesystem", self.filesystem)
+            add_param("size", self.size)
 
             # Content Settings
-            f.write(f"files = ['{self.dist_dir}']\n")
-            f.write(f"symlinks = {self._symlinks}\n")
-            # f.write(f"hide = [{self.hide}]\n")
-            # f.write(f"hide_extensions = [{self.hide_extensions}]\n")
-            if self.icon_locations:
-                f.write(f"icon_locations = { self.icon_locations}\n")
+            add_param("files", self._files)
+            add_param("symlinks", self._symlinks)
+            # unimplemented
+            add_param("hide", self.hide)
+            # unimplemented
+            add_param("hide_extensions", self.hide_extensions)
             # Only one of these can be set
-            # f.write(f"icon = {self.icon}\n")
-            # f.write(f"badge_icon = {self.badge_icon}\n")
+            if self.icon_locations:
+                add_param("icon_locations", self.icon_locations)
+            if self.icon:
+                add_param("icon", self.icon)
+            # We don't need to set this, as we only support icns
+            # add param ( "badge_icon", self.badge_icon)
 
             # Window Settings
-            f.write(f"background = {self.background}\n")
-            f.write(f"show_status_bar = {self.show_status_bar}\n")
-            f.write(f"show_tab_view = {self.show_tab_view}\n")
-            f.write(f"show_pathbar = {self.show_path_bar}\n")
-            f.write(f"show_sidebar = {self.show_sidebar}\n")
-            f.write(f"sidebar_width = {self.sidebar_width}\n")
+            add_param("background", self.background)
+            add_param("show_status_bar", self.show_status_bar)
+            add_param("show_tab_view", self.show_tab_view)
+            add_param("show_pathbar", self.show_path_bar)
+            add_param("show_sidebar", self.show_sidebar)
+            add_param("sidebar_width", self.sidebar_width)
             if self.window_rect:
-                f.write(f"window_rect = {self.window_rect}\n")
-            f.write(f"default_view = {self.default_view}\n")
-            f.write(f"show_icon_preview = {self.show_icon_preview}\n")
-            # f.write(f"include_icon_view_settings = {self.include_icon_view_settings}\n")
-            # f.write(f"include_list_view_settings = {self.include_list_view_settings}\n")
+                add_param("window_rect", self.window_rect)
+            if self.default_view:
+                add_param("default_view", self.default_view)
 
-            # Icon View Settings
-            # f.write(f"arrange_by = {self.arrange_by}\n")
-            # f.write(f"grid_offset = {self.grid_offset}\n")
-            # f.write(f"grid_spacing = {self.grid_spacing}\n")
-            # f.write(f"scroll_position = {self.scroll_position}\n")
-            # f.write(f"label_pos = {self.label_pos}\n")
-            # f.write(f"text_size = {self.text_size}\n")
-            # f.write(f"icon_size = {self.icon_size}\n")
+            add_param("show_icon_preview", self.show_icon_preview)
+            add_param(
+                "include_icon_view_settings", self.include_icon_view_settings
+            )
+            add_param(
+                "include_list_view_settings", self.include_list_view_settings
+            )
+
+            # Icon View Settings\
+            add_param("arrange_by", self.arrange_by)
+            add_param("grid_offset", self.grid_offset)
+            add_param("grid_spacing", self.grid_spacing)
+            add_param("scroll_position", self.scroll_position)
+            add_param("label_pos", self.label_pos)
+            add_param("text_size", self.text_size)
+            add_param("icon_size", self.icon_size)
             if self.icon_locations:
-                f.write(f"icon_locations = {self.icon_locations}\n")
+                add_param("icon_locations", self.icon_locations)
 
             # List View Settings
-            # f.write(f"list_icon_size = {self.list_icon_size}\n")
-            # f.write(f"list_text_size = {self.list_text_size}\n")
-            # f.write(f"list_scroll_position = {self.list_scroll_position}\n")
-            # f.write(f"list_sort_by = {self.list_sort_by}\n")
-            # f.write(f"list_use_relative_dates = {self.list_use_relative_dates}\n")
-            # f.write(f"list_calculate_all_sizes = {self.list_calculate_all_sizes}\n")
-            # f.write(f"list_columns = {self.list_columns}\n")
-            # f.write(f"list_column_widths = {self.list_column_widths}\n")
-            # f.write(f"list_column_sort_directions = {self.list_column_sort_directions}\n")
+            add_param("list_icon_size", self.list_icon_size)
+            add_param("list_text_size", self.list_text_size)
+            add_param("list_scroll_position", self.list_scroll_position)
+            add_param("list_sort_by", self.list_sort_by)
+            add_param("list_use_relative_dates", self.list_use_relative_dates)
+            add_param(
+                "list_calculate_all_sizes", self.list_calculate_all_sizes
+            )
+            add_param("list_columns", self.list_columns)
+            add_param("list_column_widths", self.list_column_widths)
+            add_param(
+                "list_column_sort_directions", self.list_column_sort_directions
+            )
 
             # License Settings
-            f.write(f"license = {self.license}\n")
+            add_param("license", self.license)
 
         print("\n\n\n\n")
         dmgargs = [
