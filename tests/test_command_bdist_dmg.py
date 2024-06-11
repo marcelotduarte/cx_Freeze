@@ -7,7 +7,6 @@ from pathlib import Path
 from subprocess import run
 
 import pytest
-from generate_samples import run_command
 
 bdist_dmg = pytest.importorskip(
     "cx_Freeze.command.bdist_dmg", reason="macOS tests"
