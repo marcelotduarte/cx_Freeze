@@ -104,6 +104,7 @@ class bdist_dmg(Command):
     def initialize_options(self) -> None:
         self.volume_label = self.distribution.get_fullname()
         self.applications_shortcut = False
+        self._symlinks = {}
         self.silent = None
         self.format = "UDZO"
         self.filesystem = "HFS+"
@@ -122,9 +123,10 @@ class bdist_dmg(Command):
 
     def finalize_options(self) -> None:
         if not self.volume_label:
-            raise OptionError(msg="volume-label must be set")
+            msg = "volume-label must be set"
+            raise OptionError(msg)
         if self.applications_shortcut:
-            self._symlinks = {"Applications": "/Applications"}
+            self._symlinks["Applications"] = "/Applications"
         if self.silent is None:
             self.silent = False
         if self.background:
