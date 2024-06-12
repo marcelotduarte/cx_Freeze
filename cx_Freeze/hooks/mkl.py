@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 def load_mkl(finder: ModuleFinder, module: Module) -> None:
     """The mkl package."""
     distribution = module.distribution
-    if distribution.installer == "pip":
+    if distribution and distribution.installer == "pip":
         for file in distribution.binary_files:
             source = file.locate().resolve()
             finder.include_files(source, f"lib/mkl/{source.name}")

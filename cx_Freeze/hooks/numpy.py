@@ -100,7 +100,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     if IS_MINGW:
         return
     distribution = module.parent.distribution
-    if IS_LINUX and distribution.installer == "pip":
+    if distribution is None or (IS_LINUX and distribution.installer == "pip"):
         return
 
     # patch the code when necessary
