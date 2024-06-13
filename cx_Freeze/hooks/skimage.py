@@ -6,40 +6,45 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MACOS
+
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
 
 
-def load_skimage(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
-    """The skimage package."""
-    # skickit-image 0.17.2
-    finder.include_package("skimage.io")
-    # exclude all tests
-    finder.exclude_module("skimage.color.tests")
-    finder.exclude_module("skimage.data.tests")
-    finder.exclude_module("skimage.draw.tests")
-    finder.exclude_module("skimage.exposure.tests")
-    finder.exclude_module("skimage.feature.tests")
-    finder.exclude_module("skimage.filters.tests")
-    finder.exclude_module("skimage.graph.tests")
-    finder.exclude_module("skimage.io.tests")
-    finder.exclude_module("skimage.measure.tests")
-    finder.exclude_module("skimage.metrics.tests")
-    finder.exclude_module("skimage.morphology.tests")
-    finder.exclude_module("skimage.restoration.tests")
-    finder.exclude_module("skimage.segmentation.tests")
-    finder.exclude_module("skimage._shared.tests")
-    finder.exclude_module("skimage.transform.tests")
-    finder.exclude_module("skimage.util.tests")
-    finder.exclude_module("skimage.viewer.tests")
-    # skickit-image 0.22
-    finder.include_module("skimage.exposure.exposure")
+def load_skimage(finder: ModuleFinder, module: Module) -> None:
+    """Include the full skimage package, because of the heavy use of
+    lazy_loader.
+    """
+    # Fix distribution
+    if module.distribution is None:
+        module.update_distribution("scikit_image")
+    distribution = module.distribution
 
+    # Exclude all tests
+    if distribution:
+        tests = set()
+        for file in distribution.original.files:
+            if file.parent.match("**/tests"):
+                tests.add(file.parent.as_posix().replace("/", "."))
+        for test in tests:
+            finder.exclude_module(test)
+    finder.exclude_module("skimage.conftest")
 
-def load_skimage_feature_orb_cy(
-    finder: ModuleFinder,
-    module: Module,  # noqa: ARG001
-) -> None:
-    """The skimage.feature.orb_cy is an extension that load a module."""
-    finder.include_module("skimage.feature._orb_descriptor_positions")
+    # Include pillow plugin
+    try:
+        finder.include_module("PIL")
+    except ImportError:
+        pass
+    else:
+        finder.include_module("imageio.plugins.pillow")
+
+    # [macos] copy dependent files when using zip_include_packages
+    if IS_MACOS:
+        source_dir = module.file.parent / ".dylibs"
+        if source_dir.exists() and module.in_file_system == 0:
+            finder.include_files(source_dir, "lib/.dylibs")
+
+    # Include the full skimage package
+    finder.include_package("skimage")
