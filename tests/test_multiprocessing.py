@@ -21,14 +21,13 @@ SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """\
 sample1.py
-    import multiprocessing, sys
+    import multiprocessing
 
     def foo(q):
-        q.put('hello')
+        q.put("Hello from cx_Freeze")
 
-    if __name__ == '__main__':
-        if sys.platform == 'win32':  # the conditional is unecessary
-            multiprocessing.freeze_support()
+    if __name__ == "__main__":
+        multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         q = multiprocessing.SimpleQueue()
         p = multiprocessing.Process(target=foo, args=(q,))
@@ -36,25 +35,23 @@ sample1.py
         print(q.get())
         p.join()
 sample2.py
-    import multiprocessing, sys
+    import multiprocessing
 
     def foo(q):
-        q.put('hello')
+        q.put("Hello from cx_Freeze")
 
-    if __name__ == '__main__':
+    if __name__ == "__main__":
         ctx = multiprocessing.get_context('spawn')
-        if sys.platform == 'win32':  # the conditional is unecessary
-            ctx.freeze_support()
+        ctx.freeze_support()
         q = ctx.Queue()
         p = ctx.Process(target=foo, args=(q,))
         p.start()
         print(q.get())
         p.join()
 sample3.py
-    if __name__ ==  "__main__":
+    if __name__ == "__main__":
         import multiprocessing, sys
-        if sys.platform == 'win32':  # the conditional is unecessary
-            multiprocessing.freeze_support()
+        multiprocessing.freeze_support()
         multiprocessing.set_start_method('spawn')
         mgr = multiprocessing.Manager()
         var = [1] * 10000000
@@ -80,18 +77,22 @@ setup.py
         }
     )
 """
-EXPECTED_OUTPUT = ["hello", "hello", "creating dict...done!"]
+EXPECTED_OUTPUT = [
+    "Hello from cx_Freeze",
+    "Hello from cx_Freeze",
+    "creating dict...done!",
+]
 
 
 def _parameters_data() -> Iterator:
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
-        for i, expected in enumerate(EXPECTED_OUTPUT):
+        for i, expected in enumerate(EXPECTED_OUTPUT, 1):
             if method == "forkserver" and i != 3:
                 continue  # only sample3 works with forkserver method
-            sample = f"sample{i+1}"
-            test_id = f"{sample},{method}"
+            sample = f"sample{i}"
+            test_id = f"{sample}-{method}"
             yield pytest.param(source, sample, expected, id=test_id)
 
 

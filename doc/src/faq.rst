@@ -206,14 +206,18 @@ sources.
 Multiprocessing support
 -----------------------
 
-On Linux and macOS, multiprocessing support is automatically managed by
-cx_Freeze, including supporting it in pyTorch.
+On Linux, macOS, and Windows, :pythondocs:`multiprocessing
+<library/multiprocessing.html>` support is managed by **cx_Freeze**,
+including support for PyTorch.
 
-However, to produce a Windows executable, you must use
+Depending on the platform, multiprocessing supports three ways to start a
+process. These start methods are: spawn, fork, and forkserver.
+
+However, to produce an executable, you must use
 `multiprocessing.freeze_support()`.
 
-One needs to call this function straight after the if __name__ == '__main__'
-line of the main module. For example:
+One needs to call this function straight after the
+``if __name__ == "__main__"`` line of the main module. For example:
 
   .. code-block:: python
 
@@ -228,10 +232,24 @@ line of the main module. For example:
         freeze_support()
         Process(target=f).start()
 
-If the freeze_support() line is omitted then trying to run the frozen
-executable will raise RuntimeError.
+If the `freeze_support()` line is omitted, then running the frozen executable
+will raise RuntimeError on Windows. On Linux and macOS a similar message is
+shown but cx_Freeze tries to run the program by injecting a `freeze_support`.
+In addition, if the module is being run normally by the Python interpreter on
+any OS (the program has not been frozen), then `freeze_support()` has no
+effect.
 
-Calling freeze_support() has no effect when invoked on any operating system
-other than Windows. In addition, if the module is being run normally by the
-Python interpreter on Windows (the program has not been frozen), then
-freeze_support() has no effect.
+To hide the runtime warning message, on Linux and macOS, specify in the
+:ref:`cx_freeze_build_exe` command, the :option:`constants` option with the
+value 'ignore_freeze_support_message=1'. For example, using the command line:
+
+  .. code-block:: console
+
+    cxfreeze --script test.py build_exe --constants='ignore_freeze_support_message=1'
+
+.. note::
+
+  Contrary to what the Python docs may state, you MUST use
+  `multiprocessing.freeze_support()` on Linux, macOS, and Windows.
+  On Linux and macOS, cx_Freeze patches the call to also handle
+  `multiprocessing.spawn.freeze_support()` when needed.
