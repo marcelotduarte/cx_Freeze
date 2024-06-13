@@ -11,6 +11,7 @@ from typing import ClassVar
 from setuptools import Command
 
 import cx_Freeze.icons
+from cx_Freeze import Executable
 from cx_Freeze.exception import OptionError
 
 __all__ = ["bdist_dmg"]
@@ -215,8 +216,8 @@ class bdist_dmg(Command):
             }
             self.window_rect = ((100, 100), (640, 380))
 
-        executables = self.distribution.executables  # type: ignore
-        executable = executables[0]
+        executables = self.distribution.executables  # type: list[Executable]
+        executable: Executable = executables[0]
         if len(executables) > 1:
             self.warn(
                 "using the first executable as entrypoint: "
@@ -238,6 +239,10 @@ class bdist_dmg(Command):
                 else:
                     f.write(f"{name} = {value}\n")
 
+            # Some fields expect and allow None, others don't
+            # so we need to check for None and not add them for
+            # the fields that don't allow it
+
             # Disk Image Settings
             add_param("filename", self.dmg_name)
             add_param("volume_label", self.volume_label)
@@ -248,10 +253,10 @@ class bdist_dmg(Command):
             # Content Settings
             add_param("files", self._files)
             add_param("symlinks", self._symlinks)
-            # unimplemented
-            add_param("hide", self.hide)
-            # unimplemented
-            add_param("hide_extensions", self.hide_extensions)
+            if self.hide:
+                add_param("hide", self.hide)
+            if self.hide_extensions:
+                add_param("hide_extensions", self.hide_extensions)
             # Only one of these can be set
             if self.icon_locations:
                 add_param("icon_locations", self.icon_locations)
@@ -286,25 +291,34 @@ class bdist_dmg(Command):
             add_param("grid_spacing", self.grid_spacing)
             add_param("scroll_position", self.scroll_position)
             add_param("label_pos", self.label_pos)
-            add_param("text_size", self.text_size)
-            add_param("icon_size", self.icon_size)
+            if self.text_size:
+                add_param("text_size", self.text_size)
+            if self.icon_size:
+                add_param("icon_size", self.icon_size)
             if self.icon_locations:
                 add_param("icon_locations", self.icon_locations)
 
             # List View Settings
-            add_param("list_icon_size", self.list_icon_size)
-            add_param("list_text_size", self.list_text_size)
-            add_param("list_scroll_position", self.list_scroll_position)
+            if self.list_icon_size:
+                add_param("list_icon_size", self.list_icon_size)
+            if self.list_text_size:
+                add_param("list_text_size", self.list_text_size)
+            if self.list_scroll_position:
+                add_param("list_scroll_position", self.list_scroll_position)
             add_param("list_sort_by", self.list_sort_by)
             add_param("list_use_relative_dates", self.list_use_relative_dates)
             add_param(
                 "list_calculate_all_sizes", self.list_calculate_all_sizes
             )
-            add_param("list_columns", self.list_columns)
-            add_param("list_column_widths", self.list_column_widths)
-            add_param(
-                "list_column_sort_directions", self.list_column_sort_directions
-            )
+            if self.list_columns:
+                add_param("list_columns", self.list_columns)
+            if self.list_column_widths:
+                add_param("list_column_widths", self.list_column_widths)
+            if self.list_column_sort_directions:
+                add_param(
+                    "list_column_sort_directions",
+                    self.list_column_sort_directions,
+                )
 
             # License Settings
             add_param("license", self.license)

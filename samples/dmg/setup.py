@@ -28,10 +28,6 @@ setup(
             "applications_shortcut": True,
             "volume_label": "Howdy Yall",
             "background": "builtin-arrow",
-            # "icon_locations": {
-            #     "Applications": (300, 100),
-            #     "hello.app": (100, 100),
-            # },
             "license": {
                 "default-language": "en_US",
                 "licenses": {"en_US": "Do it right, do it legal, do it safe."},
