@@ -48,11 +48,13 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
     BaseContext.freeze_support = lambda self: _spawn_freeze_support()
     DefaultContext.freeze_support = lambda self: _spawn_freeze_support()
     if _spawn_is_forking(sys.argv):
-        main_module = sys.modules["__main__"]
-        main_spec = main_module.__spec__
-        main_code = main_spec.loader.get_code(main_spec.name)
-        if "freeze_support" not in main_code.co_names:
-            print('''
+        import BUILD_CONSTANTS
+        if not getattr(BUILD_CONSTANTS, "ignore_freeze_support_message", 0):
+            main_module = sys.modules["__main__"]
+            main_spec = main_module.__spec__
+            main_code = main_spec.loader.get_code(main_spec.name)
+            if "freeze_support" not in main_code.co_names:
+                print('''
         An attempt has been made to start a new process before the
         current process has finished its bootstrapping phase.
 
@@ -64,14 +66,16 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
                 freeze_support()
                 ...
 
-        To fix this issue, refer to the documentation:\n    \
+        To fix this issue, or to hide this message, refer to the documentation:
+            \
     https://cx-freeze.readthedocs.io/en/stable/faq.html#multiprocessing-support
         ''', file=sys.stderr)
-            #import os, signal
-            #os.kill(os.getppid(), signal.SIGHUP)
-            #sys.exit(os.EX_SOFTWARE)
-            _spawn_freeze_support()
-        del main_module, main_spec, main_code
+                #import os, signal
+                #os.kill(os.getppid(), signal.SIGHUP)
+                #sys.exit(os.EX_SOFTWARE)
+            del main_module, main_spec, main_code
+        del BUILD_CONSTANTS
+        _spawn_freeze_support()
     # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)

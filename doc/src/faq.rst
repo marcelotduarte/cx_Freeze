@@ -239,6 +239,14 @@ In addition, if the module is being run normally by the Python interpreter on
 any OS (the program has not been frozen), then `freeze_support()` has no
 effect.
 
+To hide the runtime warning message, on Linux and macOS, specify in the
+:ref:`cx_freeze_build_exe` command, the :option:`constants` option with the
+value 'ignore_freeze_support_message=1'. For example, using the command line:
+
+  .. code-block:: console
+
+    cxfreeze --script test.py build_exe --constants='ignore_freeze_support_message=1'
+
 .. note::
 
   Contrary to what the Python docs may state, you MUST use
