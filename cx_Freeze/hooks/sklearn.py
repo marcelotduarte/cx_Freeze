@@ -1,5 +1,5 @@
 """A collection of functions which are triggered automatically by finder when
-scipy package is included.
+scikit-learn package is included.
 """
 
 from __future__ import annotations
