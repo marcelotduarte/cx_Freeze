@@ -11,9 +11,11 @@ import os
 import platform
 import shutil
 import stat
+from pathlib import Path
 from textwrap import dedent
 from typing import ClassVar
 from urllib.request import urlretrieve
+from zipfile import ZipFile
 
 from filelock import FileLock
 from setuptools import Command
@@ -86,18 +88,39 @@ class bdist_appimage(Command):
             )
             raise PlatformError(msg)
 
-        self.set_undefined_options("build_exe", ("build_exe", "build_dir"))
+        # inherit options
+        self.set_undefined_options(
+            "build_exe",
+            ("build_exe", "build_dir"),
+            ("silent", "silent"),
+        )
         self.set_undefined_options(
             "bdist",
             ("bdist_base", "bdist_base"),
             ("dist_dir", "dist_dir"),
             ("skip_build", "skip_build"),
         )
+        # for the bdist commands, there is a chance that build_exe has already
+        # been executed, so check skip_build if build_exe have_run
+        if not self.skip_build and self.distribution.have_run.get("build_exe"):
+            self.skip_build = 1
 
         if self.target_name is None:
-            self.target_name = self.distribution.get_name()
+            if self.distribution.metadata.name:
+                self.target_name = self.distribution.metadata.name
+            else:
+                executables = self.distribution.executables
+                executable = executables[0]
+                if len(executables) > 1:
+                    self.warn(
+                        "using the first executable as target_name: "
+                        f"{executable.target_name}"
+                    )
+                self.target_name = executable.target_name
+
         if self.target_version is None and self.distribution.metadata.version:
             self.target_version = self.distribution.metadata.version
+
         arch = platform.machine()
         name = self.target_name
         version = self.target_version or self.distribution.get_version()
@@ -114,6 +137,9 @@ class bdist_appimage(Command):
 
         if self.silent is not None:
             self.verbose = 0 if self.silent else 2
+            build_exe = self.distribution.command_obj.get("build_exe")
+            if build_exe:
+                build_exe.silent = self.silent
 
         # validate or download appimagekit
         self._get_appimagekit()
@@ -162,20 +188,32 @@ class bdist_appimage(Command):
         if os.path.exists(output):
             os.unlink(output)
 
-        # Make AppDir folder
+        # Make AppDir folder (moving files from build_exe)
         appdir = os.path.join(self.bdist_base, "AppDir")
         if os.path.exists(appdir):
             self.execute(shutil.rmtree, (appdir,), msg=f"removing {appdir}")
+        self.execute(
+            shutil.move,
+            (self.build_dir, appdir),
+            msg=f"moving {self.build_dir} -> {appdir}",
+        )
 
-        self.mkpath(appdir)
+        # Remove zip file after putting all files in the file system
+        # (appimage is a compressed file, no need of internal zip file)
+        library_data = Path(appdir, "lib", "library.dat")
+        if library_data.exists():
+            target_lib_dir = library_data.parent
+            filename = target_lib_dir / library_data.read_bytes().decode()
+            with ZipFile(filename) as outfile:
+                outfile.extractall(target_lib_dir)
+            filename.unlink()
+            library_data.unlink()
+
+        # Add icon, desktop file, entrypoint
         share_icons = os.path.join("share", "icons")
         icons_dir = os.path.join(appdir, share_icons)
         self.mkpath(icons_dir)
 
-        # Copy from build_exe
-        self.copy_tree(self.build_dir, appdir, preserve_symlinks=True)
-
-        # Add icon, desktop file, entrypoint
         executables = self.distribution.executables
         executable = executables[0]
         if len(executables) > 1:
