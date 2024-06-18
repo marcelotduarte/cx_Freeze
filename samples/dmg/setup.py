@@ -12,7 +12,12 @@ subdirectory that contains the files needed to run the script without Python
 from cx_Freeze import Executable, setup
 
 executables = [
-    Executable("hello.py", icon="../../cx_Freeze/icons/python.icns")
+    Executable(
+        script="hello.py",
+        # You can also specify an icon for the executable that will be reused for the dmg
+        # only the first executable is used for the icon
+        # icon="../../cx_Freeze/icons/python.icns" #noqa: ERA001
+    )
 ]
 
 setup(

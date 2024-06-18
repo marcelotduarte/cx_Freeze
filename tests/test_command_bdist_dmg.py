@@ -15,24 +15,13 @@ bdist_dmg = pytest.importorskip(
 if sys.platform != "darwin":
     pytest.skip(reason="macOS tests", allow_module_level=True)
 
-DIST_ATTRS = {
-    "name": "foo",
-    "version": "0.0",
-    "description": "cx_Freeze script to test bdist_mac",
-    "executables": ["hello.py"],
-    "script_name": "setup.py",
-    "author": "Marcelo Duarte",
-    "author_email": "marcelotduarte@users.noreply.github.com",
-    "url": "https://github.com/marcelotduarte/cx_Freeze/",
-}
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
+@pytest.mark.datafiles(SAMPLES_DIR / "dmg")
 def test_bdist_dmg(datafiles: Path) -> None:
     """Test the simple sample with bdist_dmg."""
-    name = "hello"
-    version = "0.1.2.3"
+    name = "Howdy Yall"
     dist_created = datafiles / "build"
 
     process = run(
@@ -49,6 +38,5 @@ def test_bdist_dmg(datafiles: Path) -> None:
         else:
             pytest.fail(process.stderr)
 
-    base_name = f"{name}-{version}"
-    file_created = dist_created / f"{base_name}.dmg"
-    assert file_created.is_file(), f"{base_name}.dmg"
+    file_created = dist_created / f"{name}.dmg"
+    assert file_created.is_file(), f"{name}.dmg"
