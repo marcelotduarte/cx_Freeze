@@ -5,9 +5,9 @@ from __future__ import annotations
 import os
 import pathlib
 import shutil
-import subprocess
 from typing import ClassVar
 
+from dmgbuild import build_dmg
 from setuptools import Command
 
 import cx_Freeze.icons
@@ -323,19 +323,19 @@ class bdist_dmg(Command):
             # License Settings
             add_param("license", self.license)
 
-        print("\n\n\n\n")
-        dmgargs = [
-            "dmgbuild",
-            "-s",
-            "settings.py",
-            self.volume_label,
-            self.dmg_name,
-        ]
+        def log_handler(msg: dict[str, str]) -> None:
+            if not self.silent:
+                loggable = f"{','.join(f'{key}: {value}' for key, value in msg.items())}"
+                # Doesn't seem to function as expected
+                # self.announce(loggable, level=DEBUG) # noqa: ERA001
+                print(loggable)
 
-        # Create the dmg
-        if subprocess.call(dmgargs) != 0:
-            msg = "creation of the dmg failed"
-            raise OSError(msg)
+        build_dmg(
+            self.dmg_name,
+            self.volume_label,
+            "settings.py",
+            callback=log_handler,
+        )
 
     def run(self) -> None:
         # Create the application bundle
