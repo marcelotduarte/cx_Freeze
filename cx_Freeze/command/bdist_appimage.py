@@ -11,6 +11,7 @@ import os
 import platform
 import shutil
 import stat
+from logging import INFO, WARNING
 from pathlib import Path
 from textwrap import dedent
 from typing import ClassVar
@@ -25,10 +26,10 @@ from cx_Freeze.exception import ExecError, PlatformError
 
 __all__ = ["bdist_appimage"]
 
-APPIMAGEKIT_URL = (
-    "https://github.com/AppImage/AppImageKit/releases/download/continuous"
-)
-APPIMAGEKIT_TOOL = os.path.expanduser("~/.local/bin/appimagetool")
+ARCH = platform.machine()
+APPIMAGEKIT_URL = "https://github.com/AppImage/AppImageKit/releases"
+APPIMAGEKIT_PATH = f"download/continuous/appimagetool-{ARCH}.AppImage"
+APPIMAGEKIT_TOOL = "~/.local/bin/appimagetool"
 
 
 class bdist_appimage(Command):
@@ -51,7 +52,11 @@ class bdist_appimage(Command):
             "b",
             "directory of built executables and dependent files",
         ),
-        ("dist-dir=", "d", "directory to put final built distributions in"),
+        (
+            "dist-dir=",
+            "d",
+            "directory to put final built distributions in [default: dist]",
+        ),
         (
             "skip-build",
             None,
@@ -68,7 +73,6 @@ class bdist_appimage(Command):
 
     def initialize_options(self) -> None:
         self.appimagekit = None
-        self._appimage_extract_and_run = False
 
         self.bdist_base = None
         self.build_dir = None
@@ -79,6 +83,8 @@ class bdist_appimage(Command):
         self.target_version = None
         self.fullname = None
         self.silent = None
+
+        self._warnings = []
 
     def finalize_options(self) -> None:
         if os.name != "posix":
@@ -111,28 +117,26 @@ class bdist_appimage(Command):
             else:
                 executables = self.distribution.executables
                 executable = executables[0]
-                if len(executables) > 1:
-                    self.warn(
-                        "using the first executable as target_name: "
-                        f"{executable.target_name}"
-                    )
+                self.warn_delayed(
+                    "using the first executable as target_name: "
+                    f"{executable.target_name}"
+                )
                 self.target_name = executable.target_name
 
         if self.target_version is None and self.distribution.metadata.version:
             self.target_version = self.distribution.metadata.version
 
-        arch = platform.machine()
         name = self.target_name
-        version = self.target_version or self.distribution.get_version()
+        version = self.target_version
         name, ext = os.path.splitext(name)
         if ext == ".AppImage":
             self.app_name = self.target_name
             self.fullname = name
-        elif self.target_version:
-            self.app_name = f"{name}-{version}-{arch}.AppImage"
+        elif version:
+            self.app_name = f"{name}-{version}-{ARCH}.AppImage"
             self.fullname = f"{name}-{version}"
         else:
-            self.app_name = f"{name}-{arch}.AppImage"
+            self.app_name = f"{name}-{ARCH}.AppImage"
             self.fullname = name
 
         if self.silent is not None:
@@ -146,22 +150,21 @@ class bdist_appimage(Command):
 
     def _get_appimagekit(self) -> None:
         """Fetch AppImageKit from the web if not available locally."""
-        if self.appimagekit is None:
-            self.appimagekit = APPIMAGEKIT_TOOL
-        appimagekit = self.appimagekit
+        appimagekit = os.path.expanduser(self.appimagekit or APPIMAGEKIT_TOOL)
         appimagekit_dir = os.path.dirname(appimagekit)
         self.mkpath(appimagekit_dir)
         with FileLock(appimagekit + ".lock"):
             if not os.path.exists(appimagekit):
                 self.announce(
-                    f"download and install AppImageKit from {APPIMAGEKIT_URL}"
+                    f"download and install AppImageKit from {APPIMAGEKIT_URL}",
+                    INFO,
                 )
-                arch = platform.machine()
-                name = f"appimagetool-{arch}.AppImage"
+                name = os.path.basename(APPIMAGEKIT_PATH)
                 filename = os.path.join(appimagekit_dir, name)
                 if not os.path.exists(filename):
                     urlretrieve(  # noqa: S310
-                        os.path.join(APPIMAGEKIT_URL, name), filename
+                        os.path.join(APPIMAGEKIT_URL, APPIMAGEKIT_PATH),
+                        filename,
                     )
                     os.chmod(filename, stat.S_IRWXU)
                 if not os.path.exists(appimagekit):
@@ -170,11 +173,7 @@ class bdist_appimage(Command):
                         (filename, appimagekit),
                         msg=f"linking {appimagekit} -> {filename}",
                     )
-
-            try:
-                self.spawn([appimagekit, "--version"])
-            except Exception:  # noqa: BLE001
-                self._appimage_extract_and_run = True
+        self.appimagekit = appimagekit
 
     def run(self) -> None:
         # Create the application bundle
@@ -217,7 +216,7 @@ class bdist_appimage(Command):
         executables = self.distribution.executables
         executable = executables[0]
         if len(executables) > 1:
-            self.warn(
+            self.warn_delayed(
                 "using the first executable as entrypoint: "
                 f"{executable.target_name}"
             )
@@ -245,7 +244,7 @@ class bdist_appimage(Command):
             Icon=/{share_icons}/{os.path.splitext(icon_name)[0]}
             Categories=Development;
             Terminal=true
-            X-AppImage-Arch={platform.machine()}
+            X-AppImage-Arch={ARCH}
             X-AppImage-Name={self.target_name}
             X-AppImage-Version={self.target_version or ''}
         """
@@ -268,15 +267,23 @@ class bdist_appimage(Command):
         )
 
         # Build an AppImage from an AppDir
-        os.environ["ARCH"] = platform.machine()
+        try:
+            self.spawn([self.appimagekit, "--version"], search_path=0)
+            appimage_extract_and_run = False
+        except Exception:  # noqa: BLE001
+            appimage_extract_and_run = True
+
+        os.environ["ARCH"] = ARCH
         cmd = [self.appimagekit, "--no-appstream", appdir, output]
-        if self._appimage_extract_and_run:
+        if appimage_extract_and_run:
             cmd.insert(1, "--appimage-extract-and-run")
         with FileLock(self.appimagekit + ".lock"):
-            self.spawn(cmd)
+            self.spawn(cmd, search_path=0)
         if not os.path.exists(output):
             msg = "Could not build AppImage"
             raise ExecError(msg)
+
+        self.warnings()
 
     def save_as_file(self, data, outfile, mode="r") -> tuple[str, int]:
         """Save an input data to a file respecting verbose, dry-run and force
@@ -284,10 +291,10 @@ class bdist_appimage(Command):
         """
         if not self.force and os.path.exists(outfile):
             if self.verbose >= 1:
-                self.warn(f"not creating {outfile} (output exists)")
+                self.warn_delayed(f"not creating {outfile} (output exists)")
             return (outfile, 0)
         if self.verbose >= 1:
-            self.announce(f"creating {outfile}")
+            self.announce(f"creating {outfile}", INFO)
 
         if self.dry_run:
             return (outfile, 1)
@@ -303,3 +310,10 @@ class bdist_appimage(Command):
             st_mode = st_mode | stat.S_IXUSR
         os.chmod(outfile, st_mode)
         return (outfile, 1)
+
+    def warn_delayed(self, msg) -> None:
+        self._warnings.append(msg)
+
+    def warnings(self) -> None:
+        for msg in self._warnings:
+            self.announce(f"WARNING: {msg}", WARNING)
