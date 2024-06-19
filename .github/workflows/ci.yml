@@ -170,8 +170,7 @@ jobs:
           uv pip install cx_Freeze --no-index --no-deps -f wheelhouse
           # enable extra test - pandas, numpy
           if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            source .venv/bin/activate
-            pip install -i https://pypi.anaconda.org/intel/simple numpy
+            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
           fi
           uv pip install pandas
 

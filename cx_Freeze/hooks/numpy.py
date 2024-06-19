@@ -35,54 +35,57 @@ if TYPE_CHECKING:
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 1.26.4).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.0.0).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # numpy >= 1.26.0
         finder.include_files(source_dir, f"lib/{source_dir.name}")
         replace_delvewheel_patch(module)
 
-    # Exclude all tests and unnecessary modules.
-    for mod in [
-        "array_api.tests",
-        "conftest",
-        "compat.tests",
-        "core.tests",
-        "distutils",
-        "distutils.tests",
-        "f2py.tests",
-        "fft.tests",
-        "lib.tests",
-        "linalg.tests",
-        "ma.tests",
-        "matrixlib.tests",
-        "polynomial.tests",
-        "_pyinstaller",
-        "random._examples",
-        "random.tests",
-        "testing.tests",
-        "tests",
-        "typing.tests",
-    ]:
-        finder.exclude_module(f"numpy.{mod}")
+    distribution = module.distribution
+
+    # Exclude all tests
+    if distribution:
+        tests = set()
+        for file in distribution.original.files:
+            if file.parent.match("**/tests"):
+                tests.add(file.parent.as_posix().replace("/", "."))
+        for test in tests:
+            finder.exclude_module(test)
+
+        # Include dynamically loaded module / exclude unnecessary modules
+        if distribution.version >= (2, 0):
+            finder.include_package("numpy._core._exceptions")
+            finder.include_package("numpy._core._dtype_ctypes")
+            finder.include_package("numpy._core._methods")
+            finder.include_package("numpy._core._multiarray_tests")
+            finder.exclude_module("numpy._core.include")
+            finder.exclude_module("numpy._core.lib")
+        else:
+            finder.include_package("numpy.core._exceptions")
+            finder.include_package("numpy.core._dtype_ctypes")
+            finder.include_package("numpy.core._methods")
+            finder.include_package("numpy.core._multiarray_tests")
+            finder.exclude_module("numpy.core.include")
+            finder.exclude_module("numpy.core.lib")
+    else:
+        finder.include_package("numpy.core")
+
+    # Exclude unnecessary modules
+    finder.exclude_module("numpy.conftest")
+    finder.exclude_module("numpy.distutils")
+    finder.exclude_module("numpy._pyinstaller")
+    finder.exclude_module("numpy.random._examples")
+
     # Include dynamically loaded module
-    finder.include_package("numpy.core")  # numpy.core._dtype_ctypes
     finder.include_module("numpy.lib.format")
     finder.include_module("numpy.polynomial")
     finder.include_module("secrets")
 
 
-def load_numpy_core__add_newdocs(
-    finder: ModuleFinder,
-    module: Module,  # noqa: ARG001
-) -> None:
-    """Include module used by the numpy.core._add_newdocs module."""
-    finder.include_module("numpy.core._multiarray_tests")
-
-
-def load_numpy_core_overrides(finder: ModuleFinder, module: Module) -> None:
-    """Recompile the numpy.core.overrides module to limit optimization by
-    avoiding removing docstrings, which are required for this module.
+def load_numpy__core_overrides(finder: ModuleFinder, module: Module) -> None:
+    """Recompile the numpy._core.overrides module to workaround optimization
+    that removes docstrings, which are required for this module.
     """
     code_string = module.file.read_text(encoding="utf_8")
     module.code = compile(
@@ -90,8 +93,11 @@ def load_numpy_core_overrides(finder: ModuleFinder, module: Module) -> None:
         module.file.as_posix(),
         "exec",
         dont_inherit=True,
-        optimize=min(finder.optimize, 1),
+        optimize=finder.optimize,
     )
+
+
+load_numpy_core_overrides = load_numpy__core_overrides  # numpy < 2.0
 
 
 def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:

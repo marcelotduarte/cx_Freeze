@@ -32,18 +32,11 @@ def replace_delvewheel_patch(
                 source = f"""\
                 def {name}():
                     import os, sys
-
-                    libs_path = os.path.join(
+                    libs_dir = os.path.join(
                         sys.frozen_dir, "lib", "{libs_name}"
                     )
-                    try:
-                        os.add_dll_directory(libs_path)
-                    except (OSError, AttributeError):
-                        pass
-                    env_path = os.environ.get("PATH", "").split(os.pathsep)
-                    if libs_path not in env_path:
-                        env_path.insert(0, libs_path)
-                        os.environ["PATH"] = os.pathsep.join(env_path)
+                    if os.path.isdir(libs_dir):
+                        os.add_dll_directory(libs_dir)
                 """
                 code = code_object_replace_function(code, name, source)
                 break
