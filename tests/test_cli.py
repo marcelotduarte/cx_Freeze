@@ -89,12 +89,15 @@ def test_cxfreeze_without_options(tmp_path: Path) -> None:
         run_command(tmp_path, "cxfreeze")
 
 
+@pytest.mark.skipif(sys.version_info >= (3, 11), reason="Python >= 3.11")
 def test_import_tomli(monkeypatch) -> None:
     """Test using tomli as a last resort."""
-    if sys.version_info >= (3, 11):
-        monkeypatch.delattr("tomllib.loads")
-    with contextlib.suppress(AttributeError, ModuleNotFoundError):
-        monkeypatch.delattr("setuptools.extern.tomli.loads")
+    try:
+        import_module("setuptools.extern")
+        with contextlib.suppress(AttributeError):
+            monkeypatch.delattr("setuptools.extern.tomli.loads")
+    except ModuleNotFoundError as exc:
+        pytest.xfail(reason=f"ImportError: {exc.args[0]}")
     try:
         pyproject = import_module("cx_Freeze._pyproject")
     except ImportError as exc:
