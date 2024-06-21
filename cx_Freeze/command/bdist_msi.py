@@ -194,8 +194,8 @@ class bdist_msi(Command):
                 ("PrepareDlg", None, 140),
                 ("A_SET_TARGET_DIR", 'TARGETDIR=""', 401),
                 ("A_SET_REINSTALL_MODE", 'REINSTALLMODE=""', 402),
-                ("LicenseAgreementDlg", "not Installed", 1220),
-                ("SelectDirectoryDlg", "not Installed", 1210),
+                ("SelectDirectoryDlg", "not Installed", 1230),
+                ("LicenseAgreementDlg", "not Installed", 1240),
                 (
                     "MaintenanceTypeDlg",
                     "Installed and not Resume and not Preselected",
