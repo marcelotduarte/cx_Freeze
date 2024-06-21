@@ -37,8 +37,11 @@ class bdist_dmg(Command):
         (
             "size=",
             None,
-            "If defined, specifies the size of the filesystem within the image. If this is not defined, cx_Freeze (and then dmgbuild) will attempt to determine a reasonable size for the image. "
-            "If you set this, you should set it large enough to hold the files you intend to copy into the image. The syntax is the same as for the -size argument to hdiutil, i.e. you can use the suffixes `b`, `k`, `m`, `g`, `t`, `p` and `e` for bytes, kilobytes, megabytes, gigabytes, terabytes, exabytes and petabytes respectively.",
+            "If defined, specifies the size of the filesystem within the image. "
+            "If this is not defined, cx_Freeze (and then dmgbuild) will attempt to determine a reasonable size for the image. "
+            "If you set this, you should set it large enough to hold the files you intend to copy into the image. The syntax is "
+            "the same as for the -size argument to hdiutil, i.e. you can use the suffixes `b`, `k`, `m`, `g`, `t`, `p` and `e` for "
+            "bytes, kilobytes, megabytes, gigabytes, terabytes, exabytes and petabytes respectively.",
         ),
         (
             "background",
@@ -75,7 +78,10 @@ class bdist_dmg(Command):
             "window-rect",
             None,
             "Window rectangle in the form x,y,width,height"
-            "The position of the window in ((x, y), (w, h)) format, with y co-ordinates running from bottom to top. The Finder makes sure that the window will be on the user's display, so if you want your window at the top left of the display you could use (0, 100000) as the x, y co-ordinates. Unfortunately it doesn't appear to be possible to position the window relative to the top left or relative to the centre of the user's screen.",
+            "The position of the window in ((x, y), (w, h)) format, with y co-ordinates running from bottom to top. The Finder "
+            " makes sure that the window will be on the user's display, so if you want your window at the top left of the display "
+            "you could use (0, 100000) as the x, y co-ordinates. Unfortunately it doesn't appear to be possible to position the "
+            "window relative to the top left or relative to the centre of the user's screen.",
         ),
         (
             "icon-locations",
@@ -125,6 +131,10 @@ class bdist_dmg(Command):
         self.icon_locations = None
         self.default_view = None
         self.show_icon_preview = False
+        self.license = None
+
+
+        # Non-exposed options
         self.include_icon_view_settings = "auto"
         self.include_list_view_settings = "auto"
         self.arrange_by = None
@@ -143,7 +153,6 @@ class bdist_dmg(Command):
         self.list_columns = None
         self.list_column_widths = None
         self.list_column_sort_directions = None
-        self.license = None
 
     def finalize_options(self) -> None:
         if not self.volume_label:
@@ -326,9 +335,7 @@ class bdist_dmg(Command):
         def log_handler(msg: dict[str, str]) -> None:
             if not self.silent:
                 loggable = f"{','.join(f'{key}: {value}' for key, value in msg.items())}"
-                # Doesn't seem to function as expected
-                # self.announce(loggable, level=DEBUG) # noqa: ERA001
-                print(loggable)
+                self.announce(loggable)
 
         build_dmg(
             self.dmg_name,
