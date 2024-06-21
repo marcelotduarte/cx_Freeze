@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import pathlib
 import shutil
 from typing import ClassVar
 
@@ -236,13 +235,13 @@ class bdist_dmg(Command):
             icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
             self.icon = os.path.join(icon_source_dir, icon_name)
         else:
-            self.icon = pathlib.Path(executable.icon).resolve()
+            self.icon = os.path.abspath(executable.icon)
 
         with open("settings.py", "w") as f:
 
             def add_param(name, value) -> None:
                 # if value is a string, add quotes
-                if isinstance(value, (str, pathlib.Path)):
+                if isinstance(value, (str)):
                     f.write(f"{name} = '{value}'\n")
                 else:
                     f.write(f"{name} = {value}\n")
