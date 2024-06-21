@@ -133,7 +133,6 @@ class bdist_dmg(Command):
         self.show_icon_preview = False
         self.license = None
 
-
         # Non-exposed options
         self.include_icon_view_settings = "auto"
         self.include_list_view_settings = "auto"
