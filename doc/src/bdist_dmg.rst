@@ -56,7 +56,7 @@ installation.
    * - .. option:: icon-locations
      - A dictionary specifying the co-ordinates of items in the root directory of
        the disk image, where the keys are filenames and the values are (x, y)
-       tuples. For example, 
+       tuples. For example,
        icon-locations = { "Applications": (100, 100), "README.txt": (200, 100) }
    * - .. option:: default-view
      - The default view of the Finder window. Possible values are
