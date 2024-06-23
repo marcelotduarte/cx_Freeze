@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Iterator
 import pytest
 from generate_samples import create_package, run_command
 
-from cx_Freeze._compat import BUILD_EXE_DIR, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -16,9 +16,20 @@ pytest.importorskip(
     "multiprocess", reason="Depends on extra package: multiprocess"
 )
 
-SUFFIX = ".exe" if (IS_MINGW or IS_WINDOWS) else ""
-
 SOURCE = """\
+sample0.py
+    from multiprocess import Pool, freeze_support, set_start_method
+
+    def foo(n):
+        return f"Hello from cx_Freeze #{n}"
+
+    if __name__ == "__main__":
+        freeze_support()
+        set_start_method('spawn')
+        with Pool() as pool:
+            results = pool.map(foo, range(10))
+        for line in sorted(results):
+            print(line)
 sample1.py
     import multiprocess as mp
 
@@ -63,11 +74,7 @@ setup.py
         name="test_multiprocess",
         version="0.1",
         description="Sample for test with cx_Freeze",
-        executables=[
-            Executable("sample1.py"),
-            Executable("sample2.py"),
-            Executable("sample3.py"),
-        ],
+        executables=["sample0.py", "sample1.py", "sample2.py", "sample3.py"],
         options={
             "build_exe": {
                 "excludes": ["tkinter"],
@@ -77,6 +84,7 @@ setup.py
     )
 """
 EXPECTED_OUTPUT = [
+    "Hello from cx_Freeze #9",
     "Hello from cx_Freeze",
     "Hello from cx_Freeze",
     "creating dict...done!",
@@ -89,7 +97,7 @@ def _parameters_data() -> Iterator:
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
-        for i, expected in enumerate(EXPECTED_OUTPUT, 1):
+        for i, expected in enumerate(EXPECTED_OUTPUT):
             if method == "forkserver" and i != 3:
                 continue  # only sample3 works with forkserver method
             sample = f"sample{i}"
@@ -105,7 +113,7 @@ def test_multiprocess(
     create_package(tmp_path, source)
     output = run_command(tmp_path)
     target_dir = tmp_path / BUILD_EXE_DIR
-    executable = target_dir / f"{sample}{SUFFIX}"
+    executable = target_dir / f"{sample}{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(target_dir, executable, timeout=10)
     assert output.splitlines()[-1] == expected

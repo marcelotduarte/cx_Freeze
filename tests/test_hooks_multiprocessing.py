@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import multiprocessing as mp
 from typing import TYPE_CHECKING, Iterator
 
 import pytest
@@ -14,6 +13,19 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 SOURCE = """\
+sample0.py
+    from multiprocessing import Pool, freeze_support, set_start_method
+
+    def foo(n):
+        return f"Hello from cx_Freeze #{n}"
+
+    if __name__ == "__main__":
+        freeze_support()
+        set_start_method('spawn')
+        with Pool() as pool:
+            results = pool.map(foo, range(10))
+        for line in sorted(results):
+            print(line)
 sample1.py
     import multiprocessing
 
@@ -59,6 +71,7 @@ setup.py
         version="0.1",
         description="Sample for test with cx_Freeze",
         executables=[
+            Executable("sample0.py"),
             Executable("sample1.py"),
             Executable("sample2.py"),
             Executable("sample3.py"),
@@ -72,6 +85,7 @@ setup.py
     )
 """
 EXPECTED_OUTPUT = [
+    "Hello from cx_Freeze #9",
     "Hello from cx_Freeze",
     "Hello from cx_Freeze",
     "creating dict...done!",
@@ -79,10 +93,12 @@ EXPECTED_OUTPUT = [
 
 
 def _parameters_data() -> Iterator:
+    import multiprocessing as mp
+
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
-        for i, expected in enumerate(EXPECTED_OUTPUT, 1):
+        for i, expected in enumerate(EXPECTED_OUTPUT):
             if method == "forkserver" and i != 3:
                 continue  # only sample3 works with forkserver method
             sample = f"sample{i}"
