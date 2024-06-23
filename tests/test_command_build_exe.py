@@ -3,26 +3,19 @@
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
-from sysconfig import get_platform, get_python_version
 
 import pytest
 from generate_samples import SUB_PACKAGE_TEST, create_package, run_command
 from setuptools import Distribution
 
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_WINDOWS
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 from cx_Freeze.executable import Executable
 
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = os.path.normpath(f"build/exe.{PLATFORM}-{PYTHON_VERSION}")
-
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
-IS_WINDOWS = sys.platform == "win32"
-SUFFIX = ".exe" if IS_WINDOWS else ""
 
 OUTPUT1 = "Hello from cx_Freeze Advanced #1\nTest freeze module #1\n"
 OUTPUT2 = "Hello from cx_Freeze Advanced #2\nTest freeze module #2\n"
@@ -42,7 +35,7 @@ DIST_ATTRS = {
     [
         pytest.param(
             {"build_exe": None},
-            {"build_exe": BUILD_EXE_DIR},
+            {"build_exe": os.path.normpath(BUILD_EXE_DIR)},
             id="build-exe=none",
         ),
         pytest.param(
@@ -213,10 +206,14 @@ def test_build_exe_finalize_options_raises(
     ("build_args", "expected"),
     [
         pytest.param(
-            [], {"build_exe": BUILD_EXE_DIR}, id="--build-exe(notused)"
+            [],
+            {"build_exe": os.path.normpath(BUILD_EXE_DIR)},
+            id="--build-exe(notused)",
         ),
         pytest.param(
-            ["--build-exe="], {"build_exe": BUILD_EXE_DIR}, id="--build-exe="
+            ["--build-exe="],
+            {"build_exe": os.path.normpath(BUILD_EXE_DIR)},
+            id="--build-exe=",
         ),
         pytest.param(
             ["--build-exe=dist"], {"build_exe": "dist"}, id="--build-exe=dist"
@@ -379,12 +376,12 @@ def test_build_exe_advanced(datafiles: Path) -> None:
         datafiles, "python setup.py build_exe --silent --excludes=tkinter"
     )
 
-    executable = datafiles / BUILD_EXE_DIR / f"advanced_1{SUFFIX}"
+    executable = datafiles / BUILD_EXE_DIR / f"advanced_1{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(datafiles, executable, timeout=10)
     assert output == OUTPUT1
 
-    executable = datafiles / BUILD_EXE_DIR / f"advanced_2{SUFFIX}"
+    executable = datafiles / BUILD_EXE_DIR / f"advanced_2{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(datafiles, executable, timeout=10)
     assert output == OUTPUT2
@@ -395,7 +392,7 @@ def test_build_exe_asmodule(datafiles: Path) -> None:
     """Test the asmodule sample."""
     output = run_command(datafiles, BUILD_EXE_CMD)
 
-    executable = datafiles / BUILD_EXE_DIR / f"asmodule{SUFFIX}"
+    executable = datafiles / BUILD_EXE_DIR / f"asmodule{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(datafiles, executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
@@ -406,7 +403,7 @@ def test_build_exe_sqlite(datafiles: Path) -> None:
     """Test the sqlite sample."""
     output = run_command(datafiles, BUILD_EXE_CMD)
 
-    executable = datafiles / BUILD_EXE_DIR / f"test_sqlite3{SUFFIX}"
+    executable = datafiles / BUILD_EXE_DIR / f"test_sqlite3{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(datafiles, executable, timeout=10)
     assert output.startswith("dump.sql created")
@@ -421,7 +418,7 @@ def test_zip_include_packages(tmp_path) -> None:
         f"{BUILD_EXE_CMD} --zip-exclude-packages=* --zip-include-packages=p",
     )
 
-    executable = tmp_path / BUILD_EXE_DIR / f"main{SUFFIX}"
+    executable = tmp_path / BUILD_EXE_DIR / f"main{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
     assert output == OUTPUT_SUBPACKAGE_TEST
@@ -436,7 +433,7 @@ def test_zip_exclude_packages(tmp_path) -> None:
         f"{BUILD_EXE_CMD} --zip-exclude-packages=p --zip-include-packages=*",
     )
 
-    executable = tmp_path / BUILD_EXE_DIR / f"main{SUFFIX}"
+    executable = tmp_path / BUILD_EXE_DIR / f"main{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
     assert output == OUTPUT_SUBPACKAGE_TEST

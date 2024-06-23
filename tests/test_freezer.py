@@ -3,22 +3,25 @@
 from __future__ import annotations
 
 import sys
-from sysconfig import get_config_vars, get_python_version
+from sysconfig import get_config_vars
 from typing import TYPE_CHECKING, Any, NoReturn
 
 import pytest
 from generate_samples import create_package, run_command
 
 from cx_Freeze import Executable, Freezer
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import (
+    BUILD_EXE_DIR,
+    EXE_SUFFIX,
+    IS_MACOS,
+    IS_MINGW,
+    IS_WINDOWS,
+    PYTHON_VERSION,
+)
 from cx_Freeze.exception import OptionError
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-SUFFIX = ".exe" if (IS_MINGW or IS_WINDOWS) else ""
 
 SOURCE = """
 hello.py
@@ -363,7 +366,7 @@ def test_freezer_zip_filename(
         else:
             assert getattr(freezer, option) == value
 
-    executable = target_dir / f"hello{SUFFIX}"
+    executable = target_dir / f"hello{EXE_SUFFIX}"
     assert executable.is_file()
 
     output = run_command(tmp_path, executable, timeout=10)

@@ -5,20 +5,15 @@ from __future__ import annotations
 import shutil
 import sys
 from pathlib import Path
-from sysconfig import get_platform, get_python_version
 
 import pytest
 from generate_samples import create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze import Executable
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_WINDOWS
 from cx_Freeze.exception import OptionError, SetupError
 
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-IS_WINDOWS = sys.platform == "win32"
-SUFFIX = ".exe" if IS_WINDOWS else ""
 TOP_DIR = Path(__file__).resolve().parent.parent
 
 SOURCE_SETUP_TOML = """
@@ -211,7 +206,7 @@ def test_executables(
     output = run_command(tmp_path)
 
     for i in range(1, number_of_executables):
-        file_created = tmp_path / BUILD_EXE_DIR / f"test_{i}{SUFFIX}"
+        file_created = tmp_path / BUILD_EXE_DIR / f"test_{i}{EXE_SUFFIX}"
         assert file_created.is_file(), f"file not found: {file_created}"
 
         output = run_command(tmp_path, file_created, timeout=10)
@@ -227,9 +222,9 @@ def test_executables(
         ("base", "service", "Win32Service-" if IS_WINDOWS else "console-"),
         ("init_script", None, "console.py"),
         ("init_script", "console", "console.py"),
-        ("target_name", None, f"test{SUFFIX}"),
-        ("target_name", "test1", f"test1{SUFFIX}"),
-        ("target_name", "test-0.1", f"test-0.1{SUFFIX}"),
+        ("target_name", None, f"test{EXE_SUFFIX}"),
+        ("target_name", "test1", f"test1{EXE_SUFFIX}"),
+        ("target_name", "test-0.1", f"test-0.1{EXE_SUFFIX}"),
         ("target_name", "test.exe", "test.exe"),
         ("icon", "icon", ("icon.ico", "icon.icns", "icon.png", "icon.svg")),
     ],
@@ -329,7 +324,7 @@ def test_valid_icon(tmp_path: Path) -> None:
     output = run_command(tmp_path)
     assert "WARNING: Icon file not found" not in output, "icon file not found"
 
-    file_created = tmp_path / BUILD_EXE_DIR / f"test_icon{SUFFIX}"
+    file_created = tmp_path / BUILD_EXE_DIR / f"test_icon{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
     output = run_command(tmp_path, file_created, timeout=10)
@@ -399,14 +394,14 @@ def test_executable_rename(tmp_path: Path) -> None:
     """Test if the executable can be renamed."""
     create_package(tmp_path, SOURCE_RENAME)
     output = run_command(tmp_path)
-    file_created = tmp_path / BUILD_EXE_DIR / f"test_0{SUFFIX}"
+    file_created = tmp_path / BUILD_EXE_DIR / f"test_0{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
     output = run_command(tmp_path, file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
     file_renamed = file_created.rename(
-        file_created.parent / "test_zero{SUFFIX}"
+        file_created.parent / "test_zero{EXE_SUFFIX}"
     )
     output = run_command(tmp_path, file_renamed, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
