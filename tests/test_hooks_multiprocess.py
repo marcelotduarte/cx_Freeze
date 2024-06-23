@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from sysconfig import get_platform, get_python_version
 from typing import TYPE_CHECKING, Iterator
 
 import pytest
@@ -13,8 +12,10 @@ from cx_Freeze._compat import BUILD_EXE_DIR, IS_MINGW, IS_WINDOWS
 if TYPE_CHECKING:
     from pathlib import Path
 
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
+pytest.importorskip(
+    "multiprocess", reason="Depends on extra package: multiprocess"
+)
+
 SUFFIX = ".exe" if (IS_MINGW or IS_WINDOWS) else ""
 
 SOURCE = """\
