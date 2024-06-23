@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING
 
 from generate_samples import create_package, run_command
 
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
+
 if TYPE_CHECKING:
     from pathlib import Path
 
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
 
 SOURCE = """
 test_ssl.py
