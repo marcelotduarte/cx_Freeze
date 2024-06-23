@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from sysconfig import get_platform, get_python_version
 
 import pytest
 from generate_samples import run_command
 
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-IS_WINDOWS = sys.platform == "win32"
-SUFFIX = ".exe" if IS_WINDOWS else ""
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
+
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
@@ -25,7 +20,7 @@ pytest.importorskip("numpy", reason="Depends on extra package: numpy")
 def test_pandas(datafiles: Path) -> None:
     """Test that the pandas/numpy is working correctly."""
     output = run_command(datafiles, "python setup.py build_exe -O2")
-    executable = datafiles / BUILD_EXE_DIR / f"test_pandas{SUFFIX}"
+    executable = datafiles / BUILD_EXE_DIR / f"test_pandas{EXE_SUFFIX}"
     assert executable.is_file()
 
     output = run_command(datafiles, executable, timeout=10)

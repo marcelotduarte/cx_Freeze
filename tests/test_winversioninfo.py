@@ -5,17 +5,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from subprocess import CalledProcessError
-from sysconfig import get_platform, get_python_version
 
 import pytest
 from generate_samples import create_package, run_command
 
+from cx_Freeze._compat import BUILD_EXE_DIR
 from cx_Freeze._packaging import Version
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
-
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
 
 SOURCE_SIMPLE_TEST = """
 test.py

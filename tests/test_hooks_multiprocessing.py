@@ -3,21 +3,15 @@
 from __future__ import annotations
 
 import multiprocessing as mp
-import sys
-from sysconfig import get_platform, get_python_version
 from typing import TYPE_CHECKING, Iterator
 
 import pytest
 from generate_samples import create_package, run_command
 
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
+
 if TYPE_CHECKING:
     from pathlib import Path
-
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-IS_WINDOWS = sys.platform == "win32"
-SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """\
 sample1.py
@@ -104,7 +98,7 @@ def test_multiprocessing(
     create_package(tmp_path, source)
     output = run_command(tmp_path)
     target_dir = tmp_path / BUILD_EXE_DIR
-    executable = target_dir / f"{sample}{SUFFIX}"
+    executable = target_dir / f"{sample}{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(target_dir, executable, timeout=10)
     assert output.splitlines()[-1] == expected
