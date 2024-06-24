@@ -5,15 +5,10 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from sysconfig import get_platform, get_python_version
 
 from generate_samples import create_package, run_command
 
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-
-SUFFIX = ".exe" if sys.platform == "win32" else ""
+from cx_Freeze._compat import EXE_SUFFIX
 
 SOURCE = """
 test.py
@@ -40,7 +35,7 @@ def test_install(tmp_path: Path) -> None:
         prefix = "base/lib/hello-0.0.0"
     install_dir = tmp_path / "root" / prefix
 
-    file_created = install_dir / f"test{SUFFIX}"
+    file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
     output = run_command(tmp_path, file_created, timeout=10)

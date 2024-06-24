@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-import sys
-from sysconfig import get_platform, get_python_version
 from typing import TYPE_CHECKING
 
 from generate_samples import create_package, run_command
 
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
+
 if TYPE_CHECKING:
     from pathlib import Path
 
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-IS_WINDOWS = sys.platform == "win32"
-SUFFIX = ".exe" if IS_WINDOWS else ""
 
 SOURCE = """
 test_ssl.py
@@ -40,7 +35,7 @@ def test_ssl(tmp_path: Path) -> None:
     """Test that the ssl is working correctly."""
     create_package(tmp_path, SOURCE)
     output = run_command(tmp_path)
-    executable = tmp_path / BUILD_EXE_DIR / f"test_ssl{SUFFIX}"
+    executable = tmp_path / BUILD_EXE_DIR / f"test_ssl{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
     assert output.splitlines()[0] == "Hello from cx_Freeze"

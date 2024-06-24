@@ -2,24 +2,17 @@
 
 from __future__ import annotations
 
-import sys
-from sysconfig import get_platform, get_python_version
 from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import create_package, run_command
 from setuptools import Distribution
 
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
 from cx_Freeze.exception import OptionError
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
-BUILD_EXE_DIR = f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
-
-SUFFIX = ".exe" if sys.platform == "win32" else ""
 
 SOURCE = """
 test.py
@@ -42,7 +35,7 @@ def test_build(tmp_path: Path) -> None:
 
     build_exe_dir = tmp_path / BUILD_EXE_DIR
 
-    file_created = build_exe_dir / f"test{SUFFIX}"
+    file_created = build_exe_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
     output = run_command(tmp_path, file_created, timeout=10)
@@ -53,7 +46,7 @@ def test_build(tmp_path: Path) -> None:
     # second run to test target_dir "starts in a clean directory"
     output = run_command(tmp_path)
 
-    file_created = build_exe_dir / f"test{SUFFIX}"
+    file_created = build_exe_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
     output = run_command(tmp_path, file_created, timeout=10)
