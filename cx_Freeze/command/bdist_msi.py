@@ -877,15 +877,11 @@ class bdist_msi(Command):
                 help=None,
             )
 
-            button = dialog.pushbutton(
+            button = dialog.nextbutton(
                 name="Next",
-                x=236,
-                y=self.height - 27,
-                w=56,
-                h=17,
-                text="Accept",
-                next="Cancel",
-                attr=1,
+                title="Accept",
+                tabnext="Cancel",
+                active=0,
             )
             button.event("SpawnWaitDialog", "SelectDirectoryDlg", ordering=1)
             button.event("EndDialog", "Return", ordering=2)
