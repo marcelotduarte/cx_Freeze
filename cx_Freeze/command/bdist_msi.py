@@ -850,7 +850,6 @@ class bdist_msi(Command):
         if self.license_file:
             with open(self.license_file, encoding="utf-8") as file:
                 license_text = file.read()
-                print(license_text)
 
             dialog = PyDialog(
                 self.db,
@@ -905,7 +904,7 @@ class bdist_msi(Command):
                 None,
             )
             # [proptery], value
-            checkbox.event("[Horse]", "1")
+            checkbox.event("[LicenseAcceptedClicked]", "1")
 
             add_data(
                 self.db,
@@ -916,7 +915,7 @@ class bdist_msi(Command):
                         "LicenseAgreementDlg",
                         "Next",
                         "Enable",
-                        "Horse",
+                        "LicenseAcceptedClicked",
                     )
                 ],
             )
