@@ -700,7 +700,7 @@ class bdist_msi(Command):
         dialog.backbutton("< Back", None, active=False)
         button = dialog.nextbutton("Next >", "Cancel")
         button.event("SetTargetPath", "TARGETDIR", ordering=1)
-        button.event("SpawnWaitDialog", "WaitForCostingDlg", ordering=2)
+        button.event("NewDialog", "WaitForCostingDlg", ordering=2)
         button.event("EndDialog", "Return", ordering=3)
         button = dialog.cancelbutton("Cancel", "DirectoryCombo")
         button.event("SpawnDialog", "CancelDlg")
@@ -877,12 +877,49 @@ class bdist_msi(Command):
                 help=None,
             )
 
-            button = dialog.nextbutton(title="Next", tabnext="Cancel")
+            button = dialog.pushbutton(
+                name="Next",
+                x=236,
+                y=self.height - 27,
+                w=56,
+                h=17,
+                text="Accept",
+                next="Cancel",
+                attr=1,
+            )
             button.event("SpawnWaitDialog", "SelectDirectoryDlg", ordering=1)
             button.event("EndDialog", "Return", ordering=2)
 
             button = dialog.cancelbutton("Cancel", tabnext="Next")
             button.event("SpawnDialog", "CancelDlg")
+
+            checkbox = dialog.checkbox(
+                "LicenseAcceptedCheckbox",
+                15,
+                230,
+                300,
+                20,
+                3,
+                "CheckboxProp",
+                "I &accept the terms in the License Agreement",
+                None,
+            )
+            # [proptery], value
+            checkbox.event("[Horse]", "1")
+
+            add_data(
+                self.db,
+                "ControlCondition",
+                # Dialog, Control , Action, Condition
+                [
+                    (
+                        "LicenseAgreementDlg",
+                        "Next",
+                        "Enable",
+                        "Horse",
+                    )
+                ],
+            )
 
     def add_wait_for_costing_dialog(self) -> None:
         dialog = Dialog(
