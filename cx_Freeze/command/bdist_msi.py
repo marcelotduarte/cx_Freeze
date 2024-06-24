@@ -117,7 +117,7 @@ class bdist_msi(Command):
         ("target-name=", None, "name of the file to create"),
         ("target-version=", None, "version of the file to create"),
         ("upgrade-code=", None, "upgrade code to use"),
-        ("license-file=", None, "license file to include in the installer"),
+        ("license-file=", None, "rft formatted license file to include in the installer"),
     ]
 
     boolean_options: ClassVar[list[str]] = [

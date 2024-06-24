@@ -62,6 +62,8 @@ command:
        and an executable. Additional allowed keys are `argument` to specify
        the invocation of the executable, `mime` for the extension’s mime type,
        and `context` for the context menu text.
+   * - .. option:: license-file
+     - path to an rtf formmated file to be used as the license agreement.
 
 .. versionadded:: 6.7
     ``extensions`` option.
