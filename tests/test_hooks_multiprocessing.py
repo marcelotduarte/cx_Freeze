@@ -22,7 +22,7 @@ sample0.py
     if __name__ == "__main__":
         freeze_support()
         set_start_method('spawn')
-        with Pool() as pool:
+        with Pool(2) as pool:
             results = pool.map(foo, range(10))
         for line in sorted(results):
             print(line)

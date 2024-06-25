@@ -26,7 +26,7 @@ sample0.py
     if __name__ == "__main__":
         freeze_support()
         set_start_method('spawn')
-        with Pool() as pool:
+        with Pool(2) as pool:
             results = pool.map(foo, range(10))
         for line in sorted(results):
             print(line)
@@ -115,5 +115,7 @@ def test_multiprocess(
     target_dir = tmp_path / BUILD_EXE_DIR
     executable = target_dir / f"{sample}{EXE_SUFFIX}"
     assert executable.is_file()
-    output = run_command(target_dir, executable, timeout=10)
+    # use a higher timeout because when using dill it is up to 25x slower
+    # sample3 using multiprocessing/pickler runs in 0,543s x 13,591s
+    output = run_command(target_dir, executable, timeout=30)
     assert output.splitlines()[-1] == expected

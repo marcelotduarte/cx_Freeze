@@ -4,8 +4,6 @@ multiprocess package is included.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from cx_Freeze.hooks.multiprocessing import (
     load_multiprocessing as load_multiprocess,
 )
@@ -28,7 +26,7 @@ from cx_Freeze.hooks.multiprocessing import (
     load_multiprocessing_popen_spawn_win32 as load_multiprocess_popen_spawn_win32,
 )
 from cx_Freeze.hooks.multiprocessing import (
-    load_multiprocessing_reduction,
+    load_multiprocessing_reduction as load_multiprocess_reduction,
 )
 from cx_Freeze.hooks.multiprocessing import (
     load_multiprocessing_resource_tracker as load_multiprocess_resource_tracker,
@@ -49,10 +47,6 @@ from cx_Freeze.hooks.multiprocessing import (
     load_multiprocessing_util as load_multiprocess_util,
 )
 
-if TYPE_CHECKING:
-    from cx_Freeze.finder import ModuleFinder
-    from cx_Freeze.module import Module
-
 __all__ = [
     "load_multiprocess",
     "load_multiprocess_context",
@@ -69,9 +63,3 @@ __all__ = [
     "load_multiprocess_synchronize",
     "load_multiprocess_util",
 ]
-
-
-def load_multiprocess_reduction(finder: ModuleFinder, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    module.exclude_names.add("dill")
-    load_multiprocessing_reduction(finder, module)
