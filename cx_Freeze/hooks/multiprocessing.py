@@ -34,21 +34,17 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
         return
     source = rf"""
     # cx_Freeze patch start
-    import re
-    import sys
-    if len(sys.argv) >= 2 and sys.argv[-2] == "-c":
-        cmd = sys.argv[-1]
-        if re.search(r"^from {module.name}.* import main.*", cmd):
+    import re as _re
+    import sys as _sys
+    if len(_sys.argv) >= 2 and _sys.argv[-2] == "-c":
+        cmd = _sys.argv[-1]
+        if _re.search(r"^from {module.name}.* import main.*", cmd):
             exec(cmd)
-            sys.exit()
+            _sys.exit()
     # workaround: inject freeze_support call to avoid an infinite loop
-    from {module.name}.spawn import freeze_support as _spawn_freeze_support
     from {module.name}.spawn import is_forking as _spawn_is_forking
-    from {module.name}.context import BaseContext, DefaultContext
-    BaseContext.freeze_support = lambda self: _spawn_freeze_support()
-    DefaultContext.freeze_support = lambda self: _spawn_freeze_support()
-    if _spawn_is_forking(sys.argv):
-        main_module = sys.modules["__main__"]
+    if _spawn_is_forking(_sys.argv):
+        main_module = _sys.modules["__main__"]
         main_spec = main_module.__spec__
         main_code = main_spec.loader.get_code(main_spec.name)
         _names = main_code.co_names
@@ -73,11 +69,12 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
         To fix this issue, or to hide this message, refer to the documentation:
             \
     https://cx-freeze.readthedocs.io/en/stable/faq.html#multiprocessing-support
-    ''', file=sys.stderr)
+    ''', file=_sys.stderr)
             #import os, signal
             #os.kill(os.getppid(), signal.SIGHUP)
-            #sys.exit(os.EX_SOFTWARE)
-            _spawn_freeze_support()
+            #_sys.exit(os.EX_SOFTWARE)
+            from {module.name}.spawn import freeze_support as _freeze_support
+            _freeze_support()
     # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)
@@ -96,8 +93,12 @@ def load_multiprocessing_context(finder: ModuleFinder, module: Module) -> None:
         return
     if module.file.suffix == ".pyc":  # source unavailable
         return
-    source = r"""
+    source = rf"""
     # cx_Freeze patch start
+    def _freeze_support(self):
+        from {module.root.name}.spawn import freeze_support
+        freeze_support()
+    BaseContext.freeze_support = _freeze_support
     BaseContext._get_base_context = BaseContext.get_context
     def _get_base_context(self, method=None):
         self.freeze_support()
