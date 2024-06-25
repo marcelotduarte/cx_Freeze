@@ -78,6 +78,9 @@ installation.
        'Instruction text']}}
 
 
+The above options come from the `dmgbuild` package. For more information, see
+the `dmgbuild documentation <https://dmgbuild.readthedocs.io/en/latest/>`_.
+
 This is the equivalent help to specify the same options on the command line:
 
   .. code-block:: console

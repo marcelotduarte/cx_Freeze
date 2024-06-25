@@ -40,3 +40,27 @@ def test_bdist_dmg(datafiles: Path) -> None:
 
     file_created = dist_created / f"{name}.dmg"
     assert file_created.is_file(), f"{name}.dmg"
+
+
+@pytest.mark.datafiles(SAMPLES_DIR / "dmg_layout")
+def test_bdist_dmg_custom_layout(datafiles: Path) -> None:
+    """Test the simple sample with bdist_dmg."""
+    name = "Howdy Yall"
+    dist_created = datafiles / "build"
+
+    process = run(
+        [sys.executable, "setup.py", "bdist_dmg"],
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=datafiles,
+    )
+    if process.returncode != 0:
+        expected_err = "hdiutil: create failed - Resource busy"
+        if expected_err in process.stderr:
+            pytest.xfail(expected_err)
+        else:
+            pytest.fail(process.stderr)
+
+    file_created = dist_created / f"{name}.dmg"
+    assert file_created.is_file(), f"{name}.dmg"
