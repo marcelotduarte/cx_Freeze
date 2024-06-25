@@ -704,7 +704,7 @@ class bdist_msi(Command):
         dialog.backbutton("< Back", None, active=False)
         button = dialog.nextbutton("Next >", "Cancel")
         button.event("SetTargetPath", "TARGETDIR", ordering=1)
-        button.event("NewDialog", "WaitForCostingDlg", ordering=2)
+        button.event("SpawnWaitDialog", "WaitForCostingDlg", ordering=2)
         button.event("EndDialog", "Return", ordering=3)
         button = dialog.cancelbutton("Cancel", "DirectoryCombo")
         button.event("SpawnDialog", "CancelDlg")
