@@ -11,7 +11,7 @@ from generate_samples import create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze import Executable
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.exception import OptionError, SetupError
 
 TOP_DIR = Path(__file__).resolve().parent.parent
@@ -218,8 +218,16 @@ def test_executables(
     [
         ("base", None, "console-"),
         ("base", "console", "console-"),
-        ("base", "gui", "Win32GUI-" if IS_WINDOWS else "console-"),
-        ("base", "service", "Win32Service-" if IS_WINDOWS else "console-"),
+        (
+            "base",
+            "gui",
+            "Win32GUI-" if (IS_WINDOWS or IS_MINGW) else "console-",
+        ),
+        (
+            "base",
+            "service",
+            "Win32Service-" if (IS_WINDOWS or IS_MINGW) else "console-",
+        ),
         ("init_script", None, "console.py"),
         ("init_script", "console", "console.py"),
         ("target_name", None, f"test{EXE_SUFFIX}"),
