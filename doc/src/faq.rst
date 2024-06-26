@@ -208,7 +208,9 @@ Multiprocessing support
 
 On Linux, macOS, and Windows, :pythondocs:`multiprocessing
 <library/multiprocessing.html>` support is managed by **cx_Freeze**,
-including support for PyTorch.
+including support for PyTorch
+`torch.multiprocessing <https://pytorch.org/docs/stable/multiprocessing.html>`_
+and `multiprocess <https://multiprocess.readthedocs.io/en/latest>`_.
 
 Depending on the platform, multiprocessing supports three ways to start a
 process. These start methods are: spawn, fork, and forkserver.
