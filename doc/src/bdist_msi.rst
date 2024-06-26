@@ -62,12 +62,15 @@ command:
        and an executable. Additional allowed keys are `argument` to specify
        the invocation of the executable, `mime` for the extension’s mime type,
        and `context` for the context menu text.
-   * - .. option:: license-file
+   * - .. option:: license_file
      - path to an rtf formmated file to be used as the license agreement.
+       Refer to `Windows Installer Scrollable Text
+       <https://learn.microsoft.com/en-us/windows/win32/msi/scrollabletext-control#control-attributes>`_.
 
 .. versionadded:: 6.7
     ``extensions`` option.
-
+.. versionadded:: 7.2
+    ``license_file`` option.
 
 This is the equivalent help to specify the same options on the command line:
 
