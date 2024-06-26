@@ -35,33 +35,33 @@ installation.
    * - .. option:: background
      - A rgb color in the form #3344ff, svg named color like goldenrod, a path
        to an image, or the words 'builtin-arrow'. Default is None.
-   * - .. option:: show-status-bar
+   * - .. option:: show_status_bar
      - Show the status bar in the Finder window. Default is False.
-   * - .. option:: show-tab-view
+   * - .. option:: show_tab_view
      - Show the tab view in the Finder window. Default is False.
-   * - .. option:: show-path-bar
+   * - .. option:: show_path_bar
      - Show the path bar in the Finder window. Default is False.
-   * - .. option:: show-sidebar
+   * - .. option:: show_sidebar
      - Show the sidebar in the Finder window. Default is False.
-   * - .. option:: sidebar-width
+   * - .. option:: sidebar_width
      - Width of the sidebar in the Finder window. Default is None.
-   * - .. option:: windows-rect
+   * - .. option:: windows_rect
      - Window rectangle in the form x,y,width,height"
-       The position of the window in ((x, y), (w, h)) format, with y co-ordinates
+       The position of the window in ((x, y), (w, h)) format, with y coordinates
        running from bottom to top. The Finder makes sure that the window will be
        on the user's display, so if you want your window at the top left of the
-       display you could use (0, 100000) as the x, y co-ordinates. Unfortunately
+       display you could use (0, 100000) as the x, y coordinates. Unfortunately
        it doesn't appear to be possible to position the window relative to the top
        left or relative to the centre of the user's screen.
-   * - .. option:: icon-locations
-     - A dictionary specifying the co-ordinates of items in the root directory of
+   * - .. option:: icon_locations
+     - A dictionary specifying the coordinates of items in the root directory of
        the disk image, where the keys are filenames and the values are (x, y)
        tuples. For example,
-       icon-locations = { "Applications": (100, 100), "README.txt": (200, 100) }
-   * - .. option:: default-view
+       icon_locations = { "Applications": (100, 100), "README.txt": (200, 100) }
+   * - .. option:: default_view
      - The default view of the Finder window. Possible values are
        "icon-view", "list-view", "column-view", "coverflow".
-   * - .. option:: show-icon-preview
+   * - .. option:: show_icon_preview
      - Show icon preview in the Finder window. Default is False.
    * - .. option:: license
      - Dictionary specifying license details with 'default-language', 'licenses', and
@@ -77,6 +77,11 @@ installation.
        'buttons': {'en_US': ['English', 'Agree', 'Disagree', 'Print', 'Save',
        'Instruction text']}}
 
+.. versionadded:: 7.2
+    ``format``, ``filesystem``, ``size``, ``background``, ``show_status_bar``,
+    ``show_tab_view``, ``show_path_bar``, ``show_sidebar``, ``sidebar_width``,
+    ``windows_rect``, ``icon_locations``, ``default_view``, ``show_icon_preview``,
+    ``license`` options.
 
 The above options come from the `dmgbuild` package. For more information, see
 the `dmgbuild documentation <https://dmgbuild.readthedocs.io/en/latest/>`_.
