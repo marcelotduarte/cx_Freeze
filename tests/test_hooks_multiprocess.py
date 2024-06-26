@@ -1,4 +1,4 @@
-"""Tests for multiprocessing."""
+"""Tests for multiprocess."""
 
 from __future__ import annotations
 
@@ -12,9 +12,13 @@ from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
 if TYPE_CHECKING:
     from pathlib import Path
 
+pytest.importorskip(
+    "multiprocess", reason="Depends on extra package: multiprocess"
+)
+
 SOURCE = """\
 sample0.py
-    from multiprocessing import Pool, freeze_support, set_start_method
+    from multiprocess import Pool, freeze_support, set_start_method
 
     def foo(n):
         return f"Hello from cx_Freeze #{n}"
@@ -27,27 +31,27 @@ sample0.py
         for line in sorted(results):
             print(line)
 sample1.py
-    import multiprocessing
+    import multiprocess as mp
 
     def foo(q):
         q.put("Hello from cx_Freeze")
 
     if __name__ == "__main__":
-        multiprocessing.freeze_support()
-        multiprocessing.set_start_method('spawn')
-        q = multiprocessing.SimpleQueue()
-        p = multiprocessing.Process(target=foo, args=(q,))
+        mp.freeze_support()
+        mp.set_start_method('spawn')
+        q = mp.SimpleQueue()
+        p = mp.Process(target=foo, args=(q,))
         p.start()
         print(q.get())
         p.join()
 sample2.py
-    import multiprocessing
+    import multiprocess as mp
 
     def foo(q):
         q.put("Hello from cx_Freeze")
 
     if __name__ == "__main__":
-        ctx = multiprocessing.get_context('spawn')
+        ctx = mp.get_context('spawn')
         ctx.freeze_support()
         q = ctx.Queue()
         p = ctx.Process(target=foo, args=(q,))
@@ -56,10 +60,10 @@ sample2.py
         p.join()
 sample3.py
     if __name__ == "__main__":
-        import multiprocessing, sys
-        multiprocessing.freeze_support()
-        multiprocessing.set_start_method('spawn')
-        mgr = multiprocessing.Manager()
+        import multiprocess as mp
+        mp.freeze_support()
+        mp.set_start_method('spawn')
+        mgr = mp.Manager()
         var = [1] * 10000000
         print("creating dict", end="...")
         mgr_dict = mgr.dict({'test': var})
@@ -67,15 +71,10 @@ sample3.py
 setup.py
     from cx_Freeze import Executable, setup
     setup(
-        name="test_multiprocessing",
+        name="test_multiprocess",
         version="0.1",
         description="Sample for test with cx_Freeze",
-        executables=[
-            Executable("sample0.py"),
-            Executable("sample1.py"),
-            Executable("sample2.py"),
-            Executable("sample3.py"),
-        ],
+        executables=["sample0.py", "sample1.py", "sample2.py", "sample3.py"],
         options={
             "build_exe": {
                 "excludes": ["tkinter"],
@@ -93,7 +92,7 @@ EXPECTED_OUTPUT = [
 
 
 def _parameters_data() -> Iterator:
-    import multiprocessing as mp
+    import multiprocess as mp
 
     methods = mp.get_all_start_methods()
     for method in methods:
@@ -107,14 +106,16 @@ def _parameters_data() -> Iterator:
 
 
 @pytest.mark.parametrize(("source", "sample", "expected"), _parameters_data())
-def test_multiprocessing(
+def test_multiprocess(
     tmp_path: Path, source: str, sample: str, expected: str
 ) -> None:
-    """Provides test cases for multiprocessing."""
+    """Provides test cases for multiprocess."""
     create_package(tmp_path, source)
     output = run_command(tmp_path)
     target_dir = tmp_path / BUILD_EXE_DIR
     executable = target_dir / f"{sample}{EXE_SUFFIX}"
     assert executable.is_file()
-    output = run_command(target_dir, executable, timeout=10)
+    # use a higher timeout because when using dill it is up to 25x slower
+    # sample3 using multiprocessing/pickler runs in 0,543s x 13,591s
+    output = run_command(target_dir, executable, timeout=30)
     assert output.splitlines()[-1] == expected

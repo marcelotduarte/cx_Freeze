@@ -32,23 +32,19 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
         return
     if module.file.suffix == ".pyc":  # source unavailable
         return
-    source = r"""
+    source = rf"""
     # cx_Freeze patch start
-    import re
-    import sys
-    if len(sys.argv) >= 2 and sys.argv[-2] == "-c":
-        cmd = sys.argv[-1]
-        if re.search(r"^from multiprocessing.* import main.*", cmd):
+    import re as _re
+    import sys as _sys
+    if len(_sys.argv) >= 2 and _sys.argv[-2] == "-c":
+        cmd = _sys.argv[-1]
+        if _re.search(r"^from {module.name}.* import main.*", cmd):
             exec(cmd)
-            sys.exit()
+            _sys.exit()
     # workaround: inject freeze_support call to avoid an infinite loop
-    from multiprocessing.spawn import freeze_support as _spawn_freeze_support
-    from multiprocessing.spawn import is_forking as _spawn_is_forking
-    from multiprocessing.context import BaseContext, DefaultContext
-    BaseContext.freeze_support = lambda self: _spawn_freeze_support()
-    DefaultContext.freeze_support = lambda self: _spawn_freeze_support()
-    if _spawn_is_forking(sys.argv):
-        main_module = sys.modules["__main__"]
+    from {module.name}.spawn import is_forking as _spawn_is_forking
+    if _spawn_is_forking(_sys.argv):
+        main_module = _sys.modules["__main__"]
         main_spec = main_module.__spec__
         main_code = main_spec.loader.get_code(main_spec.name)
         _names = main_code.co_names
@@ -73,11 +69,12 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
         To fix this issue, or to hide this message, refer to the documentation:
             \
     https://cx-freeze.readthedocs.io/en/stable/faq.html#multiprocessing-support
-    ''', file=sys.stderr)
+    ''', file=_sys.stderr)
             #import os, signal
             #os.kill(os.getppid(), signal.SIGHUP)
-            #sys.exit(os.EX_SOFTWARE)
-            _spawn_freeze_support()
+            #_sys.exit(os.EX_SOFTWARE)
+            from {module.name}.spawn import freeze_support as _freeze_support
+            _freeze_support()
     # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)
@@ -96,8 +93,12 @@ def load_multiprocessing_context(finder: ModuleFinder, module: Module) -> None:
         return
     if module.file.suffix == ".pyc":  # source unavailable
         return
-    source = r"""
+    source = rf"""
     # cx_Freeze patch start
+    def _freeze_support(self):
+        from {module.root.name}.spawn import freeze_support
+        freeze_support()
+    BaseContext.freeze_support = _freeze_support
     BaseContext._get_base_context = BaseContext.get_context
     def _get_base_context(self, method=None):
         self.freeze_support()
@@ -123,11 +124,11 @@ def load_multiprocessing_context(finder: ModuleFinder, module: Module) -> None:
 def load_multiprocessing_connection(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
     if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.update({"_winapi"})
+        module.exclude_names.add("_winapi")
     module.ignore_names.update(
         {
-            "multiprocessing.AuthenticationError",
-            "multiprocessing.BufferTooShort",
+            f"{module.root.name}.AuthenticationError",
+            f"{module.root.name}.BufferTooShort",
         }
     )
 
@@ -140,13 +141,13 @@ def load_multiprocessing_heap(_, module: Module) -> None:
 
 def load_multiprocessing_managers(_, module: Module) -> None:
     """Ignore modules not found in current os."""
-    module.ignore_names.add("multiprocessing.get_context")
+    module.ignore_names.add(f"{module.root.name}.get_context")
 
 
 def load_multiprocessing_pool(_, module: Module) -> None:
     """Ignore modules not found in current os."""
     module.ignore_names.update(
-        {"multiprocessing.TimeoutError", "multiprocessing.get_context"}
+        {f"{module.root.name}.TimeoutError", f"{module.root.name}.get_context"}
     )
 
 
@@ -170,7 +171,7 @@ def load_multiprocessing_resource_tracker(_, module: Module) -> None:
 
 def load_multiprocessing_sharedctypes(_, module: Module) -> None:
     """Ignore modules not found in current os."""
-    module.ignore_names.add("multiprocessing.get_context")
+    module.ignore_names.add(f"{module.root.name}.get_context")
 
 
 def load_multiprocessing_shared_memory(_, module: Module) -> None:
@@ -187,9 +188,16 @@ def load_multiprocessing_spawn(_, module: Module) -> None:
         module.exclude_names.update({"msvcrt", "_winapi"})
     module.ignore_names.update(
         {
-            "multiprocessing.get_start_method",
-            "multiprocessing.set_start_method",
+            f"{module.root.name}.get_start_method",
+            f"{module.root.name}.set_start_method",
         }
+    )
+
+
+def load_multiprocessing_synchronize(_, module: Module) -> None:
+    """Ignore modules not found in current OS."""
+    module.ignore_names.update(
+        {f"_{module.root.name}.SemLock", f"_{module.root.name}.sem_unlink"}
     )
 
 
