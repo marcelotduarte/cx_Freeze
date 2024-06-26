@@ -17,7 +17,8 @@ executables = [
         # You can also specify an icon for the executable that will be reused for the dmg
         # only the first executable is used for the icon
         # icon="../../cx_Freeze/icons/python.icns" #noqa: ERA001
-    )
+    ),
+    Executable(script="hello2.py"),
 ]
 
 setup(
@@ -39,6 +40,17 @@ setup(
             "show_path_bar": True,
             "show_sidebar": True,
             "sidebar_width": 150,
+            "silent": False,
+            "default_view": "icon-view",
+            "list_icon_size": 48,
+            "list_text_size": 12,
+            "list_scroll_position": (0, 0),
+            "list_columns": ["name", "size"],
+            "list_column_widths": {"name": 200, "size": 100},
+            "list_column_sort_directions": {
+                "name": "ascending",
+                "size": "ascending",
+            },
         },
     },
 )
