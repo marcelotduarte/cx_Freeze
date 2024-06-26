@@ -187,15 +187,14 @@ class bdist_appimage(Command):
         if os.path.exists(output):
             os.unlink(output)
 
-        # Make AppDir folder (moving files from build_exe)
+        # Make AppDir folder
         appdir = os.path.join(self.bdist_base, "AppDir")
         if os.path.exists(appdir):
             self.execute(shutil.rmtree, (appdir,), msg=f"removing {appdir}")
-        self.execute(
-            shutil.move,
-            (self.build_dir, appdir),
-            msg=f"moving {self.build_dir} -> {appdir}",
-        )
+        self.mkpath(appdir)
+
+        # Copy from build_exe
+        self.copy_tree(self.build_dir, appdir, preserve_symlinks=True)
 
         # Remove zip file after putting all files in the file system
         # (appimage is a compressed file, no need of internal zip file)
