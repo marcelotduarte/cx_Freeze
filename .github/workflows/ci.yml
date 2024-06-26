@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre_commit:
     runs-on: ubuntu-latest
@@ -14,15 +18,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: drivendataorg/setup-python-uv-action@main
         with:
-          cache: 'pip'
+          cache: 'packages'
           python-version: '3.12'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade uv --disable-pip-version-check
-          uv pip install --system -e.[dev,doc]
+        run: uv pip install -e.[dev,doc]
 
       - name: Run pre-commit
         run: >-
@@ -33,22 +35,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-13 ]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         include:
-          - os: macos-13
-            python-version: '3.8'
-          - os: macos-13
-            python-version: '3.9'
-          - os: macos-13
-            python-version: '3.10'
-        exclude:
-          - os: macos-latest
-            python-version: '3.8'
-          - os: macos-latest
-            python-version: '3.9'
-          - os: macos-latest
-            python-version: '3.10'
+          - os: macos-14
+            python-version: '3.11'
+          - os: macos-14
+            python-version: '3.12'
     defaults:
       run:
         shell: bash
@@ -57,9 +50,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: drivendataorg/setup-python-uv-action@main
         with:
-          cache: 'pip'
+          cache: 'packages'
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies (Linux)
@@ -67,9 +60,7 @@ jobs:
         run: sudo apt-get install -y alien fakeroot rpm
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade uv --disable-pip-version-check
-          uv pip install --system -e.[test]
+        run: uv pip install -e.[test]
 
       - name: Generate coverage report
         run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
@@ -99,15 +90,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: drivendataorg/setup-python-uv-action@main
         with:
-          cache: 'pip'
+          cache: 'packages'
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade uv --disable-pip-version-check
-          uv pip install --system -e.[test]
+        run: uv pip install -e.[test]
 
       - name: Generate coverage report
         run: |
@@ -125,7 +114,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
 
-  tests_unix_binary_wheel:
+  build_unix_binary_wheel:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -137,20 +126,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branch }}
-          repository: marcelotduarte/cx_Freeze
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: drivendataorg/setup-python-uv-action@main
         with:
-          cache: 'pip'
+          cache: 'packages'
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies - build wheel
-        run: |
-          python -m pip install --upgrade uv --disable-pip-version-check
-          uv pip install --system "`grep cibuildwheel requirements-dev.txt`"
+        run: uv pip install --system "`grep cibuildwheel requirements-dev.txt`"
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
@@ -163,21 +147,47 @@ jobs:
           name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
           path: wheelhouse
 
-      - name: Install dependencies - tests
+  tests_unix_binary_wheel:
+    needs:
+      - build_unix_binary_wheel
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: ['3.10', '3.12']
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: drivendataorg/setup-python-uv-action@main
+        with:
+          cache: 'packages'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download the artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
+          path: wheelhouse
+
+      - name: Install dependencies
         run: |
-          uv venv
           uv pip install -r requirements.txt -r requirements-test.txt
           uv pip install cx_Freeze --no-index --no-deps -f wheelhouse
-          # enable extra test - pandas, numpy
+
+      - name: Install dependencies - extra
+        run: |
           if [ "${{ matrix.python-version }}" == "3.10" ]; then
             uv pip install -i https://pypi.anaconda.org/intel/simple numpy
           fi
           uv pip install pandas
 
       - name: Generate coverage report
-        run: |
-          source .venv/bin/activate
-          pytest -nauto --cov="cx_Freeze" --cov-report=xml
+        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
