@@ -87,7 +87,8 @@ def test_bdist_msi_target_name_with_extension_1(datafiles: Path) -> None:
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_license")
 def test_bdist_msi_with_license(datafiles: Path) -> None:
     """Test the msi_license sample."""
-    msi_name = "hello-0.1-win64.msi"
+    platform = get_platform().replace("win-amd64", "win64")
+    msi_name = f"hello-0.1-{platform}.msi"
     run_command(datafiles, "python setup.py bdist_msi")
     file_created = datafiles / "dist" / msi_name
     assert file_created.is_file()
