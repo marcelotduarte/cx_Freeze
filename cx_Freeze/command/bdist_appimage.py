@@ -268,9 +268,10 @@ class bdist_appimage(Command):
         # Build an AppImage from an AppDir
         try:
             self.spawn([self.appimagekit, "--version"], search_path=0)
-            appimage_extract_and_run = False
-        except Exception:  # noqa: BLE001
+        except ExecError:
             appimage_extract_and_run = True
+        else:
+            appimage_extract_and_run = False
 
         os.environ["ARCH"] = ARCH
         cmd = [self.appimagekit, "--no-appstream", appdir, output]
