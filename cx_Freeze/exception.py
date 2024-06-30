@@ -1,11 +1,14 @@
 """Internal exception classes."""
 
-from setuptools.errors import ExecError as _ExecError
-from setuptools.errors import FileError as _FileError
-from setuptools.errors import ModuleError as _ModuleError
-from setuptools.errors import OptionError as _OptionError
-from setuptools.errors import PlatformError as _PlatformError
-from setuptools.errors import SetupError as _SetupError
+# Only re-export setuptools errors to avoid exceptions not handled correctly
+from setuptools.errors import (
+    ExecError,
+    FileError,
+    ModuleError,
+    OptionError,
+    PlatformError,
+    SetupError,
+)
 
 __all__ = [
     "ExecError",
@@ -17,31 +20,22 @@ __all__ = [
 ]
 
 
-class ExecError(_ExecError):
-    """Raised when there are problems executing an external program."""
+ExecError.__doc__ = """\
+Raised when there are problems executing an external program."""
 
+FileError.__doc__ = """\
+Raised when an error is detected related to file/resource not found."""
 
-class FileError(_FileError):
-    """Raised when an error is detected related to file/resource not found."""
+ModuleError.__doc__ = """\
+Raised when there are problems to load the module or module metadata."""
 
+OptionError.__doc__ = """\
+Raised when an error is detected in the configuration. The associated value is
+a string indicating what precisely went wrong."""
 
-class ModuleError(_ModuleError):
-    """Raised when there are problems to load the module or module metadata."""
+PlatformError.__doc__ = """\
+Raised when an error is detected in the module that is platform specific."""
 
-
-class OptionError(_OptionError):
-    """Raised when an error is detected in the configuration.
-    The associated value is a string indicating what precisely went wrong.
-    """
-
-
-class PlatformError(_PlatformError):
-    """Raised when an error is detected in the module that is platform
-    specific.
-    """
-
-
-class SetupError(_SetupError):
-    """Raised for errors that can be definitely blamed on the setup script,
-    such as invalid keyword arguments to 'setup()'.
-    """
+SetupError.__doc__ = """\
+Raised for errors that can be definitely blamed on the setup script, such as
+invalid keyword arguments to 'setup()'."""
