@@ -254,3 +254,5 @@ extlinks = {
 
 # sphinx_tabs.tabs
 sphinx_tabs_disable_tab_closing = True
+# sphinx-new-tab-link
+new_tab_link_show_external_link_icon = True
