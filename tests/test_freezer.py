@@ -13,6 +13,7 @@ from cx_Freeze import Executable, Freezer
 from cx_Freeze._compat import (
     BUILD_EXE_DIR,
     EXE_SUFFIX,
+    IS_CONDA,
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
@@ -103,7 +104,7 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
 
     freezer = Freezer(executables=[Executable("hello.py")])
     if IS_MACOS:
-        if sys.version_info[:2] <= (3, 10):
+        if sys.version_info[:2] <= (3, 10) or IS_CONDA:
             expected = f"libpython{PYTHON_VERSION}.dylib"
         else:
             expected = f"Python.framework/Versions/{PYTHON_VERSION}/Python"
