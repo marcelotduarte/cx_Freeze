@@ -18,6 +18,7 @@ from typing import ClassVar
 
 from setuptools import Command
 
+from cx_Freeze._compat import IS_CONDA
 from cx_Freeze.exception import (
     ExecError,
     FileError,
@@ -411,6 +412,10 @@ class bdist_rpm(Command):
             "Prefix: %{_prefix}",
             f"BuildArch: {platform.machine()}",
         ]
+
+        # Fix for conda
+        if IS_CONDA:
+            spec_file.append("%define debug_package %{nil}")
 
         # Workaround for #14443 which affects some RPM based systems such as
         # RHEL6 (and probably derivatives)
