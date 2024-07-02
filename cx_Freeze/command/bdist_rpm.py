@@ -2,6 +2,10 @@
 
 Borrowed from distutils.command.bdist_rpm of Python 3.10 and merged with
 bdist_rpm subclass of cx_Freeze 6.10.
+
+https://rpm.org/documentation.html
+https://rpm-packaging-guide.github.io/
+
 """
 
 from __future__ import annotations
@@ -19,12 +23,7 @@ from typing import ClassVar
 from setuptools import Command
 
 from cx_Freeze._compat import IS_CONDA
-from cx_Freeze.exception import (
-    ExecError,
-    FileError,
-    OptionError,
-    PlatformError,
-)
+from cx_Freeze.exception import ExecError, FileError, PlatformError
 
 __all__ = ["bdist_rpm"]
 
@@ -103,8 +102,6 @@ class bdist_rpm(Command):
         # Actions to take when building RPM
         ("keep-temp", "k", "don't clean up RPM build directory"),
         ("no-keep-temp", None, "clean up RPM build directory [default]"),
-        ("rpm3-mode", None, "RPM 3 compatibility mode (default)"),
-        ("rpm2-mode", None, "RPM 2 compatibility mode"),
         # Add the hooks necessary for specifying custom scripts
         (
             "prep-script=",
@@ -157,7 +154,6 @@ class bdist_rpm(Command):
 
     boolean_options: ClassVar[list[str]] = [
         "keep-temp",
-        "rpm3-mode",
         "no-autoreq",
         "quiet",
         "debug",
@@ -165,7 +161,6 @@ class bdist_rpm(Command):
 
     negative_opt: ClassVar[dict[str, str]] = {
         "no-keep-temp": "keep-temp",
-        "rpm2-mode": "rpm3-mode",
     }
 
     def initialize_options(self) -> None:
@@ -202,7 +197,6 @@ class bdist_rpm(Command):
         self.obsoletes = None
 
         self.keep_temp = 0
-        self.rpm3_mode = 1
         self.no_autoreq = 0
 
         self.quiet = 0
@@ -228,9 +222,6 @@ class bdist_rpm(Command):
             ("dist_dir", "dist_dir"),
         )
         if self.rpm_base is None:
-            if not self.rpm3_mode:
-                msg = "you must specify --rpm-base in RPM 2 mode"
-                raise OptionError(msg)
             self.rpm_base = os.path.join(self.bdist_base, "rpm")
 
         self.finalize_package_data()
@@ -332,14 +323,9 @@ class bdist_rpm(Command):
                 msg = f"icon file {self.icon!r} does not exist"
                 raise FileError(msg)
 
-        # build package
+        # build package, binary only (-bb)
         logging.info("building RPMs")
-        rpm_cmd = [self._rpmbuild]
-        # binary only
-        rpm_cmd.append("-bb")
-        if self.rpm3_mode:
-            topdir = os.path.abspath(self.rpm_base)
-            rpm_cmd.extend(["--define", f"_topdir {topdir}"])
+        rpm_cmd = [self._rpmbuild, "-bb"]
         if not self.keep_temp:
             rpm_cmd.append("--clean")
 
@@ -395,18 +381,23 @@ class bdist_rpm(Command):
         list of strings (one per line).
         """
         # definitions and headers
+        dist = self.distribution
         spec_file = [
-            "%define name " + self.distribution.get_name(),
-            "%define version "
-            + self.distribution.get_version().replace("-", "_"),
-            "%define unmangled_version " + self.distribution.get_version(),
-            "%define release " + self.release.replace("-", "_"),
+            f"%define _topdir {os.path.abspath(self.rpm_base)}",
+            # cx_Freeze specific
+            "%define __prelink_undo_cmd %{nil}",
+            "%define __strip /bin/true",
             "",
-            f"Summary: {self.distribution.get_description() or 'UNKNOWN'}",
+            f"%define name {dist.get_name()}",
+            f"%define version {dist.get_version().replace('-', '_')}",
+            f"%define unmangled_version {dist.get_version()}",
+            f"%define release {self.release.replace('-', '_')}",
+            "",
+            f"Summary: {dist.get_description() or 'UNKNOWN'}",
             "Name: %{name}",
             "Version: %{version}",
             "Release: %{release}",
-            f"License: {self.distribution.get_license() or 'UNKNOWN'}",
+            f"License: {dist.get_license() or 'UNKNOWN'}",
             f"Group: {self.group}",
             "BuildRoot: %{buildroot}",
             "Prefix: %{_prefix}",
@@ -435,7 +426,8 @@ class bdist_rpm(Command):
             spec_file += [
                 "# Workaround for http://bugs.python.org/issue14443",
                 f"%define __python {sys.executable}",
-                "%define __os_install_post " + fixed_hook + "\n",
+                f"%define __os_install_post {fixed_hook}",
+                "",
             ]
 
         # we create the spec file before running 'tar' in case of --spec-only.
@@ -456,11 +448,11 @@ class bdist_rpm(Command):
             elif val is not None:
                 spec_file.append(f"{field}: {val}")
 
-        if self.distribution.get_url() not in (None, "UNKNOWN"):
-            spec_file.append("Url: " + self.distribution.get_url())
+        if dist.get_url() not in (None, "UNKNOWN"):
+            spec_file.append(f"Url: {dist.get_url()}")
 
         if self.distribution_name:
-            spec_file.append("Distribution: " + self.distribution_name)
+            spec_file.append(f"Distribution: {self.distribution_name}")
 
         if self.build_requires:
             spec_file.append("BuildRequires: " + " ".join(self.build_requires))
@@ -471,18 +463,14 @@ class bdist_rpm(Command):
         if self.no_autoreq:
             spec_file.append("AutoReq: 0")
 
-        spec_file.extend(
-            [
-                "",
-                "%description",
-                self.distribution.get_long_description()
-                or self.distribution.get_description()
-                or "UNKNOWN",
-            ]
-        )
+        spec_file += [
+            "",
+            "%description",
+            dist.get_long_description() or dist.get_description() or "UNKNOWN",
+        ]
 
         # rpm scripts - figure out default build script
-        def_setup_call = f"{sys.executable} {self.distribution.script_name}"
+        def_setup_call = f"{sys.executable} {dist.script_name}"
         def_build = f"{def_setup_call} build_exe -O1 --silent"
         def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
@@ -522,16 +510,14 @@ class bdist_rpm(Command):
                     spec_file.append(default)
 
         # files section
-        spec_file.extend(
-            [
-                "",
-                "%files",
-                "%dir %{_prefix}/lib/%{name}-%{unmangled_version}",
-                "%{_prefix}/lib/%{name}-%{unmangled_version}/*",
-                "%{_bindir}/%{name}",
-                "%defattr(-,root,root)",
-            ]
-        )
+        spec_file += [
+            "",
+            "%files",
+            "%dir %{_prefix}/lib/%{name}-%{unmangled_version}",
+            "%{_prefix}/lib/%{name}-%{unmangled_version}/*",
+            "%{_bindir}/%{name}",
+            "%defattr(-,root,root)",
+        ]
 
         if self.doc_files:
             spec_file.append("%doc " + " ".join(self.doc_files))
@@ -540,9 +526,6 @@ class bdist_rpm(Command):
             spec_file.extend(["", "%changelog"])
             spec_file.extend(self.changelog)
 
-        # cx_Freeze specific
-        spec_file.append("%define __prelink_undo_cmd %{nil}")
-        spec_file.append("%define __strip /bin/true")
         return spec_file
 
     @staticmethod
