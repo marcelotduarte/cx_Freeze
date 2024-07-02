@@ -11,6 +11,7 @@ import os
 import platform
 import shutil
 import stat
+from ctypes.util import find_library
 from logging import INFO, WARNING
 from pathlib import Path
 from textwrap import dedent
@@ -266,16 +267,9 @@ class bdist_appimage(Command):
         )
 
         # Build an AppImage from an AppDir
-        try:
-            self.spawn([self.appimagekit, "--version"], search_path=0)
-        except ExecError:
-            appimage_extract_and_run = True
-        else:
-            appimage_extract_and_run = False
-
         os.environ["ARCH"] = ARCH
         cmd = [self.appimagekit, "--no-appstream", appdir, output]
-        if appimage_extract_and_run:
+        if find_library("fuse") is None:  # libfuse.so.2 is not found
             cmd.insert(1, "--appimage-extract-and-run")
         with FileLock(self.appimagekit + ".lock"):
             self.spawn(cmd, search_path=0)
