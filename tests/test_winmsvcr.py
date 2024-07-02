@@ -66,6 +66,6 @@ def test_build_exe_with_include_msvcr(
         if any(filter(file.match, EXPECTED))
     ]
     if include_msvcr:
-        assert names is not []
+        assert names != []
     else:
         assert not names
