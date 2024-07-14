@@ -33,7 +33,8 @@ if sys.platform == "win32":
 
     __all__ += ["bdist_msi"]
 elif sys.platform == "darwin":
-    from cx_Freeze.command.bdist_mac import bdist_dmg, bdist_mac
+    from cx_Freeze.command.bdist_dmg import bdist_dmg
+    from cx_Freeze.command.bdist_mac import bdist_mac
 
     __all__ += ["bdist_dmg", "bdist_mac"]
 else:

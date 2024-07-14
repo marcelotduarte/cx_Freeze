@@ -22,3 +22,5 @@ coverage.xml
 htmlcov
 tests/coverage_html_report
 tests/.coverage
+.venv/
+.vscode/
