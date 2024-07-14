@@ -117,6 +117,11 @@ class bdist_msi(Command):
         ("target-name=", None, "name of the file to create"),
         ("target-version=", None, "version of the file to create"),
         ("upgrade-code=", None, "upgrade code to use"),
+        (
+            "license-file=",
+            None,
+            "rft formatted license file to include in the installer",
+        ),
     ]
 
     boolean_options: ClassVar[list[str]] = [
@@ -194,6 +199,7 @@ class bdist_msi(Command):
                 ("A_SET_TARGET_DIR", 'TARGETDIR=""', 401),
                 ("A_SET_REINSTALL_MODE", 'REINSTALLMODE=""', 402),
                 ("SelectDirectoryDlg", "not Installed", 1230),
+                ("LicenseAgreementDlg", "not Installed", 1240),
                 (
                     "MaintenanceTypeDlg",
                     "Installed and not Resume and not Preselected",
@@ -768,6 +774,7 @@ class bdist_msi(Command):
         self.add_files_in_use_dialog()
         self.add_wait_for_costing_dialog()
         self.add_prepare_dialog()
+        self.add_license_dialog()
         self.add_select_directory_dialog()
         self.add_progress_dialog()
         self.add_maintenance_type_dialog()
@@ -839,6 +846,80 @@ class bdist_msi(Command):
         button = dialog.nextbutton("Finish", "Cancel", name="Finish")
         button.event("EndDialog", "Exit")
 
+    def add_license_dialog(self) -> None:
+        if self.license_file:
+            with open(self.license_file, encoding="utf-8") as file:
+                license_text = file.read()
+
+            dialog = PyDialog(
+                self.db,
+                "LicenseAgreementDlg",
+                self.x,
+                self.y,
+                self.width,
+                self.height,
+                self.modal,
+                self.title,
+                "Next",
+                "Next",
+                "Cancel",
+            )
+            dialog.title("License Agreement")
+            dialog.backbutton("< Back", None, active=False)
+            dialog.control(
+                name="Text",
+                type="ScrollableText",
+                x=15,
+                y=30,
+                w=self.width - 30,
+                h=self.height - 100,
+                attr=3,
+                text=license_text,
+                prop=None,
+                next=None,
+                help=None,
+            )
+
+            button = dialog.nextbutton(
+                name="Next",
+                title="Accept",
+                tabnext="Cancel",
+                active=0,
+            )
+            button.event("SpawnWaitDialog", "SelectDirectoryDlg", ordering=1)
+            button.event("EndDialog", "Return", ordering=2)
+
+            button = dialog.cancelbutton("Cancel", tabnext="Next")
+            button.event("SpawnDialog", "CancelDlg")
+
+            checkbox = dialog.checkbox(
+                "LicenseAcceptedCheckbox",
+                15,
+                230,
+                300,
+                20,
+                3,
+                "CheckboxProp",
+                "I &accept the terms in the License Agreement",
+                None,
+            )
+            # [proptery], value
+            checkbox.event("[LicenseAcceptedClicked]", "1")
+
+            add_data(
+                self.db,
+                "ControlCondition",
+                # Dialog, Control , Action, Condition
+                [
+                    (
+                        "LicenseAgreementDlg",
+                        "Next",
+                        "Enable",
+                        "LicenseAcceptedClicked",
+                    )
+                ],
+            )
+
     def add_wait_for_costing_dialog(self) -> None:
         dialog = Dialog(
             self.db,
@@ -896,6 +977,7 @@ class bdist_msi(Command):
         self.install_icon = None
         self.all_users = False
         self.extensions = None
+        self.license_file = None
 
     def finalize_options(self) -> None:
         self.set_undefined_options("bdist", ("skip_build", "skip_build"))
@@ -943,6 +1025,8 @@ class bdist_msi(Command):
             self.directories = []
         if self.environment_variables is None:
             self.environment_variables = []
+        if self.license_file is not None:
+            self.license_file = os.path.abspath(self.license_file)
         if self.data is None:
             self.data = {}
         if not isinstance(self.summary_data, dict):
