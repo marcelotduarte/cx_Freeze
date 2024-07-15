@@ -7,7 +7,7 @@ from __future__ import annotations
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_CONDA, IS_MACOS
+from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.hooks._qthooks import copy_qt_files
 from cx_Freeze.hooks._qthooks import (
@@ -44,9 +44,17 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PyQt5 __init__ to locate and load plugins and
     resources. Also, this fixes issues with conda-forge versions.
     """
-    # Activate an optimized mode when PyQt5 is in zip_include_packages
-    if module.in_file_system == 0:
+    # Activate the optimized mode by default in pip environments
+    if module.name in finder.zip_exclude_packages:
+        print(f"WARNING: zip_exclude_packages={module.name} ignored.")
+    if module.name in finder.zip_include_packages:
+        print(f"WARNING: zip_include_packages={module.name} ignored.")
+    distribution = module.distribution
+    environment = (distribution and distribution.installer) or "pip"
+    if environment == "pip":
         module.in_file_system = 2
+    else:
+        module.in_file_system = 1
 
     # Include a module that fix an issue
     qt_debug = get_resource_file_path("hooks/pyqt5", "_append_to_init", ".py")
@@ -57,7 +65,7 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_debug")
 
     # Include a resource with qt.conf (Prefix = lib/PyQt5) for conda-forge
-    if IS_CONDA:
+    if environment == "conda":
         resource = get_resource_file_path("hooks/pyqt5", "resource", ".py")
         finder.include_file_as_module(resource, "PyQt5._cx_freeze_resource")
 
@@ -70,7 +78,7 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         f"""
         # cx_Freeze patch start
         import os, sys
-        if {IS_CONDA}:  # conda-forge linux, macos and windows
+        if {environment == "conda"}:  # conda-forge linux, macos and windows
             import PyQt5._cx_freeze_resource
         elif {IS_MACOS}:  # macos using 'pip install pyqt5'
             # Support for QtWebEngine (bdist_mac differs from build_exe)
@@ -102,7 +110,9 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
 def load_pyqt5_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency and QtWebEngineProcess files."""
     _load_qt_qtwebenginecore(finder, module)
-    if IS_MACOS and not IS_CONDA:
+    distribution = module.parent.distribution
+    environment = (distribution and distribution.installer) or "pip"
+    if IS_MACOS and environment == "pip":
         # duplicate resource files
         for source, target in finder.included_files[:]:
             if any(

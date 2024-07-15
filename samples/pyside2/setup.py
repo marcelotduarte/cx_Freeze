@@ -32,7 +32,6 @@ options = {
         # exclude packages that are not really needed
         "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
         "include_files": include_files,
-        "zip_include_packages": ["PySide2", "shiboken2"],
     },
     "bdist_mac": {
         "custom_info_plist": None,  # Set this to use a custom info.plist file
@@ -49,7 +48,7 @@ executables = [Executable("test_pyside2.py", base="gui")]
 
 setup(
     name="simple_PySide2",
-    version="0.5.1",
+    version="7.2",
     description="Sample cx_Freeze PySide2 script",
     options=options,
     executables=executables,

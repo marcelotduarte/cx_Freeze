@@ -336,6 +336,8 @@ def load_qt_qtvirtualkeyboard(finder: ModuleFinder, module: Module) -> None:
 def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency and QtWebEngineProcess files."""
     name = _qt_implementation(module)
+    distribution = module.parent.distribution
+    environment = (distribution and distribution.installer) or "pip"
 
     if IS_WINDOWS:
         for filename in (
@@ -350,8 +352,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
             copy_qt_files(finder, name, "ArchDataPath", filename)
             # pyqt5 - all files listed in LibraryExecutablesPath
             copy_qt_files(finder, name, "LibraryExecutablesPath", filename)
-    elif IS_MACOS and not IS_CONDA:
-        # wheels for macOS
+    elif IS_MACOS and environment == "pip":  # pip wheels for macOS
         source_path, _ = get_qt_paths(name, "LibrariesPath")
         source_framework = source_path / "QtWebEngineCore.framework"
         # QtWebEngineProcess
@@ -377,7 +378,7 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
         copy_qt_files(
             finder, name, "LibraryExecutablesPath", "QtWebEngineProcess"
         )
-        if IS_CONDA:  # conda-forge Linux and macOS
+        if environment == "conda":  # conda-forge Linux and macOS
             prefix = Path(sys.prefix)
             conda_meta = prefix / "conda-meta"
             pkg = next(conda_meta.glob("nss-*.json"))

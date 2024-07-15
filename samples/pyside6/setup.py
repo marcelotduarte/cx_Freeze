@@ -30,14 +30,13 @@ build_exe_options = {
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     "include_files": include_files,
-    "zip_include_packages": ["PySide6", "shiboken6"],
 }
 
 executables = [Executable("test_pyside6.py", base="gui")]
 
 setup(
     name="simple_PySide6",
-    version="0.3",
+    version="7.2",
     description="Sample cx_Freeze PySide6 script",
     options={"build_exe": build_exe_options},
     executables=executables,

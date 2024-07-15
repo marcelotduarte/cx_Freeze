@@ -4,7 +4,6 @@ PyTorch package is included.
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,8 +25,14 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     module_path = module.file.parent
     site_packages_path = module_path.parent
 
-    # Activate an optimized mode when torch is in zip_include_packages
-    if module.in_file_system == 0:
+    # Activate the optimized mode by default
+    if module.name in finder.zip_exclude_packages:
+        print(f"WARNING: {module.name} hook optimizations disabled.")
+        module.in_file_system = 1
+    elif module.name in finder.zip_include_packages:
+        print(f"WARNING: {module.name} hook optimizations enabled.")
+        module.in_file_system = 2
+    else:
         module.in_file_system = 2
     # patch the code to ignore CUDA_PATH_Vxx_x installation directory
     code_string = module.file.read_text(encoding="utf_8")
@@ -95,7 +100,7 @@ def load_torch__dynamo_skipfiles(finder: ModuleFinder, module: Module) -> None:
     )
     module.code = compile(
         code_string,
-        os.fspath(module.file),
+        module.file.as_posix(),
         "exec",
         dont_inherit=True,
         optimize=finder.optimize,

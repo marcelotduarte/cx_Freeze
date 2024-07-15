@@ -7,7 +7,7 @@ from __future__ import annotations
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
+from cx_Freeze._compat import IS_MACOS, IS_MINGW
 from cx_Freeze.common import (
     code_object_replace_function,
     get_resource_file_path,
@@ -52,16 +52,24 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide2 __init__ to locate and load plugins and
     resources. Also, this fixes issues with conda-forge versions.
     """
-    # Activate an optimized mode when PySide2 is in zip_include_packages
-    if module.in_file_system == 0:
+    # Activate the optimized mode by default in pip environments
+    if module.name in finder.zip_exclude_packages:
+        print(f"WARNING: zip_exclude_packages={module.name} ignored.")
+    if module.name in finder.zip_include_packages:
+        print(f"WARNING: zip_include_packages={module.name} ignored.")
+    distribution = module.distribution
+    environment = (distribution and distribution.installer) or "pip"
+    if environment == "pip":
         module.in_file_system = 2
+    else:
+        module.in_file_system = 1
 
     # Include a module that inject an optional debug code
     qt_debug = get_resource_file_path("hooks/pyside2", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_debug")
 
     # Include a resource with qt.conf (Prefix = lib/PySide2) for conda-forge
-    if IS_CONDA:
+    if environment == "conda":
         resource = get_resource_file_path("hooks/pyside2", "resource", ".py")
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
@@ -79,7 +87,7 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         f"""
         # cx_Freeze patch start
         import os, sys
-        if {IS_CONDA}:  # conda-forge linux, macos and windows
+        if {environment == "conda"}:  # conda-forge linux, macos and windows
             import PySide2._cx_freeze_resource
         elif {IS_MACOS}:  # macos using 'pip install pyside2'
             # Support for QtWebEngine (bdist_mac differs from build_exe)
@@ -108,6 +116,8 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
 
     # shiboken2 in zip_include_packages
     shiboken2 = finder.include_package("shiboken2")
+    if module.in_file_system == 2:
+        shiboken2.in_file_system = 0
     if shiboken2.in_file_system == 0:
         name = "_additional_dll_directories"
         source = f"""\
@@ -123,7 +133,9 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
 def load_pyside2_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
     """Include module dependency and QtWebEngineProcess files."""
     _load_qt_qtwebenginecore(finder, module)
-    if IS_MACOS and not IS_CONDA:
+    distribution = module.parent.distribution
+    environment = (distribution and distribution.installer) or "pip"
+    if IS_MACOS and environment == "pip":
         # duplicate resource files
         for source, target in finder.included_files[:]:
             if any(

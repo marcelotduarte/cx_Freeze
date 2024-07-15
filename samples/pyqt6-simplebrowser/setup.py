@@ -28,7 +28,6 @@ build_exe_options = {
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     "include_files": include_files,
-    "zip_include_packages": ["PyQt6"],
 }
 
 executables = [
@@ -39,7 +38,7 @@ executables = [
 
 setup(
     name="simplebrowser",
-    version="0.2",
+    version="7.2",
     description="Sample cx_Freeze PyQt6 simplebrowser script",
     options={"build_exe": build_exe_options},
     executables=executables,

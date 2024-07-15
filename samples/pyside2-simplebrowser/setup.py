@@ -16,15 +16,7 @@ from cx_Freeze import Executable, setup
 options = {
     "build_exe": {
         # exclude packages that are not really needed
-        "excludes": [
-            "tkinter",
-            "unittest",
-            "email",
-            "http",
-            "xml",
-            "pydoc",
-        ],
-        "zip_include_packages": ["PySide2", "shiboken2"],
+        "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"]
     },
     "bdist_mac": {
         "custom_info_plist": None,  # Set this to use a custom info.plist file
@@ -46,7 +38,7 @@ executables = [
 
 setup(
     name="simplebrowser",
-    version="0.1.1",
+    version="7.2",
     description="Sample cx_Freeze PySide2 simplebrowser script",
     options=options,
     executables=executables,

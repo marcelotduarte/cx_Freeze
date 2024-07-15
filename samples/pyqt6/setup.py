@@ -30,14 +30,13 @@ build_exe_options = {
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     "include_files": include_files,
-    "zip_include_packages": ["PyQt6"],
 }
 
 executables = [Executable("test_pyqt6.py", base="gui")]
 
 setup(
     name="simple_pyqt6",
-    version="0.2",
+    version="7.2",
     description="Sample cx_Freeze PyQt6 script",
     options={"build_exe": build_exe_options},
     executables=executables,
