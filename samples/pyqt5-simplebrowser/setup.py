@@ -14,15 +14,7 @@ from cx_Freeze import Executable, setup
 options = {
     "build_exe": {
         # exclude packages that are not really needed
-        "excludes": [
-            "tkinter",
-            "unittest",
-            "email",
-            "http",
-            "xml",
-            "pydoc",
-        ],
-        "zip_include_packages": ["PyQt5"],
+        "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"]
     },
     "bdist_mac": {"bundle_name": "PyQt5 Webengine Test"},
 }
@@ -35,7 +27,7 @@ executables = [
 
 setup(
     name="simplebrowser",
-    version="0.1",
+    version="7.2",
     description="cx_Freeze and PyQt5 Webengine sample",
     options=options,
     executables=executables,

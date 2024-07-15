@@ -30,7 +30,6 @@ build_exe_options = {
     # exclude packages that are not really needed
     "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     "include_files": include_files,
-    "zip_include_packages": ["PyQt5"],
 }
 
 bdist_mac_options = {
@@ -45,7 +44,7 @@ executables = [Executable("test_pyqt5.py", base="gui")]
 
 setup(
     name="simple_PyQt5",
-    version="0.5",
+    version="7.2",
     description="Sample cx_Freeze PyQt5 script",
     options={
         "build_exe": build_exe_options,

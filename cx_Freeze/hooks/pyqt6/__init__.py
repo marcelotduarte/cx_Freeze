@@ -8,7 +8,7 @@ import sys
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
+from cx_Freeze._compat import IS_MACOS, IS_MINGW
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.hooks._qthooks import copy_qt_files
 from cx_Freeze.hooks._qthooks import load_qt_qt3dinput as load_pyqt6_qt3dinput
@@ -74,9 +74,17 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PyQt6 __init__ to locate and load plugins and
     resources.
     """
-    # Activate an optimized mode when PyQt6 is in zip_include_packages
-    if module.in_file_system == 0:
+    # Activate the optimized mode by default in pip environments
+    if module.name in finder.zip_exclude_packages:
+        print(f"WARNING: zip_exclude_packages={module.name} ignored.")
+    if module.name in finder.zip_include_packages:
+        print(f"WARNING: zip_include_packages={module.name} ignored.")
+    distribution = module.distribution
+    environment = (distribution and distribution.installer) or "pip"
+    if environment == "pip":
         module.in_file_system = 2
+    else:
+        module.in_file_system = 1
 
     # Include modules that inject an optional debug code
     qt_debug = get_resource_file_path("hooks/pyqt6", "debug", ".py")
@@ -106,7 +114,7 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
     code_string += dedent(
         f"""
         # cx_Freeze patch start
-        if {IS_MACOS} and not {IS_CONDA}:  # conda does not support pyqt6
+        if {IS_MACOS} and {environment == "pip"}: # conda doesn't support pyqt6
             import os, sys
             # Support for QtWebEngine (bdist_mac differs from build_exe)
             helpers = os.path.join(os.path.dirname(sys.frozen_dir), "Helpers")

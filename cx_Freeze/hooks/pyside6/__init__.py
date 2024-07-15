@@ -7,7 +7,7 @@ from __future__ import annotations
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW
+from cx_Freeze._compat import IS_MACOS, IS_MINGW
 from cx_Freeze.common import (
     code_object_replace_function,
     get_resource_file_path,
@@ -81,16 +81,24 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PySide6 __init__ to locate and load plugins and
     resources.
     """
-    # Activate an optimized mode when PySide6 is in zip_include_packages
-    if module.in_file_system == 0:
+    # Activate the optimized mode by default in pip environments
+    if module.name in finder.zip_exclude_packages:
+        print(f"WARNING: zip_exclude_packages={module.name} ignored.")
+    if module.name in finder.zip_include_packages:
+        print(f"WARNING: zip_include_packages={module.name} ignored.")
+    distribution = module.distribution
+    environment = (distribution and distribution.installer) or "pip"
+    if environment == "pip":
         module.in_file_system = 2
+    else:
+        module.in_file_system = 1
 
     # Include modules that inject an optional debug code
     qt_debug = get_resource_file_path("hooks/pyside6", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide6._cx_freeze_qt_debug")
 
     # Include a resource for conda-forge
-    if IS_CONDA:
+    if environment == "conda":
         # The resource include a qt.conf (Prefix = lib/PySide6)
         resource = get_resource_file_path("hooks/pyside6", "resource", ".py")
         finder.include_file_as_module(resource, "PySide6._cx_freeze_resource")
@@ -105,7 +113,7 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
     code_string += dedent(
         f"""
         # cx_Freeze patch start
-        if {IS_CONDA}:
+        if {environment == "conda"}:
             import PySide6._cx_freeze_resource
         else:
             # Support for QtWebEngine
@@ -136,6 +144,8 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
 
     # shiboken6 in zip_include_packages
     shiboken6 = finder.include_package("shiboken6")
+    if module.in_file_system == 2:
+        shiboken6.in_file_system = 0
     if shiboken6.in_file_system == 0:
         name = "_additional_dll_directories"
         source = f"""\

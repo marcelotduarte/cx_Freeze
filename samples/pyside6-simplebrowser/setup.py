@@ -17,15 +17,7 @@ options = {
     "build_exe": {
         "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
         # exclude packages that are not really needed
-        "excludes": [
-            "tkinter",
-            "unittest",
-            "email",
-            "http",
-            "xml",
-            "pydoc",
-        ],
-        "zip_include_packages": ["PySide6", "shiboken6"],
+        "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
     },
     "bdist_mac": {
         "custom_info_plist": None,  # Set this to use a custom info.plist file
@@ -47,7 +39,7 @@ executables = [
 
 setup(
     name="simplebrowser",
-    version="0.1.1",
+    version="7.2",
     description="Sample cx_Freeze PySide6 simplebrowser script",
     options=options,
     executables=executables,
