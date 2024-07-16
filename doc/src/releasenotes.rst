@@ -11,10 +11,59 @@ Release notes
 7.x releases
 ############
 
+Version 7.2 (Jul 16)
+----------------------
+
+#)  hooks: the optimized mode is the default for pip installations (:pull:`2500`) :user:`marcelotduarte`
+#)  bdist_rpm: drop rpm2_mode and refactor spec_file (:pull:`2488`) :user:`marcelotduarte`
+#)  bdist_appimage: remove zip file, propagate options, fixes docs (:pull:`2463`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.5.4 to 7.6.0 (:pull:`2498`) :user:`dependabot`
+#)  bdist_msi: add license for msi (:pull:`2472`) :user:`nick`
+#)  bdist_dmg: add dmgbuild as a dependency to improve mac dmg (:pull:`2442`) :user:`nick`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2494`) :user:`pre-commit-ci`
+#)  build(deps-dev): bump bump-my-version from 0.24.1 to 0.24.2 (:pull:`2492`) :user:`dependabot`
+#)  build(deps-dev): bump cibuildwheel from 2.19.1 to 2.19.2 (:pull:`2491`) :user:`dependabot`
+#)  tests: make test pass in conda-forge [osx, linux] (:pull:`2490`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2487`) :user:`pre-commit-ci`
+#)  build(deps): bump sphinx-new-tab-link from 0.4.0 to 0.5.0 (:pull:`2486`) :user:`dependabot`
+#)  exception: Only re-export setuptools errors to avoid exceptions not handled correctly (:pull:`2485`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 0.24.0 to 0.24.1 (:pull:`2484`) :user:`dependabot`
+#)  hooks: add multiprocess (a multiprocessing fork) (:pull:`2475`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 0.23.0 to 0.24.0 (:pull:`2481`) :user:`dependabot`
+#)  sample: add sample for Gtk (:pull:`2364`) :user:`cedk`
+#)  chore: use setup-python-uv-action to cache uv packages (:pull:`2482`) :user:`marcelotduarte`
+#)  tests: make tests pass on mingw (:pull:`2476 regression) (#2480`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2479`) :user:`pre-commit-ci`
+#)  build(deps): bump coverage from 7.5.3 to 7.5.4 (:pull:`2477`) :user:`dependabot`
+#)  tests: improve _compat to use in tests (:pull:`2476`) :user:`marcelotduarte`
+#)  tests: fix test_cli in archlinux (:pull:`2470`) :user:`marcelotduarte`
+#)  build(deps): bump update setuptools requirement to >=65.6.3,<71 (:pull:`2468`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2464`) :user:`pre-commit-ci`
+#)  build(deps-dev): bump bump-my-version from 0.22.0 to 0.23.0 (:pull:`2462`) :user:`dependabot`
+#)  hooks: support numpy 2.0 (:pull:`2466`) :user:`marcelotduarte`
+#)  Bump version: 7.1.0-post0 → 7.1.1 [ci skip] (:pull:`2461`) :user:`marcelotduarte`
+#)  hooks: improve scikit-image (:pull:`2460`) :user:`marcelotduarte`
+#)  build(deps-dev): bump cibuildwheel from 2.19.0 to 2.19.1 (:pull:`2458`) :user:`dependabot`
+#)  hooks: add rasterio (:pull:`2455`) :user:`marcelotduarte`
+#)  hooks: fix #2382 regression / improve tests and docs (:pull:`2443`) :user:`marcelotduarte`
+#)  hooks: avoid exception when distribution is none (:pull:`2452`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 0.21.1 to 0.22.0 (:pull:`2450`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2448`) :user:`pre-commit-ci`
+#)  build(deps-dev): bump cibuildwheel from 2.18.1 to 2.19.0 (:pull:`2447`) :user:`dependabot`
+#)  doc: small revision of development/index [ci skip] (:pull:`2446`) :user:`marcelotduarte`
+#)  bdist_rpm: Fix string concat error due to order of op for + and or in RPM (:pull:`2444`) :user:`nicktindle`
+#)  cli: fix sys.path for cxfreeze command line (:pull:`2439`) :user:`marcelotduarte`
+#)  build(deps): bump pytest from 8.2.1 to 8.2.2 (:pull:`2437`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2434`) :user:`pre-commit-ci`
+#)  Bump version: 7.1.0 → 7.1.0-post0 [ci skip] (:pull:`2432`) :user:`marcelotduarte`
+#)  doc: msvc faq revision [ci skip] (:pull:`2429`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.5.2 to 7.5.3 (:pull:`2428`) :user:`dependabot`
+#)  hooks: fix pygobject hook for Linux (:pull:`2425`) :user:`marcelotduarte`
+
 Version 7.1 (May 26)
 ----------------------
 
-#)  hooks: support nump#)  hooks: add mkl (:pull:`2420`) :user:`marcelotduarte`
+#)  hooks: add mkl (:pull:`2420`) :user:`marcelotduarte`
 #)  hooks: resolve dependencies to avoid symlink in numpy/mkl/blas conda linux (:pull:`2419`) :user:`marcelotduarte`
 #)  module: fix distribuition installer multiline (:pull:`2418`) :user:`marcelotduarte`
 #)  ci: add test to do more 'parser' and 'module' coverage (:pull:`2416`) :user:`marcelotduarte`
