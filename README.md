@@ -42,6 +42,15 @@ The official documentation is available
 If you need help you can also ask on the
 [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
+# What's New v7.2:
+- Improved bdist_dmg
+- Add license for msi (bdist_msi)
+- Minor improvements in bdist_appimage
+- Drop rpm2_mode in bdist_rpm
+- Use an optimized mode as default for pip installations of selected packages
+- hooks: support numpy 2.0, rasterio, multiprocess (a multiprocessing fork), etc
+- Regression fixes, bug fixes and improvements
+
 # What's New v7.1:
 - Added new option --zip-filename in build_exe
 - Bug fixes and improvements
