@@ -9,19 +9,17 @@ import pytest
 from generate_samples import create_package, run_command
 
 from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
-from cx_Freeze.winmsvcr import FILES
+from cx_Freeze.winmsvcr import MSVC_FILES, UCRT_FILES
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-EXPECTED = (
-    "api-ms-win-*.dll",
+MSVC_EXPECTED = (
     # VC 2015 and 2017
     "concrt140.dll",
+    "msvcp140.dll",
     "msvcp140_1.dll",
     "msvcp140_2.dll",
-    "msvcp140.dll",
-    "ucrtbase.dll",
     "vcamp140.dll",
     "vccorlib140.dll",
     "vcomp140.dll",
@@ -32,6 +30,11 @@ EXPECTED = (
     "vcruntime140_1.dll",
     # VS 2022
     "vcruntime140_threads.dll",
+)
+
+UCRT_EXPECTED = (
+    "api-ms-win-*.dll",
+    "ucrtbase.dll",
 )
 
 SOURCE = """
@@ -45,7 +48,8 @@ command
 @pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests")
 def test_files() -> None:
     """Test MSVC files."""
-    assert EXPECTED == FILES
+    assert MSVC_EXPECTED == MSVC_FILES
+    assert UCRT_EXPECTED == UCRT_FILES
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
@@ -69,7 +73,7 @@ def test_build_exe_with_include_msvcr(
     names = [
         file.name.lower()
         for file in build_exe_dir.glob("*.dll")
-        if any(filter(file.match, EXPECTED))
+        if any(filter(file.match, MSVC_EXPECTED))
     ]
     # include-msvcr copies the files only on Windows, but not in MingW
     if IS_WINDOWS and include_msvcr:

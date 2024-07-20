@@ -99,8 +99,10 @@ Python 3.8-3.12 on Windows requires the `Microsoft Visual C++ Redistributable
 and because of how this is installed, **cx_Freeze** doesn't automatically copy
 it for your application.
 
-You're responsible for checking the license conditions associated with the DLLs
-you have installed.
+**cx_Freeze** can automatically copy it for your application, but:
+
+* You're responsible for checking the license conditions associated with the
+  DLLs you have installed.
 
 * If your license allows you to distribute these files, specify the
   :option:`include_msvcr` option to :ref:`cx_freeze_build_exe` to have them
