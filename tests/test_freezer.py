@@ -200,19 +200,16 @@ def test_freezer_populate_zip_options_invalid_values(
             {"include_msvcr": None},
             {"include_msvcr": False},
             id="include_msvcr=none",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"include_msvcr": False},
             {"include_msvcr": False},
             id="include_msvcr=false",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"include_msvcr": True},
-            {"include_msvcr": True},
+            {"include_msvcr": IS_WINDOWS},
             id="include_msvcr=true",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"replace_paths": [("*", "")]},

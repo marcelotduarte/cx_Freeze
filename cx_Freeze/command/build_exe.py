@@ -10,6 +10,7 @@ from typing import ClassVar
 
 from setuptools import Command
 
+from cx_Freeze._compat import IS_WINDOWS
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.exception import OptionError, SetupError
 from cx_Freeze.freezer import Freezer
@@ -265,8 +266,10 @@ class build_exe(Command):
         elif self.no_compress is False:
             self.zip_filename = "library.zip"
 
-        # other options
-        self.include_msvcr = bool(self.include_msvcr)
+        # include-msvcr is used on Windows, but not in MingW
+        self.include_msvcr = IS_WINDOWS and bool(self.include_msvcr)
+
+        # optimization level: 0,1,2
         self.optimize = int(self.optimize or 0)
 
     def run(self) -> None:
