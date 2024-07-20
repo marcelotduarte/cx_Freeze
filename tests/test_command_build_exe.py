@@ -55,19 +55,16 @@ DIST_ATTRS = {
             {"include_msvcr": None},
             {"include_msvcr": False},
             id="include-msvcr=none",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"include_msvcr": False},
             {"include_msvcr": False},
             id="include-msvcr=false",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"include_msvcr": True},
-            {"include_msvcr": True},
+            {"include_msvcr": IS_WINDOWS},
             id="include-msvcr=true",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             {"replace_paths": [("*", "")]},
@@ -344,13 +341,11 @@ def test_build_exe_finalize_options_raises(
             [],
             {"include_msvcr": False},
             id="--include-msvcr(notused)",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
         pytest.param(
             ["--include-msvcr"],
-            {"include_msvcr": True},
+            {"include_msvcr": IS_WINDOWS},
             id="--include-msvcr",
-            marks=pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests"),
         ),
     ],
 )
