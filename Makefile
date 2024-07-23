@@ -106,22 +106,32 @@ cov2: install_test
 	COVERAGE_FILE=$(COVERAGE_FILE) pytest -nauto --cov="cx_Freeze" || true
 ifeq ($(PY_PLATFORM),win-amd64)
 	# Extra coverage for Windows
-	# to test lief < 0.14
-	uv pip install "lief==0.13.2"
+	# test without lief (LIEF_DISABLED)
+	CX_FREEZE_BIND=imagehlp \
 	COVERAGE_FILE=$(COVERAGE_FILE)-1 pytest -nauto --cov="cx_Freeze" \
 		tests/test_command_build.py tests/test_command_build_exe.py \
-		tests/test_winversioninfo.py
-	# to test without lief (LIEF_DISABLED)
-	CX_FREEZE_BIND=imagehlp \
+		tests/test_winversioninfo.py || true
+	# test lief < 0.13
+	uv pip install "lief==0.12.3"
 	COVERAGE_FILE=$(COVERAGE_FILE)-2 pytest -nauto --cov="cx_Freeze" \
 		tests/test_command_build.py tests/test_command_build_exe.py \
-		tests/test_winversioninfo.py
-	# to coverage winversioninfo using pywin32
-	uv pip install --upgrade pywin32
+		tests/test_winversioninfo.py || true
+	# test lief < 0.14
+	uv pip install "lief==0.13.2"
 	COVERAGE_FILE=$(COVERAGE_FILE)-3 pytest -nauto --cov="cx_Freeze" \
-		tests/test_winversioninfo.py
+		tests/test_command_build.py tests/test_command_build_exe.py \
+		tests/test_winversioninfo.py || true
+	# test lief < 0.15
+	uv pip install "lief==0.14.1"
+	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze" \
+		tests/test_command_build.py tests/test_command_build_exe.py \
+		tests/test_winversioninfo.py || true
+	# coverage winversioninfo using pywin32
+	uv pip install --upgrade pywin32
+	COVERAGE_FILE=$(COVERAGE_FILE)-5 pytest -nauto --cov="cx_Freeze" \
+		tests/test_winversioninfo.py || true
 	uv pip uninstall pywin32
-	uv pip install "lief>0.13.2"
+	uv pip install "lief>0.14.1"
 endif
 ifeq ($(PY_PLATFORM),linux-x86_64)
 	if ! ls wheelhouse/cx_Freeze-$(bump-my-version show current_version|sed 's/-/./')-cp$(PY_VERSION_NODOT)-cp$(PY_VERSION_NODOT)-manylinux_*_$(ARCH).whl 1> /dev/null 2>&1 \
