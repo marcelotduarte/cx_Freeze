@@ -25,8 +25,11 @@ if IS_WINDOWS or IS_MINGW:
 
     with suppress(ImportError):
         from .util import BindError, GetDependentFiles
-
-    lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
+    try:
+        # LIEF 0.15+
+        lief.logging.set_level(lief.logging.LEVEL.ERROR)
+    except AttributeError:
+        lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
 
 LIEF_DISABLED = os.environ.get("CX_FREEZE_BIND", "") == "imagehlp"
 PE_EXT = (".exe", ".dll", ".pyd")
