@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import contextlib
 import os
 import sys
-from importlib import import_module
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
@@ -87,23 +85,6 @@ def test_cxfreeze_without_options(tmp_path: Path) -> None:
     create_package(tmp_path, SOURCE)
     with pytest.raises(CalledProcessError):
         run_command(tmp_path, "cxfreeze")
-
-
-@pytest.mark.skipif(sys.version_info >= (3, 11), reason="Python >= 3.11")
-def test_import_tomli(monkeypatch) -> None:
-    """Test using tomli as a last resort."""
-    try:
-        import_module("setuptools.extern")
-        with contextlib.suppress(AttributeError):
-            monkeypatch.delattr("setuptools.extern.tomli.loads")
-    except ModuleNotFoundError as exc:
-        pytest.xfail(reason=f"ImportError: {exc.args[0]}")
-    try:
-        pyproject = import_module("cx_Freeze._pyproject")
-    except ImportError as exc:
-        pytest.xfail(reason=f"ImportError: {exc.args[0]}")
-    assert pyproject.get_pyproject_tool_data
-    assert pyproject.toml_loads.__module__.startswith("tomli.")
 
 
 SOURCE_TEST_PATH = f"""

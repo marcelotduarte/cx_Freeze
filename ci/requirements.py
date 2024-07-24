@@ -8,10 +8,7 @@ from pathlib import Path
 try:
     from tomllib import load as toml_load
 except ImportError:
-    try:
-        from setuptools.extern.tomli import load as toml_load
-    except ImportError:
-        from tomli import load as toml_load
+    from tomli import load as toml_load
 
 
 def main() -> None:

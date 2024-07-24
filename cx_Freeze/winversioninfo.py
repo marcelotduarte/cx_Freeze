@@ -10,7 +10,7 @@ from pathlib import Path
 from struct import calcsize, pack
 from typing import ClassVar
 
-from cx_Freeze._packaging import Version
+from packaging.version import Version
 
 __all__ = ["VersionInfo"]
 
