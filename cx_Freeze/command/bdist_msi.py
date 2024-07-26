@@ -11,10 +11,10 @@ import warnings
 from sysconfig import get_platform
 from typing import ClassVar, ContextManager
 
+from packaging.version import Version
 from setuptools import Command
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
-from cx_Freeze._packaging import Version
 from cx_Freeze.exception import OptionError
 
 __all__ = ["bdist_msi"]

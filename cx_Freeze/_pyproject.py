@@ -7,10 +7,7 @@ from pathlib import Path
 try:
     from tomllib import loads as toml_loads
 except ImportError:
-    try:
-        from setuptools.extern.tomli import loads as toml_loads
-    except ImportError:
-        from tomli import loads as toml_loads
+    from tomli import loads as toml_loads
 
 
 def get_pyproject_tool_data() -> dict:

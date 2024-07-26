@@ -8,9 +8,9 @@ from subprocess import CalledProcessError
 
 import pytest
 from generate_samples import create_package, run_command
+from packaging.version import Version
 
 from cx_Freeze._compat import BUILD_EXE_DIR
-from cx_Freeze._packaging import Version
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 SOURCE_SIMPLE_TEST = """
