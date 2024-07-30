@@ -20,15 +20,15 @@ int _CRT_glob = 0;
 // FatalError()
 //   Prints a fatal error.
 //-----------------------------------------------------------------------------
-static int FatalError(const char *message)
+static int FatalError(const char* message)
 {
     if (Py_IsInitialized()) {
         PyErr_Print();
         Py_FatalError(message);
-    } else fprintf(stderr, "Fatal error: %s\n", message);
+    } else
+        fprintf(stderr, "Fatal error: %s\n", message);
     return -1;
 }
-
 
 //-----------------------------------------------------------------------------
 // FatalScriptError()
@@ -40,16 +40,14 @@ static int FatalScriptError(void)
     return -1;
 }
 
-
 #include "common.c"
-
 
 //-----------------------------------------------------------------------------
 // main()
 //   Main routine for frozen programs.
 //-----------------------------------------------------------------------------
 #if defined(MS_WINDOWS)
-int wmain(int argc, wchar_t **argv)
+int wmain(int argc, wchar_t** argv)
 {
     int status = 0;
 
@@ -65,14 +63,14 @@ int wmain(int argc, wchar_t **argv)
     return status;
 }
 #else
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     int status = 0;
-    wchar_t **wargv;
+    wchar_t** wargv;
     /* We need a second copy, as Python might modify the first one. */
-    wchar_t **wargv2;
+    wchar_t** wargv2;
     int i;
-    char *oldloc;
+    char* oldloc;
 
     oldloc = _PyMem_RawStrdup(setlocale(LC_ALL, NULL));
     if (!oldloc)
@@ -80,10 +78,10 @@ int main(int argc, char **argv)
 
     // convert arguments to wide characters, using the system default locale
     setlocale(LC_ALL, "");
-    wargv = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
+    wargv = (wchar_t**)PyMem_RawMalloc(sizeof(wchar_t*) * (argc + 1));
     if (!wargv)
         return FatalError("Out of memory converting arguments!");
-    wargv2 = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
+    wargv2 = (wchar_t**)PyMem_RawMalloc(sizeof(wchar_t*) * (argc + 1));
     if (!wargv2) {
         PyMem_RawFree(wargv);
         return FatalError("Out of memory converting arguments!");

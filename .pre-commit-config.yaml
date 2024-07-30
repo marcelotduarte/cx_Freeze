@@ -50,6 +50,12 @@ repos:
     - black==24.2.0
     args: ["-l", "79"]
 
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v18.1.8
+  hooks:
+  - id: clang-format
+    args: ["--style={BasedOnStyle: WebKit, ColumnLimit: 79, AlignConsecutiveMacros: Consecutive, AlignTrailingComments: Always}"]
+
 - repo: local
   hooks:
   - id: build-docs

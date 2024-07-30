@@ -7,47 +7,40 @@
 #include <Python.h>
 #include <locale.h>
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <Winsvc.h>
 #include <cx_Logging.h>
+#include <windows.h>
 
 // define constants
-#define CX_LOGGING_SECTION_NAME         L"Logging"
-#define CX_LOGGING_FILE_NAME_KEY        L"FileName"
-#define CX_LOGGING_LEVEL_KEY            L"Level"
-#define CX_LOGGING_MAX_FILES_KEY        L"MaxFiles"
-#define CX_LOGGING_MAX_FILE_SIZE_KEY    L"MaxFileSize"
-#define CX_LOGGING_PREFIX_KEY           L"Prefix"
-#define CX_LOGGING_PREFIX_SIZE          100
-#define CX_LOGGING_PREFIX_DEFAULT       L"[%i] %d %t"
-#define CX_SERVICE_MODULE_NAME          "MODULE_NAME"
-#define CX_SERVICE_CLASS_NAME           "CLASS_NAME"
-#define CX_SERVICE_NAME                 "NAME"
-#define CX_SERVICE_DISPLAY_NAME         "DISPLAY_NAME"
-#define CX_SERVICE_DESCRIPTION          "DESCRIPTION"
-#define CX_SERVICE_AUTO_START           "AUTO_START"
-#define CX_SERVICE_SESSION_CHANGES      "SESSION_CHANGES"
-#define CX_SERVICE_LOGGING_EXTENSION    L".log"
-#define CX_SERVICE_INI_EXTENSION        L".ini"
-#define CX_SERVICE_INSTALL_OPTION       L"--install"
-#define CX_SERVICE_UNINSTALL_OPTION     L"--uninstall"
-#define CX_SERVICE_INSTALL_USAGE        "%ls --install <NAME> [<CONFIGFILE>]"
-#define CX_SERVICE_UNINSTALL_USAGE      "%ls --uninstall <NAME>"
-#define CX_SERVICE_INIT_MESSAGE         "initializing with config file %ls"
+#define CX_LOGGING_SECTION_NAME      L"Logging"
+#define CX_LOGGING_FILE_NAME_KEY     L"FileName"
+#define CX_LOGGING_LEVEL_KEY         L"Level"
+#define CX_LOGGING_MAX_FILES_KEY     L"MaxFiles"
+#define CX_LOGGING_MAX_FILE_SIZE_KEY L"MaxFileSize"
+#define CX_LOGGING_PREFIX_KEY        L"Prefix"
+#define CX_LOGGING_PREFIX_SIZE       100
+#define CX_LOGGING_PREFIX_DEFAULT    L"[%i] %d %t"
+#define CX_SERVICE_MODULE_NAME       "MODULE_NAME"
+#define CX_SERVICE_CLASS_NAME        "CLASS_NAME"
+#define CX_SERVICE_NAME              "NAME"
+#define CX_SERVICE_DISPLAY_NAME      "DISPLAY_NAME"
+#define CX_SERVICE_DESCRIPTION       "DESCRIPTION"
+#define CX_SERVICE_AUTO_START        "AUTO_START"
+#define CX_SERVICE_SESSION_CHANGES   "SESSION_CHANGES"
+#define CX_SERVICE_LOGGING_EXTENSION L".log"
+#define CX_SERVICE_INI_EXTENSION     L".ini"
+#define CX_SERVICE_INSTALL_OPTION    L"--install"
+#define CX_SERVICE_UNINSTALL_OPTION  L"--uninstall"
+#define CX_SERVICE_INSTALL_USAGE     "%ls --install <NAME> [<CONFIGFILE>]"
+#define CX_SERVICE_UNINSTALL_USAGE   "%ls --uninstall <NAME>"
+#define CX_SERVICE_INIT_MESSAGE      "initializing with config file %ls"
 
-// the following was copied from cx_Interface.c, which is where this
-// declaration normally happens
-#ifndef PATH_MAX
-    #define PATH_MAX _MAX_PATH
-#endif
-
-
-//define structure for holding information about the service
+// define structure for holding information about the service
 typedef struct {
-    PyObject *cls;
-    PyObject *nameFormat;
-    PyObject *displayNameFormat;
-    PyObject *description;
+    PyObject* cls;
+    PyObject* nameFormat;
+    PyObject* displayNameFormat;
+    PyObject* description;
     DWORD startType;
     int sessionChanges;
 } udt_ServiceInfo;
@@ -55,19 +48,18 @@ typedef struct {
 // define globals
 static HANDLE gControlEvent = NULL;
 static SERVICE_STATUS_HANDLE gServiceHandle;
-static PyInterpreterState *gInterpreterState = NULL;
-static PyObject *gInstance = NULL;
-static wchar_t gIniFileName[PATH_MAX + 1];
+static PyInterpreterState* gInterpreterState = NULL;
+static PyObject* gInstance = NULL;
+static wchar_t gIniFileName[MAXPATHLEN + 1];
 
 //-----------------------------------------------------------------------------
 // FatalError()
 //   Called when an attempt to initialize the module zip fails.
 //-----------------------------------------------------------------------------
-static int FatalError(const char *message)
+static int FatalError(const char* message)
 {
     return LogPythonException(message);
 }
-
 
 //-----------------------------------------------------------------------------
 // FatalScriptError()
@@ -103,7 +95,6 @@ static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_Stop()
 //   Stop the service. Note that the controlling thread must be ended before
@@ -112,8 +103,8 @@ static int Service_SetStatus(udt_ServiceInfo* info, DWORD status)
 //-----------------------------------------------------------------------------
 static int Service_Stop(udt_ServiceInfo* info)
 {
-    PyThreadState *threadState;
-    PyObject *result;
+    PyThreadState* threadState;
+    PyObject* result;
 
     // indicate that the service is being stopped
     if (Service_SetStatus(info, SERVICE_STOP_PENDING) < 0)
@@ -154,15 +145,14 @@ static int Service_Stop(udt_ServiceInfo* info)
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_SessionChange()
 //   Called when a session has changed.
 //-----------------------------------------------------------------------------
 static int Service_SessionChange(DWORD sessionId, DWORD eventType)
 {
-    PyThreadState *threadState;
-    PyObject *result;
+    PyThreadState* threadState;
+    PyObject* result;
 
     // create a new Python thread and acquire the global interpreter lock
     threadState = PyThreadState_New(gInterpreterState);
@@ -171,11 +161,11 @@ static int Service_SessionChange(DWORD sessionId, DWORD eventType)
     PyEval_AcquireThread(threadState);
 
     // call Python method
-    result = PyObject_CallMethod(gInstance, "session_changed", "ii",
-                                 sessionId, eventType);
+    result = PyObject_CallMethod(
+        gInstance, "session_changed", "ii", sessionId, eventType);
     if (!result)
-        result = PyObject_CallMethod(gInstance, "sessionChanged", "ii",
-                                     sessionId, eventType);
+        result = PyObject_CallMethod(
+            gInstance, "sessionChanged", "ii", sessionId, eventType);
     if (!result)
         return LogPythonException("exception calling session_changed method");
     Py_DECREF(result);
@@ -188,32 +178,30 @@ static int Service_SessionChange(DWORD sessionId, DWORD eventType)
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_Control()
 //   Function for controlling a service. Note that the controlling thread
 // must be ended before the main thread is ended or the control GUI does not
 // understand that the service has ended.
 //-----------------------------------------------------------------------------
-static DWORD WINAPI Service_Control(DWORD controlCode, DWORD eventType,
-        LPVOID eventData, LPVOID context)
+static DWORD WINAPI Service_Control(
+    DWORD controlCode, DWORD eventType, LPVOID eventData, LPVOID context)
 {
-    udt_ServiceInfo *serviceInfo = (udt_ServiceInfo*) context;
-    WTSSESSION_NOTIFICATION *sessionInfo;
+    udt_ServiceInfo* serviceInfo = (udt_ServiceInfo*)context;
+    WTSSESSION_NOTIFICATION* sessionInfo;
 
     switch (controlCode) {
-        case SERVICE_CONTROL_STOP:
-            Service_Stop(serviceInfo);
-            break;
-        case SERVICE_CONTROL_SESSIONCHANGE:
-            sessionInfo = (WTSSESSION_NOTIFICATION*) eventData;
-            Service_SessionChange(sessionInfo->dwSessionId, eventType);
-            break;
+    case SERVICE_CONTROL_STOP:
+        Service_Stop(serviceInfo);
+        break;
+    case SERVICE_CONTROL_SESSIONCHANGE:
+        sessionInfo = (WTSSESSION_NOTIFICATION*)eventData;
+        Service_SessionChange(sessionInfo->dwSessionId, eventType);
+        break;
     }
 
     return NO_ERROR;
 }
-
 
 //-----------------------------------------------------------------------------
 // Service_StartLogging()
@@ -221,7 +209,7 @@ static DWORD WINAPI Service_Control(DWORD controlCode, DWORD eventType,
 //-----------------------------------------------------------------------------
 static int Service_StartLogging(void)
 {
-    wchar_t defaultLogFileName[PATH_MAX + 1], logFileName[PATH_MAX + 1];
+    wchar_t defaultLogFileName[MAXPATHLEN + 1], logFileName[MAXPATHLEN + 1];
     unsigned logLevel, maxFiles, maxFileSize;
     wchar_t *executable, *ptr, prefix[CX_LOGGING_PREFIX_SIZE];
     size_t size;
@@ -230,8 +218,9 @@ static int Service_StartLogging(void)
     executable = get_executable_name();
     ptr = wcsrchr(executable, '.');
     if (ptr)
-       size = ptr - executable;
-    else size = wcslen(executable);
+        size = ptr - executable;
+    else
+        size = wcslen(executable);
     wcscpy(defaultLogFileName, executable);
     wcscpy(&defaultLogFileName[size], CX_SERVICE_LOGGING_EXTENSION);
     if (wcslen(gIniFileName) == 0) {
@@ -241,31 +230,29 @@ static int Service_StartLogging(void)
 
     // read the entries from the ini file
     logLevel = GetPrivateProfileIntW(CX_LOGGING_SECTION_NAME,
-            CX_LOGGING_LEVEL_KEY, LOG_LEVEL_ERROR, gIniFileName);
-    GetPrivateProfileStringW(CX_LOGGING_SECTION_NAME,
-            CX_LOGGING_FILE_NAME_KEY, defaultLogFileName, logFileName,
-            sizeof(logFileName), gIniFileName);
-    maxFiles = GetPrivateProfileIntW(CX_LOGGING_SECTION_NAME,
-            CX_LOGGING_MAX_FILES_KEY, 1, gIniFileName);
+        CX_LOGGING_LEVEL_KEY, LOG_LEVEL_ERROR, gIniFileName);
+    GetPrivateProfileStringW(CX_LOGGING_SECTION_NAME, CX_LOGGING_FILE_NAME_KEY,
+        defaultLogFileName, logFileName, sizeof(logFileName), gIniFileName);
+    maxFiles = GetPrivateProfileIntW(
+        CX_LOGGING_SECTION_NAME, CX_LOGGING_MAX_FILES_KEY, 1, gIniFileName);
     maxFileSize = GetPrivateProfileIntW(CX_LOGGING_SECTION_NAME,
-            CX_LOGGING_MAX_FILE_SIZE_KEY, DEFAULT_MAX_FILE_SIZE, gIniFileName);
-    GetPrivateProfileStringW(CX_LOGGING_SECTION_NAME,
-            CX_LOGGING_PREFIX_KEY, CX_LOGGING_PREFIX_DEFAULT, prefix,
-            CX_LOGGING_PREFIX_SIZE, gIniFileName);
+        CX_LOGGING_MAX_FILE_SIZE_KEY, DEFAULT_MAX_FILE_SIZE, gIniFileName);
+    GetPrivateProfileStringW(CX_LOGGING_SECTION_NAME, CX_LOGGING_PREFIX_KEY,
+        CX_LOGGING_PREFIX_DEFAULT, prefix, CX_LOGGING_PREFIX_SIZE,
+        gIniFileName);
 
     // start the logging process
     return StartLoggingW(logFileName, logLevel, maxFiles, maxFileSize, prefix);
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_SetupPython()
 //   Setup Python usage for the service.
 //-----------------------------------------------------------------------------
-static int Service_SetupPython(udt_ServiceInfo *info)
+static int Service_SetupPython(udt_ServiceInfo* info)
 {
     PyObject *module, *serviceModule, *temp;
-    PyThreadState *threadState;
+    PyThreadState* threadState;
 
     // initialize logging
     if (Service_StartLogging() < 0)
@@ -297,8 +284,8 @@ static int Service_SetupPython(udt_ServiceInfo *info)
         return LogPythonException("cannot locate service name");
 
     // determine display name to use for the service
-    info->displayNameFormat = PyObject_GetAttrString(module,
-            CX_SERVICE_DISPLAY_NAME);
+    info->displayNameFormat
+        = PyObject_GetAttrString(module, CX_SERVICE_DISPLAY_NAME);
     if (!info->displayNameFormat)
         return LogPythonException("cannot locate service display name");
 
@@ -344,17 +331,17 @@ static int Service_SetupPython(udt_ServiceInfo *info)
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_Install()
 //   Install the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wchar_t **argv)
+static int Service_Install(
+    wchar_t* name, wchar_t* configFileName, int argc, wchar_t** argv)
 {
     PyObject *executableNameObj, *configFileNameObj, *formatObj, *nameObj;
     PyObject *fullName, *displayName, *formatArgs, *command;
     wchar_t *wfullName, *wdisplayName, *wcommand, *wdescription, *executable;
-    wchar_t fullPathConfigFileName[PATH_MAX + 1];
+    wchar_t fullPathConfigFileName[MAXPATHLEN + 1];
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_DESCRIPTIONW sd;
     udt_ServiceInfo info;
@@ -397,10 +384,10 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
             return LogPythonException("cannot create short command tuple");
     } else {
         Py_CLEAR(formatArgs);
-        if (!_wfullpath(fullPathConfigFileName, configFileName,
-                PATH_MAX + 1))
+        if (!_wfullpath(
+                fullPathConfigFileName, configFileName, MAXPATHLEN + 1))
             return LogWin32Error(GetLastError(),
-                    "cannot calculate absolute path of config file name");
+                "cannot calculate absolute path of config file name");
         formatObj = PyUnicode_FromString("\"%s\" \"%s\"");
         if (!formatObj)
             return LogPythonException("cannot create format string");
@@ -429,8 +416,8 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
     wdisplayName = PyUnicode_AsWideCharString(displayName, NULL);
     wcommand = PyUnicode_AsWideCharString(command, NULL);
     serviceHandle = CreateServiceW(managerHandle, wfullName, wdisplayName,
-            SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, info.startType,
-            SERVICE_ERROR_NORMAL, wcommand, NULL, NULL, NULL, NULL, NULL);
+        SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, info.startType,
+        SERVICE_ERROR_NORMAL, wcommand, NULL, NULL, NULL, NULL, NULL);
     PyMem_Free(wfullName);
     PyMem_Free(wdisplayName);
     PyMem_Free(wcommand);
@@ -441,11 +428,11 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
     if (info.description) {
         wdescription = PyUnicode_AsWideCharString(info.description, NULL);
         sd.lpDescription = wdescription;
-        if (!ChangeServiceConfig2W(serviceHandle,
-                                   SERVICE_CONFIG_DESCRIPTION, &sd)) {
+        if (!ChangeServiceConfig2W(
+                serviceHandle, SERVICE_CONFIG_DESCRIPTION, &sd)) {
             PyMem_Free(wdescription);
-            return LogWin32Error(GetLastError(),
-                                 "cannot set service description");
+            return LogWin32Error(
+                GetLastError(), "cannot set service description");
         }
         PyMem_Free(wdescription);
     }
@@ -463,15 +450,14 @@ static int Service_Install(wchar_t *name, wchar_t *configFileName, int argc, wch
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_Uninstall()
 //   Uninstall the service with the given name.
 //-----------------------------------------------------------------------------
-static int Service_Uninstall(wchar_t *name, int argc, wchar_t **argv)
+static int Service_Uninstall(wchar_t* name, int argc, wchar_t** argv)
 {
     PyObject *fullName, *formatArgs, *nameObj;
-    wchar_t *wfullName;
+    wchar_t* wfullName;
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_STATUS statusInfo;
     udt_ServiceInfo info;
@@ -516,12 +502,11 @@ static int Service_Uninstall(wchar_t *name, int argc, wchar_t **argv)
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_Run()
 //   Initialize the service.
 //-----------------------------------------------------------------------------
-static int Service_Run(udt_ServiceInfo *info)
+static int Service_Run(udt_ServiceInfo* info)
 {
     PyObject *temp, *iniFileNameObj;
 
@@ -537,7 +522,8 @@ static int Service_Run(udt_ServiceInfo *info)
         return LogPythonException("failed to create ini file as string");
     temp = PyObject_CallMethod(gInstance, "initialize", "O", iniFileNameObj);
     if (!temp)
-        temp = PyObject_CallMethod(gInstance, "Initialize", "O", iniFileNameObj);
+        temp = PyObject_CallMethod(
+            gInstance, "Initialize", "O", iniFileNameObj);
     if (!temp)
         return LogPythonException("failed to initialize instance properly");
     Py_CLEAR(iniFileNameObj);
@@ -563,12 +549,11 @@ static int Service_Run(udt_ServiceInfo *info)
     return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Service_Main()
 //   Main routine for the service.
 //-----------------------------------------------------------------------------
-static void WINAPI Service_Main(int argc, wchar_t **argv)
+static void WINAPI Service_Main(int argc, wchar_t** argv)
 {
     udt_ServiceInfo info;
 
@@ -583,15 +568,15 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
     LogMessage(LOG_LEVEL_DEBUG, "registering control function");
     gServiceHandle = RegisterServiceCtrlHandlerEx("", Service_Control, &info);
     if (!gServiceHandle) {
-        LogWin32Error(GetLastError(),
-                "cannot register service control handler");
+        LogWin32Error(
+            GetLastError(), "cannot register service control handler");
         return;
     }
 
     // run the service
     if (Service_Run(&info) < 0) {
-        // exit the process without setting SERVICE_STOPPED, to indicate that the
-        // service did not close intentionally
+        // exit the process without setting SERVICE_STOPPED, to indicate that
+        // the service did not close intentionally
         ExitProcess(-1);
     }
 
@@ -600,29 +585,26 @@ static void WINAPI Service_Main(int argc, wchar_t **argv)
     // understand that the service has already ended
     if (gControlEvent) {
         if (WaitForSingleObject(gControlEvent, INFINITE) != WAIT_OBJECT_0)
-            LogWin32Error(GetLastError(),
-                    "cannot wait for control thread to terminate");
+            LogWin32Error(
+                GetLastError(), "cannot wait for control thread to terminate");
 
-    // otherwise, the service terminated normally by some other means
+        // otherwise, the service terminated normally by some other means
     } else {
         LogMessage(LOG_LEVEL_INFO, "stopping service (internally)");
         Service_SetStatus(&info, SERVICE_STOPPED);
     }
 }
 
-
 //-----------------------------------------------------------------------------
 // main()
 //   Main routine for the service.
 //-----------------------------------------------------------------------------
-int wmain(int argc, wchar_t **argv)
+int wmain(int argc, wchar_t** argv)
 {
-    wchar_t *configFileName = NULL;
+    wchar_t* configFileName = NULL;
 
-    SERVICE_TABLE_ENTRYW table[] = {
-        { L"", (LPSERVICE_MAIN_FUNCTIONW) Service_Main },
-        { NULL, NULL }
-    };
+    SERVICE_TABLE_ENTRYW table[]
+        = { { L"", (LPSERVICE_MAIN_FUNCTIONW)Service_Main }, { NULL, NULL } };
 
     // check for arguments and perform install/uninstall as requested
     gIniFileName[0] = L'\0';
