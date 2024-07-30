@@ -11,15 +11,14 @@
 #endif
 
 #if defined(MS_WINDOWS)
-    #include <libloaderapi.h>
-    #define PY3_DLLNAME                 L"python3.dll"
+#include <libloaderapi.h>
+#define PY3_DLLNAME L"python3.dll"
 #endif
 
 // global variable (used for simplicity)
 #if !defined(MS_WINDOWS)
-static char *g_argv0;
+static char* g_argv0;
 #endif
-
 
 //-----------------------------------------------------------------------------
 // get_executable_name()
@@ -30,10 +29,10 @@ static char *g_argv0;
 // executable path.
 //-----------------------------------------------------------------------------
 #ifdef MS_WINDOWS
-static wchar_t *get_executable_name(void)
+static wchar_t* get_executable_name(void)
 {
     wchar_t exe_fullpath[MAXPATHLEN + 1];
-    wchar_t *executable;
+    wchar_t* executable;
 
     if (!GetModuleFileNameW(NULL, exe_fullpath, MAXPATHLEN + 1)) {
         FatalError("Unable to get executable name!");
@@ -47,7 +46,7 @@ static wchar_t *get_executable_name(void)
     return wcscpy(executable, exe_fullpath);
 }
 
-static wchar_t *get_lib_dir(wchar_t *executable)
+static wchar_t* get_lib_dir(wchar_t* executable)
 {
     wchar_t buf_dir[MAXPATHLEN + 1];
     wchar_t *lib_dir, *wptr;
@@ -69,12 +68,12 @@ static wchar_t *get_lib_dir(wchar_t *executable)
     return wcscpy(lib_dir, buf_dir);
 }
 
-static wchar_t *get_sys_path(wchar_t *lib_dir)
+static wchar_t* get_sys_path(wchar_t* lib_dir)
 {
     wchar_t filename[MAXPATHLEN + 1], buf_path[MAXPATHLEN + 1], *sys_path;
     char buffer[MAXPATHLEN + 1];
-    wchar_t *wbuffer;
-    FILE *fp;
+    wchar_t* wbuffer;
+    FILE* fp;
 
     // create sys.path
     wcscpy(buf_path, L"");
@@ -109,10 +108,10 @@ static wchar_t *get_sys_path(wchar_t *lib_dir)
     return wcscpy(sys_path, buf_path);
 }
 #else
-static char *get_executable_name(void)
+static char* get_executable_name(void)
 {
     char exe_fullpath[MAXPATHLEN + 1];
-    char executable_name[PATH_MAX + 1];
+    char executable_name[MAXPATHLEN + 1];
     char *executable, *ptr, *path, *temp_ptr;
     size_t size, size_argv0;
     struct stat stat_data;
@@ -122,7 +121,7 @@ static char *get_executable_name(void)
     if (strchr(g_argv0, SEP)) {
         strcpy(executable_name, g_argv0);
 
-    // if not, check the PATH environment variable
+        // if not, check the PATH environment variable
     } else {
         path = getenv("PATH");
         if (!path) {
@@ -133,15 +132,15 @@ static char *get_executable_name(void)
         size_argv0 = strlen(g_argv0);
         while (1) {
             temp_ptr = strchr(ptr, DELIM);
-            size = (temp_ptr) ? (size_t) (temp_ptr - ptr) : strlen(ptr);
+            size = (temp_ptr) ? (size_t)(temp_ptr - ptr) : strlen(ptr);
             if (size + size_argv0 + 1 <= MAXPATHLEN) {
-                strncpy(executable_name, ptr, PATH_MAX);
+                strncpy(executable_name, ptr, MAXPATHLEN);
                 executable_name[size] = SEP;
                 executable_name[size + 1] = '\0';
                 strcat(executable_name, g_argv0);
-                if (stat(executable_name, &stat_data) == 0 &&
-                        S_ISREG(stat_data.st_mode) &&
-                        (stat_data.st_mode & 0111)) {
+                if (stat(executable_name, &stat_data) == 0
+                    && S_ISREG(stat_data.st_mode)
+                    && (stat_data.st_mode & 0111)) {
                     found = 1;
                     break;
                 }
@@ -169,7 +168,7 @@ static char *get_executable_name(void)
     return strcpy(executable, exe_fullpath);
 }
 
-static char *get_lib_dir(char *executable)
+static char* get_lib_dir(char* executable)
 {
     char buf_dir[MAXPATHLEN + 1];
     char *lib_dir, *ptr;
@@ -191,11 +190,11 @@ static char *get_lib_dir(char *executable)
     return strcpy(lib_dir, buf_dir);
 }
 
-static char *get_sys_path(char *lib_dir)
+static char* get_sys_path(char* lib_dir)
 {
     char filename[MAXPATHLEN + 1], buf_path[MAXPATHLEN + 1], *sys_path;
     char buffer[MAXPATHLEN + 1];
-    FILE *fp;
+    FILE* fp;
 
     // create sys.path
     strcpy(buf_path, "");
@@ -233,7 +232,8 @@ static char *get_sys_path(char *lib_dir)
 static int LoadPython3dll(void)
 {
 
-    if (LoadLibraryExW(PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR) == NULL)
+    if (LoadLibraryExW(PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR)
+        == NULL)
 #ifdef __MINGW32__
         return 0;
 #else
@@ -247,7 +247,7 @@ static int LoadPython3dll(void)
 // InitializePython()
 //   Initialize Python on all platforms.
 //-----------------------------------------------------------------------------
-static int InitializePython(int argc, wchar_t **argv)
+static int InitializePython(int argc, wchar_t** argv)
 {
 #ifdef MS_WINDOWS
     wchar_t *executable, *lib_dir, *sys_path;
@@ -299,7 +299,6 @@ static int InitializePython(int argc, wchar_t **argv)
 
     return 0;
 }
-
 
 //-----------------------------------------------------------------------------
 // ExecuteScript()
