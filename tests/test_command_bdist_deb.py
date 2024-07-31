@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from shutil import which
 from subprocess import run
 
 import pytest
@@ -83,6 +84,35 @@ def test_bdist_deb_simple(datafiles: Path) -> None:
 
     process = run(
         [sys.executable, "setup.py", "bdist_deb"],
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=datafiles,
+    )
+    if process.returncode != 0:
+        msg = process.stderr
+        if "failed to find 'alien'" in msg:
+            pytest.xfail("alien not installed")
+        elif "Unpacking of '" in msg and "' failed at" in msg:
+            pytest.xfail("cpio 2.13 bug")
+        else:
+            pytest.fail(process.stderr)
+
+    pattern = f"{name}_{version}-?_*.deb"
+    file_created = next(dist_created.glob(pattern))
+    assert file_created.is_file(), pattern
+
+
+@pytest.mark.datafiles(SAMPLES_DIR / "simple_pyproject")
+def test_bdist_deb_simple_pyproject(datafiles: Path) -> None:
+    """Test the simple_pyproject sample with bdist_deb."""
+    name = "hello"
+    version = "0.1.2.3"
+    dist_created = datafiles / "dist"
+
+    cxfreeze = which("cxfreeze")
+    process = run(
+        [cxfreeze, "bdist_deb"],
         text=True,
         capture_output=True,
         check=False,

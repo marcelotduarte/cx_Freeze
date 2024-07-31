@@ -176,7 +176,7 @@ def main() -> None:
     if script is None:
         if command is None:
             parser.error("--script or command must be specified")
-        elif not command.startswith(("build", "bdist")):
+        elif not command.startswith(("build", "bdist", "install")):
             args.script, command = command, script  # backwards compatible
             deprecated.append("usage: required to use --script NAME")
     if command is None:

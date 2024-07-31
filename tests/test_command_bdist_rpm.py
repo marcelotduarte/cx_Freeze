@@ -5,6 +5,7 @@ from __future__ import annotations
 import platform
 import sys
 from pathlib import Path
+from shutil import which
 from subprocess import run
 
 import pytest
@@ -96,7 +97,33 @@ def test_bdist_rpm_simple(datafiles: Path) -> None:
         check=False,
         cwd=datafiles,
     )
-    print(process.stdout)
+    if process.returncode != 0:
+        if "failed to find rpmbuild" in process.stderr:
+            pytest.xfail("rpmbuild not installed")
+        else:
+            pytest.fail(process.stderr)
+
+    base_name = f"{name}-{version}"
+    file_created = dist_created / f"{base_name}-1.{arch}.rpm"
+    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
+
+
+@pytest.mark.datafiles(SAMPLES_DIR / "simple_pyproject")
+def test_bdist_rpm_simple_pyproject(datafiles: Path) -> None:
+    """Test the simple_pyproject sample with bdist_rpm."""
+    name = "hello"
+    version = "0.1.2.3"
+    arch = platform.machine()
+    dist_created = datafiles / "dist"
+
+    cxfreeze = which("cxfreeze")
+    process = run(
+        [cxfreeze, "bdist_rpm", "--quiet"],
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=datafiles,
+    )
     if process.returncode != 0:
         if "failed to find rpmbuild" in process.stderr:
             pytest.xfail("rpmbuild not installed")

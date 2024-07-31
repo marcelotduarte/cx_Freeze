@@ -55,8 +55,8 @@ class bdist_rpm(Command):
         # More meta-data: too RPM-specific to put in the setup script,
         # but needs to go in the .spec file -- so we make these options
         # to "bdist_rpm".  The idea is that packagers would put this
-        # info in setup.cfg, although they are of course free to
-        # supply it on the command line.
+        # info in pyproject.toml or setup.cfg, although they are of course free
+        # to supply it on the command line.
         (
             "distribution-name=",
             None,
@@ -470,8 +470,11 @@ class bdist_rpm(Command):
         ]
 
         # rpm scripts - figure out default build script
-        def_setup_call = f"{sys.executable} {dist.script_name}"
-        def_build = f"{def_setup_call} build_exe -O1 --silent"
+        if dist.script_name == "cxfreeze":
+            def_setup_call = shutil.which(dist.script_name)
+        else:
+            def_setup_call = f"{sys.executable} {dist.script_name}"
+        def_build = f"{def_setup_call} build_exe --optimize=1 --silent"
         def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
         # insert contents of files
