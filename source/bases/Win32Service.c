@@ -5,11 +5,10 @@
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <locale.h>
 #define WIN32_LEAN_AND_MEAN
-#include <Winsvc.h>
 #include <cx_Logging.h>
 #include <windows.h>
+#include <winsvc.h>
 
 // define constants
 #define CX_LOGGING_SECTION_NAME      L"Logging"

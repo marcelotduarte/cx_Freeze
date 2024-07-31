@@ -7,6 +7,7 @@
 #include <osdefs.h>
 
 #if MAXPATHLEN < 1024
+#undef MAXPATHLEN
 #define MAXPATHLEN 1024
 #endif
 
