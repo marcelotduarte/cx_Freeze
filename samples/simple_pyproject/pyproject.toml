@@ -6,7 +6,6 @@ description = "Sample cx_Freeze script"
 [tool.cxfreeze]
 executables = [
     "hello.py",
-    {script = "hello.py", target_name = "hello2"}
 ]
 
 [tool.cxfreeze.build_exe]
