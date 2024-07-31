@@ -5,11 +5,11 @@
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <locale.h>
 #ifdef MS_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#include <locale.h>
 
 // disable filename globbing on Windows
 #ifdef MS_WINDOWS
