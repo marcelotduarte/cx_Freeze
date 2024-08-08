@@ -46,7 +46,7 @@ install:
 		uv pip install --upgrade --resolution=highest\
 			-r requirements.txt \
 			-r requirements-dev.txt -r requirements-doc.txt &&\
-		uv pip install -e. --no-build-isolation --no-deps &&\
+		uv pip install -e. --no-build-isolation --no-deps --reinstall-package cx_Freeze &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
@@ -86,7 +86,7 @@ install_test: uninstall
 		uv pip install --upgrade --resolution=highest\
 		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt;\
 	fi
-	uv pip install -e. --no-build-isolation --no-deps
+	uv pip install -e. --no-build-isolation --no-deps --reinstall-package cx_Freeze
 
 .PHONY: test
 test: install_test
