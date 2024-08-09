@@ -265,10 +265,10 @@ It can be further customized:
        file system since several packages assume that is where they
        are found and will fail when placed in a zip file; use * to specify that
        all packages should be placed in the file system and excluded from the
-       zip file (the default)
+       zip file [default: \*]
    * - .. option:: zip_filename
      - filename for the shared zip file (.zip)
-       [default: library.zip or None if :option:`no_compress` is used]
+       [default: "library.zip" or None if :option:`no_compress` is used]
    * - .. option:: no_compress
      - create a zip file with no compression (See also :option:`zip_filename`)
    * - .. option:: optimize
@@ -332,7 +332,7 @@ This is the equivalent help to specify the same options on the command line:
                               zip file and place in the file system instead (or *
                               for all) [default: *]
       --zip-filename          filename for the shared zipfile (.zip) [default:
-                              library.zip or None if --no-compress is used]
+                              "library.zip" or None if --no-compress is used]
       --no-compress           create a zip file with no compression (See also --
                               zip-filename)
       --optimize (-O)         optimization level: -O1 for "python -O", -O2 for
@@ -433,8 +433,8 @@ constructor are as follows:
        is searched
    * - .. option:: base
      - the name of the base executable; the pre-defined values are:
-       "console" (default), "gui" and "service"; a user-defined base
-       is accepted if it is given with an absolute path name
+       "console", "gui" and "service"; a user-defined base is accepted
+       if it is given with an absolute path name [default: "console"]
    * - .. option:: target_name
      - the name of the target executable; the default value is the
        name of the script; it is recommended NOT to use an extension

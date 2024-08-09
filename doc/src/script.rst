@@ -30,8 +30,8 @@ Further customization can be done using the following options:
 .. option:: --base=NAME, --base-name=NAME
 
     the name of the base executable; the pre-defined values are:
-    "console" (default), "gui" and "service"; a user-defined base
-    is accepted if it is given with an absolute path name
+    "console", "gui" and "service"; a user-defined base is accepted
+    if it is given with an absolute path name [default: "console"]
 
 .. option:: --target-name=NAME
 

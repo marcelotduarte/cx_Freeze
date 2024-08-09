@@ -33,14 +33,14 @@ file executable.
    * - .. option:: build_dir (-b)
      - directory of built executables and dependent files
    * - .. option:: dist_dir (-d)
-     - directory to put final built distributions in [default: dist]
+     - directory to put final built distributions in [default: "dist"]
    * - .. option:: skip_build
      - skip rebuilding everything (for testing/debugging)
    * - .. option:: target_name
      - name of the file to create; if the name ends with ".AppImage"
        then it is used verbatim, otherwise, information about the
-       program version and platform will be added to the installer
-       name [default: use metadata name or name of the first executable].
+       program version and platform will be added to the installer name
+       [default: metadata name or the name of the first executable].
    * - .. option:: target_version
      - version of the file to create [default: metadata version if available]
    * - .. option:: silent (-s)

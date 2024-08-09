@@ -106,7 +106,7 @@ class build_exe(Command):
             "zip-filename=",
             None,
             "filename for the shared zipfile (.zip) "
-            "[default: library.zip or None if --no-compress is used]",
+            '[default: "library.zip" or None if --no-compress is used]',
         ),
         (
             "no-compress",
