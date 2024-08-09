@@ -284,8 +284,8 @@ It can be further customized:
        2. also suppress missing-module warning messages;
        3. also suppress all other warning messages.
    * - .. option:: include_msvcr
-     - include the Microsoft Visual C runtime files without needing the
-       redistributable package installed
+     - include the Microsoft Visual C++ Redistributable files
+       without needing the redistributable package installed
 
 .. versionadded:: 6.7
     :option:`silent_level` option.

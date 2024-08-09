@@ -291,10 +291,6 @@ class Freezer:
                     dependent_files.add(dependent_file)
                     break
 
-        # Search the C runtimes, using the directory of the python libraries
-        # and the directories of the base executable
-        self._platform_add_extra_dependencies(dependent_files)
-
         for source in dependent_files:
             # Store dynamic libraries in appropriate location for platform.
             self._copy_top_dependency(source)
@@ -333,13 +329,6 @@ class Freezer:
 
         # Add resources like version metadata and icon
         self._add_resources(exe)
-
-    def _platform_add_extra_dependencies(
-        self, dependent_files: set[Path]
-    ) -> None:
-        """Override with platform specific files to add runtime libraries to
-        the list of dependent_files calculated in _freeze_executable.
-        """
 
     @abstractmethod
     def _copy_top_dependency(self, source: Path) -> None:
@@ -896,7 +885,6 @@ class WinFreezer(Freezer, PEParser):
         Darwin and Windows.
         """
         # top dependencies go into build root directory on windows
-        # MS VC runtimes are handled in _copy_file/_pre_copy_hook
         # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
         # conda-forge python3x.dll depends on zlib.dll
         target_dir = self.target_dir
@@ -916,12 +904,6 @@ class WinFreezer(Freezer, PEParser):
                 )
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
-        """Prepare the source and target paths. Also, adjust the target of
-        C runtime libraries.
-        """
-        # fix the target path for C runtime files
-        if any(filter(target.match, self.runtime_files)):
-            target = self.target_dir / target.name
         return source, target
 
     def _post_copy_hook(
@@ -980,8 +962,22 @@ class WinFreezer(Freezer, PEParser):
                     dependent_source, dependent_target, copy_dependent_files
                 )
 
+    def _post_freeze_hook(self) -> None:
+        # MSVC runtime files
+        if self.include_msvcr:
+            repack = import_module("cx_Freeze.winmsvcr_repack")
+            repack.copy_msvcr_files(self.target_dir)
+
     def _default_bin_excludes(self) -> list[str]:
-        return ["comctl32.dll", "oci.dll"]
+        winmsvcr = import_module("cx_Freeze.winmsvcr")
+        # Exclude by default the MSVC runtime files, that can be added
+        # on demand in _post_freeze_hook
+        return [
+            *winmsvcr.MSVC_FILES,
+            *winmsvcr.UCRT_FILES,
+            "comctl32.dll",
+            "oci.dll",
+        ]
 
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[str] = []
@@ -1029,29 +1025,6 @@ class WinFreezer(Freezer, PEParser):
                 paths.add(prefix / dest_relative)
         # return only valid paths
         return [path for path in paths if path.is_dir()]
-
-    def _platform_add_extra_dependencies(
-        self, dependent_files: set[Path]
-    ) -> None:
-        search_dirs: set[Path] = set()
-        for filename in dependent_files:
-            search_dirs.add(filename.parent)
-        for search_dir in search_dirs:
-            for pattern in self.runtime_files:
-                for filename in search_dir.glob(pattern):
-                    filepath = search_dir / filename
-                    if filepath.exists():
-                        dependent_files.add(filepath)
-
-    @cached_property
-    def runtime_files(self) -> set[str]:
-        """Deal with C-runtime files."""
-        winmsvcr = import_module("cx_Freeze.winmsvcr")
-        if not self.include_msvcr:
-            # just put on the exclusion list
-            self.bin_excludes.extend(winmsvcr.FILES)
-            return set()
-        return set(winmsvcr.FILES)
 
 
 class DarwinFreezer(Freezer, Parser):

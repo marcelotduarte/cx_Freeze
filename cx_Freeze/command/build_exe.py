@@ -138,7 +138,8 @@ class build_exe(Command):
         (
             "include-msvcr",
             None,
-            "include the Microsoft Visual C runtime files",
+            "include the Microsoft Visual C++ Redistributable files "
+            "without needing the redistributable package installed",
         ),
     ]
     boolean_options: ClassVar[list[str]] = [
