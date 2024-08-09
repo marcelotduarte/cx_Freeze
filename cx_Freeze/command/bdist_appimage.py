@@ -41,7 +41,7 @@ class bdist_appimage(Command):
         (
             "appimagekit=",
             None,
-            f"path to AppImageKit [default: {APPIMAGEKIT_TOOL}]",
+            f'path to AppImageKit [default: "{APPIMAGEKIT_TOOL}"]',
         ),
         (
             "bdist-base=",
@@ -56,7 +56,7 @@ class bdist_appimage(Command):
         (
             "dist-dir=",
             "d",
-            "directory to put final built distributions in [default: dist]",
+            'directory to put final built distributions in [default: "dist"]',
         ),
         (
             "skip-build",

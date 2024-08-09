@@ -74,8 +74,8 @@ def prepare_parser() -> argparse.ArgumentParser:
         "--base-name",
         metavar="NAME",
         help="the name of the base executable; the pre-defined values are: "
-        '"console" (default), "gui" and "service"; a user-defined base '
-        "is accepted if it is given with an absolute path name",
+        '"console", "gui" and "service"; a user-defined base is accepted '
+        "if it is given with an absolute path name [default: console]",
     )
     parser.add_argument(
         "--target-name",

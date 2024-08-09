@@ -42,8 +42,8 @@ class bdist_rpm(Command):
         (
             "rpm-base=",
             None,
-            'base directory for creating RPMs (defaults to "rpm" under '
-            "--bdist-base; must be specified for RPM 2)",
+            "base directory for creating RPMs "
+            '[defaults to "rpm" under "--bdist-base"]',
         ),
         (
             "dist-dir=",
@@ -80,7 +80,7 @@ class bdist_rpm(Command):
             "packager=",
             None,
             'RPM packager (eg. "Jane Doe <jane@example.net>") '
-            "[default: vendor]",
+            "[default: same as vendor]",
         ),
         (
             "doc-files=",
