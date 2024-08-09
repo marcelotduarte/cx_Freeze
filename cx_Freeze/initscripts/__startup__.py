@@ -66,19 +66,34 @@ def get_name(executable) -> str:
 
 def init() -> None:
     """Basic initialization of the startup script."""
+    from pprint import pprint
+
+    sd = {
+        k: v
+        for k, v in sys.__dict__.items()
+        if isinstance(v, (int, str, list, tuple, dict))
+    }
+    sd.pop("__doc__")
+    sd.pop("builtin_module_names")
+    sd.pop("copyright")
+    sd.pop("modules")
+    print("---debug in __startup__, sys:", file=sys.stderr)
+    pprint(sd, stream=sys.stderr)
+
     # to avoid bugs (especially in MSYS2) use normpath after any change
     sys.executable = os.path.normpath(sys.executable)
     sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
-    sys.meta_path.append(ExtensionFinder)
 
-    # normalize and check sys.path, preserving the reference
-    j = 0
-    for path in list(map(os.path.normpath, sys.path)):
-        if os.path.exists(path):
-            sys.path[j] = path
-            j = j + 1
-        else:
-            sys.path.remove(path)
+    # normalize (preserving the reference) and check sys.path
+    has_zipfile = False
+    for j, path in enumerate(sys.path):
+        sys.path[j] = os.path.normpath(path)
+        if path.endswith(".zip"):
+            has_zipfile = True
+
+    # enable ExtensionFinder only if uses a zip file
+    if has_zipfile:
+        sys.meta_path.append(ExtensionFinder)
 
     if sys.platform.startswith("win"):
         # the search path for dependencies
