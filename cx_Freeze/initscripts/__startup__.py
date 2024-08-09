@@ -114,8 +114,6 @@ def init() -> None:
 
     # set environment variables
     for name in (
-        "TCL_LIBRARY",
-        "TK_LIBRARY",
         "PYTZ_TZDATADIR",
         "PYTHONTZPATH",
     ):

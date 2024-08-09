@@ -9,6 +9,7 @@ from pathlib import Path
 __all__ = [
     "BUILD_EXE_DIR",
     "EXE_SUFFIX",
+    "EXT_SUFFIX",
     "IS_CONDA",
     "IS_LINUX",
     "IS_MACOS",
@@ -23,6 +24,7 @@ PYTHON_VERSION = sysconfig.get_python_version()
 
 BUILD_EXE_DIR = Path(f"build/exe.{PLATFORM}-{PYTHON_VERSION}")
 EXE_SUFFIX = sysconfig.get_config_var("EXE")
+EXT_SUFFIX = sysconfig.get_config_var("EXT_SUFFIX")
 
 IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 
