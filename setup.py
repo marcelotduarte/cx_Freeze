@@ -159,12 +159,10 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         if IS_MINGW or IS_WINDOWS:
             platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-            suffix = ".exe"
         else:
             soabi = get_config_var("SOABI")
-            suffix = ""
-        name_base = f"{name}-{soabi}"
-        return os.fspath(ext_path.parent / (name_base + suffix))
+        exe_suffix = get_config_var("EXE")
+        return os.fspath(ext_path.parent / f"{name}-{soabi}{exe_suffix}")
 
     @staticmethod
     def _get_dll_path(name: str) -> Path:
@@ -213,24 +211,15 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         embedded in python, are compiled separately.
         Also, copies tcl/tk libraries.
         """
-        # not used in Windows
-        if IS_MINGW or IS_WINDOWS:
+        # do not copy libraries in develop mode, Windows, conda, etc
+        if self.inplace or IS_MINGW or IS_WINDOWS or IS_CONDA or ENABLE_SHARED:
             return
+        # copy only for manylinux and macpython
         bases = f"{self.build_lib}/cx_Freeze/bases"
         ext_suffix = get_config_var("EXT_SUFFIX")
-        # cleanup
-        dynload = Path(bases, "lib-dynload")
-        if dynload.is_dir():
-            # discard modules that exist in bases/lib-dynload
-            for file in dynload.glob(f"*{ext_suffix}"):
-                file.unlink(missing_ok=True)
-        # after the cleanup
-        if IS_CONDA or ENABLE_SHARED:
-            return
-        # copy for manylinux and macpython
         if bool(get_config_var("DESTSHARED")):
             source_path = Path(get_config_var("DESTSHARED"))
-            target_path = dynload.as_posix()
+            target_path = f"{bases}/lib-dynload"
             self.mkpath(target_path)
             for source in source_path.glob(f"*{ext_suffix}"):
                 self.copy_file(source.as_posix(), target_path)

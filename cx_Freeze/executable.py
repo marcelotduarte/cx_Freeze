@@ -10,7 +10,7 @@ from pathlib import Path
 from sysconfig import get_config_var, get_platform
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import EXE_SUFFIX, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.exception import OptionError, SetupError
 
@@ -76,10 +76,9 @@ class Executable:
         if IS_WINDOWS or IS_MINGW:
             platform_nodot = get_platform().replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-            suffix = ".exe"
         else:
             soabi = get_config_var("SOABI")
-            suffix = ""
+        suffix = EXE_SUFFIX
         name_base = f"{name}-{soabi}"
         self._base: Path = get_resource_file_path("bases", name_base, suffix)
         if self._base is None:
