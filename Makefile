@@ -26,11 +26,6 @@ pylint:
 
 .PHONY: clean
 clean: uninstall
-	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
-		pre-commit clean;\
-		pre-commit uninstall;\
-		rm -f .git/hooks/pre-commit;\
-	fi
 	@$(MAKE) -C doc clean
 	@if which coverage; then\
 		coverage erase --data-file=$(COVERAGE_FILE);\
@@ -43,18 +38,19 @@ install:
 		python -m pip install --upgrade uv --disable-pip-version-check;\
 	fi
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
-		uv pip install --upgrade --resolution=highest\
-			-r requirements.txt \
-			-r requirements-dev.txt -r requirements-doc.txt &&\
-		uv pip install -e. --no-build-isolation --no-deps --reinstall-package cx_Freeze &&\
+		UV_RESOLUTION=highest uv pip install --upgrade \
+			-r requirements.txt -r requirements-dev.txt -r requirements-doc.txt &&\
+		uv pip install -e. --no-build-isolation --no-deps --reinstall &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
 .PHONY: uninstall
 uninstall:
-	@uv pip uninstall cx_Freeze || true
-	@# remove editable wheel modules that exist in bases/lib-dynload
-	@rm -rf cx_Freeze/bases/lib-dynload/*$(EXT_SUFFIX)
+	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
+		pre-commit clean;\
+		pre-commit uninstall;\
+		rm -f .git/hooks/pre-commit;\
+	fi
 
 .PHONY: upgrade
 upgrade: clean install
@@ -67,7 +63,8 @@ html:
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
-		uv pip install -r requirements-doc.txt --upgrade --resolution=highest &&\
+		UV_RESOLUTION=highest \
+		uv pip install --upgrade -r requirements-doc.txt &&\
 		$(MAKE) -C doc html;\
 	fi
 
@@ -81,12 +78,10 @@ doc: html
 	$(MAKE) -C doc pdf
 
 .PHONY: install_test
-install_test: uninstall
-	if ! which pytest; then\
-		uv pip install --upgrade --resolution=highest\
-		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt;\
-	fi
-	uv pip install -e. --no-build-isolation --no-deps --reinstall-package cx_Freeze
+install_test:
+	UV_RESOLUTION=highest uv pip install --upgrade \
+		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt
+	uv pip install -e. --no-build-isolation --no-deps --reinstall
 
 .PHONY: test
 test: install_test
@@ -138,8 +133,7 @@ ifeq ($(PY_PLATFORM),linux-x86_64)
 	&& which podman; then\
 		CIBW_CONTAINER_ENGINE=podman cibuildwheel --only $(CIBW_ONLY);\
 	fi
-	$(MAKE) uninstall
-	uv pip install cx_Freeze --no-index --no-deps -f wheelhouse
+	uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze" || true
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
