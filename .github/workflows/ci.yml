@@ -87,6 +87,7 @@ jobs:
         with:
           name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
           path: wheelhouse
+          retention-days: 5
           compression-level: 0  # wheel is a zip file
 
       - name: Install cx_Freeze and dependencies
