@@ -131,7 +131,7 @@ class TestVersionInfo:
         with pytest.raises(FileNotFoundError):
             version.stamp("test.exe")
 
-    @pytest.fixture()
+    @pytest.fixture
     def tmp_test(self, tmp_path) -> Path:
         """Generate a executable file test.exe to be used in tests."""
         create_package(tmp_path, SOURCE_SIMPLE_TEST)

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class TestModuleFinder:
     """Provides test cases for ModuleFinder class."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def fix_module_finder(self) -> ModuleFinder:
         constants = ConstantsModule()
         return ModuleFinder(constants_module=constants)
