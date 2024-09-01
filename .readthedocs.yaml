@@ -10,7 +10,7 @@ build:
     - asdf plugin add uv
     - asdf install uv latest
     - asdf global uv latest
-    - uv venv $READTHEDOCS_VIRTUALENV_PATH
+    - uv venv --python $(which python) $READTHEDOCS_VIRTUALENV_PATH
     - . $READTHEDOCS_VIRTUALENV_PATH/bin/activate &&
       uv pip install -e.[doc] &&
       python -m sphinx doc/src $READTHEDOCS_OUTPUT/html
