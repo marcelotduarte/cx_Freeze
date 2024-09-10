@@ -44,17 +44,15 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     """Inject code in PyQt5 __init__ to locate and load plugins and
     resources. Also, this fixes issues with conda-forge versions.
     """
-    # Activate the optimized mode by default in pip environments
-    if module.name in finder.zip_exclude_packages:
-        print(f"WARNING: zip_exclude_packages={module.name} ignored.")
-    if module.name in finder.zip_include_packages:
-        print(f"WARNING: zip_include_packages={module.name} ignored.")
     distribution = module.distribution
     environment = (distribution and distribution.installer) or "pip"
+    # Activate the optimized mode by default in pip environments
     if environment == "pip":
+        if module.name in finder.zip_exclude_packages:
+            print(f"WARNING: zip_exclude_packages={module.name} ignored.")
+        if module.name in finder.zip_include_packages:
+            print(f"WARNING: zip_include_packages={module.name} ignored.")
         module.in_file_system = 2
-    else:
-        module.in_file_system = 1
 
     # Include a module that fix an issue
     qt_debug = get_resource_file_path("hooks/pyqt5", "_append_to_init", ".py")
