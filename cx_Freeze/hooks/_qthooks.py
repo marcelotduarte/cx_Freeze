@@ -13,9 +13,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.parser import PEParser
 
 if TYPE_CHECKING:
-    from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
 
 
@@ -124,34 +125,46 @@ def get_qt_paths(name: str, variable: str) -> tuple[Path, Path]:
     return (source_path, target_path)
 
 
+def get_qt_files(
+    finder: ModuleFinder, name: str, variable: str, arg: str
+) -> list[tuple[Path, Path]]:
+    """Helper function to get Qt plugins, resources, translations, etc."""
+    if IS_WINDOWS:
+        source_bin_path, target_bin_path = get_qt_paths(name, "BinariesPath")
+        parser = PEParser(finder.path, [source_bin_path])
+
+    source_path, target_path = get_qt_paths(name, variable)
+    if source_path.joinpath(arg).is_dir():
+        source_path = source_path / arg
+        target_path = target_path / arg
+        pattern = "*"
+    else:
+        pattern = arg
+    include_files = []
+    for source in source_path.glob(pattern):
+        if IS_WINDOWS:
+            include_files += [
+                (file, f"lib/{name}/{file.name}")
+                for file in parser.get_dependent_files(source)
+            ]
+        include_files.append((source, target_path / source.name))
+    return include_files
+
+
 def get_qt_plugins_paths(name: str, plugins: str) -> list[tuple[Path, Path]]:
     """Helper function to get a list of source and target paths of Qt plugins,
     indicated to be used in include_files.
     """
-    source_path, target_path = get_qt_paths(name, "PluginsPath")
-    source_path = source_path / plugins
-    if not source_path.exists():
-        return []
-    return [(source_path, target_path / plugins)]
+    finder = ModuleFinder()
+    return get_qt_files(finder, name, "PluginsPath", plugins)
 
 
-def copy_qt_files(finder: ModuleFinder, name: str, *args) -> None:
-    """Helper function to find and copy Qt plugins, resources, translations,
-    etc.
-    """
-    source_path, target_path = get_qt_paths(name, variable=args[0])
-    for arg in args[1:]:
-        if "*" in arg or "?" in arg:
-            # XXX: this code needs improvement
-            for source in source_path.glob(arg):
-                if source.is_file():
-                    finder.include_files(source, target_path / source.name)
-            return
-        source_path = source_path / arg
-        target_path = target_path / arg
-    if not source_path.exists():
-        return
-    finder.include_files(source_path, target_path)
+def copy_qt_files(
+    finder: ModuleFinder, name: str, variable: str, arg: str
+) -> None:
+    """Helper function to copy Qt plugins, resources, translations, etc."""
+    for source_path, target_path in get_qt_files(finder, name, variable, arg):
+        finder.include_files(source_path, target_path)
 
 
 def load_qt_phonon(finder: ModuleFinder, module: Module) -> None:
@@ -262,7 +275,8 @@ def load_qt_qtprintsupport(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "PluginsPath", "printsupport")
-    copy_qt_files(finder, name, "BinariesPath", "Qt?Pdf*.dll")
+    if IS_WINDOWS:
+        copy_qt_files(finder, name, "PrefixPath", "Qt?Pdf*.dll")
 
 
 def load_qt_qtqml(finder: ModuleFinder, module: Module) -> None:
