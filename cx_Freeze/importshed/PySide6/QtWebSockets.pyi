@@ -3,6 +3,7 @@
 import PySide6.QtWebSockets
 import PySide6.QtCore
 import PySide6.QtNetwork
+import os
 import enum
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken

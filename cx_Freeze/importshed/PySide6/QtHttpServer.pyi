@@ -3,5 +3,6 @@
 import PySide6.QtHttpServer
 import PySide6.QtCore
 import PySide6.QtNetwork
+import os
 import enum
 from shiboken6 import Shiboken

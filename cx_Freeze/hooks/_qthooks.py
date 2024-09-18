@@ -282,8 +282,10 @@ def load_qt_qtprintsupport(finder: ModuleFinder, module: Module) -> None:
 def load_qt_qtqml(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
-    copy_qt_files(finder, name, "PluginsPath", "qmltooling")
     copy_qt_files(finder, name, "PluginsPath", "qmllint")  # pyqt6
+    copy_qt_files(finder, name, "PluginsPath", "qmltooling")
+    copy_qt_files(finder, name, "QmlImportsPath", "*")
+    finder.include_module(f"{name}.QtQuick")
 
 
 def load_qt_qtquick(finder: ModuleFinder, module: Module) -> None:

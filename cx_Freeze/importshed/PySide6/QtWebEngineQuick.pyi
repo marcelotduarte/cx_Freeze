@@ -2,6 +2,7 @@
 
 import PySide6.QtWebEngineQuick
 import PySide6.QtCore
+import PySide6.QtWebEngineCore
 import enum
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken
