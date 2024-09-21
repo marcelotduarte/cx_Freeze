@@ -13,6 +13,7 @@ from cx_Freeze.common import (
     get_resource_file_path,
 )
 from cx_Freeze.hooks._qthooks import copy_qt_files
+from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyside2_qtcore
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtdesigner as load_pyside2_qtdesigner,
 )
@@ -148,6 +149,7 @@ def load_pyside2_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
 
 __all__ = [
     "load_pyside2",
+    "load_pyside2_qtcore",
     "load_pyside2_qtdesigner",
     "load_pyside2_qtgui",
     "load_pyside2_qtmultimedia",

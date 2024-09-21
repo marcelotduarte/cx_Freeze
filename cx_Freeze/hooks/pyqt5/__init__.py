@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.hooks._qthooks import copy_qt_files
+from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyqt5_qtcore
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtdesigner as load_pyqt5_qtdesigner,
 )
@@ -125,6 +126,7 @@ def load_pyqt5_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
 
 __all__ = [
     "load_pyqt5",
+    "load_pyqt5_qtcore",
     "load_pyqt5_qtdesigner",
     "load_pyqt5_qtgui",
     "load_pyqt5_qtmultimedia",

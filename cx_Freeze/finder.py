@@ -94,6 +94,7 @@ class ModuleFinder:
         self._exclude_unused_modules()
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
+        self.optional_files: dict[Path, Path] = {}
 
     def _add_module(
         self,

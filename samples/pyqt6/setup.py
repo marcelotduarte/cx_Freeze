@@ -18,7 +18,8 @@ try:
 except ImportError:
     get_qt_plugins_paths = None
 
-include_files = []
+include_files = [("logo.svg", "share/logo.svg")]
+
 if get_qt_plugins_paths:
     # Inclusion of extra plugins (since cx_Freeze 6.8b2)
     # cx_Freeze automatically imports the following plugins depending on the
