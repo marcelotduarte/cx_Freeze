@@ -3,4 +3,5 @@
 import PySide6.QtCore
 import os
 import enum
+from collections.abc import Iterable
 from shiboken6 import Shiboken

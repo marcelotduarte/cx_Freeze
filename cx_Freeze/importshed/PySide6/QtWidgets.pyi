@@ -3,6 +3,8 @@
 import PySide6.QtWidgets
 import PySide6.QtCore
 import PySide6.QtGui
+import os
 import enum
+from collections.abc import Iterable
 from PySide6.QtCore import Signal, SignalInstance
 from shiboken6 import Shiboken

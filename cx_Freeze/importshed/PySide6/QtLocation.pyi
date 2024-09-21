@@ -3,6 +3,7 @@
 import PySide6.QtLocation
 import PySide6.QtCore
 import PySide6.QtPositioning
+import os
 import enum
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken
