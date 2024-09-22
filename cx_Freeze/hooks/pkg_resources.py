@@ -13,21 +13,26 @@ if TYPE_CHECKING:
 
 def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     """The pkg_resources must load the _vendor subpackage."""
-    finder.exclude_module("pkg_resources._vendor.platformdirs.__main__")
-    finder.include_package("pkg_resources._vendor")
-    module.ignore_names.update(
-        [
-            "__main__",
-            "pkg_resources.extern.jaraco.text",
-            "pkg_resources.extern.packaging",
-            "pkg_resources.extern.packaging.markers",
-            "pkg_resources.extern.packaging.requirements",
-            "pkg_resources.extern.packaging.specifiers",
-            "pkg_resources.extern.packaging.utils",
-            "pkg_resources.extern.packaging.version",
-            "pkg_resources.extern.platformdirs",
-        ]
-    )
+    finder.exclude_module("pkg_resources.tests")
+    try:
+        finder.include_package("pkg_resources._vendor")
+    except ImportError:
+        pass  # pkg_resources from setuptools >= 71 does not uses _vendor
+    else:
+        finder.exclude_module("pkg_resources._vendor.platformdirs.__main__")
+        module.ignore_names.update(
+            [
+                "__main__",
+                "pkg_resources.extern.jaraco.text",
+                "pkg_resources.extern.packaging",
+                "pkg_resources.extern.packaging.markers",
+                "pkg_resources.extern.packaging.requirements",
+                "pkg_resources.extern.packaging.specifiers",
+                "pkg_resources.extern.packaging.utils",
+                "pkg_resources.extern.packaging.version",
+                "pkg_resources.extern.platformdirs",
+            ]
+        )
 
 
 def load_pkg_resources__vendor_jaraco_text(_, module: Module) -> None:
