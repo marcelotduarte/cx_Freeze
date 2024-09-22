@@ -930,26 +930,32 @@ class WinFreezer(Freezer, PEParser):
         target: Path,
         copy_dependent_files: bool,
     ) -> None:
-        if (
+        if not (
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
         ):
-            library_dir = self.target_dir / "lib"
-            source_dir = source.parent
-            target_dir = target.parent
-            platform_bin_path = self._platform_bin_path
-            for dependent_source in self.get_dependent_files(source):
-                if not self._should_copy_file(dependent_source):
-                    continue
-                # put the dependency in the target_dir (except C runtime)
-                dependent_srcdir = dependent_source.parent
-                dependent_name = dependent_source.name
+            return
+        library_dir = self.target_dir / "lib"
+        source_dir = source.parent
+        target_dir = target.parent
+        optional_files = self.finder.optional_files
+        platform_bin_path = self._platform_bin_path
+        for dependent in self.get_dependent_files(source):
+            if not self._should_copy_file(dependent):
+                continue
+            dependent_source = dependent.resolve()
+            dependent_name = dependent_source.name
+            optional = optional_files.get(dependent_source)
+            if optional:
+                dependent_target = self.target_dir / optional
+            else:
+                # put the dependency (relatively) in the target_dir subtree
+                # this is possible with most packages installed by pip
                 try:
-                    # dependency located with source or in a subdirectory
                     relative = dependent_source.relative_to(source_dir)
-                    dependent_target = target_dir / relative
                 except ValueError:
                     # check if dependency is on default binaries path
+                    dependent_srcdir = dependent_source.parent
                     if dependent_srcdir in platform_bin_path:
                         dependent_target = library_dir / dependent_name
                     else:
@@ -961,13 +967,16 @@ class WinFreezer(Freezer, PEParser):
                             dependent_target = Path(*parts) / dependent_name
                         except ValueError:
                             dependent_target = target_dir / dependent_name
+                else:
+                    # dependency located with source or in a subdirectory
+                    dependent_target = target_dir / relative
                 # make sure the dependency is in the correct directory because
                 # it cannot be outside the library_dir directory subtree
                 try:
                     dependent_target.relative_to(library_dir)
                 except ValueError:
                     dependent_target = library_dir / dependent_name
-                else:
+                if 0:  # else:
                     _, dependent_target = self._pre_copy_hook(
                         dependent_source, dependent_target
                     )
@@ -976,9 +985,9 @@ class WinFreezer(Freezer, PEParser):
                             if file.match(dependent_name):
                                 dependent_target = file
                                 break
-                self._copy_file(
-                    dependent_source, dependent_target, copy_dependent_files
-                )
+            self._copy_file(
+                dependent_source, dependent_target, copy_dependent_files
+            )
 
     def _default_bin_excludes(self) -> list[str]:
         return ["comctl32.dll", "oci.dll"]
@@ -1028,7 +1037,7 @@ class WinFreezer(Freezer, PEParser):
             if dest_relative:
                 paths.add(prefix / dest_relative)
         # return only valid paths
-        return [path for path in paths if path.is_dir()]
+        return [path.resolve() for path in paths if path.is_dir()]
 
     def _platform_add_extra_dependencies(
         self, dependent_files: set[Path]
@@ -1230,22 +1239,34 @@ class LinuxFreezer(Freezer, ELFParser):
         target: Path,
         copy_dependent_files: bool,
     ) -> None:
-        if (
+        if not (
             copy_dependent_files
             and source not in self.finder.excluded_dependent_files
         ):
-            source_dir = source.parent
-            target_dir = target.parent
-            fix_rpath = set()
-            for dependent in self.get_dependent_files(source):
-                if not self._should_copy_file(dependent):
-                    continue
-                dependent_file = dependent.resolve()
+            return
+        source_dir = source.parent
+        target_dir = target.parent
+        optional_files = self.finder.optional_files
+        fix_rpath = set()
+        for dependent in self.get_dependent_files(source):
+            if not self._should_copy_file(dependent):
+                continue
+            dependent_source = dependent.resolve()
+            dependent_name = dependent_source.name
+            optional = optional_files.get(dependent_source)
+            if optional:
+                dependent_target = self.target_dir / optional
+                try:
+                    relative = dependent_target.relative_to(target_dir)
+                except ValueError:
+                    relative = Path(
+                        os.path.relpath(dependent_target, target_dir)
+                    )
+            else:
                 # put the dependency (relatively) in the target_dir subtree
                 # this is possible with most packages installed by pip
-                dependent_name = dependent_file.name
                 try:
-                    relative = dependent_file.relative_to(source_dir)
+                    relative = dependent_source.relative_to(source_dir)
                 except ValueError:
                     # put the dependency in target_dir along with the binary
                     # file being copied, unless the dependency has already been
@@ -1264,19 +1285,20 @@ class LinuxFreezer(Freezer, ELFParser):
                                 dependent_target = file
                             break
                 else:
+                    # dependency located with source or in a subdirectory
                     dependent_target = target_dir / relative
-                dep_libs = os.fspath(relative.parent)
-                fix_rpath.add(dep_libs)
-                self._copy_file(
-                    dependent_file, dependent_target, copy_dependent_files
-                )
-                if dependent.name != dependent_name:
-                    self.replace_needed(target, dependent.name, dependent_name)
-            if fix_rpath:
-                has_rpath = self.get_rpath(target)
-                rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
-                if has_rpath != rpath:
-                    self.set_rpath(target, rpath)
+            dep_libs = os.fspath(relative.parent)
+            fix_rpath.add(dep_libs)
+            self._copy_file(
+                dependent_source, dependent_target, copy_dependent_files
+            )
+            if dependent.name != dependent_name:
+                self.replace_needed(target, dependent.name, dependent_name)
+        if fix_rpath:
+            has_rpath = self.get_rpath(target)
+            rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
+            if has_rpath != rpath:
+                self.set_rpath(target, rpath)
 
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying the top dependencies in _freeze_executable."""

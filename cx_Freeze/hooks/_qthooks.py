@@ -13,10 +13,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.parser import PEParser
 
 if TYPE_CHECKING:
+    from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
 
 
@@ -108,7 +107,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
             target = target_base
         else:
             target = target_base / source.relative_to(prefix_path)
-        data[key] = source, target
+        data[key] = source.resolve(), target
 
     # debug
     if os.environ.get("QT_DEBUG"):
@@ -125,14 +124,10 @@ def get_qt_paths(name: str, variable: str) -> tuple[Path, Path]:
     return (source_path, target_path)
 
 
-def get_qt_files(
-    finder: ModuleFinder, name: str, variable: str, arg: str
+def _get_qt_files(
+    name: str, variable: str, arg: str
 ) -> list[tuple[Path, Path]]:
     """Helper function to get Qt plugins, resources, translations, etc."""
-    if IS_WINDOWS:
-        source_bin_path, target_bin_path = get_qt_paths(name, "BinariesPath")
-        parser = PEParser(finder.path, [source_bin_path])
-
     source_path, target_path = get_qt_paths(name, variable)
     if source_path.joinpath(arg).is_dir():
         source_path = source_path / arg
@@ -140,30 +135,24 @@ def get_qt_files(
         pattern = "*"
     else:
         pattern = arg
-    include_files = []
-    for source in source_path.glob(pattern):
-        if IS_WINDOWS:
-            include_files += [
-                (file, f"lib/{name}/{file.name}")
-                for file in parser.get_dependent_files(source)
-            ]
-        include_files.append((source, target_path / source.name))
-    return include_files
+    return [
+        (source, target_path / source.name)
+        for source in source_path.glob(pattern)
+    ]
 
 
 def get_qt_plugins_paths(name: str, plugins: str) -> list[tuple[Path, Path]]:
     """Helper function to get a list of source and target paths of Qt plugins,
     indicated to be used in include_files.
     """
-    finder = ModuleFinder()
-    return get_qt_files(finder, name, "PluginsPath", plugins)
+    return _get_qt_files(name, "PluginsPath", plugins)
 
 
 def copy_qt_files(
     finder: ModuleFinder, name: str, variable: str, arg: str
 ) -> None:
     """Helper function to copy Qt plugins, resources, translations, etc."""
-    for source_path, target_path in get_qt_files(finder, name, variable, arg):
+    for source_path, target_path in _get_qt_files(name, variable, arg):
         finder.include_files(source_path, target_path)
 
 
@@ -195,6 +184,14 @@ def load_qt_qtbluetooth(finder: ModuleFinder, module: Module) -> None:
     """Include translations for the module."""
     name = _qt_implementation(module)
     copy_qt_files(finder, name, "TranslationsPath", "qtconnectivity_*.qm")
+
+
+def load_qt_qtcore(finder: ModuleFinder, module: Module) -> None:
+    """Include plugins for the module."""
+    name = _qt_implementation(module)
+    variable = "BinariesPath" if IS_WINDOWS else "LibrariesPath"
+    for source, target in _get_qt_files(name, variable, "*"):
+        finder.optional_files[source] = target
 
 
 def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:

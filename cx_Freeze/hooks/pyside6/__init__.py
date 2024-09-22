@@ -21,6 +21,7 @@ from cx_Freeze.hooks._qthooks import (
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtbluetooth as load_pyside6_qtbluetooth,
 )
+from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyside6_qtcore
 from cx_Freeze.hooks._qthooks import (
     load_qt_qtdesigner as load_pyside6_qtdesigner,
 )
@@ -162,6 +163,7 @@ __all__ = [
     "load_pyside6_qt3dinput",
     "load_pyside6_qt3drender",
     "load_pyside6_qtbluetooth",
+    "load_pyside6_qtcore",
     "load_pyside6_qtdesigner",
     "load_pyside6_qtgui",
     "load_pyside6_qtlocation",
