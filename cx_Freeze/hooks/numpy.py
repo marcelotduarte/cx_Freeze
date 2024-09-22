@@ -8,7 +8,6 @@ import json
 import sys
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
-from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
@@ -151,20 +150,22 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         packages = ["libblas", "libcblas", "liblapack", "llvm-openmp"]
         blas_options = ["libopenblas", "mkl"]
         packages += blas_options
-        files_to_copy: list[Path] = []
-        blas = None
         for package in packages:
             try:
                 pkg = next(conda_meta.glob(f"{package}-*.json"))
             except StopIteration:
                 continue
             files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
+            # copy mkl/blas files to lib (issue #2574)
             if IS_WINDOWS:
-                files_to_copy += [
-                    prefix / file
-                    for file in files
-                    if file.lower().endswith(".dll")
-                ]
+                for file in files:
+                    source = prefix.joinpath(file).resolve()
+                    if not source.match("*.dll"):
+                        continue
+                    target = f"lib/{source.name}"
+                    finder.include_files(
+                        source, target, copy_dependent_files=False
+                    )
             else:
                 extensions = tuple(
                     [ext for ext in EXTENSION_SUFFIXES if ext != ".so"]
@@ -179,35 +180,6 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
                     finder.include_files(
                         source, target, copy_dependent_files=False
                     )
-            blas = package
-        if IS_WINDOWS:
-            for source in files_to_copy:
-                finder.include_files(
-                    source,
-                    f"lib/{blas}/{source.name}",
-                    copy_dependent_files=False,
-                )
-            exclude_dependent_files = True
-            code_string += dedent(
-                f"""
-                def _init_numpy_blas():
-                    import os
-
-                    blas_path = os.path.join(
-                        os.path.dirname(os.path.dirname(__file__)), "{blas}"
-                    )
-                    try:
-                        os.add_dll_directory(blas_path)
-                    except (OSError, AttributeError):
-                        pass
-                    env_path = os.environ.get("PATH", "").split(os.pathsep)
-                    if blas_path not in env_path:
-                        env_path.insert(0, blas_path)
-                        os.environ["PATH"] = os.pathsep.join(env_path)
-
-                _init_numpy_blas()
-                """
-            )
 
     # do not check dependencies already handled
     if exclude_dependent_files:
