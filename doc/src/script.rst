@@ -40,6 +40,10 @@ Further customization can be done using the following options:
     (automatically added on Windows); target-name with version is
     supported; if specified a path, raise an error
 
+.. option:: --target-dir=DIR
+
+    directory for built executables and dependent files
+
 .. option:: --icon=ICON
 
     name of icon which should be included in the executable itself
