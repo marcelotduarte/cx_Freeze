@@ -124,8 +124,8 @@ def run() -> None:
     """Determines the name of the initscript and execute it."""
     name = get_name(sys.executable)
     try:
-        # basically, the basename of the executable plus __init__
-        module_init = __import__(name + "__init__")
+        # basically is __init__ plus the basename of the executable
+        module_init = __import__(f"__init__{name}")
     except ModuleNotFoundError:
         # but can be renamed when only one executable exists
         num = BUILD_CONSTANTS._EXECUTABLES_NUMBER  # noqa: SLF001
@@ -137,5 +137,5 @@ def run() -> None:
             )
             raise RuntimeError(msg) from None
         name = get_name(BUILD_CONSTANTS._EXECUTABLE_NAME_0)  # noqa: SLF001
-        module_init = __import__(name + "__init__")
-    module_init.run(name + "__main__")
+        module_init = __import__(f"__init__{name}")
+    module_init.run(f"__main__{name}")
