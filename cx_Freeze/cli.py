@@ -86,6 +86,11 @@ def prepare_parser() -> argparse.ArgumentParser:
         "supported; if specified a path, raise an error",
     )
     parser.add_argument(
+        "--target-dir",
+        metavar="DIR",
+        help="directory for built executables and dependent files",
+    )
+    parser.add_argument(
         "--icon",
         metavar="NAME",
         help="name of icon which should be included in the executable itself "
@@ -185,7 +190,6 @@ def main() -> None:
     # deprecated options
     if command == "build_exe" or "build_exe" in argv:
         args_to_replace = [
-            ("--target-dir", "--build-exe"),
             ("--install-dir", "--build-exe"),
             ("--exclude-modules", "--excludes"),
             ("--include-modules", "--includes"),
@@ -212,6 +216,11 @@ def main() -> None:
                         )
                     break
         argv = new_argv
+
+    # redirected options
+    if args.target_dir:
+        argv.append(f"--build-exe={args.target_dir}")
+    delattr(args, "target_dir")
 
     # finalize command line options
     executables = []
