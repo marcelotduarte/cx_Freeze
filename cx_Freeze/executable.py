@@ -116,7 +116,7 @@ class Executable:
         :rtype: str
 
         """
-        return f"{self._internal_name}__init__"
+        return f"__init__{self._internal_name}"
 
     @property
     def init_script(self) -> Path:
@@ -143,7 +143,7 @@ class Executable:
         :rtype: str
 
         """
-        return f"{self._internal_name}__main__"
+        return f"__main__{self._internal_name}"
 
     @property
     def main_script(self) -> Path:
@@ -231,10 +231,10 @@ class Executable:
             for invalid in STRINGREPLACE:
                 name = name.replace(invalid, "_")
         name = os.path.normcase(name)
-        if not name.isidentifier():
+        self._internal_name: str = name
+        if not self.init_module_name.isidentifier():
             msg = f"target_name is invalid: {self._name!r}"
             raise OptionError(msg)
-        self._internal_name: str = name
 
 
 def validate_executables(dist: Distribution, attr: str, value) -> None:

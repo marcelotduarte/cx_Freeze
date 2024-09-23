@@ -232,6 +232,7 @@ def test_executables(
         ("init_script", "console", "console.py"),
         ("target_name", None, f"test{EXE_SUFFIX}"),
         ("target_name", "test1", f"test1{EXE_SUFFIX}"),
+        ("target_name", "12345", f"12345{EXE_SUFFIX}"),
         ("target_name", "test-0.1", f"test-0.1{EXE_SUFFIX}"),
         ("target_name", "test.exe", "test.exe"),
         ("icon", "icon", ("icon.ico", "icon.icns", "icon.png", "icon.svg")),
@@ -279,12 +280,6 @@ def test_valid(option, value, result) -> None:
             OptionError,
             "target_name cannot contain the path, only the filename: ",
         ),
-        (
-            Executable,
-            {"script": "test.py", "target_name": "0test"},
-            OptionError,
-            "target_name is invalid: ",
-        ),
     ],
     ids=[
         "executables-invalid-empty",
@@ -292,7 +287,6 @@ def test_valid(option, value, result) -> None:
         "executable-invalid-base",
         "executable-invalid-init_script",
         "executable-invalid-target_name",
-        "executable-invalid-target_name-isidentifier",
     ],
 )
 def test_invalid(
