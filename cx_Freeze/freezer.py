@@ -938,16 +938,16 @@ class WinFreezer(Freezer, PEParser):
         library_dir = self.target_dir / "lib"
         source_dir = source.parent
         target_dir = target.parent
-        optional_files = self.finder.optional_files
+        lib_files = self.finder.lib_files
         platform_bin_path = self._platform_bin_path
         for dependent in self.get_dependent_files(source):
             if not self._should_copy_file(dependent):
                 continue
             dependent_source = dependent.resolve()
             dependent_name = dependent_source.name
-            optional = optional_files.get(dependent_source)
-            if optional:
-                dependent_target = self.target_dir / optional
+            lib_file = lib_files.get(dependent_source)
+            if lib_file:
+                dependent_target = self.target_dir / lib_file
             else:
                 # put the dependency (relatively) in the target_dir subtree
                 # this is possible with most packages installed by pip
@@ -1246,16 +1246,16 @@ class LinuxFreezer(Freezer, ELFParser):
             return
         source_dir = source.parent
         target_dir = target.parent
-        optional_files = self.finder.optional_files
+        lib_files = self.finder.lib_files
         fix_rpath = set()
         for dependent in self.get_dependent_files(source):
             if not self._should_copy_file(dependent):
                 continue
             dependent_source = dependent.resolve()
             dependent_name = dependent_source.name
-            optional = optional_files.get(dependent_source)
-            if optional:
-                dependent_target = self.target_dir / optional
+            lib_file = lib_files.get(dependent_source)
+            if lib_file:
+                dependent_target = self.target_dir / lib_file
                 try:
                     relative = dependent_target.relative_to(target_dir)
                 except ValueError:

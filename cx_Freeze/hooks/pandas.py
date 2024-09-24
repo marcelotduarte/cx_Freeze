@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 def load_pandas(finder: ModuleFinder, module: Module) -> None:
     """The pandas package.
 
-    Supported pypi and conda-forge versions (tested from 1.3.3 to 2.2.2).
+    Supported pypi and conda-forge versions (tested from 1.3.3 to 2.2.3).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # pandas >= 2.1.0

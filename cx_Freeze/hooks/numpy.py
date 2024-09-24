@@ -34,11 +34,13 @@ if TYPE_CHECKING:
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.0.0).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.1.1).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # numpy >= 1.26.0
-        finder.include_files(source_dir, f"lib/{source_dir.name}")
+        target_dir = f"lib/{source_dir.name}"
+        for source in source_dir.iterdir():
+            finder.lib_files[source] = f"{target_dir}/{source.name}"
         replace_delvewheel_patch(module)
 
     distribution = module.distribution
