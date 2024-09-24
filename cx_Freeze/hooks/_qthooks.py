@@ -191,7 +191,7 @@ def load_qt_qtcore(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     variable = "BinariesPath" if IS_WINDOWS else "LibrariesPath"
     for source, target in _get_qt_files(name, variable, "*"):
-        finder.optional_files[source] = target
+        finder.lib_files[source] = target
 
 
 def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
