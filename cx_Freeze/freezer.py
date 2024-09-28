@@ -131,6 +131,7 @@ class Freezer:
 
         self._symlinks: set[tuple[Path, Path, bool]] = set()
         self.files_copied: set[Path] = set()
+        self.modules_copied: list[Module] = []
         self.finder: ModuleFinder = self._get_module_finder()
 
     @property
@@ -414,17 +415,6 @@ class Freezer:
             if not target.exists():
                 target.symlink_to(symlink, symlink_is_directory)
 
-    def _print_report(self, filename: Path, modules: list[Module]) -> None:
-        print(f"writing zip file {filename}\n")
-        print(f"  {'Name':<25} File")
-        print(f"  {'----':<25} ----")
-        for module in modules:
-            if module.path:
-                print("P", end="")
-            else:
-                print("m", end="")
-            print(f" {module.name:<25} {module.file or ''}")
-
     @staticmethod
     def _remove_version_numbers(filename: str) -> str:
         tweaked = False
@@ -598,11 +588,6 @@ class Freezer:
         )
         modules.sort(key=lambda m: m.name)
 
-        if self.silent < 1:
-            self._print_report(filename, modules)
-        if self.silent < 2:
-            finder.report_missing_modules()
-
         target_lib_dir = filename.parent
         self._create_directory(target_lib_dir)
 
@@ -743,6 +728,9 @@ class Freezer:
             library_data = self.target_dir / "lib" / "library.dat"
             library_data.write_bytes(self.zip_filename.name.encode())
 
+        # to report
+        self.modules_copied = modules
+
     def freeze(self) -> None:
         """Do the freeze."""
         finder: ModuleFinder = self.finder
@@ -786,6 +774,39 @@ class Freezer:
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
+
+    def print_report(self) -> None:
+        """Display report:
+        - list of modules and packages;
+        - list of modules  that weren't found;
+        - list of dependencies that weren't found.
+        """
+        if self.silent < 1:
+            if self.zip_filename:
+                print(f"writing zip file {self.zip_filename}\n")
+            print(f"  {'Name':<25} File")
+            print(f"  {'----':<25} ----")
+            for module in self.modules_copied:
+                if module.path:
+                    print("P", end="")
+                else:
+                    print("m", end="")
+                print(f" {module.name:<25} {module.file or ''}")
+        if self.silent < 2:
+            self.finder.report_missing_modules()
+        if self.silent < 3:
+            # Display a list of dependencies that weren't found
+            names = {
+                name for name, value in self.linker_warnings.items() if value
+            }
+            copied = {file.name for file in self.files_copied}
+            missing = names.difference(copied)
+            if missing:
+                print("Missing dependencies:")
+                for name in sorted(missing):
+                    print(f"? {name}")
+                print("This is not necessarily a problem - the ", end="")
+                print("dependencies may not be needed on this platform.\n")
 
 
 class WinFreezer(Freezer, PEParser):
@@ -922,7 +943,7 @@ class WinFreezer(Freezer, PEParser):
         # fix the target path for C runtime files
         if any(filter(target.match, self.runtime_files)):
             target = self.target_dir / target.name
-        return source, target
+        return super()._pre_copy_hook(source, target)
 
     def _post_copy_hook(
         self,
