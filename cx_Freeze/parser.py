@@ -169,7 +169,9 @@ class PEParser(Parser):
 
     def _get_dependent_files_imagehlp(self, filename: Path) -> set[Path]:
         env_path = os.environ["PATH"]
-        os.environ["PATH"] = os.pathsep.join(self.search_path)
+        os.environ["PATH"] = os.pathsep.join(
+            [os.path.normpath(path) for path in self.search_path]
+        )
         try:
             return {Path(dep) for dep in GetDependentFiles(filename)}
         except BindError as exc:
