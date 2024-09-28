@@ -49,18 +49,19 @@ class Parser(ABC):
         self._silent: int = silent
 
         self.dependent_files: dict[Path, set[Path]] = {}
-        self.linker_warnings: set = set()
+        self.linker_warnings: dict = {}
 
     @property
-    def search_path(self) -> list[str]:
+    def search_path(self) -> list[Path]:
         """The default search path."""
         # This cannot be cached because os.environ["PATH"] can be changed in
         # freeze module before the call to get_dependent_files.
         env_path = os.environ["PATH"].split(os.pathsep)
         new_path = []
         for path in self._path + self._bin_path_includes + env_path:
-            if path not in new_path and os.path.isdir(path):
-                new_path.append(path)
+            resolved_path = Path(path).resolve()
+            if resolved_path not in new_path and resolved_path.is_dir():
+                new_path.append(resolved_path)
         return new_path
 
     def find_library(
@@ -76,8 +77,7 @@ class Parser(ABC):
 
     def get_dependent_files(self, filename: str | Path) -> set[Path]:
         """Return the file's dependencies using platform-specific tools."""
-        if isinstance(filename, str):
-            filename = Path(filename)
+        filename = Path(filename).resolve()
 
         with suppress(KeyError):
             return self.dependent_files[filename]
@@ -161,10 +161,10 @@ class PEParser(Parser):
             library = self.find_library(name, search_path)
             if library:
                 dependent_files.add(library)
-            else:
-                if self._silent < 3 and name not in self.linker_warnings:
-                    print(f"WARNING: cannot find '{name}'")
-                self.linker_warnings.add(name)
+                if name in self.linker_warnings:
+                    self.linker_warnings[name] = False
+            elif name not in self.linker_warnings:
+                self.linker_warnings[name] = True
         return dependent_files
 
     def _get_dependent_files_imagehlp(self, filename: Path) -> set[Path]:
@@ -275,12 +275,14 @@ class ELFParser(Parser):
                     partname = Path(bin_path, partname)
                     if partname.is_file():
                         dependent_files.add(partname)
+                        name = partname.name
+                        if name in self.linker_warnings:
+                            self.linker_warnings[name] = False
                         break
                 if not partname.is_file():
                     name = partname.name
-                    if self._silent < 3 and name not in self.linker_warnings:
-                        print(f"WARNING: cannot find '{name}'")
-                    self.linker_warnings.add(name)
+                    if name not in self.linker_warnings:
+                        self.linker_warnings[name] = True
                 continue
             if partname.startswith("("):
                 continue

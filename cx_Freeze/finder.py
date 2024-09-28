@@ -803,11 +803,8 @@ class ModuleFinder:
         """Display a list of modules that weren't found."""
         if self._bad_modules:
             print("Missing modules:")
-            names = list(self._bad_modules.keys())
-            names.sort()
-            for name in names:
-                callers = list(self._bad_modules[name].keys())
-                callers.sort()
+            for name in sorted(self._bad_modules.keys()):
+                callers = sorted(self._bad_modules[name].keys())
                 print(f"? {name} imported from", ", ".join(callers))
             print("This is not necessarily a problem - the modules ", end="")
             print("may not be needed on this platform.\n")

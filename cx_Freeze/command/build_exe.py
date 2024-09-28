@@ -304,6 +304,7 @@ class build_exe(Command):
         )
 
         freezer.freeze()
+        freezer.print_report()
 
     def set_source_location(self, name, *pathParts) -> None:
         env_name = f"{name.upper()}_BASE"

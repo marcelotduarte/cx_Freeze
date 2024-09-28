@@ -443,9 +443,7 @@ class ConstantsModule:
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
         self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)
         parts = []
-        names = list(self.values.keys())
-        names.sort()
-        for name in names:
+        for name in sorted(self.values.keys()):
             value = self.values[name]
             parts.append(f"{name} = {value!r}")
         module_path = tmp_path.joinpath(self.module_name).with_suffix(".py")
