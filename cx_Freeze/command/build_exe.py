@@ -196,11 +196,12 @@ class build_exe(Command):
             "packages",
             "replace_paths",
             "constants",
+            "include_files",
+            "include_path",
             "bin_excludes",
             "bin_includes",
             "bin_path_excludes",
             "bin_path_includes",
-            "include_files",
             "zip_includes",
             "zip_exclude_packages",
             "zip_include_packages",
@@ -211,7 +212,6 @@ class build_exe(Command):
 
         self.build_exe = None
         self.include_msvcr = None
-        self.include_path = None
         self.no_compress = False
         self.optimize = 0
         self.path = None
@@ -247,10 +247,7 @@ class build_exe(Command):
         if self.path and isinstance(self.path, str):
             self.path = self.path.replace(os.pathsep, ",")
         include_path = self.include_path
-        if include_path:  # not empty nor None
-            include_path = normalize_to_list(
-                include_path.replace(os.pathsep, ",")
-            )
+        if include_path:
             self.path = include_path + normalize_to_list(self.path or sys.path)
 
         # the degree of silencing, set from either the silent or silent-level
