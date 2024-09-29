@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
@@ -34,6 +36,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
     else:
         module.in_file_system = 2
+
     # patch the code to ignore CUDA_PATH_Vxx_x installation directory
     code_string = module.file.read_text(encoding="utf_8")
     code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
@@ -45,15 +48,27 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
         optimize=finder.optimize,
     )
 
+    # include the cuda libraries as fixed libraries
+    source_lib = module.file.parent.parent / "nvidia"
+    if source_lib.exists():
+        target_lib = f"lib/{source_lib.name}"
+        for source in source_lib.glob("*/lib/*"):
+            target = target_lib / source.relative_to(source_lib)
+            finder.lib_files[source] = target.as_posix()
+
+    # include the shared libraries in 'lib' as fixed libraries
+    source_lib = module.file.parent / "lib"
+    if source_lib.exists():
+        target_lib = f"lib/{module.name}/lib"
+        extension = "*.dll" if (IS_WINDOWS or IS_MINGW) else "*.so*"
+        for source in source_lib.glob(extension):
+            finder.lib_files[source] = f"{target_lib}/{source.name}"
+            finder.include_files(source, f"{target_lib}/{source.name}")
+
     # include the binaries (torch 2.1+)
     source_bin = module.file.parent / "bin"
     if source_bin.exists():
         finder.include_files(source_bin, f"lib/{module.name}/bin")
-    # include the shared libraries in 'lib' to avoid searching through the
-    # system.
-    source_lib = module.file.parent / "lib"
-    if source_lib.exists():
-        finder.include_files(source_lib, f"lib/{module.name}/lib")
     # hidden modules
     finder.include_module("torch._C")
     finder.include_module("torch._VF")
