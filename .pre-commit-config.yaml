@@ -30,13 +30,13 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.19
+  rev: v0.20.2
   hooks:
   - id: validate-pyproject
     additional_dependencies: ["validate-pyproject-schema-store[all]"]
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.7
+  rev: v0.6.8
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
@@ -51,7 +51,7 @@ repos:
     args: ["-l", "79"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v18.1.8
+  rev: v19.1.0
   hooks:
   - id: clang-format
     args: ["--style={BasedOnStyle: WebKit, ColumnLimit: 79, AlignConsecutiveMacros: Consecutive, AlignTrailingComments: Always}"]
