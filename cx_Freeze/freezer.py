@@ -191,9 +191,15 @@ class Freezer:
         if self.silent < 1:
             print(f"copying {source} -> {target}")
         shutil.copyfile(source, target)
-        shutil.copystat(source, target)
         if include_mode:
             shutil.copymode(source, target)
+            shutil.copystat(source, target)
+        else:
+            try:
+                shutil.copystat(source, target)
+            except OSError:
+                if self.silent < 3:
+                    print("WARNING: unable to copy file metadata:", target)
         self.files_copied.add(target)
 
         # handle post-copy tasks, including copying dependencies

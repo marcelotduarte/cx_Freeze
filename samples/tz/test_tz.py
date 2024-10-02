@@ -8,11 +8,15 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 try:
-    from zoneinfo import ZoneInfo
+    from zoneinfo import TZPATH, ZoneInfo, available_timezones
 except ImportError:
-    from backports.zoneinfo import ZoneInfo
+    from backports.zoneinfo import TZPATH, ZoneInfo, available_timezones
+
 
 RFC1123 = "%a, %d %b %Y %H:%M:%S %z"
+
+print("TZPATH:", TZPATH)
+print("Available timezones:", len(available_timezones()))
 
 utc_time = datetime.now(timezone.utc)
 print("UTC time:", utc_time.strftime(RFC1123))
