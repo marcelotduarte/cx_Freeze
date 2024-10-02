@@ -18,12 +18,18 @@ if TYPE_CHECKING:
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """The scipy package.
 
-    Supported pypi and conda-forge versions (lasted tested version is 1.11.2).
+    Supported pypi and conda-forge versions (lasted tested version is 1.14.1).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # scipy >= 1.9.2 (windows)
-        finder.include_files(source_dir, f"lib/{source_dir.name}")
-        replace_delvewheel_patch(module)
+        if IS_WINDOWS:
+            finder.include_files(source_dir, f"lib/{source_dir.name}")
+            replace_delvewheel_patch(module)
+        else:
+            target_dir = f"lib/{source_dir.name}"
+            for source in source_dir.iterdir():
+                finder.lib_files[source] = f"{target_dir}/{source.name}"
+
     finder.include_package("scipy.integrate")
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")

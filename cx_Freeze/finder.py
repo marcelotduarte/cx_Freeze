@@ -537,7 +537,10 @@ class ModuleFinder:
             # Insert a bytecode to set __package__ as module.parent.name
             codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
             codestring = bytes(codes) + code.co_code
-            consts.append(module.parent.name)
+            if module.file.stem == "__init__":
+                consts.append(module.name)
+            else:
+                consts.append(module.parent.name)
             code = code_object_replace(
                 code, co_code=codestring, co_consts=consts
             )
