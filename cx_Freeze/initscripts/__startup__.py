@@ -101,7 +101,6 @@ def init() -> None:
     for name in (
         "TCL_LIBRARY",
         "TK_LIBRARY",
-        "PYTZ_TZDATADIR",
         "PYTHONTZPATH",
     ):
         try:

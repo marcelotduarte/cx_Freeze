@@ -653,12 +653,6 @@ def load_twitter(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.update(["json", "simplejson", "django.utils"])
 
 
-def load_tzdata(finder: ModuleFinder, module: Module) -> None:
-    """The tzdata package requires its zone and timezone data."""
-    if module.in_file_system == 0:
-        finder.zip_include_files(module.file.parent, "tzdata")
-
-
 def load_uvloop(finder: ModuleFinder, module: Module) -> None:
     """The uvloop module implicitly loads an extension module."""
     finder.include_module("uvloop._noop")
