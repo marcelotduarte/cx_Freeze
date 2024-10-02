@@ -1,8 +1,6 @@
 """A simple script to demonstrate scipy."""
 
-from scipy.stats import norm
+from scipy.spatial.transform import Rotation
 
 if __name__ == "__main__":
-    print(
-        "bounds of distribution lower: {}, upper: {}".format(*norm.support())
-    )
+    print(Rotation.from_euler("XYZ", [10, 10, 10], degrees=True).as_matrix())
