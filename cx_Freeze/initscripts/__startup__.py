@@ -98,11 +98,7 @@ def init() -> None:
         os.environ["PATH"] = os.pathsep.join(env_path)
 
     # set environment variables
-    for name in (
-        "TCL_LIBRARY",
-        "TK_LIBRARY",
-        "PYTHONTZPATH",
-    ):
+    for name in ("TCL_LIBRARY", "TK_LIBRARY"):
         try:
             value = getattr(BUILD_CONSTANTS, name)
         except AttributeError:
