@@ -22,7 +22,6 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
         finder.exclude_module("pkg_resources._vendor.platformdirs.__main__")
         module.ignore_names.update(
             [
-                "__main__",
                 "pkg_resources.extern.jaraco.text",
                 "pkg_resources.extern.packaging",
                 "pkg_resources.extern.packaging.markers",
@@ -33,6 +32,9 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
                 "pkg_resources.extern.platformdirs",
             ]
         )
+    module.ignore_names.update(
+        ["__main__", "_typeshed", "_typeshed.importlib", "typing_extensions"]
+    )
 
 
 def load_pkg_resources__vendor_jaraco_text(_, module: Module) -> None:
