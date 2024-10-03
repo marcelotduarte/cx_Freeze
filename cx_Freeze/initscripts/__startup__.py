@@ -68,7 +68,7 @@ def init() -> None:
     """Basic initialization of the startup script."""
     # to avoid bugs (especially in MSYS2) use normpath after any change
     sys.executable = os.path.normpath(sys.executable)
-    sys.frozen_dir = frozen_dir = os.path.dirname(sys.executable)
+    sys.frozen_dir = os.path.dirname(sys.executable)
     sys.meta_path.append(ExtensionFinder)
 
     # normalize and check sys.path, preserving the reference
@@ -96,23 +96,6 @@ def init() -> None:
                 env_path.insert(0, directory)
         env_path = [entry.replace(os.sep, "\\") for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
-
-    # set environment variables
-    for name in ("TCL_LIBRARY", "TK_LIBRARY"):
-        try:
-            value = getattr(BUILD_CONSTANTS, name)
-        except AttributeError:
-            pass
-        else:
-            var_path = os.path.join(frozen_dir, os.path.normpath(value))
-            if not os.path.exists(var_path) and sys.platform == "darwin":
-                # when using bdist_mac
-                var_path = os.path.join(
-                    os.path.dirname(frozen_dir),
-                    "Resources",
-                    os.path.normpath(value),
-                )
-            os.environ[name] = var_path
 
 
 def run() -> None:

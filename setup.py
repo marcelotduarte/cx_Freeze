@@ -230,11 +230,24 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             return
         root = tkinter.Tk(useTk=False)
         tcl_library = Path(root.tk.exprstring("$tcl_library"))
-        tk_library = tcl_library.parent / tcl_library.name.replace("tcl", "tk")
+        path_to_copy = []
+        if tcl_library.name == "Scripts":  # Frameworks on macOS
+            tcl_name = f"tcl{tkinter.TclVersion}"
+            path_to_copy.append((tcl_library, tcl_name))
+            tcl8_name = Path(tcl_name).with_suffix("").name
+            path_to_copy.append((tcl_library.parent / tcl8_name, tcl8_name))
+            tk_library = Path(tcl_library.as_posix().replace("Tcl", "Tk"))
+            path_to_copy.append((tk_library, tcl_name.replace("tcl", "tk")))
+        else:
+            tcl_name = tcl_library.name
+            path_to_copy.append((tcl_library, tcl_name))
+            tcl8_path = Path(tcl_library).with_suffix("")
+            path_to_copy.append((tcl8_path, tcl8_path.name))
+            tk_library = tcl_library.parent / tcl_name.replace("tcl", "tk")
+            path_to_copy.append((tk_library, tk_library.name))
         # source paths of tcl8.6, tcl8 and tk8.6
-        source_paths = [tcl_library, tcl_library.with_suffix(""), tk_library]
-        for source_path in source_paths:
-            target_path = f"{bases}/share/{source_path.name}"
+        for source_path, target_name in path_to_copy:
+            target_path = f"{bases}/share/{target_name}"
             self.mkpath(target_path)
             for source in source_path.rglob("*"):
                 target = os.fspath(
