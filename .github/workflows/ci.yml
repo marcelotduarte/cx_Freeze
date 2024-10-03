@@ -11,26 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pre_commit:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: marcelotduarte/setup-python-uv-action@new
-        with:
-          cache: 'packages'
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: uv pip install -e.[dev,doc]
-
-      - name: Run pre-commit
-        run: >-
-          pre-commit run --show-diff-on-failure --color=always
-          --all-files --hook-stage=manual
-
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
