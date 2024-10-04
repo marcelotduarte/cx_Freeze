@@ -86,6 +86,10 @@ class DistributionCache(metadata.PathDistribution):
             if source.is_file():
                 target = target_path / "METADATA"
                 target.write_bytes(source.read_bytes())
+            source = source_path / "entry_points.txt"
+            if source.is_file():
+                target = target_path / "entry_points.txt"
+                target.write_bytes(source.read_bytes())
             source = source_path / "top_level.txt"
             if source.is_file():
                 target = target_path / "top_level.txt"
