@@ -62,7 +62,7 @@ dev = [
 ]
 doc = [
     "sphinx==7.4.7",               # python_version 3.9-3.13
-    "sphinx-new-tab-link==0.6.0",
+    "sphinx-new-tab-link==0.6.1",
     "sphinx-tabs==3.4.5",
     "furo==2024.8.6",
     "myst-parser>=3.0.1,<=4.0.0",  # python_version 3.9,3.10-3.12
