@@ -7,7 +7,7 @@ import gettext
 import pycountry
 
 print("countries:", len(pycountry.countries))
-print("BR-FN", pycountry.subdivisions.get(code="BR-MG"))
+print("BR-MG", pycountry.subdivisions.get(code="BR-MG"))
 
 name = gettext.translation(
     "iso3166-1", pycountry.LOCALES_DIR, languages=["pt"]

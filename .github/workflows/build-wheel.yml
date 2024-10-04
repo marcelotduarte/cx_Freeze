@@ -3,12 +3,6 @@ name: Build wheel
 on:
   release:
     types: [created]
-  workflow_call:
-    inputs:
-      branch:
-        default: ${{ github.ref }}
-        required: true
-        type: string
   workflow_dispatch:
 
 jobs:
@@ -16,14 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.9 - 3.12']
         include:
-          - os: macos-14  # macos-14 is apple silicon
-            python-version: '3.11'
-          - os: macos-14
-            python-version: '3.12'
-    name: Build [${{ matrix.os }}-${{ matrix.python-version }}]
+          - os: macos-13  # macos-13 is x86_64
+            python-version: '3.9 - 3.10'
+          - os: macos-14  # macos-14 is arm64 (apple silicon)
+            python-version: '3.11 - 3.12'
+    name: Build [${{ matrix.os }}][${{ matrix.python-version }}]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -31,15 +25,11 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branch }}
-          repository: marcelotduarte/cx_Freeze
 
       - uses: actions/setup-python@v5
         with:
           cache: 'pip'
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
 
       - name: Set up QEMU
         if: runner.os == 'Linux'
@@ -54,17 +44,15 @@ jobs:
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
-          PY_VERSION_NODOT=$(echo ${{ matrix.python-version }}|sed 's/\.//')
           if [ "${{ matrix.os }}" == "macos-13" ]; then
-            export CIBW_ARCHS="x86_64"
+            export CIBW_BUILD="cp3{9,10}-*"
           elif [ "${{ matrix.os }}" == "macos-14" ]; then
-            export CIBW_ARCHS="universal2 arm64"
+            export CIBW_BUILD="cp3{11,12}-*"
           fi
-          export CIBW_BUILD="cp${PY_VERSION_NODOT}-*"
-          cibuildwheel --output-dir wheelhouse --prerelease-pythons
+          cibuildwheel --output-dir wheelhouse
 
       - name: Add sdist
-        if: runner.os == 'Linux' && matrix.python-version == '3.11'
+        if: runner.os == 'Linux' && matrix.python-version == '3.12'
         run: |
           uv pip install --system --upgrade build
           python -m build . --sdist -o wheelhouse
@@ -72,8 +60,9 @@ jobs:
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
+          name: cx-freeze-whl-${{ matrix.os }}
           path: wheelhouse
+          compression-level: 0  # no compression
 
   publish:
     name: Publish package to PyPI
@@ -96,7 +85,7 @@ jobs:
       - name: Join files to upload
         run: |
           mkdir -p wheelhouse
-          mv artifacts/cx-freeze-pip-*/* wheelhouse/
+          mv artifacts/cx-freeze-whl-*/* wheelhouse/
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -132,7 +121,7 @@ jobs:
           if [ $SHA256SUM1 != $SHA256SUM2 ]; then
             git config user.name "Marcelo Duarte"
             git config user.email marcelotduarte@users.noreply.github.com
-            git checkout -B update_bases ${{ inputs.branch }}
+            git checkout -B update_bases main
             # Remove any file that match - remove previous versions too
             git rm --ignore-unmatch 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             # Extract base executables and util module

@@ -8,7 +8,10 @@ Versions of cx_Freeze
    * - cx_Freeze version
      - Python version
      - Status
-   * - cx_Freeze 7.0 to 7.2
+   * - cx_Freeze 7.3.0
+     - Python 3.9 to 3.13
+     - supported
+   * - cx_Freeze 7.0 to 7.2.3
      - Python 3.8 to 3.12
      - supported
    * - cx_Freeze 6.14 and 6.15

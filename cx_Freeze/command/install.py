@@ -6,7 +6,7 @@ import contextlib
 import os
 import sys
 import warnings
-from typing import ClassVar, ContextManager
+from typing import ClassVar
 
 from setuptools.command.install import install as _install
 
@@ -14,7 +14,7 @@ __all__ = ["Install"]
 
 
 @contextlib.contextmanager
-def suppress_known_deprecation() -> ContextManager:
+def suppress_known_deprecation() -> contextlib.AbstractContextManager:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "setup.py install is deprecated")
         yield

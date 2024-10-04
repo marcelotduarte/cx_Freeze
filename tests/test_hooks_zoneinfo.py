@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -39,9 +38,6 @@ command
 """
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 9), reason="Python < 3.9 doesn't provide zoneinfo"
-)
 @pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
