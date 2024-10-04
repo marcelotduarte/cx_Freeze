@@ -7,5 +7,7 @@ Here are samples to test cx_Freeze or to show how to use a package in cx_Freeze.
 In a virtual environment, install by issuing the command:
 
 ```
-pip install -U cx_Freeze "backports.zoneinfo;python_version<'3.9'" "tzdata;sys_platform=='win32'"
+pip install -U cx_Freeze tzdata
 ```
+
+Please note that `tzdata` is not required in macOS and Linux.

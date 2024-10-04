@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-13]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
         include:
           - os: macos-14  # macos-14 is apple silicon
             python-version: '3.11'
@@ -67,7 +67,7 @@ jobs:
         with:
           name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
           path: wheelhouse
-          retention-days: 5
+          retention-days: 2
           compression-level: 0  # wheel is a zip file
 
       - name: Install cx_Freeze and dependencies

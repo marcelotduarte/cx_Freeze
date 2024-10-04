@@ -9,7 +9,7 @@ import re
 import shutil
 import warnings
 from sysconfig import get_platform
-from typing import ClassVar, ContextManager
+from typing import ClassVar
 
 from packaging.version import Version
 from setuptools import Command
@@ -22,7 +22,7 @@ __all__ = ["bdist_msi"]
 if IS_MINGW or IS_WINDOWS:
 
     @contextlib.contextmanager
-    def suppress_known_deprecation() -> ContextManager:
+    def suppress_known_deprecation() -> contextlib.AbstractContextManager:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", "'msilib' is deprecated")
             yield

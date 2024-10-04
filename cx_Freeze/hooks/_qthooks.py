@@ -8,7 +8,7 @@ import json
 import os
 import sys
 from contextlib import suppress
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -24,7 +24,7 @@ def _qt_implementation(module: Module) -> str:
     return module.name.split(".")[0]
 
 
-@lru_cache(maxsize=None)
+@cache
 def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     """Cache the QtCore library paths."""
     try:

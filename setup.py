@@ -186,7 +186,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         # Use gendef and dlltool to generate the library (.a and .delay.a)
         dll_path = self._get_dll_path(name)
         gendef_exe = Path(which("gendef"))
-        def_data = check_output(_make_strs([gendef_exe, "-", dll_path]))
+        def_data = check_output([gendef_exe, "-", dll_path])
         def_name = library_dir / f"{name}.def"
         def_name.write_bytes(def_data)
         lib_path = library_dir / f"lib{name}.a"
@@ -197,10 +197,10 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         output_delaylib_args = ["-y", dlb_path]
         try:
             # GNU binutils dlltool support --output-delaylib
-            check_call(_make_strs(dlltool + output_delaylib_args))
+            check_call(dlltool + output_delaylib_args)
         except CalledProcessError:
             # LLVM dlltool only supports generating an import library
-            check_call(_make_strs(dlltool))
+            check_call(dlltool)
             library = name
         return os.fspath(library_dir), library
 
@@ -261,13 +261,6 @@ class BuildBases(setuptools.command.build_ext.build_ext):
     def run(self) -> None:
         self._copy_libraries_to_bases()
         super().run()
-
-
-def _make_strs(paths: list[str | Path]) -> list[str]:
-    """Convert paths to strings for legacy compatibility."""
-    if sys.version_info > (3, 8) and not (IS_MINGW or IS_WINDOWS):
-        return paths
-    return list(map(os.fspath, paths))
 
 
 def get_extensions() -> list[Extension]:

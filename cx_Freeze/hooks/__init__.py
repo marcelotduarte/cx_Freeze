@@ -143,8 +143,8 @@ def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
 
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
-    """In Windows, the _ctypes module in Python 3.8+ requires an additional
-    libffi dll to be present in the build directory.
+    """The _ctypes module requires an additional dependency to be present
+    in the build directory.
     """
     if IS_WINDOWS:
         dll_pattern = "libffi-*.dll"
@@ -458,15 +458,17 @@ def load_pycparser(finder: ModuleFinder, module: Module) -> None:
 def load_pydantic(finder: ModuleFinder, module: Module) -> None:
     """The pydantic package is compiled by Cython (the imports are hidden)."""
     finder.include_module("colorsys")
-    finder.include_module("dataclasses")  # support in v 1.7+
     finder.include_module("datetime")
     finder.include_module("decimal")
     finder.include_module("functools")
     finder.include_module("ipaddress")
     finder.include_package("json")
     finder.include_module("pathlib")
-    finder.include_module("typing_extensions")  # support in v 1.8
     finder.include_module("uuid")
+    with suppress(ImportError):
+        finder.include_module("dataclasses")  # support in v 1.7+
+    with suppress(ImportError):
+        finder.include_module("typing_extensions")  # support in v 1.8+
 
 
 def load_pygments(finder: ModuleFinder, module: Module) -> None:
@@ -737,11 +739,8 @@ def load_zope_component(finder: ModuleFinder, module: Module) -> None:
 
 
 def missing_backports_zoneinfo(finder: ModuleFinder, caller: Module) -> None:
-    """The backports.zoneinfo module should be a drop-in replacement for the
-    Python 3.9 standard library module zoneinfo.
-    """
-    if sys.version_info >= (3, 9):
-        caller.ignore_names.add("backports.zoneinfo")
+    """The backports.zoneinfo module can be ignored in Python 3.9+."""
+    caller.ignore_names.add("backports.zoneinfo")
 
 
 def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
@@ -791,9 +790,3 @@ def missing_winreg(finder: ModuleFinder, caller: Module) -> None:
     """The winreg module is present on Windows only."""
     if not IS_WINDOWS:
         caller.ignore_names.add("winreg")
-
-
-def missing_zoneinfo(finder: ModuleFinder, caller: Module) -> None:
-    """The zoneinfo module is present in Python 3.9+ standard library."""
-    if sys.version_info < (3, 9):
-        caller.ignore_names.add("zoneinfo")

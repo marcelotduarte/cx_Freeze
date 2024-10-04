@@ -6,7 +6,7 @@ Welcome to cx_Freeze's documentation!
 performance, is cross-platform and should work on any platform that Python_
 works on.
 
-The current version of **cx_Freeze** is 7.2 and supports Python 3.8 to 3.12.
+The current version of **cx_Freeze** is 7.3 and supports Python 3.9 to 3.13.
 
 **cx_Freeze** is distributed under an open-source :ref:`PSF license <license>`.
 

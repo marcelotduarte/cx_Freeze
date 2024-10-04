@@ -1,17 +1,9 @@
-"""Sample to show the datetime in RFC1123 (timezone is required).
-
-zoneinfo version (new library in python 3.9)
-"""
+"""Sample to show the datetime in RFC1123 (timezone is required)."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-
-try:
-    from zoneinfo import TZPATH, ZoneInfo, available_timezones
-except ImportError:
-    from backports.zoneinfo import TZPATH, ZoneInfo, available_timezones
-
+from zoneinfo import TZPATH, ZoneInfo, available_timezones
 
 RFC1123 = "%a, %d %b %Y %H:%M:%S %z"
 

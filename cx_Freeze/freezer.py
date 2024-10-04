@@ -250,10 +250,7 @@ class Freezer:
         """
         real_source = source.resolve()
         if source.is_symlink():
-            try:
-                symlink = source.readlink()
-            except AttributeError:
-                symlink = Path(os.readlink(source))  # python 3.8
+            symlink = source.readlink()
             real_target = target.with_name(symlink.name)
             if self.silent < 1:
                 print(f"[delay] linking {target} -> {symlink}")
