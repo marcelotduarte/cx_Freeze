@@ -1,19 +1,16 @@
-"""https://github.com/pydantic/pydantic#a-simple-example."""
+"""A simple example."""
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+# https://github.com/pydantic/pydantic?tab=readme-ov-file#a-simple-example
+from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 class User(BaseModel):
     id: int
     name: str = "John Doe"
-    signup_ts: datetime | None = None
+    signup_ts: Optional[datetime] = None  # noqa: FA100
     friends: list[int] = []
 
 

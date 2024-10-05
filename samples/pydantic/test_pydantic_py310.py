@@ -1,11 +1,11 @@
+"""A simple example."""
+
+# https://github.com/pydantic/pydantic?tab=readme-ov-file#a-simple-example
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime  # noqa: TCH003
 
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 class User(BaseModel):

@@ -455,22 +455,6 @@ def load_pycparser(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("pycparser.yacctab")
 
 
-def load_pydantic(finder: ModuleFinder, module: Module) -> None:
-    """The pydantic package is compiled by Cython (the imports are hidden)."""
-    finder.include_module("colorsys")
-    finder.include_module("datetime")
-    finder.include_module("decimal")
-    finder.include_module("functools")
-    finder.include_module("ipaddress")
-    finder.include_package("json")
-    finder.include_module("pathlib")
-    finder.include_module("uuid")
-    with suppress(ImportError):
-        finder.include_module("dataclasses")  # support in v 1.7+
-    with suppress(ImportError):
-        finder.include_module("typing_extensions")  # support in v 1.8+
-
-
 def load_pygments(finder: ModuleFinder, module: Module) -> None:
     """The pygments package dynamically load styles."""
     finder.include_package("pygments.styles")
