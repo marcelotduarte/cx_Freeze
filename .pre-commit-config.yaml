@@ -43,11 +43,11 @@ repos:
   - id: ruff-format
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.18.0
+  rev: 1.19.0
   hooks:
   - id: blacken-docs
     additional_dependencies:
-    - black==24.8.0
+    - black==24.10.0
     args: ["-l", "79"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
