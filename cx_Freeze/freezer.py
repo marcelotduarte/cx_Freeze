@@ -1275,6 +1275,7 @@ class LinuxFreezer(Freezer, ELFParser):
         target_dir = target.parent
         lib_files = self.finder.lib_files
         fix_rpath = set()
+        fix_needed = {}
         for dependent in self.get_dependent_files(source):
             if not self._should_copy_file(dependent):
                 continue
@@ -1320,12 +1321,14 @@ class LinuxFreezer(Freezer, ELFParser):
                 dependent_source, dependent_target, copy_dependent_files
             )
             if dependent.name != dependent_name:
-                self.replace_needed(target, dependent.name, dependent_name)
+                fix_needed.setdefault(dependent.name, dependent_name)
         if fix_rpath:
             has_rpath = self.get_rpath(target)
             rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
             if has_rpath != rpath:
                 self.set_rpath(target, rpath)
+        for needed_old, needed_new in fix_needed.items():
+            self.replace_needed(target, needed_old, needed_new)
 
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying the top dependencies in _freeze_executable."""
