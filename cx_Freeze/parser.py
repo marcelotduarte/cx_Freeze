@@ -273,7 +273,7 @@ class ELFParser(Parser):
                 continue
             if partname in ("not found", "(file not found)"):
                 partname = Path(parts[0])
-                for bin_path in self.bin_path_includes:
+                for bin_path in self._bin_path_includes:
                     partname = Path(bin_path, partname)
                     if partname.is_file():
                         dependent_files.add(partname)
@@ -314,8 +314,11 @@ class ELFParser(Parser):
     def set_rpath(self, filename: str | Path, rpath: str) -> None:
         """Sets the rpath of the executable."""
         self._set_write_mode(filename)
-        self.run_patchelf(["--remove-rpath", filename])
-        self.run_patchelf(["--force-rpath", "--set-rpath", rpath, filename])
+        try:
+            self.run_patchelf(["--set-rpath", rpath, filename])
+        except subprocess.CalledProcessError:
+            self.run_patchelf(["--remove-rpath", filename])
+            self.run_patchelf(["--add-rpath", rpath, filename])
 
     def set_soname(self, filename: str | Path, new_so_name: str) -> None:
         """Sets DT_SONAME entry in the dynamic table."""
@@ -334,8 +337,7 @@ class ELFParser(Parser):
 
     @staticmethod
     def _set_write_mode(filename: str | Path) -> None:
-        if isinstance(filename, str):
-            filename = Path(filename)
+        filename = Path(filename)
         mode = filename.stat().st_mode
         if mode & stat.S_IWUSR == 0:
             filename.chmod(mode | stat.S_IWUSR)
