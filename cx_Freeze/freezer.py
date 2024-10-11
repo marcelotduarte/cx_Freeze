@@ -1320,10 +1320,7 @@ class LinuxFreezer(Freezer, ELFParser):
             if dependent.name != dependent_name:
                 fix_needed.setdefault(dependent.name, dependent_name)
         if fix_rpath:
-            has_rpath = self.get_rpath(target)
-            rpath = ":".join(f"$ORIGIN/{r}" for r in fix_rpath)
-            if has_rpath != rpath:
-                self.set_rpath(target, rpath)
+            self.set_rpath(target, ":".join(f"$ORIGIN/{r}" for r in fix_rpath))
         for needed_old, needed_new in fix_needed.items():
             self.replace_needed(target, needed_old, needed_new)
 

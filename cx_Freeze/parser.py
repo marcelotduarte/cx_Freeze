@@ -314,6 +314,10 @@ class ELFParser(Parser):
     def set_rpath(self, filename: str | Path, rpath: str) -> None:
         """Sets the rpath of the executable."""
         self._set_write_mode(filename)
+        if rpath == "$ORIGIN/.":
+            rpath = "$ORIGIN"
+        if rpath == self.get_rpath(filename):
+            return
         try:
             self.run_patchelf(["--set-rpath", rpath, filename])
         except subprocess.CalledProcessError:
