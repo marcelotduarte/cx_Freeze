@@ -98,6 +98,14 @@ class Freezer:
         # include-msvcr is used on Windows, but not in MingW
         self.include_msvcr: bool = IS_WINDOWS and bool(include_msvcr)
         self.target_dir = target_dir
+        self.default_bin_includes: list[str] = self._default_bin_includes()
+        self.default_bin_excludes: list[str] = self._default_bin_excludes()
+        self.default_bin_path_includes: list[str] = (
+            self._default_bin_path_includes()
+        )
+        self.default_bin_path_excludes: list[str] = (
+            self._default_bin_path_excludes()
+        )
         self.bin_includes: list[str] = self._validate_bin_file(bin_includes)
         self.bin_excludes: list[str] = self._validate_bin_file(bin_excludes)
         self.bin_path_includes: list[str] = self._validate_bin_path(
@@ -126,8 +134,6 @@ class Freezer:
         if zip_filename:
             zip_filename = Path(zip_filename).with_suffix(".zip").name
             self.zip_filename = self.target_dir / "lib" / zip_filename
-
-        self._verify_configuration()
 
         self._symlinks: set[tuple[Path, Path, bool]] = set()
         self.files_copied: set[Path] = set()
@@ -283,39 +289,15 @@ class Freezer:
         finder.include_file_as_module(
             get_resource_file_path("initscripts", "__startup__", ".py")
         )
-
-        # Ensure the copy of default python libraries
-        dependent_files: set[Path] = self.get_dependent_files(exe.base)
-        # Extra files like python3.dll need to be found
-        python_libs = self._default_bin_includes()
-        for bin_path in self.bin_path_includes:
-            for name in python_libs:
-                dependent_file = Path(bin_path, name)
-                if dependent_file.is_file():
-                    dependent_files.add(dependent_file)
-                    break
-
-        # Search the C runtimes, using the directory of the python libraries
-        # and the directories of the base executable
-        self._platform_add_extra_dependencies(dependent_files)
-
-        for source in dependent_files:
-            # Store dynamic libraries in appropriate location for platform.
-            self._copy_top_dependency(source)
-            # Once copied, it should be deleted from the list to ensure
-            # it will not be copied again.
-            name = os.path.normcase(source.name)
-            if name in self.bin_includes:
-                self.bin_includes.remove(name)
-                self.bin_excludes.append(name)
-
+        # copy the executable and its dependencies
         target_path = self.target_dir / exe.target_name
+        self._get_top_dependencies(exe.base)
         self._copy_file(
-            exe.base,
-            target_path,
-            copy_dependent_files=False,
-            include_mode=True,
+            exe.base, target_path, copy_dependent_files=True, include_mode=True
         )
+        if not os.access(target_path, os.W_OK):
+            mode = target_path.stat().st_mode
+            target_path.chmod(mode | stat.S_IWUSR)
 
         # copy a file with a the cx_freeze license into frozen application
         respath = get_resource_file_path(
@@ -331,10 +313,6 @@ class Freezer:
             include_mode=False,
         )
 
-        if not os.access(target_path, os.W_OK):
-            mode = target_path.stat().st_mode
-            target_path.chmod(mode | stat.S_IWUSR)
-
         # Add resources like version metadata and icon
         self._add_resources(exe)
 
@@ -349,33 +327,37 @@ class Freezer:
     def _copy_top_dependency(self, source: Path) -> None:
         """Called for copying the top dependencies in _freeze_executable."""
 
+    @abstractmethod
+    def _get_top_dependencies(self, source: Path, target: Path) -> None:
+        """Called to get the dependencies of an executable."""
+
     def _default_bin_excludes(self) -> list[str]:
         """Return the file names of libraries that need not be included because
         they would normally be expected to be found on the target system or
         because they are part of a package which requires independent
         installation anyway.
-        (overridden on Windows)
-        .
+        (Overridden on Windows).
         """
         return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _default_bin_includes(self) -> list[str]:
         """Return the file names of libraries which must be included for the
         frozen executable to work.
-        (overriden on Windows)
-        .
+        (Overridden on Windows and macOS).
         """
-        python_shared_libs: list[str] = []
+        python_shared_libs: list[Path] = []
         name = sysconfig.get_config_var("INSTSONAME")
         if name:
             if name.endswith(".a"):
-                # Miniconda python Linux/macOS returns a static library.
-                if IS_MACOS:
-                    name = name.replace(".a", ".dylib")
-                else:
-                    name = name.replace(".a", ".so")
-            python_shared_libs.append(self._remove_version_numbers(name))
-        return python_shared_libs
+                # conda-forge returns a static library
+                name = name.replace(".a", ".so")
+            name = self._remove_version_numbers(name)
+            for bin_path in self._default_bin_path_includes():
+                fullname = Path(bin_path, name).resolve()
+                if fullname.is_file():
+                    python_shared_libs.append(fullname)
+                    break
+        return self._validate_bin_file(python_shared_libs)
 
     @abstractmethod
     def _default_bin_path_excludes(self) -> list[str]:
@@ -384,11 +366,16 @@ class Freezer:
         libraries.
         """
 
-    @abstractmethod
     def _default_bin_path_includes(self) -> list[str]:
         """Return the paths of directories which contain files that should
         be included.
+        (Overridden on Windows, inherited in macOS).
         """
+        bin_path = [
+            sysconfig.get_config_var("LIBDIR"),
+            sysconfig.get_config_var("DESTLIB"),
+        ]
+        return self._validate_bin_path(bin_path)
 
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
@@ -431,22 +418,24 @@ class Freezer:
             return ".".join(parts)
         return filename
 
-    def _should_copy_file(self, path: Path) -> bool:
+    def _should_copy_file(self, path: Path) -> bool:  # noqa: PLR0911
         """Return true if the file should be copied to the target machine.
 
         This is done by checking the bin_includes and bin_excludes
         configuration variables using first the full file name, then just the
         base file name, then the file name without any version numbers.
         Then, bin_path_includes and bin_path_excludes are checked.
+        Finally, check the default variables.
 
         Files are included unless specifically excluded but inclusions take
         precedence over exclusions.
         """
+        dirname = path.parent
+        filename = Path(os.path.normcase(path.name))
+        filename_noversion = Path(self._remove_version_numbers(filename.name))
         # check the full path
         # check the file name by itself (with any included version numbers)
         # check the file name by itself (version numbers removed)
-        filename = Path(os.path.normcase(path.name))
-        filename_noversion = Path(self._remove_version_numbers(filename.name))
         for binfile in self.bin_includes:
             if (
                 path.match(binfile)
@@ -463,7 +452,6 @@ class Freezer:
                 return False
 
         # check the path for inclusion/exclusion
-        dirname = path.parent
         for binpath in self.bin_path_includes:
             try:
                 dirname.relative_to(binpath)
@@ -472,6 +460,28 @@ class Freezer:
             else:
                 return True
         for binpath in self.bin_path_excludes:
+            try:
+                dirname.relative_to(binpath)
+            except ValueError:
+                pass
+            else:
+                return False
+
+        # check the default variables
+        for binfile in self.default_bin_includes:
+            if path.match(binfile):
+                return True
+        for binfile in self.default_bin_excludes:
+            if filename_noversion.match(binfile):
+                return False
+        for binpath in self.default_bin_path_includes:
+            try:
+                dirname.relative_to(binpath)
+            except ValueError:
+                pass
+            else:
+                return True
+        for binpath in self.default_bin_path_excludes:
             try:
                 dirname.relative_to(binpath)
             except ValueError:
@@ -525,14 +535,10 @@ class Freezer:
         if bin_path is None:
             return []
         return [
-            os.fspath(path) for path in map(Path, bin_path) if path.is_dir()
+            os.fspath(path.resolve())
+            for path in map(Path, bin_path)
+            if path.is_dir()
         ]
-
-    def _verify_configuration(self) -> None:
-        self.bin_includes += self._default_bin_includes()
-        self.bin_excludes += self._default_bin_excludes()
-        self.bin_path_includes += self._default_bin_path_includes()
-        self.bin_path_excludes += self._default_bin_path_excludes()
 
     def _populate_zip_options(
         self,
@@ -817,7 +823,12 @@ class WinFreezer(Freezer, PEParser):
 
     def __init__(self, *args, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
-        PEParser.__init__(self, self.path, self.bin_path_includes, self.silent)
+        PEParser.__init__(
+            self,
+            self.path,
+            self.default_bin_path_includes + self.bin_path_includes,
+            self.silent,
+        )
 
     def _add_resources(self, exe: Executable) -> None:
         target_path: Path = self.target_dir / exe.target_name
@@ -939,6 +950,23 @@ class WinFreezer(Freezer, PEParser):
                     copy_dependent_files=True,
                 )
 
+    def _get_top_dependencies(self, source: Path) -> None:
+        # executable dependencies go into build root directory on windows
+        # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
+        # conda-forge python3x.dll depends on zlib.dll
+        finder = self.finder
+        for path in map(Path, self.default_bin_includes):
+            finder.lib_files.setdefault(path, path.name)
+
+        def get_dep(src) -> None:
+            for filename in self.get_dependent_files(src):
+                path = filename.resolve()
+                if path not in finder.lib_files:
+                    finder.lib_files.setdefault(path, path.name)
+                    get_dep(path)
+
+        get_dep(source)
+
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths. Also, adjust the target of
         C runtime libraries.
@@ -1017,17 +1045,23 @@ class WinFreezer(Freezer, PEParser):
         return ["comctl32.dll", "oci.dll"]
 
     def _default_bin_includes(self) -> list[str]:
-        python_shared_libs: list[str] = []
         name = sysconfig.get_config_var("INSTSONAME")
         if name:
             # MSYS2 python returns a static library.
-            python_shared_libs.append(name.replace(".dll.a", ".dll"))
+            names = [name.replace(".dll.a", ".dll")]
         else:
-            python_shared_libs += [
+            names = [
                 f"python{sys.version_info[0]}.dll",
                 f"python{sys.version_info[0]}{sys.version_info[1]}.dll",
             ]
-        return python_shared_libs
+        python_shared_libs: list[Path] = []
+        for name in names:
+            for bin_path in self._default_bin_path_includes():
+                fullname = Path(bin_path, name).resolve()
+                if fullname.is_file():
+                    python_shared_libs.append(fullname)
+                    break
+        return self._validate_bin_file(python_shared_libs)
 
     def _default_bin_path_excludes(self) -> list[str]:
         system_dir = GetSystemDir()
@@ -1092,8 +1126,48 @@ class DarwinFreezer(Freezer, Parser):
 
     def __init__(self, *args, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
-        Parser.__init__(self, self.path, self.bin_path_includes, self.silent)
+        Parser.__init__(
+            self,
+            self.path,
+            self.default_bin_path_includes + self.bin_path_includes,
+            self.silent,
+        )
         self.darwin_tracker: DarwinFileTracker = DarwinFileTracker()
+
+    def _default_bin_includes(self) -> list[str]:
+        python_shared_libs: list[Path] = []
+        # If PYTHONFRAMEWORK is set, INSTSONAME returns a relative path like
+        # "Python.framework/Versions/3.12/Python".
+        # But, if it is not set, can return a .dylib that does not exist, so
+        # first check for "Python" that can exist in "cx_Freeze/baes/lib".
+        # On the other hand, in conda-forge it returns a static library.
+        name = "Python"
+        for bin_path in self._default_bin_path_includes():
+            fullname = Path(bin_path, name).resolve()
+            if fullname.is_file():
+                python_shared_libs.append(fullname)
+                break
+        if not python_shared_libs:
+            name = sysconfig.get_config_var("INSTSONAME")
+            if name.endswith(".a"):
+                name = name.replace(".a", ".dylib")  # fix for conda-forge
+            for bin_path in self._default_bin_path_includes():
+                fullname = Path(bin_path, name).resolve()
+                if fullname.is_file():
+                    python_shared_libs.append(fullname)
+                    break
+        return self._validate_bin_file(python_shared_libs)
+
+    def _default_bin_path_excludes(self) -> list[str]:
+        return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
+
+    def _default_bin_path_includes(self) -> list[str]:
+        # use macpython distributed files if available
+        bases_lib = get_resource_file_path("bases", "lib", "")
+        if bases_lib:
+            return self._validate_bin_path([bases_lib])
+        # use default
+        return super()._default_bin_path_includes()
 
     def _post_freeze_hook(self) -> None:
         self.darwin_tracker.finalizeReferences()
@@ -1207,15 +1281,27 @@ class DarwinFreezer(Freezer, Parser):
             reference=cached_reference,
         )
 
-    def _default_bin_path_excludes(self) -> list[str]:
-        return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
-
-    def _default_bin_path_includes(self) -> list[str]:
-        bin_path = [
-            sysconfig.get_config_var("LIBDIR"),
-            sysconfig.get_config_var("DESTLIB"),
-        ]
-        return self._validate_bin_path(bin_path)
+    def _get_top_dependencies(self, source: Path) -> None:
+        # this recovers the cached MachOReference pointers to the files
+        # found by the get_dependent_files calls made previously (if any).
+        # If one is found, pass into _copy_file.
+        # We need to do this so the file knows what file referenced it,
+        # and can therefore calculate the appropriate rpath.
+        # (We only cache one reference.)
+        # =cached_reference = self.darwin_tracker.getCachedReferenceTo(source)
+        # =darwin_file = DarwinFile(source, cached_reference)
+        dependent_files = self.get_dependent_files(source)  # darwin_file
+        dependent_files.update(set(map(Path, self.default_bin_includes)))
+        for dep_source in dependent_files:
+            dep_target = self.target_dir / "lib" / dep_source.name
+            reference = self.darwin_tracker.getCachedReferenceTo(dep_source)
+            self._copy_file_recursion(
+                dep_source,
+                dep_target,
+                copy_dependent_files=True,
+                include_mode=True,
+                reference=reference,
+            )
 
     def get_dependent_files(
         self, filename: Path, darwinFile: DarwinFile | None = None
@@ -1254,8 +1340,21 @@ class LinuxFreezer(Freezer, ELFParser):
     def __init__(self, *args, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         ELFParser.__init__(
-            self, self.path, self.bin_path_includes, self.silent
+            self,
+            self.path,
+            self.default_bin_path_includes + self.bin_path_includes,
+            self.silent,
         )
+
+    def _default_bin_path_excludes(self) -> list[str]:
+        return [
+            "/lib",
+            "/lib32",
+            "/lib64",
+            "/usr/lib",
+            "/usr/lib32",
+            "/usr/lib64",
+        ]
 
     def _post_copy_hook(
         self,
@@ -1331,19 +1430,7 @@ class LinuxFreezer(Freezer, ELFParser):
             source, target, copy_dependent_files=True, include_mode=True
         )
 
-    def _default_bin_path_excludes(self) -> list[str]:
-        return [
-            "/lib",
-            "/lib32",
-            "/lib64",
-            "/usr/lib",
-            "/usr/lib32",
-            "/usr/lib64",
-        ]
-
-    def _default_bin_path_includes(self) -> list[str]:
-        bin_path = [
-            sysconfig.get_config_var("LIBDIR"),
-            sysconfig.get_config_var("DESTLIB"),
-        ]
-        return self._validate_bin_path(bin_path)
+    def _get_top_dependencies(self, source: Path) -> None:  # noqa: ARG002
+        finder = self.finder
+        for path in map(Path, self.default_bin_includes):
+            finder.lib_files.setdefault(path, f"lib/{path.name}")

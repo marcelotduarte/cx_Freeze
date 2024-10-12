@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import sys
-from sysconfig import get_config_vars
-from typing import TYPE_CHECKING, Any, NoReturn
+import sysconfig
+from pathlib import Path
+from typing import NoReturn
 
 import pytest
 from generate_samples import create_package, run_command
@@ -21,8 +22,7 @@ from cx_Freeze._compat import (
 )
 from cx_Freeze.exception import OptionError
 
-if TYPE_CHECKING:
-    from pathlib import Path
+ENABLE_SHARED = bool(sysconfig.get_config_var("Py_ENABLE_SHARED"))
 
 SOURCE = """
 hello.py
@@ -98,51 +98,35 @@ def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch) -> None:
 
 
 def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
-    """Test freezer _default_bin_includes."""
+    """Test freezer.default_bin_includes."""
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
     freezer = Freezer(executables=[Executable("hello.py")])
-    if IS_MACOS:
-        if sys.version_info[:2] <= (3, 10) or IS_CONDA:
-            expected = f"libpython{PYTHON_VERSION}.dylib"
-        else:
-            expected = f"Python.framework/Versions/{PYTHON_VERSION}/Python"
+    if IS_MINGW:
+        expected = f"libpython{PYTHON_VERSION}.dll"
     elif IS_WINDOWS:
         expected = f"python{PYTHON_VERSION.replace('.','')}.dll"
-    elif IS_MINGW:
-        expected = f"libpython{PYTHON_VERSION}.dll"
+    elif IS_CONDA:  # macOS or Linux
+        if IS_MACOS:
+            expected = f"libpython{PYTHON_VERSION}.dylib"
+        else:
+            expected = f"libpython{PYTHON_VERSION}.so*"
+    elif IS_MACOS:
+        expected = "Python"
+    elif ENABLE_SHARED:  # Linux
+        expected = f"libpython{PYTHON_VERSION}.so*"
     else:
-        expected = f"libpython{PYTHON_VERSION}.so"
-    assert expected in freezer.bin_includes
-
-
-def test_freezer_default_bin_includes_emulated(
-    tmp_path: Path, monkeypatch
-) -> None:
-    """Test freezer _default_bin_includes in conda/mingw environments."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
-
-    def t_get_config_var(name) -> dict[str, Any]:
-        if name == "INSTSONAME":
-            # emulate conda and/or mingw
-            soname = f"libpython{PYTHON_VERSION}.a"
-            if IS_MINGW or IS_WINDOWS:  # emulate mingw
-                soname = soname.replace(".a", ".dll.a")
-            return soname
-        return get_config_vars().get(name)
-
-    monkeypatch.setattr("sysconfig.get_config_var", t_get_config_var)
-
-    freezer = Freezer(executables=[Executable("hello.py")])
-    if IS_MACOS:
-        expected = f"libpython{PYTHON_VERSION}.dylib"
-    elif IS_MINGW or IS_WINDOWS:
-        expected = f"libpython{PYTHON_VERSION}.dll"
-    else:
-        expected = f"libpython{PYTHON_VERSION}.so"
-    assert expected in freezer.bin_includes
+        assert freezer.default_bin_includes == []
+        return
+    names = []
+    for path in map(Path, freezer.default_bin_path_includes):
+        names += [
+            file
+            for file in map(Path, freezer.default_bin_includes)
+            if file.match(path.joinpath(expected).as_posix())
+        ]
+    assert names != []
 
 
 def test_freezer_populate_zip_options_invalid_values(
