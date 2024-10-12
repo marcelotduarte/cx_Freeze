@@ -15,13 +15,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest, windows-latest, macos-14]
         python-version: ['3.9', '3.10', '3.11', '3.12']
         include:
-          - os: macos-14  # macos-14 is apple silicon
-            python-version: '3.11'
+          - os: macos-13  # macos-13 is x86_64
+            python-version: '3.9'
+          - os: macos-13
+            python-version: '3.10'
+        exclude:
+          - os: macos-14  # macos-14 is arm64 (apple silicon)
+            python-version: '3.9'
           - os: macos-14
-            python-version: '3.12'
+            python-version: '3.10'
     defaults:
       run:
         shell: bash
@@ -30,10 +35,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: marcelotduarte/setup-python-uv-action@new
+        uses: actions/setup-python@v5
         with:
-          cache: 'packages'
           python-version: ${{ matrix.python-version }}
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements.txt
+            **/requirements-test.txt
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
@@ -42,8 +53,8 @@ jobs:
       - name: Build wheel for Python ${{ matrix.python-version }} [Windows]
         if: runner.os == 'Windows'
         run: |
-          uv pip install build setuptools cx_Logging
-          python -m build -n -x -w -o wheelhouse
+          uv pip install --system build -r requirements.txt
+          pyproject-build -n -x -w -o wheelhouse
 
       - name: Build wheel for Python ${{ matrix.python-version }} [Linux/macOS]
         if: runner.os != 'Windows'
@@ -59,7 +70,7 @@ jobs:
           else
             PLATFORM_TAG=macosx_$ARCH
           fi
-          uv pip install "`grep cibuildwheel requirements-dev.txt`"
+          uv pip install --system "`grep cibuildwheel requirements-dev.txt`"
           cibuildwheel --only ${PYTHON_TAG}-${PLATFORM_TAG} --prerelease-pythons
 
       - name: Upload the wheel
@@ -72,8 +83,8 @@ jobs:
 
       - name: Install cx_Freeze and dependencies
         run: |
-          uv pip install -r requirements.txt -r requirements-test.txt
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse -v
+          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
@@ -104,20 +115,26 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: marcelotduarte/setup-python-uv-action@new
+        uses: actions/setup-python@v5
         with:
-          cache: 'packages'
           python-version: ${{ matrix.python-version }}
 
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements.txt
+            **/requirements-test.txt
+
       - name: Install dependencies
-        run: uv pip install -e.[test]
+        run: uv pip install --system -e.[test]
 
       - name: Generate coverage report
         run: |
           if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
             export CX_FREEZE_BIND=imagehlp
           else
-            uv pip install "${{ matrix.extra-requirement }}"
+            uv pip install --system "${{ matrix.extra-requirement }}"
           fi
           pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
@@ -144,10 +161,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: marcelotduarte/setup-python-uv-action@new
+        uses: actions/setup-python@v5
         with:
-          cache: 'packages'
           python-version: ${{ matrix.python-version }}
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements.txt
+            **/requirements-test.txt
 
       - name: Download the artifact
         uses: actions/download-artifact@v4
@@ -157,15 +180,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install -r requirements.txt -r requirements-test.txt
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse
+          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Install dependencies - extra
         run: |
           if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
+            uv pip install --system -i https://pypi.anaconda.org/intel/simple numpy
           fi
-          uv pip install pandas
+          uv pip install --system pandas
 
       - name: Generate coverage report
         run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
