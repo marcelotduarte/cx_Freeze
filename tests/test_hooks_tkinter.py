@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 try:
-    import tkinter as tk
+    import tkinter as tk  # noqa: F401
 except ImportError:
     pytest.skip(reason="Tkinter must be installed", allow_module_level=True)
 
@@ -43,8 +43,9 @@ def test_tkinter(tmp_path: Path) -> None:
     executable = tmp_path / BUILD_EXE_DIR / f"test_tk{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
-    expected = executable.parent.joinpath(f"share/tcl{tk.TclVersion}")
-    assert output.splitlines()[0] == os.path.normpath(expected)
+    # compare the start of the returned path, version independent
+    expected = os.path.normpath(executable.parent / "share/tcl")
+    assert output.splitlines()[0].startswith(expected)
 
 
 @pytest.mark.skipif(not IS_MACOS, reason="macOS test")
@@ -59,5 +60,8 @@ def test_tkinter_bdist_mac(tmp_path: Path) -> None:
     executable = build_app_dir / f"Contents/MacOS/test_tk{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
-    expected = build_app_dir / f"Contents/Resources/share/tcl{tk.TclVersion}"
-    assert output.splitlines()[0] == os.path.normpath(expected)
+    # compare the start of the returned path, version independent
+    # this is required when the SO has one tcl/tk version and cx_Freeze wheels
+    # has a more recent
+    expected = os.path.normpath(build_app_dir / "Contents/Resources/share/tcl")
+    assert output.splitlines()[0].startswith(expected)
