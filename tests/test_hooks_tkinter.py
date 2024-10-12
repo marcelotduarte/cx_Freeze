@@ -43,7 +43,9 @@ def test_tkinter(tmp_path: Path) -> None:
     executable = tmp_path / BUILD_EXE_DIR / f"test_tk{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
-    # compare the start of the returned path, version independent
+    # Compare the start of the returned path, version independent.
+    # This is necessary when the OS has an older tcl/tk version than the
+    # version contained in the cx_Freeze wheels.
     expected = os.path.normpath(executable.parent / "share/tcl")
     assert output.splitlines()[0].startswith(expected)
 
@@ -60,8 +62,8 @@ def test_tkinter_bdist_mac(tmp_path: Path) -> None:
     executable = build_app_dir / f"Contents/MacOS/test_tk{EXE_SUFFIX}"
     assert executable.is_file()
     output = run_command(tmp_path, executable, timeout=10)
-    # compare the start of the returned path, version independent
-    # this is required when the SO has one tcl/tk version and cx_Freeze wheels
-    # has a more recent
+    # Compare the start of the returned path, version independent.
+    # This is necessary when the OS has an older tcl/tk version than the
+    # version contained in the cx_Freeze wheels.
     expected = os.path.normpath(build_app_dir / "Contents/Resources/share/tcl")
     assert output.splitlines()[0].startswith(expected)
