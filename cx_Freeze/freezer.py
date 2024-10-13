@@ -316,20 +316,16 @@ class Freezer:
         # Add resources like version metadata and icon
         self._add_resources(exe)
 
+    @abstractmethod
+    def _get_top_dependencies(self, source: Path, target: Path) -> None:
+        """Called to get the dependencies of an executable."""
+
     def _platform_add_extra_dependencies(
         self, dependent_files: set[Path]
     ) -> None:
         """Override with platform specific files to add runtime libraries to
         the list of dependent_files calculated in _freeze_executable.
         """
-
-    @abstractmethod
-    def _copy_top_dependency(self, source: Path) -> None:
-        """Called for copying the top dependencies in _freeze_executable."""
-
-    @abstractmethod
-    def _get_top_dependencies(self, source: Path, target: Path) -> None:
-        """Called to get the dependencies of an executable."""
 
     def _default_bin_excludes(self) -> list[str]:
         """Return the file names of libraries that need not be included because
@@ -925,48 +921,6 @@ class WinFreezer(Freezer, PEParser):
             if self.silent < 3:
                 print("WARNING:", exc)
 
-    def _copy_top_dependency(self, source: Path) -> None:
-        """Called for copying certain top dependencies in _freeze_executable.
-        We need this as a separate method so that it can be overridden on
-        Darwin and Windows.
-        """
-        # top dependencies go into build root directory on windows
-        # MS VC runtimes are handled in _copy_file/_pre_copy_hook
-        # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
-        # conda-forge python3x.dll depends on zlib.dll
-        target_dir = self.target_dir
-        target = target_dir / source.name
-        self._copy_file(
-            source, target, copy_dependent_files=False, include_mode=True
-        )
-        for dependent_source in self.get_dependent_files(source):
-            if IS_MINGW:
-                if self._should_copy_file(dependent_source):
-                    self._copy_top_dependency(dependent_source)
-            else:
-                self._copy_file(
-                    source=dependent_source,
-                    target=target_dir / dependent_source.name,
-                    copy_dependent_files=True,
-                )
-
-    def _get_top_dependencies(self, source: Path) -> None:
-        # executable dependencies go into build root directory on windows
-        # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
-        # conda-forge python3x.dll depends on zlib.dll
-        finder = self.finder
-        for path in map(Path, self.default_bin_includes):
-            finder.lib_files.setdefault(path, path.name)
-
-        def get_dep(src) -> None:
-            for filename in self.get_dependent_files(src):
-                path = filename.resolve()
-                if path not in finder.lib_files:
-                    finder.lib_files.setdefault(path, path.name)
-                    get_dep(path)
-
-        get_dep(source)
-
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
         """Prepare the source and target paths. Also, adjust the target of
         C runtime libraries.
@@ -1071,6 +1025,23 @@ class WinFreezer(Freezer, PEParser):
     def _default_bin_path_includes(self) -> list[str]:
         return self._validate_bin_path(sys.path + self._platform_bin_path)
 
+    def _get_top_dependencies(self, source: Path) -> None:
+        # executable dependencies go into build root directory on windows
+        # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
+        # conda-forge python3x.dll depends on zlib.dll
+        finder = self.finder
+        for path in map(Path, self.default_bin_includes):
+            finder.lib_files.setdefault(path, path.name)
+
+        def get_dep(src) -> None:
+            for filename in self.get_dependent_files(src):
+                path = filename.resolve()
+                if path not in finder.lib_files:
+                    finder.lib_files.setdefault(path, path.name)
+                    get_dep(path)
+
+        get_dep(source)
+
     @cached_property
     def _platform_bin_path(self) -> list[Path]:
         # try to find the paths (windows, conda-forge, msys2/mingw)
@@ -1136,11 +1107,7 @@ class DarwinFreezer(Freezer, Parser):
 
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[Path] = []
-        # If PYTHONFRAMEWORK is set, INSTSONAME returns a relative path like
-        # "Python.framework/Versions/3.12/Python".
-        # But, if it is not set, can return a .dylib that does not exist, so
-        # first check for "Python" that can exist in "cx_Freeze/baes/lib".
-        # On the other hand, in conda-forge it returns a static library.
+        # Check for distributed "cx_Freeze/bases/lib/Python"
         name = "Python"
         for bin_path in self._default_bin_path_includes():
             fullname = Path(bin_path, name).resolve()
@@ -1148,6 +1115,11 @@ class DarwinFreezer(Freezer, Parser):
                 python_shared_libs.append(fullname)
                 break
         if not python_shared_libs:
+            # INSTSONAME returns a relative path like
+            # "Python.framework/Versions/3.12/Python" if PYTHONFRAMEWORK is
+            # set, or can return a .dylib that does not exist.
+            # On the other hand, in conda-forge it returns a static library .a
+            # instead of a .dylib.
             name = sysconfig.get_config_var("INSTSONAME")
             if name.endswith(".a"):
                 name = name.replace(".a", ".dylib")  # fix for conda-forge
@@ -1168,6 +1140,28 @@ class DarwinFreezer(Freezer, Parser):
             return self._validate_bin_path([bases_lib])
         # use default
         return super()._default_bin_path_includes()
+
+    def _get_top_dependencies(self, source: Path) -> None:
+        # this recovers the cached MachOReference pointers to the files
+        # found by the get_dependent_files calls made previously (if any).
+        # If one is found, pass into _copy_file.
+        # We need to do this so the file knows what file referenced it,
+        # and can therefore calculate the appropriate rpath.
+        # (We only cache one reference.)
+        # =cached_reference = self.darwin_tracker.getCachedReferenceTo(source)
+        # =darwin_file = DarwinFile(source, cached_reference)
+        dependent_files = self.get_dependent_files(source)  # darwin_file
+        dependent_files.update(set(map(Path, self.default_bin_includes)))
+        for dep_source in dependent_files:
+            dep_target = self.target_dir / "lib" / dep_source.name
+            reference = self.darwin_tracker.getCachedReferenceTo(dep_source)
+            self._copy_file_recursion(
+                dep_source,
+                dep_target,
+                copy_dependent_files=True,
+                include_mode=True,
+                reference=reference,
+            )
 
     def _post_freeze_hook(self) -> None:
         self.darwin_tracker.finalizeReferences()
@@ -1259,50 +1253,6 @@ class DarwinFreezer(Freezer, Parser):
             reference=reference,
         )
 
-    def _copy_top_dependency(self, source: Path) -> None:
-        """Called for copying certain top dependencies. We need this as a
-        separate function so that it can be overridden on Darwin
-        (to interact with the DarwinTools system).
-        """
-        target = self.target_dir / "lib" / source.name
-
-        # this recovers the cached MachOReference pointers to the files
-        # found by the get_dependent_files calls made previously (if any).
-        # If one is found, pass into _copy_file.
-        # We need to do this so the file knows what file referenced it,
-        # and can therefore calculate the appropriate rpath.
-        # (We only cache one reference.)
-        cached_reference = self.darwin_tracker.getCachedReferenceTo(source)
-        self._copy_file_recursion(
-            source,
-            target,
-            copy_dependent_files=True,
-            include_mode=True,
-            reference=cached_reference,
-        )
-
-    def _get_top_dependencies(self, source: Path) -> None:
-        # this recovers the cached MachOReference pointers to the files
-        # found by the get_dependent_files calls made previously (if any).
-        # If one is found, pass into _copy_file.
-        # We need to do this so the file knows what file referenced it,
-        # and can therefore calculate the appropriate rpath.
-        # (We only cache one reference.)
-        # =cached_reference = self.darwin_tracker.getCachedReferenceTo(source)
-        # =darwin_file = DarwinFile(source, cached_reference)
-        dependent_files = self.get_dependent_files(source)  # darwin_file
-        dependent_files.update(set(map(Path, self.default_bin_includes)))
-        for dep_source in dependent_files:
-            dep_target = self.target_dir / "lib" / dep_source.name
-            reference = self.darwin_tracker.getCachedReferenceTo(dep_source)
-            self._copy_file_recursion(
-                dep_source,
-                dep_target,
-                copy_dependent_files=True,
-                include_mode=True,
-                reference=reference,
-            )
-
     def get_dependent_files(
         self, filename: Path, darwinFile: DarwinFile | None = None
     ) -> set[Path]:
@@ -1355,6 +1305,11 @@ class LinuxFreezer(Freezer, ELFParser):
             "/usr/lib32",
             "/usr/lib64",
         ]
+
+    def _get_top_dependencies(self, source: Path) -> None:  # noqa: ARG002
+        finder = self.finder
+        for path in map(Path, self.default_bin_includes):
+            finder.lib_files.setdefault(path, f"lib/{path.name}")
 
     def _post_copy_hook(
         self,
@@ -1422,15 +1377,3 @@ class LinuxFreezer(Freezer, ELFParser):
             self.set_rpath(target, ":".join(f"$ORIGIN/{r}" for r in fix_rpath))
         for needed_old, needed_new in fix_needed.items():
             self.replace_needed(target, needed_old, needed_new)
-
-    def _copy_top_dependency(self, source: Path) -> None:
-        """Called for copying the top dependencies in _freeze_executable."""
-        target = self.target_dir / "lib" / source.name
-        self._copy_file(
-            source, target, copy_dependent_files=True, include_mode=True
-        )
-
-    def _get_top_dependencies(self, source: Path) -> None:  # noqa: ARG002
-        finder = self.finder
-        for path in map(Path, self.default_bin_includes):
-            finder.lib_files.setdefault(path, f"lib/{path.name}")
