@@ -66,17 +66,12 @@ sample3.py
         mgr_dict = mgr.dict({'test': var})
         print("done!")
 setup.py
-    from cx_Freeze import Executable, setup
+    from cx_Freeze import setup
     setup(
         name="test_multiprocessing",
         version="0.1",
         description="Sample for test with cx_Freeze",
-        executables=[
-            Executable("sample0.py"),
-            Executable("sample1.py"),
-            Executable("sample2.py"),
-            Executable("sample3.py"),
-        ],
+        executables=["sample0.py", "sample1.py", "sample2.py", "sample3.py"],
         options={
             "build_exe": {
                 "excludes": ["tkinter"],

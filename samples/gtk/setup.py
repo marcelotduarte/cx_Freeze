@@ -1,4 +1,4 @@
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 options = {
     "build_exe": {
@@ -8,12 +8,10 @@ options = {
     },
 }
 
-executables = [Executable("test_gtk.py")]
-
 setup(
     name="gtkapp_sample",
     version="0.1",
     description="Sample cx_Freeze Gtk script",
-    executables=executables,
+    executables=["test_gtk.py"],
     options=options,
 )

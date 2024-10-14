@@ -23,9 +23,9 @@ test_ssl.py
     print(ssl_paths.openssl_cafile)
     print(os.environ.get('SSL_CERT_FILE'))
 setup.py
-    from cx_Freeze import Executable, setup
+    from cx_Freeze import setup
     setup(
-        executables=[Executable("test_ssl.py")],
+        executables=["test_ssl.py"],
         options={"build_exe": {"excludes": ["tkinter"], "silent": True}}
     )
 """

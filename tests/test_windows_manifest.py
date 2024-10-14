@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import ctypes
 import sys
-from sysconfig import get_platform, get_python_version
 from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import create_package, run_command
 
+from cx_Freeze._compat import PLATFORM, PYTHON_VERSION
 from cx_Freeze.parser import PEParser
 
 if TYPE_CHECKING:
@@ -17,9 +17,6 @@ if TYPE_CHECKING:
 
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
-
-PLATFORM = get_platform()
-PYTHON_VERSION = get_python_version()
 
 SOURCE = """
 test_manifest.py

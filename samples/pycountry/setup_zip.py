@@ -11,7 +11,7 @@ from __future__ import annotations
 import os
 import sysconfig
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 platform = sysconfig.get_platform()
 python_version = sysconfig.get_python_version()
@@ -22,7 +22,7 @@ setup(
     name="test_zip",
     version="0.1",
     description="cx_Freeze script to test pycountry",
-    executables=[Executable("test.py")],
+    executables=["test.py"],
     options={
         "build_exe": {
             "zip_include_packages": ["*"],

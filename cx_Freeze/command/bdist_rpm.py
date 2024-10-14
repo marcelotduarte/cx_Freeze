@@ -17,12 +17,11 @@ import shutil
 import sys
 import tarfile
 from subprocess import CalledProcessError, check_output
-from sysconfig import get_python_version
 from typing import ClassVar
 
 from setuptools import Command
 
-from cx_Freeze._compat import IS_CONDA
+from cx_Freeze._compat import IS_CONDA, PYTHON_VERSION
 from cx_Freeze.exception import ExecError, FileError, PlatformError
 
 __all__ = ["bdist_rpm"]
@@ -363,8 +362,6 @@ class bdist_rpm(Command):
         self.spawn(rpm_cmd)
 
         if not self.dry_run:
-            pyversion = get_python_version()
-
             for binary_rpm in binary_rpms:
                 rpm = os.path.join(rpm_dir["RPMS"], binary_rpm)
                 if os.path.exists(rpm):
@@ -373,7 +370,7 @@ class bdist_rpm(Command):
                         self.dist_dir, os.path.basename(rpm)
                     )
                     self.distribution.dist_files.append(
-                        ("bdist_rpm", pyversion, filename)
+                        ("bdist_rpm", PYTHON_VERSION, filename)
                     )
 
     def _make_spec_file(self) -> list[str]:

@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from sysconfig import get_platform
 
 import pytest
 from generate_samples import create_package, run_command
 from setuptools import Distribution
 
-from cx_Freeze import Executable
+from cx_Freeze._compat import PLATFORM
 
 bdist_msi = pytest.importorskip(
     "cx_Freeze.command.bdist_msi", reason="Windows tests"
@@ -22,7 +21,7 @@ if sys.platform != "win32":
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": [Executable("hello.py")],
+    "executables": ["hello.py"],
     "script_name": "setup.py",
 }
 
@@ -55,7 +54,7 @@ def test_bdist_msi_target_name_and_version() -> None:
 def test_bdist_msi_default(datafiles: Path) -> None:
     """Test the msi_binary_data sample."""
     run_command(datafiles, "python setup.py bdist_msi")
-    platform = get_platform().replace("win-amd64", "win64")
+    platform = PLATFORM.replace("win-amd64", "win64")
     file_created = datafiles / "dist" / f"hello-0.1.2.3-{platform}.msi"
     assert file_created.is_file()
 
@@ -87,7 +86,7 @@ def test_bdist_msi_target_name_with_extension_1(datafiles: Path) -> None:
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_license")
 def test_bdist_msi_with_license(datafiles: Path) -> None:
     """Test the msi_license sample."""
-    platform = get_platform().replace("win-amd64", "win64")
+    platform = PLATFORM.replace("win-amd64", "win64")
     msi_name = f"hello-0.1-{platform}.msi"
     run_command(datafiles, "python setup.py bdist_msi")
     file_created = datafiles / "dist" / msi_name
@@ -134,13 +133,13 @@ hello.py
 pkg/hi.py
     print("Hi!")
 setup.py
-    from cx_Freeze import Executable, setup
+    from cx_Freeze import setup
 
     setup(
         name="hello",
         version="0.1.2.3",
         description="Sample cx_Freeze script",
-        executables=[Executable("hello.py")],
+        executables=["hello.py"],
     )
 """
 

@@ -9,11 +9,11 @@ from __future__ import annotations
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_pytz_zip",
     version="0.3",
     description="cx_Freeze script to test pytz",
-    executables=[Executable("test_pytz.py")],
+    executables=["test_pytz.py"],
 )

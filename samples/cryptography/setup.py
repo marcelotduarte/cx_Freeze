@@ -8,13 +8,13 @@
 
 from __future__ import annotations
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_crypt",
     version="0.2",
     description="cx_Freeze script to test cryptography",
-    executables=[Executable("test_crypt.py")],
+    executables=["test_crypt.py"],
     options={
         "build_exe": {
             "excludes": ["tkinter"],

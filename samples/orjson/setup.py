@@ -8,12 +8,12 @@
 
 from __future__ import annotations
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_orjson",
     version="0.1",
     description="cx_Freeze script to test orjson",
-    executables=[Executable("test_orjson.py")],
+    executables=["test_orjson.py"],
     options={"build_exe": {"excludes": ["tkinter"]}},
 )

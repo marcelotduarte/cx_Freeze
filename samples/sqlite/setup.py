@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from sysconfig import get_platform
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 arch_dir = Path.cwd() / f"lib-{get_platform()}"
 search_path = [arch_dir, *sys.path]
@@ -19,7 +19,7 @@ setup(
     name="test_sqlite3",
     version="0.5",
     description="cx_Freeze script to test sqlite3",
-    executables=[Executable("test_sqlite3.py")],
+    executables=["test_sqlite3.py"],
     options={
         "build_exe": {
             "excludes": ["tkinter"],

@@ -9,9 +9,7 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application
 """
 
-from __future__ import annotations
-
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 options = {
     "build_exe": {
@@ -19,12 +17,10 @@ options = {
     }
 }
 
-executables = [Executable("qotd.py")]
-
 setup(
     name="QOTD sample",
     version="1.1",
     description="QOTD sample for demonstrating use of namespace packages",
+    executables=["qotd.py"],
     options=options,
-    executables=executables,
 )

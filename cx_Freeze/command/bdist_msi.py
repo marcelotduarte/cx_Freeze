@@ -8,13 +8,12 @@ import os
 import re
 import shutil
 import warnings
-from sysconfig import get_platform
 from typing import ClassVar
 
 from packaging.version import Version
 from setuptools import Command
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.exception import OptionError
 
 __all__ = ["bdist_msi"]
@@ -1012,7 +1011,7 @@ class bdist_msi(Command):
         name = self.target_name
         version = self.target_version or self.distribution.get_version()
         self.fullname = f"{name}-{version}"
-        platform = get_platform().replace("win-amd64", "win64")
+        platform = PLATFORM.replace("win-amd64", "win64")
         if self.initial_target_dir is None:
             if platform == "win64" or platform.startswith("mingw_x86_64"):
                 program_files_folder = "ProgramFiles64Folder"
@@ -1126,7 +1125,7 @@ class bdist_msi(Command):
 
         # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
-        platform = get_platform().replace("win-amd64", "win64")
+        platform = PLATFORM.replace("win-amd64", "win64")
 
         msi_name: str
         if os.path.splitext(self.target_name)[1].lower() == ".msi":

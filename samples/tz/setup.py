@@ -9,11 +9,11 @@ from __future__ import annotations
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_tz",
     version="0.1",
     description="cx_Freeze script to test zoneinfo/tzdata",
-    executables=[Executable("test_tz.py")],
+    executables=["test_tz.py"],
 )

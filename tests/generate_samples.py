@@ -252,8 +252,8 @@ hello.py
     print()
 setup.py
     from plist_data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
-    from cx_Freeze import Executable, setup
-    executables = [Executable("hello.py")]
+    from cx_Freeze import setup
+    executables = ["hello.py"]
     setup(
         name="hello",
         version="0.1",

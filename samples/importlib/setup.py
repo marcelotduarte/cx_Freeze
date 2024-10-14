@@ -9,14 +9,10 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 buildOptions = {"zip_include_packages": ["*"], "zip_exclude_packages": []}
-executables = [
-    Executable("server_simple.py"),
-    Executable("web_srv.py"),
-    Executable("wsgiserver.py"),
-]
+executables = ["server_simple.py", "web_srv.py", "wsgiserver.py"]
 
 setup(
     name="test_importlib",

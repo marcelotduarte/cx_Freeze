@@ -10,7 +10,7 @@ from typing import NoReturn
 import pytest
 from generate_samples import create_package, run_command
 
-from cx_Freeze import Executable, Freezer
+from cx_Freeze import Freezer
 from cx_Freeze._compat import (
     BUILD_EXE_DIR,
     EXE_SUFFIX,
@@ -35,7 +35,7 @@ def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch) -> None:
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    freezer = Freezer(executables=[Executable("hello.py")])
+    freezer = Freezer(executables=["hello.py"])
     target_dir = tmp_path / BUILD_EXE_DIR
     assert freezer.target_dir == target_dir
 
@@ -45,7 +45,7 @@ def test_freezer_target_dir_dist(tmp_path: Path, monkeypatch) -> None:
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    freezer = Freezer(executables=[Executable("hello.py")], target_dir="dist")
+    freezer = Freezer(executables=["hello.py"], target_dir="dist")
     target_dir = tmp_path / "dist"
     assert freezer.target_dir == target_dir
 
@@ -56,9 +56,7 @@ def test_freezer_target_dir_utf8(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
 
     target_dir = tmp_path / "ação"
-    freezer = Freezer(
-        executables=[Executable("hello.py")], target_dir=target_dir
-    )
+    freezer = Freezer(executables=["hello.py"], target_dir=target_dir)
     assert freezer.target_dir == target_dir
 
 
@@ -73,9 +71,7 @@ def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch) -> None:
         OptionError,
         match="the build_exe directory cannot be used as search path",
     ):
-        Freezer(
-            executables=[Executable("hello.py")], path=[*sys.path, target_dir]
-        )
+        Freezer(executables=["hello.py"], path=[*sys.path, target_dir])
 
 
 def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch) -> None:
@@ -94,7 +90,7 @@ def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch) -> None:
     with pytest.raises(
         OptionError, match="the build_exe directory cannot be cleaned"
     ):
-        Freezer(executables=[Executable("hello.py")], target_dir=target_dir)
+        Freezer(executables=["hello.py"], target_dir=target_dir)
 
 
 def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
@@ -102,7 +98,7 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    freezer = Freezer(executables=[Executable("hello.py")])
+    freezer = Freezer(executables=["hello.py"])
     if IS_MINGW:
         expected = f"libpython{PYTHON_VERSION}.dll"
     elif IS_WINDOWS:
@@ -141,7 +137,7 @@ def test_freezer_populate_zip_options_invalid_values(
         OptionError, match="all packages cannot be included and excluded "
     ):
         Freezer(
-            executables=[Executable("hello.py")],
+            executables=["hello.py"],
             zip_include_packages=["*"],
             zip_exclude_packages=["*"],
         )
@@ -149,7 +145,7 @@ def test_freezer_populate_zip_options_invalid_values(
     # zip_include_packages and zip_exclude_packages has the same package
     with pytest.raises(OptionError, match="package 'tkinter' cannot be both"):
         Freezer(
-            executables=[Executable("hello.py")],
+            executables=["hello.py"],
             zip_include_packages=["tkinter"],
             zip_exclude_packages=["tkinter"],
         )
@@ -157,7 +153,7 @@ def test_freezer_populate_zip_options_invalid_values(
         OptionError, match="packages 'tkinter, unittest' cannot be both"
     ):
         Freezer(
-            executables=[Executable("hello.py")],
+            executables=["hello.py"],
             zip_include_packages=["tkinter", "unittest"],
             zip_exclude_packages=["tkinter", "unittest", "codeop"],
         )
@@ -272,7 +268,7 @@ def test_freezer_options(
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    freezer = Freezer(executables=[Executable("hello.py")], **kwargs)
+    freezer = Freezer(executables=["hello.py"], **kwargs)
     for option, value in expected.items():
         assert getattr(freezer, option) == value
 
@@ -332,9 +328,7 @@ def test_freezer_zip_filename(
     create_package(tmp_path, SOURCE)
     monkeypatch.chdir(tmp_path)
 
-    freezer = Freezer(
-        executables=[Executable("hello.py")], silent=True, **kwargs
-    )
+    freezer = Freezer(executables=["hello.py"], silent=True, **kwargs)
     target_dir = freezer.target_dir
 
     freezer.freeze()

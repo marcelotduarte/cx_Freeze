@@ -9,13 +9,11 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the script without Python
 """
 
-from cx_Freeze import Executable, setup
-
-executables = [Executable("hello.py")]
+from cx_Freeze import setup
 
 setup(
     name="hello",
     version="0.1.2.3",
     description="Sample cx_Freeze script",
-    executables=executables,
+    executables=["hello.py"],
 )

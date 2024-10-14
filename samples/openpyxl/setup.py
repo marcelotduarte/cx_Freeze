@@ -10,9 +10,9 @@
 
 from __future__ import annotations
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
-executables = [Executable("test_openpyxl.py")]
+executables = ["test_openpyxl.py"]
 
 setup(
     name="test_openpyxl",

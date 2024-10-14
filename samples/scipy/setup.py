@@ -8,15 +8,11 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the application
 
-from cx_Freeze import Executable, setup
-
-executables = [
-    Executable("test_scipy.py"),
-]
+from cx_Freeze import setup
 
 setup(
     name="scipy_samples",
     version="0.1",
     description="Sample scipy script",
-    executables=executables,
+    executables=["test_scipy.py"],
 )

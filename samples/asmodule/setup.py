@@ -8,13 +8,11 @@ if __name__ == '__main__'.
 #
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
-from cx_Freeze import Executable, setup
-
-executables = [Executable("asmodule.py")]
+from cx_Freeze import setup
 
 setup(
     name="asmodule",
     version="0.1",
     description="Sample cx_Freeze script",
-    executables=executables,
+    executables=["asmodule.py"],
 )
