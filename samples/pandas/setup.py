@@ -11,11 +11,10 @@ subdirectory that contains the files needed to run the application.
 
 import sys
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 sys.setrecursionlimit(sys.getrecursionlimit() * 10)
 
-executables = [Executable("test_pandas.py")]
 options = {
     "build_exe": {
         # exclude packages that are not really needed
@@ -27,6 +26,6 @@ setup(
     name="test_pandas",
     version="0.1.0.1",
     description="Sample pandas script",
-    executables=executables,
+    executables=["test_pandas.py"],
     options=options,
 )

@@ -9,7 +9,7 @@ few of the features available to setup scripts.
 # subdirectory that contains the files needed to run the script without Python
 import sys
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 options = {
     "build_exe": {
@@ -18,7 +18,7 @@ options = {
     }
 }
 
-executables = [Executable("advanced_1.py"), Executable("advanced_2.py")]
+executables = ["advanced_1.py", "advanced_2.py"]
 
 setup(
     name="advanced_cx_Freeze_sample",

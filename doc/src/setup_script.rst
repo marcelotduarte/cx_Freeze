@@ -37,7 +37,7 @@ It looks something like this:
 
       .. code-block:: python
 
-         from cx_Freeze import setup, Executable
+         from cx_Freeze import setup
 
          # Dependencies are automatically detected, but they might need fine-tuning.
          build_exe_options = {
@@ -50,7 +50,7 @@ It looks something like this:
              version="0.1",
              description="My GUI application!",
              options={"build_exe": build_exe_options},
-             executables=[Executable("guifoo.py", base="gui")],
+             executables=[{"script": "guifoo.py", "base": "gui"}],
          )
 
    .. group-tab:: setup.cfg
@@ -78,7 +78,7 @@ It looks something like this:
 
       .. code-block:: python
 
-         from cx_Freeze import setup, Executable
+         from cx_Freeze import setup
 
          build_exe_options = {
              "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
@@ -89,7 +89,7 @@ It looks something like this:
              version="0.1",
              description="My GUI application!",
              options={"build_exe": build_exe_options},
-             executables=[Executable("guifoo.py", base="gui")],
+             executables=[{"script": "guifoo.py", "base": "gui"}],
          )
 
 The script is invoked as follows:

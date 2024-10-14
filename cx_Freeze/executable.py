@@ -7,10 +7,16 @@ import string
 import sys
 from collections.abc import Mapping
 from pathlib import Path
-from sysconfig import get_config_var, get_platform
+from sysconfig import get_config_var
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import EXE_SUFFIX, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    EXE_SUFFIX,
+    IS_MACOS,
+    IS_MINGW,
+    IS_WINDOWS,
+    PLATFORM,
+)
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.exception import OptionError, SetupError
 
@@ -74,7 +80,7 @@ class Executable:
         elif name == "service":
             name = "Win32Service" if IS_WINDOWS or IS_MINGW else "console"
         if IS_WINDOWS or IS_MINGW:
-            platform_nodot = get_platform().replace(".", "").replace("-", "_")
+            platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
         else:
             soabi = get_config_var("SOABI")

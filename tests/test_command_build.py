@@ -18,9 +18,9 @@ SOURCE = """
 test.py
     print("Hello from cx_Freeze")
 setup.py
-    from cx_Freeze import setup, Executable
+    from cx_Freeze import setup
 
-    setup(executables=[Executable("test.py")])
+    setup(executables=["test.py"])
 command
     python setup.py build
 """

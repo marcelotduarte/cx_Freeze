@@ -10,19 +10,14 @@ If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the script without Python
 """
 
-from __future__ import annotations
-
-from cx_Freeze import Executable, setup
-
-executables = [Executable("hello.py")]
+from cx_Freeze import setup
 
 options = {"build_exe": {"constants": ["A=7", 'B="hello=7"']}}
-
 
 setup(
     name="hello",
     version="0.1",
     description="Sample cx_Freeze script",
+    executables=["hello.py"],
     options=options,
-    executables=executables,
 )

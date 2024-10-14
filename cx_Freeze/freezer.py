@@ -21,7 +21,7 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 
 from setuptools import Distribution
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path, process_path_specs
 from cx_Freeze.exception import FileError, OptionError
 from cx_Freeze.executable import Executable
@@ -148,9 +148,7 @@ class Freezer:
     @target_dir.setter
     def target_dir(self, path: str | Path | None) -> None:
         if path is None:
-            platform = sysconfig.get_platform()
-            python_version = sysconfig.get_python_version()
-            path = f"build/exe.{platform}-{python_version}"
+            path = BUILD_EXE_DIR
         path = Path(os.path.abspath(path)).resolve()
         if os.fspath(path) in self.path:
             msg = "the build_exe directory cannot be used as search path"

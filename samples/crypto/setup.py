@@ -6,15 +6,13 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-from __future__ import annotations
-
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_cryptodome",
     version="0.1",
     description="cx_Freeze script to test pycryptodome",
-    executables=[Executable("test_crypto.py")],
+    executables=["test_crypto.py"],
     options={
         "build_exe": {
             "excludes": ["tkinter"],

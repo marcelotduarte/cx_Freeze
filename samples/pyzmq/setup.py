@@ -7,13 +7,13 @@
 
 from __future__ import annotations
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_pyzmq",
     version="0.1",
     description="cx_Freeze script to test pyzmq server and client",
-    executables=[Executable("pyzmq_server.py"), Executable("pyzmq_client.py")],
+    executables=["pyzmq_server.py", "pyzmq_client.py"],
     options={
         "build_exe": {"excludes": ["tkinter"]},
     },

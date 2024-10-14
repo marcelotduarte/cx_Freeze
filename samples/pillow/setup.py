@@ -5,15 +5,13 @@
 # If everything works well you should find a subdirectory in the build
 # subdirectory that contains the files needed to run the script without Python
 
-from __future__ import annotations
-
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_pillow",
     version="0.2",
     description="cx_Freeze script to test pillow (PIL)",
-    executables=[Executable("test_pillow.py")],
+    executables=["test_pillow.py"],
     options={
         "build_exe": {
             "include_files": [("favicon.png", "share/favicon.png")],

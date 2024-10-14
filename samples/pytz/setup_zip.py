@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 import sysconfig
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 platform = sysconfig.get_platform()
 python_version = sysconfig.get_python_version()
@@ -23,7 +23,7 @@ setup(
     name="test_pytz_zip",
     version="0.3",
     description="cx_Freeze script to test pytz",
-    executables=[Executable("test_pytz.py")],
+    executables=["test_pytz.py"],
     options={
         "build_exe": {
             "zip_include_packages": ["*"],

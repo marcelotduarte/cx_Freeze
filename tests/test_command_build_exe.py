@@ -12,7 +12,6 @@ from setuptools import Distribution
 from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_WINDOWS
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
-from cx_Freeze.executable import Executable
 
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
@@ -25,7 +24,7 @@ OUTPUT_SUBPACKAGE_TEST = "This is p.p1\nThis is p.q.q1\n"
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
-    "executables": [Executable("hello.py")],
+    "executables": ["hello.py"],
     "script_name": "setup.py",
 }
 

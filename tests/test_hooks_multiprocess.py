@@ -70,7 +70,7 @@ sample3.py
         mgr_dict = mgr.dict({'test': var})
         print("done!")
 setup.py
-    from cx_Freeze import Executable, setup
+    from cx_Freeze import setup
     setup(
         name="test_multiprocess",
         version="0.1",

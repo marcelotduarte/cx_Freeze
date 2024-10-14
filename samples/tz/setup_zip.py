@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 import sysconfig
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 platform = sysconfig.get_platform()
 python_version = sysconfig.get_python_version()
@@ -23,7 +23,7 @@ setup(
     name="test_tz_zip",
     version="0.1",
     description="cx_Freeze script to test zoneinfo/tzdata",
-    executables=[Executable("test_tz.py")],
+    executables=["test_tz.py"],
     options={
         "build_exe": {
             "zip_include_packages": ["*"],

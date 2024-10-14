@@ -9,9 +9,7 @@ environment in which the script runs
 Run the build process by running the command 'python setup.py bdist_msi'
 """
 
-from cx_Freeze import Executable, setup
-
-executables = [Executable("hello.py")]
+from cx_Freeze import setup
 
 bdist_msi_options = {
     "extensions": [
@@ -65,7 +63,7 @@ setup(
     version="0.1",
     author="cx_Freeze",
     description="Sample cx_Freeze script to test MSI extension registration",
-    executables=executables,
+    executables=["hello.py"],
     options={
         "build_exe": {"excludes": ["tkinter"]},
         "bdist_msi": bdist_msi_options,

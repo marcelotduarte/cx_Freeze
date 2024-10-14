@@ -13,7 +13,7 @@ This version requires the libs in the zip file.
 import os
 import sysconfig
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 platform = sysconfig.get_platform()
 python_version = sysconfig.get_python_version()
@@ -28,14 +28,10 @@ options = {
     }
 }
 
-executables = [
-    Executable("test_scipy.py"),
-]
-
 setup(
     name="scipy_samples",
     version="0.2",
     description="Sample scipy script",
-    executables=executables,
+    executables=["test_scipy.py"],
     options=options,
 )

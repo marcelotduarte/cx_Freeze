@@ -8,13 +8,13 @@
 
 from __future__ import annotations
 
-from cx_Freeze import Executable, setup
+from cx_Freeze import setup
 
 setup(
     name="test_ctypes",
     version="0.1",
     description="cx_Freeze script to test ctypes",
-    executables=[Executable("test_ctypes.py")],
+    executables=["test_ctypes.py"],
     options={
         "build_exe": {
             "zip_include_packages": ["*"],

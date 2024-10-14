@@ -5,12 +5,11 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from sysconfig import get_platform, get_python_version
 from typing import ClassVar
 
 from setuptools import Command
 
-from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, IS_WINDOWS
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.exception import OptionError, SetupError
 from cx_Freeze.freezer import Freezer
@@ -236,8 +235,7 @@ class build_exe(Command):
             msg = "build_exe option cannot be the same as build_base directory"
             raise SetupError(msg)
         if not self.build_exe:  # empty or None
-            dir_name = f"exe.{get_platform()}-{get_python_version()}"
-            self.build_exe = os.path.join(self.build_base, dir_name)
+            self.build_exe = os.path.join(self.build_base, BUILD_EXE_DIR.name)
 
         # make sure all options of multiple values are lists
         for option in self.list_options:
