@@ -13,12 +13,14 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import sys
 import tempfile
 import time
 import xml.dom.minidom
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.error import ContentTooShortError
 from urllib.request import urlretrieve
 
 import cabarchive
@@ -228,10 +230,16 @@ def get_msvcr_files(
     unpack_dir = cache_dir / name.replace(".", "_")
     unpack_dir.mkdir(parents=True, exist_ok=True)
     with FileLock(filename.with_suffix(".lock")):
-        if no_cache or not filename.exists():
-            urlretrieve(  # noqa: S310
-                VC_REDIST_BASE_URL.format(version=version, name=name), filename
-            )
+        if no_cache or (filename.exists() and filename.stat().st_size == 0):
+            filename.unlink(missing_ok=True)
+        url = VC_REDIST_BASE_URL.format(version=version, name=name)
+        while not filename.exists():
+            try:
+                urlretrieve(url, filename)  # noqa: S310
+            except ContentTooShortError as exc:
+                print("warning:", exc.reason, "of", name, file=sys.stderr)
+                print("retry!", file=sys.stderr)
+                filename.unlink(missing_ok=True)
         if filename.exists():
             files = list(unpack_dir.glob("*.dll"))
             if no_cache or not files:

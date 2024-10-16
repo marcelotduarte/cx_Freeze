@@ -993,7 +993,6 @@ class WinFreezer(Freezer, PEParser):
             target_dir = self.target_dir
             license_dir = target_dir / "share/licenses/vc_redist"
             for source in get_msvcr_files(self.include_msvcr_version):
-                print(source)
                 if source.stem == "LICENSE":
                     target = license_dir / source.name
                 else:
