@@ -13,6 +13,8 @@ from keyword import iskeyword
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from packaging.requirements import Requirement
+
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze._importlib import metadata
 from cx_Freeze.exception import ModuleError, OptionError
@@ -153,7 +155,14 @@ class DistributionCache(metadata.PathDistribution):
     @property
     def requires(self) -> list[str]:
         """Generated requirements specified for this Distribution."""
-        return [require.split()[0] for require in (super().requires or [])]
+        package_names = []
+        requires = super().requires
+        if requires:
+            for requirement_string in requires:
+                require = Requirement(requirement_string)
+                if require.marker is None or require.marker.evaluate():
+                    package_names.append(require.name)
+        return package_names
 
     @property
     def version(self) -> tuple[int, ...] | str | None:
