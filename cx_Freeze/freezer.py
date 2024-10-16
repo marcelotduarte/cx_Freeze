@@ -78,6 +78,7 @@ class Freezer:
         silent: bool | int = 0,
         metadata: Any = None,
         include_msvcr: bool = False,
+        include_msvcr_version: str | None = None,
         zip_include_packages: Sequence[str] | None = None,
         zip_exclude_packages: Sequence[str] | None = None,
         zip_filename: Path | str | None = None,
@@ -97,6 +98,7 @@ class Freezer:
         self.path: list[str] | None = self._validate_path(path)
         # include-msvcr is used on Windows, but not in MingW
         self.include_msvcr: bool = IS_WINDOWS and bool(include_msvcr)
+        self.include_msvcr_version: str | None = include_msvcr_version
         self.target_dir = target_dir
         self.default_bin_includes: list[str] = self._default_bin_includes()
         self.default_bin_excludes: list[str] = self._default_bin_excludes()
@@ -287,6 +289,7 @@ class Freezer:
         finder.include_file_as_module(
             get_resource_file_path("initscripts", "__startup__", ".py")
         )
+
         # copy the executable and its dependencies
         target_path = self.target_dir / exe.target_name
         self._get_top_dependencies(exe.base)
@@ -317,13 +320,6 @@ class Freezer:
     @abstractmethod
     def _get_top_dependencies(self, source: Path, target: Path) -> None:
         """Called to get the dependencies of an executable."""
-
-    def _platform_add_extra_dependencies(
-        self, dependent_files: set[Path]
-    ) -> None:
-        """Override with platform specific files to add runtime libraries to
-        the list of dependent_files calculated in _freeze_executable.
-        """
 
     def _default_bin_excludes(self) -> list[str]:
         """Return the file names of libraries that need not be included because
@@ -919,15 +915,6 @@ class WinFreezer(Freezer, PEParser):
             if self.silent < 3:
                 print("WARNING:", exc)
 
-    def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
-        """Prepare the source and target paths. Also, adjust the target of
-        C runtime libraries.
-        """
-        # fix the target path for C runtime files
-        if any(filter(target.match, self.runtime_files)):
-            target = self.target_dir / target.name
-        return super()._pre_copy_hook(source, target)
-
     def _post_copy_hook(
         self,
         source: Path,
@@ -993,8 +980,36 @@ class WinFreezer(Freezer, PEParser):
                 dependent_source, dependent_target, copy_dependent_files
             )
 
+    def _post_freeze_hook(self) -> None:
+        if self.include_msvcr:
+            from cx_Freeze.winmsvcr_repack import get_msvcr_files
+
+            # remove MSVC runtime from default excludes
+            excludes = set(self.default_bin_excludes)
+            runtime = self._runtime_files()
+            self.default_bin_excludes = list(excludes.difference(runtime))
+
+            # copy the MSVC runtime files
+            target_dir = self.target_dir
+            license_dir = target_dir / "share/licenses/vc_redist"
+            for source in get_msvcr_files(self.include_msvcr_version):
+                print(source)
+                if source.stem == "LICENSE":
+                    target = license_dir / source.name
+                else:
+                    target = target_dir / source.name
+                self._copy_file(source, target, copy_dependent_files=False)
+
+    def _runtime_files(self) -> set[str]:
+        """Deal with C-runtime files."""
+        from cx_Freeze.winmsvcr import MSVC_FILES, UCRT_FILES
+
+        return [*MSVC_FILES, *UCRT_FILES]
+
     def _default_bin_excludes(self) -> list[str]:
-        return ["comctl32.dll", "oci.dll"]
+        # MSVC runtime files are also on the exclusion list, but can still be
+        # added on demand in _post_freeze_hook
+        return ["comctl32.dll", "oci.dll", *self._runtime_files()]
 
     def _default_bin_includes(self) -> list[str]:
         name = sysconfig.get_config_var("INSTSONAME")
@@ -1065,29 +1080,6 @@ class WinFreezer(Freezer, PEParser):
                 paths.add(prefix / dest_relative)
         # return only valid paths
         return [path.resolve() for path in paths if path.is_dir()]
-
-    def _platform_add_extra_dependencies(
-        self, dependent_files: set[Path]
-    ) -> None:
-        search_dirs: set[Path] = set()
-        for filename in dependent_files:
-            search_dirs.add(filename.parent)
-        for search_dir in search_dirs:
-            for pattern in self.runtime_files:
-                for filename in search_dir.glob(pattern):
-                    filepath = search_dir / filename
-                    if filepath.exists():
-                        dependent_files.add(filepath)
-
-    @cached_property
-    def runtime_files(self) -> set[str]:
-        """Deal with C-runtime files."""
-        winmsvcr = import_module("cx_Freeze.winmsvcr")
-        if not self.include_msvcr:
-            # just put on the exclusion list
-            self.bin_excludes.extend(winmsvcr.FILES)
-            return set()
-        return set(winmsvcr.FILES)
 
 
 class DarwinFreezer(Freezer, Parser):

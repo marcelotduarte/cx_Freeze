@@ -96,15 +96,16 @@ Microsoft Visual C++ Redistributable Package
 
 Python 3.9-3.13 on Windows requires the `Microsoft Visual C++ Redistributable
 <https://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist>`_,
-and because of how this is installed, **cx_Freeze** doesn't automatically copy
-it for your application.
+and because of how this is installed, **cx_Freeze** by default does NOT
+automatically copy it for your application, however this can be changed,
+but note that:
 
-You're responsible for checking the license conditions associated with the DLLs
-you have installed.
+* You're responsible for checking the license conditions associated with the
+  DLLs you have installed.
 
 * If your license allows you to distribute these files, specify the
-  :option:`include_msvcr` option to :ref:`cx_freeze_build_exe` to have them
-  distributed automatically.
+  :option:`include_msvcr` option or :option:`include_msvcr_version` option to
+  :ref:`cx_freeze_build_exe` to have them distributed automatically.
 
 * If not, your users or installers must install the Microsoft Visual C++
   Redistributable Package.
@@ -122,10 +123,15 @@ you have installed.
     winget upgrade Microsoft.VCRedist.2015+.x64
     winget upgrade Microsoft.VCRedist.2015+.x86
 
-  If you are using an older Windows version than Windows 10 and the latest
+* If you are using an older Windows version than Windows 10 and the latest
   system updates are not installed, `Universal C Runtime
   <https://support.microsoft.com/en-us/help/2999226/
   update-for-universal-c-runtime-in-windows>`_ might also be required.
+  You can set :option:`include_msvcr_version` option to 15
+  (version 15 includes UCRT for Windows 8.1 and below). See more note-worthy
+  information at `Distributing Software that uses the Universal CRT
+  <https://devblogs.microsoft.com/cppblog/introducing-the-universal-crt/
+  #distributing-software-that-uses-the-universal-crt>`_.
 
 Removing the MAX_PATH Limitation
 --------------------------------
