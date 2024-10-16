@@ -28,6 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Software Distribution",
@@ -167,8 +168,8 @@ build = "cp3*"
 build-frontend = "build[uv]"
 build-verbosity = 1
 skip = [
-    "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}",
-    "cp3{8,9,10}-macosx_{universal2,arm64}",
+    "cp3{9,10}-{many,musl}linux_{aarch64,ppc64le}",
+    "cp3{9,10,13}-macosx_{universal2,arm64}",
 ]
 
 [tool.cibuildwheel.linux]

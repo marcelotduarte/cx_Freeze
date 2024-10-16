@@ -1,8 +1,13 @@
 bdist_msi
 =========
 
-This command is a standard command in Python 2.5 and higher which has been
-modified by cx_Freeze to handle installing executables and their dependencies.
+This command is implemented by cx_Freeze to handle installing executables and
+their dependencies creating Windows installer packages.
+
+.. warning::
+
+   This command is not supported in Python 3.13.
+
 The following options were added to the standard set of options for the
 command:
 

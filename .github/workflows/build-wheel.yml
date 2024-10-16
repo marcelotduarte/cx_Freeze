@@ -63,7 +63,7 @@ jobs:
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              ./ci/build-wheel.sh "cp3{9,10,11,12}-manylinux*" --archs="x86_64"
+              ./ci/build-wheel.sh "cp3{9,10,11,12,13}-manylinux*" --archs="x86_64"
             else
               ./ci/build-wheel.sh --all
             fi
@@ -77,7 +77,7 @@ jobs:
             fi
           else
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              ./ci/build-wheel.sh "cp3{9,10,11,12}-*" --archs="AMD64"
+              ./ci/build-wheel.sh "cp3{9,10,11,12,13}-*" --archs="AMD64"
             else
               ./ci/build-wheel.sh --all
             fi
