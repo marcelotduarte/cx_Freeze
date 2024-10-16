@@ -45,8 +45,9 @@ class build_exe(Command):
         (
             "path=",
             None,
-            "comma-separated list of paths to search for modules; the default "
-            "value is sys.path (use only if you know what you are doing)",
+            "comma-separated list of paths to search for modules "
+            "(use only if you know what you are doing) "
+            "[default: sys.path]",
         ),
         (
             "include-path=",
@@ -137,7 +138,16 @@ class build_exe(Command):
         (
             "include-msvcr",
             None,
-            "include the Microsoft Visual C runtime files",
+            "include the Microsoft Visual C++ Redistributable "
+            "files without needing the redistributable package "
+            "installed (--include-msvcr-version=17 equivalent)",
+        ),
+        (
+            "include-msvcr-version=",
+            None,
+            "like --include-msvcr but the version can be set "
+            "with one of the following values: 15, 16 or 17 "
+            "(version 15 includes UCRT for Windows 8.1 and below)",
         ),
     ]
     boolean_options: ClassVar[list[str]] = [
@@ -211,6 +221,7 @@ class build_exe(Command):
 
         self.build_exe = None
         self.include_msvcr = None
+        self.include_msvcr_version = None
         self.no_compress = False
         self.optimize = 0
         self.path = None
@@ -262,7 +273,12 @@ class build_exe(Command):
             self.zip_filename = "library.zip"
 
         # include-msvcr is used on Windows, but not in MingW
-        self.include_msvcr = IS_WINDOWS and bool(self.include_msvcr)
+        if IS_WINDOWS:
+            if self.include_msvcr_version is not None:
+                self.include_msvcr = True
+            self.include_msvcr = bool(self.include_msvcr)
+        else:
+            self.include_msvcr = False
 
         # optimization level: 0,1,2
         self.optimize = int(self.optimize or 0)
@@ -295,6 +311,7 @@ class build_exe(Command):
             silent=self.silent,
             metadata=metadata,
             include_msvcr=self.include_msvcr,
+            include_msvcr_version=self.include_msvcr_version,
             zip_filename=self.zip_filename,
         )
 

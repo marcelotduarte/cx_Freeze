@@ -50,16 +50,18 @@ Python requirements are installed automatically by pip, pipenv, or conda.
 
   .. code-block:: console
 
+   filelock >= 3.12.3
+   importlib_metadata >= 6     (Python 3.9-3.10.2)
    packaging >= 24
-   setuptools >= 65.6.3        (setuptools >= 70.1 to build)
-   importlib_metadata>=6       (Python 3.9-3.10.2)
+   setuptools >= 65.6.3        (setuptools >= 70.1 if installing from sources)
    tomli >= 2.0.1              (Python 3.9-3.10)
    typing_extensions >= 4.10.0 (Python 3.9)
-   cx_Logging >= 3.1           (Windows only)
-   lief >= 0.12.0              (Windows only)
-   filelock >= 3.12.3          (Linux)
    patchelf >= 0.14            (Linux)
    dmgbuild >= 1.6.1           (macOS)
+   cabarchive >= 0.2.4         (Windows only)
+   cx_Logging >= 3.1           (Windows only)
+   lief >= 0.12.0              (Windows only)
+   striprtf >= 0.0.26          (Windows only)
    C compiler                  (required only if installing from sources)
 
 .. note:: If you have trouble with patchelf, check :ref:`patchelf`.

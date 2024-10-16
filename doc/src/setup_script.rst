@@ -218,8 +218,9 @@ It can be further customized:
        relative path to the module; multiple values are separated by the
        standard path separator
    * - .. option:: path
-     - comma-separated list of paths to search for modules; the default value
-       is sys.path (use only if you know what you are doing)
+     - comma-separated list of paths to search for modules
+       (use only if you know what you are doing)
+       [default: sys.path]
    * - .. option:: include_path
      - comma-separated list of paths to modify the search for modules
    * - .. option:: constants
@@ -284,14 +285,22 @@ It can be further customized:
        2. also suppress missing-module warning messages;
        3. also suppress all other warning messages.
    * - .. option:: include_msvcr
-     - include the Microsoft Visual C runtime files without needing the
-       redistributable package installed
+     - include the Microsoft Visual C++ Redistributable
+       files without needing the redistributable package
+       installed (--include-msvcr-version=17 equivalent)
+   * - .. option:: include_msvcr_version
+     - like :option:`include_msvcr` but the version can be set
+       with one of the following values: 15, 16 or 17
+       (version 15 includes UCRT for Windows 8.1 and below)
 
 .. versionadded:: 6.7
     :option:`silent_level` option.
 
 .. versionadded:: 7.1
     :option:`zip_filename` option used in conjunction with :option:`no_compress`.
+
+.. versionadded:: 7.3
+    :option:`include_msvcr_version` option.
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -306,9 +315,9 @@ This is the equivalent help to specify the same options on the command line:
                               includes all submodules in the package
       --replace-paths         comma-separated list of paths to replace in included
                               modules, using the form <search>=<replace>
-      --path                  comma-separated list of paths to search for modules;
-                              the default value is sys.path (use only if you know
-                              what you are doing)
+      --path                  comma-separated list of paths to search for modules
+                              (use only if you know what you are doing)
+                              [default: sys.path]
       --include-path          comma-separated list of paths to modify the search
                               for modules
       --constants             comma-separated list of constants to include
@@ -345,7 +354,12 @@ This is the equivalent help to specify the same options on the command line:
                               (equivalent to --silent) level 2: suppress missing
                               missing-module warnings level 3: suppress all
                               warning messages
-      --include-msvcr         include the Microsoft Visual C runtime files
+      --include-msvcr         include the Microsoft Visual C++ Redistributable
+                              files without needing the redistributable package
+                              installed (--include-msvcr-version=17 equivalent)
+      --include-msvcr         like --include-msvcr but the version can be set
+                              with one of the following values: 15, 16 or 17
+                              (version 15 includes UCRT for Windows 8.1 and below)
 
 
 install
