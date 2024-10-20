@@ -712,25 +712,6 @@ def load_zipimport(finder: ModuleFinder, module: Module) -> None:
     module.exclude_names.add("_frozen_importlib_external")
 
 
-def load_zmq(finder: ModuleFinder, module: Module) -> None:
-    """The zmq package loads zmq.backend.cython dynamically and links
-    dynamically to zmq.libzmq or shared lib. Tested in pyzmq 16.0.4 (py36),
-    19.0.2 (MSYS2 py39) up to 22.2.1 (from pip and from conda).
-    """
-    finder.include_package("zmq.backend.cython")
-    if IS_WINDOWS or IS_MINGW:
-        # For pyzmq 22 the libzmq dependencies are located in
-        # site-packages/pyzmq.libs
-        libzmq_folder = "pyzmq.libs"
-        libs_dir = module.path[0].parent / libzmq_folder
-        if libs_dir.exists():
-            finder.include_files(libs_dir, Path("lib", libzmq_folder))
-    # Include the bundled libzmq library, if it exists
-    with suppress(ImportError):
-        finder.include_module("zmq.libzmq")
-    finder.exclude_module("zmq.tests")
-
-
 def load_zope_component(finder: ModuleFinder, module: Module) -> None:
     """The zope.component package requires the presence of the pkg_resources
     module but it uses a dynamic, not static import to do its work.
