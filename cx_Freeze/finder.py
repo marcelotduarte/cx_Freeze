@@ -13,12 +13,16 @@ from importlib import import_module
 from pathlib import Path, PurePath
 from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from cx_Freeze.common import (
     code_object_replace,
     get_resource_file_path,
     process_path_specs,
+)
+from cx_Freeze.hooks._unused_modules import (
+    DEFAULT_EXCLUDES,
+    DEFAULT_IGNORE_NAMES,
 )
 from cx_Freeze.module import ConstantsModule, Module
 
@@ -75,7 +79,7 @@ class ModuleFinder:
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
-        self.excludes: dict[str, Any] = dict.fromkeys(excludes or [])
+        self.excludes: set[str] = set(excludes or [])
         self.optimize = 0
         self.path: list[str] = list(map(os.fspath, path or sys.path))
         self.replace_paths = replace_paths or []
@@ -89,9 +93,12 @@ class ModuleFinder:
         self.modules = []
         self.aliases = {}
         self.excluded_dependent_files: set[Path] = set()
-        self._modules: dict[str, Module | None] = dict.fromkeys(excludes or [])
         self._bad_modules = {}
-        self._exclude_unused_modules()
+        # add the unused modules in the current platform
+        self.excludes.update(DEFAULT_EXCLUDES)
+        self._modules: dict[str, Module | None] = dict.fromkeys(
+            self.excludes or []
+        )
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
         self.lib_files: dict[Path, str] = {}
@@ -150,12 +157,6 @@ class ModuleFinder:
                 return caller
             return self._get_parent_by_name(caller.name)
         return None
-
-    def _exclude_unused_modules(self) -> None:
-        """Exclude unused modules in the current platform."""
-        exclude = import_module("cx_Freeze.hooks._unused_modules")
-        for name in exclude.MODULES:
-            self.exclude_module(name)
 
     def _ensure_from_list(
         self,
@@ -501,6 +502,8 @@ class ModuleFinder:
 
     def _missing_hook(self, caller: Module, module_name: str) -> None:
         """Run hook for missing module."""
+        if module_name in DEFAULT_IGNORE_NAMES:
+            return
         hooks = import_module("cx_Freeze.hooks")
         normalized_name = module_name.replace(".", "_")
         method = getattr(hooks, f"missing_{normalized_name}", None)
@@ -747,7 +750,7 @@ class ModuleFinder:
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
         for mod in modules_to_exclude:
-            self.excludes[mod] = None
+            self.excludes.add(mod)
             self._modules[mod] = None
 
     def include_file_as_module(

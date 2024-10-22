@@ -23,6 +23,16 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
     Note: Using multiprocessing.spawn.freeze_support directly because it works
     for all OS, not only Windows.
     """
+    module.global_names.update(
+        [
+            "AuthenticationError",
+            "BufferTooShort",
+            "TimeoutError",
+            "get_context",
+            "get_start_method",
+            "set_start_method",
+        ]
+    )
     # Support for:
     # - fork in Unix (including macOS) is native;
     # - spawn in Windows is native since 4.3.4, but was improved in 6.2;
@@ -50,8 +60,8 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
         _names = main_code.co_names
         del main_module, main_spec, main_code
         if "freeze_support" not in _names:
-            import BUILD_CONSTANTS as _contants
-            _ignore = getattr(_contants, "ignore_freeze_support_message", 0)
+            import BUILD_CONSTANTS as _constants
+            _ignore = getattr(_constants, "ignore_freeze_support_message", 0)
             if not _ignore:
                 print(
     '''
@@ -121,88 +131,8 @@ def load_multiprocessing_context(finder: ModuleFinder, module: Module) -> None:
     )
 
 
-def load_multiprocessing_connection(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.add("_winapi")
-    module.ignore_names.update(
-        {
-            f"{module.root.name}.AuthenticationError",
-            f"{module.root.name}.BufferTooShort",
-        }
-    )
-
-
-def load_multiprocessing_heap(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.add("_winapi")
-
-
-def load_multiprocessing_managers(_, module: Module) -> None:
-    """Ignore modules not found in current os."""
-    module.ignore_names.add(f"{module.root.name}.get_context")
-
-
-def load_multiprocessing_pool(_, module: Module) -> None:
-    """Ignore modules not found in current os."""
-    module.ignore_names.update(
-        {f"{module.root.name}.TimeoutError", f"{module.root.name}.get_context"}
-    )
-
-
-def load_multiprocessing_popen_spawn_win32(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.update({"msvcrt", "_winapi"})
-
-
-def load_multiprocessing_reduction(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.add("_winapi")
-
-
-def load_multiprocessing_resource_tracker(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if IS_MINGW or IS_WINDOWS:
-        module.exclude_names.add("_posixshmem")
-
-
-def load_multiprocessing_sharedctypes(_, module: Module) -> None:
-    """Ignore modules not found in current os."""
-    module.ignore_names.add(f"{module.root.name}.get_context")
-
-
-def load_multiprocessing_shared_memory(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.add("_winapi")
-    else:
-        module.exclude_names.add("_posixshmem")
-
-
-def load_multiprocessing_spawn(_, module: Module) -> None:
-    """Ignore modules not found in current OS."""
-    if not IS_MINGW and not IS_WINDOWS:
-        module.exclude_names.update({"msvcrt", "_winapi"})
-    module.ignore_names.update(
-        {
-            f"{module.root.name}.get_start_method",
-            f"{module.root.name}.set_start_method",
-        }
-    )
-
-
 def load_multiprocessing_synchronize(_, module: Module) -> None:
     """Ignore modules not found in current OS."""
     module.ignore_names.update(
         {f"_{module.root.name}.SemLock", f"_{module.root.name}.sem_unlink"}
     )
-
-
-def load_multiprocessing_util(_, module: Module) -> None:
-    """The module uses test for tests and shouldn't be imported."""
-    module.exclude_names.add("test")
-    if IS_MINGW or IS_WINDOWS:
-        module.exclude_names.add("_posixsubprocess")

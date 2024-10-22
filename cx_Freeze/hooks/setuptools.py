@@ -154,13 +154,6 @@ def load_setuptools_sandbox(_, module: Module) -> None:
     module.ignore_names.add("org.python.modules.posix.PosixModule")
 
 
-def load_setuptools__vendor_ordered_set(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(
-        ["collections.MutableSet", "collections.Sequence"]
-    )
-
-
 def load_setuptools__vendor_jaraco_text(_, module: Module) -> None:
     """Ignore optional modules."""
     module.ignore_names.update(
