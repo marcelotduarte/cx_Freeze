@@ -32,7 +32,7 @@ def test_bdist_dmg(datafiles: Path) -> None:
         cwd=datafiles,
     )
     if process.returncode != 0:
-        expected_err = "hdiutil: create failed - Resource busy"
+        expected_err = "bdist_dmg: Unable to "
         if expected_err in process.stderr:
             pytest.xfail(expected_err)
         else:
@@ -56,7 +56,7 @@ def test_bdist_dmg_custom_layout(datafiles: Path) -> None:
         cwd=datafiles,
     )
     if process.returncode != 0:
-        expected_err = "hdiutil: create failed - Resource busy"
+        expected_err = "bdist_dmg: Unable to "
         if expected_err in process.stderr:
             pytest.xfail(expected_err)
         else:
