@@ -21,6 +21,7 @@ def replace_delvewheel_patch(
     if code is None:
         return
 
+    # for packages using delvewheel < 1.7.0 or using in_file_system != 1 (zip)
     if libs_name is None:
         libs_name = f"{module.name}.libs"
     delvewheel_func_names = "_delvewheel_init_patch_", "_delvewheel_patch_"

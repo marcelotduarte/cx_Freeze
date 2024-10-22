@@ -11,7 +11,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MACOS, IS_WINDOWS
 from cx_Freeze.hooks._qthooks import get_qt_plugins_paths  # noqa: F401
 
 if TYPE_CHECKING:
@@ -34,10 +34,7 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     """The bcrypt < 4.0 package requires the _cffi_backend module
     (loaded implicitly).
     """
-    include_cffi = True
-    if module.distribution and module.distribution.version[0] >= 4:
-        include_cffi = False
-    if include_cffi:
+    if module.distribution is None or module.distribution.version[0] < 4:
         finder.include_module("_cffi_backend")
 
 
@@ -52,13 +49,6 @@ def load_boto3(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("boto3.ec2")
     finder.include_package("boto3.s3")
     finder.include_files(module.file.parent / "data", "lib/boto3/data")
-
-
-def load_cElementTree(finder: ModuleFinder, module: Module) -> None:
-    """The cElementTree module implicitly loads the elementtree.ElementTree
-    module; make sure this happens.
-    """
-    finder.include_module("elementtree.ElementTree")
 
 
 def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
@@ -86,11 +76,9 @@ def load__cffi_backend(finder: ModuleFinder, module: Module) -> None:
 def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
     """The cffi.cparser module can use a extension if present."""
     try:
-        cffi = __import__("cffi", fromlist=["_pycparser"])
-        pycparser = getattr(cffi, "_pycparser")  # noqa: B009
-        finder.include_module(pycparser.__name__)
-    except (ImportError, AttributeError):
-        finder.exclude_module("cffi._pycparser")
+        finder.include_module("cffi._pycparser")
+    except ImportError:
+        module.ignore_names.add("cffi._pycparser")
 
 
 def load_charset_normalizer(finder: ModuleFinder, module: Module) -> None:
@@ -103,12 +91,6 @@ def load_charset_normalizer_md(finder: ModuleFinder, module: Module) -> None:
     mypyc = module.file.parent / ("md__mypyc" + "".join(module.file.suffixes))
     if mypyc.exists():
         finder.include_module("charset_normalizer.md__mypyc")
-
-
-def load_copy(finder: ModuleFinder, module: Module) -> None:
-    """The copy module should filter import names."""
-    if not sys.platform.startswith("java"):
-        module.exclude_names.add("org.python.core")
 
 
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
@@ -130,16 +112,10 @@ def load_cryptography(finder: ModuleFinder, module: Module) -> None:
         finder.include_module("_cffi_backend")
 
 
-def load_ctypes(finder: ModuleFinder, module: Module) -> None:
-    """The ctypes module should filter import names."""
-    if not IS_WINDOWS and not IS_MINGW:
-        module.exclude_names.add("nt")
-
-
 def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
     """The ctypes.util module should filter import names."""
     if not IS_MACOS:
-        module.exclude_names.add("ctypes.macholib.dyld")
+        module.ignore_names.add("ctypes.macholib.dyld")
 
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
@@ -183,29 +159,9 @@ def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.add("optik")
 
 
-def load_dummy_threading(finder: ModuleFinder, module: Module) -> None:
-    """The dummy_threading module plays games with the name of the threading
-    module for its own purposes; ignore that here.
-    """
-    finder.exclude_module("_dummy_threading")
-
-
-def load_encodings(finder: ModuleFinder, module: Module) -> None:
-    """The encodings module should filter import names."""
-    if not IS_WINDOWS and not IS_MINGW:
-        module.exclude_names.add("_winapi")
-
-
 def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
     """flask-compress requires its metadata."""
     module.update_distribution("Flask_Compress")
-
-
-def load_ftplib(finder: ModuleFinder, module: Module) -> None:
-    """The ftplib module attempts to import the SOCKS module; ignore this
-    module if it cannot be found.
-    """
-    module.ignore_names.add("SOCKS")
 
 
 def load_gevent(finder: ModuleFinder, module: Module) -> None:
@@ -334,18 +290,6 @@ def load_markdown(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("html.parser")
 
 
-def load_mimetypes(finder: ModuleFinder, module: Module) -> None:
-    """The mimetypes module should filter import names."""
-    if not IS_WINDOWS and not IS_MINGW:
-        module.exclude_names.update(("_winapi", "winreg"))
-
-
-def load_ntpath(finder: ModuleFinder, module: Module) -> None:
-    """The ntpath module should filter import names."""
-    if not IS_WINDOWS and not IS_MINGW:
-        module.exclude_names.update(("nt", "_winapi"))
-
-
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
     """The Numeric module optionally loads the dotblas module; ignore the error
     if this modules does not exist.
@@ -364,27 +308,9 @@ def load_orjson(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("zoneinfo")
 
 
-def load_os(finder: ModuleFinder, module: Module) -> None:
-    """The os module should filter import names."""
-    if IS_WINDOWS:
-        module.exclude_names.add("posix")
-    elif not IS_MINGW:
-        module.exclude_names.add("nt")
-
-
-def load_pathlib(finder: ModuleFinder, module: Module) -> None:
-    """The pathlib module should filter import names."""
-    if IS_WINDOWS:
-        module.exclude_names.update(("grp", "pwd"))
-    elif not IS_MINGW:
-        module.exclude_names.add("nt")
-
-
 def load_pickle(finder: ModuleFinder, module: Module) -> None:
     """The pickle module uses doctest for tests and shouldn't be imported."""
     module.exclude_names.add("doctest")
-    if not sys.platform.startswith("java"):
-        module.exclude_names.add("org.python.core")
 
 
 def load_pickletools(finder: ModuleFinder, module: Module) -> None:
@@ -399,27 +325,13 @@ def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
 
 def load_platform(finder: ModuleFinder, module: Module) -> None:
     """The platform module should filter import names."""
-    if not sys.platform.startswith("java"):
-        module.exclude_names.add("java.lang")
-    if not sys.platform.startswith("OpenVMS"):
-        module.exclude_names.add("vms_lib")
     if not IS_MACOS:
         module.exclude_names.add("plistlib")
-    if not IS_WINDOWS and not IS_MINGW:
-        module.exclude_names.add("winreg")
-    module.exclude_names.add("_winreg")
 
 
 def load_plotly(finder: ModuleFinder, module: Module) -> None:
     """The plotly must be loaded as a package."""
     finder.include_package("plotly")
-
-
-def load_posixpath(finder: ModuleFinder, module: Module) -> None:
-    """The posixpath module should filter import names."""
-    if IS_WINDOWS and not IS_MINGW:
-        module.exclude_names.add("posix")
-        module.exclude_names.add("pwd")
 
 
 def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
@@ -545,24 +457,11 @@ def load_shapely(finder: ModuleFinder, module: Module) -> None:
         finder.include_files(source_dir, f"lib/{libs_name}")
 
 
-def load_shutil(finder: ModuleFinder, module: Module) -> None:
-    """The shutil module should filter import names."""
-    if IS_WINDOWS:
-        module.exclude_names.update(("grp", "posix", "pwd"))
-    elif not IS_MINGW:
-        module.exclude_names.update(("nt", "_winapi"))
-
-
 def load_site(finder: ModuleFinder, module: Module) -> None:
     """The site module optionally loads the sitecustomize and usercustomize
     modules; ignore the error if these modules do not exist.
     """
     module.ignore_names.update(["sitecustomize", "usercustomize"])
-
-
-def load_six(finder: ModuleFinder, module: Module) -> None:
-    """The six module maps old modules."""
-    module.ignore_names.add("StringIO")
 
 
 def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
@@ -579,17 +478,6 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("sqlite3.dump")
 
 
-def load_subprocess(finder: ModuleFinder, module: Module) -> None:
-    """The subprocess module should filter import names."""
-    if IS_WINDOWS:
-        exclude_names = ("_posixsubprocess", "fcntl", "grp", "pwd")
-    elif not IS_MINGW:
-        exclude_names = ("msvcrt", "_winapi")
-    else:
-        return
-    module.exclude_names.update(exclude_names)
-
-
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
     """The sysconfig module implicitly loads _sysconfigdata."""
     if IS_WINDOWS:
@@ -599,12 +487,6 @@ def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
         return
     with suppress(ImportError):
         finder.include_module(get_data_name())
-
-
-def load_tarfile(finder: ModuleFinder, module: Module) -> None:
-    """The tarfile module should filter import names."""
-    if IS_WINDOWS:
-        module.exclude_names.update(("grp", "pwd"))
 
 
 def load_time(finder: ModuleFinder, module: Module) -> None:
@@ -690,17 +572,16 @@ def load_yaml(finder: ModuleFinder, module: Module) -> None:
     module.update_distribution("PyYAML")
 
 
-def load_zipimport(finder: ModuleFinder, module: Module) -> None:
-    """The module shouldn't import internal names."""
-    module.exclude_names.add("_frozen_importlib")
-    module.exclude_names.add("_frozen_importlib_external")
-
-
 def load_zope_component(finder: ModuleFinder, module: Module) -> None:
     """The zope.component package requires the presence of the pkg_resources
     module but it uses a dynamic, not static import to do its work.
     """
     finder.include_module("pkg_resources")
+
+
+#
+# missing section
+#
 
 
 def missing_backports_zoneinfo(finder: ModuleFinder, caller: Module) -> None:
@@ -722,22 +603,6 @@ def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
     caller.ignore_names.add("ltihooks")
 
 
-def missing_jnius(finder: ModuleFinder, caller: Module) -> None:
-    """The jnius module is present on java and android."""
-    if not sys.platform.startswith("java"):
-        caller.ignore_names.add("jnius")
-
-
-def missing__manylinux(finder: ModuleFinder, caller: Module) -> None:
-    """The _manylinux module is a flag."""
-    caller.ignore_names.add("_manylinux")
-
-
-def missing_os_path(finder: ModuleFinder, caller: Module) -> None:
-    """The os.path is an alias to posixpath or ntpath."""
-    caller.ignore_names.add("os.path")
-
-
 def missing_readline(finder: ModuleFinder, caller: Module) -> None:
     """The readline module is not normally present on Windows but it also may
     be so instead of excluding it completely, ignore it if it can't be found.
@@ -749,9 +614,3 @@ def missing_readline(finder: ModuleFinder, caller: Module) -> None:
 def missing_six_moves(finder: ModuleFinder, caller: Module) -> None:
     """The six module creates fake modules."""
     caller.ignore_names.add("six.moves")
-
-
-def missing_winreg(finder: ModuleFinder, caller: Module) -> None:
-    """The winreg module is present on Windows only."""
-    if not IS_WINDOWS:
-        caller.ignore_names.add("winreg")

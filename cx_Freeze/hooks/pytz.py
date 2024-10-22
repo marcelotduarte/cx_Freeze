@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
 
+__all__ = ["load_pytz"]
+
 
 def load_pytz(finder: ModuleFinder, module: Module) -> None:
     """The pytz module requires timezone data to be found in a known directory
@@ -57,16 +59,3 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
             dont_inherit=True,
             optimize=finder.optimize,
         )
-
-
-def load_pytz_lazy(_, module: Module) -> None:
-    """Ignore module not used in Python 3.x."""
-    module.ignore_names.update({"UserDict", "collections.Mapping"})
-
-
-def load_pytz_tzinfo(_, module: Module) -> None:
-    """Ignore module not used in Python 3.x."""
-    module.ignore_names.add("sets")
-
-
-__all__ = ["load_pytz", "load_pytz_lazy", "load_pytz_tzinfo"]
