@@ -6,12 +6,12 @@ import os
 import shutil
 from typing import ClassVar
 
-from dmgbuild import build_dmg
+from dmgbuild.core import DMGError, build_dmg
 from setuptools import Command
 
 import cx_Freeze.icons
 from cx_Freeze import Executable
-from cx_Freeze.exception import OptionError
+from cx_Freeze.exception import OptionError, PlatformError
 
 __all__ = ["bdist_dmg"]
 
@@ -362,12 +362,23 @@ class bdist_dmg(Command):
                 )
                 self.announce(loggable)
 
-        build_dmg(
-            self.dmg_name,
-            self.volume_label,
-            "settings.py",
-            callback=log_handler,
-        )
+        try:
+            build_dmg(
+                self.dmg_name,
+                self.volume_label,
+                "settings.py",
+                callback=log_handler,
+            )
+        except DMGError as exc:
+            msg = f"{self.get_command_name()}: {exc!s}"
+            if not self.silent:
+                self.announce(f"error: {msg}\n")
+            raise PlatformError(msg) from exc
+        except ValueError as exc:
+            msg = f"{self.get_command_name()}: {exc!s}"
+            if not self.silent:
+                self.announce(f"error: {msg}\n")
+            raise OptionError(msg) from exc
 
     def run(self) -> None:
         # Create the application bundle
