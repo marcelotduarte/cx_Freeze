@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.9 - 3.12']
+        python-version: ['3.9 - 3.13']
         include:
           - os: macos-13  # macos-13 is x86_64
             python-version: '3.9 - 3.10'
