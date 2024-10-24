@@ -7,6 +7,8 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
@@ -178,3 +180,9 @@ def load_setuptools__vendor_packaging_metadata(_, module: Module) -> None:
 def load_setuptools_wheel(_, module: Module) -> None:
     """Ignore optional modules."""
     module.ignore_names.update(_setuptools_extern)
+
+
+def load_setuptools_windows_support(_, module: Module) -> None:
+    """Ignore optional modules."""
+    if not (IS_MINGW or IS_WINDOWS):
+        module.exclude_names.update(["ctypes", "ctypes.wintypes"])
