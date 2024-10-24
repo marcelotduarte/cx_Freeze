@@ -33,7 +33,7 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
             ]
         )
     module.ignore_names.update(
-        ["__main__", "_typeshed", "_typeshed.importlib", "typing_extensions"]
+        ["_typeshed", "_typeshed.importlib", "typing_extensions"]
     )
 
 
