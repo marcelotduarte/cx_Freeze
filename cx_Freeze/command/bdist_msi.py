@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 import warnings
 from typing import ClassVar
 
@@ -14,11 +15,11 @@ from packaging.version import Version
 from setuptools import Command
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
-from cx_Freeze.exception import OptionError
+from cx_Freeze.exception import OptionError, PlatformError
 
 __all__ = ["bdist_msi"]
 
-if IS_MINGW or IS_WINDOWS:
+if (IS_MINGW or IS_WINDOWS) and sys.version_info[:2] < (3, 13):
 
     @contextlib.contextmanager
     def suppress_known_deprecation() -> contextlib.AbstractContextManager:
@@ -47,9 +48,9 @@ if IS_MINGW or IS_WINDOWS:
 
         from cx_Freeze.command._pydialog import PyDialog
 
-        # force the remove existing products action to happen first since Windows
-        # installer appears to be braindead and doesn't handle files shared between
-        # different "products" very well
+        # force the remove existing products action to happen first since
+        # Windows installer appears to be braindead and doesn't handle files
+        # shared between different "products" very well
         install_execute_sequence = sequence.InstallExecuteSequence
         for index, info in enumerate(install_execute_sequence):
             if info[0] == "RemoveExistingProducts":
@@ -979,6 +980,15 @@ class bdist_msi(Command):
         self.license_file = None
 
     def finalize_options(self) -> None:
+        major = sys.version_info.major
+        minor = sys.version_info.minor
+        if (major, minor) >= (3, 13):
+            msg = (
+                f"bdist_msi is not supported on Python {major}.{minor} yet.\n"
+                "       Please check a pinned issue at "
+                "https://github.com/marcelotduarte/cx_Freeze/issues"
+            )
+            raise PlatformError(msg)
         self.set_undefined_options("bdist", ("skip_build", "skip_build"))
 
         if self.bdist_dir is None:
