@@ -168,7 +168,8 @@ build = "cp3*"
 build-frontend = "build[uv]"
 build-verbosity = 1
 skip = [
-    "cp3{9,10}-{many,musl}linux_{aarch64,ppc64le}",
+    "cp3{9,10,13}-musllinux_*",
+    "cp3{9,10,13}-manylinux_ppc64le",
     "cp3{9,10,13}-macosx_{universal2,arm64}",
 ]
 
