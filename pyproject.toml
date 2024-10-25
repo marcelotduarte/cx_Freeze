@@ -152,11 +152,10 @@ values = [
 ]
 
 [tool.cibuildwheel]
-before-build = "pip install -r requirements.txt"
+before-build = "uv pip install -r requirements.txt"
 build = "cp3*"
-build-frontend = "build"
+build-frontend = "build[uv]"
 build-verbosity = 1
-manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
 skip = [
     "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}",
     "cp3{8,9,10}-macosx_{universal2,arm64}",
