@@ -19,6 +19,16 @@ if TYPE_CHECKING:
     from cx_Freeze.module import Module
 
 
+def load_abc(finder: ModuleFinder, module: Module) -> None:
+    """Optimize abc module."""
+    try:
+        finder.include_module("_abc")
+        module.exclude_names.add("_py_abc")
+    except ImportError:
+        finder.include_module("_py_abc")
+        module.ignore_names.add("_abc")
+
+
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
     """The aiofiles must be loaded as a package."""
     finder.include_package("aiofiles")
@@ -138,8 +148,25 @@ def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_datetime(finder: ModuleFinder, module: Module) -> None:
-    """The datetime module implicitly imports time; make sure this happens."""
-    finder.include_module("time")
+    """Optimize datetime module."""
+    if "_pydatetime" in sys.stdlib_module_names:  # py 3.12+
+        try:
+            finder.include_module("_datetime")
+            finder.include_module("time")
+            module.exclude_names.add("_pydatetime")
+        except ImportError:
+            finder.include_module("_pydatetime")
+            module.ignore_names.add("_datetime")
+
+
+def load_decimal(finder: ModuleFinder, module: Module) -> None:
+    """Optimize decimal module."""
+    try:
+        finder.include_module("_decimal")
+        module.exclude_names.add("_pydecimal")
+    except ImportError:
+        finder.include_module("_pydecimal")
+        module.ignore_names.add("_decimal")
 
 
 def load_discord(finder: ModuleFinder, module: Module) -> None:
@@ -430,6 +457,46 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     )
 
 
+def load_re(finder: ModuleFinder, module: Module) -> None:
+    """Ignore names that should not be confused with modules to be imported."""
+    if module.path:  # package since Python 3.11
+        module.global_names.update(
+            [
+                "match",
+                "fullmatch",
+                "search",
+                "sub",
+                "subn",
+                "split",
+                "findall",
+                "finditer",
+                "compile",
+                "purge",
+                "escape",
+                "error",
+                "Pattern",
+                "Match",
+                "A",
+                "I",
+                "L",
+                "M",
+                "S",
+                "X",
+                "U",
+                "ASCII",
+                "IGNORECASE",
+                "LOCALE",
+                "MULTILINE",
+                "DOTALL",
+                "VERBOSE",
+                "UNICODE",
+                "NOFLAG",
+                "RegexFlag",
+                "PatternError",
+            ]
+        )
+
+
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:
     """The reportlab module loads a submodule rl_settings via exec so force
     its inclusion here.
@@ -502,6 +569,12 @@ def load_tokenizers(finder: ModuleFinder, module: Module) -> None:
     source_dir = module.path[0].parent / libs_name
     if source_dir.exists():
         finder.include_files(source_dir, Path("lib", libs_name))
+
+
+def load_typing(finder: ModuleFinder, module: Module) -> None:
+    """Optimize typing module."""
+    finder.add_alias("typing.io", "io")
+    finder.add_alias("typing.re", "re")
 
 
 def load_twisted_conch_ssh_transport(
