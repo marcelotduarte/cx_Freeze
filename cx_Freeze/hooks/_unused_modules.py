@@ -134,9 +134,6 @@ DEFAULT_EXCLUDES: set[str] = {
     "imgfile",
     "jpeg",
     "sv",
-    # confused names in Windows
-    "multiprocessing.Pool",
-    "multiprocessing.Process",
 }
 # old collections modules
 DEFAULT_EXCLUDES.update(
@@ -173,8 +170,10 @@ if os.name != "nt":
     )
 
 # removed by platform
+if sys.platform != "aix":
+    DEFAULT_EXCLUDES.add("_aix_support")
 if sys.platform != "darwin":
-    DEFAULT_EXCLUDES.update(["mac", "macurl2path", "_scproxy"])
+    DEFAULT_EXCLUDES.update(["mac", "macurl2path", "_scproxy", "_osx_support"])
 if os.name != "os2":
     DEFAULT_EXCLUDES.update(["os2", "os2emxpath", "_emx_link"])
 if os.name != "ce":
@@ -249,7 +248,7 @@ if not sys.platform.startswith("OpenVMS"):
 
 if os.name != "nt":
     DEFAULT_IGNORE_NAMES.update(
-        ["msvcrt", "nt", "_overlapped", "_winapi", "winreg"]
+        ["msvcrt", "nt", "_overlapped", "_winapi", "winreg", "_wmi"]
     )
 else:
     DEFAULT_IGNORE_NAMES.update(
