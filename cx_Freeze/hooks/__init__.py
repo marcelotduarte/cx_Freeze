@@ -149,6 +149,8 @@ def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
 
 def load_datetime(finder: ModuleFinder, module: Module) -> None:
     """Optimize datetime module."""
+    if not hasattr(sys, "stdlib_module_names"):  # py 3.9
+        return
     if "_pydatetime" in sys.stdlib_module_names:  # py 3.12+
         try:
             finder.include_module("_datetime")
