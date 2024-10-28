@@ -365,11 +365,13 @@ def load_orjson(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_os(finder: ModuleFinder, module: Module) -> None:
-    """The os module should filter import names."""
-    if IS_WINDOWS:
-        module.exclude_names.add("posix")
-    elif not IS_MINGW:
-        module.exclude_names.add("nt")
+    """Sets the alias for os.path."""
+    if "posix" in sys.builtin_module_names:
+        finder.add_alias("os.path", "posixpath")
+        module.ignore_names.add("nt")
+    else:
+        finder.add_alias("os.path", "ntpath")
+        module.ignore_names.add("posix")
 
 
 def load_pathlib(finder: ModuleFinder, module: Module) -> None:
