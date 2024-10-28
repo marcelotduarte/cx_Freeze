@@ -342,6 +342,14 @@ def load_orjson(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("zoneinfo")
 
 
+def load_os(finder: ModuleFinder, module: Module) -> None:
+    """Sets the alias for os.path."""
+    if "posix" in sys.builtin_module_names:
+        finder.add_alias("os.path", "posixpath")
+    else:
+        finder.add_alias("os.path", "ntpath")
+
+
 def load_pickle(finder: ModuleFinder, module: Module) -> None:
     """The pickle module uses doctest for tests and shouldn't be imported."""
     module.exclude_names.add("doctest")

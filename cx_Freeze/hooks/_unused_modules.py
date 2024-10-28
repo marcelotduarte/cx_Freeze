@@ -245,7 +245,6 @@ DEFAULT_IGNORE_NAMES: str[str] = {
     "_frozen_importlib",  # internal
     "_frozen_importlib_external",  # internal
     "_manylinux",  # flag
-    "os.path",  # os.path is an alias to posixpath or ntpath
     "_typeshed",
     "typeshed",
 }
@@ -259,14 +258,13 @@ if not sys.platform.startswith("OpenVMS"):
     DEFAULT_IGNORE_NAMES.add("vms_lib")
 if os.name != "nt":
     DEFAULT_IGNORE_NAMES.update(
-        ["msvcrt", "nt", "_overlapped", "_winapi", "winreg", "_wmi"]
+        ["msvcrt", "_overlapped", "_winapi", "winreg", "_wmi"]
     )
 else:
     DEFAULT_IGNORE_NAMES.update(
         [
             "fcntl",
             "grp",
-            "posix",
             "_posixshmem",
             "_posixsubprocess",
             "pwd",
@@ -274,12 +272,16 @@ else:
             "termios",
         ]
     )
+if "posix" in sys.builtin_module_names:
+    DEFAULT_IGNORE_NAMES.add("nt")  # only windows, not mingw
+else:
+    DEFAULT_IGNORE_NAMES.add("posix")
 
 # ignore backports
 if PY_VERSION >= (3, 9):
-    DEFAULT_IGNORE_NAMES.update(["backports.zoneinfo"])
+    DEFAULT_IGNORE_NAMES.add("backports.zoneinfo")
 if PY_VERSION >= (3, 11):
-    DEFAULT_IGNORE_NAMES.update(["exceptiongroup"])
+    DEFAULT_IGNORE_NAMES.add("exceptiongroup")
 
 # ignore all default excludes
 DEFAULT_IGNORE_NAMES.update(DEFAULT_EXCLUDES)
