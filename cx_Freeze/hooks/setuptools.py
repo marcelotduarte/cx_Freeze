@@ -31,6 +31,7 @@ _setuptools_extern = [
 
 def load_setuptools(finder: ModuleFinder, module: Module) -> None:
     """The setuptools must load the _distutils and _vendor subpackage."""
+    finder.exclude_module("setuptools._distutils.tests")
     with contextlib.suppress(ImportError):
         finder.include_package(f"{module.name}._distutils")
     with contextlib.suppress(ImportError):

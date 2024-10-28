@@ -11,8 +11,15 @@ if TYPE_CHECKING:
     from cx_Freeze.module import Module
 
 
+def load_importlib(_, module: Module) -> None:
+    """The importlib module should filter import names."""
+    if module.in_file_system == 1:
+        # Use optimized mode
+        module.in_file_system = 2
+
+
 def load_importlib_metadata(finder: ModuleFinder, module: Module) -> None:
     """The importlib.metadata module should filter import names."""
     if module.name == "importlib.metadata":
-        module.exclude_names.add("pep517")
+        module.ignore_names.add("pep517")
         finder.include_module("email")

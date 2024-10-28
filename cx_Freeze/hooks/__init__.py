@@ -103,6 +103,11 @@ def load_charset_normalizer_md(finder: ModuleFinder, module: Module) -> None:
         finder.include_module("charset_normalizer.md__mypyc")
 
 
+def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
+    """Ignore names that should not be confused with modules to be imported."""
+    module.global_names.update(["ProcessPoolExecutor", "ThreadPoolExecutor"])
+
+
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
     """The google.crc32c module requires _cffi_backend module."""
     finder.include_module("_cffi_backend")
@@ -396,13 +401,6 @@ def load_pycparser(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("pycparser.yacctab")
 
 
-def load_pygments(finder: ModuleFinder, module: Module) -> None:
-    """The pygments package dynamically load styles."""
-    finder.include_package("pygments.styles")
-    finder.include_package("pygments.lexers")
-    finder.include_package("pygments.formatters")
-
-
 def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
     """The pyodbc module implicitly imports others modules;
     make sure this happens.
@@ -659,11 +657,6 @@ def load_zope_component(finder: ModuleFinder, module: Module) -> None:
 #
 
 
-def missing_backports_zoneinfo(finder: ModuleFinder, caller: Module) -> None:
-    """The backports.zoneinfo module can be ignored in Python 3.9+."""
-    caller.ignore_names.add("backports.zoneinfo")
-
-
 def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
     """The gdk module is buried inside gtk so there is no need to concern
     ourselves with an error saying that it cannot be found.
@@ -676,14 +669,6 @@ def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
     cannot be found.
     """
     caller.ignore_names.add("ltihooks")
-
-
-def missing_readline(finder: ModuleFinder, caller: Module) -> None:
-    """The readline module is not normally present on Windows but it also may
-    be so instead of excluding it completely, ignore it if it can't be found.
-    """
-    if IS_WINDOWS:
-        caller.ignore_names.add("readline")
 
 
 def missing_six_moves(finder: ModuleFinder, caller: Module) -> None:

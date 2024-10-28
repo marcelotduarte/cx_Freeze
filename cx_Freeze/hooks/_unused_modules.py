@@ -229,23 +229,34 @@ if PY_VERSION >= (3, 13):
         ]
     )
 
+# remove test modules
 DEFAULT_EXCLUDES.update(["test", "test.support"])
+
+# remove modules mapped to internal modules
+DEFAULT_EXCLUDES.update(
+    [
+        "importlib._bootstrap",  # mapped to _frozen_importlib
+        "importlib._bootstrap_external",  # mapped to _frozen_importlib_external
+    ]
+)
 
 DEFAULT_IGNORE_NAMES: str[str] = {
     "__main__",
-    "_frozen_importlib",
-    "_frozen_importlib_external",
+    "_frozen_importlib",  # internal
+    "_frozen_importlib_external",  # internal
     "_manylinux",  # flag
     "os.path",  # os.path is an alias to posixpath or ntpath
+    "_typeshed",
+    "typeshed",
 }
 
+# ignored by platform / os
 if not sys.platform.startswith("android"):
     DEFAULT_IGNORE_NAMES.update(["android", "jnius"])
 if not sys.platform.startswith("java"):
     DEFAULT_IGNORE_NAMES.update(["java.lang", "jnius", "org.python.core"])
 if not sys.platform.startswith("OpenVMS"):
     DEFAULT_IGNORE_NAMES.add("vms_lib")
-
 if os.name != "nt":
     DEFAULT_IGNORE_NAMES.update(
         ["msvcrt", "nt", "_overlapped", "_winapi", "winreg", "_wmi"]
@@ -259,7 +270,16 @@ else:
             "_posixshmem",
             "_posixsubprocess",
             "pwd",
+            "readline",
             "termios",
         ]
     )
+
+# ignore backports
+if PY_VERSION >= (3, 9):
+    DEFAULT_IGNORE_NAMES.update(["backports.zoneinfo"])
+if PY_VERSION >= (3, 11):
+    DEFAULT_IGNORE_NAMES.update(["exceptiongroup"])
+
+# ignore all default excludes
 DEFAULT_IGNORE_NAMES.update(DEFAULT_EXCLUDES)

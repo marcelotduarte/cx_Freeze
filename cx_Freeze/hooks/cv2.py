@@ -55,7 +55,7 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
             finder.include_files(qt_conf, "Contents/Resources/qt.conf")
         return
 
-    # Use optmized mode
+    # Use optimized mode
     module.in_file_system = 2
     finder.include_package("cv2")
     finder.exclude_module("cv2.config-3")
