@@ -13,6 +13,9 @@ if TYPE_CHECKING:
     from cx_Freeze.module import Module
 
 
+__all__ = ["load_zoneinfo"]
+
+
 def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     """The zoneinfo package requires timezone data,
     that can be the in tzdata package, if installed.
@@ -73,6 +76,3 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
         dont_inherit=True,
         optimize=finder.optimize,
     )
-
-
-__all__ = ["load_zoneinfo"]

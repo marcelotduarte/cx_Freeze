@@ -717,9 +717,9 @@ class ModuleFinder:
         When cx_Freeze is built, these modules (and modules they load) are
         included in the startup zip file.
         """
-        self.include_package("collections")
+        self.include_module("collections")
         self.include_package("encodings")
-        self.include_package("importlib")
+        self.include_module("importlib.abc")
         self.include_module("io")
         self.include_module("os")
         self.include_module("sys")
