@@ -228,17 +228,15 @@ static char* get_sys_path(char* lib_dir)
 #ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
 // LoadPython3dll()
-//   Ensure python3.dll is loaded in some python versions (bpo-29778).
+//   Load python3.dll if it is on the target dir.
 //-----------------------------------------------------------------------------
 static int LoadPython3dll(void)
 {
 
+#ifndef __MINGW32__
     if (LoadLibraryExW(PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR)
         == NULL)
-#ifdef __MINGW32__
-        return 0;
-#else
-        return FatalError("Unable to load python3.dll!");
+        return -1; // FatalError("Unable to load python3.dll!");
 #endif
     return 0;
 }
