@@ -121,7 +121,7 @@ target-version = ["py38"]
 
 [tool.bumpversion]
 commit = true
-current_version = "7.2.3"
+current_version = "7.2.4"
 message = "Bump version: {current_version} → {new_version} [ci skip]"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(\\-(?P<release>[a-z]+)(?P<build>\\d+))?"
 serialize = [
