@@ -237,6 +237,11 @@ def main() -> None:
         path_to_remove = os.fspath(command.parent)
         if path_to_remove in sys.path:
             sys.path.remove(path_to_remove)
+        else:
+            # using cmd on Windows
+            path_to_remove = os.fspath(command.with_suffix(".exe"))
+            if path_to_remove in sys.path:
+                sys.path.remove(path_to_remove)
         sys.path.insert(0, os.getcwd())
 
     # get options from pyproject.toml
