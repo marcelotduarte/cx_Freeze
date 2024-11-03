@@ -9,8 +9,8 @@ import os
 import sys
 from contextlib import suppress
 from functools import cached_property
-from importlib import import_module
 from pathlib import Path, PurePath
+from pkgutil import resolve_name
 from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
@@ -84,8 +84,8 @@ class ModuleFinder:
         self.path: list[str] = list(map(os.fspath, path or sys.path))
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
-        self.zip_exclude_packages: set = zip_exclude_packages or set()
-        self.zip_include_packages: set = zip_include_packages or set()
+        self.zip_exclude_packages: set = set(zip_exclude_packages or [])
+        self.zip_include_packages: set = set(zip_include_packages or [])
         self.constants_module = constants_module
         self.zip_includes: InternalIncludesList = process_path_specs(
             zip_includes
@@ -147,7 +147,7 @@ class ModuleFinder:
             # discard modules that exist in bases/lib-dynload
             ext_suffix = get_config_var("EXT_SUFFIX")
             for file in dynload.glob(f"*{ext_suffix}"):
-                builtin_modules.discard(file.name.partition(".")[0])
+                builtin_modules.discard(file.name.removesuffix(ext_suffix))
         return builtin_modules
 
     def _determine_parent(self, caller: Module | None) -> Module | None:
@@ -206,7 +206,7 @@ class ModuleFinder:
                     # (e.g. .cpython-39-x86_64-linux-gnu.so).
                     for suffix in ALL_SUFFIXES:
                         if fullname.name.endswith(suffix):
-                            name = fullname.name[: -len(suffix)]
+                            name = fullname.name.removesuffix(suffix)
 
                             # Skip modules whose names appear to contain '.',
                             # as we may be using the wrong suffix, and even if
@@ -407,7 +407,7 @@ class ModuleFinder:
                     path=list(spec.submodule_search_locations),
                     parent=parent,
                 )
-                if spec.origin in (None, "namespace"):
+                if spec.origin is None:
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
                     module.file = module.path[0] / "__init__.py"
                     module.source_is_string = True
@@ -504,10 +504,12 @@ class ModuleFinder:
         """Run hook for missing module."""
         if module_name in DEFAULT_IGNORE_NAMES:
             return
-        hooks = import_module("cx_Freeze.hooks")
         normalized_name = module_name.replace(".", "_")
-        method = getattr(hooks, f"missing_{normalized_name}", None)
-        if method:
+        try:
+            method = resolve_name(f"cx_Freeze.hooks:missing_{normalized_name}")
+        except (AttributeError, ValueError):
+            pass
+        else:
             method(self, caller)
         if module_name not in caller.ignore_names:
             callers = self._bad_modules.setdefault(module_name, {})
@@ -760,7 +762,7 @@ class ModuleFinder:
         if isinstance(path, str):
             path = Path(path)
         if name is None:
-            name = path.name.partition(".")[0]
+            name = path.stem
         deferred_imports: DeferredList = []
         module = self._load_module_from_file(name, path, deferred_imports)
         if module is not None:

@@ -7,10 +7,10 @@ import socket
 from contextlib import suppress
 from datetime import datetime, timezone
 from functools import cached_property, partial
-from importlib import import_module
 from importlib.machinery import EXTENSION_SUFFIXES
 from keyword import iskeyword
 from pathlib import Path
+from pkgutil import resolve_name
 from typing import TYPE_CHECKING
 
 from packaging.requirements import Requirement
@@ -240,7 +240,7 @@ class Module:
             return None
         source_dir = self.root.file.parent
         package = filename.parent.relative_to(source_dir.parent)
-        stem = filename.name.partition(ext)[0]
+        stem = filename.name.removesuffix(ext)
         stub_name = f"{stem}.pyi"
         # search for the stub file already parsed in the distribution
         importshed = Path(__file__).resolve().parent / "importshed"
@@ -341,22 +341,35 @@ class Module:
             try:
                 # new style hook using ModuleHook class - top-level call
                 root_name = self.root.name.lower()
-                hooks = import_module(f"cx_Freeze.hooks.{root_name}")
-                hook_cls = getattr(hooks, "Hook", None)
+                try:
+                    hook_cls = resolve_name(
+                        f"cx_Freeze.hooks.{root_name}:Hook"
+                    )
+                except (AttributeError, ValueError):
+                    hook_cls = None
                 if hook_cls and issubclass(hook_cls, ModuleHook):
                     self.root.hook = hook_cls(self.root)
                 else:
                     # old style hook with lowercased functions
                     name = self.name.replace(".", "_").lower()
-                    func = getattr(hooks, f"load_{name}", None)
-                    self.hook = partial(func, module=self) if func else None
+                    try:
+                        func = resolve_name(
+                            f"cx_Freeze.hooks.{root_name}:load_{name}"
+                        )
+                    except (AttributeError, ValueError):
+                        pass
+                    else:
+                        self.hook = partial(func, module=self)
                     return
             except ImportError:
                 # old style hook with functions at hooks.__init__
-                hooks = import_module("cx_Freeze.hooks")
                 name = self.name.replace(".", "_")
-                func = getattr(hooks, f"load_{name}", None)
-                self.hook = partial(func, module=self) if func else None
+                try:
+                    func = resolve_name(f"cx_Freeze.hooks:load_{name}")
+                except (AttributeError, ValueError):
+                    pass
+                else:
+                    self.hook = partial(func, module=self)
                 return
         # new style hook using ModuleHook class - lower level call
         root_hook = self.root.hook

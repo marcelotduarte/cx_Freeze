@@ -10,6 +10,7 @@ import sys
 from contextlib import suppress
 from functools import cache
 from pathlib import Path
+from pkgutil import resolve_name
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
@@ -28,7 +29,7 @@ def _qt_implementation(module: Module) -> str:
 def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     """Cache the QtCore library paths."""
     try:
-        qtcore = __import__(name, fromlist=["QtCore"]).QtCore
+        qtcore = resolve_name(f"{name}.QtCore")
     except RuntimeError:
         print("WARNING: Tried to load multiple incompatible Qt ", end="")
         print("wrappers. Some incorrect files may be copied.")
