@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from pkgutil import resolve_name
 
 
 def _debug() -> None:
@@ -14,7 +15,7 @@ def _debug() -> None:
     if not os.environ.get("QT_DEBUG"):
         return
     # Show QLibraryInfo paths.
-    qtcore = __import__("PySide6", fromlist=["QtCore"]).QtCore
+    qtcore = resolve_name("PySide6.QtCore")
     lib = qtcore.QLibraryInfo
     source_paths: dict[str, Path] = {}
     if hasattr(lib.LibraryPath, "__members__"):

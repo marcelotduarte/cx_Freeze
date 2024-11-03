@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from pkgutil import resolve_name
 from typing import ClassVar
 
 from setuptools import Command
@@ -175,8 +176,8 @@ class build_exe(Command):
             script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
         logging.info("building '%s' extension in '%s'", name, source_dir)
-        distutils_core = __import__("distutils.core", fromlist=["run_setup"])
-        distribution = distutils_core.run_setup("setup.py", script_args)
+        run_setup = resolve_name("distutils.core.run_setup")
+        distribution = run_setup("setup.py", script_args)
         ext_modules = distribution.ext_modules
         modules = [m for m in ext_modules if m.name == module_name]
         if not modules:

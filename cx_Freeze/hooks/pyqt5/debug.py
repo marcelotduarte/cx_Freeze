@@ -5,6 +5,7 @@ variable QT_DEBUG is set.
 import os
 import sys
 from pathlib import Path
+from pkgutil import resolve_name
 
 
 def _debug() -> None:
@@ -12,7 +13,7 @@ def _debug() -> None:
     if not os.environ.get("QT_DEBUG"):
         return
     # Show QLibraryInfo paths.
-    qtcore = __import__("PyQt5", fromlist=["QtCore"]).QtCore
+    qtcore = resolve_name("PyQt5.QtCore")
     data = {}
     for key, value in qtcore.QLibraryInfo.__dict__.items():
         if isinstance(value, (qtcore.QLibraryInfo.LibraryLocation, int)):

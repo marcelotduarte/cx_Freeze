@@ -5,6 +5,7 @@ zoneinfo package is included.
 from __future__ import annotations
 
 from pathlib import Path
+from pkgutil import resolve_name
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -30,9 +31,9 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     if target_path is None:
         # without tzdata, copy zoneinfo directory if available
         source_path = None
-        zoneinfo = __import__(module.name, fromlist=["TZPATH"])
-        if zoneinfo.TZPATH:
-            for path in zoneinfo.TZPATH:
+        tzpath = resolve_name("zoneinfo.TZPATH")
+        if tzpath:
+            for path in tzpath:
                 if path.endswith("zoneinfo"):
                     source_path = Path(path).resolve()
                     break

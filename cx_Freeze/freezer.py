@@ -13,9 +13,9 @@ import time
 from abc import abstractmethod
 from contextlib import suppress
 from functools import cached_property
-from importlib import import_module
 from importlib.util import MAGIC_NUMBER
 from pathlib import Path
+from pkgutil import resolve_name
 from typing import TYPE_CHECKING, Any
 from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 
@@ -830,8 +830,7 @@ class WinFreezer(Freezer, PEParser):
                 if self.silent < 3:
                     print(warning_msg, "version must be specified")
             else:
-                winversioninfo = import_module("cx_Freeze.winversioninfo")
-                version = winversioninfo.VersionInfo(
+                version = resolve_name("cx_Freeze.winversioninfo:VersionInfo")(
                     self.metadata.version,
                     comments=self.metadata.long_description,
                     description=self.metadata.description,

@@ -42,8 +42,8 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
     if tcl_library is None:
         # search for the tcl/tk libraries (Windows, MSYS2, conda-forge, etc)
         try:
-            tkinter = __import__(module.name)
-        except (ImportError, AttributeError):
+            tkinter = __import__("tkinter")
+        except ImportError:
             return
         try:
             root = tkinter.Tk(useTk=False)

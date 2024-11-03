@@ -48,7 +48,8 @@ class Install(_install):
 
     def finalize_options(self) -> None:
         if self.prefix is None and sys.platform == "win32":
-            winreg = __import__("winreg")
+            import winreg
+
             key = winreg.OpenKey(
                 winreg.HKEY_LOCAL_MACHINE,
                 r"Software\Microsoft\Windows\CurrentVersion",

@@ -2,10 +2,11 @@
 
 import sys
 from pathlib import Path
+from pkgutil import resolve_name
 
 
 def _run() -> None:
-    qtcore = __import__("PyQt5", fromlist=["QtCore"]).QtCore
+    qtcore = resolve_name("PyQt5.QtCore")
 
     # With PyQt5 5.15.4, if the folder name contains non-ascii characters, the
     # libraryPaths returns empty. Prior to this version, this doesn't happen.
