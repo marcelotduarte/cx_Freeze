@@ -164,7 +164,6 @@ modules/testfreeze_2.py
     def func2():
         print("Test freeze module #2")
 setup.py
-    import sys
     from cx_Freeze import setup
 
     options = {
@@ -346,7 +345,6 @@ def test_not_found_icon(tmp_path: Path) -> None:
     # same test as before, without icons
     create_package(tmp_path, SOURCE_VALID_ICON)
     output = run_command(tmp_path)
-    print(output)
     assert "WARNING: Icon file not found" in output, "icon file not found"
 
 
@@ -419,7 +417,6 @@ def test_executable_rename(tmp_path: Path) -> None:
 
 SOURCE_NAMESPACE = """\
 main.py
-    import sys
     import importlib.util
     import namespace.package
 
@@ -440,7 +437,6 @@ command
 
 SOURCE_NESTED_NAMESPACE = """\
 main.py
-    import sys
     import importlib.util
     import namespace.package.one
     import namespace.package.two
@@ -496,14 +492,11 @@ def test_executable_namespace(
         with tmp_path.joinpath("command").open("a") as f:
             f.write(" --zip-include-packages=* --zip-exclude-packages=")
     output = run_command(tmp_path)
-    print(tmp_path)
-    print(output)
 
     file_created = tmp_path / BUILD_EXE_DIR / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
     output = run_command(tmp_path, file_created, timeout=10)
-    print(output)
     lines = output.splitlines()
     start = 0
     stop = hello
