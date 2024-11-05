@@ -20,9 +20,10 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     module.global_names.add("TZPATH")
     try:
         finder.include_package("tzdata")
-        target_path = "lib/tzdata/zoneinfo"
     except ImportError:
         target_path = None
+    else:
+        target_path = "lib/tzdata/zoneinfo"  # valid if not using zip file
 
     if target_path is None:
         # without tzdata, copy zoneinfo directory if available
@@ -39,9 +40,6 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
             callers = bad_modules.setdefault("tzdata", {})
             callers[f"{module.name}_hook"] = None
             return
-        if module.in_file_system == 0:
-            finder.zip_include_files(source_path, "tzdata/zoneinfo")
-            return
         target_path = "share/zoneinfo"
         finder.include_files(
             source_path, target_path, copy_dependent_files=False
@@ -53,16 +51,27 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
 
     source = f"""
         # cx_Freeze patch start
-        import os as _os
-        import sys as _sys
-        _prefix = _sys.prefix if _sys.prefix else _sys.frozen_dir
-        if _sys.platform == "darwin":
-            _mac_prefix = _os.path.join(_os.path.dirname(_prefix), "Resources")
-            if _os.path.exists(_mac_prefix):
-                _prefix = _mac_prefix  # using bdist_mac
-        _os.environ["PYTHONTZPATH"] = _os.path.join(
-            _prefix, _os.path.normpath("{target_path}")
-        )
+        def _cx_freeze_patch():
+            import os as _os
+            import sys as _sys
+            _prefix = _sys.prefix if _sys.prefix else _sys.frozen_dir
+            if _sys.platform == "darwin":
+                _prefix_parent = _os.path.dirname(_prefix)
+                _mac_prefix = _os.path.join(_prefix_parent, "Resources")
+                if _os.path.exists(_mac_prefix):
+                    _prefix = _mac_prefix  # using bdist_mac
+            _target_path = _os.path.normpath("{target_path}")
+            _tzpath = _os.path.join(_prefix, _target_path)
+            if not _os.path.exists(_tzpath):
+                try:
+                    import tzdata as _tzdata
+                except ImportError:
+                    pass
+                else:
+                    _tzpath = _os.path.join(
+                        _os.path.dirname(_tzdata.__file__), "zoneinfo")
+            _os.environ["PYTHONTZPATH"] = _tzpath
+        _cx_freeze_patch()
         # cx_Freeze patch end
     """
     code_string = module.file.read_text(encoding="utf_8")

@@ -50,7 +50,7 @@ def test_tz(tmp_path: Path, zip_packages: bool) -> None:
     create_package(tmp_path, SOURCE)
     if zip_packages:
         with tmp_path.joinpath("command").open("a") as f:
-            f.write(" --zip-include-packages=* --zip-include-packages=")
+            f.write(" --zip-include-packages=* --zip-exclude-packages=")
     output = run_command(tmp_path)
     if "? tzdata imported from zoneinfo_hook" in output:
         pytest.skip(reason="tzdata must be installed")
