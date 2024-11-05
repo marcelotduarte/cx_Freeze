@@ -90,6 +90,7 @@ class ModuleFinder:
         self.zip_includes: InternalIncludesList = process_path_specs(
             zip_includes
         )
+        self.namespaces = []
         self.modules = []
         self.aliases = {}
         self.excluded_dependent_files: set[Path] = set()
@@ -381,17 +382,18 @@ class ModuleFinder:
             spec = importlib.machinery.PathFinder.find_spec(name, path)
         except KeyError:
             if parent:
-                # some packages use a directory with vendored modules
-                # without an __init__.py and are not considered namespace
-                # packages, then simulate a subpackage
+                # some packages use a directory with vendor modules without
+                # an __init__.py, thus, are called nested namespace packages
                 module = self._add_module(
                     name,
                     path=[Path(path[0], name.rpartition(".")[-1])],
                     parent=parent,
                 )
-                logging.debug("Adding module [%s] [PACKAGE]", name)
-                module.file = Path(path[0]) / "__init__.py"
-                module.source_is_string = True
+                logging.debug("Adding module [%s] [NESTED NAMESPACE]", name)
+                self.namespaces.append(module)
+                self.modules.remove(module)
+                module.in_import = False
+                return module
 
         if spec:
             loader = spec.loader
@@ -409,11 +411,12 @@ class ModuleFinder:
                 )
                 if spec.origin is None:
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
-                    module.file = module.path[0] / "__init__.py"
-                    module.source_is_string = True
-                else:
-                    logging.debug("Adding module [%s] [PACKAGE]", name)
-                    module.file = Path(spec.origin)  # path of __init__.py
+                    self.namespaces.append(module)
+                    self.modules.remove(module)
+                    module.in_import = False
+                    return module
+                logging.debug("Adding module [%s] [PACKAGE]", name)
+                module.file = Path(spec.origin)  # path of __init__.py
             else:
                 module = self._add_module(
                     name, filename=Path(spec.origin), parent=parent
@@ -453,13 +456,9 @@ class ModuleFinder:
                 raise ImportError(msg, name=name)
         elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
             logging.debug("Adding module [%s] [EXTENSION]", name)
-        elif module.source_is_string:
-            module.code = compile(
-                "", path, "exec", dont_inherit=True, optimize=self.optimize
-            )
         else:
             msg = f"Unknown module loader in {path}"
-            raise ImportError(msg, name=name)
+            raise ImportError(msg, name=name)  # noqa: TRY004
 
         # Run custom hook for the module
         if module.hook:

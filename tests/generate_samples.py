@@ -200,6 +200,35 @@ b/__init__.py
 """,
 ]
 
+NAMESPACE_TEST = [
+    "main",
+    ["main", "namespace.package"],
+    [],
+    [],
+    """\
+main.py
+    import namespace.package
+namespace/package/__init__.py
+    print('This is namespace.package')
+""",
+]
+
+NESTED_NAMESPACE_TEST = [
+    "main",
+    ["main", "namespace.package.one", "namespace.package.two"],
+    [],
+    [],
+    """\
+main.py
+    import namespace.package.one
+    import namespace.package.two
+namespace/package/one.py
+    print('This is namespace.package module one')
+namespace/package/two.py
+    print('This is namespace.package module two')
+""",
+]
+
 PACKAGE_TEST = [
     "a.module",
     ["a", "a.b", "a.c", "a.module", "mymodule", "sys"],
