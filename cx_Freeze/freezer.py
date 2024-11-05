@@ -589,6 +589,14 @@ class Freezer:
         cache_path = finder.cache_path
 
         modules = [m for m in finder.modules if m.name not in finder.excludes]
+        for module in finder.namespaces:
+            # if namespace package should be written to zip file, convert it
+            # to regular package, since then zipimport doesn't support PEP420
+            if module.in_file_system == 0:
+                module.code = compile(
+                    "", "__init__.py", "exec", dont_inherit=True
+                )
+                modules.append(module)
         modules.append(
             finder.include_file_as_module(
                 self.constants_module.create(cache_path, modules)

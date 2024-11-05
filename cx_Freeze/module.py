@@ -196,7 +196,6 @@ class Module:
         self.global_names: set[str] = set()
         self.ignore_names: set[str] = set()
         self.in_import: bool = True
-        self.source_is_string: bool = False
         self.source_is_zip_file: bool = False
         self._in_file_system: int = 1
         # add the load hook
@@ -204,10 +203,14 @@ class Module:
 
     def __repr__(self) -> str:
         parts = [f"name={self.name!r}"]
+        if self.distribution is not None:
+            parts.append(f"distribution={self.distribution.name!r}")
         if self.file is not None:
-            parts.append(f"file={self.file!r}")
+            parts.append(f"file={self.file.as_posix()!r}")
         if self.path is not None:
-            parts.append(f"path={self.path!r}")
+            parts.append(f"path={self.path}")
+        if self.parent is not None:
+            parts.append(f"parent.name={self.parent.name!r}")
         join_parts = ", ".join(parts)
         return f"<Module {join_parts}>"
 
@@ -314,7 +317,7 @@ class Module:
         """
         if self.parent is not None:
             return self.parent.in_file_system
-        if self.path is None or self.file is None:
+        if self.path is None:
             return 0
         return self._in_file_system
 
@@ -440,7 +443,7 @@ class ConstantsModule:
         today = datetime.now(tz=timezone.utc)
         source_timestamp = 0
         for module in modules:
-            if module.file is None or module.source_is_string:
+            if module.file is None:
                 continue
             if module.source_is_zip_file:
                 continue

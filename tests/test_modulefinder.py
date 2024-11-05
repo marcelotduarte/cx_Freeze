@@ -18,6 +18,8 @@ from generate_samples import (
     IMPORT_CALL_TEST,
     MAYBE_TEST,
     MAYBE_TEST_NEW,
+    NAMESPACE_TEST,
+    NESTED_NAMESPACE_TEST,
     PACKAGE_TEST,
     RELATIVE_IMPORT_TEST,
     RELATIVE_IMPORT_TEST_2,
@@ -82,6 +84,8 @@ def _do_test(
         IMPORT_CALL_TEST,
         MAYBE_TEST,
         MAYBE_TEST_NEW,
+        NAMESPACE_TEST,
+        NESTED_NAMESPACE_TEST,
         PACKAGE_TEST,
         RELATIVE_IMPORT_TEST,
         RELATIVE_IMPORT_TEST_2,
@@ -99,6 +103,8 @@ def _do_test(
         "import_call_test",
         "maybe_test",
         "maybe_test_new",
+        "namespace_test",
+        "nested_namespace_test",
         "package_test",
         "relative_import_test",
         "relative_import_test_2",
@@ -139,6 +145,7 @@ def test_zip_include_packages(tmp_path) -> None:
         *SUB_PACKAGE_TEST,
         zip_exclude_packages=["*"],
         zip_include_packages=["p"],
+        zip_include_all_packages=False,
     )
 
 
@@ -149,4 +156,5 @@ def test_zip_exclude_packages(tmp_path) -> None:
         *SUB_PACKAGE_TEST,
         zip_exclude_packages=["p"],
         zip_include_packages=["*"],
+        zip_include_all_packages=True,
     )
