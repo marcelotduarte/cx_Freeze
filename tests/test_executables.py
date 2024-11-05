@@ -164,18 +164,25 @@ modules/testfreeze_2.py
     def func2():
         print("Test freeze module #2")
 setup.py
-    from cx_Freeze import Executable, setup
+    from cx_Freeze import setup
 
-    executables = ["test_1.py", "test_2.py", "test_3.py"]
+    options = {
+        "build_exe": {
+            "excludes": ["tkinter", "unittest"],
+            "include_path": ["."],
+            "silent": True
+        }
+    }
 
     setup(
         name="advanced",
         version="0.1.2.3",
         description="Sample cx_Freeze script",
-        executables=executables,
+        options=options,
+        executables=["test_1.py", "test_2.py", "test_3.py"],
     )
 command
-    python setup.py build_exe --excludes=tkinter,unittest --silent
+    python setup.py build_exe
 """
 
 
@@ -338,7 +345,6 @@ def test_not_found_icon(tmp_path: Path) -> None:
     # same test as before, without icons
     create_package(tmp_path, SOURCE_VALID_ICON)
     output = run_command(tmp_path)
-    print(output)
     assert "WARNING: Icon file not found" in output, "icon file not found"
 
 
@@ -407,3 +413,100 @@ def test_executable_rename(tmp_path: Path) -> None:
     )
     output = run_command(tmp_path, file_renamed, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
+
+
+SOURCE_NAMESPACE = """\
+main.py
+    import importlib.util
+    import namespace.package
+
+    def is_namespace_package(package_name: str) -> bool:
+        spec = importlib.util.find_spec(package_name)
+        return spec.origin is None
+
+    if __name__ == "__main__":
+        print("'namespace' is namespace package: ",
+              is_namespace_package('namespace'))
+        print("'namespace.package' is namespace package: ",
+              is_namespace_package('namespace.package'))
+namespace/package/__init__.py
+    print("Hello from cx_Freeze")
+command
+    cxfreeze --script main.py --target-name test --silent
+"""
+
+SOURCE_NESTED_NAMESPACE = """\
+main.py
+    import importlib.util
+    import namespace.package.one
+    import namespace.package.two
+
+    def is_namespace_package(package_name: str) -> bool:
+        spec = importlib.util.find_spec(package_name)
+        return spec.origin is None
+
+    if __name__ == "__main__":
+        print("'namespace' is namespace package: ",
+              is_namespace_package('namespace'))
+        print("'namespace.package' is namespace package: ",
+              is_namespace_package('namespace.package'))
+        print("'namespace.package.one' is namespace package: ",
+              is_namespace_package('namespace.package.one'))
+        print("'namespace.package.two' is namespace package: ",
+              is_namespace_package('namespace.package.two'))
+namespace/package/one.py
+    print("Hello from cx_Freeze - module one")
+namespace/package/two.py
+    print("Hello from cx_Freeze - module two")
+command
+    cxfreeze --script main.py --target-name test --silent
+"""
+
+
+@pytest.mark.parametrize(
+    ("source", "hello", "namespace", "package_or_module", "zip_packages"),
+    [
+        (SOURCE_NAMESPACE, 1, 1, 1, False),
+        (SOURCE_NAMESPACE, 1, 0, 2, True),
+        (SOURCE_NESTED_NAMESPACE, 2, 2, 2, False),
+        (SOURCE_NESTED_NAMESPACE, 2, 0, 4, True),
+    ],
+    ids=[
+        "namespace_package",
+        "namespace_package_zip_packages",
+        "nested_namespace_package",
+        "nested_namespace_package_zip_packages",
+    ],
+)
+def test_executable_namespace(
+    tmp_path: Path,
+    source: str,
+    hello: int,
+    namespace: int,
+    package_or_module: int,
+    zip_packages: bool,
+) -> None:
+    """Test executable with namespace package."""
+    create_package(tmp_path, source)
+    if zip_packages:
+        with tmp_path.joinpath("command").open("a") as f:
+            f.write(" --zip-include-packages=* --zip-exclude-packages=")
+    output = run_command(tmp_path)
+
+    file_created = tmp_path / BUILD_EXE_DIR / f"test{EXE_SUFFIX}"
+    assert file_created.is_file(), f"file not found: {file_created}"
+
+    output = run_command(tmp_path, file_created, timeout=10)
+    lines = output.splitlines()
+    start = 0
+    stop = hello
+    for i in range(start, stop):
+        assert lines[i].startswith("Hello from cx_Freeze")
+    start += hello
+    stop += namespace
+    for i in range(start, stop):
+        assert lines[i].endswith("True")
+    start += namespace
+    stop += package_or_module
+    for i in range(start, stop):
+        assert lines[i].endswith("False")
