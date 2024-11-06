@@ -197,7 +197,7 @@ if PY_VERSION >= (3, 9):
 if PY_VERSION >= (3, 10):
     DEFAULT_EXCLUDES.update(["formatter", "parser"])
 if PY_VERSION >= (3, 11):
-    DEFAULT_EXCLUDES.update(["binhex", "gettext"])
+    DEFAULT_EXCLUDES.add("binhex")
 if PY_VERSION >= (3, 12):
     DEFAULT_EXCLUDES.update(
         ["asynchat", "asyncore", "distutils", "imp", "smtpd"]
@@ -240,7 +240,7 @@ DEFAULT_EXCLUDES.update(
     ]
 )
 
-DEFAULT_IGNORE_NAMES: str[str] = {
+DEFAULT_IGNORE_NAMES: set[str] = {
     "__main__",
     "_frozen_importlib",  # internal
     "_frozen_importlib_external",  # internal
