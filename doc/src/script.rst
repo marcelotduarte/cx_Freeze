@@ -88,6 +88,14 @@ Further customization can be done using the following options:
     the trademarks value to include in the version resource
     associated with the executable (Windows only)
 
+.. option:: --debug
+
+    print debug information
+
+.. option:: --verbose
+
+    run verbosely
+
 .. option:: --version
 
    show program's version number and exit
@@ -101,3 +109,6 @@ Further customization can be done using the following options:
 
 .. versionadded:: 7.0
     ``uac-uiaccess`` option.
+
+.. versionadded:: 7.3
+    ``debug`` and  ``verbose`` options.
