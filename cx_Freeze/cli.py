@@ -141,6 +141,14 @@ def prepare_parser() -> argparse.ArgumentParser:
         help="the trademarks value to include in the version resource "
         "associated with the executable (Windows only)",
     )
+    # options to redirect to global
+    parser.add_argument(
+        "--debug", action="store_true", help="print debug information"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="run verbosely"
+    )
+
     # Command positional parameter
     parser.add_argument(
         "command",
@@ -163,6 +171,7 @@ def main() -> None:
     args, argv = parser.parse_known_args()
     script = args.script
     command = args.command
+    verbose = args.verbose
 
     # help
     if "-h" in argv or "--help" in argv:
@@ -220,16 +229,25 @@ def main() -> None:
     # redirected options
     if args.target_dir:
         argv.append(f"--build-exe={args.target_dir}")
-    delattr(args, "target_dir")
+    if args.debug:
+        import setuptools.dist
+
+        os.environ["DISTUTILS_DEBUG"] = "1"
+        setuptools.dist.DEBUG = 1
 
     # finalize command line options
     executables = []
     script_args = [command, *argv]
     if args.script:
         delattr(args, "command")
+        delattr(args, "debug")
+        delattr(args, "target_dir")
+        delattr(args, "verbose")
         executables = [vars(args)]
     if script_args[0] == "build" and "build_exe" not in script_args:
         script_args.insert(1, "build_exe")
+    if verbose:
+        script_args.insert(0, "--verbose")
 
     # fix sys.path for cxfreeze command line
     command = Path(sys.argv[0])
