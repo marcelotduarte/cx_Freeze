@@ -742,12 +742,27 @@ class ModuleFinder:
         """Exclude the named module and its submodules from the resulting
         frozen executable.
         """
-        modules_to_exclude = [name] + [
+        modules_to_discard = [
+            mod for mod in self.excludes if mod.startswith(f"{name}.")
+        ]
+        for mod in modules_to_discard:
+            self.excludes.pop(mod)
+        self.excludes[name] = None
+
+        modules_to_discard = [
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
-        for mod in modules_to_exclude:
-            self.excludes[mod] = None
-            self._modules[mod] = None
+        for mod in modules_to_discard:
+            self._modules.pop(mod, None)
+        self._modules[name] = None
+
+        modules_to_discard = [
+            mod
+            for mod in self.modules
+            if mod.name == name or mod.name.startswith(f"{name}.")
+        ]
+        for mod in modules_to_discard:
+            self.modules.remove(mod)
 
     def include_file_as_module(
         self, path: Path | str, name: str | None = None
@@ -780,11 +795,12 @@ class ModuleFinder:
 
     def include_module(self, name: str) -> Module:
         """Include the named module in the frozen executable."""
-        # includes has priority over excludes
-        if name in self.excludes and self._modules.get(name) is None:
-            self.excludes.pop(name)
+        # Includes has priority over excludes.
+        self.excludes.pop(name, None)
+        # Remove the module in the module cache before trying to import it.
+        if self._modules.get(name) is None:
             self._modules.pop(name, None)
-        # include module
+        # Include the module.
         deferred_imports: DeferredList = []
         module = self._import_module(name, deferred_imports)
         self._import_deferred_imports(deferred_imports, skip_in_import=True)
@@ -794,6 +810,12 @@ class ModuleFinder:
         """Include the named package and any submodules in the frozen
         executable.
         """
+        # Includes has priority over excludes.
+        self.excludes.pop(name, None)
+        # Remove the module in the module cache before trying to import it.
+        if self._modules.get(name) is None:
+            self._modules.pop(name, None)
+        # Include the package.
         deferred_imports: DeferredList = []
         module = self._import_module(name, deferred_imports)
         if module.path:
