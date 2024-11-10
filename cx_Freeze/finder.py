@@ -390,7 +390,8 @@ class ModuleFinder:
                 )
                 logging.debug("Adding module [%s] [NESTED NAMESPACE]", name)
                 self.namespaces.append(module)
-                self.modules.remove(module)
+                with suppress(ValueError):
+                    self.modules.remove(module)
                 module.in_import = False
                 return module
 
@@ -411,7 +412,8 @@ class ModuleFinder:
                 if spec.origin in (None, "namespace"):
                     logging.debug("Adding module [%s] [NAMESPACE]", name)
                     self.namespaces.append(module)
-                    self.modules.remove(module)
+                    with suppress(ValueError):
+                        self.modules.remove(module)
                     module.in_import = False
                     return module
                 logging.debug("Adding module [%s] [PACKAGE]", name)

@@ -37,6 +37,16 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     )
 
 
+def load_pkg_resources__vendor_jaraco_context(_, module: Module) -> None:
+    """Ignore optional modules."""
+    module.ignore_names.add("pkg_resources.extern.backports")
+
+
+def load_pkg_resources__vendor_jaraco_functools(_, module: Module) -> None:
+    """Ignore optional modules."""
+    module.ignore_names.add("pkg_resources.extern.more_itertools")
+
+
 def load_pkg_resources__vendor_jaraco_text(_, module: Module) -> None:
     """Ignore optional modules."""
     module.ignore_names.update(
@@ -48,11 +58,11 @@ def load_pkg_resources__vendor_jaraco_text(_, module: Module) -> None:
     )
 
 
-def load_pkg_resources__vendor_jaraco_functools(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("pkg_resources.extern.more_itertools")
-
-
 def load_pkg_resources__vendor_packaging_metadata(_, module: Module) -> None:
     """Ignore optional modules_."""
     module.ignore_names.add("typing_extensions")
+
+
+def load_pkg_resources__vendor_platformdirs(_, module: Module) -> None:
+    """Ignore optional modules_."""
+    module.ignore_names.add("pkg_resources._vendor.typing_extensions")
