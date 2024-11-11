@@ -1049,17 +1049,11 @@ class WinFreezer(Freezer, PEParser):
         # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
         # conda-forge python3x.dll depends on zlib.dll
         finder = self.finder
-        for path in map(Path, self.default_bin_includes):
-            finder.lib_files.setdefault(path, path.name)
-
-        def get_dep(src) -> None:
-            for filename in self.get_dependent_files(src):
-                path = filename.resolve()
-                if path not in finder.lib_files:
-                    finder.lib_files.setdefault(path, path.name)
-                    get_dep(path)
-
-        get_dep(source)
+        for filename in self.get_dependent_files(source):
+            path = filename.resolve()
+            if path not in finder.lib_files and self._should_copy_file(path):
+                finder.lib_files.setdefault(path, path.name)
+                self._get_top_dependencies(path)
 
     @cached_property
     def _platform_bin_path(self) -> list[Path]:
