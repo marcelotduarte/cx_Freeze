@@ -229,9 +229,9 @@ class Freezer:
                 if source.is_dir():
                     source_subdir = source_dir / source_name
                     excludes_subdir = {
-                        ".".join(m.split(".")[1:])
+                        m.split(f"{source_name}.", 1)[1]
                         for m in excludes
-                        if m.split(".")[0] == source_name
+                        if m.startswith(f"{source_name}.")
                     }
                     copy_tree(source_subdir, target, excludes_subdir)
                 else:
@@ -243,9 +243,9 @@ class Freezer:
             print(f"copying data from package {module_name}...")
         # do not copy the subfolders which belong to excluded modules
         excludes = {
-            ".".join(m.split(".")[1:])
+            m.split(f"{module_name}.", 1)[1]
             for m in self.finder.excludes
-            if m.split(".")[0] == module_name
+            if m.startswith(f"{module_name}.")
         }
         copy_tree(source_dir, target_dir, excludes)
 
