@@ -241,7 +241,10 @@ class Module:
         ext = "".join(filename.suffixes)
         if ext not in EXTENSION_SUFFIXES:
             return None
-        source_dir = self.root.file.parent
+        file = self.root.file
+        if file is None:
+            return None
+        source_dir = file.parent
         package = filename.parent.relative_to(source_dir.parent)
         stem = filename.name.removesuffix(ext)
         stub_name = f"{stem}.pyi"
