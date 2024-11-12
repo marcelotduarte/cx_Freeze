@@ -234,7 +234,7 @@ class Module:
 
     @cached_property
     def stub_code(self) -> CodeType | None:
-        cache_path: Path = self.cache_path
+        cache_path: Path | None = self.cache_path
         filename = self._file
         if filename is None:
             return None
