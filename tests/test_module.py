@@ -7,8 +7,7 @@ from cx_Freeze import Module
 ROOT = Path(__file__).parent
 
 
-def test_namespace_package():
-
+def test_namespace_package() -> None:
     data = ROOT / "data"
     namespace = Module(
         name="namespace",
