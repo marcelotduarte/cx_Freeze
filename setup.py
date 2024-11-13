@@ -1,12 +1,8 @@
 """Setuptools script for cx_Freeze.
 
-Use ONE of the following commands to install from source:
-    pip install .
-    python setup.py build install
-
 Use the following commands to install in the development mode:
-    pip install -r requirements-dev.txt
-    pip install -e . --no-build-isolation --no-deps
+    pip install -r requirements.txt -r requirements-dev.txt
+    pip install -e. --no-build-isolation --no-deps
 
 Documentation:
     https://cx-freeze.readthedocs.io/en/stable/development/index.html
@@ -152,8 +148,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         if fullname.endswith("util"):
             return super().get_ext_filename(fullname)
         # Examples of returned names:
-        # console-cp37-win32.exe, console-cp39-win_amd64.exe,
-        # console-cpython-39-x86_64-linux-gnu, console-cpython-36m-darwin
+        # console-cp39-win32.exe, console-cp39-win_amd64.exe,
+        # console-cpython-39-x86_64-linux-gnu, console-cpython-39-darwin
         ext_path = Path(*fullname.split("."))
         name = ext_path.name
         if IS_MINGW or IS_WINDOWS:
@@ -211,6 +207,15 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         embedded in python, are compiled separately.
         Also, copies tcl/tk libraries.
         """
+        # copy pre-built bases on Windows (compilation is optional)
+        if IS_WINDOWS and not self.inplace:
+            for ext in self.extensions:
+                source = self.get_ext_filename(ext.name)
+                source_dir = os.path.dirname(source)
+                self.mkpath(source_dir)
+                target = f"{self.build_lib}/{source}"
+                self.copy_file(source, target)
+            return
         # do not copy libraries in develop mode, Windows, conda, etc
         if self.inplace or IS_MINGW or IS_WINDOWS or IS_CONDA or ENABLE_SHARED:
             return
