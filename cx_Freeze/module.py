@@ -239,10 +239,8 @@ class Module:
         if filename is None:
             return None
         ext = "".join(filename.suffixes)
-        if ext not in EXTENSION_SUFFIXES:
-            return None
         file = self.root.file
-        if file is None:
+        if ext not in EXTENSION_SUFFIXES or file is None:
             return None
         source_dir = file.parent
         package = filename.parent.relative_to(source_dir.parent)
