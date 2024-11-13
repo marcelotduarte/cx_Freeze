@@ -7,9 +7,6 @@ from generate_samples import create_package
 
 from cx_Freeze import Module
 
-ROOT = Path(__file__).parent
-
-
 SOURCE = """
 namespacepack/firstchildpack/__init__{extension}
     FOO = 42
@@ -35,7 +32,7 @@ def test_implicit_namespace_package(tmp_path: Path) -> None:
         filename=None,
     )
     firstchildpack = Module(
-        name="namespace.foo",
+        name="namespacepack.firstchildpack",
         path=[root / "firstchildpack"],
         filename=root / "firstchildpack" / f"__init__{ext}",
         parent=namespacepack,
