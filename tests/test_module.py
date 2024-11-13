@@ -2,6 +2,7 @@
 
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
+from types import CodeType
 
 from generate_samples import create_package
 
@@ -9,9 +10,11 @@ from cx_Freeze import Module
 
 SOURCE = """
 namespacepack/firstchildpack/__init__{extension}
-    FOO = 42
+    from .foo import FOO
 namespacepack/firstchildpack/__init__.pyi
-    FOO: int
+    from .foo import FOO
+namespacepack/firstchildpack/foo.py
+    FOO = 42
 """
 
 
@@ -28,7 +31,7 @@ def test_implicit_namespace_package(tmp_path: Path) -> None:
     root = tmp_path / "namespacepack"
     namespacepack = Module(
         name="namespacepack",
-        path=[root],
+        path=[tmp_path],
         filename=None,
     )
     firstchildpack = Module(
@@ -37,5 +40,5 @@ def test_implicit_namespace_package(tmp_path: Path) -> None:
         filename=root / "firstchildpack" / f"__init__{ext}",
         parent=namespacepack,
     )
-    assert firstchildpack.stub_code is None
+    assert isinstance(firstchildpack.stub_code, CodeType)
     assert namespacepack.stub_code is None
