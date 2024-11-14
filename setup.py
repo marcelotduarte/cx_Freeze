@@ -97,8 +97,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             library_dirs.append(get_config_var("LIBPL"))
             if not ENABLE_SHARED or IS_CONDA:
                 library_dirs.append(get_config_var("LIBDIR"))
-            abiflags = get_config_var("abiflags")
-            libraries.append(f"python{get_python_version()}{abiflags}")
+            libraries.append(f"python{get_python_version()}")
             if get_config_var("LIBS"):
                 extra_args.extend(get_config_var("LIBS").split())
             if get_config_var("LIBM"):
@@ -211,9 +210,10 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         if IS_WINDOWS and not self.inplace:
             for ext in self.extensions:
                 source = self.get_ext_filename(ext.name)
-                source_dir = os.path.dirname(source)
-                self.mkpath(source_dir)
+                if not os.path.exists(source):
+                    continue
                 target = f"{self.build_lib}/{source}"
+                self.mkpath(os.path.dirname(target))
                 self.copy_file(source, target)
             return
         # do not copy libraries in develop mode, Windows, conda, etc
