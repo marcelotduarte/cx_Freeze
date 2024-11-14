@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def load_asyncio(finder: ModuleFinder, module: Module) -> None:
     """The asyncio must be loaded as a package."""
-    finder.include_package("asyncio")
     module.global_names.update(
         ["get_event_loop", "iscoroutine", "iscoroutinefunction"]
     )
+    finder.include_package("asyncio")

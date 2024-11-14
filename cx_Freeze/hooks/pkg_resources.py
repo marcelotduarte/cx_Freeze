@@ -13,13 +13,15 @@ if TYPE_CHECKING:
 
 def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
     """The pkg_resources must load the _vendor subpackage."""
+    module.ignore_names.update(
+        ["_typeshed", "_typeshed.importlib", "typing_extensions"]
+    )
     finder.exclude_module("pkg_resources.tests")
     try:
         finder.include_package("pkg_resources._vendor")
     except ImportError:
         pass  # pkg_resources from setuptools >= 71 does not uses _vendor
     else:
-        finder.exclude_module("pkg_resources._vendor.platformdirs.__main__")
         module.ignore_names.update(
             [
                 "pkg_resources.extern.jaraco.text",
@@ -32,9 +34,7 @@ def load_pkg_resources(finder: ModuleFinder, module: Module) -> None:
                 "pkg_resources.extern.platformdirs",
             ]
         )
-    module.ignore_names.update(
-        ["_typeshed", "_typeshed.importlib", "typing_extensions"]
-    )
+        finder.exclude_module("pkg_resources._vendor.platformdirs.__main__")
 
 
 def load_pkg_resources__vendor_jaraco_context(_, module: Module) -> None:

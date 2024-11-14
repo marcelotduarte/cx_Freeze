@@ -13,12 +13,13 @@ if TYPE_CHECKING:
 
 def load_tortoise(finder: ModuleFinder, module: Module) -> None:
     """Add the tortoise-orm metadata."""
-    finder.include_package("tortoise.backends")
-    finder.exclude_module("tortoise.testing")
     # Ignore optional modules
     module.ignore_names.add("yaml")
     # Fix the metadata
     module.update_distribution("tortoise-orm")
+
+    finder.exclude_module("tortoise.testing")
+    finder.include_package("tortoise.backends")
 
 
 def load_tortoise_backends_asyncpg_client(_, module: Module) -> None:
