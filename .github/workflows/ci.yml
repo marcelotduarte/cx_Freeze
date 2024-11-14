@@ -30,6 +30,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -93,7 +95,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
           verbose: true
 
   tests_extra:
@@ -110,6 +112,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +146,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
           verbose: true
 
   tests_unix_binary_wheel:
@@ -156,6 +160,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -197,5 +203,5 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
           verbose: true
