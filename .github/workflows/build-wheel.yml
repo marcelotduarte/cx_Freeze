@@ -50,9 +50,9 @@ jobs:
         if: github.event_name != 'release'
         run: |
           if (grep "current_version" pyproject.toml | grep -q "\-dev"); then
-            bump-my-version bump --no-tag release
+            bump-my-version bump --no-tag --no-commit release
           else
-            bump-my-version bump --no-tag patch
+            bump-my-version bump --no-tag --no-commit patch
           fi
 
       - name: Build wheel for Python ${{ matrix.python-version }}
