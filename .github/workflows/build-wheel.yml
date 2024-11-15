@@ -49,11 +49,14 @@ jobs:
       - name: Bump alpha version
         if: github.event_name != 'release'
         run: |
-          if (grep "current_version" pyproject.toml | grep -q "\-dev"); then
-            bump-my-version bump --no-tag --no-commit release
+          git config user.name "Marcelo Duarte"
+          git config user.email marcelotduarte@users.noreply.github.com
+          if (bump-my-version show current_version 2>/dev/null | grep -q "\-dev"); then
+            bump-my-version bump release --no-tag 2>/dev/null
           else
-            bump-my-version bump --no-tag --no-commit patch
+            bump-my-version bump patch --no-tag 2>/dev/null
           fi
+          bump-my-version show current_version 2>/dev/null
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
@@ -100,7 +103,7 @@ jobs:
           mkdir -p wheelhouse
           mv artifacts/cx-freeze-whl-*/* wheelhouse/
 
-      - name: Publish package to PyPI
+      - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: wheelhouse/
