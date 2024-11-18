@@ -233,16 +233,28 @@ class Module:
         return filename
 
     @cached_property
+    def root_dir(self) -> Path | None:
+        file = self.root.file
+        if file is None:
+            # Attempt finding implicit namespace package in path
+            for path in self.root.path or ():
+                root_dir = next(path.glob(self.root.name), None)
+                if root_dir is not None:
+                    return root_dir
+            return None
+        return file.parent
+
+    @cached_property
     def stub_code(self) -> CodeType | None:
-        cache_path: Path = self.cache_path
+        cache_path: Path | None = self.cache_path
         filename = self._file
         if filename is None:
             return None
         ext = "".join(filename.suffixes)
-        if ext not in EXTENSION_SUFFIXES:
+        if ext not in EXTENSION_SUFFIXES or self.root_dir is None:
             return None
-        source_dir = self.root.file.parent
-        package = filename.parent.relative_to(source_dir.parent)
+
+        package = filename.parent.relative_to(self.root_dir)
         stem = filename.name.partition(ext)[0]
         stub_name = f"{stem}.pyi"
         # search for the stub file already parsed in the distribution
