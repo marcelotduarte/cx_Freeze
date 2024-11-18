@@ -26,13 +26,13 @@ pip install --upgrade cx_Freeze
 To install the latest development build:
 
 ```
-pip install --force --no-cache --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
+pip uninstall cx_Freeze
+pip install --extra-index-url https://test.pypi.org/simple/ cx_Freeze --pre --no-cache
 ```
 
 Please check the
 [installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
-for more information and how to install in other environments such as pipenv,
-conda-forge, etc.
+for more information and how to install in other environments.
 
 # Documentation
 
