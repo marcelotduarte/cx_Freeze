@@ -314,8 +314,11 @@ class ELFParser(Parser):
     def set_rpath(self, filename: str | Path, rpath: str) -> None:
         """Sets the rpath of the executable."""
         self._set_write_mode(filename)
-        if rpath == "$ORIGIN/.":
-            rpath = "$ORIGIN"
+        rpath_list = rpath.split(":")
+        for i, rp in enumerate(rpath_list):
+            if rp == "$ORIGIN/.":
+                rpath_list[i] = "$ORIGIN"
+        rpath = ":".join(rpath_list)
         if rpath == self.get_rpath(filename):
             return
         try:
