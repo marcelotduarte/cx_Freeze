@@ -161,3 +161,4 @@ release-dev:
 	else\
 		bump-my-version bump --allow-dirty --no-tag minor;\
 	fi
+	git log -1
