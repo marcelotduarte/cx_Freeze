@@ -14,7 +14,7 @@ from contextlib import suppress
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.exception import PlatformError
 
 # In Windows, to get dependencies, the default is to use lief package,
@@ -32,6 +32,12 @@ if IS_WINDOWS or IS_MINGW:
         lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
 
 LIEF_DISABLED = os.environ.get("CX_FREEZE_BIND", "") == "imagehlp"
+LDD_DISABLED = (
+    os.environ.get(
+        "CX_FREEZE_BIND", "" if PLATFORM.endswith("x86_64") else "patchelf"
+    )
+    == "patchelf"
+)
 PE_EXT = (".exe", ".dll", ".pyd")
 MAGIC_ELF = b"\x7fELF"
 NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
@@ -254,7 +260,7 @@ class ELFParser(Parser):
 
     _is_binary = is_elf
 
-    def _get_dependent_files(self, filename: Path) -> set[Path]:
+    def _get_dependent_files_ldd(self, filename: Path) -> set[Path]:
         dependent_files: set[Path] = set()
         split_string = " => "
         dependent_file_index = 1
@@ -297,6 +303,45 @@ class ELFParser(Parser):
             print("WARNING:", *args, "returns:")
             print(process.stderr, end="")
         return dependent_files
+
+    def _get_dependent_files_patchelf(self, filename: Path) -> set[Path]:
+        libraries: set[Path] = self.get_needed(filename)
+        rpath: set[Path] = self.get_resolved_rpath(filename) or []
+
+        dependent_files: set[Path] = set()
+        search_path = rpath + self.search_path + [filename.parent]
+        for name in libraries:
+            library = self.find_library(name, search_path)
+            if library:
+                dependent_files.add(library)
+            elif name not in self.linker_warnings:
+                self.linker_warnings[name] = True
+        return dependent_files
+
+    if LDD_DISABLED:
+        _get_dependent_files = _get_dependent_files_patchelf
+    else:
+        _get_dependent_files = _get_dependent_files_ldd
+
+    def get_needed(self, filename: Path) -> list[str]:
+        """Gets the DT_NEEDED entry of the dynamic table."""
+        libraries: list[str] = []
+        with suppress(subprocess.CalledProcessError):
+            libraries.extend(
+                self.run_patchelf(["--print-needed", filename]).split()
+            )
+        return libraries
+
+    def get_resolved_rpath(self, filename: str | Path) -> list[Path] | None:
+        """Gets the resolved rpath of the executable."""
+        if isinstance(filename, str):
+            filename = Path(filename)
+        rpath = self.get_rpath(filename)
+        if rpath:
+            origin = filename.parent.as_posix()
+            rpath_list = rpath.replace("$ORIGIN", origin).split(":")
+            return [Path(p).resolve() for p in rpath_list]
+        return None
 
     def get_rpath(self, filename: str | Path) -> str:
         """Gets the rpath of the executable."""
