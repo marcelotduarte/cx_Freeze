@@ -43,10 +43,10 @@ jobs:
         with:
           platforms: arm64,ppc64le
 
-      - name: Install cibuildwheel
+      - name: Install build tools
         run: uv pip install --system -r requirements-dev.txt
 
-      - name: Bump alpha version
+      - name: Bump new dev version
         if: github.event_name != 'release'
         run: |
           git config user.name "Marcelo Duarte"
