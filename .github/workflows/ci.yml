@@ -15,35 +15,67 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest, windows-latest, macos-14]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         include:
-          - os: macos-14  # macos-14 is apple silicon
-            python-version: '3.11'
+          - os: macos-13
+            python-version: '3.8'
+          - os: macos-13  # macos-13 is x86_64
+            python-version: '3.9'
+          - os: macos-13
+            python-version: '3.10'
+        exclude:
+          - os: macos-14  # macos-14 is arm64 (apple silicon)
+            python-version: '3.9'
           - os: macos-14
-            python-version: '3.12'
+            python-version: '3.10'
     defaults:
       run:
         shell: bash
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: marcelotduarte/setup-python-uv-action@new
+        uses: actions/setup-python@v5
         with:
-          cache: 'packages'
           python-version: ${{ matrix.python-version }}
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements.txt
+            **/requirements-test.txt
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -y alien fakeroot rpm
 
+      - name: Install dependencies and build tools
+        run: uv pip install --system build -r requirements.txt -r requirements-dev.txt
+
+      - name: Bump new dev version
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          git config user.name "Marcelo Duarte"
+          git config user.email marcelotduarte@users.noreply.github.com
+          VERSION=$(bump-my-version show current_version 2>/dev/null)
+          if ! (echo $VERSION | grep -q "\-dev"); then
+            bump-my-version bump --no-tag minor 2>/dev/null
+            VERSION=$(bump-my-version show current_version 2>/dev/null)
+          fi
+          NEWVERSION=$(python -c "print('$VERSION'.rsplit('.',1)[0])").$PR_NUMBER
+          bump-my-version bump --no-tag build --new-version=$NEWVERSION 2>/dev/null
+          git log -1
+
       - name: Build wheel for Python ${{ matrix.python-version }} [Windows]
         if: runner.os == 'Windows'
-        run: |
-          uv pip install build setuptools cx_Logging
-          python -m build -n -x -w -o wheelhouse
+        run: pyproject-build -n -x -w -o wheelhouse
 
       - name: Build wheel for Python ${{ matrix.python-version }} [Linux/macOS]
         if: runner.os != 'Windows'
@@ -59,7 +91,6 @@ jobs:
           else
             PLATFORM_TAG=macosx_$ARCH
           fi
-          uv pip install "`grep cibuildwheel requirements-dev.txt`"
           cibuildwheel --only ${PYTHON_TAG}-${PLATFORM_TAG} --prerelease-pythons
 
       - name: Upload the wheel
@@ -67,13 +98,13 @@ jobs:
         with:
           name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
           path: wheelhouse
-          retention-days: 5
+          retention-days: 2
           compression-level: 0  # wheel is a zip file
 
-      - name: Install cx_Freeze and dependencies
+      - name: Install cx_Freeze and pytest dependencies
         run: |
-          uv pip install -r requirements.txt -r requirements-test.txt
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse -v
+          uv pip install --system -r requirements-test.txt
+          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
@@ -82,7 +113,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
           verbose: true
 
   tests_extra:
@@ -99,25 +130,33 @@ jobs:
     defaults:
       run:
         shell: bash
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: marcelotduarte/setup-python-uv-action@new
+        uses: actions/setup-python@v5
         with:
-          cache: 'packages'
           python-version: ${{ matrix.python-version }}
 
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements.txt
+            **/requirements-test.txt
+
       - name: Install dependencies
-        run: uv pip install -e.[test]
+        run: uv pip install --system -e.[test]
 
       - name: Generate coverage report
         run: |
           if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
             export CX_FREEZE_BIND=imagehlp
           else
-            uv pip install "${{ matrix.extra-requirement }}"
+            uv pip install --system "${{ matrix.extra-requirement }}"
           fi
           pytest -nauto --cov="cx_Freeze" --cov-report=xml
 
@@ -125,7 +164,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
           verbose: true
 
   tests_unix_binary_wheel:
@@ -139,15 +178,23 @@ jobs:
     defaults:
       run:
         shell: bash
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: marcelotduarte/setup-python-uv-action@new
+        uses: actions/setup-python@v5
         with:
-          cache: 'packages'
           python-version: ${{ matrix.python-version }}
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements.txt
+            **/requirements-test.txt
 
       - name: Download the artifact
         uses: actions/download-artifact@v4
@@ -157,15 +204,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install -r requirements.txt -r requirements-test.txt
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse
+          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Install dependencies - extra
         run: |
           if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
+            uv pip install --system -i https://pypi.anaconda.org/intel/simple numpy
           fi
-          uv pip install pandas
+          uv pip install --system pandas
 
       - name: Generate coverage report
         run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
@@ -174,5 +221,5 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
           verbose: true
