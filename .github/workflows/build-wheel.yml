@@ -51,12 +51,15 @@ jobs:
         run: |
           git config user.name "Marcelo Duarte"
           git config user.email marcelotduarte@users.noreply.github.com
-          if (bump-my-version show current_version 2>/dev/null | grep -q "\-dev"); then
-            bump-my-version bump release --no-tag 2>/dev/null
-          else
-            bump-my-version bump patch --no-tag 2>/dev/null
+          VERSION=$(bump-my-version show current_version 2>/dev/null)
+          if ! (echo $VERSION | grep -q "\-dev"); then
+            bump-my-version bump --no-tag minor 2>/dev/null
+            VERSION=$(bump-my-version show current_version 2>/dev/null)
           fi
-          bump-my-version show current_version 2>/dev/null
+          SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+          NEWVERSION=$(python -c "print('$VERSION'.rsplit('.',1)[0])").$SOURCE_DATE_EPOCH
+          bump-my-version bump --no-tag build --new-version=$NEWVERSION 2>/dev/null
+          git log -1
 
       - name: Build wheel for Python ${{ matrix.python-version }}
         run: |
