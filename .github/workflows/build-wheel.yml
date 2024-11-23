@@ -71,7 +71,7 @@ jobs:
           cibuildwheel --output-dir wheelhouse
 
       - name: Add sdist
-        if: runner.os == 'Linux' && matrix.python-version == '3.12'
+        if: runner.os == 'Linux'
         run: |
           uv pip install --system --upgrade build
           pyproject-build . --sdist -o wheelhouse
