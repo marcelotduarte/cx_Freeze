@@ -330,14 +330,13 @@ class Freezer:
         the list of dependent_files calculated in _freeze_executable.
         """
 
+    @abstractmethod
     def _default_bin_excludes(self) -> list[str]:
         """Return the file names of libraries that need not be included because
         they would normally be expected to be found on the target system or
         because they are part of a package which requires independent
         installation anyway.
-        (Overridden on Windows).
         """
-        return ["libclntsh.so", "libwtc9.so", "ldd"]
 
     def _default_bin_includes(self) -> list[str]:
         """Return the file names of libraries which must be included for the
@@ -1110,6 +1109,9 @@ class DarwinFreezer(Freezer, Parser):
         )
         self.darwin_tracker: DarwinFileTracker = DarwinFileTracker()
 
+    def _default_bin_excludes(self) -> list[str]:
+        return []
+
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[Path] = []
         # Check for distributed "cx_Freeze/bases/lib/Python"
@@ -1301,6 +1303,23 @@ class LinuxFreezer(Freezer, ELFParser):
             self.silent,
         )
 
+    def _default_bin_excludes(self) -> list[str]:
+        # https://github.com/AppImageCommunity/pkg2appimage/blob/master/excludelist
+        return [
+            "ldd",  # old alpine uses ldd instead of ld.so
+            "ld.so",
+            "ld64.so",
+            "ld-linux.so",
+            "ld-linux-*.so",  # ld-linux-x86-64.so.2, ld-linux-aarch64.so.2
+            "libc.so",
+            "libdl.so",
+            "libm.so",
+            "libpthread.so",
+            "libutil.so",
+            # musllinux
+            "ld-musl-*.so",
+        ]
+
     def _default_bin_path_excludes(self) -> list[str]:
         return [
             "/lib",
@@ -1371,14 +1390,13 @@ class LinuxFreezer(Freezer, ELFParser):
                 else:
                     # dependency located with source or in a subdirectory
                     dependent_target = target_dir / relative
-            dep_libs = os.fspath(relative.parent)
-            fix_rpath.add(dep_libs)
+            fix_rpath.add(f"$ORIGIN/{relative.parent.as_posix()}")
             self._copy_file(
                 dependent_source, dependent_target, copy_dependent_files
             )
             if dependent.name != dependent_name:
                 fix_needed.setdefault(dependent.name, dependent_name)
         if fix_rpath:
-            self.set_rpath(target, ":".join(f"$ORIGIN/{r}" for r in fix_rpath))
+            self.set_rpath(target, ":".join(fix_rpath))
         for needed_old, needed_new in fix_needed.items():
             self.replace_needed(target, needed_old, needed_new)
