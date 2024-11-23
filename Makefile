@@ -144,14 +144,12 @@ endif
 
 .PHONY: release
 release:
+	bump-my-version show-bump 2>/dev/null
 	@echo "Run:"
-	@echo "  bump-my-version bump release"
-	@echo "  git push origin `git branch --show-current` --tags"
-
-.PHONY: release-patch
-release-patch:
-	@echo "Run:"
+	@echo "  bump-my-version bump <option>"
+	@echo "--or--"
 	@echo "  bump-my-version bump patch --new-version=X.XX.X"
+	@echo "--then--"
 	@echo "  git push origin `git branch --show-current` --tags"
 
 .PHONY: release-dev

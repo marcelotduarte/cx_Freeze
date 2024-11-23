@@ -33,7 +33,8 @@ repos:
   rev: v0.23
   hooks:
   - id: validate-pyproject
-    additional_dependencies: ["validate-pyproject-schema-store[all]>=2024.11.22"]
+    additional_dependencies:
+    - validate-pyproject-schema-store[all]>=2024.11.22
 
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
