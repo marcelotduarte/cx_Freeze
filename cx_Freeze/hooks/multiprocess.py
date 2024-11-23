@@ -49,16 +49,16 @@ from cx_Freeze.hooks.multiprocessing import (
 
 __all__ = [
     "load_multiprocess",
-    "load_multiprocess_context",
     "load_multiprocess_connection",
+    "load_multiprocess_context",
     "load_multiprocess_heap",
     "load_multiprocess_managers",
     "load_multiprocess_pool",
     "load_multiprocess_popen_spawn_win32",
     "load_multiprocess_reduction",
     "load_multiprocess_resource_tracker",
-    "load_multiprocess_sharedctypes",
     "load_multiprocess_shared_memory",
+    "load_multiprocess_sharedctypes",
     "load_multiprocess_spawn",
     "load_multiprocess_synchronize",
     "load_multiprocess_util",

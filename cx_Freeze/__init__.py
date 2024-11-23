@@ -16,16 +16,16 @@ from cx_Freeze.finder import Module, ModuleFinder
 from cx_Freeze.freezer import ConstantsModule, Freezer
 
 __all__ = [
-    "build_exe",
-    "install",
-    "install_exe",
-    "setup",
     "ConstantsModule",
     "Executable",
     "Freezer",
     "Module",
     "ModuleFinder",
     "__version__",
+    "build_exe",
+    "install",
+    "install_exe",
+    "setup",
 ]
 
 if sys.platform == "win32":

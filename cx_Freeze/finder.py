@@ -121,8 +121,7 @@ class ModuleFinder:
             if (
                 self.zip_include_all_packages
                 and module.name not in self.zip_exclude_packages
-                or module.name in self.zip_include_packages
-            ):
+            ) or module.name in self.zip_include_packages:
                 module.in_file_system = 0
             module.cache_path = self.cache_path
             module.update_distribution()

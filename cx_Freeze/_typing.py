@@ -19,4 +19,4 @@ IncludesList: TypeAlias = list[
 
 InternalIncludesList: TypeAlias = list[tuple[Path, PurePath]]
 
-__all__ = ["TypeAlias", "DeferredList", "IncludesList", "InternalIncludesList"]
+__all__ = ["DeferredList", "IncludesList", "InternalIncludesList", "TypeAlias"]

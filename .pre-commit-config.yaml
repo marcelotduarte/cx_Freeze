@@ -12,7 +12,7 @@ exclude: |
     )$
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.6.0
+  rev: v5.0.0
   hooks:
   - id: check-added-large-files
   - id: check-case-conflict
@@ -30,28 +30,28 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.20.2
+  rev: v0.23
   hooks:
   - id: validate-pyproject
     additional_dependencies: ["validate-pyproject-schema-store[all]"]
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.8
+  rev: v0.8.0
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
   - id: ruff-format
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.18.0
+  rev: 1.19.1
   hooks:
   - id: blacken-docs
     additional_dependencies:
-    - black==24.8.0
+    - black==24.10.0
     args: ["-l", "79"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v19.1.0
+  rev: v19.1.4
   hooks:
   - id: clang-format
     args: ["--style={BasedOnStyle: WebKit, ColumnLimit: 79, AlignConsecutiveMacros: Consecutive, AlignTrailingComments: Always}"]
