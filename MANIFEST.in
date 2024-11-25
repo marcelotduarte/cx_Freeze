@@ -10,6 +10,6 @@ recursive-include cx_Freeze/icons *.icns *.ico *.png *.svg
 recursive-include cx_Freeze/importshed *.pyi
 recursive-include cx_Freeze/initscripts *.txt
 recursive-include doc *.rst *.py Makefile
-recursive-include samples *.py *.md *.ico *.png *.xaml *.manifest
+recursive-include samples *.*
 recursive-include source *.c *.rc python.manifest
 recursive-include tests *.py *.md
