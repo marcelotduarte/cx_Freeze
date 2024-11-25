@@ -41,7 +41,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -141,7 +141,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -191,7 +191,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
           cache-dependency-glob: |
