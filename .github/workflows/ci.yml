@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -y alien fakeroot rpm
+        run: sudo apt-get install -qy --allow-downgrades alien cpio=2.13+dfsg-7 fakeroot rpm
 
       - name: Install dependencies and build tools
         run: uv pip install --system build -r requirements.txt -r requirements-dev.txt
