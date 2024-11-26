@@ -79,9 +79,8 @@ doc: html
 
 .PHONY: install_test
 install_test:
-	UV_RESOLUTION=highest uv pip install --upgrade \
-		-r requirements.txt -r requirements-dev.txt -r requirements-test.txt
-	uv pip install -e. --no-build-isolation --no-deps --reinstall
+	./ci/build-wheel.sh
+	UV_RESOLUTION=highest uv pip install --upgrade -r requirements-test.txt
 
 .PHONY: test
 test: install_test
@@ -127,14 +126,6 @@ ifeq ($(PY_PLATFORM),win-amd64)
 		tests/test_winversioninfo.py || true
 	uv pip uninstall pywin32
 	uv pip install "lief>0.14.1"
-endif
-ifeq ($(PY_PLATFORM),linux-x86_64)
-	if ! ls wheelhouse/cx_Freeze-$(bump-my-version show current_version|sed 's/-/./')-cp$(PY_VERSION_NODOT)-cp$(PY_VERSION_NODOT)-manylinux_*_$(ARCH).whl 1> /dev/null 2>&1 \
-	&& which podman; then\
-		CIBW_CONTAINER_ENGINE=podman cibuildwheel --only $(CIBW_ONLY);\
-	fi
-	uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
-	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze" || true
 endif
 	coverage combine --keep $(BUILDDIR)/.coverage-*
 	@rm -rf $(BUILDDIR)/coverage
