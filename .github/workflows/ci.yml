@@ -15,6 +15,37 @@ jobs:
     name: Build wheels
     uses: ./.github/workflows/build-wheel.yml
 
+  testpypi:
+    name: Publish package to TestPyPI
+    if: github.event_name == 'pull_request'
+    needs:
+      - build_wheel
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name }}
+      url: https://test.pypi.org/p/cx-Freeze
+    permissions:
+      id-token: write
+    steps:
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Join files to upload
+        run: |
+          mkdir -p wheelhouse
+          mv artifacts/cx-freeze-whl-*/* wheelhouse/
+
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheelhouse/
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+          verbose: true
+
   tests:
     needs:
       - build_wheel
