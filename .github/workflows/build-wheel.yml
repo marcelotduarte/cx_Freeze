@@ -109,12 +109,9 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
-
-      - name: Join files to upload
-        run: |
-          mkdir -p wheelhouse
-          mv artifacts/cx-freeze-whl-*/* wheelhouse/
+          path: wheelhouse
+          pattern: cx-freeze-whl-*
+          merge-multiple: true
 
       - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -140,12 +137,9 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
-
-      - name: Join files to upload
-        run: |
-          mkdir -p wheelhouse
-          mv artifacts/cx-freeze-whl-*/* wheelhouse/
+          path: wheelhouse
+          pattern: cx-freeze-whl-*
+          merge-multiple: true
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
