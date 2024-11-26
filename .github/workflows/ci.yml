@@ -11,7 +11,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build_wheel:
+    name: Build wheels
+    uses: ./.github/workflows/build-wheel.yml
+
   tests:
+    needs:
+      - build_wheel
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -50,60 +56,19 @@ jobs:
             **/requirements.txt
             **/requirements-test.txt
 
+      - name: Download the wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: cx-freeze-whl-${{ matrix.os }}
+          path: wheelhouse
+
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -qy --allow-downgrades alien cpio=2.13+dfsg-7 fakeroot rpm
 
-      - name: Install dependencies and build tools
-        run: uv pip install --system build -r requirements.txt -r requirements-dev.txt
-
-      - name: Bump new dev version
-        if: github.event_name == 'pull_request'
-        env:
-          PR_NUMBER: ${{ github.event.number }}
+      - name: Install dependencies to test
         run: |
-          git config user.name "Marcelo Duarte"
-          git config user.email marcelotduarte@users.noreply.github.com
-          VERSION=$(bump-my-version show current_version 2>/dev/null)
-          if ! (echo $VERSION | grep -q "\-dev"); then
-            bump-my-version bump --no-tag minor 2>/dev/null
-            VERSION=$(bump-my-version show current_version 2>/dev/null)
-          fi
-          NEWVERSION=$(python -c "print('$VERSION'.rsplit('.',1)[0])").$PR_NUMBER
-          bump-my-version bump --no-tag build --new-version=$NEWVERSION 2>/dev/null
-          git log -1
-
-      - name: Build wheel for Python ${{ matrix.python-version }} [Windows]
-        if: runner.os == 'Windows'
-        run: pyproject-build -n -x -w -o wheelhouse
-
-      - name: Build wheel for Python ${{ matrix.python-version }} [Linux/macOS]
-        if: runner.os != 'Windows'
-        env:
-          CIBW_BUILD_FRONTEND: build[uv]
-        run: |
-          PYTHON_TAG=cp$(echo ${{ matrix.python-version }}|sed 's/\.//')
-          ARCH=$(python -c "import platform; print(platform.machine().lower())")
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            PLATFORM_TAG=manylinux_$ARCH
-          elif [ "${{ runner.os }}" == "Windows" ]; then
-            PLATFORM_TAG=win_$ARCH
-          else
-            PLATFORM_TAG=macosx_$ARCH
-          fi
-          cibuildwheel --only ${PYTHON_TAG}-${PLATFORM_TAG} --prerelease-pythons
-
-      - name: Upload the wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
-          path: wheelhouse
-          retention-days: 2
-          compression-level: 0  # wheel is a zip file
-
-      - name: Install cx_Freeze and pytest dependencies
-        run: |
-          uv pip install --system -r requirements-test.txt
+          uv pip install --system -r requirements.txt -r requirements-test.txt
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
@@ -119,6 +84,8 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   tests_extra:
+    needs:
+      - build_wheel
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -150,8 +117,16 @@ jobs:
             **/requirements.txt
             **/requirements-test.txt
 
-      - name: Install dependencies
-        run: uv pip install --system -e.[test]
+      - name: Download the wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: cx-freeze-whl-${{ matrix.os }}
+          path: wheelhouse
+
+      - name: Install dependencies to test
+        run: |
+          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         run: |
@@ -173,7 +148,7 @@ jobs:
 
   tests_unix_binary_wheel:
     needs:
-      - tests  # reuse the wheels
+      - build_wheel
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -200,13 +175,13 @@ jobs:
             **/requirements.txt
             **/requirements-test.txt
 
-      - name: Download the artifact
+      - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-pip-${{ matrix.os }}-${{ matrix.python-version }}
+          name: cx-freeze-whl-${{ matrix.os }}
           path: wheelhouse
 
-      - name: Install dependencies
+      - name: Install dependencies to test
         run: |
           uv pip install --system -r requirements.txt -r requirements-test.txt
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall

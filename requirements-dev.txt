@@ -1,3 +1,4 @@
+build>=1.2.0
 bump-my-version==0.26.1
-cibuildwheel==2.21.1
+cibuildwheel==2.22.0
 pre-commit>=3.5.0,<=3.8.0

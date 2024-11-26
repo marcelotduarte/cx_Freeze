@@ -57,8 +57,9 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
+    "build>=1.2.0",
     "bump-my-version==0.26.1",
-    "cibuildwheel==2.21.1",
+    "cibuildwheel==2.22.0",
     "pre-commit>=3.5.0,<=3.8.0",   # lower limit python_version < 3.9
 ]
 doc = [
@@ -146,9 +147,8 @@ optional_value = "final"
 [tool.cibuildwheel]
 before-build = "pip install -r requirements.txt"
 build = "cp3*"
-build-frontend = "build"
+build-frontend = "build[uv]"
 build-verbosity = 1
-manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
 skip = [
     "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}",
     "cp3{8,9,10}-macosx_{universal2,arm64}",
