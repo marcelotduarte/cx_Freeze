@@ -3,6 +3,7 @@ name: Build wheel
 on:
   release:
     types: [created]
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -10,14 +11,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.9 - 3.12']
-        include:
-          - os: macos-13  # macos-13 is x86_64
-            python-version: '3.9 - 3.10'
-          - os: macos-14  # macos-14 is arm64 (apple silicon)
-            python-version: '3.11 - 3.12'
-    name: Build [${{ matrix.os }}][${{ matrix.python-version }}]
+        # macos-14 is arm64 (apple silicon), macos-13 is x86_64
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+    name: Build [${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -28,7 +24,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.12'
 
       - uses: astral-sh/setup-uv@v4
         with:
@@ -38,7 +34,7 @@ jobs:
             **/requirements-dev.txt
 
       - name: Set up QEMU
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && github.event_name != 'pull_request'
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64,ppc64le
@@ -57,24 +53,38 @@ jobs:
             bump-my-version bump --no-tag patch 2>/dev/null
             VERSION=$(bump-my-version show current_version 2>/dev/null)
           fi
-          NEWVERSION=$(python -c "print('$VERSION'.rsplit('.',1)[0])").$SOURCE_DATE_EPOCH
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BUILD_NUMBER=${{ github.event.number }}
+          else
+            BUILD_NUMBER=$SOURCE_DATE_EPOCH
+          fi
+          NEWVERSION=$(python -c "print('$VERSION'.rsplit('.',1)[0])").$BUILD_NUMBER
           bump-my-version bump --no-tag build --new-version=$NEWVERSION 2>/dev/null
           git log -1
 
-      - name: Build wheel for Python ${{ matrix.python-version }}
+      - name: Build sdist and wheels
         run: |
-          if [ "${{ matrix.os }}" == "macos-13" ]; then
-            export CIBW_BUILD="cp3{9,10}-*"
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              ./ci/build-wheel.sh "cp3{9,10,11,12}-manylinux*" --archs="x86_64"
+            else
+              ./ci/build-wheel.sh --all
+            fi
+          elif [ "${{ matrix.os }}" == "macos-13" ]; then
+            ./ci/build-wheel.sh "cp3{9,10}-*"
           elif [ "${{ matrix.os }}" == "macos-14" ]; then
-            export CIBW_BUILD="cp3{11,12}-*"
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              ./ci/build-wheel.sh "cp3{11,12}-*" --archs="arm64"
+            else
+              ./ci/build-wheel.sh "cp3{11,12}-*"
+            fi
+          else
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              ./ci/build-wheel.sh "cp3{9,10,11,12}-*" --archs="AMD64"
+            else
+              ./ci/build-wheel.sh --all
+            fi
           fi
-          cibuildwheel --output-dir wheelhouse
-
-      - name: Add sdist
-        if: runner.os == 'Linux'
-        run: |
-          uv pip install --system --upgrade build
-          pyproject-build . --sdist -o wheelhouse
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
@@ -85,12 +95,12 @@ jobs:
 
   testpypi:
     name: Publish package to TestPyPI
-    if: github.event_name != 'release'
+    if: github.event_name == 'workflow_dispatch'
     needs:
       - build_wheel
     runs-on: ubuntu-latest
     environment:
-      name: testpypi
+      name: ${{ github.event_name }}
       url: https://test.pypi.org/p/cx-Freeze
     permissions:
       id-token: write
