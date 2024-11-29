@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import create_package, run_command
 
 from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
-from cx_Freeze.winmsvcr import FILES
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -45,6 +43,8 @@ command
 @pytest.mark.skipif(not IS_WINDOWS, reason="Windows tests")
 def test_files() -> None:
     """Test MSVC files."""
+    from cx_Freeze.winmsvcr import FILES
+
     assert EXPECTED == FILES
 
 
