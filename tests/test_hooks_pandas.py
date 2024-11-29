@@ -24,7 +24,6 @@ def test_pandas(datafiles: Path) -> None:
     assert executable.is_file()
 
     output = run_command(datafiles, executable, timeout=10)
-    print(output)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("pandas version")
