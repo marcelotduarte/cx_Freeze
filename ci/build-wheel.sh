@@ -81,7 +81,11 @@ fi
 echo "::endgroup::"
 
 if ! [ "$CI" == "true" ]; then
-    VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
+    if [[ $VERSION == *-* ]]; then
+        VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
+    else
+        VERSION_OK=$VERSION
+    fi
     echo "::group::Install cx_Freeze $VERSION_OK"
     UV_PYTHON=$UV_PYTHON UV_PRERELEASE=allow \
         uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall

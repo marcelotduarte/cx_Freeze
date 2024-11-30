@@ -128,8 +128,21 @@ target-version = ["py39"]
 commit = true
 current_version = "7.3.0-dev.1"
 message = "Bump version: {current_version} → {new_version} [ci skip]"
-parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(\\-(?P<pre>[a-z]+)\\.(?P<build>\\d+))?"
+parse = """(?x)
+    (?P<major>0|[1-9]\\d*)\\.
+    (?P<minor>0|[1-9]\\d*)\\.
+    (?P<patch>0|[1-9]\\d*)
+    (?:
+        \\.(?P<optional>0|[1-9]\\d*)  # pull request number (optional)
+    )?
+    (?:
+        -                             # dash separator for pre-release section
+        (?P<pre>[a-zA-Z-]+)\\.        # pre-release label
+        (?P<build>0|[1-9]\\d*)        # pre-release version number
+    )?                                # pre-release section is optional
+"""
 serialize = [
+	"{major}.{minor}.{patch}.{optional}-{pre}.{build}",
 	"{major}.{minor}.{patch}-{pre}.{build}",
 	"{major}.{minor}.{patch}"
 ]
