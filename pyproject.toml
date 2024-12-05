@@ -74,7 +74,7 @@ doc = [
     "myst-parser>=3.0.1,<=4.0.0",  # python_version 3.9,3.10-3.12
 ]
 test = [
-    "pytest==8.3.3",
+    "pytest==8.3.4",
         "pluggy==1.5.0",
     "pytest-cov==6.0.0",
         "coverage==7.6.8",
