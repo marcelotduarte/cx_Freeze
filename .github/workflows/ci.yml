@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -64,10 +65,8 @@ jobs:
     defaults:
       run:
         shell: bash
-    permissions:
-      id-token: write
-
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -90,7 +89,9 @@ jobs:
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -qy --allow-downgrades alien cpio=2.13+dfsg-7 fakeroot rpm
+        run: |
+          sudo apt-get install -qy alien fakeroot rpm
+          sudo apt-get install -qy --allow-downgrades cpio=2.13+dfsg-7
 
       - name: Install dependencies to test
         run: |
@@ -98,16 +99,7 @@ jobs:
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
-        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: pytest -nauto --cov="cx_Freeze"
 
   tests_extra:
     needs:
@@ -125,10 +117,8 @@ jobs:
     defaults:
       run:
         shell: bash
-    permissions:
-      id-token: write
-
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -161,16 +151,7 @@ jobs:
           else
             uv pip install --system "${{ matrix.extra-requirement }}"
           fi
-          pytest -nauto --cov="cx_Freeze" --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          pytest -nauto --cov="cx_Freeze"
 
   tests_unix_binary_wheel:
     needs:
@@ -183,10 +164,8 @@ jobs:
     defaults:
       run:
         shell: bash
-    permissions:
-      id-token: write
-
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -220,13 +199,4 @@ jobs:
           uv pip install --system pandas
 
       - name: Generate coverage report
-        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          fail_ci_if_error: true
-          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: pytest -nauto --cov="cx_Freeze"
