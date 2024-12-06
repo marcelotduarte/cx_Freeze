@@ -30,3 +30,5 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
+          MINIMUM_GREEN: 80
+          MINIMUM_ORANGE: 50
