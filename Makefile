@@ -3,13 +3,8 @@ SHELL=/bin/bash
 PATH := $(shell python -c "import sysconfig; print(sysconfig.get_path('scripts'))"):$(PATH)
 
 BUILDDIR := ./build
-EXT_SUFFIX := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
-ARCH := $(shell python -c "import platform; print(platform.machine().lower())")
 PY_PLATFORM := $(shell python -c "import sysconfig; print(sysconfig.get_platform())")
-PY_VERSION_NODOT := $(shell python -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'))")
-COVERAGE_FILE := $(BUILDDIR)/.coverage-$(PY_VERSION_NODOT)-$(PY_PLATFORM)
 PRE_COMMIT_OPTIONS := --show-diff-on-failure --color=always --all-files --hook-stage=manual
-CIBW_ONLY := cp$(PY_VERSION_NODOT)-manylinux_$(ARCH)
 
 .PHONY: all
 all: install
@@ -27,10 +22,7 @@ pylint:
 .PHONY: clean
 clean: uninstall
 	@$(MAKE) -C doc clean
-	@if which coverage; then\
-		coverage erase --data-file=$(COVERAGE_FILE);\
-		coverage erase;\
-	fi
+	@rm -f .coverage .backup_coverage || true
 
 .PHONY: install
 install:
@@ -88,50 +80,51 @@ test: install_test
 
 .PHONY: cov
 cov: install_test
-	@rm -rf $(BUILDDIR)/coverage
+	@rm -rf $(BUILDDIR)/coverage_html_report
+	@if [ -f .coverage ]; then mv .coverage .backup_coverage; fi
 	pytest -nauto --cov="cx_Freeze" --cov-report=html
 	coverage report
-	@python -m webbrowser -t $(BUILDDIR)/coverage/index.html
+	@python -m webbrowser -t $(BUILDDIR)/coverage_html_report/index.html
+	@if [ -f .backup_coverage ]; then coverage combine -a .backup_coverage; fi
 
 .PHONY: cov2
 cov2: install_test
-	coverage erase
-	COVERAGE_FILE=$(COVERAGE_FILE) coverage erase
-	COVERAGE_FILE=$(COVERAGE_FILE) pytest -nauto --cov="cx_Freeze" || true
+	@rm -rf $(BUILDDIR)/coverage_html_report
+	@if [ -f .coverage ]; then mv .coverage .backup_coverage; fi
+	pytest -nauto --cov="cx_Freeze" || true
 ifeq ($(PY_PLATFORM),win-amd64)
 	# Extra coverage for Windows
 	# test without lief (LIEF_DISABLED)
 	CX_FREEZE_BIND=imagehlp \
-	COVERAGE_FILE=$(COVERAGE_FILE)-1 pytest -nauto --cov="cx_Freeze" \
+	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
 	# test lief < 0.13
 	uv pip install "lief==0.12.3"
-	COVERAGE_FILE=$(COVERAGE_FILE)-2 pytest -nauto --cov="cx_Freeze" \
+	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
 	# test lief < 0.14
 	uv pip install "lief==0.13.2"
-	COVERAGE_FILE=$(COVERAGE_FILE)-3 pytest -nauto --cov="cx_Freeze" \
+	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
 	# test lief < 0.15
 	uv pip install "lief==0.14.1"
-	COVERAGE_FILE=$(COVERAGE_FILE)-4 pytest -nauto --cov="cx_Freeze" \
+	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
 	# coverage winversioninfo using pywin32
 	uv pip install --upgrade pywin32
-	COVERAGE_FILE=$(COVERAGE_FILE)-5 pytest -nauto --cov="cx_Freeze" \
+	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_winversioninfo.py || true
 	uv pip uninstall pywin32
 	uv pip install "lief>0.14.1"
 endif
-	coverage combine --keep $(BUILDDIR)/.coverage-*
-	@rm -rf $(BUILDDIR)/coverage
-	coverage html
+	@if [ -f .backup_coverage ]; then coverage combine -a .backup_coverage; fi
 	coverage report
-	@python -m webbrowser -t $(BUILDDIR)/coverage/index.html
+	coverage html --title="Multiple coverage reports"
+	@python -m webbrowser -t $(BUILDDIR)/coverage_html_report/index.html
 
 .PHONY: release
 release:

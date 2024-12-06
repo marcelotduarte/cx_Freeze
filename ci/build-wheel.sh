@@ -52,6 +52,11 @@ UV_PYTHON=$($PYTHON -c "import sys; print(sys.executable, end='')")
 UV_PYTHON=$UV_PYTHON UV_RESOLUTION=highest \
     uv pip install -r requirements.txt -r requirements-dev.txt
 VERSION=$(bump-my-version show current_version 2>/dev/null | tr -d '\r\n')
+if [[ $VERSION == *-* ]]; then
+    VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
+else
+    VERSION_OK=$VERSION
+fi
 echo "::endgroup::"
 
 mkdir -p wheelhouse >/dev/null
@@ -62,11 +67,10 @@ if [[ $PY_PLATFORM == linux* ]]; then
 fi
 echo "::group::Build wheel(s)"
 if [ "$BUILD_TAG" == "--only" ]; then
-    VERSION_BASE=$($PYTHON -c "print('$VERSION'.rsplit('-',1)[0], end='')")
     DIRTY=$(bump-my-version show scm_info.dirty 2>/dev/null | tr -d '\r\n')
-    FILEMASK=cx_Freeze-$VERSION_BASE*-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK
+    FILEMASK=cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK
     FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
-    if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
+    if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
             pyproject-build -n -x --wheel -o wheelhouse
         else
@@ -81,11 +85,6 @@ fi
 echo "::endgroup::"
 
 if ! [ "$CI" == "true" ]; then
-    if [[ $VERSION == *-* ]]; then
-        VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
-    else
-        VERSION_OK=$VERSION
-    fi
     echo "::group::Install cx_Freeze $VERSION_OK"
     UV_PYTHON=$UV_PYTHON UV_PRERELEASE=allow \
         uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall

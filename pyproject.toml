@@ -186,7 +186,7 @@ delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {whee
 """
 
 [tool.coverage.html]
-directory = "build/coverage"
+directory = "build/coverage_html_report"
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
@@ -206,8 +206,10 @@ omit = [
     "*/cx_Freeze/initscripts/*",
     "*/cx_Freeze/_typing.py",
 ]
+precision = 2
 
 [tool.coverage.run]
+parallel = true
 relative_files = true
 
 [tool.pylint.format]

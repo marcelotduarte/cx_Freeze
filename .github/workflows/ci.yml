@@ -99,7 +99,16 @@ jobs:
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}"
         run: pytest -nauto --cov="cx_Freeze"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}
+          path: .coverage.*
+          include-hidden-files: true
 
   tests_extra:
     needs:
@@ -151,7 +160,17 @@ jobs:
           else
             uv pip install --system "${{ matrix.extra-requirement }}"
           fi
+          MATRIX_ID=${{ matrix.python-version }}.${{ matrix.os }}
+          SUFFIX=$(echo "${{ matrix.extra-requirement }}" | sed 's/==/-/')
+          export COVERAGE_FILE=".coverage.$MATRIX_ID.$SUFFIX"
           pytest -nauto --cov="cx_Freeze"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ hashFiles('.coverage.*') }}
+          path: .coverage.*
+          include-hidden-files: true
 
   tests_unix_binary_wheel:
     needs:
@@ -199,4 +218,46 @@ jobs:
           uv pip install --system pandas
 
       - name: Generate coverage report
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-pandas"
         run: pytest -nauto --cov="cx_Freeze"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-pandas
+          path: .coverage.*
+          include-hidden-files: true
+
+  coverage:
+    needs:
+      - tests
+      - tests_extra
+      - tests_unix_binary_wheel
+    permissions:
+      pull-requests: write
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cov-*
+          merge-multiple: true
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v4
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
