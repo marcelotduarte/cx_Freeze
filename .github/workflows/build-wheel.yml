@@ -175,7 +175,9 @@ jobs:
         run: |
           SHA256SUM1=$(cat source/*.c source/bases/* | sha256sum | awk '{print $1}')
           SHA256SUM2=$(cat cx_Freeze/bases/__init__.py | awk '{print $2}')
-          if [ $SHA256SUM1 != $SHA256SUM2 ]; then
+          #if [ $SHA256SUM1 != $SHA256SUM2 ]; then
+          # only for test
+          if [ $SHA256SUM1 == $SHA256SUM2 ]; then
             git config user.name "Marcelo Duarte"
             git config user.email marcelotduarte@users.noreply.github.com
             git checkout -B update_bases main

@@ -2,7 +2,7 @@ name: Publish packages
 
 on:
   workflow_run:
-    workflows: ["Build wheel"]
+    workflows: ["Build wheel", "CI"]
     types:
       - completed
 
