@@ -147,9 +147,14 @@ jobs:
 
   update_bases:
     name: Update cx_Freeze/bases and util module
-    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
     needs:
       - build_wheel
+    #if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
+    # test in PR
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
 
@@ -158,12 +163,13 @@ jobs:
           fetch-depth: 0
           ref: main
           repository: marcelotduarte/cx_Freeze
-          token: ${{ secrets.PUSH }}
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: wheelhouse
+          pattern: cx-freeze-whl-windows-*
+          merge-multiple: true
 
       - name: If changed, extract and update the base executables and util module
         run: |
@@ -176,7 +182,7 @@ jobs:
             # Remove any file that match - remove previous versions too
             git rm --ignore-unmatch 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             # Extract base executables and util module
-            for file in artifacts/cx-freeze-pip-windows-*/*-win*.whl; do
+            for file in wheelhouse/*.whl; do
               unzip -o $file 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
             done
             git add cx_Freeze/bases/*-win*.exe cx_Freeze/util.*-win*.pyd
