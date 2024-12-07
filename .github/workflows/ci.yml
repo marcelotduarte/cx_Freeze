@@ -18,7 +18,7 @@ jobs:
 
   testpypi:
     name: Publish package to TestPyPI
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     needs:
       - build_wheel
     runs-on: ubuntu-latest
