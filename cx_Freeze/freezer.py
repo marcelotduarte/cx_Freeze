@@ -372,6 +372,7 @@ class Freezer:
         bin_path = [
             sysconfig.get_config_var("LIBDIR"),
             sysconfig.get_config_var("DESTLIB"),
+            Path(sys.base_prefix, sys.platlibdir),  # uv python
         ]
         return self._validate_bin_path(bin_path)
 
