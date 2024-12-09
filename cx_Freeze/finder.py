@@ -43,6 +43,7 @@ ALL_SUFFIXES = importlib.machinery.all_suffixes()
 CALL_FUNCTION = opcode.opmap.get("CALL_FUNCTION")
 CALL = opcode.opmap.get("CALL")
 PRECALL = opcode.opmap.get("PRECALL")
+PUSH_NULL = opcode.opmap.get("PUSH_NULL")
 
 EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
@@ -629,14 +630,21 @@ class ModuleFinder:
             if opc == LOAD_NAME:
                 name = code.co_names[arg]
                 continue
+            if PUSH_NULL and opc == PUSH_NULL:
+                continue
             if name and name == "__import__" and len(arguments) == 1:
                 # Try to identify a __import__ call
+                # Python 3.13 bytecode:
+                # 1            2 LOAD_NAME                0 (__import__)
+                #              4 PUSH_NULL
+                #              6 LOAD_CONST               0 ('pkgutil')
+                #              8 CALL                     1
                 # Python 3.12 bytecode:
                 # 20           2 PUSH_NULL
                 #              4 LOAD_NAME                0 (__import__)
                 #              6 LOAD_CONST               0 ('pkgutil')
                 #              8 CALL                     1
-                # Python 3.6 to 3.10 uses CALL_FUNCTION instead fo CALL
+                # Python 3.6 to 3.10 uses CALL_FUNCTION instead of CALL
                 # Python 3.11 uses PRECALL then CALL
                 if CALL_FUNCTION and (opc, arg) == (CALL_FUNCTION, 1):
                     import_call = 1
