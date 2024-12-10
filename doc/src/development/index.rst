@@ -22,23 +22,23 @@ You can use ``git`` to clone the repository:
 
   .. code-block:: console
 
-      git clone https://github.com/marcelotduarte/cx_Freeze
-      cd cx_Freeze
-      make install
+    git clone https://github.com/marcelotduarte/cx_Freeze
+    cd cx_Freeze
+    make install
 
 If you don't have make installed, run:
 
   .. code-block:: console
 
-      python -m pip install --upgrade pip
-      pip install -e .[dev,doc]
-      pre-commit install --install-hooks --overwrite -t pre-commit
+    python -m pip install --upgrade pip
+    pip install -e .[dev,doc]
+    pre-commit install --install-hooks --overwrite -t pre-commit
 
 .. note::
 
    #. It is recommended to use a virtual environment.
    #. Please check the requirements for python on your system
-      (see :doc:`../installation`).
+      (see :ref:`python_requirements`).
 
 Building redistributable binary wheels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,26 +59,26 @@ To reach this, cx_Freeze's binary wheels is built using :pypi:`cibuildwheel`.
 
   .. code-block:: console
 
-      pip install --upgrade cibuildwheel
+    pip install --upgrade cibuildwheel
 
 For instance, in a Linux environment, Python 3.10, to build locally, run:
 
   .. code-block:: console
 
-      cibuildwheel --only cp310-manylinux_x86_64
+    cibuildwheel --only cp310-manylinux_x86_64
 
 To run a Linux build on your development machine, Docker or Podman should be
 installed. To use podman:
 
   .. code-block:: console
 
-      CIBW_CONTAINER_ENGINE=podman cibuildwheel --only cp310-manylinux_x86_64
+    CIBW_CONTAINER_ENGINE=podman cibuildwheel --only cp310-manylinux_x86_64
 
 Using macOS:
 
   .. code-block:: console
 
-      cibuildwheel --only cp310-macosx_universal2
+    cibuildwheel --only cp310-macosx_universal2
 
 .. note::
 
@@ -100,14 +100,14 @@ written in reStructuredText. To build it locally, run:
 
   .. code-block:: console
 
-      make html
+    make html
 
 The built documentation can be found in the ``build/doc/html`` folder and may
 be viewed by opening ``index.html`` within that folder.
 
   .. code-block:: console
 
-      make htmltest
+    make htmltest
 
 Conda-forge
 -----------
@@ -127,10 +127,17 @@ An example for Linux:
 
   .. code-block:: console
 
-    conda create -n cx311conda -c conda-forge python=3.11 -y
+    git clone https://github.com/marcelotduarte/cx_Freeze
+    cd cx_Freeze
+    conda create -n cx311conda -c conda-forge python=3.11 c-compiler -y
     conda activate cx311conda
-    conda install -c conda-forge c-compiler patchelf -y
-    pip install git+https://github.com/marcelotduarte/cx_Freeze@develop
+    conda install -c conda-forge patchelf -y
+    conda install -c conda-forge --file=requirements-dev.txt
+    pre-commit install --install-hooks --overwrite -t pre-commit
+    pip install -e. --no-deps --no-build-isolation
+
+.. note::
+    ``pip`` should be used in conda only in development mode.
 
 Contributing
 -------------

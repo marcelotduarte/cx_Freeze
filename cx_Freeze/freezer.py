@@ -21,12 +21,18 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 
 from setuptools import Distribution
 
-from cx_Freeze._compat import BUILD_EXE_DIR, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    BUILD_EXE_DIR,
+    IS_CONDA,
+    IS_MACOS,
+    IS_MINGW,
+    IS_WINDOWS,
+)
 from cx_Freeze.common import get_resource_file_path, process_path_specs
 from cx_Freeze.exception import FileError, OptionError
 from cx_Freeze.executable import Executable
 from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import ConstantsModule, Module
+from cx_Freeze.module import ConstantsModule, DistributionCache, Module
 from cx_Freeze.parser import ELFParser, Parser, PEParser
 
 if TYPE_CHECKING:
@@ -41,6 +47,27 @@ elif IS_MACOS:
     from .darwintools import DarwinFile, DarwinFileTracker, MachOReference
 
 __all__ = ["ConstantsModule", "Executable", "Freezer"]
+
+WARNING_PIP_CX_FREEZE_IN_CONDA_PYTHON = """WARNING:
+
+    It is not recommended to use cx_Freeze installed from pip with conda \
+python.
+    To install cx_Freeze as conda package (cx_freeze):
+        pip uninstall cx_Freeze
+        conda install conda-forge::cx_freeze
+
+    To fix this issue, refer to the documentation:
+        \
+https://cx-freeze.readthedocs.io/en/stable/installation.html#conda-forge
+
+"""
+
+WARNING_USING_PYTHON_FROM_MS_STORE = """WARNING:
+
+    Because of restrictions on Microsoft Store apps, Python scripts may not \
+have full write access to built executable.
+    You will need to install the full installer.
+"""
 
 
 class Freezer:
@@ -141,6 +168,7 @@ class Freezer:
         self.files_copied: set[Path] = set()
         self.modules_copied: list[Module] = []
         self.finder: ModuleFinder = self._get_module_finder()
+        self._check_installation()
 
     @property
     def target_dir(self) -> Path:
@@ -175,6 +203,12 @@ class Freezer:
             return
         target_icon = self.target_dir / exe.icon.name
         self._copy_file(exe.icon, target_icon, copy_dependent_files=False)
+
+    def _check_installation(self) -> None:
+        if IS_CONDA:
+            dist = DistributionCache(self.finder.cache_path, "cx_Freeze")
+            if dist.installer == "pip":
+                print(WARNING_PIP_CX_FREEZE_IN_CONDA_PYTHON, file=sys.stderr)
 
     def _copy_file(
         self,
@@ -872,12 +906,7 @@ class WinFreezer(Freezer, PEParser):
                     if "\\WindowsApps\\" in sys.base_prefix:
                         if self.silent < 3:
                             print("WARNING:", exc)
-                            print(
-                                "WARNING: Because of restrictions on "
-                                "Microsoft Store apps, Python scripts may not "
-                                "have full write access to built executable. "
-                                "You will need to install the full installer."
-                            )
+                            print(WARNING_USING_PYTHON_FROM_MS_STORE)
                     else:
                         raise
 

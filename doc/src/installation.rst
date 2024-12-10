@@ -2,10 +2,14 @@
 Installation
 ============
 
+Choose the Python package manager according to your system. See how the
+installation works with the most common ones, which are pip and conda.
+
 Pip
 ---
 
-You should install the latest version of :pypi:`cx_Freeze` using :pypi:`pip`:
+To install the latest version of :pypi:`cx_Freeze` using :pypi:`pip` into a
+virtual environment:
 
   .. code-block:: console
 
@@ -15,26 +19,18 @@ You should install the latest version of :pypi:`cx_Freeze` using :pypi:`pip`:
   The recommended way to use cx_Freeze is in a
   :pythondocs:`virtual environment <library/venv.html>`.
   If you're unfamiliar with Python virtual environments, check out the
-  :packaging:`packaging user guide <guides/installing-using-pip-and-virtual-environments>`.
+  :packaging:`packaging user guide
+  <guides/installing-using-pip-and-virtual-environments>`.
 
 .. important::
   Please note that some operating systems might be equipped with the python3
   and pip3 commands instead of python and pip (but they should be equivalent).
 
-Pipenv
-------
-
-Using pipenv, install or update by issuing one of the following commands:
-
-  .. code-block:: console
-
-    pipenv install cx_Freeze
-    pipenv update cx_Freeze
-
 Conda-forge
 -----------
 
-Directly from the conda-forge channel:
+Installing cx_freeze from the conda-forge channel can be achieved with the
+command:
 
   .. code-block:: console
 
@@ -43,10 +39,12 @@ Directly from the conda-forge channel:
 .. seealso:: `cx_freeze-feedstock
    <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
 
+.. _python_requirements:
+
 Python requirements
 -------------------
 
-Python requirements are installed automatically by pip, pipenv, or conda.
+Python requirements are installed automatically by pip or conda.
 
   .. code-block:: console
 
