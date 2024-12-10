@@ -31,7 +31,7 @@ install:
 	fi
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		UV_RESOLUTION=highest uv pip install --upgrade \
-			-r requirements.txt -r requirements-dev.txt -r requirements-doc.txt &&\
+			-r requirements.txt -r requirements-dev.txt -r doc/requirements.txt &&\
 		uv pip install -e. --no-build-isolation --no-deps --reinstall &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
@@ -56,7 +56,7 @@ html:
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
 		UV_RESOLUTION=highest \
-		uv pip install --upgrade -r requirements-doc.txt &&\
+		uv pip install --upgrade -r doc/requirements.txt &&\
 		$(MAKE) -C doc html;\
 	fi
 
@@ -69,17 +69,17 @@ doc: html
 	$(MAKE) -C doc epub
 	$(MAKE) -C doc pdf
 
-.PHONY: install_test
-install_test:
+.PHONY: install_pytest
+install_pytest:
 	./ci/build-wheel.sh
-	UV_RESOLUTION=highest uv pip install --upgrade -r requirements-test.txt
+	UV_RESOLUTION=highest uv pip install --upgrade -r tests/requirements.txt
 
-.PHONY: test
-test: install_test
+.PHONY: tests
+tests: install_pytest
 	pytest -nauto --no-cov
 
 .PHONY: cov
-cov: install_test
+cov: install_pytest
 	@rm -rf $(BUILDDIR)/coverage_html_report
 	@if [ -f .coverage ]; then mv .coverage .backup_coverage; fi
 	pytest -nauto --cov="cx_Freeze" --cov-report=html
@@ -88,7 +88,7 @@ cov: install_test
 	@if [ -f .backup_coverage ]; then coverage combine -a .backup_coverage; fi
 
 .PHONY: cov2
-cov2: install_test
+cov2: install_pytest
 	@rm -rf $(BUILDDIR)/coverage_html_report
 	@if [ -f .coverage ]; then mv .coverage .backup_coverage; fi
 	pytest -nauto --cov="cx_Freeze" || true

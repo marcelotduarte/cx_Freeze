@@ -79,7 +79,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: |
             **/requirements.txt
-            **/requirements-test.txt
+            **/tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
@@ -95,7 +95,7 @@ jobs:
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system -r requirements.txt -r tests/requirements.txt
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
@@ -140,7 +140,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: |
             **/requirements.txt
-            **/requirements-test.txt
+            **/tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
@@ -150,7 +150,7 @@ jobs:
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system -r requirements.txt -r tests/requirements.txt
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
@@ -197,7 +197,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: |
             **/requirements.txt
-            **/requirements-test.txt
+            **/tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
@@ -207,7 +207,7 @@ jobs:
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r requirements-test.txt
+          uv pip install --system -r requirements.txt -r tests/requirements.txt
           uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Install dependencies - extra
