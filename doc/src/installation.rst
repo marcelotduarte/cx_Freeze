@@ -36,6 +36,11 @@ command:
 
     conda install conda-forge::cx_freeze
 
+.. note::
+  It is not recommended to use ``pip`` in conda environment. See why in
+  `Using Pip in a Conda Environment
+  <https://www.anaconda.com/blog/using-pip-in-a-conda-environment>`_.
+
 .. seealso:: `cx_freeze-feedstock
    <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
 
