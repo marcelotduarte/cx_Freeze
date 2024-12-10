@@ -37,7 +37,10 @@ def main() -> None:
     try:
         optional_dependencies = config["project"]["optional-dependencies"]
         for extra, dependencies in optional_dependencies.items():
-            requirements = root_dir / f"requirements-{extra}.txt"
+            if root_dir.joinpath(extra).is_dir():
+                requirements = root_dir / extra / "requirements.txt"
+            else:
+                requirements = root_dir / f"requirements-{extra}.txt"
             contents = dependencies.copy()
             contents.append("")
             with requirements.open(
