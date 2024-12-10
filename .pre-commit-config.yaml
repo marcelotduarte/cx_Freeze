@@ -37,22 +37,22 @@ repos:
     - validate-pyproject-schema-store[all]>=2024.11.22
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.8.0
+  rev: v0.8.4
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
   - id: ruff-format
 
 - repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.19.1
+  rev: 1.18.0
   hooks:
   - id: blacken-docs
     additional_dependencies:
-    - black==24.10.0
+    - black==24.8.0
     args: ["-l", "79"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v19.1.4
+  rev: v19.1.5
   hooks:
   - id: clang-format
     args: ["--style={BasedOnStyle: WebKit, ColumnLimit: 79, AlignConsecutiveMacros: Consecutive, AlignTrailingComments: Always}"]
