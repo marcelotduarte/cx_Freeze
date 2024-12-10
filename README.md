@@ -17,8 +17,11 @@ itself works on.
 
 # Installation
 
-In a virtual environment, install by issuing the command:
+Choose the Python package manager according to your system. See how the
+installation works with the most common ones, which are pip and conda.
 
+To install the latest version of `cx_Freeze` using `pip` into a
+virtual environment:
 ```
 pip install --upgrade cx_Freeze
 ```
@@ -30,9 +33,15 @@ pip uninstall cx_Freeze
 pip install --extra-index-url https://test.pypi.org/simple/ cx_Freeze --pre --no-cache
 ```
 
+Installing cx_freeze from the conda-forge channel can be achieved with the
+command:
+```
+conda install conda-forge::cx_freeze
+```
+
 Please check the
 [installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
-for more information and how to install in other environments.
+for more information.
 
 # Documentation
 
