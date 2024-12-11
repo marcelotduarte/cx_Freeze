@@ -3,21 +3,47 @@ Installation
 ============
 
 Choose the Python package manager according to your system. See how the
-installation works with the most common ones, which are pip and conda.
+installation works with the most common ones.
 
-Pip
----
+.. tabs::
 
-To install the latest version of :pypi:`cx_Freeze` using :pypi:`pip` into a
-virtual environment:
+   .. group-tab:: Pip
 
-  .. code-block:: console
+      To install the latest version of :pypi:`cx_Freeze` using :pypi:`pip` into
+      a virtual environment:
 
-    pip install --upgrade cx_Freeze
+      .. code-block:: console
+
+         pip install --upgrade cx_Freeze
+
+   .. group-tab:: Uv
+
+      .. code-block:: console
+
+         uv pip install --upgrade cx_Freeze
+
+   .. group-tab:: Conda
+
+      Installing cx_freeze from the conda-forge channel can be achieved with
+      the command:
+
+      .. code-block:: console
+
+         conda install conda-forge:cx_freeze
+
+      .. seealso:: `cx_freeze-feedstock
+         <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
+
+.. warning::
+  It is not recommended to use ``pip`` in conda environment. See why in
+  `Using Pip in a Conda Environment
+  <https://www.anaconda.com/blog/using-pip-in-a-conda-environment>`_.
 
 .. note::
-  The recommended way to use cx_Freeze is in a
-  :pythondocs:`virtual environment <library/venv.html>`.
+  The recommended way to use cx_Freeze is in a virtual environment such as
+  those provided by :pythondocs:`python -m venv <library/venv.html>`,
+  `uv venv <https://docs.astral.sh/uv/pip/environments/>`_ or
+  `conda <https://docs.conda.io/projects/conda/en/stable/>`_.
   If you're unfamiliar with Python virtual environments, check out the
   :packaging:`packaging user guide
   <guides/installing-using-pip-and-virtual-environments>`.
@@ -25,24 +51,6 @@ virtual environment:
 .. important::
   Please note that some operating systems might be equipped with the python3
   and pip3 commands instead of python and pip (but they should be equivalent).
-
-Conda-forge
------------
-
-Installing cx_freeze from the conda-forge channel can be achieved with the
-command:
-
-  .. code-block:: console
-
-    conda install conda-forge::cx_freeze
-
-.. note::
-  It is not recommended to use ``pip`` in conda environment. See why in
-  `Using Pip in a Conda Environment
-  <https://www.anaconda.com/blog/using-pip-in-a-conda-environment>`_.
-
-.. seealso:: `cx_freeze-feedstock
-   <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
 
 .. _python_requirements:
 

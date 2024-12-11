@@ -60,6 +60,7 @@ python.
         \
 https://cx-freeze.readthedocs.io/en/stable/installation.html#conda-forge
 
+    On macOS, you should get an error shortly.
 """
 
 WARNING_USING_PYTHON_FROM_MS_STORE = """WARNING:
