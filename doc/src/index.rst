@@ -9,6 +9,10 @@ works on.
 The current version of **cx_Freeze** is |version| and supports
 Python 3.9 to 3.13.
 
+.. warning::
+
+   cx_Freeze does not support Python 3.13 in macOS yet.
+
 **cx_Freeze** is distributed under an open-source :ref:`PSF license <license>`.
 
 Contents:
