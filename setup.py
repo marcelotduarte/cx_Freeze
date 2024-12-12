@@ -151,11 +151,10 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         # console-cpython-39-x86_64-linux-gnu, console-cpython-39-darwin
         ext_path = Path(*fullname.split("."))
         name = ext_path.name
-        if IS_MINGW or IS_WINDOWS:
+        soabi = get_config_var("SOABI")
+        if soabi is None:  # Python <= 3.12 on Windows
             platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-        else:
-            soabi = get_config_var("SOABI")
         exe_suffix = get_config_var("EXE")
         return os.fspath(ext_path.parent / f"{name}-{soabi}{exe_suffix}")
 
@@ -272,30 +271,47 @@ def get_extensions() -> list[Extension]:
     """Build base executables and util module extension."""
     # [Windows only] With binaries included in bases, the compilation is
     # optional in the development mode.
-    depends = ["source/bases/common.c"]
     optional = IS_WINDOWS and os.environ.get("CIBUILDWHEEL", "0") != "1"
     extensions = [
         Extension(
             "cx_Freeze.bases.console",
-            ["source/bases/console.c"],
-            depends=depends,
+            ["source/bases/console.c", "source/bases/_common.c"],
             optional=optional,
-        )
+        ),
+        Extension(
+            "cx_Freeze.bases.console_legacy",
+            ["source/legacy/console.c"],
+            depends=["source/legacy/common.c"],
+            optional=optional,
+        ),
     ]
 
     if IS_MINGW or IS_WINDOWS:
         extensions += [
             Extension(
                 "cx_Freeze.bases.Win32GUI",
-                ["source/bases/Win32GUI.c"],
-                depends=depends,
+                ["source/legacy/Win32GUI.c"],
+                depends=["source/legacy/common.c"],
                 libraries=["user32"],
                 optional=optional,
             ),
             Extension(
                 "cx_Freeze.bases.Win32Service",
-                ["source/bases/Win32Service.c"],
-                depends=depends,
+                ["source/legacy/Win32Service.c"],
+                depends=["source/legacy/common.c"],
+                extra_link_args=["/DELAYLOAD:cx_Logging"],
+                libraries=["advapi32"],
+                optional=optional,
+            ),
+            Extension(
+                "cx_Freeze.bases.gui",
+                ["source/bases/Win32GUI.c", "source/bases/_common.c"],
+                libraries=["user32"],
+                optional=optional,
+            ),
+            Extension(
+                "cx_Freeze.bases.service",
+                ["source/bases/Win32Service.c", "source/bases/_common.c"],
                 extra_link_args=["/DELAYLOAD:cx_Logging"],
                 libraries=["advapi32"],
                 optional=optional,
