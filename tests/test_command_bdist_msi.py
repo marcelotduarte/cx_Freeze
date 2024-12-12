@@ -18,6 +18,12 @@ bdist_msi = pytest.importorskip(
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
 
+if sys.version_info[:2] >= (3, 13):
+    pytest.skip(
+        reason="bdist_msi is not supported on Python 3.13 yet.",
+        allow_module_level=True,
+    )
+
 DIST_ATTRS = {
     "name": "foo",
     "version": "0.0",
