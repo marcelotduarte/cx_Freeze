@@ -10,10 +10,6 @@
 #include <windows.h>
 #include <winsvc.h>
 
-extern PyStatus InitializePython(int argc, wchar_t** argv);
-extern int ExecuteScript(void);
-extern PyStatus get_program_name(wchar_t** ptr_str, wchar_t* argv0);
-
 // define constants
 #define CX_LOGGING_SECTION_NAME      L"Logging"
 #define CX_LOGGING_FILE_NAME_KEY     L"FileName"
@@ -56,13 +52,24 @@ static PyObject* gInstance = NULL;
 static wchar_t gIniFileName[MAXPATHLEN + 1];
 
 //-----------------------------------------------------------------------------
+// FatalError()
+//   Called when an attempt to initialize the module zip fails.
+//-----------------------------------------------------------------------------
+static int FatalError(const char* message)
+{
+    return LogPythonException(message);
+}
+
+//-----------------------------------------------------------------------------
 // FatalScriptError()
 //   Called when an attempt to import the initscript fails.
 //-----------------------------------------------------------------------------
-int FatalScriptError(void)
+static int FatalScriptError(void)
 {
     return LogPythonException("initialization script didn't execute properly");
 }
+
+#include "common.c"
 
 //-----------------------------------------------------------------------------
 // Service_SetStatus()
@@ -205,12 +212,9 @@ static int Service_StartLogging(void)
     unsigned logLevel, maxFiles, maxFileSize;
     wchar_t *executable, *ptr, prefix[CX_LOGGING_PREFIX_SIZE];
     size_t size;
-    PyStatus status;
 
     // determine the default log file name and ini file name
-    status = get_program_name(&executable, NULL);
-    if (PyStatus_Exception(status))
-        return LogPythonException(status.err_msg);
+    executable = get_executable_name();
     ptr = wcsrchr(executable, '.');
     if (ptr)
         size = ptr - executable;
@@ -340,14 +344,10 @@ static int Service_Install(
     SC_HANDLE managerHandle, serviceHandle;
     SERVICE_DESCRIPTIONW sd;
     udt_ServiceInfo info;
-    PyStatus status;
 
     // initialize Python
-    status = InitializePython(argc, argv);
-    if (PyStatus_Exception(status)) {
-        LogPythonException(status.err_msg);
+    if (InitializePython(argc, argv) < 0)
         return 1;
-    }
 
     // set up Python
     if (Service_SetupPython(&info) < 0)
@@ -370,9 +370,7 @@ static int Service_Install(
     Py_CLEAR(nameObj);
 
     // determine command to use for the service
-    status = get_program_name(&executable, NULL);
-    if (PyStatus_Exception(status))
-        return LogPythonException(status.err_msg);
+    executable = get_executable_name();
     executableNameObj = PyUnicode_FromWideChar(executable, -1);
     if (!executableNameObj)
         return LogPythonException("cannot create executable name obj");
@@ -464,11 +462,8 @@ static int Service_Uninstall(wchar_t* name, int argc, wchar_t** argv)
     udt_ServiceInfo info;
 
     // initialize Python
-    PyStatus status = InitializePython(argc, argv);
-    if (PyStatus_Exception(status)) {
-        LogPythonException(status.err_msg);
+    if (InitializePython(argc, argv) < 0)
         return 1;
-    }
 
     // set up Python
     if (Service_SetupPython(&info) < 0)
@@ -562,11 +557,8 @@ static void WINAPI Service_Main(int argc, wchar_t** argv)
     udt_ServiceInfo info;
 
     // initialize Python
-    PyStatus status = InitializePython(argc, argv);
-    if (PyStatus_Exception(status)) {
-        LogPythonException(status.err_msg);
+    if (InitializePython(argc, argv) < 0)
         return;
-    }
 
     if (Service_SetupPython(&info) < 0)
         return;

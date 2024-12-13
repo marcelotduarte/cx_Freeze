@@ -83,7 +83,7 @@ static wchar_t* get_sys_path(wchar_t* lib_dir)
     wcscat(filename, L"\\");
     wcscat(filename, L"library.dat");
     if ((fp = _wfopen(filename, L"rt")) != NULL) {
-        int i = fread(buffer, sizeof(*buffer), sizeof(buffer), fp);
+        size_t i = fread(buffer, sizeof(*buffer), sizeof(buffer), fp);
         buffer[i] = 0;
         fclose(fp);
         wbuffer = Py_DecodeLocale(buffer, NULL);
@@ -204,7 +204,7 @@ static char* get_sys_path(char* lib_dir)
     strcat(filename, "/");
     strcat(filename, "library.dat");
     if ((fp = fopen(filename, "r")) != NULL) {
-        int i = fread(buffer, sizeof(*buffer), sizeof(buffer), fp);
+        size_t i = fread(buffer, sizeof(*buffer), sizeof(buffer), fp);
         buffer[i] = 0;
         fclose(fp);
         strcpy(filename, lib_dir);

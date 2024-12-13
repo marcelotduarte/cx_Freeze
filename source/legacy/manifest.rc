@@ -1,0 +1,9 @@
+#pragma code_page(1252)
+#include "dummy.rc"
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif
+
+// the manifest file that indicates we support all current versions of Windows
+1 RT_MANIFEST "python.manifest"

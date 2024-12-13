@@ -79,11 +79,10 @@ class Executable:
             name = "Win32GUI" if IS_WINDOWS or IS_MINGW else "console"
         elif name == "service":
             name = "Win32Service" if IS_WINDOWS or IS_MINGW else "console"
-        if IS_WINDOWS or IS_MINGW:
+        soabi = get_config_var("SOABI")
+        if soabi is None:  # Python <= 3.12 on Windows
             platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-        else:
-            soabi = get_config_var("SOABI")
         suffix = EXE_SUFFIX
         name_base = f"{name}-{soabi}"
         self._base: Path = get_resource_file_path("bases", name_base, suffix)
@@ -254,7 +253,9 @@ def validate_executables(dist: Distribution, attr: str, value) -> None:
         assert value  # noqa: S101
         # verify that elements of value are Executable, Dict or string
         for executable in value:
-            assert isinstance(executable, (Executable, Mapping, str))  # noqa: S101
+            assert isinstance(  # noqa: S101
+                executable, (Executable, Mapping, str)
+            )
     except (TypeError, ValueError, AttributeError, AssertionError) as exc:
         msg = f"{attr!r} must be a list of Executable (got {value!r})"
         raise SetupError(msg) from exc

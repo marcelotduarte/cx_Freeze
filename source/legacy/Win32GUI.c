@@ -8,16 +8,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-extern PyStatus InitializePython(int argc, wchar_t** argv);
-extern int ExecuteScript(void);
-
 //-----------------------------------------------------------------------------
 // FatalError()
 //   Handle a fatal error.
 //-----------------------------------------------------------------------------
-static int FatalError(const char* err_msg)
+static int FatalError(char* message)
 {
-    MessageBoxA(NULL, err_msg, "cx_Freeze Fatal Error", MB_ICONERROR);
+    MessageBoxA(NULL, message, "cx_Freeze Fatal Error", MB_ICONERROR);
     Py_Finalize();
     return -1;
 }
@@ -136,7 +133,7 @@ static int HandleSystemExitException()
 // FatalScriptError()
 //   Handle a fatal Python error with traceback.
 //-----------------------------------------------------------------------------
-int FatalScriptError()
+static int FatalScriptError()
 {
     PyObject *type, *value, *traceback, *argsTuple, *module, *method, *result;
     PyObject *caption, *hook, *origHook, *emptyString, *message;
@@ -209,6 +206,8 @@ int FatalScriptError()
     return DisplayMessageFromPythonObjects(caption, message);
 }
 
+#include "common.c"
+
 //-----------------------------------------------------------------------------
 // WinMain()
 //   Main routine for the executable in Windows.
@@ -216,21 +215,15 @@ int FatalScriptError()
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prevInstance,
     wchar_t* commandLine, int showFlag)
 {
-    PyStatus status;
-    int exitcode;
+    int status = 0;
 
     // initialize Python
-    status = InitializePython(__argc, __wargv);
-    if (PyStatus_Exception(status)) {
-        FatalError(status.err_msg);
-        Py_ExitStatusException(status);
-    }
+    if (InitializePython(__argc, __wargv) < 0)
+        status = 1;
 
     // do the work
-    exitcode = ExecuteScript();
-
-    if (Py_FinalizeEx() < 0) {
-        exitcode = 120;
-    }
-    return exitcode;
+    if (status == 0 && ExecuteScript() < 0)
+        status = 1;
+    Py_Finalize();
+    return status;
 }
