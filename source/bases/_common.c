@@ -273,7 +273,7 @@ static PyStatus PreInitializePython(void)
 //-----------------------------------------------------------------------------
 // PostInitializePython()
 //   Adds the lib directory to the search path used to locate DLLs.
-//   Ensure python3.dll is loaded in some python versions (bpo-29778).
+//   Load python3.dll if it is on the target dir.
 //-----------------------------------------------------------------------------
 #ifdef MS_WINDOWS
 static PyStatus PostInitializePython(wchar_t* platlib)
@@ -289,9 +289,9 @@ static PyStatus PostInitializePython(wchar_t* platlib)
 #ifndef __MINGW32__
     if (!PyStatus_IsError(status)) {
         Py_BEGIN_ALLOW_THREADS
-        if (LoadLibraryExW(
-            PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR) == NULL)
-            status = PyStatus_Error("Unable to load python3.dll!");
+        // Ignore the error if the dll does not exist.
+        LoadLibraryExW(PY3_DLLNAME, NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
+        // status = PyStatus_Error("Unable to load python3.dll!");
         Py_END_ALLOW_THREADS
     }
 #endif
