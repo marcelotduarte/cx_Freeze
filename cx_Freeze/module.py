@@ -7,6 +7,7 @@ import socket
 from contextlib import suppress
 from datetime import datetime, timezone
 from functools import cached_property, partial
+from importlib import metadata
 from importlib.machinery import EXTENSION_SUFFIXES
 from keyword import iskeyword
 from pathlib import Path
@@ -16,7 +17,6 @@ from typing import TYPE_CHECKING
 from packaging.requirements import Requirement
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
-from cx_Freeze._importlib import metadata
 from cx_Freeze.exception import ModuleError, OptionError
 
 if TYPE_CHECKING:
