@@ -271,7 +271,10 @@ def get_extensions() -> list[Extension]:
     """Build base executables and util module extension."""
     # [Windows only] With binaries included in bases, the compilation is
     # optional in the development mode.
-    optional = IS_WINDOWS and os.environ.get("CIBUILDWHEEL", "0") != "1"
+    optional = IS_WINDOWS and (
+        os.environ.get("CI", "") != "true"
+        or os.environ.get("CIBUILDWHEEL", "0") != "1"
+    )
     extensions = [
         Extension(
             "cx_Freeze.bases.console",
