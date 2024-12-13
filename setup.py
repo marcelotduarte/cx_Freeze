@@ -285,7 +285,8 @@ def get_extensions() -> list[Extension]:
             "cx_Freeze.bases.console_legacy",
             ["source/legacy/console.c"],
             depends=["source/legacy/common.c"],
-            optional=optional,
+            optional=optional
+            or (sys.version_info[:2] >= (3, 13) and IS_MACOS),
         ),
     ]
 
