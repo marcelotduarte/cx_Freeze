@@ -169,7 +169,7 @@ build-verbosity = 1
 skip = [
     "cp3{9,10,13}-musllinux_*",
     "cp3{9,10,13}-manylinux_ppc64le",
-    "cp3{9,10,13}-macosx_{universal2,arm64}",
+    "cp3{9,10}-macosx_{universal2,arm64}",
 ]
 
 [tool.cibuildwheel.linux]

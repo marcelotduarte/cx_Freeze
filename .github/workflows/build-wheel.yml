@@ -71,9 +71,9 @@ jobs:
             ./ci/build-wheel.sh "cp3{9,10}-*"
           elif [ "${{ matrix.os }}" == "macos-14" ]; then
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              ./ci/build-wheel.sh "cp3{11,12}-*" --archs="arm64"
+              ./ci/build-wheel.sh "cp3{11,12,13}-*" --archs="arm64"
             else
-              ./ci/build-wheel.sh "cp3{11,12}-*"
+              ./ci/build-wheel.sh "cp3{11,12,13}-*"
             fi
           else
             if [ "${{ github.event_name }}" == "pull_request" ]; then

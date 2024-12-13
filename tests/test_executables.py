@@ -11,7 +11,13 @@ from generate_samples import create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze import Executable
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    BUILD_EXE_DIR,
+    EXE_SUFFIX,
+    IS_MACOS,
+    IS_MINGW,
+    IS_WINDOWS,
+)
 from cx_Freeze.exception import OptionError, SetupError
 
 TOP_DIR = Path(__file__).resolve().parent.parent
@@ -220,31 +226,45 @@ def test_executables(
         assert output.startswith("Hello from cx_Freeze")
 
 
-@pytest.mark.parametrize(
-    ("option", "value", "result"),
-    [
+TEST_VALID_PARAMETERS = [
+    ("base", "console", "console-"),
+    ("init_script", None, "console.py"),
+    ("init_script", "console", "console.py"),
+    ("target_name", None, f"test{EXE_SUFFIX}"),
+    ("target_name", "test1", f"test1{EXE_SUFFIX}"),
+    ("target_name", "12345", f"12345{EXE_SUFFIX}"),
+    ("target_name", "test-0.1", f"test-0.1{EXE_SUFFIX}"),
+    ("target_name", "test.exe", "test.exe"),
+    (
+        "icon",
+        "icon",
+        ("icon.ico", "icon.icns", "icon.png", "icon.svg"),
+    ),
+]
+if IS_MACOS and sys.version_info[:2] >= (3, 13):
+    TEST_VALID_PARAMETERS += [
         ("base", None, "console-"),
-        ("base", "console", "console-"),
-        (
-            "base",
-            "gui",
-            "Win32GUI-" if (IS_WINDOWS or IS_MINGW) else "console-",
-        ),
-        (
-            "base",
-            "service",
-            "Win32Service-" if (IS_WINDOWS or IS_MINGW) else "console-",
-        ),
-        ("init_script", None, "console.py"),
-        ("init_script", "console", "console.py"),
-        ("target_name", None, f"test{EXE_SUFFIX}"),
-        ("target_name", "test1", f"test1{EXE_SUFFIX}"),
-        ("target_name", "12345", f"12345{EXE_SUFFIX}"),
-        ("target_name", "test-0.1", f"test-0.1{EXE_SUFFIX}"),
-        ("target_name", "test.exe", "test.exe"),
-        ("icon", "icon", ("icon.ico", "icon.icns", "icon.png", "icon.svg")),
-    ],
-)
+    ]
+else:
+    TEST_VALID_PARAMETERS += [
+        ("base", None, "console_legacy-"),
+        ("base", "console_legacy", "console_legacy-"),
+    ]
+if IS_WINDOWS or IS_MINGW:
+    TEST_VALID_PARAMETERS += [
+        ("base", "gui", "gui-"),
+        ("base", "service", "service-"),
+        ("base", "Win32GUI", "Win32GUI-"),
+        ("base", "Win32Service", "Win32Service-"),
+    ]
+else:
+    TEST_VALID_PARAMETERS += [
+        ("base", "gui", "console-"),
+        ("base", "service", "console-"),
+    ]
+
+
+@pytest.mark.parametrize(("option", "value", "result"), TEST_VALID_PARAMETERS)
 def test_valid(option, value, result) -> None:
     """Test valid values to use in Executable class."""
     executable = Executable("test.py", **{option: value})

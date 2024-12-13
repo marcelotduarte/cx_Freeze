@@ -74,11 +74,15 @@ class Executable:
 
     @base.setter
     def base(self, name: str | Path | None) -> None:
-        name = name or "console"
-        if name == "gui":
-            name = "Win32GUI" if IS_WINDOWS or IS_MINGW else "console"
-        elif name == "service":
-            name = "Win32Service" if IS_WINDOWS or IS_MINGW else "console"
+        # The default base is the legacy console, except for
+        # Python 3.13 on macOS, that supports only the new console
+        if IS_MACOS and sys.version_info[:2] >= (3, 13):
+            name = name or "console"
+        else:
+            name = name or "console_legacy"
+        # silently ignore gui and service on non-windows systems
+        if not (IS_WINDOWS or IS_MINGW) and name in ("gui", "service"):
+            name = "console"
         soabi = get_config_var("SOABI")
         if soabi is None:  # Python <= 3.12 on Windows
             platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
