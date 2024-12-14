@@ -575,8 +575,8 @@ class ModuleFinder:
                 search_dir = Path(search_value)
             with suppress(ValueError):
                 new_filename = original_filename.relative_to(search_dir)
-                new_filename = replace_value / new_filename
-                break
+            new_filename = replace_value / new_filename
+            break
         else:
             new_filename = original_filename
 
