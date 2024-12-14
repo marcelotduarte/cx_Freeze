@@ -409,17 +409,6 @@ PyStatus InitializePython(int argc, char** argv)
         if (!PyStatus_Exception(status))
             status = Py_InitializeFromConfig(&config);
     }
-    fprintf(stderr, "--------round: %d\n", 10);
-    fprintf(stderr, "config.program_name: %ls\n", config.program_name);
-    fprintf(stderr, "config.executable: %ls\n", config.executable);
-    fprintf(stderr, "config.argv:\n");
-    for (int i = 0; i < config.argv.length; i++) {
-        fprintf(stderr, "%d: %ls\n", i, config.argv.items[i]);
-    }
-    fprintf(stderr, "config.module_search_paths:\n");
-    for (int i = 0; i < config.module_search_paths.length; i++) {
-        fprintf(stderr, "%d: %ls\n", i, config.module_search_paths.items[i]);
-    }
 
 #ifdef MS_WINDOWS
     if (!PyStatus_Exception(status))
