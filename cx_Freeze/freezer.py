@@ -478,18 +478,10 @@ class Freezer:
 
         # check the path for inclusion/exclusion
         for binpath in self.bin_path_includes:
-            try:
-                dirname.relative_to(binpath)
-            except ValueError:
-                pass
-            else:
+            if dirname.is_relative_to(binpath):
                 return True
         for binpath in self.bin_path_excludes:
-            try:
-                dirname.relative_to(binpath)
-            except ValueError:
-                pass
-            else:
+            if dirname.is_relative_to(binpath):
                 return False
 
         # check the default variables
@@ -500,18 +492,10 @@ class Freezer:
             if filename_noversion.match(binfile):
                 return False
         for binpath in self.default_bin_path_includes:
-            try:
-                dirname.relative_to(binpath)
-            except ValueError:
-                pass
-            else:
+            if dirname.is_relative_to(binpath):
                 return True
         for binpath in self.default_bin_path_excludes:
-            try:
-                dirname.relative_to(binpath)
-            except ValueError:
-                pass
-            else:
+            if dirname.is_relative_to(binpath):
                 return False
 
         return True
@@ -981,6 +965,8 @@ class WinFreezer(Freezer, PEParser):
                 # this is possible with most packages installed by pip
                 try:
                     relative = dependent_source.relative_to(source_dir)
+                    # dependency located with source or in a subdirectory
+                    dependent_target = target_dir / relative
                 except ValueError:
                     # check if dependency is on default binaries path
                     dependent_srcdir = dependent_source.parent
@@ -995,14 +981,9 @@ class WinFreezer(Freezer, PEParser):
                             dependent_target = Path(*parts) / dependent_name
                         except ValueError:
                             dependent_target = target_dir / dependent_name
-                else:
-                    # dependency located with source or in a subdirectory
-                    dependent_target = target_dir / relative
                 # make sure the dependency is in the correct directory because
                 # it cannot be outside the library_dir directory subtree
-                try:
-                    dependent_target.relative_to(library_dir)
-                except ValueError:
+                if not dependent_target.is_relative_to(library_dir):
                     dependent_target = library_dir / dependent_name
                 if 0:  # else:
                     _, dependent_target = self._pre_copy_hook(
@@ -1279,10 +1260,8 @@ class DarwinFreezer(Freezer, Parser):
     def get_dependent_files(
         self, filename: Path, darwinFile: DarwinFile | None = None
     ) -> set[Path]:
-        try:
+        with suppress(KeyError):
             return self.dependent_files[filename]
-        except KeyError:
-            pass
 
         # if darwinFile is None (which means that get_dependent_files is
         # being called outside of _copy_file -- e.g., one of the
@@ -1386,6 +1365,8 @@ class LinuxFreezer(Freezer, ELFParser):
                 # this is possible with most packages installed by pip
                 try:
                     relative = dependent_source.relative_to(source_dir)
+                    # dependency located with source or in a subdirectory
+                    dependent_target = target_dir / relative
                 except ValueError:
                     # put the dependency in target_dir along with the binary
                     # file being copied, unless the dependency has already been
@@ -1396,16 +1377,12 @@ class LinuxFreezer(Freezer, ELFParser):
                         if file.name == dependent_name:
                             try:
                                 relative = file.relative_to(target_dir)
+                                dependent_target = file
                             except ValueError:
                                 relative = Path(
                                     os.path.relpath(file, target_dir)
                                 )
-                            else:
-                                dependent_target = file
                             break
-                else:
-                    # dependency located with source or in a subdirectory
-                    dependent_target = target_dir / relative
             fix_rpath.add(f"$ORIGIN/{relative.parent.as_posix()}")
             self._copy_file(
                 dependent_source, dependent_target, copy_dependent_files
