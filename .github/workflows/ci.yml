@@ -2,9 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -17,15 +20,14 @@ jobs:
 
   testpypi:
     name: Publish package to TestPyPI
-    if: github.event_name == 'pull_request'
     needs:
       - build_wheel
-    runs-on: ubuntu-latest
     environment:
       name: ${{ github.event_name }}
       url: https://test.pypi.org/p/cx-Freeze
     permissions:
       id-token: write
+    runs-on: ubuntu-latest
     steps:
 
       - name: Download all artifacts
