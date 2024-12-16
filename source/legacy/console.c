@@ -63,6 +63,7 @@ int wmain(int argc, wchar_t** argv)
     return status;
 }
 #else
+#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION > 12)
 static char *
 _PyMem_RawStrdup(const char *str)
 {
@@ -75,6 +76,7 @@ _PyMem_RawStrdup(const char *str)
     memcpy(copy, str, size);
     return copy;
 }
+#endif
 
 int main(int argc, char** argv)
 {
