@@ -63,6 +63,19 @@ int wmain(int argc, wchar_t** argv)
     return status;
 }
 #else
+static char *
+_PyMem_RawStrdup(const char *str)
+{
+    assert(str != NULL);
+    size_t size = strlen(str) + 1;
+    char *copy = PyMem_RawMalloc(size);
+    if (copy == NULL) {
+        return NULL;
+    }
+    memcpy(copy, str, size);
+    return copy;
+}
+
 int main(int argc, char** argv)
 {
     int status = 0;
