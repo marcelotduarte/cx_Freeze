@@ -64,12 +64,11 @@ int wmain(int argc, wchar_t** argv)
 }
 #else
 #if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION > 12)
-static char *
-_PyMem_RawStrdup(const char *str)
+static char* _PyMem_RawStrdup(const char* str)
 {
     assert(str != NULL);
     size_t size = strlen(str) + 1;
-    char *copy = PyMem_RawMalloc(size);
+    char* copy = PyMem_RawMalloc(size);
     if (copy == NULL) {
         return NULL;
     }
