@@ -63,6 +63,7 @@ int wmain(int argc, wchar_t** argv)
     return status;
 }
 #else
+#include <string.h>
 int main(int argc, char** argv)
 {
     int status = 0;
@@ -72,7 +73,7 @@ int main(int argc, char** argv)
     int i;
     char* oldloc;
 
-    oldloc = _PyMem_RawStrdup(setlocale(LC_ALL, NULL));
+    oldloc = strdup(setlocale(LC_ALL, NULL));
     if (!oldloc)
         return FatalError("Out of memory!");
 
@@ -118,7 +119,7 @@ int main(int argc, char** argv)
     PyMem_RawFree(wargv2);
 
     setlocale(LC_ALL, oldloc);
-    PyMem_RawFree(oldloc);
+    free(oldloc);
 
     return status;
 }
