@@ -24,7 +24,7 @@ WARNING_NUMPY_VERSION = """WARNING:
 
 
 def load_cv2(finder: ModuleFinder, module: Module) -> None:
-    """Versions of cv2 (opencv-python) above 4.5.3 require additional
+    """Versions of cv2 (opencv-python) above 4.5.3 may require additional
     configuration files.
 
     Additionally, on Linux the opencv_python.libs directory is not
@@ -105,8 +105,14 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("cv2")
 
     # Include config files and libraries
+    # When opencv_contrib_python or opencv_contrib_python_headless is used
+    # an optimization is possible, because cv2.abi3.so is changed and its
+    # rpath points to it .libs directory
     source_config = finder.cache_path / "cv2-config.py"
-    source_libs = source_dir.parent / f"{name}.libs"
+    contrib = name.replace("opencv_python", "opencv_contrib_python")
+    source_libs = source_dir.parent / f"{contrib}.libs"
+    if not source_libs.exists():
+        source_libs = source_dir.parent / f"{name}.libs"
     if source_libs.exists():
         # Linux wheels
         target_libs = f"lib/{source_libs.name}"
