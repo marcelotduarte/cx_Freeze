@@ -4,7 +4,7 @@ import os
 import sys
 
 sys.OpenCV_LOADER_DEBUG = True
-import cv2 as cv  # noqa: E402
+import cv2  # noqa: E402
 
 
 def find_data_file(filename) -> str:
@@ -18,10 +18,16 @@ def find_data_file(filename) -> str:
     return os.path.join(datadir, filename)
 
 
-img = cv.imread(find_data_file("image.png"))
+img_file = find_data_file("image.png")
+img_file1 = find_data_file("image1.png")
+img = cv2.imread(img_file)
 if img is None:
     sys.exit("Could not read the image.")
-cv.imshow("Display window", img)
-k = cv.waitKey(15000)
-if k == ord("s"):
-    cv.imwrite("image1.png", img)
+cv2.imwrite(img_file1, img)
+print("OpenCV generated a new png:", img_file1)
+try:
+    cv2.imshow("Display window from cx_Freeze", img)
+    cv2.waitKey(5000)
+    cv2.destroyAllWindows()
+except cv2.error:
+    print("OpenCV headless mode does not implement 'imshow' function")
