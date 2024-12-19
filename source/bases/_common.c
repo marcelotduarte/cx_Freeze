@@ -420,7 +420,7 @@ PyStatus InitializePython(int argc, char** argv)
     PyMem_RawFree(program_name);
     PyMem_RawFree(prefix);
     PyMem_RawFree(platlib);
-    PyMem_Free(library_zip);
+    PyMem_RawFree(library_zip);
     return status;
 }
 
