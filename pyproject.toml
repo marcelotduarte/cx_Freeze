@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=70.1,<75",
+    "setuptools>=70.1,<76",  # 70.1+ doesn't depend on wheel
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
@@ -77,7 +77,7 @@ tests = [
     "pytest-datafiles==3.0.0",
     "pytest-mock==3.14.0",
     "pytest-timeout==2.3.1",
-    "pytest-xdist[psutil]==3.6.1",
+    "pytest-xdist==3.6.1",
 ]
 
 [project.license]
