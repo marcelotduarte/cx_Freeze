@@ -178,13 +178,17 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
                 for file in files:
                     if file.endswith(extensions):
                         continue
-                    source = prefix.joinpath(file).resolve()
+                    source = prefix.joinpath(file)
                     if not source.match("*.so*"):
                         continue
+                    if source.is_symlink():
+                        target = f"lib/{source.name}"
+                        finder.include_files(
+                            source, target, copy_dependent_files=False
+                        )
+                        source = source.resolve()
                     target = f"lib/{source.name}"
-                    finder.include_files(
-                        source, target, copy_dependent_files=False
-                    )
+                    finder.lib_files[source] = target
 
     # do not check dependencies already handled
     if exclude_dependent_files:
