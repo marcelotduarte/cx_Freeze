@@ -57,23 +57,22 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
-    "build>=1.2.0",
-    "bump-my-version==0.26.1",
+    "bump-my-version==0.28.3",
     "cibuildwheel==2.22.0",
     "pre-commit>=3.5.0,<=3.8.0",   # lower limit python_version < 3.9
 ]
 doc = [
     "sphinx>=7.1.2,<8",            # lower limit python_version < 3.9
-    "sphinx-new-tab-link==0.6.0",
-    "sphinx-tabs==3.4.5",
+    "sphinx-new-tab-link==0.6.1",
+    "sphinx-tabs==3.4.7",
     "furo==2024.8.6",
     "myst-parser>=3.0.1,<=4.0.0",  # lower limit python_version < 3.10
 ]
 tests = [
-    "pytest==8.3.3",
+    "pytest==8.3.4",
         "pluggy==1.5.0",
     "pytest-cov==5.0.0",
-        "coverage==7.6.1",
+        "coverage==7.6.9",
     "pytest-datafiles==3.0.0",
     "pytest-mock==3.14.0",
     "pytest-timeout==2.3.1",

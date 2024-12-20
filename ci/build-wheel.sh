@@ -57,7 +57,7 @@ echo "::endgroup::"
 mkdir -p wheelhouse >/dev/null
 if [[ $PY_PLATFORM == linux* ]]; then
     echo "::group::Build sdist"
-    pyproject-build -n -x --sdist -o wheelhouse
+    uv build --no-build-isolation --sdist -o wheelhouse
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
@@ -68,7 +68,7 @@ if [ "$BUILD_TAG" == "--only" ]; then
     FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
     if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
-            pyproject-build -n -x --wheel -o wheelhouse
+            uv build --no-build-isolation  --wheel -o wheelhouse
         else
             cibuildwheel --only $PYTHON_TAG-$PLATFORM_TAG --prerelease-pythons
         fi

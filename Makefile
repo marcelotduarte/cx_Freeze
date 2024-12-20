@@ -21,8 +21,7 @@ pre-commit: install
 
 .PHONY: pylint
 pylint:
-	@if ! which pylint; then uv pip install --upgrade pylint; fi
-	@pylint cx_Freeze
+	uvx pylint cx_Freeze
 
 .PHONY: clean
 clean: uninstall
@@ -34,9 +33,13 @@ clean: uninstall
 
 .PHONY: install
 install:
+ifeq ($(PY_PLATFORM),win-amd64)
 	if ! which uv; then\
 		python -m pip install --upgrade uv --disable-pip-version-check;\
 	fi
+else
+	curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$HOME/bin" sh
+endif
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		UV_RESOLUTION=highest uv pip install --upgrade \
 			-r requirements.txt -r requirements-dev.txt -r doc/requirements.txt &&\
