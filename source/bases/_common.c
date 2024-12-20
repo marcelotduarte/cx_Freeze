@@ -92,7 +92,7 @@ static PyStatus get_platlib(wchar_t** ptr_str, wchar_t* prefix)
 static PyStatus get_library_zip(wchar_t** ptr_str, wchar_t* platlib)
 {
     wchar_t *filename, *wbuffer, *wptr;
-    char buffer[MAXPATHLEN + 1];
+    char* buffer;
     size_t i;
     FILE* fp;
 
@@ -110,10 +110,16 @@ static PyStatus get_library_zip(wchar_t** ptr_str, wchar_t* platlib)
         PyMem_RawFree(filename);
         return PyStatus_Ok(); // ok if 'library.dat' does not exist
     }
+    buffer = PyMem_RawMalloc(sizeof(char) * (MAXPATHLEN + 1));
+    if (!buffer) {
+        PyMem_RawFree(filename);
+        return PyStatus_Error("Out of memory creating buffer!");
+    }
     i = fread(buffer, sizeof(char), MAXPATHLEN, fp);
     buffer[i] = 0;
     fclose(fp);
     wbuffer = Py_DecodeLocale(buffer, NULL);
+    PyMem_RawFree(buffer);
     if (!wbuffer) {
         PyMem_RawFree(filename);
         return PyStatus_Error("Unable to convert path to string!");
@@ -129,13 +135,15 @@ static PyStatus get_library_zip(wchar_t** ptr_str, wchar_t* platlib)
 
 static PyStatus get_program_name(char** ptr_str, const char* argv0)
 {
-    char exe_fullpath[MAXPATHLEN + 1];
-    char executable_name[MAXPATHLEN + 1];
-    char* program_name;
-    char *ptr, *path, *temp_ptr;
+    char *executable_name, *program_name, *ptr, *path, *temp_ptr;
     size_t size, size_argv0;
     struct stat stat_data;
     int found = 0;
+
+    executable_name = PyMem_RawMalloc(sizeof(char) * (MAXPATHLEN + 1));
+    if (!executable_name) {
+        return PyStatus_Error("Out of memory creating executable_name!");
+    }
 
     // check to see if path contains a separator
     if (strchr(argv0, SEP)) {
@@ -168,20 +176,25 @@ static PyStatus get_program_name(char** ptr_str, const char* argv0)
             ptr += size + 1;
         }
         if (!found) {
+            PyMem_RawFree(executable_name);
             return PyStatus_Error("Unable to locate executable on PATH!");
         }
     }
 
     // get absolute path for executable name
-    if (!realpath(executable_name, exe_fullpath)) {
+    program_name = PyMem_RawMalloc(sizeof(char) * (MAXPATHLEN + 1));
+    if (!program_name) {
+        PyMem_RawFree(executable_name);
+        return PyStatus_Error("Out of memory creating executable!");
+    }
+    if (!realpath(executable_name, program_name)) {
+        PyMem_RawFree(executable_name);
         return PyStatus_Error(
             "Unable to determine absolute path for executable!");
     }
-    program_name = PyMem_RawMalloc(sizeof(char) * strlen(exe_fullpath) + 1);
-    if (!program_name) {
-        return PyStatus_Error("Out of memory creating executable!");
-    }
-    *ptr_str = strcpy(program_name, exe_fullpath);
+    PyMem_RawFree(executable_name);
+
+    *ptr_str = program_name;
     return PyStatus_Ok();
 }
 
@@ -397,8 +410,9 @@ PyStatus InitializePython(int argc, char** argv)
                             status = PyStatus_NoMemory();
                     }
                 }
-            } else
+            } else {
                 status = PyStatus_NoMemory();
+            }
         }
     }
 #endif
@@ -406,13 +420,15 @@ PyStatus InitializePython(int argc, char** argv)
     // Read all configuration at once and initialize
     if (!PyStatus_Exception(status)) {
         status = PyConfig_Read(&config);
-        if (!PyStatus_Exception(status))
+        if (!PyStatus_Exception(status)) {
             status = Py_InitializeFromConfig(&config);
+        }
     }
 
 #ifdef MS_WINDOWS
-    if (!PyStatus_Exception(status))
+    if (!PyStatus_Exception(status)) {
         status = PostInitializePython(platlib);
+    }
 #endif
 
     // release
