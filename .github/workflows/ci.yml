@@ -66,6 +66,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
 
       - uses: actions/checkout@v4
@@ -79,13 +81,14 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/tests/requirements.txt
+            requirements.txt
+            tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
       - name: Install dependencies (Linux)
@@ -96,8 +99,8 @@ jobs:
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r tests/requirements.txt
-          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install -r requirements.txt -r tests/requirements.txt
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         env:
@@ -127,6 +130,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
 
       - uses: actions/checkout@v4
@@ -140,26 +145,27 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/tests/requirements.txt
+            requirements.txt
+            tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r tests/requirements.txt
-          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install -r requirements.txt -r tests/requirements.txt
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         run: |
           if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
             export CX_FREEZE_BIND=imagehlp
           else
-            uv pip install --system "${{ matrix.extra-requirement }}"
+            uv pip install "${{ matrix.extra-requirement }}"
           fi
           MATRIX_ID=${{ matrix.python-version }}.${{ matrix.os }}
           SUFFIX=$(echo "${{ matrix.extra-requirement }}" | sed 's/==/-/')
@@ -169,7 +175,7 @@ jobs:
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ hashFiles('.coverage.*') }}
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}
           path: .coverage.*
           include-hidden-files: true
 
@@ -184,6 +190,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
 
       - uses: actions/checkout@v4
@@ -197,26 +205,27 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/tests/requirements.txt
+            requirements.txt
+            tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r tests/requirements.txt
-          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install -r requirements.txt -r tests/requirements.txt
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Install dependencies - extra
         run: |
           if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            uv pip install --system -i https://pypi.anaconda.org/intel/simple numpy
+            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
           fi
-          uv pip install --system pandas
+          uv pip install pandas
 
       - name: Generate coverage report
         env:
