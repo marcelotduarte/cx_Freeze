@@ -61,6 +61,8 @@ jobs:
           - os: macos-13
             python-version: '3.10'
         exclude:
+          - os: macos-14
+            python-version: '3.8'
           - os: macos-14  # macos-14 is arm64 (apple silicon)
             python-version: '3.9'
           - os: macos-14
@@ -68,10 +70,10 @@ jobs:
     defaults:
       run:
         shell: bash
-    permissions:
-      id-token: write
-
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -83,35 +85,38 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/tests/requirements.txt
+            requirements.txt
+            tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -qy --allow-downgrades alien cpio=2.13+dfsg-7 fakeroot rpm
+        run: |
+          sudo apt-get install -qy alien fakeroot rpm
+          sudo apt-get install -qy --allow-downgrades cpio=2.13+dfsg-7
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r tests/requirements.txt
-          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install -r requirements.txt -r tests/requirements.txt
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
-        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: true
-          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
-          verbose: true
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}"
+        run: pytest -nauto --cov="cx_Freeze"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}
+          path: .coverage.*
+          include-hidden-files: true
 
   tests_extra:
     needs:
@@ -129,10 +134,10 @@ jobs:
     defaults:
       run:
         shell: bash
-    permissions:
-      id-token: write
-
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -144,37 +149,39 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/tests/requirements.txt
+            requirements.txt
+            tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r tests/requirements.txt
-          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install -r requirements.txt -r tests/requirements.txt
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         run: |
           if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
             export CX_FREEZE_BIND=imagehlp
           else
-            uv pip install --system "${{ matrix.extra-requirement }}"
+            uv pip install "${{ matrix.extra-requirement }}"
           fi
-          pytest -nauto --cov="cx_Freeze" --cov-report=xml
+          MATRIX_ID=${{ matrix.python-version }}.${{ matrix.os }}
+          SUFFIX=$(echo "${{ matrix.extra-requirement }}" | sed 's/==/-/')
+          export COVERAGE_FILE=".coverage.$MATRIX_ID.$SUFFIX"
+          pytest -nauto --cov="cx_Freeze"
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
         with:
-          fail_ci_if_error: true
-          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}
+          path: .coverage.*
+          include-hidden-files: true
 
   tests_unix_binary_wheel:
     needs:
@@ -187,10 +194,10 @@ jobs:
     defaults:
       run:
         shell: bash
-    permissions:
-      id-token: write
-
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -202,35 +209,36 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/tests/requirements.txt
+            requirements.txt
+            tests/requirements.txt
 
       - name: Download the wheel
         uses: actions/download-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
       - name: Install dependencies to test
         run: |
-          uv pip install --system -r requirements.txt -r tests/requirements.txt
-          uv pip install --system cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install -r requirements.txt -r tests/requirements.txt
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Install dependencies - extra
         run: |
           if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            uv pip install --system -i https://pypi.anaconda.org/intel/simple numpy
+            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
           fi
-          uv pip install --system pandas
+          uv pip install pandas
 
       - name: Generate coverage report
-        run: pytest -nauto --cov="cx_Freeze" --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: true
-          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
-          verbose: true
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-pandas"
+        run: pytest -nauto --cov="cx_Freeze"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-pandas
+          path: .coverage.*
+          include-hidden-files: true

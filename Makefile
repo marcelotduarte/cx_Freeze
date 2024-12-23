@@ -38,7 +38,7 @@ ifeq ($(PY_PLATFORM),win-amd64)
 		python -m pip install --upgrade uv --disable-pip-version-check;\
 	fi
 else
-	curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$HOME/bin" sh
+	curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$(HOME)/bin" sh
 endif
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
 		UV_RESOLUTION=highest uv pip install --upgrade \

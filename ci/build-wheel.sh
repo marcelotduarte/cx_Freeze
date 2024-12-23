@@ -48,8 +48,7 @@ done
 
 echo "::group::Install dependencies and build tools"
 # Do not export UV_PYTHON to avoid conflict with uv in cibuildwheel macOS
-UV_PYTHON=$($PYTHON -c "import sys; print(sys.executable, end='')")
-UV_PYTHON=$UV_PYTHON UV_RESOLUTION=highest \
+UV_RESOLUTION=highest \
     uv pip install -r requirements.txt -r requirements-dev.txt
 VERSION=$(bump-my-version show current_version 2>/dev/null | tr -d '\r\n')
 echo "::endgroup::"
@@ -61,6 +60,9 @@ if [[ $PY_PLATFORM == linux* ]]; then
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
+# Do not export UV_* to avoid conflict with uv in cibuildwheel macOS/Windows
+unset UV_PYTHON
+unset UV_SYSTEM_PYTHON
 if [ "$BUILD_TAG" == "--only" ]; then
     VERSION_BASE=$($PYTHON -c "print('$VERSION'.rsplit('-',1)[0], end='')")
     DIRTY=$(bump-my-version show scm_info.dirty 2>/dev/null | tr -d '\r\n')

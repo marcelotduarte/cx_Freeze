@@ -8,22 +8,62 @@ on:
   workflow_dispatch:
 
 jobs:
+  matrix:
+    name: Generate matrix of builds
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Extra includes
+        id: includes
+        run: |
+          import json, os
+          include = [
+              {"os": "ubuntu-latest", "arch": "x86_64", "tag": "cp3{8,9,10,11,12}-manylinux_x86_64"},
+              {"os": "windows-latest", "arch": "x86_64", "tag": "cp3{8,9,10,11,12}-win_amd64"},
+              {"os": "macos-13", "arch": "x86_64", "tag": "cp3{8,9,10}-macosx_x86_64"},
+              {"os": "macos-14", "arch": "arm64", "tag": "cp3{11,12}-macosx_arm64"},
+          ]
+          if "${{ github.event_name }}" != "pull_request":
+            include += [
+              {"os": "ubuntu-latest", "arch": "x86_64", "tag": "cp3{8,9,10,11,12}-musllinux_x86_64"},
+              {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3{8,9,10,11,12}-manylinux_aarch64"},
+              {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3{8,9,10,11,12}-musllinux_aarch64"},
+              {"os": "ubuntu-latest", "arch": "ppc64le", "tag": "cp3{8,9,10,11,12}-manylinux_ppc64le"},
+              {"os": "macos-14", "arch": "universal2", "tag": "cp3{11,12}-macosx_universal2"},
+            ]
+          with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
+            print("data="+json.dumps({"include": include}), file=f)
+          print("data="+json.dumps({"include": include}))
+        shell: python
+
+    outputs:
+      data: ${{ steps.includes.outputs.data }}
+
   build_wheel:
+    needs:
+      - matrix
     strategy:
       fail-fast: false
-      matrix:
-        # macos-14 is arm64 (apple silicon), macos-13 is x86_64
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
-    name: Build [${{ matrix.os }}]
+      # macos-14 is arm64 (apple silicon), macos-13 is x86_64
+      matrix: ${{ fromJSON(needs.matrix.outputs.data) }}
+    name: Build [${{ matrix.os }}-${{ matrix.arch }}](job-${{ strategy.job-index }})
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash
+    env:
+      UV_SYSTEM_PYTHON: true
     steps:
 
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -31,17 +71,17 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-            **/requirements-dev.txt
+            requirements.txt
+            requirements-dev.txt
 
       - name: Set up QEMU
-        if: runner.os == 'Linux' && github.event_name != 'pull_request'
+        if: runner.os == 'Linux' && matrix.arch != 'x86_64'
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: arm64,ppc64le
+          platforms: ${{ matrix.arch }}
 
       - name: Install build tools
-        run: uv pip install --system -r requirements-dev.txt
+        run: uv pip install -r requirements-dev.txt
 
       - name: Bump new dev version
         if: github.event_name != 'release'
@@ -64,33 +104,12 @@ jobs:
           git log -1
 
       - name: Build sdist and wheels
-        run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              ./ci/build-wheel.sh "cp3{8,9,10,11,12}-manylinux*" --archs="x86_64"
-            else
-              ./ci/build-wheel.sh --all
-            fi
-          elif [ "${{ matrix.os }}" == "macos-13" ]; then
-            ./ci/build-wheel.sh "cp3{8,9,10}-*"
-          elif [ "${{ matrix.os }}" == "macos-14" ]; then
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              ./ci/build-wheel.sh "cp3{11,12}-*" --archs="arm64"
-            else
-              ./ci/build-wheel.sh "cp3{11,12}-*"
-            fi
-          else
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              ./ci/build-wheel.sh "cp3{8,9,10,11,12}-*" --archs="AMD64"
-            else
-              ./ci/build-wheel.sh --all
-            fi
-          fi
+        run: ./ci/build-wheel.sh "${{ matrix.tag }}"
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}
+          name: cx-freeze-whl-${{ matrix.os }}-job-${{ strategy.job-index }}
           path: wheelhouse
           compression-level: 0  # no compression
 
