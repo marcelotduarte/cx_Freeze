@@ -800,6 +800,7 @@ class Freezer:
 
         # do any platform-specific post-Freeze work
         self._post_freeze_hook()
+        self.finder.cleanup()
 
     def print_report(self) -> None:
         """Display report:
