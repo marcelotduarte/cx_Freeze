@@ -97,6 +97,9 @@ class ModuleFinder:
         self.cache_path = Path(self._tmp_dir.name)
         self.lib_files: dict[Path, str] = {}
 
+    def cleanup(self) -> None:
+        self._tmp_dir.cleanup()
+
     def _add_module(
         self,
         name: str,
@@ -568,8 +571,8 @@ class ModuleFinder:
             else:
                 search_dir = Path(search_value)
             with suppress(ValueError):
-                new_filename = original_filename.relative_to(search_dir)
-                new_filename = replace_value / new_filename
+                relative = original_filename.relative_to(search_dir)
+                new_filename = replace_value / relative
                 break
         else:
             new_filename = original_filename
