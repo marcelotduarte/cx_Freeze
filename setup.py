@@ -230,7 +230,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         # tcl/tk are detected in /usr/local/lib or /usr/share
         try:
             tkinter = __import__("tkinter")
-        except (ImportError, AttributeError):
+        except ImportError:
             return
         root = tkinter.Tk(useTk=False)
         tcl_library = Path(root.tk.exprstring("$tcl_library"))
