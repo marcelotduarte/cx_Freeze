@@ -8,6 +8,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "pythoncapi_compat.h"
+
 //-----------------------------------------------------------------------------
 // FatalError()
 //   Handle a fatal error.
@@ -113,7 +115,7 @@ static int HandleSystemExitException()
         PyErr_Clear();
     else {
         value = code;
-        if (value == Py_None)
+        if (Py_IsNone(value))
             Py_Exit(0);
     }
     if (PyLong_Check(value))
