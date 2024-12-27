@@ -10,6 +10,8 @@
 #include <windows.h>
 #include <winsvc.h>
 
+#include "pythoncapi_compat.h"
+
 // define constants
 #define CX_LOGGING_SECTION_NAME      L"Logging"
 #define CX_LOGGING_FILE_NAME_KEY     L"FileName"
@@ -264,7 +266,7 @@ static int Service_SetupPython(udt_ServiceInfo* info)
         Service_SetStatus(info, SERVICE_STOPPED);
         return -1;
     }
-    gInterpreterState = threadState->interp;
+    gInterpreterState = PyThreadState_GetInterpreter(threadState);
     PyThreadState_Swap(threadState);
 
     // running base script
@@ -298,7 +300,7 @@ static int Service_SetupPython(udt_ServiceInfo* info)
     temp = PyObject_GetAttrString(module, CX_SERVICE_AUTO_START);
     if (!temp)
         PyErr_Clear();
-    else if (temp == Py_True)
+    else if (Py_IsTrue(temp))
         info->startType = SERVICE_AUTO_START;
 
     // determine if service should monitor session changes (optional)
@@ -306,7 +308,7 @@ static int Service_SetupPython(udt_ServiceInfo* info)
     temp = PyObject_GetAttrString(module, CX_SERVICE_SESSION_CHANGES);
     if (!temp)
         PyErr_Clear();
-    else if (temp == Py_True)
+    else if (Py_IsTrue(temp))
         info->sessionChanges = 1;
 
     // import the module which implements the service
