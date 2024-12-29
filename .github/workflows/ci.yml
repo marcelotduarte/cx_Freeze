@@ -22,7 +22,9 @@ jobs:
     name: Publish package to TestPyPI
     needs:
       - build_wheel
-    if: github.event_name != 'workflow_dispatch'
+    if: |
+      github.event_name != 'workflow_dispatch' &&
+      !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork)
     environment:
       name: ${{ github.event_name }}
       url: https://test.pypi.org/p/cx-Freeze
