@@ -19,6 +19,7 @@ else
     PLATFORM_TAG_MASK=$(echo $PLATFORM_TAG | sed 's/_/*/')
 fi
 
+# Usage
 if ! [ -z "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
     echo "$0 [--all|TAG] [--archs=ARCHS]"
@@ -46,11 +47,39 @@ while ! [ -z "$1" ]; do
     shift
 done
 
+# Functions and commands
+_verlte() {
+    echo -e $(echo -e "$1\n$2" | sort -V | head -n1)
+}
+
+_vergte() {
+    echo -e $(echo -e "$1\n$2" | sort -V -r | head -n1)
+}
+
+_bump_my_version () {
+    local args=$*
+    # Use python <= 3.12 (python 3.13t is not supported)
+    local py_version=$(_verlte $PY_VERSION 3.12)
+    echo $(uvx -p $py_version bump-my-version $args 2>/dev/null | tr -d '\r\n')
+}
+
+_cibuildwheel () {
+    local args=$*
+    # Use python >= 3.11
+    local py_version=$(_vergte $PY_VERSION 3.11)
+    # Do not export UV_* to avoid conflict with uv in cibuildwheel macOS/Windows
+    unset UV_SYSTEM_PYTHON
+    uvx -p $py_version cibuildwheel $args
+}
+
 echo "::group::Install dependencies and build tools"
-# Do not export UV_PYTHON to avoid conflict with uv in cibuildwheel macOS
-UV_RESOLUTION=highest \
-    uv pip install -r requirements.txt -r requirements-dev.txt
-VERSION=$(bump-my-version show current_version 2>/dev/null | tr -d '\r\n')
+UV_RESOLUTION=highest uv pip install -r requirements.txt
+VERSION=$(_bump_my_version show current_version)
+if [[ $VERSION == *-* ]]; then
+    VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
+else
+    VERSION_OK=$VERSION
+fi
 echo "::endgroup::"
 
 mkdir -p wheelhouse >/dev/null
@@ -60,30 +89,25 @@ if [[ $PY_PLATFORM == linux* ]]; then
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
-# Do not export UV_* to avoid conflict with uv in cibuildwheel macOS/Windows
-unset UV_PYTHON
-unset UV_SYSTEM_PYTHON
 if [ "$BUILD_TAG" == "--only" ]; then
-    VERSION_BASE=$($PYTHON -c "print('$VERSION'.rsplit('-',1)[0], end='')")
-    DIRTY=$(bump-my-version show scm_info.dirty 2>/dev/null | tr -d '\r\n')
-    FILEMASK=cx_Freeze-$VERSION_BASE*-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK
+    DIRTY=$(_bump_my_version show scm_info.dirty)
+    FILEMASK=cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK
     FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
-    if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
+    if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
             uv build --no-build-isolation  --wheel -o wheelhouse
         else
-            cibuildwheel --only $PYTHON_TAG-$PLATFORM_TAG --prerelease-pythons
+            _cibuildwheel --only $PYTHON_TAG-$PLATFORM_TAG
         fi
     fi
 elif ! [ -z "$BUILD_TAG" ]; then
-    CIBW_BUILD="$BUILD_TAG" cibuildwheel $ARCHS
+    CIBW_BUILD="$BUILD_TAG" _cibuildwheel $ARCHS
 else
-    cibuildwheel $ARCHS
+    _cibuildwheel $ARCHS
 fi
 echo "::endgroup::"
 
 if ! [ "$CI" == "true" ]; then
-    VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
     echo "::group::Install cx_Freeze $VERSION_OK"
     UV_PYTHON=$UV_PYTHON UV_PRERELEASE=allow \
         uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall
