@@ -1,7 +1,7 @@
 Setup script
 ============
 
-cx_Freeze creates four new commands and subclasses four others to provide
+cx_Freeze creates four new commands and subclasses for others to provide
 the ability to build and install executables. In typical setuptools fashion
 they can be provided in the setup script (it is called
 ``setup.py`` by convention, although it can have any name), in a
