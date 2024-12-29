@@ -80,16 +80,13 @@ jobs:
         with:
           platforms: ${{ matrix.arch }}
 
-      - name: Install build tools
-        run: uv pip install -r requirements-dev.txt
-
       - name: Bump new dev version
         if: github.event_name != 'release'
         run: |
           git config user.name "Marcelo Duarte"
           git config user.email marcelotduarte@users.noreply.github.com
           SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
-          VERSION=$(bump-my-version show current_version 2>/dev/null)
+          VERSION=$(uvx bump-my-version show current_version 2>/dev/null)
           VERSION_BASE=$(python -c "print('$VERSION'.rsplit('-',1)[0])")
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             OPTIONAL=".${{ github.event.number }}"
@@ -97,7 +94,7 @@ jobs:
             OPTIONAL=""
           fi
           VERSION_NEW=$VERSION_BASE$OPTIONAL-dev.$SOURCE_DATE_EPOCH
-          bump-my-version bump --no-tag build --new-version=$VERSION_NEW 2>/dev/null
+          uvx bump-my-version bump --no-tag build --new-version=$VERSION_NEW 2>/dev/null
           git log -1
 
       - name: Build sdist and wheels
