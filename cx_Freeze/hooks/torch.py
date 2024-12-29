@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -37,24 +37,32 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     else:
         module.in_file_system = 2
 
-    # patch the code to ignore CUDA_PATH_Vxx_x installation directory
-    code_string = module.file.read_text(encoding="utf_8")
-    code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
-    module.code = compile(
-        code_string,
-        module.file.as_posix(),
-        "exec",
-        dont_inherit=True,
-        optimize=finder.optimize,
-    )
-
-    # include the cuda libraries as fixed libraries
-    source_lib = module.file.parent.parent / "nvidia"
-    if source_lib.exists():
-        target_lib = f"lib/{source_lib.name}"
-        for source in source_lib.glob("*/lib/*"):
-            target = target_lib / source.relative_to(source_lib)
-            finder.lib_files[source] = target.as_posix()
+    # has cuda libraries?
+    try:
+        finder.include_module("nvidia")
+    except ImportError:
+        pass
+    else:
+        code_string = module.file.read_text(encoding="utf_8")
+        # patch the code to ignore CUDA_PATH_Vxx_x installation directory
+        code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
+        if IS_LINUX:
+            # fix for issue #2682
+            lines = code_string.splitlines()
+            for i, line in enumerate(lines[:]):
+                if line.strip() == "_load_global_deps()":
+                    lines[i] = line.replace(
+                        "_load_global_deps()",
+                        "import nvidia; _load_global_deps()",
+                    )
+            code_string = "\n".join(lines)
+        module.code = compile(
+            code_string,
+            module.file.as_posix(),
+            "exec",
+            dont_inherit=True,
+            optimize=finder.optimize,
+        )
 
     # include the shared libraries in 'lib' as fixed libraries
     source_lib = module.file.parent / "lib"
