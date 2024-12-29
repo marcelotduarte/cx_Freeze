@@ -128,3 +128,9 @@ def load_torch__dynamo_skipfiles(finder: ModuleFinder, module: Module) -> None:
         dont_inherit=True,
         optimize=finder.optimize,
     )
+
+
+def load_torch__numpy(finder: ModuleFinder, module: Module) -> None:
+    """Patch to work in Windows."""
+    finder.exclude_module("torch._numpy.testing")
+    finder.include_package(module.name)
