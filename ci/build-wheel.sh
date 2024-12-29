@@ -68,7 +68,7 @@ _cibuildwheel () {
     # Use python >= 3.11
     local py_version=$(_vergte $PY_VERSION 3.11)
     # Use uvx to avoid conflict with uv in cibuildwheel macOS/Windows
-    uvx -p $py_version cibuildwheel $args
+    uvx --isolated -p $py_version cibuildwheel $args
 }
 
 echo "::group::Install dependencies and build tools"
