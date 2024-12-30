@@ -25,8 +25,8 @@ jobs:
           include = [
               {"os": "ubuntu-latest", "arch": "x86_64", "tag": "cp3*-manylinux_x86_64"},
               {"os": "windows-latest", "arch": "x86_64", "tag": "cp3*-win_amd64"},
-              {"os": "macos-13", "arch": "x86_64", "tag": "cp3{9,10}-macosx_x86_64"},
-              {"os": "macos-14", "arch": "arm64", "tag": "cp3{11,12,13}-macosx_arm64"},
+              {"os": "macos-13", "arch": "universal2", "tag": "cp3{9,10,11}-macosx_universal2"},
+              {"os": "macos-14", "arch": "universal2", "tag": "cp3{12,13}*-macosx_universal2"},
           ]
           if "${{ github.event_name }}" != "pull_request":
             include += [
@@ -34,7 +34,6 @@ jobs:
               {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3*-manylinux_aarch64"},
               {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3*-musllinux_aarch64"},
               {"os": "ubuntu-latest", "arch": "ppc64le", "tag": "cp3*-manylinux_ppc64le"},
-              {"os": "macos-14", "arch": "universal2", "tag": "cp3{11,12,13}-macosx_universal2"},
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
             print("data="+json.dumps({"include": include}), file=f)

@@ -10,13 +10,13 @@ PY_VERSION_NODOT=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var(
 PYTHON_TAG=cp$PY_VERSION_NODOT
 if [[ $PY_PLATFORM == linux* ]]; then
     PLATFORM_TAG=many$(echo $PY_PLATFORM | sed 's/\-/_/')
-    PLATFORM_TAG_MASK=$(echo $PLATFORM_TAG | sed 's/_/*_/')
+    PLATFORM_TAG_MASK="$(echo $PLATFORM_TAG | sed 's/_/*_/')"
     if ! [ "$CI" == "true" ] && which podman >/dev/null; then
         export CIBW_CONTAINER_ENGINE=podman
     fi
 else
     PLATFORM_TAG=$(echo $PY_PLATFORM | sed 's/\-/_/')
-    PLATFORM_TAG_MASK=$(echo $PLATFORM_TAG | sed 's/_/*/')
+    PLATFORM_TAG_MASK="$(echo $PLATFORM_TAG | sed 's/_/*/')"
 fi
 
 # Usage
@@ -42,7 +42,7 @@ while ! [ -z "$1" ]; do
             BUILD_TAG=""
         fi
     else
-        BUILD_TAG=$1
+        BUILD_TAG="$1"
     fi
     shift
 done
@@ -91,13 +91,13 @@ fi
 echo "::group::Build wheel(s)"
 if [ "$BUILD_TAG" == "--only" ]; then
     DIRTY=$(_bump_my_version show scm_info.dirty)
-    FILEMASK=cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK
-    FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
+    FILEMASK="cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK"
+    FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
     if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
             uv build --no-build-isolation  --wheel -o wheelhouse
         else
-            _cibuildwheel --only $PYTHON_TAG-$PLATFORM_TAG
+            _cibuildwheel --only "$PYTHON_TAG-$PLATFORM_TAG"
         fi
     fi
 elif ! [ -z "$BUILD_TAG" ]; then
