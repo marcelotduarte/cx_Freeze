@@ -4,5 +4,6 @@ import PySide6.Qt3DCore
 import PySide6.QtCore
 import PySide6.QtGui
 import enum
+from collections.abc import Iterable
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken
