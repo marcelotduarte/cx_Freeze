@@ -6,8 +6,9 @@ PY_PLATFORM=$($PYTHON -c "import sysconfig; print(sysconfig.get_platform(), end=
 PY_VERSION=$($PYTHON -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
 PY_VERSION_FULL=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('py_version'), end='')")
 PY_VERSION_NODOT=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'), end='')")
+PY_ABI_THREAD=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
 
-PYTHON_TAG=cp$PY_VERSION_NODOT
+PYTHON_TAG=cp$PY_VERSION_NODOT$PY_ABI_THREAD
 if [[ $PY_PLATFORM == linux* ]]; then
     PLATFORM_TAG=many$(echo $PY_PLATFORM | sed 's/\-/_/')
     PLATFORM_TAG_MASK="$(echo $PLATFORM_TAG | sed 's/_/*_/')"
