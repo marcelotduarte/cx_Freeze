@@ -156,9 +156,8 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         blas_options = ["libopenblas", "mkl"]
         packages += blas_options
         for package in packages:
-            try:
-                pkg = next(conda_meta.glob(f"{package}-*.json"))
-            except StopIteration:
+            pkg = next(conda_meta.glob(f"{package}-*.json"), None)
+            if pkg is None:
                 continue
             files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
             # copy mkl/blas files to lib (issue #2574)
