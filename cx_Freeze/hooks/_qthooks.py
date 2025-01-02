@@ -395,12 +395,13 @@ def load_qt_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
         if environment == "conda":  # conda-forge Linux and macOS
             prefix = Path(sys.prefix)
             conda_meta = prefix / "conda-meta"
-            pkg = next(conda_meta.glob("nss-*.json"))
-            files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
-            for file in files:
-                source = prefix / file
-                if source.match("lib*.so") or source.match("lib*.dylib"):
-                    finder.include_files(source, f"lib/{source.name}")
+            pkg = next(conda_meta.glob("nss-*.json"), None)
+            if pkg is not None:
+                files = json.loads(pkg.read_text(encoding="utf_8"))["files"]
+                for file in files:
+                    source = prefix / file
+                    if source.match("lib*.so") or source.match("lib*.dylib"):
+                        finder.include_files(source, f"lib/{source.name}")
         else:
             copy_qt_files(finder, name, "LibraryExecutablesPath", "libnss*.*")
 
