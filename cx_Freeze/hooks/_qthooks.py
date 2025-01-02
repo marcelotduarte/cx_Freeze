@@ -154,6 +154,7 @@ def copy_qt_files(
 ) -> None:
     """Helper function to copy Qt plugins, resources, translations, etc."""
     for source_path, target_path in _get_qt_files(name, variable, arg):
+        finder.lib_files[source_path] = target_path.as_posix()
         finder.include_files(source_path, target_path)
 
 
@@ -192,7 +193,7 @@ def load_qt_qtcore(finder: ModuleFinder, module: Module) -> None:
     name = _qt_implementation(module)
     variable = "BinariesPath" if IS_WINDOWS else "LibrariesPath"
     for source, target in _get_qt_files(name, variable, "*"):
-        finder.lib_files[source] = target
+        finder.lib_files.setdefault(source, target.as_posix())
 
 
 def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
