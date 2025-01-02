@@ -255,7 +255,7 @@ class Module:
             return None
 
         try:
-            package = filename.parent.relative_to(self.root_dir)
+            package = filename.parent.relative_to(self.root_dir.parent)
         except ValueError:
             return None
         stem = filename.name.removesuffix(ext)
