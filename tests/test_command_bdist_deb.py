@@ -99,7 +99,8 @@ def test_bdist_deb_simple(datafiles: Path) -> None:
             pytest.fail(process.stderr)
 
     pattern = f"{name}_{version}-?_*.deb"
-    file_created = next(dist_created.glob(pattern))
+    file_created = next(dist_created.glob(pattern), None)
+    assert file_created, pattern
     assert file_created.is_file(), pattern
 
 
@@ -128,7 +129,8 @@ def test_bdist_deb_simple_pyproject(datafiles: Path) -> None:
             pytest.fail(process.stderr)
 
     pattern = f"{name}_{version}-?_*.deb"
-    file_created = next(dist_created.glob(pattern))
+    file_created = next(dist_created.glob(pattern), None)
+    assert file_created, pattern
     assert file_created.is_file(), pattern
 
 
@@ -156,5 +158,6 @@ def test_bdist_deb(datafiles: Path) -> None:
             pytest.fail(process.stderr)
 
     pattern = f"{name.replace('_', '-')}_{version}-?_*.deb"
-    file_created = next(dist_created.glob(pattern))
+    file_created = next(dist_created.glob(pattern), None)
+    assert file_created, pattern
     assert file_created.is_file(), pattern
