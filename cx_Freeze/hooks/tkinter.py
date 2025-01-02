@@ -34,11 +34,8 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
         and lib_dynload_tkinter
         and lib_dynload_tkinter.exists()
     ):
-        try:
-            tcl_library = next(share.glob("tcl*.*"))
-            tk_library = next(share.glob("tk*.*"))
-        except StopIteration:
-            pass
+        tcl_library = next(share.glob("tcl*.*"), None)
+        tk_library = next(share.glob("tk*.*"), None)
     if tcl_library is None:
         # search for the tcl/tk libraries (Windows, MSYS2, conda-forge, etc)
         try:
