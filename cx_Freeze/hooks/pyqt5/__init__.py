@@ -7,7 +7,7 @@ from __future__ import annotations
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_MACOS
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.hooks._qthooks import copy_qt_files
 from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyqt5_qtcore
@@ -55,10 +55,6 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
             print(f"WARNING: zip_include_packages={module.name} ignored.")
         module.in_file_system = 2
 
-    # Include a module that fix an issue
-    qt_debug = get_resource_file_path("hooks/pyqt5", "_append_to_init", ".py")
-    finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_append_to_init")
-
     # Include a module that inject an optional debug code
     qt_debug = get_resource_file_path("hooks/pyqt5", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_debug")
@@ -72,18 +68,32 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
     copy_qt_files(finder, "PyQt5", "LibraryExecutablesPath", "qt.conf")
 
     # Inject code to the end of init
-    code_string = module.file.read_text(encoding="utf_8")
+    if environment == "conda":
+        code_string = ""
+    else:
+        code_string = module.file.read_text(encoding="utf_8")
     code_string += dedent(
         f"""
         # cx_Freeze patch start
         import os, sys
+
+        frozen_dir = sys.frozen_dir
+        qt_root_dir = os.path.join(frozen_dir, "lib", "PyQt5")
+        try:
+            from PyQt5 import QtCore
+        except ImportError:
+            if {IS_MINGW or IS_WINDOWS}:
+                bin_dir = os.path.join(qt_root_dir, "Qt5", "bin")
+                if os.path.isdir(bin_dir):
+                    os.add_dll_directory(bin_dir)
+                    from PyQt5 import QtCore
         if {environment == "conda"}:  # conda-forge linux, macos and windows
             import PyQt5._cx_freeze_resource
         elif {IS_MACOS}:  # macos using 'pip install pyqt5'
             # Support for QtWebEngine (bdist_mac differs from build_exe)
-            helpers = os.path.join(os.path.dirname(sys.frozen_dir), "Helpers")
+            helpers = os.path.join(os.path.dirname(frozen_dir), "Helpers")
             if not os.path.isdir(helpers):
-                helpers = os.path.join(sys.frozen_dir, "share")
+                helpers = os.path.join(frozen_dir, "share")
             os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
                 helpers,
                 "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"
@@ -92,7 +102,18 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         else:
             # Support for QtWebEngine (linux and windows using pip)
             os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
-        import PyQt5._cx_freeze_append_to_init
+        # With PyQt5 5.15.4, if the folder name contains non-ascii characters,
+        # the libraryPaths returns empty.
+        # Prior to this version, this doesn't happen.
+        plugins_dir = os.path.join(qt_root_dir, "Qt5", "plugins")  # 5.15.4
+        if not os.path.isdir(plugins_dir):
+            plugins_dir = os.path.join(qt_root_dir, "Qt", "plugins")
+        if not os.path.isdir(plugins_dir):
+            plugins_dir = os.path.join(qt_root_dir, "plugins")
+        if os.path.isdir(plugins_dir):
+            QtCore.QCoreApplication.addLibraryPath(
+                plugins_dir.replace(os.path.sep, os.path.altsep or "/")
+            )
         import PyQt5._cx_freeze_debug
         # cx_Freeze patch end
         """
