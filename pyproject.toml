@@ -63,7 +63,7 @@ dev = [
 ]
 doc = [
     "sphinx>=7.1.2,<8",            # lower limit python_version < 3.9
-    "sphinx-new-tab-link==0.6.1",
+    "sphinx-new-tab-link>=0.6.0",
     "sphinx-tabs==3.4.7",
     "furo==2024.8.6",
     "myst-parser>=3.0.1,<=4.0.0",  # lower limit python_version < 3.10
@@ -123,8 +123,21 @@ target-version = ["py38"]
 commit = true
 current_version = "7.2.7"
 message = "Bump version: {current_version} → {new_version} [ci skip]"
-parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(\\-(?P<pre>[a-z]+)\\.(?P<build>\\d+))?"
+parse = """(?x)
+    (?P<major>0|[1-9]\\d*)\\.
+    (?P<minor>0|[1-9]\\d*)\\.
+    (?P<patch>0|[1-9]\\d*)
+    (?:
+        \\.(?P<optional>0|[1-9]\\d*)  # pull request number (optional)
+    )?
+    (?:
+        -                             # dash separator for pre-release section
+        (?P<pre>[a-zA-Z-]+)\\.        # pre-release label
+        (?P<build>0|[1-9]\\d*)        # pre-release version number
+    )?                                # pre-release section is optional
+"""
 serialize = [
+	"{major}.{minor}.{patch}.{optional}-{pre}.{build}",
 	"{major}.{minor}.{patch}-{pre}.{build}",
 	"{major}.{minor}.{patch}"
 ]
@@ -148,7 +161,8 @@ before-build = "pip install -r requirements.txt"
 build-frontend = "build[uv]"
 build-verbosity = 1
 skip = [
-    "cp3{8,9}-{many,musl}linux_{aarch64,ppc64le}",
+    "cp3{8,9}-musllinux_*",
+    "cp3{8,9}-manylinux_ppc64le",
 ]
 
 [tool.cibuildwheel.linux]
