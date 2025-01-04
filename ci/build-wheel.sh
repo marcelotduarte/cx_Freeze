@@ -85,7 +85,7 @@ echo "::endgroup::"
 mkdir -p wheelhouse >/dev/null
 if [[ $PY_PLATFORM == linux* ]]; then
     echo "::group::Build sdist"
-    uv build --no-build-isolation --sdist -o wheelhouse
+    uv build -p $PY_VERSION --no-build-isolation --sdist -o wheelhouse
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"

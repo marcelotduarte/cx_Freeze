@@ -25,7 +25,8 @@ jobs:
           include = [
               {"os": "ubuntu-latest", "arch": "x86_64", "tag": "cp3{8,9,10,11,12}-manylinux_x86_64"},
               {"os": "windows-latest", "arch": "x86_64", "tag": "cp3{8,9,10,11,12}-win_amd64"},
-              {"os": "macos-13", "arch": "universal2", "tag": "cp3{8,9,10}-macosx_universal2"},
+              {"os": "macos-13", "arch": "x86_64", "tag": "cp38-macosx_x86_64"},
+              {"os": "macos-13", "arch": "universal2", "tag": "cp3{9,10}-macosx_universal2"},
               {"os": "macos-14", "arch": "universal2", "tag": "cp3{11,12}-macosx_universal2"},
           ]
           if "${{ github.event_name }}" != "pull_request":
