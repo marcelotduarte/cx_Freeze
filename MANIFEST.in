@@ -9,5 +9,5 @@ recursive-include cx_Freeze/importshed *.pyi
 recursive-include cx_Freeze/initscripts *.txt
 recursive-include doc Makefile *.py *.rst *.txt
 recursive-include samples *.*
-recursive-include source *.c *.rc python.manifest
+recursive-include source *.c *.h *.rc python.manifest
 recursive-include tests *.md *.py *.txt

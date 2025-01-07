@@ -38,10 +38,11 @@ ifeq ($(PY_PLATFORM),win-amd64)
 		python -m pip install --upgrade uv --disable-pip-version-check;\
 	fi
 else
-	curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$(HOME)/bin" sh
+	curl -LsSf https://astral.sh/uv/install.sh | \
+	env UV_INSTALL_DIR=="$(HOME)/bin" INSTALLER_NO_MODIFY_PATH=1 sh
 endif
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
-		UV_RESOLUTION=highest uv pip install --upgrade \
+		uv pip install --upgrade \
 			-r requirements.txt -r requirements-dev.txt -r doc/requirements.txt &&\
 		uv pip install -e. --no-build-isolation --no-deps --reinstall &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
@@ -66,7 +67,6 @@ html:
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
-		UV_RESOLUTION=highest \
 		uv pip install --upgrade -r doc/requirements.txt &&\
 		$(MAKE) -C doc html;\
 	fi
@@ -83,7 +83,7 @@ doc: html
 .PHONY: install_pytest
 install_pytest:
 	./ci/build-wheel.sh
-	UV_RESOLUTION=highest uv pip install --upgrade -r tests/requirements.txt
+	uv pip install --upgrade -r tests/requirements.txt
 
 .PHONY: tests
 tests: install_pytest
