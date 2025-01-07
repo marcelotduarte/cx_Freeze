@@ -39,12 +39,10 @@ ifeq ($(PY_PLATFORM),win-amd64)
 	fi
 else
 	curl -LsSf https://astral.sh/uv/install.sh | \
-	env UV_INSTALL_DIR=="$(HOME)/bin" INSTALLER_NO_MODIFY_PATH=1 sh
+	env UV_INSTALL_DIR="$(HOME)/bin" INSTALLER_NO_MODIFY_PATH=1 sh
 endif
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
-		uv pip install --upgrade \
-			-r requirements.txt -r requirements-dev.txt -r doc/requirements.txt &&\
-		uv pip install -e. --no-build-isolation --no-deps --reinstall &&\
+		uv sync --extra dev --extra doc --upgrade &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
@@ -67,7 +65,7 @@ html:
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
-		uv pip install --upgrade -r doc/requirements.txt &&\
+		uv sync --no-install-project --extra doc --upgrade && \
 		$(MAKE) -C doc html;\
 	fi
 
@@ -82,8 +80,8 @@ doc: html
 
 .PHONY: install_pytest
 install_pytest:
+	uv sync --no-install-project --extra tests --upgrade
 	./ci/build-wheel.sh
-	uv pip install --upgrade -r tests/requirements.txt
 
 .PHONY: tests
 tests: install_pytest
