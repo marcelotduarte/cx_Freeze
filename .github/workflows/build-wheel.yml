@@ -34,6 +34,7 @@ jobs:
               {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3*-manylinux_aarch64"},
               {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3*-musllinux_aarch64"},
               {"os": "ubuntu-latest", "arch": "ppc64le", "tag": "cp3*-manylinux_ppc64le"},
+              {"os": "windows-latest", "arch": "x86_64", "tag": "cp3*-win32"},
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
             print("data="+json.dumps({"include": include}), file=f)

@@ -1,7 +1,23 @@
 #!/bin/bash
 
+# install/update uv
+if ! [ "$CI" == "true" ]; then
+    if which uv &>/dev/null; then
+        uv self -q update
+    else
+        curl -LsSf https://astral.sh/uv/install.sh | \
+        env UV_INSTALL_DIR="$HOME/bin" INSTALLER_NO_MODIFY_PATH=1 sh
+    fi
+fi
+
 # Python information (platform and version)
-PYTHON=python
+if ! [ -z "$UV_PYTHON" ]; then
+    PYTHON=$(uv python find $UV_PYTHON)
+elif which python &>/dev/null; then
+    PYTHON=python
+else
+    exit 1
+fi
 PY_PLATFORM=$($PYTHON -c "import sysconfig; print(sysconfig.get_platform(), end='')")
 PY_VERSION=$($PYTHON -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
 PY_VERSION_FULL=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('py_version'), end='')")
@@ -73,7 +89,7 @@ _cibuildwheel () {
 }
 
 echo "::group::Install dependencies and build tools"
-UV_RESOLUTION=highest uv pip install -r requirements.txt
+uv pip install -r requirements.txt
 VERSION=$(_bump_my_version show current_version)
 if [[ $VERSION == *-* ]]; then
     VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
@@ -85,7 +101,7 @@ echo "::endgroup::"
 mkdir -p wheelhouse >/dev/null
 if [[ $PY_PLATFORM == linux* ]]; then
     echo "::group::Build sdist"
-    uv build --no-build-isolation --sdist -o wheelhouse
+    uv build -p $PY_VERSION --no-build-isolation --sdist -o wheelhouse
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
@@ -109,7 +125,7 @@ echo "::endgroup::"
 
 if ! [ "$CI" == "true" ]; then
     echo "::group::Install cx_Freeze $VERSION_OK"
-    UV_PYTHON=$UV_PYTHON UV_PRERELEASE=allow \
+    UV_PRERELEASE=allow \
         uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall
     echo "::endgroup::"
 fi
