@@ -102,7 +102,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install -qy alien fakeroot rpm
-          sudo apt-get install -qy --allow-downgrades cpio=2.13+dfsg-7
+          sudo apt-get install -qy --allow-downgrades cpio=2.13+dfsg-7 || true
 
       - name: Install dependencies to test
         run: |
