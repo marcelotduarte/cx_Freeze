@@ -12,6 +12,7 @@ from generate_samples import create_package, run_command
 
 from cx_Freeze import Freezer
 from cx_Freeze._compat import (
+    ABI_THREAD,
     BUILD_EXE_DIR,
     EXE_SUFFIX,
     IS_CONDA,
@@ -99,19 +100,20 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)
 
     freezer = Freezer(executables=["hello.py"])
+    py_version = f"{PYTHON_VERSION}{ABI_THREAD}"
     if IS_MINGW:
-        expected = f"libpython{PYTHON_VERSION}.dll"
+        expected = f"libpython{py_version}.dll"
     elif IS_WINDOWS:
-        expected = f"python{PYTHON_VERSION.replace('.','')}.dll"
+        expected = f"python{py_version.replace('.','')}.dll"
     elif IS_CONDA:  # macOS or Linux
         if IS_MACOS:
-            expected = f"libpython{PYTHON_VERSION}.dylib"
+            expected = f"libpython{py_version}.dylib"
         else:
-            expected = f"libpython{PYTHON_VERSION}.so*"
+            expected = f"libpython{py_version}.so*"
     elif IS_MACOS:
-        expected = "Python"
+        expected = f"Python{ABI_THREAD.upper()}"
     elif ENABLE_SHARED:  # Linux
-        expected = f"libpython{PYTHON_VERSION}.so*"
+        expected = f"libpython{py_version}.so*"
     else:
         assert freezer.default_bin_includes == []
         return

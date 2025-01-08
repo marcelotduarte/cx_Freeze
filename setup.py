@@ -97,7 +97,8 @@ class BuildBases(setuptools.command.build_ext.build_ext):
             library_dirs.append(get_config_var("LIBPL"))
             if not ENABLE_SHARED or IS_CONDA:
                 library_dirs.append(get_config_var("LIBDIR"))
-            libraries.append(f"python{get_python_version()}")
+            abi_thread = get_config_var("abi_thread") or ""
+            libraries.append(f"python{get_python_version()}{abi_thread}")
             if get_config_var("LIBS"):
                 extra_args.extend(get_config_var("LIBS").split())
             if get_config_var("LIBM"):
@@ -275,38 +276,48 @@ def get_extensions() -> list[Extension]:
         os.environ.get("CI", "") != "true"
         or os.environ.get("CIBUILDWHEEL", "0") != "1"
     )
+    abi_thread = get_config_var("abi_thread") or ""
+    version = sys.version_info[:2]
     extensions = [
         Extension(
             "cx_Freeze.bases.console",
             ["source/bases/console.c", "source/bases/_common.c"],
             optional=optional,
-        ),
-        Extension(
-            "cx_Freeze.bases.console_legacy",
-            ["source/legacy/console.c"],
-            depends=["source/legacy/common.c"],
-            optional=optional
-            or (sys.version_info[:2] >= (3, 13) and IS_MACOS),
-        ),
+        )
     ]
-
-    if IS_MINGW or IS_WINDOWS:
+    if (
+        version <= (3, 13)
+        and abi_thread == ""
+        and not (IS_MACOS and version == (3, 13))
+    ):
         extensions += [
             Extension(
-                "cx_Freeze.bases.Win32GUI",
-                ["source/legacy/Win32GUI.c"],
+                "cx_Freeze.bases.console_legacy",
+                ["source/legacy/console.c"],
                 depends=["source/legacy/common.c"],
-                libraries=["user32"],
                 optional=optional,
-            ),
-            Extension(
-                "cx_Freeze.bases.Win32Service",
-                ["source/legacy/Win32Service.c"],
-                depends=["source/legacy/common.c"],
-                extra_link_args=["/DELAYLOAD:cx_Logging"],
-                libraries=["advapi32"],
-                optional=optional,
-            ),
+            )
+        ]
+    if IS_MINGW or IS_WINDOWS:
+        if version <= (3, 13) and abi_thread == "":
+            extensions += [
+                Extension(
+                    "cx_Freeze.bases.Win32GUI",
+                    ["source/legacy/Win32GUI.c"],
+                    depends=["source/legacy/common.c"],
+                    libraries=["user32"],
+                    optional=optional,
+                ),
+                Extension(
+                    "cx_Freeze.bases.Win32Service",
+                    ["source/legacy/Win32Service.c"],
+                    depends=["source/legacy/common.c"],
+                    extra_link_args=["/DELAYLOAD:cx_Logging"],
+                    libraries=["advapi32"],
+                    optional=optional,
+                ),
+            ]
+        extensions += [
             Extension(
                 "cx_Freeze.bases.gui",
                 ["source/bases/Win32GUI.c", "source/bases/_common.c"],

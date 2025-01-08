@@ -75,7 +75,12 @@ jobs:
         shell: bash
     env:
       UV_SYSTEM_PYTHON: true
+      UV_NO_PROGRESS: true
     steps:
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -qy alien fakeroot rpm
 
       - uses: actions/checkout@v4
 
@@ -98,10 +103,6 @@ jobs:
           pattern: cx-freeze-whl-${{ matrix.os }}*
           path: wheelhouse
 
-      - name: Install dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get install -qy alien fakeroot rpm
-
       - name: Install dependencies to test
         run: |
           uv pip install -r requirements.txt -r tests/requirements.txt
@@ -111,6 +112,69 @@ jobs:
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}"
         run: pytest -nauto --cov="cx_Freeze"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: cov-${{ matrix.python-version }}.${{ matrix.os }}
+          path: .coverage.*
+          include-hidden-files: true
+
+  test_free_threaded:
+    needs:
+      - build_wheel
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        python-version: ['3.13t']
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash
+    env:
+      UV_NO_PROGRESS: true
+    steps:
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -qy alien fakeroot rpm
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          repository: marcelotduarte/cx_Freeze
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements.txt
+            tests/requirements.txt
+          python-version: ${{ matrix.python-version }}
+
+      - name: Env
+        run: env | sort
+
+      - name: Sysconfig
+        run: uv run --no-project -m sysconfig
+
+      - name: Download the wheel
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          pattern: cx-freeze-whl-${{ matrix.os }}*
+          path: wheelhouse
+
+      - name: Install dependencies to test
+        run: |
+          uv sync --no-install-project --extra tests
+          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+
+      - name: Generate coverage report
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}"
+        run: uv run --no-project pytest -nauto --cov="cx_Freeze"
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
