@@ -7,6 +7,7 @@ import sysconfig
 from pathlib import Path
 
 __all__ = [
+    "ABI_THREAD",
     "BUILD_EXE_DIR",
     "EXE_SUFFIX",
     "EXT_SUFFIX",
@@ -21,8 +22,9 @@ __all__ = [
 
 PLATFORM = sysconfig.get_platform()
 PYTHON_VERSION = sysconfig.get_python_version()
+ABI_THREAD = sysconfig.get_config_var("abi_thread") or ""
 
-BUILD_EXE_DIR = Path(f"build/exe.{PLATFORM}-{PYTHON_VERSION}")
+BUILD_EXE_DIR = Path(f"build/exe.{PLATFORM}-{PYTHON_VERSION}{ABI_THREAD}")
 EXE_SUFFIX = sysconfig.get_config_var("EXE")
 EXT_SUFFIX = sysconfig.get_config_var("EXT_SUFFIX")
 

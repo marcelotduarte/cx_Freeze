@@ -22,11 +22,13 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 from setuptools import Distribution
 
 from cx_Freeze._compat import (
+    ABI_THREAD,
     BUILD_EXE_DIR,
     IS_CONDA,
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
+    PYTHON_VERSION,
 )
 from cx_Freeze.common import get_resource_file_path, process_path_specs
 from cx_Freeze.exception import FileError, OptionError
@@ -1035,9 +1037,10 @@ class WinFreezer(Freezer, PEParser):
             # MSYS2 python returns a static library.
             names = [name.replace(".dll.a", ".dll")]
         else:
+            py_version = f"{PYTHON_VERSION}{ABI_THREAD}"
             names = [
                 f"python{sys.version_info[0]}.dll",
-                f"python{sys.version_info[0]}{sys.version_info[1]}.dll",
+                f"python{py_version.replace('.','')}.dll",
             ]
         python_shared_libs: list[Path] = []
         for name in names:
@@ -1113,7 +1116,7 @@ class DarwinFreezer(Freezer, Parser):
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[Path] = []
         # Check for distributed "cx_Freeze/bases/lib/Python"
-        name = "Python"
+        name = f"Python{ABI_THREAD.upper()}"
         for bin_path in self._default_bin_path_includes():
             fullname = Path(bin_path, name).resolve()
             if fullname.is_file():

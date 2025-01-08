@@ -22,8 +22,9 @@ PY_PLATFORM=$($PYTHON -c "import sysconfig; print(sysconfig.get_platform(), end=
 PY_VERSION=$($PYTHON -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
 PY_VERSION_FULL=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('py_version'), end='')")
 PY_VERSION_NODOT=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'), end='')")
+PY_ABI_THREAD=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
 
-PYTHON_TAG=cp$PY_VERSION_NODOT
+PYTHON_TAG=cp$PY_VERSION_NODOT$PY_ABI_THREAD
 if [[ $PY_PLATFORM == linux* ]]; then
     PLATFORM_TAG=many$(echo $PY_PLATFORM | sed 's/\-/_/')
     PLATFORM_TAG_MASK="$(echo $PLATFORM_TAG | sed 's/_/*_/')"
@@ -81,8 +82,8 @@ _bump_my_version () {
 
 _cibuildwheel () {
     local args=$*
-    # Use python >= 3.11
-    local py_version=$(_vergte $PY_VERSION 3.11)
+    # Use python >= 3.11 (python 3.13t is supported)
+    local py_version=$(_vergte $PY_VERSION 3.11)$PY_ABI_THREAD
     # Do not export UV_* to avoid conflict with uv in cibuildwheel macOS/Windows
     unset UV_SYSTEM_PYTHON
     uvx -p $py_version cibuildwheel $args
@@ -101,7 +102,7 @@ echo "::endgroup::"
 mkdir -p wheelhouse >/dev/null
 if [[ $PY_PLATFORM == linux* ]]; then
     echo "::group::Build sdist"
-    uv build -p $PY_VERSION --no-build-isolation --sdist -o wheelhouse
+    uv build -p $PY_VERSION$PY_ABI_THREAD --sdist -o wheelhouse
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
