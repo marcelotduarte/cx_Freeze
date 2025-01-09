@@ -89,8 +89,15 @@ _cibuildwheel () {
 }
 
 echo "::group::Install dependencies and build tools"
-uv pip install --upgrade -r pyproject.toml
+if which pip &>/dev/null; then
+    pip install --upgrade -r requirements.txt
+else
+    uv pip install --upgrade -r pyproject.toml
+fi
 VERSION=$(_bump_my_version show current_version)
+if [ -z $VERSION ]; then
+    VERSION=$(grep "__version__ = " cx_Freeze/__init__.py | sed 's/-/./' | awk -F\" '{print $2}')
+fi
 if [[ $VERSION == *-* ]]; then
     VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
 else
@@ -111,7 +118,12 @@ if [ "$BUILD_TAG" == "--only" ]; then
     FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
     if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
-            uv build -p $PY_VERSION$PY_ABI_THREAD --wheel -o wheelhouse
+            if which pip &>/dev/null; then
+                pip install build --upgrade
+                pyproject-build --no-isolation --wheel -o wheelhouse
+            else
+                uv build -p $PY_VERSION --wheel -o wheelhouse
+            fi
         else
             _cibuildwheel --only "$PYTHON_TAG-$PLATFORM_TAG"
         fi
@@ -125,7 +137,11 @@ echo "::endgroup::"
 
 if ! [ "$CI" == "true" ]; then
     echo "::group::Install cx_Freeze $VERSION_OK"
-    UV_PRERELEASE=allow \
+    if which pip &>/dev/null; then
+        pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --force-reinstall
+    else
+        UV_PRERELEASE=allow \
         uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall
+    fi
     echo "::endgroup::"
 fi

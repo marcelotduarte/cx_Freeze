@@ -108,18 +108,23 @@ ifeq ($(PY_PLATFORM),win-amd64)
 	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
-	# test lief < 0.13
-	uv pip install "lief==0.12.3"
-	pytest -nauto --cov="cx_Freeze" --cov-append \
-		tests/test_command_build.py tests/test_command_build_exe.py \
-		tests/test_winversioninfo.py || true
-	# test lief < 0.14
+	# test lief min version
 	uv pip install "lief==0.13.2"
 	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
-	# test lief < 0.15
+	# test lief 0.14
 	uv pip install "lief==0.14.1"
+	pytest -nauto --cov="cx_Freeze" --cov-append \
+		tests/test_command_build.py tests/test_command_build_exe.py \
+		tests/test_winversioninfo.py || true
+	# test lief 0.15
+	uv pip install "lief==0.15.1"
+	pytest -nauto --cov="cx_Freeze" --cov-append \
+		tests/test_command_build.py tests/test_command_build_exe.py \
+		tests/test_winversioninfo.py || true
+	# test lief 0.16
+	uv pip install "lief==0.16.2"
 	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_command_build.py tests/test_command_build_exe.py \
 		tests/test_winversioninfo.py || true
@@ -128,7 +133,7 @@ ifeq ($(PY_PLATFORM),win-amd64)
 	pytest -nauto --cov="cx_Freeze" --cov-append \
 		tests/test_winversioninfo.py || true
 	uv pip uninstall pywin32
-	uv pip install "lief>0.14.1"
+	uv pip install lief --upgrade
 endif
 	@if [ -f .backup_coverage ]; then coverage combine -a .backup_coverage; fi
 	coverage report
