@@ -71,9 +71,7 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          cache-dependency-glob: |
-            requirements.txt
-            requirements-dev.txt
+          cache-dependency-glob: "pyproject.toml"
 
       - name: Set up QEMU
         if: runner.os == 'Linux' && matrix.arch != 'x86_64'

@@ -89,7 +89,7 @@ _cibuildwheel () {
 }
 
 echo "::group::Install dependencies and build tools"
-uv pip install -r requirements.txt
+uv pip install --upgrade -r pyproject.toml
 VERSION=$(_bump_my_version show current_version)
 if [[ $VERSION == *-* ]]; then
     VERSION_OK=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
@@ -111,7 +111,7 @@ if [ "$BUILD_TAG" == "--only" ]; then
     FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
     if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
-            uv build --no-build-isolation  --wheel -o wheelhouse
+            uv build -p $PY_VERSION$PY_ABI_THREAD --wheel -o wheelhouse
         else
             _cibuildwheel --only "$PYTHON_TAG-$PLATFORM_TAG"
         fi
