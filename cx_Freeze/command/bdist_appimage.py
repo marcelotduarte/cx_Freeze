@@ -29,8 +29,9 @@ __all__ = ["bdist_appimage"]
 
 ARCH = platform.machine()
 APPIMAGEKIT_URL = "https://github.com/AppImage/AppImageKit/releases"
+APPIMAGEKIT_URL = "https://github.com/AppImage/appimagetool/releases"
 APPIMAGEKIT_PATH = f"download/continuous/appimagetool-{ARCH}.AppImage"
-APPIMAGEKIT_TOOL = "~/.local/bin/appimagetool"
+APPIMAGEKIT_TOOL = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
 
 
 class bdist_appimage(Command):
@@ -160,20 +161,11 @@ class bdist_appimage(Command):
                     f"download and install AppImageKit from {APPIMAGEKIT_URL}",
                     INFO,
                 )
-                name = os.path.basename(APPIMAGEKIT_PATH)
-                filename = os.path.join(appimagekit_dir, name)
-                if not os.path.exists(filename):
-                    urlretrieve(  # noqa: S310
-                        os.path.join(APPIMAGEKIT_URL, APPIMAGEKIT_PATH),
-                        filename,
-                    )
-                    os.chmod(filename, stat.S_IRWXU)
-                if not os.path.exists(appimagekit):
-                    self.execute(
-                        os.symlink,
-                        (filename, appimagekit),
-                        msg=f"linking {appimagekit} -> {filename}",
-                    )
+                urlretrieve(  # noqa: S310
+                    os.path.join(APPIMAGEKIT_URL, APPIMAGEKIT_PATH),
+                    appimagekit,
+                )
+                os.chmod(appimagekit, stat.S_IRWXU)
         self.appimagekit = appimagekit
 
     def run(self) -> None:
