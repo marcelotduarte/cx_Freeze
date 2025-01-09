@@ -128,8 +128,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        python-version: ['3.10']
+        python-version: ['3.12']
         extra-requirement:
+          - lief==0.15.1
           - lief==0.14.1
           - lief==0.13.2
           - lief-disabled

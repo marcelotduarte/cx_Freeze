@@ -71,7 +71,7 @@ Python requirements are installed automatically by pip or conda.
    dmgbuild >= 1.6.1           (macOS)
    cabarchive >= 0.2.4         (Windows only)
    cx_Logging >= 3.1           (Windows only)
-   lief >= 0.12.0              (Windows only)
+   lief >= 0.13.2              (Windows only)
    striprtf >= 0.0.26          (Windows only)
    C compiler                  (required only if installing from sources)
 
