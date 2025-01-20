@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import ctypes
+import os
 import sys
 from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import create_package, run_command
 
-from cx_Freeze._compat import PLATFORM, PYTHON_VERSION
+from cx_Freeze._compat import BUILD_EXE_DIR
 from cx_Freeze.parser import PEParser
 
 if TYPE_CHECKING:
@@ -72,7 +73,7 @@ def tmp_manifest(tmp_path_factory) -> Path:
     tmp_path = tmp_path_factory.mktemp("manifest")
     create_package(tmp_path, SOURCE)
     run_command(tmp_path)
-    return tmp_path / f"build/exe.{PLATFORM}-{PYTHON_VERSION}"
+    return tmp_path / BUILD_EXE_DIR
 
 
 def test_manifest(tmp_manifest: Path) -> None:
@@ -89,6 +90,10 @@ def test_simple_manifest(tmp_manifest: Path) -> None:
     """With simple manifest, without "supportedOS Id", windows version returned
     is the compatible version for Windows 8.1, ie, 6.2.
     """
+    if os.environ.get("CX_FREEZE_BIND", "") == "imagehlp":
+        pytest.skip(reason="Use of lief is disabled")
+    pytest.importorskip("lief", reason="Depends on extra package: lief")
+
     executable = tmp_manifest / "test_simple_manifest.exe"
     assert executable.is_file()
     output = run_command(tmp_manifest, executable, timeout=10)
@@ -103,6 +108,10 @@ def test_simple_manifest(tmp_manifest: Path) -> None:
 
 def test_uac_admin(tmp_manifest: Path) -> None:
     """With the uac_admin, should return WinError 740 - requires elevation."""
+    if os.environ.get("CX_FREEZE_BIND", "") == "imagehlp":
+        pytest.skip(reason="Use of lief is disabled")
+    pytest.importorskip("lief", reason="Depends on extra package: lief")
+
     executable = tmp_manifest / "test_uac_admin.exe"
     assert executable.is_file()
     if ctypes.windll.shell32.IsUserAnAdmin():
@@ -113,6 +122,10 @@ def test_uac_admin(tmp_manifest: Path) -> None:
 
 def test_uac_uiaccess(tmp_manifest: Path) -> None:
     """With the uac_uiaccess, should return WinError 740."""
+    if os.environ.get("CX_FREEZE_BIND", "") == "imagehlp":
+        pytest.skip(reason="Use of lief is disabled")
+    pytest.importorskip("lief", reason="Depends on extra package: lief")
+
     executable = tmp_manifest / "test_uac_uiaccess.exe"
     assert executable.is_file()
     if ctypes.windll.shell32.IsUserAnAdmin():
