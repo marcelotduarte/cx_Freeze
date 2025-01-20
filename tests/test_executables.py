@@ -393,7 +393,7 @@ command
 """
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 def test_invalid_icon(tmp_path: Path) -> None:
     """Test with invalid icon in Windows."""
     create_package(tmp_path, SOURCE_INVALID_ICON)

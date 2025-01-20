@@ -14,24 +14,14 @@ from contextlib import suppress
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import PLATFORM
 from cx_Freeze.exception import PlatformError
 
 # In Windows, to get dependencies, the default is to use lief package,
 # but LIEF can be disabled with:
 # set CX_FREEZE_BIND=imagehlp
-if IS_WINDOWS or IS_MINGW:
-    import lief
 
-    with suppress(ImportError):
-        from .util import BindError, GetDependentFiles
-    try:
-        # LIEF 0.15+
-        lief.logging.set_level(lief.logging.LEVEL.ERROR)
-    except AttributeError:
-        lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
-
-LIEF_DISABLED = os.environ.get("CX_FREEZE_BIND", "") == "imagehlp"
+# In Linux, to get dependencies, the default is to use ldd in x64 platforms
 LDD_DISABLED = (
     os.environ.get(
         "CX_FREEZE_BIND", "" if PLATFORM.endswith("x86_64") else "patchelf"
@@ -119,8 +109,21 @@ class PEParser(Parser):
     def __init__(
         self, path: list[str], bin_path_includes: list[str], silent: int = 0
     ) -> None:
+        if os.environ.get("CX_FREEZE_BIND", "") == "imagehlp":
+            lief = None
+        else:
+            try:
+                import lief
+            except ImportError:
+                lief = None
+            else:
+                try:
+                    # LIEF 0.15+
+                    lief.logging.set_level(lief.logging.LEVEL.ERROR)
+                except AttributeError:
+                    lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
         super().__init__(path, bin_path_includes, silent)
-        if hasattr(lief.PE, "ParserConfig"):
+        if lief and hasattr(lief.PE, "ParserConfig"):
             # LIEF 0.14+
             imports_only = lief.PE.ParserConfig()
             imports_only.parse_exports = False
@@ -139,6 +142,15 @@ class PEParser(Parser):
         else:
             self.imports_only = None
             self.resource_only = None
+        if lief:
+            self._pe = lief.PE
+        else:
+            from cx_Freeze.util import BindError, GetDependentFiles
+
+            self.GetDependentFiles = GetDependentFiles
+            self.BindError = BindError
+            self._get_dependent_files = self._get_dependent_files_imagehlp
+            self._pe = None
 
     @staticmethod
     def is_pe(filename: str | Path) -> bool:
@@ -149,9 +161,9 @@ class PEParser(Parser):
 
     _is_binary = is_pe
 
-    def _get_dependent_files_lief(self, filename: Path) -> set[Path]:
+    def _get_dependent_files(self, filename: Path) -> set[Path]:
         with filename.open("rb", buffering=0) as raw:
-            binary = lief.PE.parse(raw, self.imports_only or filename.name)
+            binary = self._pe.parse(raw, self.imports_only or filename.name)
         if not binary:
             return set()
 
@@ -179,8 +191,8 @@ class PEParser(Parser):
             [os.path.normpath(path) for path in self.search_path]
         )
         try:
-            return {Path(dep) for dep in GetDependentFiles(filename)}
-        except BindError as exc:
+            return {Path(dep) for dep in self.GetDependentFiles(filename)}
+        except self.BindError as exc:
             # Sometimes this gets called when filename is not actually
             # a library (See issue 88).
             if self._silent < 3:
@@ -190,20 +202,18 @@ class PEParser(Parser):
             os.environ["PATH"] = env_path
         return set()
 
-    if LIEF_DISABLED:
-        _get_dependent_files = _get_dependent_files_imagehlp
-    else:
-        _get_dependent_files = _get_dependent_files_lief
-
     def read_manifest(self, filename: str | Path) -> str:
         """:return: the XML schema of the manifest included in the executable
         :rtype: str
 
         """
-        if isinstance(filename, str):
-            filename = Path(filename)
+        if self._pe is None:
+            if self._silent < 3:
+                print("WARNING: ignoring read manifest for {filename}")
+            return ""
+        filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
-            binary = lief.PE.parse(raw, self.resource_only or filename.name)
+            binary = self._pe.parse(raw, self.resource_only or filename.name)
         resources_manager = binary.resources_manager
         return (
             resources_manager.manifest
@@ -216,13 +226,16 @@ class PEParser(Parser):
         :rtype: str
 
         """
-        if isinstance(filename, str):
-            filename = Path(filename)
+        if self._pe is None:
+            if self._silent < 3:
+                print("WARNING: ignoring write manifest for {filename}")
+            return
+        filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
-            binary = lief.PE.parse(raw, self.resource_only or filename.name)
+            binary = self._pe.parse(raw, self.resource_only or filename.name)
         resources_manager = binary.resources_manager
         resources_manager.manifest = manifest
-        builder = lief.PE.Builder(binary)
+        builder = self._pe.Builder(binary)
         builder.build_resources(True)
         builder.build()
         with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
