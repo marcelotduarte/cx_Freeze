@@ -124,7 +124,7 @@ target-version = ["py38"]
 
 [tool.bumpversion]
 commit = true
-current_version = "7.2.8"
+current_version = "7.2.9-dev.0"
 message = "Bump version: {current_version} → {new_version} [ci skip]"
 parse = """(?x)
     (?P<major>0|[1-9]\\d*)\\.
