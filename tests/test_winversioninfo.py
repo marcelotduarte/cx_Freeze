@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 
@@ -10,7 +9,7 @@ import pytest
 from generate_samples import create_package, run_command
 from packaging.version import Version
 
-from cx_Freeze._compat import BUILD_EXE_DIR
+from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 SOURCE_SIMPLE_TEST = """
@@ -28,7 +27,7 @@ setup.py
 """
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 class TestVersionInfo:
     """Test VersionInfo class."""
 
@@ -123,13 +122,13 @@ class TestVersionInfo:
         """
         default_version = VersionInfo(input_version)
         assert default_version.version == version
-        assert default_version.version_info(Path("test.exe"))
+        assert default_version.version_info(Path(f"test{EXE_SUFFIX}"))
 
     def test_file_not_found(self) -> None:
         """Test for FileNotFoundError exception."""
         version = VersionInfo("0.1")
         with pytest.raises(FileNotFoundError):
-            version.stamp("test.exe")
+            version.stamp(f"test{EXE_SUFFIX}")
 
     @pytest.fixture
     def tmp_test(self, tmp_path) -> Path:
@@ -137,7 +136,7 @@ class TestVersionInfo:
         create_package(tmp_path, SOURCE_SIMPLE_TEST)
         run_command(tmp_path)
 
-        file_created = tmp_path / BUILD_EXE_DIR / "test.exe"
+        file_created = tmp_path / BUILD_EXE_DIR / f"test{EXE_SUFFIX}"
         assert file_created.is_file(), f"file not found: {file_created}"
 
         output = run_command(tmp_path, file_created, timeout=10)
