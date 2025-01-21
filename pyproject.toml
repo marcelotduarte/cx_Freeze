@@ -63,7 +63,7 @@ dynamic = ["version"]
 dev = [
     "bump-my-version==0.29.0 ;python_version < '3.13'",
     "cibuildwheel==2.22.0",
-    "pre-commit==4.0.1",           # python_version >= 3.9
+    "pre-commit==4.1.0",           # python_version >= 3.9
 ]
 doc = [
     "sphinx==7.4.7",               # python_version 3.9-3.13
