@@ -78,6 +78,6 @@ class TestModuleFinder:
         create_package(tmp_path, source=FIND_SPEC_TEST[4])
         fix_module_finder.path.insert(0, os.fspath(tmp_path / "find_spec"))
         module = fix_module_finder.include_module("hello")
-        assert (
-            "dummypackage" in module.global_names
-        ), "packages that raises exceptions should still be imported"
+        assert "dummypackage" in module.global_names, (
+            "packages that raises exceptions should still be imported"
+        )

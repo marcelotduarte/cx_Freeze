@@ -238,7 +238,7 @@ class bdist_appimage(Command):
             Terminal=true
             X-AppImage-Arch={ARCH}
             X-AppImage-Name={self.target_name}
-            X-AppImage-Version={self.target_version or ''}
+            X-AppImage-Version={self.target_version or ""}
         """
         self.save_as_file(
             dedent(desktop_entry),
