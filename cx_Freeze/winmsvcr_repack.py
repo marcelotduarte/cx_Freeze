@@ -224,7 +224,7 @@ def get_msvcr_files(
         cache_base = Path(os.path.expandvars("${APPDATA}"))
     else:
         cache_base = Path("~/.cache").expanduser()
-    cache_dir = cache_base / f"cx_Freeze/vc_redist/{ version }"
+    cache_dir = cache_base / f"cx_Freeze/vc_redist/{version}"
     cache_dir.mkdir(parents=True, exist_ok=True)
     filename = cache_dir / name
     unpack_dir = cache_dir / name.replace(".", "_")

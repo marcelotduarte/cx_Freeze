@@ -585,7 +585,7 @@ class Freezer:
         invalid = sorted(zip_include_packages & zip_exclude_packages)
         if invalid:
             msg = (
-                f"package{'s' if len(invalid)>1 else ''} "
+                f"package{'s' if len(invalid) > 1 else ''} "
                 f"{', '.join(invalid)!r} "
                 "cannot be both included and excluded from zip file"
             )
@@ -1040,7 +1040,7 @@ class WinFreezer(Freezer, PEParser):
             py_version = f"{PYTHON_VERSION}{ABI_THREAD}"
             names = [
                 f"python{sys.version_info[0]}.dll",
-                f"python{py_version.replace('.','')}.dll",
+                f"python{py_version.replace('.', '')}.dll",
             ]
         python_shared_libs: list[Path] = []
         for name in names:
