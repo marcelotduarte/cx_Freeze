@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -68,7 +68,12 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     source_lib = module.file.parent / "lib"
     if source_lib.exists():
         target_lib = f"lib/{module.name}/lib"
-        extension = "*.dll" if (IS_WINDOWS or IS_MINGW) else "*.so*"
+        if IS_MINGW or IS_WINDOWS:
+            extension = "*.dll"
+        elif IS_MACOS:
+            extension = "*.dylib"
+        else:
+            extension = "*.so*"
         for source in source_lib.glob(extension):
             finder.lib_files[source] = f"{target_lib}/{source.name}"
             finder.include_files(source, f"{target_lib}/{source.name}")
