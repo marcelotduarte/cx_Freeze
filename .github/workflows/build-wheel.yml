@@ -23,18 +23,63 @@ jobs:
         run: |
           import json, os
           include = [
-              {"os": "ubuntu-latest", "arch": "x86_64", "tag": "cp3*-manylinux_x86_64"},
-              {"os": "windows-latest", "arch": "x86_64", "tag": "cp3*-win_amd64"},
-              {"os": "macos-13", "arch": "universal2", "tag": "cp3{9,10,11}-macosx_universal2"},
-              {"os": "macos-14", "arch": "universal2", "tag": "cp3{12,13}*-macosx_universal2"},
+              {
+                  "os": "ubuntu",
+                  "os_version": "latest",
+                  "arch": "x86_64",
+                  "tag": "cp3*-manylinux_x86_64",
+              },
+              {
+                  "os": "windows",
+                  "os_version": "latest",
+                  "arch": "x86_64",
+                  "tag": "cp3*-win_amd64",
+              },
+              {
+                  "os": "macos",
+                  "os_version": "13",
+                  "arch": "universal2",
+                  "tag": "cp3{9,10,11}-macosx_universal2",
+              },
+              {
+                  "os": "macos",
+                  "os_version": "14",
+                  "arch": "universal2",
+                  "tag": "cp3{12,13}*-macosx_universal2",
+              },
           ]
           if "${{ github.event_name }}" != "pull_request":
             include += [
-              {"os": "ubuntu-latest", "arch": "x86_64", "tag": "cp3*-musllinux_x86_64"},
-              {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3*-manylinux_aarch64"},
-              {"os": "ubuntu-latest", "arch": "arm64", "tag": "cp3*-musllinux_aarch64"},
-              {"os": "ubuntu-latest", "arch": "ppc64le", "tag": "cp3*-manylinux_ppc64le"},
-              {"os": "windows-latest", "arch": "x86_64", "tag": "cp3*-win32"},
+                {
+                    "os": "ubuntu",
+                    "os_version": "latest",
+                    "arch": "x86_64",
+                    "tag": "cp3*-musllinux_x86_64",
+                },
+                {
+                    "os": "ubuntu",
+                    "os_version": "24.04-arm",
+                    "arch": "arm64",
+                    "tag": "cp3*-manylinux_aarch64",
+                },
+                {
+                    "os": "ubuntu",
+                    "os_version": "24.04-arm",
+                    "arch": "arm64",
+                    "tag": "cp3*-musllinux_aarch64",
+                },
+                {
+                    "os": "ubuntu",
+                    "os_version": "latest",
+                    "arch": "ppc64le",
+                    "tag": "cp3*-manylinux_ppc64le",
+                },
+                {
+                    "os": "windows",
+                    "os_version": "latest",
+                    "arch": "x86_64",
+                    "tag": "cp3*-win32",
+                },
             ]
           with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
             print("data="+json.dumps({"include": include}), file=f)
@@ -45,8 +90,7 @@ jobs:
       data: ${{ steps.includes.outputs.data }}
 
   build_wheel:
-    needs:
-      - matrix
+    needs: matrix
     strategy:
       fail-fast: false
       # macos-14 is arm64 (apple silicon), macos-13 is x86_64
@@ -73,7 +117,7 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
 
       - name: Set up QEMU
-        if: runner.os == 'Linux' && matrix.arch != 'x86_64'
+        if: runner.os == 'Linux' && matrix.arch != 'x86_64' && matrix.arch != 'arm64'
         uses: docker/setup-qemu-action@v3
         with:
           platforms: ${{ matrix.arch }}
@@ -108,8 +152,7 @@ jobs:
   publish:
     if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
     name: Publish package to PyPI
-    needs:
-      - build_wheel
+    needs: build_wheel
     environment:
       name: pypi
       url: https://pypi.org/p/cx-Freeze
@@ -135,8 +178,7 @@ jobs:
   update_bases:
     if: github.event_name == 'push' || github.event_name == 'release'
     name: Update cx_Freeze/bases and util module
-    needs:
-      - build_wheel
+    needs: build_wheel
     permissions:
       contents: write
       id-token: write
