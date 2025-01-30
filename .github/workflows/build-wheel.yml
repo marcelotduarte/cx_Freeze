@@ -95,8 +95,8 @@ jobs:
       fail-fast: false
       # macos-14 is arm64 (apple silicon), macos-13 is x86_64
       matrix: ${{ fromJSON(needs.matrix.outputs.data) }}
-    name: Build [${{ matrix.os }}-${{ matrix.arch }}](job-${{ strategy.job-index }})
-    runs-on: ${{ matrix.os }}
+    name: Build [${{ matrix.os }}-${{ matrix.os_version }}-${{ matrix.arch }}](job-${{ strategy.job-index }})
+    runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
     defaults:
       run:
         shell: bash
