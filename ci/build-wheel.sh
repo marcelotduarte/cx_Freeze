@@ -30,33 +30,34 @@ if [[ $PY_PLATFORM == linux* ]]; then
     if ! [ "$CI" == "true" ] && which podman >/dev/null; then
         export CIBW_CONTAINER_ENGINE=podman
     fi
+elif [[ $PY_PLATFORM == macosx* ]]; then
+    PLATFORM_TAG=macosx_universal2
+    PLATFORM_TAG_MASK="macosx_*"
 else
     PLATFORM_TAG=$(echo $PY_PLATFORM | sed 's/\-/_/')
-    PLATFORM_TAG_MASK="$(echo $PLATFORM_TAG | sed 's/_/*/')"
+    PLATFORM_TAG_MASK="win*"
 fi
+BUILD_TAG_DEFAULT="$PYTHON_TAG-$PLATFORM_TAG"
 
 # Usage
 if ! [ -z "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
     echo "$0 [--all|TAG] [--archs=ARCHS]"
     echo "Where:"
-    echo "  --all         Build all valid wheels for current OS."
-    echo "  TAG           Force build the wheel for the given identifier."
-    echo "                [default: $PYTHON_TAG-$PLATFORM_TAG]"
-    echo "  --archs=ARCHS Comma-separated list of CPU architectures to build for."
+    echo "  --all     Build all valid wheels for current OS."
+    echo "  TAG       Force build the wheel for the given identifier."
+    echo "            [default: $BUILD_TAG_DEFAULT]"
+    echo "  --install Install after build."
     exit 1
 fi
 
-BUILD_TAG="--only"
-ARCHS=""
+BUILD_TAG="$BUILD_TAG_DEFAULT"
+INSTALL=""
 while ! [ -z "$1" ]; do
     if [ "$1" == "--all" ]; then
         BUILD_TAG=""
-    elif [[ $1 == --archs=* ]]; then
-        ARCHS=$1
-        if [ "$BUILD_TAG" == "--only" ]; then
-            BUILD_TAG=""
-        fi
+    elif [ "$1" == "--install" ]; then
+        INSTALL=true
     else
         BUILD_TAG="$1"
     fi
@@ -76,7 +77,8 @@ _bump_my_version () {
     local args=$*
     # Use python <= 3.12 (python 3.13t is not supported)
     local py_version=$(_verlte $PY_VERSION 3.12)
-    echo $(uvx -p $py_version bump-my-version $args 2>/dev/null | tr -d '\r\n')
+    local value=$(uvx -p $py_version bump-my-version $args 2>/dev/null)
+    echo $($PYTHON -c "print('$value'.replace('\r','').replace('\n',''), end='')")
 }
 
 _cibuildwheel () {
@@ -89,11 +91,7 @@ _cibuildwheel () {
 }
 
 echo "::group::Install dependencies and build tools"
-if which pip &>/dev/null; then
-    pip install --upgrade -r requirements.txt
-else
-    uv pip install --upgrade -r pyproject.toml
-fi
+uv pip install --upgrade -r pyproject.toml
 VERSION=$(_bump_my_version show current_version)
 if [ -z $VERSION ]; then
     VERSION=$(grep "__version__ = " cx_Freeze/__init__.py | sed 's/-/./' | awk -F\" '{print $2}')
@@ -107,41 +105,36 @@ echo "::endgroup::"
 
 mkdir -p wheelhouse >/dev/null
 if [[ $PY_PLATFORM == linux* ]]; then
-    echo "::group::Build sdist"
-    uv build -p $PY_VERSION --no-build-isolation --sdist -o wheelhouse
-    echo "::endgroup::"
+    FILEMASK="cx_freeze-$VERSION_OK.tar.gz"
+    if [ -z $(ls "wheelhouse/$FILEMASK" 2>/dev/null || echo '') ]; then
+        echo "::group::Build sdist"
+        uv build -p $PY_VERSION --sdist -o wheelhouse
+        echo "::endgroup::"
+    fi
 fi
 echo "::group::Build wheel(s)"
-if [ "$BUILD_TAG" == "--only" ]; then
+if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
     DIRTY=$(_bump_my_version show scm_info.dirty)
     FILEMASK="cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG-$PLATFORM_TAG_MASK"
-    FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
+    FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
     if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
         if [[ $PY_PLATFORM == win* ]]; then
-            if which pip &>/dev/null; then
-                pip install build --upgrade
-                pyproject-build --no-isolation --wheel -o wheelhouse
-            else
-                uv build -p $PY_VERSION --wheel -o wheelhouse
-            fi
+            uv build -p $PY_VERSION --wheel -o wheelhouse
         else
-            _cibuildwheel --only "$PYTHON_TAG-$PLATFORM_TAG"
+            _cibuildwheel --only "$BUILD_TAG_DEFAULT"
         fi
     fi
+    set +x
 elif ! [ -z "$BUILD_TAG" ]; then
-    CIBW_BUILD="$BUILD_TAG" _cibuildwheel $ARCHS
+    CIBW_BUILD="$BUILD_TAG" _cibuildwheel
 else
-    _cibuildwheel $ARCHS
+    _cibuildwheel
 fi
 echo "::endgroup::"
 
-if ! [ "$CI" == "true" ]; then
+if [ "$INSTALL" == "true" ] || ! [ "$CI" == "true" ]; then
     echo "::group::Install cx_Freeze $VERSION_OK"
-    if which pip &>/dev/null; then
-        pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --force-reinstall
-    else
-        UV_PRERELEASE=allow \
+    UV_PRERELEASE=allow \
         uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall
-    fi
     echo "::endgroup::"
 fi
