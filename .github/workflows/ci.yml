@@ -62,7 +62,7 @@ jobs:
             python-version: '3.8'
         exclude:
           - os: macos
-            os_version: '14'  # macos-14 is arm64 (apple silicon)
+            os_version: latest  # macos-14 is arm64 (apple silicon)
             python-version: '3.8'
     defaults:
       run:
