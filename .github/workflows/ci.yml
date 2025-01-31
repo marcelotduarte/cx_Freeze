@@ -56,6 +56,14 @@ jobs:
         os: [ubuntu, windows, macos]
         os_version: [latest]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        include:
+          - os: macos
+            os_version: '13'  # macos-13 is x86_64
+            python-version: '3.8'
+        exclude:
+          - os: macos
+            os_version: '14'  # macos-14 is arm64 (apple silicon)
+            python-version: '3.8'
     defaults:
       run:
         shell: bash
