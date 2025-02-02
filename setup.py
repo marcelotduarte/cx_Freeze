@@ -257,7 +257,7 @@ class BuildBases(setuptools.command.build_ext.build_ext):
 
 def _make_strs(paths: list[str | Path]) -> list[str]:
     """Convert paths to strings for legacy compatibility."""
-    if sys.version_info > (3, 8) and not (IS_MINGW or IS_WINDOWS):
+    if sys.version_info >= (3, 9) and not (IS_MINGW or IS_WINDOWS):
         return paths
     return list(map(os.fspath, paths))
 

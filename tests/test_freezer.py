@@ -106,7 +106,7 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
     if IS_MINGW:
         expected = f"libpython{PYTHON_VERSION}.dll"
     elif IS_WINDOWS:
-        expected = f"python{PYTHON_VERSION.replace('.','')}.dll"
+        expected = f"python{PYTHON_VERSION.replace('.', '')}.dll"
     elif IS_CONDA:  # macOS or Linux
         if IS_MACOS:
             expected = f"libpython{PYTHON_VERSION}.dylib"

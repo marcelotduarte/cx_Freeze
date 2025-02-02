@@ -21,7 +21,7 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
 
 from setuptools import Distribution
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, PYTHON_VERSION
 from cx_Freeze.common import get_resource_file_path, process_path_specs
 from cx_Freeze.exception import FileError, OptionError
 from cx_Freeze.executable import Executable
@@ -575,7 +575,7 @@ class Freezer:
         invalid = sorted(zip_include_packages & zip_exclude_packages)
         if invalid:
             msg = (
-                f"package{'s' if len(invalid)>1 else ''} "
+                f"package{'s' if len(invalid) > 1 else ''} "
                 f"{', '.join(invalid)!r} "
                 "cannot be both included and excluded from zip file"
             )
@@ -1020,7 +1020,7 @@ class WinFreezer(Freezer, PEParser):
         else:
             names = [
                 f"python{sys.version_info[0]}.dll",
-                f"python{sys.version_info[0]}{sys.version_info[1]}.dll",
+                f"python{PYTHON_VERSION.replace('.', '')}.dll",
             ]
         python_shared_libs: list[Path] = []
         for name in names:
