@@ -20,7 +20,11 @@ def load_ssl(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     build directory. In other OS certificates are required.
     """
     if IS_WINDOWS:
-        for dll_search in ["libcrypto-*.dll", "libssl-*.dll"]:
-            libs_dir = Path(sys.base_prefix, "DLLs")
-            for dll_path in libs_dir.glob(dll_search):
-                finder.include_files(dll_path, Path("lib", dll_path.name))
+        parts = ["DLLs", "Library/bin"]
+        patterns = ["libcrypto-*.dll", "libssl-*.dll"]
+        for part in parts:
+            for pattern in patterns:
+                for source in Path(sys.base_prefix, part).glob(pattern):
+                    target = f"lib/{source.name}"
+                    finder.lib_files[source] = target
+                    finder.include_files(source, target)

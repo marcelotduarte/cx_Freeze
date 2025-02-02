@@ -1064,6 +1064,8 @@ class WinFreezer(Freezer, PEParser):
         # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
         # conda-forge python3x.dll depends on zlib.dll
         lib_files = self.finder.lib_files
+        for path in map(Path, self.default_bin_includes):
+            lib_files.setdefault(path, path.name)
         for filename in self.get_dependent_files(source):
             path = filename.resolve()
             if path not in lib_files and self._should_copy_file(path):
@@ -1330,9 +1332,9 @@ class LinuxFreezer(Freezer, ELFParser):
         ]
 
     def _get_top_dependencies(self, source: Path) -> None:  # noqa: ARG002
-        finder = self.finder
+        lib_files = self.finder.lib_files
         for path in map(Path, self.default_bin_includes):
-            finder.lib_files.setdefault(path, f"lib/{path.name}")
+            lib_files.setdefault(path, f"lib/{path.name}")
 
     def _post_copy_hook(
         self,
