@@ -44,8 +44,7 @@ class bdist_mac(Command):
         (
             "bundle-name=",
             None,
-            "File name for the bundle application "
-            "without the .app extension.",
+            "File name for the bundle application without the .app extension.",
         ),
         (
             "plist-items=",
@@ -97,8 +96,7 @@ class bdist_mac(Command):
         (
             "codesign-resource-rules",
             None,
-            "Plist file to be passed to "
-            "codesign's --resource-rules option.",
+            "Plist file to be passed to codesign's --resource-rules option.",
         ),
         (
             "absolute-reference-path=",
