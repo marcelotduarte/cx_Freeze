@@ -1,3 +1,3 @@
-bump-my-version==0.29.0 ;python_version < '3.13'
+bump-my-version==0.31.0 ;python_version < '3.13'
 cibuildwheel==2.22.0
 pre-commit==4.1.0
