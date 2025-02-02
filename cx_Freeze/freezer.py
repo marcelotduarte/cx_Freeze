@@ -1063,11 +1063,11 @@ class WinFreezer(Freezer, PEParser):
         # executable dependencies go into build root directory on windows
         # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
         # conda-forge python3x.dll depends on zlib.dll
-        finder = self.finder
+        lib_files = self.finder.lib_files
         for filename in self.get_dependent_files(source):
             path = filename.resolve()
-            if path not in finder.lib_files and self._should_copy_file(path):
-                finder.lib_files.setdefault(path, path.name)
+            if path not in lib_files and self._should_copy_file(path):
+                lib_files.setdefault(path, path.name)
                 self._get_top_dependencies(path)
 
     @cached_property
