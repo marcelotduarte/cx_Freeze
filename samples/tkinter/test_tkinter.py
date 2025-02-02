@@ -6,8 +6,7 @@ from tkinter import Button, Label, PhotoImage, TclVersion, Tk
 def _test() -> None:
     root = Tk()
     text = (
-        f"This is Tcl/Tk version {TclVersion}\n"
-        "This should be a cedilla: \xe7"
+        f"This is Tcl/Tk version {TclVersion}\nThis should be a cedilla: \xe7"
     )
     label = Label(root, text=text)
     label.pack()
