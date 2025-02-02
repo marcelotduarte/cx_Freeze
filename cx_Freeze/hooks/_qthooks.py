@@ -191,8 +191,15 @@ def load_qt_qtcore(finder: ModuleFinder, module: Module) -> None:
     """Include plugins for the module."""
     name = _qt_implementation(module)
     variable = "BinariesPath" if IS_WINDOWS else "LibrariesPath"
-    for source, target in _get_qt_files(name, variable, "*"):
-        finder.lib_files.setdefault(source, target.as_posix())
+    if IS_MINGW or IS_WINDOWS:
+        patterns = ["Qt*.dll"]
+    else:
+        patterns = ["Qt*.so*"]
+        if IS_MACOS:
+            patterns.append("Qt*.dylib")
+    for pattern in patterns:
+        for source, target in _get_qt_files(name, variable, pattern):
+            finder.lib_files.setdefault(source, target.as_posix())
 
 
 def load_qt_qtdesigner(finder: ModuleFinder, module: Module) -> None:
