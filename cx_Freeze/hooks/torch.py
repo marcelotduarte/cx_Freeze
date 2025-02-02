@@ -65,7 +65,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
         )
 
     # include the shared libraries in 'lib' as fixed libraries
-    source_lib = module.file.parent / "lib"
+    source_lib = module_path / "lib"
     if source_lib.exists():
         target_lib = f"lib/{module.name}/lib"
         if IS_MINGW or IS_WINDOWS:
@@ -79,7 +79,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
             finder.include_files(source, f"{target_lib}/{source.name}")
 
     # include the binaries (torch 2.1+)
-    source_bin = module.file.parent / "bin"
+    source_bin = module_path / "bin"
     if source_bin.exists():
         finder.include_files(source_bin, f"lib/{module.name}/bin")
     # hidden modules
@@ -93,18 +93,13 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("torchgen.packaged.ATen.templates")
     # torch 2.2
     finder.include_module("torch.return_types")
-    for config_file in (
-        "_dynamo/config.py",
-        "_functorch/config.py",
-        "_inductor/config.py",
-        "_lazy/config.py",
-        "distributed/_spmd/config.py",
-        "fx/config.py",
-        "fx/experimental/_config.py",
-    ):
-        config = module.file.parent / config_file
-        if config.exists():
-            finder.include_files(config, f"lib/{module.name}/{config_file}")
+    # include 'config.py' source files
+    for source in module_path.rglob("**/config.py"):
+        target = "lib" / source.relative_to(site_packages_path)
+        finder.include_files(source, target)
+    for source in module_path.rglob("**/_config.py"):
+        target = "lib" / source.relative_to(site_packages_path)
+        finder.include_files(source, target)
     # include source files for torch.jit._overload
     source_path = site_packages_path / "torch/ao"
     for source in source_path.rglob("*.py"):  # type: Path
