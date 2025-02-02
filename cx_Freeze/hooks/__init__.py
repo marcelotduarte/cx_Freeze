@@ -147,10 +147,14 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
     libffi dll to be present in the build directory.
     """
     if IS_WINDOWS:
-        dll_pattern = "libffi-*.dll"
-        dll_dir = Path(sys.base_prefix, "DLLs")
-        for dll_path in dll_dir.glob(dll_pattern):
-            finder.include_files(dll_path, Path("lib", dll_path.name))
+        parts = ["DLLs", "Library/bin"]
+        patterns = ["libffi-*.dll", "ffi-*.dll"]
+        for part in parts:
+            for pattern in patterns:
+                for source in Path(sys.base_prefix, part).glob(pattern):
+                    target = f"lib/{source.name}"
+                    finder.lib_files[source] = target
+                    finder.include_files(source, target)
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
@@ -586,12 +590,13 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
     be present in the build directory.
     """
     if IS_WINDOWS:
-        dll_name = "sqlite3.dll"
-        dll_path = Path(sys.base_prefix, "DLLs", dll_name)
-        if not dll_path.exists():
-            dll_path = Path(sys.base_prefix, "Library", "bin", dll_name)
-        if dll_path.exists():
-            finder.include_files(dll_path, Path("lib", dll_name))
+        parts = ["DLLs", "Library/bin"]
+        for part in parts:
+            source = Path(sys.base_prefix, part, "sqlite3.dll")
+            if source.exists():
+                target = f"lib/{source.name}"
+                finder.lib_files[source] = target
+                finder.include_files(source, target)
     finder.include_module("sqlite3.dump")
 
 
