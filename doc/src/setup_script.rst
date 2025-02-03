@@ -1,12 +1,12 @@
 Setup script
 ============
 
-cx_Freeze creates four new commands and subclasses for others to provide
-the ability to build and install executables. In typical setuptools fashion
-they can be provided in the setup script (it is called
-``setup.py`` by convention, although it can have any name), in a
-``pyproject.toml`` configuration file, in a ``setup.cfg`` configuration file,
-or on the command line. They are described in detail below.
+cx_Freeze creates four new commands and subclasses for others to provide the
+ability to build and install executables. In typical setuptools fashion they
+can be provided in the setup script (it is called ``setup.py`` by convention,
+although it can have any name), in a ``pyproject.toml`` configuration file,
+in a ``setup.cfg`` configuration file, or on the command line.
+They are described in detail below.
 
 Example
 -------
@@ -19,39 +19,39 @@ It looks something like this:
 
       .. code-block:: toml
 
-         [project]
-         name = "guifoo"
-         version = "0.1"
-         description = "My GUI application!"
+        [project]
+        name = "guifoo"
+        version = "0.1"
+        description = "My GUI application!"
 
-         [tool.cxfreeze]
-         executables = [
-             {script = "guifoo.py", base = "gui"}
-         ]
+        [tool.cxfreeze]
+        executables = [
+            {script = "guifoo.py", base = "gui"}
+        ]
 
-         [tool.cxfreeze.build_exe]
-         excludes = ["tkinter", "unittest"]
-         zip_include_packages = ["encodings", "PySide6", "shiboken6"]
+        [tool.cxfreeze.build_exe]
+        excludes = ["tkinter", "unittest"]
+        zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
    .. group-tab:: setup.py
 
       .. code-block:: python
 
-         from cx_Freeze import setup, Executable
+        from cx_Freeze import setup
 
-         # Dependencies are automatically detected, but they might need fine-tuning.
-         build_exe_options = {
-             "excludes": ["tkinter", "unittest"],
-             "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
-         }
+        # Dependencies are automatically detected, but they might need fine-tuning.
+        build_exe_options = {
+            "excludes": ["tkinter", "unittest"],
+            "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
+        }
 
-         setup(
-             name="guifoo",
-             version="0.1",
-             description="My GUI application!",
-             options={"build_exe": build_exe_options},
-             executables=[Executable("guifoo.py", base="gui")],
-         )
+        setup(
+            name="guifoo",
+            version="0.1",
+            description="My GUI application!",
+            options={"build_exe": build_exe_options},
+            executables=[{"script": "guifoo.py", "base": "gui"}],
+        )
 
    .. group-tab:: setup.cfg
 
@@ -62,14 +62,14 @@ It looks something like this:
 
       .. code-block:: ini
 
-         [metadata]
-         name = guifoo
-         version = 0.1
-         description = My GUI application!
+        [metadata]
+        name = guifoo
+        version = 0.1
+        description = My GUI application!
 
-         [build_exe]
-         excludes = tkinter,unittest
-         zip_include_packages = encodings,PySide6,shiboken6
+        [build_exe]
+        excludes = tkinter,unittest
+        zip_include_packages = encodings,PySide6,shiboken6
 
    .. group-tab:: command line
 
@@ -78,19 +78,27 @@ It looks something like this:
 
       .. code-block:: python
 
-         from cx_Freeze import setup, Executable
+        from cx_Freeze import setup
 
-         build_exe_options = {
-             "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
-         }
+        build_exe_options = {
+            "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
+        }
 
-         setup(
-             name="guifoo",
-             version="0.1",
-             description="My GUI application!",
-             options={"build_exe": build_exe_options},
-             executables=[Executable("guifoo.py", base="gui")],
-         )
+        setup(
+            name="guifoo",
+            version="0.1",
+            description="My GUI application!",
+            options={"build_exe": build_exe_options},
+            executables=[{"script": "guifoo.py", "base": "gui"}],
+        )
+
+        setup(
+            name="guifoo",
+            version="0.1",
+            description="My GUI application!",
+            options={"build_exe": build_exe_options},
+            executables=[{"script": "guifoo.py", "base": "gui"}],
+        )
 
 The script is invoked as follows:
 
@@ -100,25 +108,25 @@ The script is invoked as follows:
 
       .. code-block:: console
 
-         cxfreeze build
+        cxfreeze build
 
    .. group-tab:: setup.py
 
       .. code-block:: console
 
-         python setup.py build
+        python setup.py build
 
    .. group-tab:: setup.cfg
 
       .. code-block:: console
 
-         cxfreeze --script=guifoo.py --base=gui
+        cxfreeze --script=guifoo.py --base=gui
 
    .. group-tab:: command line
 
       .. code-block:: console
 
-         python setup.py build_exe --excludes=tkinter,unittest
+        python setup.py build_exe --excludes=tkinter,unittest
 
 .. seealso::
 
@@ -140,8 +148,8 @@ To specify options in the script, use underscores in the name. For example:
 
   .. code-block:: python
 
-     # ...
-     zip_include_packages = ["encodings", "PySide6", "shiboken6"]
+    # ...
+    zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
 To specify the same options on the command line, use dashes, like this:
 

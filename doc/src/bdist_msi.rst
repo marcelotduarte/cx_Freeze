@@ -74,61 +74,118 @@ command:
 
 This is the equivalent help to specify the same options on the command line:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_msi --help
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_msi --help
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_msi --help
 
 For example:
 
-  .. code-block:: python
+.. tabs::
 
-    directory_table = [
-        ("ProgramMenuFolder", "TARGETDIR", "."),
-        ("MyProgramMenu", "ProgramMenuFolder", "MYPROG~1|My Program"),
-    ]
+   .. group-tab:: pyproject.toml
 
-    msi_data = {
-        "Directory": directory_table,
-        "ProgId": [
-            ("Prog.Id", None, None, "This is a description", "IconId", None),
-        ],
-        "Icon": [
-            ("IconId", "icon.ico"),
-        ],
-    }
+      .. code-block:: toml
 
-    bdist_msi_options = {
-        "add_to_path": True,
-        "data": msi_data,
-        "environment_variables": [
-            ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
-        ],
-        "upgrade_code": "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
-    }
+        [project]
+        name = "hello"
+        version = "0.1.2.3"
+        description = "Sample cx_Freeze script to test MSI arbitrary data stream"
 
-    build_exe_options = {"excludes": ["tkinter"], "include_msvcr": True}
+        [[tool.cxfreeze.executables]]
+        script = "hello.py"
+        base = "gui"
+        copyright = "Copyright (C) 2025 cx_Freeze"
+        icon = "icon.ico"
+        shortcut_name = "My Program Name"
+        shortcut_dir = "MyProgramMenu"
 
-    executables = [
-        Executable(
-            "hello.py",
-            copyright="Copyright (C) 2025 cx_Freeze",
-            base="gui",
-            icon="icon.ico",
-            shortcut_name="My Program Name",
-            shortcut_dir="MyProgramMenu",
+        [tool.cxfreeze.build_exe]
+        excludes = ["tkinter", "unittest"]
+        include_msvcr = true
+
+        [tool.cxfreeze.build_msi]
+        add_to_path = true
+        environment_variables = [
+            ["E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR"]
+        ]
+        # use a different upgrade_code for your project
+        upgrade_code = "{6B29FC40-CA47-1067-B31D-00DD010662DA}"
+
+        [tool.cxfreeze.build_msi.data]
+        Directory = [
+            ["ProgramMenuFolder", "TARGETDIR", "."],
+            ["MyProgramMenu", "ProgramMenuFolder", "MYPROG~1|My Program"]
+        ]
+        ProgId = [
+            ["Prog.Id", 0, 0, "This is a description", "IconId", 0]
+        ]
+        Icon = [
+            ["IconId", "icon.ico"]
+        ]
+
+   .. group-tab:: setup.py
+
+      .. code-block:: python
+
+        from cx_Freeze import Executable, setup
+
+        directory_table = [
+            ("ProgramMenuFolder", "TARGETDIR", "."),
+            ("MyProgramMenu", "ProgramMenuFolder", "MYPROG~1|My Program"),
+        ]
+
+        msi_data = {
+            "Directory": directory_table,
+            "ProgId": [
+                ("Prog.Id", None, None, "This is a description", "IconId", None),
+            ],
+            "Icon": [
+                ("IconId", "icon.ico"),
+            ],
+        }
+
+        bdist_msi_options = {
+            "add_to_path": True,
+            "data": msi_data,
+            "environment_variables": [
+                ("E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR")
+            ],
+            "upgrade_code": "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}",
+        }
+
+        build_exe_options = {"excludes": ["tkinter"], "include_msvcr": True}
+
+        executables = [
+            Executable(
+                "hello.py",
+                base="gui",
+                copyright="Copyright (C) 2025 cx_Freeze",
+                icon="icon.ico",
+                shortcut_name="My Program Name",
+                shortcut_dir="MyProgramMenu",
+            )
+        ]
+
+        setup(
+            name="hello",
+            version="0.1",
+            description="Sample cx_Freeze script to test MSI arbitrary data stream",
+            executables=executables,
+            options={
+                "build_exe": build_exe_options,
+                "bdist_msi": bdist_msi_options,
+            },
         )
-    ]
-
-    setup(
-        name="hello",
-        version="0.1",
-        description="Sample cx_Freeze script to test MSI arbitrary data stream",
-        executables=executables,
-        options={
-            "build_exe": build_exe_options,
-            "bdist_msi": bdist_msi_options,
-        },
-    )
 
 Samples:
 There are more examples in the :repository:`samples <tree/main/samples/>`

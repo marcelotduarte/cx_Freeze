@@ -8,6 +8,16 @@ This command is available on Linux systems; It is a simple wrapper around
 
 Please check the options on the command line:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_deb --help
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_deb --help
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_deb --help

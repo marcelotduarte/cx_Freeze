@@ -1,0 +1,46 @@
+# A very simple project to test adding additional and binary data stream to an MSI file.
+#
+# It defines a ProgId for the installed program with an associated icon
+# icon.ico is the file whose binary data will be loaded in the Icon table.
+#
+# hello.py is a very simple 'Hello, world' type script which also displays the
+# environment in which the script runs
+#
+# Run the build process by running the command 'cxfreeze bdist_msi'
+
+[project]
+name = "hello"
+version = "0.1.2.3"
+description = "Sample cx_Freeze script to test MSI arbitrary data stream"
+
+[[tool.cxfreeze.executables]]
+script = "hello.py"
+base = "gui"
+copyright = "Copyright (C) 2025 cx_Freeze"
+icon = "icon.ico"
+shortcut_name = "My Program Name"
+shortcut_dir = "MyProgramMenu"
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest"]
+include_msvcr = true
+
+[tool.cxfreeze.bdist_msi]
+add_to_path = true
+environment_variables = [
+    ["E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR"]
+]
+# use a different upgrade_code for your project
+upgrade_code = "{6B29FC40-CA47-1067-B31D-00DD010662DA}"
+
+[tool.cxfreeze.bdist_msi.data]
+Directory = [
+    ["ProgramMenuFolder", "TARGETDIR", "."],
+    ["MyProgramMenu", "ProgramMenuFolder", "MYPROG~1|My Program"]
+]
+ProgId = [
+    ["Prog.Id", 0, 0, "This is a description", "IconId", 0]
+]
+Icon = [
+    ["IconId", "icon.ico"]
+]

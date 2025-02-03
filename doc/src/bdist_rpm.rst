@@ -14,15 +14,35 @@ to create RPMs that work on different RPM-based distributions.
 The usual way to create an RPM of your module distribution is to run the
 :command:`bdist_rpm` command:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_rpm
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_rpm
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_rpm
 
 The command allows you to specify RPM-specific options:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_rpm --packager="John Doe <jdoe@example.org>"
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_rpm --packager="John Doe <jdoe@example.org>"
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_rpm --packager="John Doe <jdoe@example.org>"
 
 Creating RPM packages is driven by a :file:`.spec` file, much as using the
 cx_Freeze is driven by the setup script.  To make your life easier, the

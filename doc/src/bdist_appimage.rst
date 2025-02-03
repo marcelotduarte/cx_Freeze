@@ -52,9 +52,19 @@ file executable.
 To specify the same options on the command line, this is the help command that
 shows the equivalent options:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_appimage --help
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_appimage --help
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_appimage --help
 
 .. seealso::
   `AppImage | Linux apps that run anywhere <https://appimage.org/>`_
