@@ -59,7 +59,7 @@ def test_bdist_msi_target_name_and_version() -> None:
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_binary_data")
 def test_bdist_msi_default(datafiles: Path) -> None:
     """Test the msi_binary_data sample."""
-    run_command(datafiles, "python setup.py bdist_msi")
+    run_command(datafiles, "cxfreeze bdist_msi")
     platform = PLATFORM.replace("win-amd64", "win64")
     file_created = datafiles / "dist" / f"hello-0.1.2.3-{platform}.msi"
     assert file_created.is_file()
@@ -138,24 +138,26 @@ hello.py
     print("Hello from cx_Freeze")
 pkg/hi.py
     print("Hi!")
-setup.py
-    from cx_Freeze import setup
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
 
-    setup(
-        name="hello",
-        version="0.1.2.3",
-        description="Sample cx_Freeze script",
-        executables=["hello.py"],
-    )
+    [[tool.cxfreeze.executables]]
+    script = "hello.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+
+    [tool.cxfreeze.bdist_msi]
+    target_name = "output.msi"
 """
 
 
 def test_bdist_msi_advanced2(tmp_path: Path) -> None:
     """Test the executables option."""
     create_package(tmp_path, SOURCE_HELLO)
-    msi_name = "output.msi"
-    run_command(
-        tmp_path, f"python setup.py bdist_msi --target-name {msi_name}"
-    )
-    file_created = tmp_path / "dist" / msi_name
+    run_command(tmp_path, "cxfreeze bdist_msi")
+    file_created = tmp_path / "dist" / "output.msi"
     assert file_created.is_file()
