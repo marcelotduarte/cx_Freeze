@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from sysconfig import get_platform
 
 import pytest
 from generate_samples import create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze import Executable
+from cx_Freeze._compat import PLATFORM
 
 bdist_msi = pytest.importorskip(
     "cx_Freeze.command.bdist_msi", reason="Windows tests"
@@ -54,8 +54,8 @@ def test_bdist_msi_target_name_and_version() -> None:
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_binary_data")
 def test_bdist_msi_default(datafiles: Path) -> None:
     """Test the msi_binary_data sample."""
-    run_command(datafiles, "python setup.py bdist_msi")
-    platform = get_platform().replace("win-amd64", "win64")
+    run_command(datafiles, "cxfreeze bdist_msi")
+    platform = PLATFORM.replace("win-amd64", "win64")
     file_created = datafiles / "dist" / f"hello-0.1.2.3-{platform}.msi"
     assert file_created.is_file()
 
@@ -87,7 +87,7 @@ def test_bdist_msi_target_name_with_extension_1(datafiles: Path) -> None:
 @pytest.mark.datafiles(SAMPLES_DIR / "msi_license")
 def test_bdist_msi_with_license(datafiles: Path) -> None:
     """Test the msi_license sample."""
-    platform = get_platform().replace("win-amd64", "win64")
+    platform = PLATFORM.replace("win-amd64", "win64")
     msi_name = f"hello-0.1-{platform}.msi"
     run_command(datafiles, "python setup.py bdist_msi")
     file_created = datafiles / "dist" / msi_name
@@ -133,24 +133,26 @@ hello.py
     print("Hello from cx_Freeze")
 pkg/hi.py
     print("Hi!")
-setup.py
-    from cx_Freeze import Executable, setup
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
 
-    setup(
-        name="hello",
-        version="0.1.2.3",
-        description="Sample cx_Freeze script",
-        executables=[Executable("hello.py")],
-    )
+    [[tool.cxfreeze.executables]]
+    script = "hello.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+
+    [tool.cxfreeze.bdist_msi]
+    target_name = "output.msi"
 """
 
 
 def test_bdist_msi_advanced2(tmp_path: Path) -> None:
     """Test the executables option."""
     create_package(tmp_path, SOURCE_HELLO)
-    msi_name = "output.msi"
-    run_command(
-        tmp_path, f"python setup.py bdist_msi --target-name {msi_name}"
-    )
-    file_created = tmp_path / "dist" / msi_name
+    run_command(tmp_path, "cxfreeze bdist_msi")
+    file_created = tmp_path / "dist" / "output.msi"
     assert file_created.is_file()
