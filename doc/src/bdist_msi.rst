@@ -118,7 +118,7 @@ For example:
         excludes = ["tkinter", "unittest"]
         include_msvcr = true
 
-        [tool.cxfreeze.build_msi]
+        [tool.cxfreeze.bdist_msi]
         add_to_path = true
         environment_variables = [
             ["E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR"]
@@ -126,7 +126,7 @@ For example:
         # use a different upgrade_code for your project
         upgrade_code = "{6B29FC40-CA47-1067-B31D-00DD010662DA}"
 
-        [tool.cxfreeze.build_msi.data]
+        [tool.cxfreeze.bdist_msi.data]
         Directory = [
             ["ProgramMenuFolder", "TARGETDIR", "."],
             ["MyProgramMenu", "ProgramMenuFolder", "MYPROG~1|My Program"]
