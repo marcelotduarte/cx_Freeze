@@ -68,6 +68,16 @@ bundle (a .app directory).
 
 This is the equivalent help to specify the same options on the command line:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_mac --help
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_mac --help
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_mac --help

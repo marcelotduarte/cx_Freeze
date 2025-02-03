@@ -89,6 +89,16 @@ the `dmgbuild documentation <https://dmgbuild.readthedocs.io/en/latest/>`_.
 
 This is the equivalent help to specify the same options on the command line:
 
-  .. code-block:: console
+.. tabs::
 
-    python setup.py bdist_dmg --help
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_dmg --help
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_dmg --help
