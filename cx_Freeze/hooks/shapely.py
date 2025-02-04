@@ -15,7 +15,10 @@ def load_shapely(finder: ModuleFinder, module: Module) -> None:
     """Hook for shapely."""
     module_path = module.file.parent
     source_dir = module_path.parent / f"{module.name}.libs"
+    if not source_dir.exists():
+        source_dir = module_path.parent / "Shapely.libs"
     if source_dir.exists():
-        target_dir = f"lib/{source_dir.name}"
         for source in source_dir.iterdir():
-            finder.lib_files[source] = f"{target_dir}/{source.name}"
+            target = f"lib/{source_dir.name}/{source.name}"
+            finder.lib_files[source] = target
+            finder.include_files(source, target)

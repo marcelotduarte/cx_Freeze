@@ -557,14 +557,6 @@ def load_sentry_sdk(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("sentry_sdk.integrations.threading")
 
 
-def load_shapely(finder: ModuleFinder, module: Module) -> None:
-    """The Shapely.libs directory is not copied."""
-    libs_name = "Shapely.libs"
-    source_dir = module.path[0].parent / libs_name
-    if source_dir.exists():
-        finder.include_files(source_dir, f"lib/{libs_name}")
-
-
 def load_shutil(finder: ModuleFinder, module: Module) -> None:
     """The shutil module should filter import names."""
     if IS_WINDOWS:
