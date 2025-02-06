@@ -1064,13 +1064,15 @@ class WinFreezer(Freezer, PEParser):
         # msys2 libpython depends on libgcc_s_seh and libwinpthread dlls
         # conda-forge python3x.dll depends on zlib.dll
         lib_files = self.finder.lib_files
-        for path in map(Path, self.default_bin_includes):
-            lib_files.setdefault(path, path.name)
         for filename in self.get_dependent_files(source):
             path = filename.resolve()
             if path not in lib_files and self._should_copy_file(path):
                 lib_files.setdefault(path, path.name)
                 self._get_top_dependencies(path)
+        if not IS_MINGW:
+            # abi3 packages requires python3.dll (windows/conda windows)
+            for path in map(Path, self.default_bin_includes):
+                lib_files.setdefault(path, path.name)
 
     @cached_property
     def _platform_bin_path(self) -> list[Path]:
