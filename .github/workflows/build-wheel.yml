@@ -70,9 +70,9 @@ jobs:
                 },
                 {
                     "os": "ubuntu",
-                    "os_version": "latest",
+                    "os_version": "22.04",
                     "arch": "ppc64le",
-                    "tag": "cp3*-manylinux_ppc64le",
+                    "tag": "cp3{10,11,12}-manylinux_ppc64le",
                 },
                 {
                     "os": "windows",
