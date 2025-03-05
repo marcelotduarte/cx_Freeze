@@ -1,6 +1,8 @@
 [build-system]
 requires = [
-    "setuptools>=70.1,<76",  # 70.1+ doesn't depend on wheel
+    # 70.1+ doesn't depend on wheel
+    # setuptools 75.8.1 #4766 breaks autidwheel
+    "setuptools>=70.1,<=75.8.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
@@ -39,7 +41,7 @@ requires-python = ">=3.9"
 dependencies = [
     "filelock>=3.12.3",
     "packaging>=24",
-    "setuptools>=65.6.3,<76",
+    "setuptools>=65.6.3,<=75.8.0",
     "tomli>=2.0.1 ;python_version < '3.11'",
     "typing_extensions>=4.10.0 ;python_version < '3.10'",
     # Linux
@@ -161,7 +163,7 @@ values = ["dev", "alpha", "rc", "final"]
 optional_value = "final"
 
 [tool.cibuildwheel]
-before-build = "uv pip install -r requirements.txt"
+before-build = "uv pip install -r pyproject.toml"
 build-frontend = "build[uv]"
 build-verbosity = 1
 enable = ["cpython-freethreading"]
