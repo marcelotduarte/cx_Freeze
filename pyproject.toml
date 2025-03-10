@@ -63,7 +63,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
-    "bump-my-version==1.0.1",
+    "bump-my-version==1.0.2",
     "cibuildwheel==2.23.0",
     "pre-commit==4.1.0",           # python_version >= 3.9
 ]
