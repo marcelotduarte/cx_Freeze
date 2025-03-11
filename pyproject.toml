@@ -2,7 +2,7 @@
 requires = [
     # 70.1+ doesn't depend on wheel
     # setuptools 75.8.1 #4766 breaks autidwheel
-    "setuptools>=70.1,<=75.8.0",
+    "setuptools>=70.1,<=75.8.2",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
