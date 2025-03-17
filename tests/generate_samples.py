@@ -548,7 +548,7 @@ def run_command(
         if cxfreeze:
             command[0] = cxfreeze
         else:
-            command = "python -m cx_Freeze".split() + command[1:]
+            command = ["python", "-m", "cx_Freeze"] + command[1:]
     if command[0] == "python":
         command[0] = sys.executable
     return check_output(
