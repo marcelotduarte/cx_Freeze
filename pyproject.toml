@@ -274,6 +274,7 @@ filterwarnings = [
 [tool.ruff]
 extend-exclude = [
     "cx_Freeze/importshed/*.pyi",
+    "cx_Freeze/darwintools.py",
 ]
 line-length = 79
 
