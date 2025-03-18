@@ -30,8 +30,20 @@ LDD_DISABLED = (
 )
 PE_EXT = (".exe", ".dll", ".pyd")
 MAGIC_ELF = b"\x7fELF"
-NON_ELF_EXT = ".a:.c:.h:.py:.pyc:.pyi:.pyx:.pxd:.txt:.html:.xml".split(":")
-NON_ELF_EXT += ".png:.jpg:.gif:.jar:.json".split(":")
+NON_ELF_EXT = [
+    ".a",
+    ".c",
+    ".h",
+    ".py",
+    ".pyc",
+    ".pyi",
+    ".pyx",
+    ".pxd",
+    ".txt",
+    ".html",
+    ".xml",
+]
+NON_ELF_EXT += [".png", ".jpg", ".gif", ".jar", ".json"]
 
 
 class Parser(ABC):
