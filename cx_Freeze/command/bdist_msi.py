@@ -985,8 +985,8 @@ class bdist_msi(Command):
         if (major, minor) >= (3, 13):
             msg = (
                 f"bdist_msi is not supported on Python {major}.{minor} yet.\n"
-                "       Please check a pinned issue at "
-                "https://github.com/marcelotduarte/cx_Freeze/issues"
+                "       Please check the pinned issue "
+                "https://github.com/marcelotduarte/cx_Freeze/issues/2837"
             )
             raise PlatformError(msg)
         self.set_undefined_options("bdist", ("skip_build", "skip_build"))
