@@ -12,10 +12,8 @@ from setuptools import Distribution
 
 from cx_Freeze import Executable
 from cx_Freeze._compat import (
-    ABI_THREAD,
     BUILD_EXE_DIR,
     EXE_SUFFIX,
-    IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
 )
@@ -242,11 +240,7 @@ TEST_VALID_PARAMETERS = [
         ("icon.ico", "icon.icns", "icon.png", "icon.svg"),
     ),
 ]
-if (
-    sys.version_info[:2] <= (3, 13)
-    and ABI_THREAD == ""
-    and not (IS_MACOS and sys.version_info[:2] == (3, 13))
-):
+if sys.version_info[:2] < (3, 13):
     TEST_VALID_PARAMETERS += [
         ("base", None, "console_legacy-"),
         ("base", "console_legacy", "console_legacy-"),

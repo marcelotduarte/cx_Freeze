@@ -285,11 +285,7 @@ def get_extensions() -> list[Extension]:
             optional=optional,
         )
     ]
-    if (
-        version <= (3, 13)
-        and abi_thread == ""
-        and not (IS_MACOS and version == (3, 13))
-    ):
+    if version < (3, 13):
         extensions += [
             Extension(
                 "cx_Freeze.bases.console_legacy",
