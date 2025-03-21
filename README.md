@@ -51,28 +51,14 @@ The official documentation is available
 If you need help you can also ask on the
 [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
 
-# What's New v7.2:
-- Improved bdist_dmg
-- Add license for msi (bdist_msi)
-- Minor improvements in bdist_appimage
-- Drop rpm2_mode in bdist_rpm
-- Use an optimized mode as default for pip installations of selected packages
-- hooks: support numpy 2.0, rasterio, multiprocess (a multiprocessing fork), etc
-- Regression fixes, bug fixes and improvements
-
-# What's New v7.1:
-- Added new option --zip-filename in build_exe
-- Bug fixes and improvements
-
-# What's New v7.0:
-- Added support for [pyproject.toml](https://cx-freeze.readthedocs.io/en/stable/setup_script.html)
-- Create Linux AppImage format: [bdist_appimage](https://cx-freeze.readthedocs.io/en/stable/bdist_appimage.html)
-- Create an DEB distribution: [bdist_deb](https://cx-freeze.readthedocs.io/en/stable/bdist_deb.html)
-- Improved bdist_mac
-- New and updated hooks, including support for QtWebengine on macOS
-- Python 3.12 support.
-- Improved tests and coverage ( >80% ).
-- Bug fixes and improvements
+# What's New v8.0:
+- Python 3.13 support.
+- Python 3.13 free-threaded support for Linux and macOS.
+- Download and extract the MSVC Redistributable files (instead of collecting).
+- Implement bases using PEP587 - Python Initialization Configuration.
+- Drop Python 3.8 support.
+- New and Improved hooks.
+- Bug fixes and improvements.
 
 # License
 
