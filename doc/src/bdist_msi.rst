@@ -6,7 +6,7 @@ their dependencies creating Windows installer packages.
 
 .. warning::
 
-   This command is not supported in Python 3.13.
+   This command is not supported in Python 3.13. See :issue:`2837`.
 
 The following options were added to the standard set of options for the
 command:
