@@ -357,7 +357,7 @@ This is the equivalent help to specify the same options on the command line:
       --include-msvcr         include the Microsoft Visual C++ Redistributable
                               files without needing the redistributable package
                               installed (--include-msvcr-version=17 equivalent)
-      --include-msvcr         like --include-msvcr but the version can be set
+      --include-msvcr-version like --include-msvcr but the version can be set
                               with one of the following values: 15, 16 or 17
                               (version 15 includes UCRT for Windows 8.1 and below)
 
