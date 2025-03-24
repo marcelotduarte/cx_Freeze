@@ -2,8 +2,6 @@
 same performance, is cross-platform and should work on any platform that Python
 itself works on.
 
-#
-
 [![PyPI version](https://img.shields.io/pypi/v/cx_Freeze)](https://pypi.org/project/cx-freeze/)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/cx_Freeze)](https://pypistats.org/packages/cx-freeze)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/cx_freeze.svg)](https://anaconda.org/conda-forge/cx_freeze)
@@ -14,6 +12,16 @@ itself works on.
 [![Coverage](https://raw.githubusercontent.com/marcelotduarte/cx_Freeze/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/marcelotduarte/cx_Freeze/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=stable)](https://cx-freeze.readthedocs.io/en/stable/?badge=stable)
+
+# What's New v8.0:
+- Python 3.13 support.
+- Python 3.13 free-threaded support for Linux and macOS.
+- Download and extract the [MSVC Redistributable files]
+(https://cx-freeze.readthedocs.io/en/stable/faq.html#microsoft-visual-c-redistributable-package).
+- Implement bases using PEP587 - Python Initialization Configuration.
+- Drop Python 3.8 support.
+- New and Improved hooks.
+- Bug fixes and improvements.
 
 # Installation
 
@@ -50,15 +58,6 @@ The official documentation is available
 
 If you need help you can also ask on the
 [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
-
-# What's New v8.0:
-- Python 3.13 support.
-- Python 3.13 free-threaded support for Linux and macOS.
-- Download and extract the MSVC Redistributable files (instead of collecting).
-- Implement bases using PEP587 - Python Initialization Configuration.
-- Drop Python 3.8 support.
-- New and Improved hooks.
-- Bug fixes and improvements.
 
 # License
 

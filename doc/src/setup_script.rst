@@ -299,7 +299,7 @@ It can be further customized:
 .. versionadded:: 7.1
     :option:`zip_filename` option used in conjunction with :option:`no_compress`.
 
-.. versionadded:: 7.3
+.. versionadded:: 8.0
     :option:`include_msvcr_version` option.
 
 This is the equivalent help to specify the same options on the command line:
