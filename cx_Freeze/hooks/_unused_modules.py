@@ -199,9 +199,8 @@ if PY_VERSION >= (3, 10):
 if PY_VERSION >= (3, 11):
     DEFAULT_EXCLUDES.add("binhex")
 if PY_VERSION >= (3, 12):
-    DEFAULT_EXCLUDES.update(
-        ["asynchat", "asyncore", "distutils", "imp", "smtpd"]
-    )
+    DEFAULT_EXCLUDES.update(["distutils", "imp", "smtpd"])
+    # asynchat and asyncore are available as pyasynchat and pyasyncore packages
 if PY_VERSION >= (3, 13):
     DEFAULT_EXCLUDES.update(
         [
