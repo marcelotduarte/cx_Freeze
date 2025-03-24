@@ -110,5 +110,5 @@ Further customization can be done using the following options:
 .. versionadded:: 7.0
     ``uac-uiaccess`` option.
 
-.. versionadded:: 7.3
+.. versionadded:: 8.0
     ``debug`` and  ``verbose`` options.
