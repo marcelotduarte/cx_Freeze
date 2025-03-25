@@ -18,6 +18,7 @@ def load_pymupdf(finder: ModuleFinder, module: Module) -> None:
     )
     finder.include_module("pymupdf.mupdf")
     finder.include_module("pymupdf.utils")
+    finder.include_module("pymupdf._wxcolors")
 
 
 def load_pymupdf_extra(_, module: Module) -> None:
