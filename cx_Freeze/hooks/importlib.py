@@ -19,6 +19,7 @@ def load_importlib(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
     # include module used by importlib._bootstrap_external
     # (internally mapped to _frozen_importlib_external)
+    finder.include_module("importlib.metadata")
     with suppress(ImportError):
         finder.include_module("importlib.readers")  # Python 3.10+
 
