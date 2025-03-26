@@ -339,7 +339,47 @@ class bdist_msi(Command):
             "Finish",
         )
         dialog.title("Completing the [ProductName] installer")
-        dialog.backbutton("< Back", "Finish", active=False)
+        dialog.checkbox("LaunchOnFinish", 15, 200, 300, 20, 3, "LAUNCHAPP", "Launch the installed app on finish?", "Finish")
+        add_data(
+            self.db,
+            "ControlEvent",
+            # Dialog, Control , Event, Argument, Condition, Ordering
+            [
+                (
+                    "ExitDialog",
+                    "Finish",
+                    "DoAction",
+                    "VSDCA_Launch",
+                    "LAUNCHAPP=1",
+                    0,
+                )
+            ],
+        )
+        add_data(
+            self.db,
+            "CustomAction",
+            # Action, Type, Source, Target
+            [
+                (
+                    "VSDCA_Launch",
+                    226,
+                    "TARGETDIR",
+                    f"[TARGETDIR]\\{self.distribution.executables[0].target_name}",
+                )
+            ],
+        )
+        add_data(
+            self.db,
+            "Property",
+            # Property, Value
+            [
+                (
+                    "LAUNCHAPP",
+                    "1",
+                )
+            ],
+        )
+        dialog.backbutton("< Back", "LaunchOnFinish", active=False)
         dialog.cancelbutton("Cancel", "Back", active=False)
         dialog.text(
             "Description",
@@ -351,7 +391,7 @@ class bdist_msi(Command):
             "Click the Finish button to exit the installer.",
         )
         button = dialog.nextbutton("Finish", "Cancel", name="Finish")
-        button.event("EndDialog", "Return")
+        button.event("EndDialog", "Return", "1", 1)
 
     def add_fatal_error_dialog(self) -> None:
         dialog = PyDialog(
