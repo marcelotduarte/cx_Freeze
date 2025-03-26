@@ -339,7 +339,17 @@ class bdist_msi(Command):
             "Finish",
         )
         dialog.title("Completing the [ProductName] installer")
-        dialog.checkbox("LaunchOnFinish", 15, 200, 300, 20, 3, "LAUNCHAPP", "Launch the installed app on finish?", "Finish")
+        dialog.checkbox(
+            "LaunchOnFinish",
+            15,
+            200,
+            300,
+            20,
+            3,
+            "LAUNCHAPP",
+            "Launch the installed app on finish?",
+            "Finish",
+        )
         add_data(
             self.db,
             "ControlEvent",
