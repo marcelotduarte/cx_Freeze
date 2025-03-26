@@ -34,6 +34,15 @@ def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("aiofiles")
 
 
+def load_argon2(finder: ModuleFinder, module: Module) -> None:
+    """The argon2-cffi package requires the _cffi_backend module
+    (loaded implicitly).
+    """
+    if module.distribution is None:
+        module.update_distribution("argon2-cffi")
+        finder.include_module("_cffi_backend")
+
+
 def load_babel(finder: ModuleFinder, module: Module) -> None:
     """The babel must be loaded as a package, and has pickeable data."""
     finder.include_package("babel")
