@@ -61,6 +61,8 @@ HAVE_ARGUMENT = opcode.HAVE_ARGUMENT
 
 __all__ = ["Module", "ModuleFinder"]
 
+logger = logging.getLogger(__name__)
+
 
 class ModuleFinder:
     """ModuleFinder base class."""
@@ -125,7 +127,7 @@ class ModuleFinder:
             self._modules[name] = module
             self.modules.append(module)
             if name in self._bad_modules:
-                logging.debug(
+                logger.debug(
                     "Removing module [%s] from list of bad modules", name
                 )
                 del self._bad_modules[name]
@@ -328,7 +330,7 @@ class ModuleFinder:
 
         if name in self._builtin_modules:
             module = self._add_module(name)
-            logging.debug("Adding module [%s] [C_BUILTIN]", name)
+            logger.debug("Adding module [%s] [C_BUILTIN]", name)
             if module.hook:
                 module.hook(self)
             module.in_import = False
@@ -361,7 +363,7 @@ class ModuleFinder:
                 name, path, deferred_imports, parent_module
             )
         except ImportError:
-            logging.debug("Module [%s] cannot be imported", name)
+            logger.debug("Module [%s] cannot be imported", name)
             self._modules[name] = None
             return None
         return module
@@ -392,7 +394,7 @@ class ModuleFinder:
                     path=[Path(path[0], name.rpartition(".")[-1])],
                     parent=parent,
                 )
-                logging.debug("Adding module [%s] [NESTED NAMESPACE]", name)
+                logger.debug("Adding module [%s] [NESTED NAMESPACE]", name)
                 self.namespaces.append(module)
                 with suppress(ValueError):
                     self.modules.remove(module)
@@ -414,13 +416,13 @@ class ModuleFinder:
                     parent=parent,
                 )
                 if spec.origin is None:
-                    logging.debug("Adding module [%s] [NAMESPACE]", name)
+                    logger.debug("Adding module [%s] [NAMESPACE]", name)
                     self.namespaces.append(module)
                     with suppress(ValueError):
                         self.modules.remove(module)
                     module.in_import = False
                     return module
-                logging.debug("Adding module [%s] [PACKAGE]", name)
+                logger.debug("Adding module [%s] [PACKAGE]", name)
                 module.file = Path(spec.origin)  # path of __init__.py
             else:
                 module = self._add_module(
@@ -441,7 +443,7 @@ class ModuleFinder:
         path = os.fspath(module.file)
 
         if isinstance(loader, importlib.machinery.SourceFileLoader):
-            logging.debug("Adding module [%s] [SOURCE]", name)
+            logger.debug("Adding module [%s] [SOURCE]", name)
             # Load & compile Python source code
             source_bytes = loader.get_data(path)
             try:
@@ -449,18 +451,18 @@ class ModuleFinder:
                     source_bytes, path, _optimize=self.optimize
                 )
             except SyntaxError:
-                logging.debug("Invalid syntax in [%s]", name)
+                logger.debug("Invalid syntax in [%s]", name)
                 msg = f"Invalid syntax in {path}"
                 raise ImportError(msg, name=name) from None
         elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
-            logging.debug("Adding module [%s] [BYTECODE]", name)
+            logger.debug("Adding module [%s] [BYTECODE]", name)
             # Load Python bytecode
             module.code = loader.get_code(name)
             if module.code is None:
                 msg = f"Bad magic number in {path}"
                 raise ImportError(msg, name=name)
         elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
-            logging.debug("Adding module [%s] [EXTENSION]", name)
+            logger.debug("Adding module [%s] [EXTENSION]", name)
         else:
             msg = f"Unknown module loader in {path}"
             raise ImportError(msg, name=name)  # noqa: TRY004
@@ -666,7 +668,7 @@ class ModuleFinder:
                 else:
                     name = arguments[0]
                     arguments = []
-                    logging.debug("Scan code detected __import__(%r)", name)
+                    logger.debug("Scan code detected __import__(%r)", name)
                 if len(arguments) >= 2:
                     relative_import_index, from_list = arguments[-2:]
                 else:

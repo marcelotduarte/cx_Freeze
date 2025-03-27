@@ -18,6 +18,8 @@ from cx_Freeze.module import ConstantsModule
 
 __all__ = ["build_exe"]
 
+logger = logging.getLogger(__name__)
+
 
 class build_exe(Command):
     """Build executables from Python scripts."""
@@ -175,7 +177,7 @@ class build_exe(Command):
         if command.compiler is not None:
             script_args.append(f"--compiler={command.compiler}")
         os.chdir(source_dir)
-        logging.info("building '%s' extension in '%s'", name, source_dir)
+        logger.info("building '%s' extension in '%s'", name, source_dir)
         run_setup = resolve_name("distutils.core.run_setup")
         distribution = run_setup("setup.py", script_args)
         ext_modules = distribution.ext_modules

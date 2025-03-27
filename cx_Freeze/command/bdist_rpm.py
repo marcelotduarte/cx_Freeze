@@ -26,6 +26,8 @@ from cx_Freeze.exception import ExecError, FileError, PlatformError
 
 __all__ = ["bdist_rpm"]
 
+logger = logging.getLogger(__name__)
+
 
 class bdist_rpm(Command):
     """Create an RPM distribution."""
@@ -323,7 +325,7 @@ class bdist_rpm(Command):
                 raise FileError(msg)
 
         # build package, binary only (-bb)
-        logging.info("building RPMs")
+        logger.info("building RPMs")
         rpm_cmd = [self._rpmbuild, "-bb"]
         if not self.keep_temp:
             rpm_cmd.append("--clean")

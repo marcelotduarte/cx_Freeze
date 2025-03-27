@@ -18,6 +18,8 @@ from cx_Freeze.exception import ExecError, PlatformError
 
 __all__ = ["bdist_deb"]
 
+logger = logging.getLogger(__name__)
+
 
 class bdist_deb(Command):
     """Create an DEB distribution."""
@@ -86,14 +88,14 @@ class bdist_deb(Command):
             rpm_filename = "filename.rpm"
 
         # convert rpm to deb (by default in dist directory)
-        logging.info("building DEB")
+        logger.info("building DEB")
         cmd = ["alien", "--to-deb", rpm_filename]
         if os.getuid() != 0:
             cmd.insert(0, "fakeroot")
         if self.dry_run:
             self.spawn(cmd)
         else:
-            logging.info(subprocess.list2cmdline(cmd))
+            logger.info(subprocess.list2cmdline(cmd))
             process = subprocess.run(
                 cmd,
                 text=True,
@@ -113,7 +115,7 @@ class bdist_deb(Command):
                     msg += "\n".join(info)
                 raise ExecError(msg)
             output = process.stdout
-            logging.info(output)
+            logger.info(output)
             filename = output.splitlines()[0].split()[0]
             filename = os.path.join(self.dist_dir, filename)
             if not os.path.exists(filename):
