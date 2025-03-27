@@ -19,6 +19,8 @@ from cx_Freeze.exception import OptionError, PlatformError
 
 __all__ = ["bdist_msi"]
 
+logger = logging.getLogger(__name__)
+
 if (IS_MINGW or IS_WINDOWS) and sys.version_info[:2] < (3, 13):
 
     @contextlib.contextmanager
@@ -1129,7 +1131,7 @@ class bdist_msi(Command):
         install.prefix = install_dir
         install.skip_build = self.skip_build
         install.warn_dir = 0
-        logging.info("installing to %s", install_dir)
+        logger.info("installing to %s", install_dir)
         install.ensure_finalized()
         install.run()
 
@@ -1185,14 +1187,12 @@ class bdist_msi(Command):
         )
 
         if not self.keep_temp:
-            logging.info(
-                "removing '%s' (and everything under it)", install_dir
-            )
+            logger.info("removing '%s' (and everything under it)", install_dir)
             if not self.dry_run:
                 try:
                     shutil.rmtree(install_dir)
                 except OSError as exc:
-                    logging.warning("error removing %s: %s", install_dir, exc)
+                    logger.warning("error removing %s: %s", install_dir, exc)
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent

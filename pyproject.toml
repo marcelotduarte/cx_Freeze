@@ -325,7 +325,6 @@ select = [
 ignore = [
     # ignored for now, but should be revised in future
     "A005",  # added for ruff 0.9.x but should be fixed early
-    "LOG015",  # added for ruff 0.11.x but should be fixed early
     # last revised using ruff 0.3.4
     "C901",  # mccabe - {name} is too complex ({complexity} > {max_complexity})
     "D102",  # Missing docstring in public method
