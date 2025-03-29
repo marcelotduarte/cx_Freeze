@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.hooks.libs import replace_delvewheel_patch
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder

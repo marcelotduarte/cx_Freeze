@@ -10,59 +10,53 @@ from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW
 from cx_Freeze.common import get_resource_file_path
-from cx_Freeze.hooks._qthooks import copy_qt_files
-from cx_Freeze.hooks._qthooks import load_qt_qt3dinput as load_pyqt6_qt3dinput
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qt3drender as load_pyqt6_qt3drender,
-)
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import copy_qt_files
+from cx_Freeze.hooks.qthooks import load_qt_qt3dinput as load_pyqt6_qt3dinput
+from cx_Freeze.hooks.qthooks import load_qt_qt3drender as load_pyqt6_qt3drender
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtbluetooth as load_pyqt6_qtbluetooth,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyqt6_qtcore
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtdesigner as load_pyqt6_qtdesigner,
-)
-from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyqt6_qtgui
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtlocation as load_pyqt6_qtlocation,
-)
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtcore as load_pyqt6_qtcore
+from cx_Freeze.hooks.qthooks import load_qt_qtdesigner as load_pyqt6_qtdesigner
+from cx_Freeze.hooks.qthooks import load_qt_qtgui as load_pyqt6_qtgui
+from cx_Freeze.hooks.qthooks import load_qt_qtlocation as load_pyqt6_qtlocation
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtmultimedia as load_pyqt6_qtmultimedia,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtnetwork as load_pyqt6_qtnetwork
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtnetwork as load_pyqt6_qtnetwork
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtpositioning as load_pyqt6_qtpositioning,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtprintsupport as load_pyqt6_qtprintsupport,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyqt6_qtqml
-from cx_Freeze.hooks._qthooks import load_qt_qtquick as load_pyqt6_qtquick
-from cx_Freeze.hooks._qthooks import load_qt_qtquick3d as load_pyqt6_qtquick3d
-from cx_Freeze.hooks._qthooks import load_qt_qtscxml as load_pyqt6_qtscxml
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtqml as load_pyqt6_qtqml
+from cx_Freeze.hooks.qthooks import load_qt_qtquick as load_pyqt6_qtquick
+from cx_Freeze.hooks.qthooks import load_qt_qtquick3d as load_pyqt6_qtquick3d
+from cx_Freeze.hooks.qthooks import load_qt_qtscxml as load_pyqt6_qtscxml
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtserialbus as load_pyqt6_qtserialbus,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtserialport as load_pyqt6_qtserialport,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyqt6_qtsql
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtsql as load_pyqt6_qtsql
+from cx_Freeze.hooks.qthooks import (
     load_qt_qttexttospeech as load_pyqt6_qttexttospeech,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtvirtualkeyboard as load_pyqt6_qtvirtualkeyboard,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebenginecore as load_pyqt6_qtwebenginecore,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt6_qtwebenginewidgets,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebsockets as load_pyqt6_qtwebsockets,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwidgets as load_pyqt6_qtwidgets_base,
 )
 
@@ -86,23 +80,23 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include modules that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/pyqt6", "debug", ".py")
+    qt_debug = get_resource_file_path("hooks/_pyqt6_", "_debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt6._cx_freeze_qt_debug")
 
     # Include a qt.conf in the module path (Prefix = lib/PyQt6/Qt6) for macos
     if IS_MACOS:
         finder.include_files(
-            get_resource_file_path("hooks/pyqt6", "qt_macos", ".conf"),
+            get_resource_file_path("hooks/_pyqt6_", "qt_macos", ".conf"),
             "qt.conf",
         )
         # bdist_mac (.app) uses a different Prefix in qt.conf
         finder.include_files(
-            get_resource_file_path("hooks/pyqt6", "qt_bdist_mac", ".conf"),
+            get_resource_file_path("hooks/_pyqt6_", "qt_bdist_mac", ".conf"),
             "qt_bdist_mac.conf",
         )
     # Include a qt.conf in the module path (Prefix = lib/PyQt6) for msys2
     if IS_MINGW:
-        qt_conf = get_resource_file_path("hooks/pyqt6", "qt_msys2", ".conf")
+        qt_conf = get_resource_file_path("hooks/_pyqt6_", "qt_msys2", ".conf")
         finder.include_files(qt_conf, "qt.conf")
 
     # Include a copy of qt.conf (used by QtWebEngine)

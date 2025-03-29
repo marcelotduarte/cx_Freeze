@@ -2,7 +2,7 @@
 pycryptodome package is included.
 """
 
-from cx_Freeze.hooks.cryptodome import Hook as CryptoHook
+from cx_Freeze.hooks._cryptodome_ import Hook as CryptoHook
 
 
 class Hook(CryptoHook):

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_WINDOWS
-from cx_Freeze.hooks._qthooks import get_qt_plugins_paths  # noqa: F401
+from cx_Freeze.hooks.qthooks import get_qt_plugins_paths  # noqa: F401
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder

@@ -9,7 +9,7 @@ from ctypes.util import find_library
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX
-from cx_Freeze.parser import ELFParser
+from cx_Freeze.dep_parser import ELFParser
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder

@@ -357,7 +357,7 @@ class Module:
                 root_name = self.root.name.lower()
                 try:
                     hook_cls = resolve_name(
-                        f"cx_Freeze.hooks.{root_name}:Hook"
+                        f"cx_Freeze.hooks._{root_name}_:Hook"
                     )
                 except (AttributeError, ValueError):
                     hook_cls = None
@@ -368,7 +368,7 @@ class Module:
                     name = self.name.replace(".", "_").lower()
                     try:
                         func = resolve_name(
-                            f"cx_Freeze.hooks.{root_name}:load_{name}"
+                            f"cx_Freeze.hooks._{root_name}_:load_{name}"
                         )
                     except (AttributeError, ValueError):
                         pass

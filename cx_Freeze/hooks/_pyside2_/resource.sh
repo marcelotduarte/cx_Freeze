@@ -4,5 +4,5 @@
 THIS_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 
 pushd $THIS_DIR
-pyside2-rcc -o resource.py resource.qrc
+pyside2-rcc -o _resource.py resource.qrc
 popd

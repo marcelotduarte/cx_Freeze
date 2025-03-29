@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze.common import code_object_replace_function
-from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.hooks.libs import replace_delvewheel_patch
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
