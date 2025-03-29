@@ -12,66 +12,58 @@ from cx_Freeze.common import (
     code_object_replace_function,
     get_resource_file_path,
 )
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qt3dinput as load_pyside6_qt3dinput,
-)
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qt3dinput as load_pyside6_qt3dinput
+from cx_Freeze.hooks.qthooks import (
     load_qt_qt3drender as load_pyside6_qt3drender,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtbluetooth as load_pyside6_qtbluetooth,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyside6_qtcore
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtcore as load_pyside6_qtcore
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtdesigner as load_pyside6_qtdesigner,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyside6_qtgui
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtgui as load_pyside6_qtgui
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtlocation as load_pyside6_qtlocation,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtmultimedia as load_pyside6_qtmultimedia,
 )
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtnetwork as load_pyside6_qtnetwork,
-)
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtnetwork as load_pyside6_qtnetwork
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtpositioning as load_pyside6_qtpositioning,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtprintsupport as load_pyside6_qtprintsupport,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyside6_qtqml
-from cx_Freeze.hooks._qthooks import load_qt_qtquick as load_pyside6_qtquick
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtquick3d as load_pyside6_qtquick3d,
-)
-from cx_Freeze.hooks._qthooks import load_qt_qtscxml as load_pyside6_qtscxml
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtqml as load_pyside6_qtqml
+from cx_Freeze.hooks.qthooks import load_qt_qtquick as load_pyside6_qtquick
+from cx_Freeze.hooks.qthooks import load_qt_qtquick3d as load_pyside6_qtquick3d
+from cx_Freeze.hooks.qthooks import load_qt_qtscxml as load_pyside6_qtscxml
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtserialbus as load_pyside6_qtserialbus,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtserialport as load_pyside6_qtserialport,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyside6_qtsql
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtsql as load_pyside6_qtsql
+from cx_Freeze.hooks.qthooks import (
     load_qt_qttexttospeech as load_pyside6_qttexttospeech,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtvirtualkeyboard as load_pyside6_qtvirtualkeyboard,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebenginecore as load_pyside6_qtwebenginecore,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebenginewidgets as load_pyside6_qtwebenginewidgets,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebsockets as load_pyside6_qtwebsockets,
 )
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtwidgets as load_pyside6_qtwidgets,
-)
+from cx_Freeze.hooks.qthooks import load_qt_qtwidgets as load_pyside6_qtwidgets
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -93,18 +85,18 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include modules that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/pyside6", "debug", ".py")
+    qt_debug = get_resource_file_path("hooks/_pyside6_", "debug", ".py")
     finder.include_file_as_module(qt_debug, "PySide6._cx_freeze_qt_debug")
 
     # Include a resource for conda-forge
     if environment == "conda":
         # The resource include a qt.conf (Prefix = lib/PySide6)
-        resource = get_resource_file_path("hooks/pyside6", "resource", ".py")
+        resource = get_resource_file_path("hooks/_pyside6_", "resource", ".py")
         finder.include_file_as_module(resource, "PySide6._cx_freeze_resource")
 
     if IS_MINGW:
         # Include a qt.conf in the module path (Prefix = lib/PySide6)
-        qt_conf = get_resource_file_path("hooks/pyside6", "qt", ".conf")
+        qt_conf = get_resource_file_path("hooks/_pyside6_", "qt", ".conf")
         finder.include_files(qt_conf, qt_conf.name)
 
     # Inject code to init

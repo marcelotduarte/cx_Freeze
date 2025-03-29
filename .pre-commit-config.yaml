@@ -4,9 +4,9 @@ ci:
 exclude: |
     (?x)^(
         .bumpversion.cfg|
-        cx_Freeze/hooks/pyqt5/resource.py|
-        cx_Freeze/hooks/pyside2/resource.py|
-        cx_Freeze/hooks/pyside6/resource.py|
+        cx_Freeze/hooks/_pyqt5_/_resource.py|
+        cx_Freeze/hooks/_pyside2_/_resource.py|
+        cx_Freeze/hooks/_pyside6_/_resource.py|
         cx_Freeze/importshed/.*.pyi|
         doc/src/conf.py
     )$
@@ -23,8 +23,6 @@ repos:
   - id: check-yaml
   - id: end-of-file-fixer
   - id: fix-byte-order-marker
-  - id: fix-encoding-pragma
-    args: ["--remove"]
   - id: mixed-line-ending
     args: ["--fix=lf"]
   - id: trailing-whitespace

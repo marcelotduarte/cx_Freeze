@@ -9,32 +9,30 @@ from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.common import get_resource_file_path
-from cx_Freeze.hooks._qthooks import copy_qt_files
-from cx_Freeze.hooks._qthooks import load_qt_qtcore as load_pyqt5_qtcore
-from cx_Freeze.hooks._qthooks import (
-    load_qt_qtdesigner as load_pyqt5_qtdesigner,
-)
-from cx_Freeze.hooks._qthooks import load_qt_qtgui as load_pyqt5_qtgui
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import copy_qt_files
+from cx_Freeze.hooks.qthooks import load_qt_qtcore as load_pyqt5_qtcore
+from cx_Freeze.hooks.qthooks import load_qt_qtdesigner as load_pyqt5_qtdesigner
+from cx_Freeze.hooks.qthooks import load_qt_qtgui as load_pyqt5_qtgui
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtmultimedia as load_pyqt5_qtmultimedia,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtnetwork as load_pyqt5_qtnetwork
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtnetwork as load_pyqt5_qtnetwork
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtpositioning as load_pyqt5_qtpositioning,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtprintsupport as load_pyqt5_qtprintsupport,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtqml as load_pyqt5_qtqml
-from cx_Freeze.hooks._qthooks import load_qt_qtsql as load_pyqt5_qtsql
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import load_qt_qtqml as load_pyqt5_qtqml
+from cx_Freeze.hooks.qthooks import load_qt_qtsql as load_pyqt5_qtsql
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebenginecore as _load_qt_qtwebenginecore,
 )
-from cx_Freeze.hooks._qthooks import (
+from cx_Freeze.hooks.qthooks import (
     load_qt_qtwebenginewidgets as load_pyqt5_qtwebenginewidgets,
 )
-from cx_Freeze.hooks._qthooks import load_qt_qtwidgets as load_pyqt5_qtwidgets
-from cx_Freeze.hooks._qthooks import load_qt_uic as load_pyqt5_uic
+from cx_Freeze.hooks.qthooks import load_qt_qtwidgets as load_pyqt5_qtwidgets
+from cx_Freeze.hooks.qthooks import load_qt_uic as load_pyqt5_uic
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -56,12 +54,12 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include a module that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/pyqt5", "debug", ".py")
+    qt_debug = get_resource_file_path("hooks/_pyqt5_", "_debug", ".py")
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_debug")
 
     # Include a resource with qt.conf (Prefix = lib/PyQt5) for conda-forge
     if environment == "conda":
-        resource = get_resource_file_path("hooks/pyqt5", "resource", ".py")
+        resource = get_resource_file_path("hooks/_pyqt5_", "_resource", ".py")
         finder.include_file_as_module(resource, "PyQt5._cx_freeze_resource")
 
     # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)

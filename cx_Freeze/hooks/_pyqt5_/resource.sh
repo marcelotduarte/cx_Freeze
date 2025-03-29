@@ -4,5 +4,5 @@
 THIS_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 
 pushd $THIS_DIR
-pyrcc5 -o resource.py resource.qrc
+pyrcc5 -o _resource.py resource.qrc
 popd

@@ -26,14 +26,14 @@ The project's code layout
     frozen code, then load the code from the zip file and set it running.
   * ``cli.py`` - The code behind the :doc:`cxfreeze script <../script>`.
   * ``common.py`` - Common utility functions shared between cx_Freeze modules.
+  * ``dep_parser.py`` - Implements `Parser` interface to create an abstraction
+    to parse binary files.
   * ``exception.py`` - Internal exception classes.
   * ``executable.py`` - Module for the Executable base class.
   * ``finder.py`` - Module Finder - discovers what modules are required by the
     code.
   * ``freezer.py`` - The core class for freezing scripts into executables.
   * ``module.py`` - Base class for Module and ConstantsModule.
-  * ``parser.py`` - Implements `Parser` interface to create an abstraction to
-    parse binary files.
   * ``winmsvcr.py`` - DLL list of MSVC runtimes.
   * ``winversioninfo.py`` - Module for the VersionInfo base class.
 

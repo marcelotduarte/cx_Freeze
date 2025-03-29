@@ -20,7 +20,7 @@ from cx_Freeze.common import (
     get_resource_file_path,
     process_path_specs,
 )
-from cx_Freeze.hooks._unused_modules import (
+from cx_Freeze.hooks.unused_modules import (
     DEFAULT_EXCLUDES,
     DEFAULT_IGNORE_NAMES,
 )

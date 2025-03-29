@@ -11,7 +11,7 @@ import pytest
 from generate_samples import create_package, run_command
 
 from cx_Freeze._compat import BUILD_EXE_DIR
-from cx_Freeze.parser import PEParser
+from cx_Freeze.dep_parser import PEParser
 
 if TYPE_CHECKING:
     from pathlib import Path

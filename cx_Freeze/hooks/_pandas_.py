@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze.hooks._libs import replace_delvewheel_patch
+from cx_Freeze.hooks.libs import replace_delvewheel_patch
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder

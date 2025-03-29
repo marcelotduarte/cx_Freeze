@@ -251,9 +251,9 @@ ignore-paths = [
     "cx_Freeze/__init__.py",
     "cx_Freeze/darwintools.py",
     "cx_Freeze/hooks/__init__.py",
-    "cx_Freeze/hooks/pyqt5/resource.py",
-    "cx_Freeze/hooks/pyside2/resource.py",
-    "cx_Freeze/hooks/pyside6/resource.py",
+    "cx_Freeze/hooks/_pyqt5_/_resource.py",
+    "cx_Freeze/hooks/_pyside2_/_resource.py",
+    "cx_Freeze/hooks/_pyside6_/_resource.py",
     "^samples/.*.py$",
     "^tests/.*.py$",
 ]
@@ -324,7 +324,6 @@ select = [
 ]
 ignore = [
     # ignored for now, but should be revised in future
-    "A005",  # added for ruff 0.9.x but should be fixed early
     # last revised using ruff 0.3.4
     "C901",  # mccabe - {name} is too complex ({complexity} > {max_complexity})
     "D102",  # Missing docstring in public method
@@ -361,6 +360,9 @@ typing-modules = ["cx_Freeze._typing"]
 "cx_Freeze/initscripts/*" = ["S102"]
 "samples/*" = ["D1"]
 "tests/*" = ["S101"]
+
+[tool.ruff.lint.flake8-builtins]
+strict-checking = true
 
 [tool.ruff.lint.flake8-unused-arguments]
 ignore-variadic-names = true
