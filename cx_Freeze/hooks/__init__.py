@@ -11,7 +11,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_MACOS, IS_WINDOWS
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_WINDOWS
 from cx_Freeze.hooks._qthooks import get_qt_plugins_paths  # noqa: F401
 
 if TYPE_CHECKING:
@@ -657,6 +657,17 @@ def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
 def load_yaml(finder: ModuleFinder, module: Module) -> None:
     """PyYAML requires its metadata."""
     module.update_distribution("PyYAML")
+
+
+def load_zlib(finder: ModuleFinder, module: Module) -> None:
+    """In conda-forge Windows, the zlib module requires the zlib.dll to be
+    present in the executable directory.
+    """
+    if IS_CONDA and IS_WINDOWS:
+        source = Path(sys.base_prefix, "Library/bin/zlib.dll")
+        if source.exists():
+            target = source.name
+            finder.lib_files[source] = target
 
 
 def load_zope_component(finder: ModuleFinder, module: Module) -> None:
