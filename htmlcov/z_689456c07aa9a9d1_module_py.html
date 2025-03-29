@@ -62,10 +62,10 @@
         <p class="text">
             <a id="prevFileLink" class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_parser_py.html">&#xbb; next</a>
+            <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_setupwriter_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-03-29 03:32 +0000
+            created at 2025-03-29 14:56 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -439,7 +439,7 @@
     <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">                <span class="nam">root_name</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">root</span><span class="op">.</span><span class="nam">name</span><span class="op">.</span><span class="nam">lower</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">                <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">                    <span class="nam">hook_cls</span> <span class="op">=</span> <span class="nam">resolve_name</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">                        <span class="fst">f"</span><span class="fst">cx_Freeze.hooks.</span><span class="op">{</span><span class="nam">root_name</span><span class="op">}</span><span class="fst">:Hook</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">                        <span class="fst">f"</span><span class="fst">cx_Freeze.hooks._</span><span class="op">{</span><span class="nam">root_name</span><span class="op">}</span><span class="fst">_:Hook</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">                    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">                <span class="key">except</span> <span class="op">(</span><span class="nam">AttributeError</span><span class="op">,</span> <span class="nam">ValueError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">                    <span class="nam">hook_cls</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
@@ -450,7 +450,7 @@
     <p class="run"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">                    <span class="nam">name</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">name</span><span class="op">.</span><span class="nam">replace</span><span class="op">(</span><span class="str">"."</span><span class="op">,</span> <span class="str">"_"</span><span class="op">)</span><span class="op">.</span><span class="nam">lower</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">                    <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t">                        <span class="nam">func</span> <span class="op">=</span> <span class="nam">resolve_name</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">                            <span class="fst">f"</span><span class="fst">cx_Freeze.hooks.</span><span class="op">{</span><span class="nam">root_name</span><span class="op">}</span><span class="fst">:load_</span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">                            <span class="fst">f"</span><span class="fst">cx_Freeze.hooks._</span><span class="op">{</span><span class="nam">root_name</span><span class="op">}</span><span class="fst">_:load_</span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t">                        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t">                    <span class="key">except</span> <span class="op">(</span><span class="nam">AttributeError</span><span class="op">,</span> <span class="nam">ValueError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t">                        <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
@@ -578,10 +578,10 @@
         <p>
             <a class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xab; prev</a> &nbsp; &nbsp;
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
-            <a class="nav" href="z_689456c07aa9a9d1_parser_py.html">&#xbb; next</a>
+            <a class="nav" href="z_689456c07aa9a9d1_setupwriter_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-03-29 03:32 +0000
+            created at 2025-03-29 14:56 +0000
         </p>
     </div>
 </footer>

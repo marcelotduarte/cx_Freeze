@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-03-29 03:32 +0000
+            created at 2025-03-29 14:56 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -113,11 +113,11 @@
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="nam">PYTHON_VERSION</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">common</span> <span class="key">import</span> <span class="nam">get_resource_file_path</span><span class="op">,</span> <span class="nam">process_path_specs</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">exception</span> <span class="key">import</span> <span class="nam">FileError</span><span class="op">,</span> <span class="nam">OptionError</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">executable</span> <span class="key">import</span> <span class="nam">Executable</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">finder</span> <span class="key">import</span> <span class="nam">ModuleFinder</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">module</span> <span class="key">import</span> <span class="nam">ConstantsModule</span><span class="op">,</span> <span class="nam">DistributionCache</span><span class="op">,</span> <span class="nam">Module</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">parser</span> <span class="key">import</span> <span class="nam">ELFParser</span><span class="op">,</span> <span class="nam">Parser</span><span class="op">,</span> <span class="nam">PEParser</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">dep_parser</span> <span class="key">import</span> <span class="nam">ELFParser</span><span class="op">,</span> <span class="nam">Parser</span><span class="op">,</span> <span class="nam">PEParser</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">exception</span> <span class="key">import</span> <span class="nam">FileError</span><span class="op">,</span> <span class="nam">OptionError</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">executable</span> <span class="key">import</span> <span class="nam">Executable</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">finder</span> <span class="key">import</span> <span class="nam">ModuleFinder</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">module</span> <span class="key">import</span> <span class="nam">ConstantsModule</span><span class="op">,</span> <span class="nam">DistributionCache</span><span class="op">,</span> <span class="nam">Module</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="exc show_exc"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="key">if</span> <span class="nam">TYPE_CHECKING</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc show_exc"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="key">from</span> <span class="nam">collections</span><span class="op">.</span><span class="nam">abc</span> <span class="key">import</span> <span class="nam">Mapping</span><span class="op">,</span> <span class="nam">Sequence</span>&nbsp;</span><span class="r"></span></p>
@@ -1492,7 +1492,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-03-29 03:32 +0000
+            created at 2025-03-29 14:56 +0000
         </p>
     </div>
 </footer>
