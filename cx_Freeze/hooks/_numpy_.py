@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.1.3).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.2.4).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # numpy >= 1.26.0
@@ -58,13 +58,12 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     # Exclude/Include modules based on distribution and/or version
     distribution = module.distribution
     if distribution:
-        # Exclude tests and diagnose
+        # Exclude tests
         excludes = set()
         for file in distribution.original.files:
             if file.parent.match("**/tests"):
                 excludes.add(file.parent.as_posix().replace("/", "."))
-            if file.match("**/setup.py") or file.match("**/diagnose.py"):
-                excludes.add(file.with_suffix("").as_posix().replace("/", "."))
+        excludes.discard("numpy._core.tests")
         for exclude in excludes:
             finder.exclude_module(exclude)
 
@@ -77,6 +76,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
             finder.include_package("numpy._core._dtype_ctypes")
             finder.include_package("numpy._core._methods")
             finder.include_package("numpy._core._multiarray_tests")
+            finder.include_package("numpy._expired_attrs_2_0")
         else:
             finder.exclude_module("numpy.core.include")
             finder.exclude_module("numpy.core.lib")
@@ -92,6 +92,15 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("numpy.polynomial")
     finder.include_module("secrets")
 
+    code_string = module.file.read_text(encoding="utf_8")
+    module.code = compile(
+        code_string.replace("import numpy.f2py as f2py", "f2py = None"),
+        module.file.as_posix(),
+        "exec",
+        dont_inherit=True,
+        optimize=finder.optimize,
+    )
+
 
 def load_numpy_compat_py3k(_, module: Module) -> None:
     """Ignore errors if optionally imported module cannot be found."""
@@ -105,8 +114,8 @@ def load_numpy___config__(_, module: Module) -> None:
 
 # see list from numpy/__init__.py
 NUMPY_GLOBAL_NAMES = """
-    False_, ScalarType, True_, _get_promotion_state, _no_nep50_warning,
-    _set_promotion_state, abs, absolute, acos, acosh, add, all, allclose,
+    False_, ScalarType, True_,
+    abs, absolute, acos, acosh, add, all, allclose,
     amax, amin, any, arange, arccos, arccosh, arcsin, arcsinh,
     arctan, arctan2, arctanh, argmax, argmin, argpartition, argsort,
     argwhere, around, array, array2string, array_equal, array_equiv,
@@ -129,17 +138,17 @@ NUMPY_GLOBAL_NAMES = """
     frexp, from_dlpack, frombuffer, fromfile, fromfunction, fromiter,
     frompyfunc, fromstring, full, full_like, gcd, generic, geomspace,
     get_printoptions, getbufsize, geterr, geterrcall, greater,
-    greater_equal, half, heaviside, hstack, hypot, identity, iinfo, iinfo,
+    greater_equal, half, heaviside, hstack, hypot, identity, iinfo,
     indices, inexact, inf, inner, int16, int32, int64, int8, int_, intc,
     integer, intp, invert, is_busday, isclose, isdtype, isfinite,
     isfortran, isinf, isnan, isnat, isscalar, issubdtype, lcm, ldexp,
     left_shift, less, less_equal, lexsort, linspace, little_endian, log,
     log10, log1p, log2, logaddexp, logaddexp2, logical_and, logical_not,
     logical_or, logical_xor, logspace, long, longdouble, longlong, matmul,
-    matrix_transpose, max, maximum, may_share_memory, mean, memmap, min,
-    min_scalar_type, minimum, mod, modf, moveaxis, multiply, nan, ndarray,
-    ndim, nditer, negative, nested_iters, newaxis, nextafter, nonzero,
-    not_equal, number, object_, ones, ones_like, outer, partition,
+    matvec, matrix_transpose, max, maximum, may_share_memory, mean, memmap,
+    min, min_scalar_type, minimum, mod, modf, moveaxis, multiply, nan,
+    ndarray, ndim, nditer, negative, nested_iters, newaxis, nextafter,
+    nonzero, not_equal, number, object_, ones, ones_like, outer, partition,
     permute_dims, pi, positive, pow, power, printoptions, prod,
     promote_types, ptp, put, putmask, rad2deg, radians, ravel, recarray,
     reciprocal, record, remainder, repeat, require, reshape, resize,
@@ -150,8 +159,8 @@ NUMPY_GLOBAL_NAMES = """
     str_, subtract, sum, swapaxes, take, tan, tanh, tensordot,
     timedelta64, trace, transpose, true_divide, trunc, typecodes, ubyte,
     ufunc, uint, uint16, uint32, uint64, uint8, uintc, uintp, ulong,
-    ulonglong, unsignedinteger, unstack, ushort, var, vdot, vecdot, void,
-    vstack, where, zeros, zeros_like
+    ulonglong, unsignedinteger, unstack, ushort, var, vdot, vecdot,
+    vecmat, void, vstack, where, zeros, zeros_like
 """
 
 
