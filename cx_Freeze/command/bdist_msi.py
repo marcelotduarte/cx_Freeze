@@ -339,6 +339,19 @@ class bdist_msi(Command):
             "Finish",
         )
         dialog.title("Completing the [ProductName] installer")
+        add_data(
+            self.db,
+            "ControlCondition",
+            # Dialog, Control , Action, Condition
+            [
+                (
+                    "ExitDialog",
+                    "LaunchOnFinish",
+                    "Hide",
+                    'MaintenanceForm_Action="Remove"',
+                )
+            ],
+        )
         dialog.checkbox(
             "LaunchOnFinish",
             15,
