@@ -93,6 +93,7 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("torchgen.packaged.ATen.templates")
     # torch 2.2
     finder.include_module("torch.return_types")
+
     # include 'config.py' source files
     for source in module_path.rglob("**/config.py"):
         target = "lib" / source.relative_to(site_packages_path)
@@ -100,18 +101,12 @@ def load_torch(finder: ModuleFinder, module: Module) -> None:
     for source in module_path.rglob("**/_config.py"):
         target = "lib" / source.relative_to(site_packages_path)
         finder.include_files(source, target)
-    # include source files for torch.jit._overload
-    source_path = site_packages_path / "torch/ao"
-    for source in source_path.rglob("*.py"):  # type: Path
-        target = "lib" / source.relative_to(site_packages_path)
-        finder.include_files(source, target)
-    source_path = site_packages_path / "torch/nn"
-    for source in source_path.rglob("*.py"):  # type: Path
-        target = "lib" / source.relative_to(site_packages_path)
-        finder.include_files(source, target)
-    source = site_packages_path / "torch/functional.py"
-    target = "lib" / source.relative_to(site_packages_path)
-    finder.include_files(source, target)
+
+    # include source files that uses @torch.jit._overload_method
+    for source in module_path.rglob("*.py"):  # type: Path
+        if b"@torch.jit._overload_method" in source.read_bytes():
+            target = "lib" / source.relative_to(site_packages_path)
+            finder.include_files(source, target)
 
 
 def load_torch__dynamo_skipfiles(finder: ModuleFinder, module: Module) -> None:
