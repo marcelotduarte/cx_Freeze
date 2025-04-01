@@ -38,13 +38,13 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # numpy >= 1.26.0
+        target_dir = f"lib/{source_dir.name}"
+        for source in source_dir.iterdir():
+            target = f"{target_dir}/{source.name}"
+            finder.lib_files[source] = target
         if IS_WINDOWS:
-            finder.include_files(source_dir, f"lib/{source_dir.name}")
+            finder.include_files(source_dir, target_dir)
             replace_delvewheel_patch(module)
-        else:
-            target_dir = f"lib/{source_dir.name}"
-            for source in source_dir.iterdir():
-                finder.lib_files[source] = f"{target_dir}/{source.name}"
 
     # Exclude unnecessary modules
     finder.exclude_module("numpy._configtool")
