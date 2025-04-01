@@ -68,7 +68,7 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
 
     if module.in_file_system == 0:
         code_string = code_string.replace(
-            "__file__", "__file__.replace('library.zip/', '')"
+            "__file__", "__file__.replace('library.zip', '.')"
         )
     module.code = compile(
         code_string,

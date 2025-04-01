@@ -93,6 +93,9 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("secrets")
 
     code_string = module.file.read_text(encoding="utf_8")
+    code_string = code_string.replace(
+        "__file__", "__file__.replace('library.zip', '.')"
+    )
     module.code = compile(
         code_string.replace("import numpy.f2py as f2py", "f2py = None"),
         module.file.as_posix(),
@@ -290,7 +293,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
 
     if module.in_file_system == 0:
         code_string = code_string.replace(
-            "__file__", "__file__.replace('library.zip/', '')"
+            "__file__", "__file__.replace('library.zip', '.')"
         )
     module.code = compile(
         code_string,
