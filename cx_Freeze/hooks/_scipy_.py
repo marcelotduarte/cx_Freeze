@@ -18,17 +18,26 @@ if TYPE_CHECKING:
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """The scipy package.
 
-    Supported pypi and conda-forge versions (lasted tested version is 1.14.1).
+    Supported pypi and conda-forge versions (lasted tested version is 1.15.2).
     """
     source_dir = module.file.parent.parent / f"{module.name}.libs"
     if source_dir.exists():  # scipy >= 1.9.2 (windows)
+        target_dir = f"lib/{source_dir.name}"
+        for source in source_dir.iterdir():
+            target = f"{target_dir}/{source.name}"
+            finder.lib_files[source] = target
         if IS_WINDOWS:
-            finder.include_files(source_dir, f"lib/{source_dir.name}")
+            finder.include_files(source_dir, target_dir)
             replace_delvewheel_patch(module)
-        else:
-            target_dir = f"lib/{source_dir.name}"
-            for source in source_dir.iterdir():
-                finder.lib_files[source] = f"{target_dir}/{source.name}"
+
+    # Exclude unnecessary modules
+    distribution = module.distribution
+    if distribution:
+        for file in distribution.original.files:
+            if file.parent.match("**/tests"):
+                mod = file.parent.as_posix().replace("/", ".")
+                finder.exclude_module(mod)
+    finder.exclude_module("scipy.conftest")
 
     finder.include_package("scipy.integrate")
     finder.include_package("scipy._lib")
@@ -59,7 +68,7 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
 
     if module.in_file_system == 0:
         code_string = code_string.replace(
-            "__file__", "__file__.replace('library.zip/', '')"
+            "__file__", "__file__.replace('library.zip', '.')"
         )
     module.code = compile(
         code_string,

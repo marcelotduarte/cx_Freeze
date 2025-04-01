@@ -39,7 +39,7 @@ def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
     )
     code_string = code_string.replace(
         "_current_file_location = ",
-        "_current_file_location = __file__.replace('library.zip/', '')  #",
+        "_current_file_location = __file__.replace('library.zip', '.')  #",
     )
     module.code = compile(
         code_string,

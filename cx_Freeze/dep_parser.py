@@ -304,11 +304,12 @@ class ELFParser(Parser):
                 continue
             if partname in ("not found", "(file not found)"):
                 partname = Path(parts[0])
-                for bin_path in self._bin_path_includes:
-                    partname = Path(bin_path, partname)
+                search_path = [*self.search_path, filename.parent]
+                for bin_path in search_path:
+                    name = partname.name
+                    partname = Path(bin_path, name)
                     if partname.is_file():
                         dependent_files.add(partname)
-                        name = partname.name
                         if name in self.linker_warnings:
                             self.linker_warnings[name] = False
                         break
