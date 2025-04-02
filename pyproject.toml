@@ -180,6 +180,9 @@ cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
 
 [tool.cibuildwheel.macos]
 archs = "universal2"
+repair-wheel-command = """
+delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
+"""
 
 [tool.coverage.html]
 directory = "build/coverage_html_report"
