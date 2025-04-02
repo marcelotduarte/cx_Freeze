@@ -1146,10 +1146,12 @@ class DarwinFreezer(Freezer, Parser):
         return ["/lib", "/usr/lib", "/System/Library/Frameworks"]
 
     def _default_bin_path_includes(self) -> list[str]:
-        # use macpython distributed files if available
-        bases_lib = get_resource_file_path("bases", "lib", "")
-        if bases_lib:
-            return self._validate_bin_path([bases_lib])
+        # use macpython distributed files if available in cx_freeze.libs
+        module_path = Path(__file__).resolve().parent
+        module_name = module_path.name.lower()
+        module_libs = module_path.parent / f"{module_name}.libs"
+        if module_libs.is_dir():
+            return self._validate_bin_path([module_libs])
         # use default
         return super()._default_bin_path_includes()
 
