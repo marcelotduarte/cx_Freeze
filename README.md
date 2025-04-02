@@ -16,12 +16,14 @@ itself works on.
 # What's New v8.0:
 - Python 3.13 support.
 - Python 3.13 free-threaded support for Linux and macOS.
-- Download and extract the [MSVC Redistributable files]
-(https://cx-freeze.readthedocs.io/en/stable/faq.html#microsoft-visual-c-redistributable-package).
+- Download and extract the [MSVC Redistributable files](https://cx-freeze.readthedocs.io/en/stable/faq.html#microsoft-visual-c-redistributable-package).
 - Implement bases using PEP587 - Python Initialization Configuration.
 - Drop Python 3.8 support.
-- New and Improved hooks.
-- Bug fixes and improvements.
+- Bug fixes and improvements (including hook additions and enhancements).
+
+# What's New v8.1:
+- Add a launch on finish checkbox to the MSI installer
+- Bug fixes and improvements (including hook additions and enhancements).
 
 # Installation
 
