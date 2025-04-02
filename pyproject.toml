@@ -178,14 +178,9 @@ archs = "x86_64 aarch64 ppc64le"
 before-build = """
 cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
 """
-#repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
 archs = "universal2"
-repair-wheel-command = """
-delocate-listdeps {wheel} &&
-delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
-"""
 
 [tool.coverage.html]
 directory = "build/coverage_html_report"
