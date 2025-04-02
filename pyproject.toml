@@ -1,8 +1,7 @@
 [build-system]
 requires = [
     # 70.1+ doesn't depend on wheel
-    # setuptools 75.8.1 #4766 breaks autidwheel
-    "setuptools>=70.1,<=75.8.0",
+    "setuptools>=70.1,<=78.1.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
@@ -41,7 +40,7 @@ requires-python = ">=3.9"
 dependencies = [
     "filelock>=3.12.3",
     "packaging>=24",
-    "setuptools>=65.6.3,<=75.8.0",
+    "setuptools>=65.6.3,<=78.1.0",
     "tomli>=2.0.1 ;python_version < '3.11'",
     "typing_extensions>=4.10.0 ;python_version < '3.10'",
     # Linux
@@ -178,12 +177,10 @@ archs = "x86_64 aarch64 ppc64le"
 before-build = """
 cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
 """
-repair-wheel-command = "auditwheel repair -L /bases/lib -w {dest_dir} {wheel}"
 
 [tool.cibuildwheel.macos]
 archs = "universal2"
 repair-wheel-command = """
-delocate-listdeps {wheel} &&
 delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
 """
 
