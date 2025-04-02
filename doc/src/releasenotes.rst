@@ -12,6 +12,32 @@ Release notes
 8.x releases
 ############
 
+Version 8.1 (Apr 02)
+--------------------
+
+#)  Bump version: 8.0.0 → 8.1.0 [ci skip] (:pull:`2868`) :user:`marcelotduarte`
+#)  chore: support for setuptools fix for pep491 (:pull:`2867`) :user:`marcelotduarte`
+#)  build(deps): bump pytest-cov from 6.0.0 to 6.1.0 (:pull:`2866`) :user:`dependabot`
+#)  build(deps): bump sphinx-new-tab-link from 0.7.0 to 0.8.0 (:pull:`2865`) :user:`dependabot`
+#)  hooks: fix scipy (using numpy) (:pull:`2862`) :user:`marcelotduarte`
+#)  bdist_msi: Add a launch on finish checkbox to the MSI installer (:pull:`2854`) :user:`MeGaGiGaGon`
+#)  build(deps): bump coverage from 7.7.1 to 7.8.0 (:pull:`2864`) :user:`dependabot`
+#)  hooks: include source files that uses @torch.jit._overload_method (:pull:`2863`) :user:`marcelotduarte`
+#)  fix: ruff A005 (:pull:`2859`) :user:`marcelotduarte`
+#)  hooks: zlib module requires the zlib.dll to be present in the executable directory [conda/Windows] (:pull:`2855`) :user:`marcelotduarte`
+#)  hooks: add argon2-cffi (:pull:`2857`) :user:`marcelotduarte`
+#)  fix: ruff LOG015 [ci skip] (:pull:`2858`) :user:`marcelotduarte`
+#)  build(deps-dev): bump cibuildwheel from 2.23.1 to 2.23.2 (:pull:`2853`) :user:`dependabot`
+#)  hooks: update to support pymupdf 1.25.4 (:pull:`2851`) :user:`marcelotduarte`
+#)  hooks: fix importlib hook (:pull:`2852`) :user:`marcelotduarte`
+#)  hooks: enable asynchat and asyncore usage via pyasynchat and pyasyncore packages (:pull:`2850`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2849`) :user:`pre-commit-ci`
+#)  doc: fix version documentation [ci skip] (:pull:`2847`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 1.0.2 to 1.1.1 (:pull:`2846`) :user:`dependabot`
+#)  Update setup_script.rst fixed typo in docs (:pull:`2845`) :user:`philipp`
+#)  build(deps): bump coverage from 7.7.0 to 7.7.1 (:pull:`2840`) :user:`dependabot`
+#)  fix: use only console based on PEP587 on Python 3.13 (:pull:`2842`) :user:`marcelotduarte`
+
 Version 8.0 (Mar 21)
 --------------------
 
