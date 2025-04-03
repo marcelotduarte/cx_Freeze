@@ -125,8 +125,10 @@ class bdist_msi(Command):
             "rft formatted license file to include in the installer",
         ),
         (
-            "launch-on-finish", None, "Include a Launch on Finish checkbox in the installer."
-        )
+            "launch-on-finish",
+            None,
+            "Include a Launch on Finish checkbox in the installer.",
+        ),
     ]
 
     boolean_options: ClassVar[list[str]] = [
