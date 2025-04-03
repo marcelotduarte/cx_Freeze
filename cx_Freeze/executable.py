@@ -17,7 +17,7 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
     PLATFORM,
 )
-from cx_Freeze.common import get_resource_file_path
+from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, SetupError
 
 if TYPE_CHECKING:
@@ -74,6 +74,12 @@ class Executable:
 
     @base.setter
     def base(self, name: str | Path | None) -> None:
+        if name:
+            filename = Path(name)
+            if filename.is_absolute():
+                self._base: Path = filename
+                self._ext: str = filename.suffix
+                return
         # The default base is the legacy console, except for
         # Python 3.13, that supports only the new console
         version = sys.version_info[:2]
@@ -88,13 +94,12 @@ class Executable:
         if soabi is None:  # Python <= 3.12 on Windows
             platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
             soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-        suffix = EXE_SUFFIX
-        name_base = f"{name}-{soabi}"
-        self._base: Path = get_resource_file_path("bases", name_base, suffix)
+        filename = f"{name}-{soabi}{EXE_SUFFIX}"
+        self._base: Path = resource_path(f"bases/{filename}")
         if self._base is None:
-            msg = f"no base named {name!r} ({name_base!r})"
+            msg = f"no base named {name!r} ({filename!r})"
             raise OptionError(msg)
-        self._ext: str = suffix
+        self._ext: str = EXE_SUFFIX
 
     @property
     def icon(self) -> Path | None:
@@ -140,11 +145,14 @@ class Executable:
     @init_script.setter
     def init_script(self, name: str | Path | None) -> None:
         name = name or "console"
-        self._init_script: Path = get_resource_file_path(
-            "initscripts", name, ".py"
-        )
+        filename = Path(name)
+        if filename.is_absolute():
+            self._init_script: Path = filename
+        else:
+            filename = filename.with_suffix(".py")
+            self._init_script: Path = resource_path(f"initscripts/{filename}")
         if self._init_script is None:
-            msg = f"no init_script named {name}"
+            msg = f"no init_script named {name!r} ({filename!r})"
             raise OptionError(msg)
 
     @property

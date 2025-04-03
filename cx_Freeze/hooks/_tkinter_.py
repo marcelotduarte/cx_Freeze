@@ -10,7 +10,7 @@ from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import EXT_SUFFIX, IS_WINDOWS
-from cx_Freeze.common import get_resource_file_path
+from cx_Freeze.common import resource_path
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -24,9 +24,9 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
     tcl_library = None
     tk_library = None
     # manylinux (and macpython) wheels store tcl/tk libraries and extension
-    share = get_resource_file_path("bases", "share", "")
-    lib_dynload_tkinter = get_resource_file_path(
-        "bases", "lib-dynload/_tkinter", EXT_SUFFIX
+    share = resource_path("bases/share")
+    lib_dynload_tkinter = resource_path(
+        f"bases/lib-dynload/_tkinter{EXT_SUFFIX}"
     )
     if (
         share

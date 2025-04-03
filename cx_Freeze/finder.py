@@ -17,8 +17,8 @@ from typing import TYPE_CHECKING
 
 from cx_Freeze.common import (
     code_object_replace,
-    get_resource_file_path,
     process_path_specs,
+    resource_path,
 )
 from cx_Freeze.hooks.unused_modules import (
     DEFAULT_EXCLUDES,
@@ -148,7 +148,7 @@ class ModuleFinder:
     def _builtin_modules(self) -> set[str]:
         """The built-in modules are determined based on the cx_Freeze build."""
         builtin_modules: set[str] = set(sys.builtin_module_names)
-        dynload = get_resource_file_path("bases", "lib-dynload", "")
+        dynload = resource_path("bases/lib-dynload")
         if dynload and dynload.is_dir():
             # discard modules that exist in bases/lib-dynload
             ext_suffix = get_config_var("EXT_SUFFIX")

@@ -4,11 +4,11 @@ PyQt5 package is included.
 
 from __future__ import annotations
 
+import importlib.resources as importlib_resources
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.hooks.qthooks import copy_qt_files
 from cx_Freeze.hooks.qthooks import load_qt_qtcore as load_pyqt5_qtcore
 from cx_Freeze.hooks.qthooks import load_qt_qtdesigner as load_pyqt5_qtdesigner
@@ -54,12 +54,12 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include a module that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/_pyqt5_", "_debug", ".py")
+    qt_debug = importlib_resources.files(__package__) / "_debug.py"
     finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_debug")
 
     # Include a resource with qt.conf (Prefix = lib/PyQt5) for conda-forge
     if environment == "conda":
-        resource = get_resource_file_path("hooks/_pyqt5_", "_resource", ".py")
+        resource = importlib_resources.files(__package__) / "_resource.py"
         finder.include_file_as_module(resource, "PyQt5._cx_freeze_resource")
 
     # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)
