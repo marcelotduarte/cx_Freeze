@@ -57,15 +57,16 @@ class Hook(ModuleHook):
             name = "pycryptodome_filename"
             source = f"""\
             def {name}(dir_comps, filename):
-                import os, sys
+                import os as _os
+                import sys as _sys
                 modulename = "{self.module.name}"
                 if dir_comps[0] != modulename:
                     raise ValueError(
                         "Only available for modules under '" + modulename + "'"
                     )
                 dir_comps = list(dir_comps) + [filename]
-                root_lib = os.path.join(sys.frozen_dir, "lib")
-                return os.path.join(root_lib, ".".join(dir_comps))
+                root_lib = _os.path.join(_sys.prefix, "lib")
+                return _os.path.join(root_lib, ".".join(dir_comps))
             """
             module.code = code_object_replace_function(code, name, source)
 

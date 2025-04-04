@@ -75,8 +75,8 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch start
         import os, sys
 
-        frozen_dir = sys.frozen_dir
-        qt_root_dir = os.path.join(frozen_dir, "lib", "PyQt5")
+        prefix = sys.prefix
+        qt_root_dir = os.path.join(prefix, "lib", "PyQt5")
         try:
             from PyQt5 import QtCore
         except ImportError:
@@ -89,9 +89,9 @@ def load_pyqt5(finder: ModuleFinder, module: Module) -> None:
             import PyQt5._cx_freeze_resource
         elif {IS_MACOS}:  # macos using 'pip install pyqt5'
             # Support for QtWebEngine (bdist_mac differs from build_exe)
-            helpers = os.path.join(os.path.dirname(frozen_dir), "Helpers")
+            helpers = os.path.join(os.path.dirname(prefix), "Helpers")
             if not os.path.isdir(helpers):
-                helpers = os.path.join(frozen_dir, "share")
+                helpers = os.path.join(prefix, "share")
             os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
                 helpers,
                 "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"

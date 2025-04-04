@@ -40,7 +40,7 @@ def load_nvidia(finder: ModuleFinder, module: Module) -> None:
             import sys
             from pathlib import Path
 
-            source_lib = Path(sys.frozen_dir, "lib", "nvidia")
+            source_lib = Path(sys.prefix, "lib", "nvidia")
             for source in source_lib.glob("*/lib/{extension}"):
                 ctypes.CDLL(source)
         _cxfreeze_patch()

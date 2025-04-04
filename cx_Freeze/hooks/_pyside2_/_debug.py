@@ -23,7 +23,7 @@ def _debug() -> None:
         print(" ", key, value, file=sys.stderr)
     print("LibraryPaths:", file=sys.stderr)
     print(" ", qtcore.QCoreApplication.libraryPaths(), file=sys.stderr)
-    print("FrozenDir:", sys.frozen_dir, file=sys.stderr)
+    print("Prefix:", sys.prefix, file=sys.stderr)
 
 
 _debug()

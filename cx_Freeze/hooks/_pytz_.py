@@ -39,7 +39,7 @@ def load_pytz(finder: ModuleFinder, module: Module) -> None:
             # cx_Freeze patch start
             import os as _os
             import sys as _sys
-            _prefix = _sys.prefix if _sys.prefix else _sys.frozen_dir
+            _prefix = _sys.prefix
             if _sys.platform == "darwin":
                 _mac_prefix = _os.path.join(
                     _os.path.dirname(_prefix), "Resources"

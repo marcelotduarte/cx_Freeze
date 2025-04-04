@@ -237,7 +237,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         # cgohlke/numpy-mkl-wheels, numpy 1.26.3 and mkl
         if "def init_numpy_mkl():" in code_string:
             code_string = code_string.replace(
-                "path = ", "path = f'{sys.frozen_dir}\\lib\\mkl'  # "
+                "path = ", "path = f'{sys.prefix}\\lib\\mkl'  # "
             )
             # create a fake module to activate mkl hook
             mkl_path = finder.cache_path.joinpath("mkl")
