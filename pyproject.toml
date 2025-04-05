@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-    # 70.1+ doesn't depend on wheel
-    "setuptools>=70.1,<=78.1.0",
+    # setuptools 77.0.3+ supports PEP 639
+    "setuptools>=77.0.3,<=78.1.0",
     "cx_Logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
@@ -10,15 +10,12 @@ build-backend = "setuptools.build_meta"
 name = "cx_Freeze"
 description = "Create standalone executables from Python scripts"
 authors = [
-    {name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}
-]
-maintainers = [
+    {name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"},
     {name = "Marcelo Duarte", email = "marcelotduarte@users.noreply.github.com"}
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Python Software Foundation License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: C",
@@ -35,8 +32,6 @@ classifiers = [
     "Topic :: System :: Software Distribution",
     "Topic :: Utilities",
 ]
-keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
-requires-python = ">=3.9"
 dependencies = [
     "filelock>=3.12.3",
     "packaging>=24",
@@ -59,6 +54,11 @@ dependencies = [
     "striprtf>=0.0.26 ;sys_platform == 'win32'",
 ]
 dynamic = ["version"]
+keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
+license = "PSF-2.0"
+license-files = ["LICENSE.md"]
+readme = "README.md"
+requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = [
@@ -83,14 +83,6 @@ tests = [
     "pytest-timeout==2.3.1",
     "pytest-xdist==3.6.1",
 ]
-
-[project.license]
-file = "LICENSE.md"
-content-type = "text/markdown"
-
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
 
 [project.entry-points."distutils.setup_keywords"]
 executables = "cx_Freeze.executable:validate_executables"
