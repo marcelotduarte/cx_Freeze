@@ -60,7 +60,8 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     if distribution:
         # Exclude tests
         excludes = set()
-        for file in distribution.original.files:
+        files = distribution.original.files or []
+        for file in files:
             if file.parent.match("**/tests"):
                 excludes.add(file.parent.as_posix().replace("/", "."))
         excludes.discard("numpy._core.tests")

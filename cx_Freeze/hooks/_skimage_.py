@@ -25,7 +25,8 @@ def load_skimage(finder: ModuleFinder, module: Module) -> None:
     # Exclude all tests
     if distribution:
         tests = set()
-        for file in distribution.original.files:
+        files = distribution.original.files or []
+        for file in files:
             if file.parent.match("**/tests"):
                 tests.add(file.parent.as_posix().replace("/", "."))
         for test in tests:
