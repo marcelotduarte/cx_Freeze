@@ -124,11 +124,17 @@ class bdist_msi(Command):
             None,
             "rft formatted license file to include in the installer",
         ),
+        (
+            "launch-on-finish",
+            None,
+            "Include a Launch on Finish checkbox in the installer.",
+        ),
     ]
 
     boolean_options: ClassVar[list[str]] = [
         "keep-temp",
         "skip-build",
+        "launch-on-finish",
     ]
 
     x = y = 50
@@ -339,70 +345,73 @@ class bdist_msi(Command):
             "Finish",
         )
         dialog.title("Completing the [ProductName] installer")
-        add_data(
-            self.db,
-            "ControlCondition",
-            # Dialog, Control , Action, Condition
-            [
-                (
-                    "ExitDialog",
-                    "LaunchOnFinish",
-                    "Hide",
-                    'MaintenanceForm_Action="Remove"',
-                )
-            ],
-        )
-        dialog.checkbox(
-            "LaunchOnFinish",
-            15,
-            200,
-            300,
-            20,
-            3,
-            "LAUNCHAPP",
-            "Launch the installed app on finish?",
-            "Finish",
-        )
-        add_data(
-            self.db,
-            "ControlEvent",
-            # Dialog, Control , Event, Argument, Condition, Ordering
-            [
-                (
-                    "ExitDialog",
-                    "Finish",
-                    "DoAction",
-                    "VSDCA_Launch",
-                    "LAUNCHAPP=1",
-                    0,
-                )
-            ],
-        )
-        add_data(
-            self.db,
-            "CustomAction",
-            # Action, Type, Source, Target
-            [
-                (
-                    "VSDCA_Launch",
-                    226,
-                    "TARGETDIR",
-                    f"[TARGETDIR]\\{self.distribution.executables[0].target_name}",
-                )
-            ],
-        )
-        add_data(
-            self.db,
-            "Property",
-            # Property, Value
-            [
-                (
-                    "LAUNCHAPP",
-                    "1",
-                )
-            ],
-        )
-        dialog.backbutton("< Back", "LaunchOnFinish", active=False)
+        if self.launch_on_finish:
+            add_data(
+                self.db,
+                "ControlCondition",
+                # Dialog, Control , Action, Condition
+                [
+                    (
+                        "ExitDialog",
+                        "LaunchOnFinish",
+                        "Hide",
+                        'MaintenanceForm_Action="Remove"',
+                    )
+                ],
+            )
+            dialog.checkbox(
+                "LaunchOnFinish",
+                15,
+                200,
+                300,
+                20,
+                3,
+                "LAUNCHAPP",
+                "Launch the installed app on finish?",
+                "Finish",
+            )
+            add_data(
+                self.db,
+                "ControlEvent",
+                # Dialog, Control , Event, Argument, Condition, Ordering
+                [
+                    (
+                        "ExitDialog",
+                        "Finish",
+                        "DoAction",
+                        "VSDCA_Launch",
+                        "LAUNCHAPP=1",
+                        0,
+                    )
+                ],
+            )
+            add_data(
+                self.db,
+                "CustomAction",
+                # Action, Type, Source, Target
+                [
+                    (
+                        "VSDCA_Launch",
+                        226,
+                        "TARGETDIR",
+                        f"[TARGETDIR]\\{self.distribution.executables[0].target_name}",
+                    )
+                ],
+            )
+            add_data(
+                self.db,
+                "Property",
+                # Property, Value
+                [
+                    (
+                        "LAUNCHAPP",
+                        "1",
+                    )
+                ],
+            )
+            dialog.backbutton("< Back", "LaunchOnFinish", active=False)
+        else:
+            dialog.backbutton("< Back", "Finish", active=False)
         dialog.cancelbutton("Cancel", "Back", active=False)
         dialog.text(
             "Description",
@@ -414,7 +423,10 @@ class bdist_msi(Command):
             "Click the Finish button to exit the installer.",
         )
         button = dialog.nextbutton("Finish", "Cancel", name="Finish")
-        button.event("EndDialog", "Return", "1", 1)
+        if self.launch_on_finish:
+            button.event("EndDialog", "Return", "1", 1)
+        else:
+            button.event("EndDialog", "Return")
 
     def add_fatal_error_dialog(self) -> None:
         dialog = PyDialog(
@@ -1043,6 +1055,7 @@ class bdist_msi(Command):
         self.all_users = False
         self.extensions = None
         self.license_file = None
+        self.launch_on_finish = None
 
     def finalize_options(self) -> None:
         major = sys.version_info.major
@@ -1106,6 +1119,8 @@ class bdist_msi(Command):
         if not isinstance(self.summary_data, dict):
             self.summary_data = {}
         self.separate_components = {}
+        if self.launch_on_finish is None:
+            self.launch_on_finish = False
         for idx, executable in enumerate(self.distribution.executables):
             base_name = os.path.basename(executable.target_name)
             # Trying to make these names unique from any directory name
