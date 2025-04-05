@@ -60,9 +60,6 @@ bundle (a .app directory).
     ``environment_variables``, ``include_resources``,
     ``absolute_reference_path`` and ``rpath_lib_folder`` options.
 
-.. versionchanged:: 6.0
-   Replaced the ``compressed`` option with the ``no_compress`` option.
-
 .. deprecated:: 6.5
     ``rpath_lib_folder`` option. Removed in version 6.12.
 
