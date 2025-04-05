@@ -143,7 +143,7 @@ class build_exe(Command):
             None,
             "include the Microsoft Visual C++ Redistributable "
             "files without needing the redistributable package "
-            "installed (--include-msvcr-version=17 equivalent)",
+            "installed (equivalent to --include-msvcr-version=17)",
         ),
         (
             "include-msvcr-version=",

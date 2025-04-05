@@ -220,7 +220,7 @@ It can be further customized:
    * - .. option:: path
      - comma-separated list of paths to search for modules
        (use only if you know what you are doing)
-       [default: sys.path]
+       [default: `sys.path`]
    * - .. option:: include_path
      - comma-separated list of paths to modify the search for modules
    * - .. option:: constants
@@ -275,7 +275,8 @@ It can be further customized:
    * - .. option:: optimize
      - optimization level, one of 0 (disabled), 1 or 2
    * - .. option:: silent
-     - suppress all output except warnings (equivalent to silent_level=1)
+     - suppress all output except warnings
+       (equivalent to :option:`silent_level` = 1)
    * - .. option:: silent_level
      - suppress output from the freeze process; can provide a value to specify
        what messages should be suppressed, with the possible values being:
@@ -287,11 +288,14 @@ It can be further customized:
    * - .. option:: include_msvcr
      - include the Microsoft Visual C++ Redistributable
        files without needing the redistributable package
-       installed (--include-msvcr-version=17 equivalent)
+       installed (equivalent to :option:`include_msvcr_version` = 17)
    * - .. option:: include_msvcr_version
      - like :option:`include_msvcr` but the version can be set
        with one of the following values: 15, 16 or 17
        (version 15 includes UCRT for Windows 8.1 and below)
+
+.. versionchanged:: 6.0
+   Replaced the ``compressed`` option with the :option:`no_compress` option.
 
 .. versionadded:: 6.7
     :option:`silent_level` option.
@@ -356,7 +360,7 @@ This is the equivalent help to specify the same options on the command line:
                               warning messages
       --include-msvcr         include the Microsoft Visual C++ Redistributable
                               files without needing the redistributable package
-                              installed (--include-msvcr-version=17 equivalent)
+                              installed (equivalent to --include-msvcr-version=17)
       --include-msvcr-version like --include-msvcr but the version can be set
                               with one of the following values: 15, 16 or 17
                               (version 15 includes UCRT for Windows 8.1 and below)
@@ -484,10 +488,10 @@ constructor are as follows:
        the executable (Windows only)
 
 .. versionadded:: 6.10
-    ``manifest`` and ``uac_admin`` options.
+    :option:`manifest` and :option:`uac_admin` options.
 
 .. versionadded:: 7.0
-    ``uac_uiaccess`` option.
+    :option:`uac_uiaccess` option.
 
 .. versionchanged:: 6.5
     Arguments are all snake_case (camelCase removed in 6.15).
