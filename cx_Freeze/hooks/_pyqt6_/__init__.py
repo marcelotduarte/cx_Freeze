@@ -4,12 +4,12 @@ PyQt6 package is included.
 
 from __future__ import annotations
 
+import importlib.resources as importlib_resources
 import sys
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW
-from cx_Freeze.common import get_resource_file_path
 from cx_Freeze.hooks.qthooks import copy_qt_files
 from cx_Freeze.hooks.qthooks import load_qt_qt3dinput as load_pyqt6_qt3dinput
 from cx_Freeze.hooks.qthooks import load_qt_qt3drender as load_pyqt6_qt3drender
@@ -80,23 +80,23 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include modules that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/_pyqt6_", "_debug", ".py")
+    qt_debug = importlib_resources.files(__package__) / "_debug.py"
     finder.include_file_as_module(qt_debug, "PyQt6._cx_freeze_qt_debug")
 
     # Include a qt.conf in the module path (Prefix = lib/PyQt6/Qt6) for macos
     if IS_MACOS:
         finder.include_files(
-            get_resource_file_path("hooks/_pyqt6_", "qt_macos", ".conf"),
+            importlib_resources.files(__package__) / "qt_macos.conf",
             "qt.conf",
         )
         # bdist_mac (.app) uses a different Prefix in qt.conf
         finder.include_files(
-            get_resource_file_path("hooks/_pyqt6_", "qt_bdist_mac", ".conf"),
+            importlib_resources.files(__package__) / "qt_bdist_mac.conf",
             "qt_bdist_mac.conf",
         )
     # Include a qt.conf in the module path (Prefix = lib/PyQt6) for msys2
     if IS_MINGW:
-        qt_conf = get_resource_file_path("hooks/_pyqt6_", "qt_msys2", ".conf")
+        qt_conf = importlib_resources.files(__package__) / "qt_msys2.conf"
         finder.include_files(qt_conf, "qt.conf")
 
     # Include a copy of qt.conf (used by QtWebEngine)

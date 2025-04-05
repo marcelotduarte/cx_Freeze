@@ -4,14 +4,12 @@ PySide6 package is included.
 
 from __future__ import annotations
 
+import importlib.resources as importlib_resources
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW
-from cx_Freeze.common import (
-    code_object_replace_function,
-    get_resource_file_path,
-)
+from cx_Freeze.common import code_object_replace_function
 from cx_Freeze.hooks.qthooks import load_qt_qt3dinput as load_pyside6_qt3dinput
 from cx_Freeze.hooks.qthooks import (
     load_qt_qt3drender as load_pyside6_qt3drender,
@@ -85,18 +83,18 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include modules that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/_pyside6_", "debug", ".py")
+    qt_debug = importlib_resources.files(__package__) / "_debug.py"
     finder.include_file_as_module(qt_debug, "PySide6._cx_freeze_qt_debug")
 
     # Include a resource for conda-forge
     if environment == "conda":
         # The resource include a qt.conf (Prefix = lib/PySide6)
-        resource = get_resource_file_path("hooks/_pyside6_", "resource", ".py")
+        resource = importlib_resources.files(__package__) / "_resource.py"
         finder.include_file_as_module(resource, "PySide6._cx_freeze_resource")
 
     if IS_MINGW:
         # Include a qt.conf in the module path (Prefix = lib/PySide6)
-        qt_conf = get_resource_file_path("hooks/_pyside6_", "qt", ".conf")
+        qt_conf = importlib_resources.files(__package__) / "qt.conf"
         finder.include_files(qt_conf, qt_conf.name)
 
     # Inject code to init

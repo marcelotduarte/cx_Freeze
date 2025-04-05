@@ -30,7 +30,7 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
     PYTHON_VERSION,
 )
-from cx_Freeze.common import get_resource_file_path, process_path_specs
+from cx_Freeze.common import process_path_specs, resource_path
 from cx_Freeze.dep_parser import ELFParser, Parser, PEParser
 from cx_Freeze.exception import FileError, OptionError
 from cx_Freeze.executable import Executable
@@ -324,7 +324,7 @@ class Freezer:
         finder.include_file_as_module(exe.main_script, exe.main_module_name)
         finder.include_file_as_module(exe.init_script, exe.init_module_name)
         finder.include_file_as_module(
-            get_resource_file_path("initscripts", "__startup__", ".py")
+            resource_path("initscripts/__startup__.py")
         )
 
         # copy the executable and its dependencies
@@ -338,9 +338,7 @@ class Freezer:
             target_path.chmod(mode | stat.S_IWUSR)
 
         # copy a file with a the cx_freeze license into frozen application
-        respath = get_resource_file_path(
-            "initscripts", "frozen_application_license", ".txt"
-        )
+        respath = resource_path("initscripts/frozen_application_license.txt")
         if respath is None:
             msg = "Unable to find license for frozen application."
             raise FileError(msg)
@@ -515,7 +513,7 @@ class Freezer:
         modules when it differs from the running python built-in modules.
         """
         path = list(map(os.path.normpath, path or sys.path))
-        dynload = get_resource_file_path("bases", "lib-dynload", "")
+        dynload = resource_path("bases/lib-dynload")
         if dynload and dynload.is_dir():
             # add bases/lib-dynload to the finder path, if has modules
             ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
@@ -1147,7 +1145,7 @@ class DarwinFreezer(Freezer, Parser):
 
     def _default_bin_path_includes(self) -> list[str]:
         # use macpython distributed files if available
-        bases_lib = get_resource_file_path("bases", "lib", "")
+        bases_lib = resource_path("bases/lib")
         if bases_lib:
             return self._validate_bin_path([bases_lib])
         # use default

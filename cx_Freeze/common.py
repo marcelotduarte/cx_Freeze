@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.resources as importlib_resources
 from contextlib import suppress
 from pathlib import Path, PurePath
 from textwrap import dedent
@@ -14,24 +15,19 @@ if TYPE_CHECKING:
     from cx_Freeze._typing import IncludesList, InternalIncludesList
 
 
-def get_resource_file_path(
-    dirname: str | Path, name: str | Path, ext: str
-) -> Path | None:
+def resource_path(name: str | Path) -> Path | None:
     """Return the path to a resource file shipped with cx_Freeze.
 
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
-    pname = Path(name)
-    if pname.is_absolute():
-        return pname
-    pname = Path(__file__).resolve().parent / dirname / pname.with_suffix(ext)
-    if pname.exists():
-        return pname
+    resource = importlib_resources.files(__package__) / name
+    if resource.exists():
+        return resource
     # Support for name argument in the old Camelcase value
-    pname = pname.with_name(pname.name.lower())
-    if pname.exists():
-        return pname
+    resource = resource.parent / resource.name.lower()
+    if resource.exists():
+        return resource
     return None
 
 

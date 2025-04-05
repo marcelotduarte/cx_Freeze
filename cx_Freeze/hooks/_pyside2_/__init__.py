@@ -4,14 +4,12 @@ PySide2 package is included.
 
 from __future__ import annotations
 
+import importlib.resources as importlib_resources
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW
-from cx_Freeze.common import (
-    code_object_replace_function,
-    get_resource_file_path,
-)
+from cx_Freeze.common import code_object_replace_function
 from cx_Freeze.hooks.qthooks import copy_qt_files
 from cx_Freeze.hooks.qthooks import load_qt_qtcore as load_pyside2_qtcore
 from cx_Freeze.hooks.qthooks import (
@@ -60,17 +58,17 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         module.in_file_system = 2
 
     # Include a module that inject an optional debug code
-    qt_debug = get_resource_file_path("hooks/_pyside2_", "debug", ".py")
+    qt_debug = importlib_resources.files(__package__) / "_debug.py"
     finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_debug")
 
     # Include a resource with qt.conf (Prefix = lib/PySide2) for conda-forge
     if environment == "conda":
-        resource = get_resource_file_path("hooks/_pyside2_", "resource", ".py")
+        resource = importlib_resources.files(__package__) / "_resource.py"
         finder.include_file_as_module(resource, "PySide2._cx_freeze_resource")
 
     # Include a qt.conf in the module path (Prefix = lib/PySide2) for msys2
     if IS_MINGW:
-        qt_conf = get_resource_file_path("hooks/_pyside2_", "qt", ".conf")
+        qt_conf = importlib_resources.files(__package__) / "qt.conf"
         finder.include_files(qt_conf, qt_conf.name)
 
     # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)
