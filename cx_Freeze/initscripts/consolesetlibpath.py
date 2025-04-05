@@ -13,12 +13,10 @@ import importlib.util
 import os
 import sys
 
-DIR_NAME = os.path.dirname(sys.executable)
-
 paths = os.environ.get("LD_LIBRARY_PATH", "").split(os.pathsep)
 
-if DIR_NAME not in paths:
-    paths.insert(0, DIR_NAME)
+if sys.prefix not in paths:
+    paths.insert(0, sys.prefix)
     os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(paths)
     os.execv(sys.executable, sys.argv)  # noqa: S606
 

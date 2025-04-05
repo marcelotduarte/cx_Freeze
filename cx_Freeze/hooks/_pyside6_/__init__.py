@@ -109,11 +109,9 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
             import os, sys
             if {IS_MACOS}:
                 # is a bdist_mac ou build_exe directory?
-                helpers = os.path.join(
-                    os.path.dirname(sys.frozen_dir), "Helpers"
-                )
+                helpers = os.path.join(os.path.dirname(sys.prefix), "Helpers")
                 if not os.path.isdir(helpers):
-                    helpers = os.path.join(sys.frozen_dir, "share")
+                    helpers = os.path.join(sys.prefix, "share")
                 os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
                     helpers,
                     "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"

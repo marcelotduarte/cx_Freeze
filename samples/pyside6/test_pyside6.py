@@ -15,7 +15,7 @@ def main() -> int:
     # icon located in current directory is copied to "share" folder when frozen
     # (see setup.py)
     icon_dir = os.path.join(
-        os.path.join(os.path.dirname(sys.executable), "share")
+        os.path.join(sys.prefix, "share")
         if getattr(sys, "frozen", False)
         else os.path.dirname(__file__)
     )

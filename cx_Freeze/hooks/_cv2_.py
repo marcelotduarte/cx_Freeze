@@ -121,9 +121,10 @@ def load_cv2(finder: ModuleFinder, module: Module) -> None:
         source_config.write_text(
             dedent(
                 f"""\
-                import os, sys
+                import os as _os
+                import sys as _sys
                 BINARIES_PATHS = [
-                    os.path.join(sys.frozen_dir, '{target_libs}')
+                    _os.path.join(_sys.prefix, "{target_libs}")
                 ] + BINARIES_PATHS
                 """
             )

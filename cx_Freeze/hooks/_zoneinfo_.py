@@ -58,7 +58,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
         def _cx_freeze_patch():
             import os as _os
             import sys as _sys
-            _prefix = _sys.prefix if _sys.prefix else _sys.frozen_dir
+            _prefix = _sys.prefix
             if _sys.platform == "darwin":
                 _prefix_parent = _os.path.dirname(_prefix)
                 _mac_prefix = _os.path.join(_prefix_parent, "Resources")

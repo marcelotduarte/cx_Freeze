@@ -51,8 +51,9 @@ def _patch_data_path(module: Module, data_path: Path) -> None:
     for name in ("_get_data_path", "get_data_path"):
         source = f"""\
         def {name}():
-            import os, sys
-            return os.path.join(sys.frozen_dir, "{data_path}")
+            import os as _os
+            import sys as _sys
+            return _os.path.join(_sys.prefix, "{data_path}")
         """
         # patch if the name (_get_data_path and/or get_data_path) is found
         code = code_object_replace_function(code, name, source)

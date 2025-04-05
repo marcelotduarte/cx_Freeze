@@ -32,12 +32,11 @@ def replace_delvewheel_patch(
             if name.startswith(delvewheel_func_names):
                 source = f"""\
                 def {name}():
-                    import os, sys
-                    libs_dir = os.path.join(
-                        sys.frozen_dir, "lib", "{libs_name}"
-                    )
-                    if os.path.isdir(libs_dir):
-                        os.add_dll_directory(libs_dir)
+                    import os as _os
+                    import sys as _sys
+                    libs_dir = _os.path.join(_sys.prefix, "lib", "{libs_name}")
+                    if _os.path.isdir(libs_dir):
+                        _os.add_dll_directory(libs_dir)
                 """
                 code = code_object_replace_function(code, name, source)
                 break

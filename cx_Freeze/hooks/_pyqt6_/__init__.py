@@ -110,9 +110,9 @@ def load_pyqt6(finder: ModuleFinder, module: Module) -> None:
         if {IS_MACOS} and {environment == "pip"}: # conda doesn't support pyqt6
             import os, sys
             # Support for QtWebEngine (bdist_mac differs from build_exe)
-            helpers = os.path.join(os.path.dirname(sys.frozen_dir), "Helpers")
+            helpers = os.path.join(os.path.dirname(sys.prefix), "Helpers")
             if not os.path.isdir(helpers):
-                helpers = os.path.join(sys.frozen_dir, "share")
+                helpers = os.path.join(sys.prefix, "share")
             os.environ["QTWEBENGINEPROCESS_PATH"] = os.path.join(
                 helpers,
                 "QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess"

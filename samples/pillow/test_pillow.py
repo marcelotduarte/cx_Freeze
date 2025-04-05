@@ -7,7 +7,7 @@ from PIL import Image
 def find_data_file(filename) -> str:
     if getattr(sys, "frozen", False):
         # The application is frozen
-        datadir = os.path.join(os.path.dirname(sys.executable), "share")
+        datadir = os.path.join(sys.prefix, "share")
     else:
         # The application is not frozen
         # Change this bit to match where you store your data files:

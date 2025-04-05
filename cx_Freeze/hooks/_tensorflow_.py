@@ -35,7 +35,7 @@ def load_tensorflow(finder: ModuleFinder, module: Module) -> None:
     code_string = module.file.read_text(encoding="utf_8")
     code_string = code_string.replace(
         "_site_packages_dirs = []",
-        "_site_packages_dirs = [_os.path.join(_sys.frozen_dir,'lib')]",
+        "_site_packages_dirs = [_os.path.join(_sys.prefix, 'lib')]",
     )
     code_string = code_string.replace(
         "_current_file_location = ",

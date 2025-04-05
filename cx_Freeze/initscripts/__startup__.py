@@ -66,23 +66,23 @@ def get_name(executable) -> str:
 
 def init() -> None:
     """Basic initialization of the startup script."""
-    # to avoid bugs (especially in MSYS2) use normpath after any change
-    sys.executable = os.path.normpath(sys.executable)
-    sys.frozen_dir = os.path.dirname(sys.executable)
-    sys.meta_path.append(ExtensionFinder)
-
-    # normalize (preserving the reference) and check sys.path
-    has_zipfile = False
-    for j, path in enumerate(sys.path):
-        sys.path[j] = os.path.normpath(path)
-        if path.endswith(".zip"):
-            has_zipfile = True
+    # fix prefix if using console_legacy
+    if not sys.prefix:
+        sys.prefix = os.path.dirname(sys.executable)
+        sys.base_prefix = sys.base_exec_prefix = sys.exec_prefix = sys.prefix
 
     # enable ExtensionFinder only if uses a zip file
-    if has_zipfile:
-        sys.meta_path.append(ExtensionFinder)
+    for path in sys.path:
+        if path.endswith(".zip"):
+            sys.meta_path.append(ExtensionFinder)
+            break
 
     if sys.platform.startswith("win"):
+        # to avoid bugs, especially in MSYS2, normalize sys.argv and sys.path
+        # (preserving the reference)
+        for j, path in enumerate(sys.path):
+            sys.path[j] = os.path.normpath(path)
+        sys.argv[0] = os.path.normpath(sys.argv[0])
         # the search path for dependencies
         search_path: list[str] = [
             entry for entry in sys.path if os.path.isdir(entry)
