@@ -132,16 +132,13 @@ class DistributionCache(metadata.PathDistribution):
     @property
     def binary_files(self) -> list[str]:
         """Return the binary files included in the package."""
+        files = self.original.files or []
         if IS_MINGW or IS_WINDOWS:
-            return [
-                file
-                for file in self.original.files
-                if file.suffix.lower() == ".dll"
-            ]
+            return [file for file in files if file.suffix.lower() == ".dll"]
         extensions = tuple([ext for ext in EXTENSION_SUFFIXES if ext != ".so"])
         return [
             file
-            for file in self.original.files
+            for file in files
             if file.match("*.so*") and not file.name.endswith(extensions)
         ]
 

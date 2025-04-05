@@ -33,7 +33,8 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     # Exclude unnecessary modules
     distribution = module.distribution
     if distribution:
-        for file in distribution.original.files:
+        files = distribution.original.files or []
+        for file in files:
             if file.parent.match("**/tests"):
                 mod = file.parent.as_posix().replace("/", ".")
                 finder.exclude_module(mod)
