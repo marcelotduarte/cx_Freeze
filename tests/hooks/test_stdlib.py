@@ -127,7 +127,7 @@ def test_tkinter_bdist_mac(tmp_package) -> None:
     name = "test_tk"
     version = "0.1.2.3"
     bundle_name = f"{name}-{version}"
-    build_app_dir = tmp_package / "build" / f"{bundle_name}.app"
+    build_app_dir = tmp_package.path / "build" / f"{bundle_name}.app"
     executable = build_app_dir / "Contents/MacOS/test_tk"
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=10)
