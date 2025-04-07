@@ -1,7 +1,5 @@
 """Sample to show the datetime in RFC1123 (timezone is required)."""
 
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from zoneinfo import TZPATH, ZoneInfo, available_timezones
 

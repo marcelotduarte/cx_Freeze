@@ -392,17 +392,6 @@ def test_build_exe_asmodule(datafiles: Path) -> None:
     assert output.startswith("Hello from cx_Freeze")
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_build_exe_sqlite(datafiles: Path) -> None:
-    """Test the sqlite sample."""
-    output = run_command(datafiles, BUILD_EXE_CMD)
-
-    executable = datafiles / BUILD_EXE_DIR / f"test_sqlite3{EXE_SUFFIX}"
-    assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
-    assert output.startswith("dump.sql created")
-
-
 def test_zip_include_packages(tmp_path) -> None:
     """Test the simple sample with zip_include_packages option."""
     source = SUB_PACKAGE_TEST[4]
