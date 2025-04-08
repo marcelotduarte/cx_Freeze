@@ -25,8 +25,8 @@ SAMPLES_DIR = HERE.parent / "samples"
 class TempPackage:
     """Base class to create package in temporary path."""
 
-    def __init__(self, path: str | Path) -> None:
-        self.path: Path = Path(path).resolve()
+    def __init__(self, path: Path) -> None:
+        self.path: Path = path
         self.monkeypatch = pytest.MonkeyPatch()
 
     def __del__(self) -> None:
@@ -35,27 +35,29 @@ class TempPackage:
     def create(self, source: str) -> None:
         """Create package in temporary path, based on source."""
         buf = []
-        path: Path | None = None
+        filename: Path | None = None
         for line in [*source.splitlines(), "EOF"]:
             if not line.startswith(tuple(string.ascii_letters)):
                 buf.append(line)
             else:
-                if path:
+                if filename:
                     buf.append("")
-                    path.parent.mkdir(parents=True, exist_ok=True)
-                    path.write_bytes(dedent("\n".join(buf)).encode("utf_8"))
+                    filename.parent.mkdir(parents=True, exist_ok=True)
+                    filename.write_bytes(
+                        dedent("\n".join(buf)).encode("utf_8")
+                    )
                     buf = []
-                path = self.path / line.strip()
+                filename = self.path / line.strip()
         self.monkeypatch.chdir(self.path)
 
     def create_from_sample(self, sample: str) -> None:
         """Create package in path, based on sample."""
-        self.path = self.path / sample
         copytree(
             SAMPLES_DIR / sample,
             self.path,
             symlinks=True,
             ignore=ignore_patterns("build", "dist"),
+            dirs_exist_ok=True,
         )
         self.monkeypatch.chdir(self.path)
 
@@ -101,5 +103,5 @@ class TempPackage:
 
 @pytest.fixture
 def tmp_package(tmp_path: Path) -> TempPackage:
-    """Create package in tmp_path, based on source (or sample)."""
+    """Create package in temporary path, based on source (or sample)."""
     return TempPackage(tmp_path)
