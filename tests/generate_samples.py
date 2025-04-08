@@ -252,55 +252,6 @@ a/c.py
 """,
 ]
 
-
-PLIST_ITEMS_TEST = [
-    "hello",
-    ["hello", "plist_data"],
-    [],
-    [],
-    """\
-plist_data.py
-    TEST_KEY = "TestKey"
-    TEST_VALUE = "TextValue"
-    BUILD_DIR = "Built_App"
-    BUNDLE_NAME = "Bundle"
-hello.py
-    import sys
-    from datetime import datetime
-    print("Hello from cx_Freeze")
-    print(f"The current date is {datetime.today():%B %d, %Y %H:%M:%S}")
-    print(f"Executable: {sys.executable}")
-    print(f"Prefix: {sys.prefix}")
-    print(f"Default encoding: {sys.getdefaultencoding()}")
-    print(f"File system encoding: {sys.getfilesystemencoding()}")
-    print("ARGUMENTS:")
-    for a in sys.argv: print(f"{a}")
-    print()
-    print("PATH:")
-    for p in sys.path: print(f"{p}")
-    print()
-setup.py
-    from plist_data import BUILD_DIR, BUNDLE_NAME, TEST_KEY, TEST_VALUE
-    from cx_Freeze import setup
-    executables = ["hello.py"]
-    setup(
-        name="hello",
-        version="0.1",
-        description="Sample cx_Freeze script",
-        options={
-            "build": {"build_base": BUILD_DIR},
-            "bdist_mac": {
-                "bundle_name": BUNDLE_NAME,
-                "plist_items": [(TEST_KEY, TEST_VALUE)],
-            },
-        },
-        executables=executables,
-    )
-command
-    python setup.py bdist_mac
-""",
-]
-
 RELATIVE_IMPORT_TEST = [
     "a.module",
     [

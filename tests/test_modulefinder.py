@@ -27,7 +27,6 @@ from generate_samples import (
     RELATIVE_IMPORT_TEST_4,
     SAME_NAME_AS_BAD_TEST,
     SUB_PACKAGE_TEST,
-    create_package,
 )
 
 from cx_Freeze import ConstantsModule, ModuleFinder
@@ -60,9 +59,9 @@ def _do_test(
     modulefinder_class=ModuleFinder,
     **kwargs,
 ) -> None:
-    create_package(test_dir, source)
+    test_dir.create(source)
     finder = modulefinder_class(
-        ConstantsModule(), path=[test_dir, *sys.path], **kwargs
+        ConstantsModule(), path=[test_dir.path, *sys.path], **kwargs
     )
     finder.include_module(import_this)
     if report:
@@ -115,7 +114,7 @@ def _do_test(
     ],
 )
 def test_finder(
-    tmp_path,
+    tmp_package,
     import_this,
     modules,
     missing,
@@ -123,25 +122,25 @@ def test_finder(
     source,
 ) -> None:
     """Provides test cases for ModuleFinder class."""
-    _do_test(tmp_path, import_this, modules, missing, maybe_missing, source)
+    _do_test(tmp_package, import_this, modules, missing, maybe_missing, source)
 
 
-def test_bytecode(tmp_path) -> None:
+def test_bytecode(tmp_package) -> None:
     """Provides bytecode test case for ModuleFinder class."""
-    base_path = tmp_path / "a"
+    base_path = tmp_package.path / "a"
     source_path = base_path.with_suffix(SOURCE_SUFFIXES[0])
     bytecode_path = base_path.with_suffix(BYTECODE_SUFFIXES[0])
     with source_path.open("wb") as file:
         file.write(b"testing_modulefinder = True\n")
     py_compile.compile(os.fspath(source_path), cfile=os.fspath(bytecode_path))
     os.remove(source_path)
-    _do_test(tmp_path, *BYTECODE_TEST)
+    _do_test(tmp_package, *BYTECODE_TEST)
 
 
-def test_zip_include_packages(tmp_path) -> None:
+def test_zip_include_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(
-        tmp_path,
+        tmp_package,
         *SUB_PACKAGE_TEST,
         zip_exclude_packages=["*"],
         zip_include_packages=["p"],
@@ -149,10 +148,10 @@ def test_zip_include_packages(tmp_path) -> None:
     )
 
 
-def test_zip_exclude_packages(tmp_path) -> None:
+def test_zip_exclude_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(
-        tmp_path,
+        tmp_package,
         *SUB_PACKAGE_TEST,
         zip_exclude_packages=["p"],
         zip_include_packages=["*"],

@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import NoReturn
 
 import pytest
-from generate_samples import create_package, run_command
 
 from cx_Freeze import Freezer
 from cx_Freeze._compat import (
@@ -31,42 +30,34 @@ hello.py
 """
 
 
-def test_freezer_target_dir_empty(tmp_path: Path, monkeypatch) -> None:
+def test_freezer_target_dir_empty(tmp_package) -> None:
     """Test freezer target_dir empty."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
-
+    tmp_package.create(SOURCE)
     freezer = Freezer(executables=["hello.py"])
-    target_dir = tmp_path / BUILD_EXE_DIR
+    target_dir = tmp_package.path / BUILD_EXE_DIR
     assert freezer.target_dir == target_dir
 
 
-def test_freezer_target_dir_dist(tmp_path: Path, monkeypatch) -> None:
+def test_freezer_target_dir_dist(tmp_package) -> None:
     """Test freezer target_dir='dist'."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
-
+    tmp_package.create(SOURCE)
     freezer = Freezer(executables=["hello.py"], target_dir="dist")
-    target_dir = tmp_path / "dist"
+    target_dir = tmp_package.path / "dist"
     assert freezer.target_dir == target_dir
 
 
-def test_freezer_target_dir_utf8(tmp_path: Path, monkeypatch) -> None:
+def test_freezer_target_dir_utf8(tmp_package) -> None:
     """Test freezer target_dir with a name in utf_8."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
-
-    target_dir = tmp_path / "ação"
+    tmp_package.create(SOURCE)
+    target_dir = tmp_package.path / "ação"
     freezer = Freezer(executables=["hello.py"], target_dir=target_dir)
     assert freezer.target_dir == target_dir
 
 
-def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch) -> None:
+def test_freezer_target_dir_in_path(tmp_package) -> None:
     """Test freezer target_dir in path."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
-
-    target_dir = tmp_path / BUILD_EXE_DIR
+    tmp_package.create(SOURCE)
+    target_dir = tmp_package.path / BUILD_EXE_DIR
     target_dir.mkdir(parents=True)
     with pytest.raises(
         OptionError,
@@ -75,18 +66,17 @@ def test_freezer_target_dir_in_path(tmp_path: Path, monkeypatch) -> None:
         Freezer(executables=["hello.py"], path=[*sys.path, target_dir])
 
 
-def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch) -> None:
+def test_freezer_target_dir_locked(tmp_package) -> None:
     """Test freezer target_dir locked."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
+    tmp_package.create(SOURCE)
 
     def t_rmtree(path, _ignore_errors=False, _onerror=None) -> NoReturn:
         msg = f"cannot clean {path}"
         raise OSError(msg)
 
-    monkeypatch.setattr("shutil.rmtree", t_rmtree)
+    tmp_package.monkeypatch.setattr("shutil.rmtree", t_rmtree)
 
-    target_dir = tmp_path / BUILD_EXE_DIR
+    target_dir = tmp_package.path / BUILD_EXE_DIR
     target_dir.mkdir(parents=True)
     with pytest.raises(
         OptionError, match="the build_exe directory cannot be cleaned"
@@ -94,10 +84,9 @@ def test_freezer_target_dir_locked(tmp_path: Path, monkeypatch) -> None:
         Freezer(executables=["hello.py"], target_dir=target_dir)
 
 
-def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
+def test_freezer_default_bin_includes(tmp_package) -> None:
     """Test freezer.default_bin_includes."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
+    tmp_package.create(SOURCE)
 
     freezer = Freezer(executables=["hello.py"])
     py_version = f"{PYTHON_VERSION}{ABI_THREAD}"
@@ -127,12 +116,9 @@ def test_freezer_default_bin_includes(tmp_path: Path, monkeypatch) -> None:
     assert names != []
 
 
-def test_freezer_populate_zip_options_invalid_values(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
     """Test freezer _populate_zip_options invalid values."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
+    tmp_package.create(SOURCE)
 
     # zip_include_packages and zip_exclude_packages are "*"
     with pytest.raises(
@@ -261,14 +247,10 @@ def test_freezer_populate_zip_options_invalid_values(
     ],
 )
 def test_freezer_options(
-    tmp_path: Path,
-    monkeypatch,
-    kwargs: dict[str, ...],
-    expected: dict[str, ...],
+    tmp_package, kwargs: dict[str, ...], expected: dict[str, ...]
 ) -> None:
     """Test freezer options."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
+    tmp_package.create(SOURCE)
 
     freezer = Freezer(executables=["hello.py"], **kwargs)
     for option, value in expected.items():
@@ -321,14 +303,10 @@ def test_freezer_options(
     ],
 )
 def test_freezer_zip_filename(
-    tmp_path: Path,
-    monkeypatch,
-    kwargs: dict[str, ...],
-    expected: dict[str, ...],
+    tmp_package, kwargs: dict[str, ...], expected: dict[str, ...]
 ) -> None:
     """Test freezer zip_filename option."""
-    create_package(tmp_path, SOURCE)
-    monkeypatch.chdir(tmp_path)
+    tmp_package.create(SOURCE)
 
     freezer = Freezer(executables=["hello.py"], silent=True, **kwargs)
     target_dir = freezer.target_dir
@@ -347,5 +325,5 @@ def test_freezer_zip_filename(
     executable = target_dir / f"hello{EXE_SUFFIX}"
     assert executable.is_file()
 
-    output = run_command(tmp_path, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")

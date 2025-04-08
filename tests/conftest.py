@@ -26,7 +26,7 @@ class TempPackage:
     """Base class to create package in temporary path."""
 
     def __init__(self, path: str | Path) -> None:
-        self.path: Path = Path(path)
+        self.path: Path = Path(path).resolve()
         self.monkeypatch = pytest.MonkeyPatch()
 
     def __del__(self) -> None:

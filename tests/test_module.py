@@ -1,10 +1,7 @@
 """Tests for cx_Freeze.module."""
 
 from importlib.machinery import EXTENSION_SUFFIXES
-from pathlib import Path
 from types import CodeType
-
-from generate_samples import create_package
 
 from cx_Freeze import Module
 
@@ -18,7 +15,7 @@ namespacepack/firstchildpack/foo.py
 """
 
 
-def test_implicit_namespace_package(tmp_path: Path) -> None:
+def test_implicit_namespace_package(tmp_package) -> None:
     """Test `Module.stub_code` with a namespace package.
 
     Implicit namespace packages do not contain an `__init__.py`. Thus
@@ -26,12 +23,12 @@ def test_implicit_namespace_package(tmp_path: Path) -> None:
     `Module.stub_code` does not raise errors in this scenario.
     """
     ext = EXTENSION_SUFFIXES[-1]
-    create_package(tmp_path, SOURCE.format(extension=ext))
+    tmp_package.create(SOURCE.format(extension=ext))
 
-    root = tmp_path / "namespacepack"
+    root = tmp_package.path / "namespacepack"
     namespacepack = Module(
         name="namespacepack",
-        path=[tmp_path],
+        path=[tmp_package.path],
         filename=None,
     )
     firstchildpack = Module(
