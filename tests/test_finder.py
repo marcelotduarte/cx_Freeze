@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING
 
 import pytest
 from generate_samples import (
@@ -11,13 +10,9 @@ from generate_samples import (
     INVALID_MODULE_NAME_TEST,
     SCAN_CODE_TEST,
     SYNTAX_ERROR_TEST,
-    create_package,
 )
 
 from cx_Freeze import ConstantsModule, ModuleFinder
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class TestModuleFinder:
@@ -28,16 +23,14 @@ class TestModuleFinder:
         constants = ConstantsModule()
         return ModuleFinder(constants_module=constants)
 
-    def test_scan_code(
-        self, tmp_path: Path, fix_module_finder, mocker
-    ) -> None:
-        create_package(tmp_path, source=SCAN_CODE_TEST[4])
+    def test_scan_code(self, tmp_package, fix_module_finder, mocker) -> None:
+        tmp_package.create(SCAN_CODE_TEST[4])
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
             fix_module_finder, "_import_module", return_value=None
         )
         fix_module_finder.include_file_as_module(
-            tmp_path / "imports_sample.py"
+            tmp_package.path / "imports_sample.py"
         )
         import_mock.assert_has_calls(
             [
@@ -53,11 +46,11 @@ class TestModuleFinder:
         )
 
     def test_not_import_invalid_module_name(
-        self, tmp_path: Path, fix_module_finder
+        self, tmp_package, fix_module_finder
     ) -> None:
         """testpkg1 contains not.importable.py, which shouldn't be included."""
-        create_package(tmp_path, source=INVALID_MODULE_NAME_TEST[4])
-        fix_module_finder.path.insert(0, os.fspath(tmp_path))
+        tmp_package.create(INVALID_MODULE_NAME_TEST[4])
+        fix_module_finder.path.insert(0, os.fspath(tmp_package.path))
         # Threw ImportError before the bug was fixed
         module = fix_module_finder.include_package("testpkg1")
         assert "invalid-identifier" in module.global_names, (
@@ -65,18 +58,20 @@ class TestModuleFinder:
             "be imported"
         )
 
-    def test_invalid_syntax(self, tmp_path: Path, fix_module_finder) -> None:
+    def test_invalid_syntax(self, tmp_package, fix_module_finder) -> None:
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
-        create_package(tmp_path, source=SYNTAX_ERROR_TEST[4])
-        fix_module_finder.path.insert(0, os.fspath(tmp_path))
+        tmp_package.create(SYNTAX_ERROR_TEST[4])
+        fix_module_finder.path.insert(0, os.fspath(tmp_package.path))
         with pytest.raises(ImportError):
             # Threw SyntaxError before the bug was fixed
             fix_module_finder.include_module("invalid_syntax")
 
-    def test_find_spec(self, tmp_path: Path, fix_module_finder) -> None:
+    def test_find_spec(self, tmp_package, fix_module_finder) -> None:
         """Sample find_spec contains broken modules."""
-        create_package(tmp_path, source=FIND_SPEC_TEST[4])
-        fix_module_finder.path.insert(0, os.fspath(tmp_path / "find_spec"))
+        tmp_package.create(FIND_SPEC_TEST[4])
+        fix_module_finder.path.insert(
+            0, os.fspath(tmp_package.path / "find_spec")
+        )
         module = fix_module_finder.include_module("hello")
         assert "dummypackage" in module.global_names, (
             "packages that raises exceptions should still be imported"

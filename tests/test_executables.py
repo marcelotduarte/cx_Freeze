@@ -7,16 +7,10 @@ import sys
 from pathlib import Path
 
 import pytest
-from generate_samples import create_package, run_command
 from setuptools import Distribution
 
 from cx_Freeze import Executable
-from cx_Freeze._compat import (
-    BUILD_EXE_DIR,
-    EXE_SUFFIX,
-    IS_MINGW,
-    IS_WINDOWS,
-)
+from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.exception import OptionError, SetupError
 
 TOP_DIR = Path(__file__).resolve().parent.parent
@@ -79,7 +73,7 @@ setup.cfg
     excludes = tkinter,unittest
     silent = true
 command
-    cxfreeze test_1.py
+    cxfreeze --script test_1.py
 """
 
 SOURCE_SETUP_MIX = """
@@ -211,17 +205,17 @@ command
     ],
 )
 def test_executables(
-    tmp_path: Path, source: str, number_of_executables: int
+    tmp_package, source: str, number_of_executables: int
 ) -> None:
     """Test the executables option."""
-    create_package(tmp_path, source)
-    output = run_command(tmp_path)
+    tmp_package.create(source)
+    output = tmp_package.run()
 
     for i in range(1, number_of_executables):
-        file_created = tmp_path / BUILD_EXE_DIR / f"test_{i}{EXE_SUFFIX}"
+        file_created = tmp_package.executable(f"test_{i}")
         assert file_created.is_file(), f"file not found: {file_created}"
 
-        output = run_command(tmp_path, file_created, timeout=10)
+        output = tmp_package.run(file_created, timeout=10)
         assert output.startswith("Hello from cx_Freeze")
 
 
@@ -343,27 +337,29 @@ command
 """
 
 
-def test_valid_icon(tmp_path: Path) -> None:
+def test_valid_icon(tmp_package) -> None:
     """Test with valid icon in any OS."""
-    create_package(tmp_path, SOURCE_VALID_ICON)
+    tmp_package.create(SOURCE_VALID_ICON)
     # copy valid icons
     for src in TOP_DIR.joinpath("cx_Freeze/icons").glob("py.*"):
-        shutil.copyfile(src, tmp_path.joinpath("icon").with_suffix(src.suffix))
-    output = run_command(tmp_path)
+        shutil.copyfile(
+            src, tmp_package.path.joinpath("icon").with_suffix(src.suffix)
+        )
+    output = tmp_package.run()
     assert "WARNING: Icon file not found" not in output, "icon file not found"
 
-    file_created = tmp_path / BUILD_EXE_DIR / f"test_icon{EXE_SUFFIX}"
+    file_created = tmp_package.executable("test_icon")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = run_command(tmp_path, file_created, timeout=10)
+    output = tmp_package.run(file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
-def test_not_found_icon(tmp_path: Path) -> None:
+def test_not_found_icon(tmp_package) -> None:
     """Test with not found icon in any OS."""
     # same test as before, without icons
-    create_package(tmp_path, SOURCE_VALID_ICON)
-    output = run_command(tmp_path)
+    tmp_package.create(SOURCE_VALID_ICON)
+    output = tmp_package.run()
     assert "WARNING: Icon file not found" in output, "icon file not found"
 
 
@@ -388,11 +384,13 @@ command
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-def test_invalid_icon(tmp_path: Path) -> None:
+def test_invalid_icon(tmp_package) -> None:
     """Test with invalid icon in Windows."""
-    create_package(tmp_path, SOURCE_INVALID_ICON)
-    shutil.copyfile(TOP_DIR / "cx_Freeze/icons/py.png", tmp_path / "icon.png")
-    output = run_command(tmp_path)
+    tmp_package.create(SOURCE_INVALID_ICON)
+    shutil.copyfile(
+        TOP_DIR / "cx_Freeze/icons/py.png", tmp_package.path / "icon.png"
+    )
+    output = tmp_package.run()
     assert "WARNING: Icon file not found" not in output, "icon file not found"
     # it is expected the folowing warning if the icon is invalid
     assert "WARNING: Icon filename 'icon.png' has invalid type." in output
@@ -417,20 +415,18 @@ command
 """
 
 
-def test_executable_rename(tmp_path: Path) -> None:
+def test_executable_rename(tmp_package) -> None:
     """Test if the executable can be renamed."""
-    create_package(tmp_path, SOURCE_RENAME)
-    output = run_command(tmp_path)
-    file_created = tmp_path / BUILD_EXE_DIR / f"test_0{EXE_SUFFIX}"
+    tmp_package.create(SOURCE_RENAME)
+    output = tmp_package.run()
+    file_created = tmp_package.executable("test_0")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = run_command(tmp_path, file_created, timeout=10)
+    output = tmp_package.run(file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
-    file_renamed = file_created.rename(
-        file_created.parent / "test_zero{EXE_SUFFIX}"
-    )
-    output = run_command(tmp_path, file_renamed, timeout=10)
+    file_renamed = file_created.rename(file_created.parent / "test_zero")
+    output = tmp_package.run(file_renamed, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
@@ -498,7 +494,7 @@ command
     ],
 )
 def test_executable_namespace(
-    tmp_path: Path,
+    tmp_package,
     source: str,
     hello: int,
     namespace: int,
@@ -506,16 +502,16 @@ def test_executable_namespace(
     zip_packages: bool,
 ) -> None:
     """Test executable with namespace package."""
-    create_package(tmp_path, source)
+    tmp_package.create(source)
     if zip_packages:
-        with tmp_path.joinpath("command").open("a") as f:
+        with tmp_package.path.joinpath("command").open("a") as f:
             f.write(" --zip-include-packages=* --zip-exclude-packages=")
-    output = run_command(tmp_path)
+    output = tmp_package.run()
 
-    file_created = tmp_path / BUILD_EXE_DIR / f"test{EXE_SUFFIX}"
+    file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = run_command(tmp_path, file_created, timeout=10)
+    output = tmp_package.run(file_created, timeout=10)
     lines = output.splitlines()
     start = 0
     stop = hello
