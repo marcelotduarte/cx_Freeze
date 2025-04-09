@@ -35,7 +35,7 @@ pyproject.toml
     excludes = ["tkinter", "unittest"]
     silent = true
 command
-    cxfreeze build_exe --excludes=tkinter
+    cxfreeze build_exe
 """
 
 SOURCE_SETUP_PY = """

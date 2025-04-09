@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from generate_samples import create_package, run_command
+from generate_samples import run_command
 from setuptools import Distribution
 
 from cx_Freeze._compat import PLATFORM
@@ -155,9 +155,9 @@ pyproject.toml
 """
 
 
-def test_bdist_msi_advanced2(tmp_path: Path) -> None:
+def test_bdist_msi_advanced2(tmp_package) -> None:
     """Test the executables option."""
-    create_package(tmp_path, SOURCE_HELLO)
-    run_command(tmp_path, "cxfreeze bdist_msi")
-    file_created = tmp_path / "dist" / "output.msi"
+    tmp_package.create(SOURCE_HELLO)
+    tmp_package.run("cxfreeze bdist_msi")
+    file_created = tmp_package.path / "dist" / "output.msi"
     assert file_created.is_file()
