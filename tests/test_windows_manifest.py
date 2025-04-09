@@ -95,7 +95,7 @@ def test_simple_manifest(tmp_manifest) -> None:
 
     parser = PEParser([], [])
     manifest = parser.read_manifest(executable)
-    simple = tmp_manifest.parent.parent.joinpath("simple.manifest")
+    simple = tmp_manifest.path / "simple.manifest"
     assert manifest == simple.read_bytes().decode()
 
 
