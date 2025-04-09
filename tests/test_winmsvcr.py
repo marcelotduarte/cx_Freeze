@@ -2,15 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
-from generate_samples import create_package, run_command
 
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 
 MSVC_EXPECTED = (
     # VC 2015 and 2017
@@ -63,23 +57,23 @@ def test_files() -> None:
         "--include-msvcr-version=17",
     ],
 )
-def test_build_exe_with(tmp_path: Path, extra_option: str) -> None:
+def test_build_exe_with(tmp_package, extra_option: str) -> None:
     """Test the simple sample with include_msvcr option."""
-    create_package(tmp_path, SOURCE)
+    tmp_package.create(SOURCE)
     if extra_option:
-        with tmp_path.joinpath("command").open("a") as f:
+        with tmp_package.path.joinpath("command").open("a") as f:
             f.write(f" {extra_option}")
-    output = run_command(tmp_path)
+    output = tmp_package.run()
 
-    build_exe_dir = tmp_path / BUILD_EXE_DIR
-    executable = build_exe_dir / f"hello{EXE_SUFFIX}"
+    executable = tmp_package.executable("hello")
     assert executable.is_file()
-    output = run_command(tmp_path, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
     expected = [*MSVC_EXPECTED]
     if extra_option.endswith("15"):
         expected.extend(UCRT_EXPECTED)
+    build_exe_dir = executable.parent
     names = [
         file.name.lower()
         for file in build_exe_dir.glob("*.dll")

@@ -6,16 +6,6 @@ following situations:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from generate_samples import create_package, run_command
-
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-
 SOURCE = """
 namespacepack/firstchildpack/__init__.py
 namespacepack/firstchildpack/main.py
@@ -102,20 +92,20 @@ command
 """
 
 
-def test_excludes(tmp_path: Path) -> None:
+def test_excludes(tmp_package) -> None:
     """Test the build_exe excludes option."""
-    create_package(tmp_path, SOURCE)
-    output = run_command(tmp_path)
+    tmp_package.create(SOURCE)
+    output = tmp_package.run()
     for fullname in (
         "regularpack",
         "namespacepack.firstchildpack",
         "namespacepack.secondchildpack",
     ):
         name = fullname.split(".")[-1]
-        executable = tmp_path / BUILD_EXE_DIR / f"{name}{EXE_SUFFIX}"
+        executable = tmp_package.executable(name)
         assert executable.is_file()
 
-        output = run_command(tmp_path, executable, timeout=10)
+        output = tmp_package.run(executable, timeout=10)
         lines = output.splitlines()
         assert lines[0].startswith(f"Hello, {name}")
 

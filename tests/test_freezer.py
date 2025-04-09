@@ -12,8 +12,6 @@ import pytest
 from cx_Freeze import Freezer
 from cx_Freeze._compat import (
     ABI_THREAD,
-    BUILD_EXE_DIR,
-    EXE_SUFFIX,
     IS_CONDA,
     IS_MACOS,
     IS_MINGW,
@@ -34,30 +32,39 @@ def test_freezer_target_dir_empty(tmp_package) -> None:
     """Test freezer target_dir empty."""
     tmp_package.create(SOURCE)
     freezer = Freezer(executables=["hello.py"])
-    target_dir = tmp_package.path / BUILD_EXE_DIR
-    assert freezer.target_dir == target_dir
+    expected_target_dir = tmp_package.executable("hello").parent
+    assert freezer.target_dir == expected_target_dir, (
+        f"Expected target_dir: {expected_target_dir}, "
+        f"Actual target_dir: {freezer.target_dir}"
+    )
 
 
 def test_freezer_target_dir_dist(tmp_package) -> None:
     """Test freezer target_dir='dist'."""
     tmp_package.create(SOURCE)
     freezer = Freezer(executables=["hello.py"], target_dir="dist")
-    target_dir = tmp_package.path / "dist"
-    assert freezer.target_dir == target_dir
+    expected_target_dir = tmp_package.executable_in_dist("hello").parent
+    assert freezer.target_dir == expected_target_dir, (
+        f"Expected target_dir: {expected_target_dir}, "
+        f"Actual target_dir: {freezer.target_dir}"
+    )
 
 
 def test_freezer_target_dir_utf8(tmp_package) -> None:
     """Test freezer target_dir with a name in utf_8."""
     tmp_package.create(SOURCE)
-    target_dir = tmp_package.path / "ação"
-    freezer = Freezer(executables=["hello.py"], target_dir=target_dir)
-    assert freezer.target_dir == target_dir
+    expected_target_dir = tmp_package.path / "ação"
+    freezer = Freezer(executables=["hello.py"], target_dir=expected_target_dir)
+    assert freezer.target_dir == expected_target_dir, (
+        f"Expected target_dir: {expected_target_dir}, "
+        f"Actual target_dir: {freezer.target_dir}"
+    )
 
 
 def test_freezer_target_dir_in_path(tmp_package) -> None:
     """Test freezer target_dir in path."""
     tmp_package.create(SOURCE)
-    target_dir = tmp_package.path / BUILD_EXE_DIR
+    target_dir = tmp_package.executable("hello").parent
     target_dir.mkdir(parents=True)
     with pytest.raises(
         OptionError,
@@ -68,7 +75,6 @@ def test_freezer_target_dir_in_path(tmp_package) -> None:
 
 def test_freezer_target_dir_locked(tmp_package) -> None:
     """Test freezer target_dir locked."""
-    tmp_package.create(SOURCE)
 
     def t_rmtree(path, _ignore_errors=False, _onerror=None) -> NoReturn:
         msg = f"cannot clean {path}"
@@ -76,7 +82,8 @@ def test_freezer_target_dir_locked(tmp_package) -> None:
 
     tmp_package.monkeypatch.setattr("shutil.rmtree", t_rmtree)
 
-    target_dir = tmp_package.path / BUILD_EXE_DIR
+    tmp_package.create(SOURCE)
+    target_dir = tmp_package.executable("hello").parent
     target_dir.mkdir(parents=True)
     with pytest.raises(
         OptionError, match="the build_exe directory cannot be cleaned"
@@ -322,7 +329,7 @@ def test_freezer_zip_filename(
         else:
             assert getattr(freezer, option) == value
 
-    executable = target_dir / f"hello{EXE_SUFFIX}"
+    executable = target_dir / tmp_package.executable("hello").name
     assert executable.is_file()
 
     output = tmp_package.run(executable, timeout=10)

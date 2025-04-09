@@ -6,10 +6,9 @@ from pathlib import Path
 from subprocess import CalledProcessError
 
 import pytest
-from generate_samples import create_package, run_command
 from packaging.version import Version
 
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 SOURCE_SIMPLE_TEST = """
@@ -131,15 +130,15 @@ class TestVersionInfo:
             version.stamp(f"test{EXE_SUFFIX}")
 
     @pytest.fixture
-    def tmp_test(self, tmp_path) -> Path:
+    def tmp_test(self, tmp_package) -> Path:
         """Generate a executable file test.exe to be used in tests."""
-        create_package(tmp_path, SOURCE_SIMPLE_TEST)
-        run_command(tmp_path)
+        tmp_package.create(SOURCE_SIMPLE_TEST)
+        tmp_package.run()
 
-        file_created = tmp_path / BUILD_EXE_DIR / f"test{EXE_SUFFIX}"
+        file_created = tmp_package.executable("test")
         assert file_created.is_file(), f"file not found: {file_created}"
 
-        output = run_command(tmp_path, file_created, timeout=10)
+        output = tmp_package.run(file_created, timeout=10)
         assert output.startswith("Hello from cx_Freeze")
 
         return file_created
@@ -163,8 +162,9 @@ class TestVersionInfo:
         with pytest.raises(SystemExit):
             main_test(args=[])
 
-    def test_main_with_environ(self, tmp_test, monkeypatch) -> None:
+    def test_main_with_environ(self, tmp_package, tmp_test) -> None:
         """Test argparse error exception."""
-        monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
+        tmp_package.path = tmp_test.parent
+        tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
         with pytest.raises(CalledProcessError):
-            run_command(tmp_test.parent, "python -m cx_Freeze.winversioninfo")
+            tmp_package.run("python -m cx_Freeze.winversioninfo")

@@ -52,6 +52,7 @@ class TempPackage:
 
     def create_from_sample(self, sample: str) -> None:
         """Create package in path, based on sample."""
+        self.path = self.path / sample
         copytree(
             SAMPLES_DIR / sample,
             self.path,
