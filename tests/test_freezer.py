@@ -28,9 +28,6 @@ hello.py
 """
 
 
-@pytest.mark.skipif(
-    IS_WINDOWS and PYTHON_VERSION == "3.13", reason="Disabled test"
-)
 def test_freezer_target_dir_empty(tmp_package) -> None:
     """Test freezer target_dir empty."""
     tmp_package.create(SOURCE)
