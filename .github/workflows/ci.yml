@@ -59,6 +59,9 @@ jobs:
         exclude:
           - os: windows
             os_version: latest
+            python-version: '3.13'  # disabled tests
+          - os: windows
+            os_version: latest
             python-version: '3.13t'  # provisional
     defaults:
       run:

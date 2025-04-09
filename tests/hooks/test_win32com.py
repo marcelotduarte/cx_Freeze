@@ -2,29 +2,19 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
-from generate_samples import create_package, run_command
-
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
-
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
-
 
 pytest.importorskip("win32com", reason="Depends on extra package: pywin32")
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "win32com")
-def test_win32com(datafiles: Path) -> None:
+def test_win32com(tmp_package) -> None:
     """Test that the win32com is working correctly."""
-    output = run_command(
-        datafiles, "cxfreeze --script test_win32com.py --silent"
-    )
-    executable = datafiles / BUILD_EXE_DIR / f"test_win32com{EXE_SUFFIX}"
+    tmp_package.create_from_sample("win32com")
+    output = tmp_package.run("cxfreeze --script test_win32com.py --silent")
+    executable = tmp_package.executable("test_win32com")
     assert executable.is_file()
 
-    output = run_command(datafiles, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     lines = output.splitlines()
     assert lines[0].startswith("Sent and received 'Hello from cx_Freeze'")
     assert lines[-1].startswith("Everything seemed to work!")
@@ -40,16 +30,18 @@ test.py
             pythoncom.CLSCTX_INPROC_SERVER, shell.IID_IShellLink
     )
     print(shortcut)
+command
+    cxfreeze --script test.py --silent
 """
 
 
-def test_win32com_shell(tmp_path: Path) -> None:
+def test_win32com_shell(tmp_package) -> None:
     """Test if zoneinfo hook is working correctly."""
-    create_package(tmp_path, SOURCE_WIN32COM_SHELL)
-    output = run_command(tmp_path, "cxfreeze --script test.py --silent")
-    executable = tmp_path / BUILD_EXE_DIR / f"test{EXE_SUFFIX}"
+    tmp_package.create(SOURCE_WIN32COM_SHELL)
+    output = tmp_package.run()
+    executable = tmp_package.executable("test")
     assert executable.is_file()
-    output = run_command(tmp_path, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     print(output)
     lines = output.splitlines()
     assert lines[0].startswith("<PyIShellLink at")
