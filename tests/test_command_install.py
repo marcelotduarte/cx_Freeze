@@ -6,8 +6,6 @@ import os
 import sys
 from pathlib import Path
 
-from generate_samples import create_package, run_command
-
 from cx_Freeze._compat import EXE_SUFFIX
 
 SOURCE = """
@@ -37,41 +35,41 @@ command
 """
 
 
-def test_install(tmp_path: Path) -> None:
+def test_install(tmp_package) -> None:
     """Test a simple install."""
-    create_package(tmp_path, SOURCE)
+    tmp_package.create(SOURCE)
 
     if sys.platform == "win32":
-        run_command(tmp_path, "python setup.py install --root=root")
+        tmp_package.run("python setup.py install --root=root")
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
     else:
-        run_command(tmp_path)
+        tmp_package.run()
         prefix = "base/lib/hello-0.1.2.3"
-    install_dir = tmp_path / "root" / prefix
+    install_dir = tmp_package.path / "root" / prefix
 
     file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = run_command(tmp_path, file_created, timeout=10)
+    output = tmp_package.run(file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 
-def test_install_pyproject(tmp_path: Path) -> None:
+def test_install_pyproject(tmp_package) -> None:
     """Test a simple install."""
-    create_package(tmp_path, SOURCE_PYPROJECT)
+    tmp_package.create(SOURCE_PYPROJECT)
 
     if sys.platform == "win32":
-        run_command(tmp_path, "cxfreeze install --root=root")
+        tmp_package.run("cxfreeze install --root=root")
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
     else:
-        run_command(tmp_path)
+        tmp_package.run()
         prefix = "base/lib/hello-0.1.2.3"
-    install_dir = tmp_path / "root" / prefix
+    install_dir = tmp_package.path / "root" / prefix
 
     file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = run_command(tmp_path, file_created, timeout=10)
+    output = tmp_package.run(file_created, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
