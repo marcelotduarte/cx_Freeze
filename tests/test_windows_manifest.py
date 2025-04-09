@@ -61,7 +61,7 @@ simple.manifest
 """
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def tmp_manifest(tmp_package):  # noqa: ANN201
     """Temporary path to build test manifest."""
     tmp_package.create(SOURCE)
