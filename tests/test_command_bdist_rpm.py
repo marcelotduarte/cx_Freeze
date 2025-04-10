@@ -51,7 +51,7 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch) -> None:
         cmd.finalize_options()
 
 
-@pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
+@pytest.mark.parametrize("options", [{"spec_only": True}], ids=["spec_only"])
 def test_bdist_rpm_options(options) -> None:
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
@@ -65,11 +65,10 @@ def test_bdist_rpm_options(options) -> None:
             pytest.fail(exc.args[0])
 
 
-@pytest.mark.parametrize("options", [({"spec_only": True})], ids=["spec_only"])
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options) -> None:
+@pytest.mark.parametrize("options", [{"spec_only": True}], ids=["spec_only"])
+def test_bdist_rpm_options_run(tmp_package, options) -> None:
     """Test the bdist_rpm with options."""
-    monkeypatch.chdir(datafiles)
+    tmp_package.create_from_sample("simple")
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist, **options, debug=1)
     try:
@@ -82,20 +81,20 @@ def test_bdist_rpm_options_run(datafiles: Path, monkeypatch, options) -> None:
     cmd.run()
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_rpm_simple(datafiles: Path) -> None:
+def test_bdist_rpm_simple(tmp_package) -> None:
     """Test the simple sample with bdist_rpm."""
     name = "hello"
     version = "0.1.2.3"
     arch = platform.machine()
-    dist_created = datafiles / "dist"
+    dist_created = tmp_package.path / "dist"
 
+    tmp_package.create_from_sample("simple")
     process = run(
         [sys.executable, "setup.py", "bdist_rpm", "--quiet"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         if "failed to find rpmbuild" in process.stderr:
@@ -108,21 +107,21 @@ def test_bdist_rpm_simple(datafiles: Path) -> None:
     assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple_pyproject")
-def test_bdist_rpm_simple_pyproject(datafiles: Path) -> None:
+def test_bdist_rpm_simple_pyproject(tmp_package) -> None:
     """Test the simple_pyproject sample with bdist_rpm."""
     name = "hello"
     version = "0.1.2.3"
     arch = platform.machine()
-    dist_created = datafiles / "dist"
+    dist_created = tmp_package.path / "dist"
 
+    tmp_package.create_from_sample("simple_pyproject")
     cxfreeze = which("cxfreeze")
     process = run(
         [cxfreeze, "bdist_rpm", "--quiet"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         if "failed to find rpmbuild" in process.stderr:
@@ -135,20 +134,20 @@ def test_bdist_rpm_simple_pyproject(datafiles: Path) -> None:
     assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_bdist_rpm(datafiles: Path) -> None:
+def test_bdist_rpm(tmp_package) -> None:
     """Test the sqlite sample with bdist_rpm."""
     name = "test_sqlite3"
     version = "0.5"
     arch = platform.machine()
-    dist_created = datafiles / "dist"
+    dist_created = tmp_package.path / "dist"
 
+    tmp_package.create_from_sample("sqlite")
     process = run(
         [sys.executable, "setup.py", "bdist_rpm"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     print(process.stdout)
     if process.returncode != 0:

@@ -6,10 +6,10 @@ import os
 from pathlib import Path
 
 import pytest
-from generate_samples import SUB_PACKAGE_TEST, run_command
+from generate_samples import SUB_PACKAGE_TEST
 from setuptools import Distribution
 
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX, IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, IS_WINDOWS
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 
@@ -363,32 +363,32 @@ def test_build_exe_script_args(
         assert getattr(cmd_obj, option) == value
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "advanced")
-def test_build_exe_advanced(datafiles: Path) -> None:
+def test_build_exe_advanced(tmp_package) -> None:
     """Test the advanced sample."""
-    output = run_command(
-        datafiles, "python setup.py build_exe --silent --excludes=tkinter"
+    tmp_package.create_from_sample("advanced")
+    output = tmp_package.run(
+        "python setup.py build_exe --silent --excludes=tkinter"
     )
 
-    executable = datafiles / BUILD_EXE_DIR / f"advanced_1{EXE_SUFFIX}"
+    executable = tmp_package.executable("advanced_1")
     assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     assert output == OUTPUT1
 
-    executable = datafiles / BUILD_EXE_DIR / f"advanced_2{EXE_SUFFIX}"
+    executable = tmp_package.executable("advanced_2")
     assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     assert output == OUTPUT2
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "asmodule")
-def test_build_exe_asmodule(datafiles: Path) -> None:
+def test_build_exe_asmodule(tmp_package) -> None:
     """Test the asmodule sample."""
-    output = run_command(datafiles, BUILD_EXE_CMD)
+    tmp_package.create_from_sample("asmodule")
+    output = tmp_package.run(BUILD_EXE_CMD)
 
-    executable = datafiles / BUILD_EXE_DIR / f"asmodule{EXE_SUFFIX}"
+    executable = tmp_package.executable("asmodule")
     assert executable.is_file()
-    output = run_command(datafiles, executable, timeout=10)
+    output = tmp_package.run(executable, timeout=10)
     assert output.startswith("Hello from cx_Freeze")
 
 

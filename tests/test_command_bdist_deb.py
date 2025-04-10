@@ -75,19 +75,19 @@ def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path) -> None:
     cmd.run()
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_deb_simple(datafiles: Path) -> None:
+def test_bdist_deb_simple(tmp_package) -> None:
     """Test the simple sample with bdist_deb."""
     name = "hello"
     version = "0.1.2.3"
-    dist_created = datafiles / "dist"
+    dist_created = tmp_package.path / "dist"
 
+    tmp_package.create_from_sample("simple")
     process = run(
         [sys.executable, "setup.py", "bdist_deb"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         msg = process.stderr
@@ -104,20 +104,20 @@ def test_bdist_deb_simple(datafiles: Path) -> None:
     assert file_created.is_file(), pattern
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple_pyproject")
-def test_bdist_deb_simple_pyproject(datafiles: Path) -> None:
+def test_bdist_deb_simple_pyproject(tmp_package) -> None:
     """Test the simple_pyproject sample with bdist_deb."""
     name = "hello"
     version = "0.1.2.3"
-    dist_created = datafiles / "dist"
+    dist_created = tmp_package.path / "dist"
 
+    tmp_package.create_from_sample("simple_pyproject")
     cxfreeze = which("cxfreeze")
     process = run(
         [cxfreeze, "bdist_deb"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         msg = process.stderr
@@ -134,19 +134,19 @@ def test_bdist_deb_simple_pyproject(datafiles: Path) -> None:
     assert file_created.is_file(), pattern
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "sqlite")
-def test_bdist_deb(datafiles: Path) -> None:
+def test_bdist_deb(tmp_package) -> None:
     """Test the sqlite sample with bdist_deb."""
     name = "test_sqlite3"
     version = "0.5"
-    dist_created = datafiles / "dist2"
+    dist_created = tmp_package.path / "dist2"
 
+    tmp_package.create_from_sample("sqlite")
     process = run(
         [sys.executable, "setup.py", "bdist_deb", "--dist-dir", dist_created],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         msg = process.stderr

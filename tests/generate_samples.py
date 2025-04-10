@@ -2,18 +2,6 @@
 
 from __future__ import annotations
 
-import os
-import string
-import sys
-from pathlib import Path
-from shutil import which
-from subprocess import check_output
-from textwrap import dedent
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
 # Each test description is a list of 5 items:
 #
 # 1. a module name that will be imported by ModuleFinder
@@ -457,51 +445,3 @@ setup.py
     )
 """,
 ]
-
-
-def create_package(test_dir: Path, source: str) -> None:
-    """Create package in test_dir, based on source."""
-    buf = []
-    path: Path | None = None
-    for line in [*source.splitlines(), "EOF"]:
-        if not line.startswith(tuple(string.ascii_letters)):
-            buf.append(line)
-        else:
-            if path:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(dedent("\n".join(buf)).encode("utf_8"))
-                buf = []
-            path = test_dir / line.strip()
-
-
-def run_command(
-    test_dir: Path, command: Sequence | Path | None = None, timeout=None
-) -> str:
-    """Execute a command, specified in 'command', or read the command contained
-    in the file named 'command', or execute the default command.
-    """
-    if command is None:
-        command_file = test_dir / "command"
-        if command_file.exists():
-            command = command_file.read_bytes().decode()
-        elif test_dir.joinpath("pyproject.toml").exists():
-            command = "cxfreeze build"
-        else:
-            command = "python setup.py build"
-    elif isinstance(command, Path):
-        command = [os.fspath(command)]
-
-    command = command.split() if isinstance(command, str) else list(command)
-    if command[0] == "cxfreeze":
-        cxfreeze = which("cxfreeze")
-        if not cxfreeze:
-            cxfreeze = which("cxfreeze", path=os.pathsep.join(sys.path))
-        if cxfreeze:
-            command[0] = cxfreeze
-        else:
-            command = ["python", "-m", "cx_Freeze"] + command[1:]
-    if command[0] == "python":
-        command[0] = sys.executable
-    return check_output(
-        command, text=True, timeout=timeout, cwd=os.fspath(test_dir)
-    )

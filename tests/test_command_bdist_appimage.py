@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 import pytest
-from generate_samples import run_command
 from setuptools import Distribution
 
 from cx_Freeze.exception import PlatformError
@@ -72,14 +71,14 @@ def test_bdist_appimage_target_name_and_version_none() -> None:
     assert cmd.fullname == "mytest"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "tkinter")
-def test_bdist_appimage_target_name_with_extension(datafiles: Path) -> None:
+def test_bdist_appimage_target_name_with_extension(tmp_package) -> None:
     """Test the tkinter sample, with a specified target_name that includes an
     ".AppImage" extension.
     """
     name = "output.AppImage"
 
     # create bdist and dist to test coverage
+    tmp_package.create_from_sample("tkinter")
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
     cmd.finalize_options()
@@ -89,34 +88,37 @@ def test_bdist_appimage_target_name_with_extension(datafiles: Path) -> None:
     outfile = os.path.join(cmd.dist_dir, name)
     cmd.save_as_file("data", outfile, mode="rwx")
 
-    run_command(
-        datafiles, f"python setup.py bdist_appimage --target-name {name}"
-    )
+    tmp_package.run(f"python setup.py bdist_appimage --target-name {name}")
     file_created = Path(outfile)
     assert file_created.is_file()
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "tkinter")
-def test_bdist_appimage_skip_build(datafiles: Path) -> None:
+def test_bdist_appimage_skip_build(tmp_package) -> None:
     """Test the tkinter sample with bdist_appimage."""
     name = "test_tkinter"
     version = "0.3.2"
     arch = platform.machine()
-    run_command(datafiles)
-    run_command(datafiles, "python setup.py bdist_appimage --skip-build")
 
-    file_created = datafiles / "dist" / f"{name}-{version}-{arch}.AppImage"
+    tmp_package.create_from_sample("tkinter")
+    tmp_package.run()
+    tmp_package.run("python setup.py bdist_appimage --skip-build")
+
+    file_created = (
+        tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
+    )
     assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_appimage_simple(datafiles: Path) -> None:
+def test_bdist_appimage_simple(tmp_package) -> None:
     """Test the simple sample with bdist_appimage."""
     name = "hello"
     version = "0.1.2.3"
     arch = platform.machine()
 
-    run_command(datafiles, "python setup.py bdist_appimage --quiet")
+    tmp_package.create_from_sample("simple")
+    tmp_package.run("python setup.py bdist_appimage --quiet")
 
-    file_created = datafiles / "dist" / f"{name}-{version}-{arch}.AppImage"
+    file_created = (
+        tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
+    )
     assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"
