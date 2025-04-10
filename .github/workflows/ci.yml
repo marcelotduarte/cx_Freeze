@@ -100,6 +100,16 @@ jobs:
           uv sync --no-install-project --extra tests
           uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
+      - name: Install extra dependencies
+        run: |
+          if [ "${{ matrix.python-version }}" == "3.10" ]; then
+            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
+          fi
+          if [ "${{ matrix.python-version }}" == "3.10" ] || [ "${{ matrix.python-version }}" == "3.12" ]; then
+            uv pip install pandas scipy
+          fi
+        if: runner.os == 'Linux'
+
       - name: Generate coverage report
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}"
@@ -175,69 +185,10 @@ jobs:
           path: .coverage.*
           include-hidden-files: true
 
-  tests_unix_binary_wheel:
-    needs: build_wheel
-    runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
-    strategy:
-      matrix:
-        os: [ubuntu]
-        os_version: [latest]
-        python-version: ['3.10', '3.12']
-    defaults:
-      run:
-        shell: bash
-    env:
-      UV_SYSTEM_PYTHON: true
-    steps:
-
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "pyproject.toml"
-
-      - name: Download the wheel
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          pattern: cx-freeze-whl-${{ matrix.os }}*
-          path: wheelhouse
-
-      - name: Install dependencies to test
-        run: |
-          uv pip install --extra tests --upgrade -r pyproject.toml
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
-
-      - name: Install dependencies - extra
-        run: |
-          if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
-          fi
-          uv pip install pandas
-
-      - name: Generate coverage report
-        env:
-          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}"
-        run: pytest -nauto --cov="cx_Freeze"
-
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}
-          path: .coverage.*
-          include-hidden-files: true
-
   coverage:
     needs:
       - tests
       - tests_extra
-      - tests_unix_binary_wheel
     permissions:
       pull-requests: write
       contents: write
