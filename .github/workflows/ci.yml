@@ -71,7 +71,14 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get install -qy alien fakeroot rpm
 
-      - uses: actions/checkout@v4
+      - name: Fetch only the required files for testing
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            pyproject.toml
+            cx_Freeze/icons
+            samples
+            tests
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -140,7 +147,14 @@ jobs:
       UV_SYSTEM_PYTHON: true
     steps:
 
-      - uses: actions/checkout@v4
+      - name: Fetch only the required files for testing
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            pyproject.toml
+            cx_Freeze/icons
+            samples
+            tests
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
