@@ -8,7 +8,7 @@ import sys
 from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 
 import pytest
-from generate_samples import (
+from datatest import (
     ABSOLUTE_IMPORT_TEST,
     BYTECODE_TEST,
     CODING_DEFAULT_UTF8_TEST,

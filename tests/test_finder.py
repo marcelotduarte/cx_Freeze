@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 
 import pytest
-from generate_samples import (
+from datatest import (
     FIND_SPEC_TEST,
     INVALID_MODULE_NAME_TEST,
     SCAN_CODE_TEST,

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import platform
 import sys
-from pathlib import Path
 from shutil import which
 from subprocess import run
 
@@ -30,7 +29,6 @@ DIST_ATTRS = {
     "author_email": "marcelotduarte@users.noreply.github.com",
     "url": "https://github.com/marcelotduarte/cx_Freeze/",
 }
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_rpm_not_posix(monkeypatch) -> None:

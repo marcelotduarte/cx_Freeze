@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import pytest
 
@@ -24,7 +23,6 @@ DIST_ATTRS = {
     "author_email": "marcelotduarte@users.noreply.github.com",
     "url": "https://github.com/marcelotduarte/cx_Freeze/",
 }
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_mac(tmp_package) -> None:
