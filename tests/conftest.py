@@ -26,10 +26,22 @@ SAMPLES_DIR = HERE.parent / "samples"
 class TempPackage:
     """Base class to create package in temporary path."""
 
-    def __init__(self, path: Path) -> None:
-        self.path: Path = path
-        self.monkeypatch = pytest.MonkeyPatch()
-        self.monkeypatch.chdir(path)
+    def __init__(
+        self,
+        request: pytest.FixtureRequest,
+        tmp_path_factory: pytest.TempPathFactory,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        self.request = request
+        self.tmp_path_factory = tmp_path_factory
+        self.monkeypatch = monkeypatch
+        # make a temporary directory and set it as current
+        name = request.node.name
+        name = re.sub(r"[\W]", "_", name)
+        MAXVAL = 30
+        name = name[:MAXVAL]
+        self.path = tmp_path_factory.mktemp(name, numbered=True)
+        monkeypatch.chdir(self.path)
 
     def __del__(self) -> None:
         self.monkeypatch.undo()
@@ -101,16 +113,11 @@ class TempPackage:
         )
 
 
-def _mk_tmp(request: pytest.FixtureRequest) -> Path:
-    name = request.node.name
-    name = re.sub(r"[\W]", "_", name)
-    MAXVAL = 30
-    name = name[:MAXVAL]
-    factory = request.config._tmp_path_factory  # noqa: SLF001
-    return factory.mktemp(name, numbered=True)
-
-
 @pytest.fixture
-def tmp_package(request: pytest.FixtureRequest) -> TempPackage:
+def tmp_package(
+    request: pytest.FixtureRequest,
+    tmp_path_factory: pytest.TempPathFactory,
+    monkeypatch: pytest.MonkeyPatch,
+) -> TempPackage:
     """Create package in temporary path, based on source (or sample)."""
-    return TempPackage(_mk_tmp(request))
+    return TempPackage(request, tmp_path_factory, monkeypatch)
