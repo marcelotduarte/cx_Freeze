@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from subprocess import run
 
 import pytest
@@ -14,8 +13,6 @@ bdist_dmg = pytest.importorskip(
 
 if sys.platform != "darwin":
     pytest.skip(reason="macOS tests", allow_module_level=True)
-
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_dmg(tmp_package) -> None:

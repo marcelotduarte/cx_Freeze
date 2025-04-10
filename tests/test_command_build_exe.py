@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 
 import pytest
-from generate_samples import SUB_PACKAGE_TEST
+from datatest import SUB_PACKAGE_TEST
 from setuptools import Distribution
 
 from cx_Freeze._compat import BUILD_EXE_DIR, IS_WINDOWS
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
 
 OUTPUT1 = "Hello from cx_Freeze Advanced #1\nTest freeze module #1\n"

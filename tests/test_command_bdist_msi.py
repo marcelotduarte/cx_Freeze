@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import pytest
 from setuptools import Distribution
@@ -29,9 +28,6 @@ DIST_ATTRS = {
     "executables": ["hello.py"],
     "script_name": "setup.py",
 }
-
-TOP_DIR = Path(__file__).resolve().parent.parent
-SAMPLES_DIR = TOP_DIR / "samples"
 
 
 def test_bdist_msi_target_name() -> None:

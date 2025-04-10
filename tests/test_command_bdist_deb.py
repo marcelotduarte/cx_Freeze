@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from shutil import which
 from subprocess import run
+from typing import TYPE_CHECKING
 
 import pytest
 from setuptools import Distribution
 
 from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 bdist_deb = pytest.importorskip(
     "cx_Freeze.command.bdist_deb", reason="Linux tests"
@@ -29,7 +32,6 @@ DIST_ATTRS = {
     "author_email": "marcelotduarte@users.noreply.github.com",
     "url": "https://github.com/marcelotduarte/cx_Freeze/",
 }
-SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
 def test_bdist_deb_not_posix(monkeypatch) -> None:

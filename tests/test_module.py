@@ -1,5 +1,7 @@
 """Tests for cx_Freeze.module."""
 
+from __future__ import annotations
+
 from importlib.machinery import EXTENSION_SUFFIXES
 from types import CodeType
 
