@@ -18,18 +18,18 @@ if sys.platform != "darwin":
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "dmg")
-def test_bdist_dmg(datafiles: Path) -> None:
+def test_bdist_dmg(tmp_package) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "Howdy Yall"
-    dist_created = datafiles / "build"
+    dist_created = tmp_package.path / "build"
 
+    tmp_package.create_from_sample("dmg")
     process = run(
         [sys.executable, "setup.py", "bdist_dmg"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         expected_err = "bdist_dmg: Unable to "
@@ -42,18 +42,18 @@ def test_bdist_dmg(datafiles: Path) -> None:
     assert file_created.is_file(), f"{name}.dmg"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "dmg_layout")
-def test_bdist_dmg_custom_layout(datafiles: Path) -> None:
+def test_bdist_dmg_custom_layout(tmp_package) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "Howdy Yall"
-    dist_created = datafiles / "build"
+    dist_created = tmp_package.path / "build"
 
+    tmp_package.create_from_sample("dmg_layout")
     process = run(
         [sys.executable, "setup.py", "bdist_dmg"],
         text=True,
         capture_output=True,
         check=False,
-        cwd=datafiles,
+        cwd=tmp_package.path,
     )
     if process.returncode != 0:
         expected_err = "bdist_dmg: Unable to "

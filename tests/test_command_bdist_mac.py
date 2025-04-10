@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import pytest
-from generate_samples import run_command
 
 bdist_mac = pytest.importorskip(
     "cx_Freeze.command.bdist_mac", reason="macOS tests"
@@ -28,15 +27,13 @@ DIST_ATTRS = {
 SAMPLES_DIR = Path(__file__).resolve().parent.parent / "samples"
 
 
-@pytest.mark.datafiles(SAMPLES_DIR / "simple")
-def test_bdist_mac(datafiles: Path) -> None:
+def test_bdist_mac(tmp_package) -> None:
     """Test the simple sample with bdist_mac."""
     name = "hello"
     version = "0.1.2.3"
-    dist_created = datafiles / "build"
-
-    run_command(datafiles, "python setup.py bdist_mac")
-
     base_name = f"{name}-{version}"
-    file_created = dist_created / f"{base_name}.app"
+
+    tmp_package.create_from_sample("simple")
+    tmp_package.run("python setup.py bdist_mac")
+    file_created = tmp_package.path / "build" / f"{base_name}.app"
     assert file_created.is_dir(), f"{base_name}.app"
