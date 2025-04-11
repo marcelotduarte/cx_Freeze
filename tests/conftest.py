@@ -35,6 +35,7 @@ class TempPackage:
         self.request = request
         self.tmp_path_factory = tmp_path_factory
         self.monkeypatch = monkeypatch
+
         # make a temporary directory and set it as current
         name = request.node.name
         name = re.sub(r"[\W]", "_", name)
@@ -42,9 +43,6 @@ class TempPackage:
         name = name[:MAXVAL]
         self.path = tmp_path_factory.mktemp(name, numbered=True)
         monkeypatch.chdir(self.path)
-
-    def __del__(self) -> None:
-        self.monkeypatch.undo()
 
     def create(self, source: str) -> None:
         """Create package in temporary path, based on source."""
@@ -111,6 +109,20 @@ class TempPackage:
         return check_output(
             command, text=True, timeout=timeout, cwd=os.fspath(self.path)
         )
+
+    def install(self, package) -> None:
+        if which("uv") is None:
+            pytest.skip(reason=f"{package} must be installed")
+
+        tmp_prefix = self.path / ".tmp_prefix"  # type: Path
+        self.run(
+            f"uv pip install {package}"
+            f" --prefix={tmp_prefix} --python={sys.executable}"
+        )
+        tmp_site = tmp_prefix.joinpath(
+            Path(pytest.__file__).parent.parent.relative_to(sys.prefix)
+        )
+        self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
 
 
 @pytest.fixture

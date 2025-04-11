@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
-pytest.importorskip("argon2", reason="Depends on extra package: argon2-cffi")
-
 SOURCE = """
 test_argon2.py
     import argon2
@@ -21,6 +17,7 @@ command
 def test_argon2(tmp_package) -> None:
     """Test if argon2-cffi is working correctly."""
     tmp_package.create(SOURCE)
+    tmp_package.install("argon2-cffi")
     output = tmp_package.run()
     executable = tmp_package.executable("test_argon2")
     assert executable.is_file()
