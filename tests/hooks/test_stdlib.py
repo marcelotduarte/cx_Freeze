@@ -143,14 +143,14 @@ def test_tz(tmp_package, zip_packages: bool) -> None:
     """Test if zoneinfo hook is working correctly."""
     tmp_package.create_from_sample("tz")
     if zip_packages:
-        output = tmp_package.run(
-            "cxfreeze build_exe"
-            " --zip-include-packages=* --zip-exclude-packages="
-        )
-    else:
-        output = tmp_package.run()
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
     if "? tzdata imported from zoneinfo_hook" in output:
-        pytest.skip(reason="tzdata must be installed")
+        tmp_package.install("tzdata")
+        output = tmp_package.run()
 
     executable = tmp_package.executable("test_tz")
     assert executable.is_file()

@@ -104,16 +104,6 @@ jobs:
           uv sync --no-install-project --extra tests
           uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
-      - name: Install extra dependencies
-        run: |
-          if [ "${{ matrix.python-version }}" == "3.10" ]; then
-            uv pip install -i https://pypi.anaconda.org/intel/simple numpy
-          fi
-          if [ "${{ matrix.python-version }}" == "3.10" ] || [ "${{ matrix.python-version }}" == "3.12" ]; then
-            uv pip install pandas scipy
-          fi
-        if: runner.os == 'Linux'
-
       - name: Generate coverage report
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}"

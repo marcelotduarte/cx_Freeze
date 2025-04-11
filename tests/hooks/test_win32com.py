@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
-pytest.importorskip("win32com", reason="Depends on extra package: pywin32")
+if sys.platform != "win32":
+    pytest.skip(reason="Windows tests", allow_module_level=True)
 
 
 def test_win32com(tmp_package) -> None:
     """Test that the win32com is working correctly."""
+    pytest.importorskip("win32com", reason="Depends on extra package: pywin32")
+
     tmp_package.create_from_sample("win32com")
     output = tmp_package.run("cxfreeze --script test_win32com.py --silent")
     executable = tmp_package.executable("test_win32com")
@@ -37,6 +42,7 @@ command
 
 def test_win32com_shell(tmp_package) -> None:
     """Test if zoneinfo hook is working correctly."""
+    pytest.importorskip("win32com", reason="Depends on extra package: pywin32")
     tmp_package.create(SOURCE_WIN32COM_SHELL)
     output = tmp_package.run()
     executable = tmp_package.executable("test")
