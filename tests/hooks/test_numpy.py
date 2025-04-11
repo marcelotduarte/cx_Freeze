@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
+import sys
 
-pytest.importorskip("numpy", reason="Depends on extra package: numpy")
+import pytest
 
 
 @pytest.mark.parametrize(
@@ -12,13 +12,14 @@ pytest.importorskip("numpy", reason="Depends on extra package: numpy")
 )
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
-    pytest.importorskip("pandas", reason="Depends on extra package: pandas")
-
     command = "python setup.py build_exe -O2"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
     tmp_package.create_from_sample("pandas")
+    if sys.platform == "linux" and sys.version_info[:2] == (3, 10):
+        tmp_package.install("-i https://pypi.anaconda.org/intel/simple numpy")
+    tmp_package.install("pandas")
     output = tmp_package.run("python setup.py build_exe -O2")
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
@@ -35,13 +36,12 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
 )
 def test_scipy(tmp_package, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""
-    pytest.importorskip("scipy", reason="Depends on extra package: scipy")
-
     command = "python setup.py build_exe -O2"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
     tmp_package.create_from_sample("scipy")
+    tmp_package.install("scipy")
     output = tmp_package.run("python setup.py build_exe -O2")
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()

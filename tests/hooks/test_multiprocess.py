@@ -98,9 +98,7 @@ def _parameters_data() -> Iterator:
             sample = f"sample{i}"
             test_id = f"{sample}-{method}"
             yield pytest.param(source, sample, expected, False, id=test_id)
-            # zip_packages test disable, too slow
-            # noqa: test_id = f"{sample}-{method}-zip_packages"
-            # noqa: yield pytest.param(source, sample, expected, True, id=test_id)
+            # zip_packages test removed, too slow
 
 
 @pytest.mark.parametrize(
