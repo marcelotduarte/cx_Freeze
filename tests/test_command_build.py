@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 from setuptools import Distribution
 
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze.exception import OptionError
 
 SOURCE = """
@@ -19,9 +20,24 @@ command
 """
 
 
-def test_build(tmp_package) -> None:
+if IS_MINGW or IS_WINDOWS:
+    lief_versions = pytest.mark.parametrize(
+        "lief_version", ["0.16.4", "0.15.1", "0.14.1", "0.13.2", ""]
+    )
+else:
+    lief_versions = pytest.mark.parametrize("lief_version", [""])  # one test
+
+
+@lief_versions
+def test_build(tmp_package, lief_version) -> None:
     """Test a simple build."""
     tmp_package.create(SOURCE)
+
+    if IS_MINGW or IS_WINDOWS:
+        if lief_version == "":
+            tmp_package.monkeypatch.setenv("CX_FREEZE_BIND", "imagehlp")
+        else:
+            tmp_package.install(f"lief=={lief_version}")
 
     # first run, count the files
     output = tmp_package.run()

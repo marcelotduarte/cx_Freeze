@@ -110,19 +110,20 @@ class TempPackage:
             command, text=True, timeout=timeout, cwd=os.fspath(self.path)
         )
 
-    def install(self, package) -> None:
+    def install(self, package, isolated=True) -> None:
         if which("uv") is None:
             pytest.skip(reason=f"{package} must be installed")
 
-        tmp_prefix = self.path / ".tmp_prefix"  # type: Path
-        self.run(
-            f"uv pip install {package}"
-            f" --prefix={tmp_prefix} --python={sys.executable}"
-        )
-        tmp_site = tmp_prefix.joinpath(
-            Path(pytest.__file__).parent.parent.relative_to(sys.prefix)
-        )
-        self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
+        cmd = f"uv pip install {package}"
+        if isolated:
+            tmp_prefix = self.path / ".tmp_prefix"  # type: Path
+            self.run(f"{cmd} --prefix={tmp_prefix} --python={sys.executable}")
+            tmp_site = tmp_prefix.joinpath(
+                Path(pytest.__file__).parent.parent.relative_to(sys.prefix)
+            )
+            self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
+        else:
+            self.run(cmd)
 
 
 @pytest.fixture

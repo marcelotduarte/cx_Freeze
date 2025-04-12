@@ -12,9 +12,9 @@ if sys.platform != "win32":
 
 def test_win32com(tmp_package) -> None:
     """Test that the win32com is working correctly."""
-    pytest.importorskip("win32com", reason="Depends on extra package: pywin32")
-
     tmp_package.create_from_sample("win32com")
+    # pywin32 must be installed on venv
+    tmp_package.install("pywin32", isolated=False)
     output = tmp_package.run("cxfreeze --script test_win32com.py --silent")
     executable = tmp_package.executable("test_win32com")
     assert executable.is_file()
@@ -42,8 +42,9 @@ command
 
 def test_win32com_shell(tmp_package) -> None:
     """Test if zoneinfo hook is working correctly."""
-    pytest.importorskip("win32com", reason="Depends on extra package: pywin32")
     tmp_package.create(SOURCE_WIN32COM_SHELL)
+    # pywin32 must be installed on venv
+    tmp_package.install("pywin32", isolated=False)
     output = tmp_package.run()
     executable = tmp_package.executable("test")
     assert executable.is_file()

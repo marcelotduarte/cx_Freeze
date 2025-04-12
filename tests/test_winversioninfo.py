@@ -165,6 +165,8 @@ class TestVersionInfo:
     def test_main_with_environ(self, tmp_package, tmp_test) -> None:
         """Test argparse error exception."""
         tmp_package.path = tmp_test.parent
+        # pywin32 must be installed on venv
+        tmp_package.install("pywin32", isolated=False)
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
         with pytest.raises(CalledProcessError):
             tmp_package.run("python -m cx_Freeze.winversioninfo")

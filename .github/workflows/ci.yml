@@ -116,80 +116,9 @@ jobs:
           path: .coverage.*
           include-hidden-files: true
 
-  tests_extra:
-    needs: build_wheel
-    runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
-    strategy:
-      matrix:
-        os: [windows]
-        os_version: [latest]
-        python-version: ['3.11']
-        extra-requirement:
-          - lief==0.15.1
-          - lief==0.14.1
-          - lief==0.13.2
-          - lief-disabled
-          - pywin32
-    defaults:
-      run:
-        shell: bash
-    env:
-      UV_SYSTEM_PYTHON: true
-    steps:
-
-      - name: Fetch only the required files for testing
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            pyproject.toml
-            cx_Freeze/icons
-            samples
-            tests
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "pyproject.toml"
-
-      - name: Download the wheel
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          pattern: cx-freeze-whl-${{ matrix.os }}*
-          path: wheelhouse
-
-      - name: Install dependencies to test
-        run: |
-          uv pip install --extra tests --upgrade -r pyproject.toml
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
-
-      - name: Generate coverage report
-        env:
-          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}"
-        run: |
-          if [ "${{ matrix.extra-requirement }}" == "lief-disabled" ]; then
-            export CX_FREEZE_BIND=imagehlp
-          else
-            uv pip install "${{ matrix.extra-requirement }}"
-          fi
-          pytest -nauto --cov="cx_Freeze"
-
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}
-          path: .coverage.*
-          include-hidden-files: true
-
   coverage:
     needs:
       - tests
-      - tests_extra
     permissions:
       pull-requests: write
       contents: write
