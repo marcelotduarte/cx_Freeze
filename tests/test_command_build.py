@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 from setuptools import Distribution
 
@@ -21,9 +23,12 @@ command
 
 
 if IS_MINGW or IS_WINDOWS:
-    lief_versions = pytest.mark.parametrize(
-        "lief_version", ["0.16.4", "0.15.1", "0.14.1", "0.13.2", ""]
-    )
+    if sys.version_info[:2] < (3, 13):
+        lief_versions = pytest.mark.parametrize(
+            "lief_version", ["0.16.4", "0.15.1", "0.14.1", "0.13.2", ""]
+        )
+    else:
+        lief_versions = pytest.mark.parametrize("lief_version", ["0.16.4", ""])
 else:
     lief_versions = pytest.mark.parametrize("lief_version", [""])  # one test
 
