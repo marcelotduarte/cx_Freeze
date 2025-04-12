@@ -1,0 +1,11 @@
+[project]
+name = "test_pytz"
+version = "0.4"
+description = "cx_Freeze script to test pytz"
+
+[tool.cxfreeze]
+executables = ["test_pytz.py"]
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest"]
+silent = true
