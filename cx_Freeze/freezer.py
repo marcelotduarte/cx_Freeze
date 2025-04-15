@@ -720,12 +720,13 @@ class Freezer:
             # write any files to the zip file that were requested specially
             for source_path, target_path in finder.zip_includes:
                 if source_path.is_dir():
-                    pos = len(source_path.as_posix()) + 1
                     for source_filename in source_path.rglob("*"):
                         if source_filename.is_dir():
                             continue
-                        target = target_path / source_filename.as_posix()[pos:]
-                        outfile.write(source_filename, target)
+                        target = target_path.joinpath(
+                            source_filename.relative_to(source_path)
+                        )
+                        outfile.write(source_filename, target.as_posix())
                 else:
                     outfile.write(source_path, target_path.as_posix())
 
