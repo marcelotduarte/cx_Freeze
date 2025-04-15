@@ -43,10 +43,10 @@ class DistributionCache(metadata.PathDistribution):
             distribution = None
         if distribution is None:
             raise ModuleError(name)
+        self.original = distribution
+
         # Cache dist-info files in a temporary directory
-        normalized_name = getattr(distribution, "_normalized_name", None)
-        if normalized_name is None:
-            normalized_name = metadata.Prepared.normalize(name)
+        normalized_name = self.normalized_name
         source_path = getattr(distribution, "_path", None)
         if source_path is None:
             mask = f"{normalized_name}-{distribution.version}.*-info"
@@ -62,13 +62,12 @@ class DistributionCache(metadata.PathDistribution):
         dist_name = f"{normalized_name}-{distribution.version}.dist-info"
         target_path = cache_path / dist_name
         super().__init__(target_path)
-        self.original = distribution
-        self.normalized_name = normalized_name
         self.distinfo_name = dist_name
-        if target_path.exists():  # cached
+        if target_path.exists():  # already cached
             return
-        target_path.mkdir(parents=True)
 
+        # Copy data from dist-info directory or create it.
+        target_path.mkdir(parents=True)
         purelib = None
         if source_path.name.endswith(".dist-info"):
             for source in source_path.rglob("*"):  # type: Path
@@ -100,6 +99,17 @@ class DistributionCache(metadata.PathDistribution):
 
         self._write_wheel_distinfo(purelib)
         self._write_record_distinfo()
+
+    @property
+    def name(self) -> str:
+        return self.original.metadata["Name"]
+
+    @property
+    def normalized_name(self) -> str:
+        normalized_name = getattr(self.original, "_normalized_name", None)
+        if normalized_name is None:
+            normalized_name = metadata.Prepared.normalize(self.name)
+        return normalized_name
 
     def _write_wheel_distinfo(self, purelib: bool) -> None:
         """Create a WHEEL file if it doesn't exist."""
