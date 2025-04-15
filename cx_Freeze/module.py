@@ -235,9 +235,7 @@ class Module:
             del self.__dict__["stub_code"]  # clear the cache
         if not filename:
             return None
-        if isinstance(filename, str):
-            filename = Path(filename)
-        return filename
+        return Path(filename)
 
     @cached_property
     def root_dir(self) -> Path | None:
