@@ -6,6 +6,8 @@ import sys
 
 import pytest
 
+from cx_Freeze._compat import ABI_THREAD
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -55,6 +57,10 @@ pyproject.toml
 """
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD != "",
+    reason="rasterio does not support Python 3.13t",
+)
 @zip_packages
 def test_rasterio(tmp_package, zip_packages: bool) -> None:
     """Test if rasterio hook is working correctly."""
