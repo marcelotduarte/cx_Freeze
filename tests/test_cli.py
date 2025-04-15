@@ -42,6 +42,20 @@ def test_cxfreeze_additional_help(tmp_package) -> None:
     assert "usage: " in output
 
 
+def test_cxfreeze_debug_verbose(tmp_package) -> None:
+    """Test cxfreeze --debug --verbose."""
+    tmp_package.create(SOURCE)
+    output = tmp_package.run(
+        "cxfreeze --script test.py --debug --verbose --excludes=tkinter"
+    )
+
+    file_created = tmp_package.executable("test")
+    assert file_created.is_file(), f"file not found: {file_created}"
+
+    output = tmp_package.run(file_created, timeout=10)
+    assert output.startswith("Hello from cx_Freeze")
+
+
 def test_cxfreeze_target_name_not_isidentifier(tmp_package) -> None:
     """Test cxfreeze --target-name not isidentifier, but valid filename."""
     tmp_package.create(SOURCE)

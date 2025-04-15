@@ -753,9 +753,7 @@ class ModuleFinder:
         """Exclude the dependent files of the named file from the resulting
         frozen executable.
         """
-        if not isinstance(filename, Path):
-            filename = Path(filename)
-        self.excluded_dependent_files.add(filename)
+        self.excluded_dependent_files.add(Path(filename))
 
     def exclude_module(self, name: str) -> None:
         """Exclude the named module and its submodules from the resulting
@@ -786,8 +784,7 @@ class ModuleFinder:
         self, path: Path | str, name: str | None = None
     ) -> Module:
         """Include the named file as a module in the frozen executable."""
-        if isinstance(path, str):
-            path = Path(path)
+        path = Path(path)
         if name is None:
             name = path.stem
         deferred_imports: DeferredList = []

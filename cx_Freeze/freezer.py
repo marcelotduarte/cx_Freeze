@@ -116,9 +116,9 @@ class Freezer:
         self.executables: list[Executable] = self._validate_executables(
             executables
         )
-        if constants_module is None:
-            constants_module = ConstantsModule()
-        self.constants_module: ConstantsModule = constants_module
+        self.constants_module: ConstantsModule = (
+            constants_module or ConstantsModule()
+        )
         self.includes: list[str] = list(includes or [])
         self.excludes: list[str] = list(excludes or [])
         self.packages: set[str] = set(packages or [])
@@ -312,8 +312,7 @@ class Freezer:
         """Post-copy task."""
 
     def _create_directory(self, path: str | Path) -> None:
-        if isinstance(path, str):
-            path = Path(path)
+        path = Path(path)
         if not path.is_dir():
             if self.silent < 1:
                 print(f"creating directory {path}")

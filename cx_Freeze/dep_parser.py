@@ -167,8 +167,7 @@ class PEParser(Parser):
     @staticmethod
     def is_pe(filename: str | Path) -> bool:
         """Determines whether the file is a PE file."""
-        if isinstance(filename, str):
-            filename = Path(filename)
+        filename = Path(filename)
         return filename.suffix.lower().endswith(PE_EXT) and filename.is_file()
 
     _is_binary = is_pe
@@ -271,8 +270,7 @@ class ELFParser(Parser):
     @staticmethod
     def is_elf(filename: str | Path) -> bool:
         """Check if the executable is an ELF."""
-        if isinstance(filename, str):
-            filename = Path(filename)
+        filename = Path(filename)
         if (
             filename.suffix in NON_ELF_EXT
             or filename.is_symlink()
@@ -360,8 +358,7 @@ class ELFParser(Parser):
 
     def get_resolved_rpath(self, filename: str | Path) -> list[Path] | None:
         """Gets the resolved rpath of the executable."""
-        if isinstance(filename, str):
-            filename = Path(filename)
+        filename = Path(filename)
         rpath = self.get_rpath(filename)
         if rpath:
             origin = filename.parent.as_posix()
