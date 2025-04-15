@@ -27,6 +27,7 @@ pyproject.toml
     executables = ["test_ctypes.py"]
 
     [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
     silent = true
 """
 
@@ -122,6 +123,7 @@ pyproject.toml
     executables = ["test_tk.py"]
 
     [tool.cxfreeze.build_exe]
+    excludes = ["unittest"]
     silent = true
 """
 
