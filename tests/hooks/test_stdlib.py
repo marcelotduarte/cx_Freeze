@@ -12,6 +12,41 @@ zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
 
+SOURCE_TEST_CTYPES = """
+test_ctypes.py
+    import ctypes
+
+    print("Hello from cx_Freeze")
+    print("Hello", ctypes.__name__)
+pyproject.toml
+    [project]
+    name = "test_ctypes"
+    version = "0.1.2.3"
+
+    [tool.cxfreeze]
+    executables = ["test_ctypes.py"]
+
+    [tool.cxfreeze.build_exe]
+    silent = true
+"""
+
+
+@zip_packages
+def test_ctypes(tmp_package, zip_packages: bool) -> None:
+    """Test if ctypes hook is working correctly."""
+    tmp_package.create(SOURCE_TEST_CTYPES)
+    if zip_packages:
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
+    executable = tmp_package.executable("test_ctypes")
+    assert executable.is_file()
+    output = tmp_package.run(executable, timeout=10)
+    assert output.splitlines()[0] == "Hello from cx_Freeze"
+    assert output.splitlines()[1].startswith("Hello ctypes")
+
 
 @zip_packages
 def test_sqlite(tmp_package, zip_packages: bool) -> None:
@@ -59,12 +94,11 @@ def test_ssl(tmp_package, zip_packages: bool) -> None:
     """Test that the ssl is working correctly."""
     tmp_package.create(SOURCE_TEST_SSL)
     if zip_packages:
-        output = tmp_package.run(
-            "cxfreeze build_exe"
-            " --zip-include-packages=* --zip-exclude-packages="
-        )
-    else:
-        output = tmp_package.run()
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
     executable = tmp_package.executable("test_ssl")
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=10)
@@ -99,12 +133,11 @@ def test_tkinter(tmp_package, zip_packages: bool) -> None:
 
     tmp_package.create(SOURCE_TEST_TK)
     if zip_packages:
-        output = tmp_package.run(
-            "cxfreeze build_exe"
-            " --zip-include-packages=* --zip-exclude-packages="
-        )
-    else:
-        output = tmp_package.run()
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
     executable = tmp_package.executable("test_tk")
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=10)
