@@ -129,20 +129,6 @@ class TestVersionInfo:
         with pytest.raises(FileNotFoundError):
             version.stamp(f"test{EXE_SUFFIX}")
 
-    @pytest.fixture
-    def tmp_test(self, tmp_package) -> Path:
-        """Generate a executable file test.exe to be used in tests."""
-        tmp_package.create(SOURCE_SIMPLE_TEST)
-        tmp_package.run()
-
-        file_created = tmp_package.executable("test")
-        assert file_created.is_file(), f"file not found: {file_created}"
-
-        output = tmp_package.run(file_created, timeout=10)
-        assert output.startswith("Hello from cx_Freeze")
-
-        return file_created
-
     @pytest.mark.parametrize(
         "option",
         [
@@ -151,9 +137,21 @@ class TestVersionInfo:
             pytest.param("--pywin32", marks=pytest.mark.xfail),
         ],
     )
-    def test_main(self, tmp_test, option, capsys) -> None:
+    def test_main(self, tmp_package, option, capsys) -> None:
         """Test the cx_Freeze.winversioninfo __main_ entry point."""
-        main_test(args=["--version=0.2", option, f"{tmp_test}"])
+        tmp_package.create(SOURCE_SIMPLE_TEST)
+        if option == "--pywin32":
+            tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
+            tmp_package.install("pywin32", isolated=False)
+        tmp_package.run()
+
+        executable = tmp_package.executable("test")
+        assert executable.is_file(), f"file not found: {executable}"
+
+        output = tmp_package.run(executable, timeout=10)
+        assert output.startswith("Hello from cx_Freeze")
+
+        main_test(args=["--version=0.2", option, f"{executable}"])
         captured = capsys.readouterr()
         assert captured.out.splitlines()[-1].startswith("Stamped:")
 
@@ -162,9 +160,8 @@ class TestVersionInfo:
         with pytest.raises(SystemExit):
             main_test(args=[])
 
-    def test_main_with_environ(self, tmp_package, tmp_test) -> None:
+    def test_main_with_environ(self, tmp_package) -> None:
         """Test argparse error exception."""
-        tmp_package.path = tmp_test.parent
         # pywin32 must be installed on venv
         tmp_package.install("pywin32", isolated=False)
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")

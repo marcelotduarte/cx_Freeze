@@ -213,8 +213,7 @@ class VersionInfo:
 
     def stamp(self, path: str | Path) -> None:
         """Stamp a Win32 binary with version information."""
-        if isinstance(path, str):
-            path = Path(path)
+        path = Path(path)
         if not path.is_file():
             raise FileNotFoundError(path)
 
