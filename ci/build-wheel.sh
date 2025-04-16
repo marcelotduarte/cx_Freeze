@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# install/update uv
-if ! [ "$CI" == "true" ]; then
-    if which uv &>/dev/null; then
-        uv self -q update
-    else
-        curl -LsSf https://astral.sh/uv/install.sh | \
-        env UV_INSTALL_DIR="$HOME/bin" INSTALLER_NO_MODIFY_PATH=1 sh
-    fi
-fi
+# Get script directory (without using /usr/bin/realpath)
+CI_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+# Install/update uv
+$CI_DIR/install-uv.sh
 
 # Python information (platform and version)
 if ! [ -z "$UV_PYTHON" ]; then

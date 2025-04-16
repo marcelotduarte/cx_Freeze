@@ -1,10 +1,14 @@
 # Makefile to generate cx_Freeze documentation using Sphinx
 
-SPHINXOPTS    = -d ../build/doc/.doctrees -j auto -T -W --keep-going -n
-SPHINXBUILD   = python -m sphinx
-SOURCEDIR     = src
-BUILDDIR      = ../build/doc
-BUILDDIRHTML  = ../build/doc/html
+ifeq ($(origin READTHEDOCS_OUTPUT), undefined)
+	BUILDDIR = ../build/doc
+else
+	BUILDDIR = $(READTHEDOCS_OUTPUT)
+endif
+BUILDDIRHTML = $(BUILDDIR)/html
+SOURCEDIR    = src
+SPHINXBUILD = uvx -p 3.12 --with-requirements=requirements.txt --from sphinx sphinx-build
+SPHINXOPTS   = -d $(BUILDDIR)/.doctrees -j auto -T -W --keep-going -n
 
 .PHONY: html
 html:

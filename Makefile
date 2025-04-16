@@ -30,11 +30,10 @@ ifeq ($(PY_PLATFORM),win-amd64)
 		python -m pip install --upgrade uv --disable-pip-version-check;\
 	fi
 else
-	curl -LsSf https://astral.sh/uv/install.sh | \
-	env UV_INSTALL_DIR="$(HOME)/bin" INSTALLER_NO_MODIFY_PATH=1 sh
+	ci/install-uv.sh
 endif
 	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
-		uv pip install --extra dev --extra doc --upgrade -r pyproject.toml &&\
+		uv pip install --extra dev --upgrade -r pyproject.toml &&\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
@@ -53,7 +52,6 @@ upgrade: clean install
 
 .PHONY: html
 html:
-	uv pip install --extra doc --upgrade -r pyproject.toml
 	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
