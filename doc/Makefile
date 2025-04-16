@@ -2,35 +2,29 @@
 
 ifeq ($(origin READTHEDOCS_OUTPUT), undefined)
 	BUILDDIR = ../build/doc
-	SPHINXBUILD = uvx -p 3.12 --with-requirements=requirements.txt --from sphinx sphinx-build
 else
 	BUILDDIR = $READTHEDOCS_OUTPUT
-	SPHINXBUILD = uv run -p .venv/bin/python -m sphinx
 endif
 BUILDDIRHTML = $(BUILDDIR)/html
 SOURCEDIR    = src
+SPHINXBUILD = uvx -p 3.12 --with-requirements=requirements.txt --from sphinx sphinx-build
 SPHINXOPTS   = -d $(BUILDDIR)/.doctrees -j auto -T -W --keep-going -n
 
 .PHONY: html
-html: install
+html:
 	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIRHTML) $(SPHINXOPTS) -b html
 
 .PHONY: epub
-epub: install
+epub:
 	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS) -b epub
 
 .PHONY: pdf
-pdf: install
+pdf:
 	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS) -b latexpdf
 
 .PHONY: test
-test: install
+test:
 	(cd $(BUILDDIRHTML) && python -m webbrowser -t index.html)
-
-install:
-ifeq ($(origin READTHEDOCS_OUTPUT), environment)
-	uv sync -p 3.12 --no-install-project --extra doc
-endif
 
 .PHONY: clean
 clean:
