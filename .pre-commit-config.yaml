@@ -47,7 +47,7 @@ repos:
   hooks:
   - id: blacken-docs
     additional_dependencies:
-    - black==24.10.0
+    - black==25.1.0
     args: ["-l", "79"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
@@ -61,7 +61,7 @@ repos:
   - id: build-docs
     name: build sphinx docs
     language: system
-    entry: python -m sphinx doc/src build/doc/html -d build/doc/.doctrees -j auto  -T -W --keep-going -n -b html
+    entry: make -C doc html
     always_run: true
     pass_filenames: false
 

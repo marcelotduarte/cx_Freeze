@@ -10,6 +10,4 @@ build:
     - asdf plugin add uv
     - asdf install uv latest
     - asdf global uv latest
-    - uv sync -p $(which python) --no-install-project --extra doc
-    - uv run -p .venv/bin/python -m sphinx
-      doc/src $READTHEDOCS_OUTPUT/html -j auto -T -W --keep-going -n -b html
+    - make -C doc html

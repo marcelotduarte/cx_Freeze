@@ -1,5 +1,5 @@
-sphinx==7.4.7
-sphinx-new-tab-link==0.8.0
-sphinx-tabs==3.4.7
-furo==2024.8.6
-myst-parser>=3.0.1,<=4.0.1
+sphinx==8.2.3 ;python_version >= '3.11'
+sphinx-new-tab-link==0.8.0 ;python_version >= '3.11'
+sphinx-tabs==3.4.7 ;python_version >= '3.11'
+furo==2024.8.6 ;python_version >= '3.11'
+myst-parser==4.0.1 ;python_version >= '3.11'
