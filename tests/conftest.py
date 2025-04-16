@@ -36,12 +36,20 @@ class TempPackage:
         self.tmp_path_factory = tmp_path_factory
         self.monkeypatch = monkeypatch
 
+        # environment
+        self.system_path: Path = Path(os.getcwd())
+        self.system_prefix: Path = Path(sys.prefix)
+        self.relative_site = Path(pytest.__file__).parent.parent.relative_to(
+            self.system_prefix
+        )
+
         # make a temporary directory and set it as current
         name = request.node.name
         name = re.sub(r"[\W]", "_", name)
         MAXVAL = 30
         name = name[:MAXVAL]
-        self.path = tmp_path_factory.mktemp(name, numbered=True)
+        self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
+        self.prefix: Path | None = None
         monkeypatch.chdir(self.path)
 
     def create(self, source: str) -> None:
@@ -77,7 +85,12 @@ class TempPackage:
     def executable_in_dist(self, base_name: str) -> Path:
         return self.path / "dist" / f"{base_name}{EXE_SUFFIX}"
 
-    def run(self, command: Sequence | Path | None = None, timeout=None) -> str:
+    def run(
+        self,
+        command: Sequence | Path | None = None,
+        cwd: str | Path | None = None,
+        timeout=None,
+    ) -> str:
         """Execute a command, specified in 'command', or read the command
         contained in the file named 'command', or execute the default
         command.
@@ -106,9 +119,8 @@ class TempPackage:
                 command = ["python", "-m", "cx_Freeze"] + command[1:]
         if command[0] == "python":
             command[0] = sys.executable
-        return check_output(
-            command, text=True, timeout=timeout, cwd=os.fspath(self.path)
-        )
+        cwd = os.fspath(self.path if cwd is None else cwd)
+        return check_output(command, text=True, timeout=timeout, cwd=cwd)
 
     def install(self, package, isolated=True) -> None:
         if which("uv") is None:
@@ -116,14 +128,14 @@ class TempPackage:
 
         cmd = f"uv pip install {package}"
         if isolated:
-            tmp_prefix = self.path / ".tmp_prefix"  # type: Path
-            self.run(f"{cmd} --prefix={tmp_prefix} --python={sys.executable}")
-            tmp_site = tmp_prefix.joinpath(
-                Path(pytest.__file__).parent.parent.relative_to(sys.prefix)
+            self.prefix = isolated_prefix = self.path / ".tmp_prefix"
+            self.run(
+                f"{cmd} --prefix={isolated_prefix} --python={sys.executable}"
             )
+            tmp_site = isolated_prefix / self.relative_site
             self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
         else:
-            self.run(cmd)
+            self.run(cmd, cwd=self.system_path)
 
 
 @pytest.fixture

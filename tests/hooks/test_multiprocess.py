@@ -120,6 +120,5 @@ def test_multiprocess(
     assert executable.is_file()
     # use a higher timeout because when using dill it is up to 25x slower
     # sample3 using multiprocessing/pickler runs in 0,543s x 13,591s
-    tmp_package.monkeypatch.chdir(executable.parent)
-    output = tmp_package.run(executable, timeout=30)
+    output = tmp_package.run(executable, cwd=executable.parent, timeout=30)
     assert output.splitlines()[-1] == expected

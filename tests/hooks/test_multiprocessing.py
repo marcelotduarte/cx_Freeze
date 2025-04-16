@@ -115,6 +115,5 @@ def test_multiprocessing(
         output = tmp_package.run()
     executable = tmp_package.executable(sample)
     assert executable.is_file()
-    tmp_package.monkeypatch.chdir(executable.parent)
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, cwd=executable.parent, timeout=10)
     assert output.splitlines()[-1] == expected
