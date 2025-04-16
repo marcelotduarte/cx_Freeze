@@ -3,7 +3,7 @@
 ifeq ($(origin READTHEDOCS_OUTPUT), undefined)
 	BUILDDIR = ../build/doc
 else
-	BUILDDIR = $READTHEDOCS_OUTPUT
+	BUILDDIR = $(READTHEDOCS_OUTPUT)
 endif
 BUILDDIRHTML = $(BUILDDIR)/html
 SOURCEDIR    = src
