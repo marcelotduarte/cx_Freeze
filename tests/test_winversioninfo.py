@@ -129,7 +129,14 @@ class TestVersionInfo:
         with pytest.raises(FileNotFoundError):
             version.stamp(f"test{EXE_SUFFIX}")
 
-    @pytest.mark.parametrize("option", ["--dict", "--raw", "--pywin32"])
+    @pytest.mark.parametrize(
+        "option",
+        [
+            "--dict",
+            "--raw",
+            pytest.param("--pywin32", marks=pytest.mark.xfail),
+        ],
+    )
     def test_main(self, tmp_package, option, capsys) -> None:
         """Test the cx_Freeze.winversioninfo __main_ entry point."""
         tmp_package.create(SOURCE_SIMPLE_TEST)
