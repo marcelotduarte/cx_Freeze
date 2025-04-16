@@ -29,7 +29,7 @@ test: install
 
 install:
 ifeq ($(origin READTHEDOCS_OUTPUT), environment)
-	uv sync -p $(which python) --no-install-project --extra doc
+	uv sync -p 3.12 --no-install-project --extra doc
 endif
 
 .PHONY: clean
