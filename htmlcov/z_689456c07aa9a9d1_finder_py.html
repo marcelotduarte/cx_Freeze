@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/finder.py: 92.63%</title>
+    <title>Coverage for cx_Freeze/finder.py: 92.84%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/finder.py</b>:
-            <span class="pc_cov">92.63%</span>
+            <span class="pc_cov">92.84%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">475 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">440<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">35<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">441<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">34<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">5<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-04-17 07:38 +0000
+            created at 2025-04-17 22:31 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -631,7 +631,7 @@
     <p class="run"><span class="n"><a id="t549" href="#t549">549</a></span><span class="t">            <span class="nam">codes</span> <span class="op">=</span> <span class="op">[</span><span class="nam">LOAD_CONST</span><span class="op">,</span> <span class="nam">pkg_const_index</span><span class="op">,</span> <span class="nam">STORE_NAME</span><span class="op">,</span> <span class="nam">pkg_name_index</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t550" href="#t550">550</a></span><span class="t">            <span class="nam">codestring</span> <span class="op">=</span> <span class="nam">bytes</span><span class="op">(</span><span class="nam">codes</span><span class="op">)</span> <span class="op">+</span> <span class="nam">code</span><span class="op">.</span><span class="nam">co_code</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t551" href="#t551">551</a></span><span class="t">            <span class="key">if</span> <span class="nam">module</span><span class="op">.</span><span class="nam">file</span><span class="op">.</span><span class="nam">stem</span> <span class="op">==</span> <span class="str">"__init__"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t552" href="#t552">552</a></span><span class="t">                <span class="nam">consts</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">module</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t552" href="#t552">552</a></span><span class="t">                <span class="nam">consts</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">module</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t553" href="#t553">553</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t554" href="#t554">554</a></span><span class="t">                <span class="nam">consts</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">module</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t555" href="#t555">555</a></span><span class="t">            <span class="nam">code</span> <span class="op">=</span> <span class="nam">code_object_replace</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -963,7 +963,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.4">coverage.py v7.6.4</a>,
-            created at 2025-04-17 07:38 +0000
+            created at 2025-04-17 22:31 +0000
         </p>
     </div>
 </footer>
