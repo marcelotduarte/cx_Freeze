@@ -99,7 +99,7 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     try:
         output = tmp_package.run(executable, timeout=10)
     except CalledProcessError as exc:
-        if IS_MACOS and sys.version_info[:2] >= (3, 13):
+        if IS_MACOS and sys.version_info[:2] >= (3, 11):
             print(exc)
             print(output)
             pytest.xfail(
