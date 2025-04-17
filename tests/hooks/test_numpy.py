@@ -16,7 +16,7 @@ zip_packages = pytest.mark.parametrize(
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
-    command = "python setup.py build_exe -O2"
+    command = "python setup.py build_exe -O2 --excludes=tkinter,unittest"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
@@ -24,7 +24,7 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
     if sys.platform == "linux" and sys.version_info[:2] == (3, 10):
         tmp_package.install("-i https://pypi.anaconda.org/intel/simple numpy")
     tmp_package.install("pandas")
-    output = tmp_package.run("python setup.py build_exe -O2")
+    output = tmp_package.run(command)
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
@@ -84,13 +84,13 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
 @zip_packages
 def test_scipy(tmp_package, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""
-    command = "python setup.py build_exe -O2"
+    command = "python setup.py build_exe -O2 --excludes=tkinter"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
     tmp_package.create_from_sample("scipy")
     tmp_package.install("scipy")
-    output = tmp_package.run("python setup.py build_exe -O2")
+    output = tmp_package.run(command)
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
 
