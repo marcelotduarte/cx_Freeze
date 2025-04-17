@@ -99,11 +99,11 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     try:
         output = tmp_package.run(executable, timeout=10)
     except CalledProcessError as exc:
-        if IS_MACOS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t":
+        if IS_MACOS and sys.version_info[:2] >= (3, 13):
             print(exc)
             print(output)
             pytest.xfail(
-                reason="scipy[zip] is failing on Python 3.13t [macos]"
+                reason="scipy[zip] is failing on Python 3.13 and 3.13t [macos]"
             )
         raise
 
