@@ -5,6 +5,8 @@ from __future__ import annotations
 from importlib.machinery import EXTENSION_SUFFIXES
 from types import CodeType
 
+import pytest
+
 from cx_Freeze import Module
 
 SOURCE = """
@@ -41,3 +43,24 @@ def test_implicit_namespace_package(tmp_package) -> None:
     )
     assert isinstance(firstchildpack.stub_code, CodeType)
     assert namespacepack.stub_code is None
+
+
+zip_packages = pytest.mark.parametrize(
+    "zip_packages", [False, True], ids=["", "zip_packages"]
+)
+
+
+@zip_packages
+def test_build_constants(tmp_package, zip_packages: bool) -> None:
+    """Test if build_constants is working correctly."""
+    tmp_package.create_from_sample("build_constants")
+    command = "python setup.py build_exe --excludes=tkinter,unittest --silent"
+    if zip_packages:
+        command += " --zip-include-packages=* --zip-exclude-packages="
+    output = tmp_package.run(command)
+    executable = tmp_package.executable("hello")
+    assert executable.is_file()
+    output = tmp_package.run(executable, timeout=10)
+    lines = output.splitlines()
+    assert lines[0].startswith("Hello from cx_Freeze")
+    assert lines[1].startswith("The current date is")
