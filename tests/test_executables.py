@@ -224,9 +224,9 @@ TEST_VALID_PARAMETERS = [
     ("base", "console", f"console-{SOABI}{EXE_SUFFIX}"),
     pytest.param(
         "base",
-        files("cx_Freeze") / f"bases/console-{SOABI}{EXE_SUFFIX}",
-        f"console-{SOABI}{EXE_SUFFIX}",
-        id="base-absolutepath-console-",
+        "absolutepath",
+        f"console_test{EXE_SUFFIX}",
+        id="base-absolutepath-console_test",
     ),
     pytest.param(
         "init_script", None, "console.py", id="init_script-none-console.py"
@@ -234,9 +234,9 @@ TEST_VALID_PARAMETERS = [
     ("init_script", "console", "console.py"),
     pytest.param(
         "init_script",
-        files("cx_Freeze") / "console.py",
-        "console.py",
-        id="init_script-absolutepath-console.py",
+        "absolutepath",
+        "console_test.py",
+        id="init_script-absolutepath-console_test.py",
     ),
     pytest.param(
         "target_name", None, f"test{EXE_SUFFIX}", id="target_name-none-test"
@@ -286,8 +286,19 @@ else:
 
 
 @pytest.mark.parametrize(("option", "value", "result"), TEST_VALID_PARAMETERS)
-def test_valid(option, value, result) -> None:
+def test_valid(tmp_package, option, value, result) -> None:
     """Test valid values to use in Executable class."""
+    if value == "absolutepath":
+        src_dir = files("cx_Freeze").resolve()
+        if option == "base":
+            value = tmp_package.path / f"console_test{EXE_SUFFIX}"
+            shutil.copyfile(
+                src_dir / f"bases/console-{SOABI}{EXE_SUFFIX}", value
+            )
+        elif option == "init_script":
+            value = tmp_package.path / "console_test.py"
+            shutil.copyfile(src_dir / "initscripts/console.py", value)
+
     executable = Executable("test.py", **{option: value})
     returned = getattr(executable, option)
     if isinstance(value, Path) and value.is_absolute():
@@ -365,8 +376,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
-command
-    cxfreeze build
+    silent = false
 """
 
 
@@ -411,8 +421,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
-command
-    cxfreeze build
+    silent = false
 """
 
 
@@ -443,8 +452,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
-command
-    cxfreeze build
+    silent = true
 """
 
 

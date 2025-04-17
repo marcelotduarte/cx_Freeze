@@ -15,6 +15,6 @@ setup(
     description="cx_Freeze script to test pyzmq server and client",
     executables=["pyzmq_server.py", "pyzmq_client.py"],
     options={
-        "build_exe": {"excludes": ["tkinter"]},
+        "build_exe": {"excludes": ["tkinter", "unittest"], "silent": True},
     },
 )

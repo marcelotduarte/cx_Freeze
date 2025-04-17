@@ -12,12 +12,16 @@ subdirectory that contains the files needed to run the script without Python
 
 from cx_Freeze import setup
 
-options = {"build_exe": {"constants": ["A=7", 'B="hello=7"']}}
-
 setup(
     name="hello",
     version="0.1",
     description="Sample cx_Freeze script",
     executables=["hello.py"],
-    options=options,
+    options={
+        "build_exe": {
+            "constants": ["A=7", 'B="hello=7"'],
+            "excludes": ["tkinter", "unittest"],
+            "silent": True,
+        },
+    },
 )
