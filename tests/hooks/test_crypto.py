@@ -1,4 +1,4 @@
-"""Tests for some cx_Freeze.hooks."""
+"""Tests for cx_Freeze.hooks of crypto packages."""
 
 from __future__ import annotations
 
@@ -165,6 +165,10 @@ pyproject.toml
 """
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD != "",
+    reason="cryptography does not support Python 3.13t",
+)
 @zip_packages
 def test_cryptography(tmp_package, zip_packages) -> None:
     """Test if cryptography is working correctly."""
