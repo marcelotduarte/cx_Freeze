@@ -122,20 +122,21 @@ class TempPackage:
         cwd = os.fspath(self.path if cwd is None else cwd)
         return check_output(command, text=True, timeout=timeout, cwd=cwd)
 
-    def install(self, package, isolated=True) -> None:
+    def install(self, package, isolated=True) -> str:
         if which("uv") is None:
             pytest.skip(reason=f"{package} must be installed")
 
         cmd = f"uv pip install {package}"
         if isolated:
             self.prefix = isolated_prefix = self.path / ".tmp_prefix"
-            self.run(
+            output = self.run(
                 f"{cmd} --prefix={isolated_prefix} --python={sys.executable}"
             )
             tmp_site = isolated_prefix / self.relative_site
             self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
         else:
-            self.run(cmd, cwd=self.system_path)
+            output = self.run(cmd, cwd=self.system_path)
+        return output
 
 
 @pytest.fixture

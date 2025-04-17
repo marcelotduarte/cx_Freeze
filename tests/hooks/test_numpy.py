@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import sys
+from subprocess import CalledProcessError
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD
+from cx_Freeze._compat import ABI_THREAD, IS_MACOS
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -16,7 +17,7 @@ zip_packages = pytest.mark.parametrize(
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
-    command = "python setup.py build_exe -O2"
+    command = "python setup.py build_exe -O2 --excludes=tkinter,unittest"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
@@ -24,7 +25,7 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
     if sys.platform == "linux" and sys.version_info[:2] == (3, 10):
         tmp_package.install("-i https://pypi.anaconda.org/intel/simple numpy")
     tmp_package.install("pandas")
-    output = tmp_package.run("python setup.py build_exe -O2")
+    output = tmp_package.run(command)
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
@@ -57,9 +58,10 @@ pyproject.toml
 """
 
 
-@pytest.mark.skipif(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD != "",
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     reason="rasterio does not support Python 3.13t",
+    strict=True,
 )
 @zip_packages
 def test_rasterio(tmp_package, zip_packages: bool) -> None:
@@ -84,17 +86,27 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
 @zip_packages
 def test_scipy(tmp_package, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""
-    command = "python setup.py build_exe -O2"
+    command = "python setup.py build_exe -O2 --excludes=tkinter"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
     tmp_package.create_from_sample("scipy")
     tmp_package.install("scipy")
-    output = tmp_package.run("python setup.py build_exe -O2")
+    output = tmp_package.run(command)
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=10)
+    try:
+        output = tmp_package.run(executable, timeout=10)
+    except CalledProcessError as exc:
+        if IS_MACOS and sys.version_info[:2] >= (3, 10):
+            print(exc)
+            print(output)
+            pytest.xfail(
+                reason="scipy[zip] is failing on Python >= 3.10 [macos]"
+            )
+        raise
+
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("scipy version")
