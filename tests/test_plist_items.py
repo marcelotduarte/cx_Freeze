@@ -9,6 +9,8 @@ from importlib import import_module
 
 import pytest
 
+from cx_Freeze._compat import IS_MACOS
+
 PLIST_TEST = """\
 plist_data.py
     TEST_KEY = "TestKey"
@@ -52,7 +54,7 @@ command
 """
 
 
-@pytest.mark.skipif(sys.platform != "darwin", reason="macOS tests")
+@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
 def test_plist_items(tmp_package) -> None:
     """Test that the plist_items option is working correctly."""
     tmp_package.create(PLIST_TEST)
