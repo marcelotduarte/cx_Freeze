@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import shutil
 import sys
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
 from setuptools import Distribution
 
 from cx_Freeze import Executable
-from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS, SOABI
 from cx_Freeze.exception import OptionError, SetupError
 
 TOP_DIR = Path(__file__).resolve().parent.parent
@@ -220,40 +221,67 @@ def test_executables(
 
 
 TEST_VALID_PARAMETERS = [
-    ("base", "console", "console-"),
-    ("init_script", None, "console.py"),
+    ("base", "console", f"console-{SOABI}{EXE_SUFFIX}"),
+    pytest.param(
+        "base",
+        files("cx_Freeze") / f"bases/console-{SOABI}{EXE_SUFFIX}",
+        f"console-{SOABI}{EXE_SUFFIX}",
+        id="base-absolutepath-console-",
+    ),
+    pytest.param(
+        "init_script", None, "console.py", id="init_script-none-console.py"
+    ),
     ("init_script", "console", "console.py"),
-    ("target_name", None, f"test{EXE_SUFFIX}"),
+    pytest.param(
+        "init_script",
+        files("cx_Freeze") / "console.py",
+        "console.py",
+        id="init_script-absolutepath-console.py",
+    ),
+    pytest.param(
+        "target_name", None, f"test{EXE_SUFFIX}", id="target_name-none-test"
+    ),
     ("target_name", "test1", f"test1{EXE_SUFFIX}"),
     ("target_name", "12345", f"12345{EXE_SUFFIX}"),
     ("target_name", "test-0.1", f"test-0.1{EXE_SUFFIX}"),
     ("target_name", "test.exe", "test.exe"),
-    (
+    pytest.param(
         "icon",
         "icon",
         ("icon.ico", "icon.icns", "icon.png", "icon.svg"),
+        id="icon-icon-multiple",
     ),
 ]
 if sys.version_info[:2] < (3, 13):
     TEST_VALID_PARAMETERS += [
-        ("base", None, "console_legacy-"),
-        ("base", "console_legacy", "console_legacy-"),
+        pytest.param(
+            "base",
+            None,
+            f"console_legacy-{SOABI}{EXE_SUFFIX}",
+            id="base-none-console_legacy-",
+        ),
+        ("base", "console_legacy", f"console_legacy-{SOABI}{EXE_SUFFIX}"),
     ]
 else:
     TEST_VALID_PARAMETERS += [
-        ("base", None, "console-"),
+        pytest.param(
+            "base",
+            None,
+            f"console-{SOABI}{EXE_SUFFIX}",
+            id="base-none-console-",
+        ),
     ]
 if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
-        ("base", "gui", "gui-"),
-        ("base", "service", "service-"),
-        ("base", "Win32GUI", "Win32GUI-"),
-        ("base", "Win32Service", "Win32Service-"),
+        ("base", "gui", f"gui-{SOABI}{EXE_SUFFIX}"),
+        ("base", "service", f"service-{SOABI}{EXE_SUFFIX}"),
+        ("base", "Win32GUI", f"Win32GUI-{SOABI}{EXE_SUFFIX}"),
+        ("base", "Win32Service", f"Win32Service-{SOABI}{EXE_SUFFIX}"),
     ]
 else:
     TEST_VALID_PARAMETERS += [
-        ("base", "gui", "console-"),
-        ("base", "service", "console-"),
+        ("base", "gui", f"console-{SOABI}{EXE_SUFFIX}"),
+        ("base", "service", f"console-{SOABI}{EXE_SUFFIX}"),
     ]
 
 
@@ -262,9 +290,14 @@ def test_valid(option, value, result) -> None:
     """Test valid values to use in Executable class."""
     executable = Executable("test.py", **{option: value})
     returned = getattr(executable, option)
+    if isinstance(value, Path) and value.is_absolute():
+        assert returned == value
     if isinstance(returned, Path):
         returned = returned.name
-    assert returned.startswith(result), returned
+    if isinstance(result, tuple):  # valid icon names
+        assert returned.startswith(result), returned
+        return
+    assert returned == result, returned
 
 
 @pytest.mark.parametrize(
@@ -306,7 +339,7 @@ def test_valid(option, value, result) -> None:
         "executables-invalid-string",
         "executable-invalid-base",
         "executable-invalid-init_script",
-        "executable-invalid-target_name",
+        "executable-invalid-target_name-with-path",
     ],
 )
 def test_invalid(

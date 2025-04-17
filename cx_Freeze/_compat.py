@@ -18,6 +18,7 @@ __all__ = [
     "IS_WINDOWS",
     "PLATFORM",
     "PYTHON_VERSION",
+    "SOABI",
 ]
 
 PLATFORM = sysconfig.get_platform()
@@ -35,3 +36,8 @@ IS_MACOS = PLATFORM.startswith("macos")
 IS_MINGW = PLATFORM.startswith("mingw")
 IS_MINGW64 = PLATFORM.startswith("mingw_x86_64")
 IS_WINDOWS = PLATFORM.startswith("win")
+
+SOABI = sysconfig.get_config_var("SOABI")
+if SOABI is None:  # Python <= 3.12 on Windows
+    platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
+    SOABI = f"{sys.implementation.cache_tag}-{platform_nodot}"

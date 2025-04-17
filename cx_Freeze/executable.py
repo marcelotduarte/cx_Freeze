@@ -7,7 +7,6 @@ import string
 import sys
 from collections.abc import Mapping
 from pathlib import Path
-from sysconfig import get_config_var
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import (
@@ -15,7 +14,7 @@ from cx_Freeze._compat import (
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
-    PLATFORM,
+    SOABI,
 )
 from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, SetupError
@@ -90,11 +89,7 @@ class Executable:
         # silently ignore gui and service on non-windows systems
         if not (IS_WINDOWS or IS_MINGW) and name in ("gui", "service"):
             name = "console"
-        soabi = get_config_var("SOABI")
-        if soabi is None:  # Python <= 3.12 on Windows
-            platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
-            soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-        filename = f"{name}-{soabi}{EXE_SUFFIX}"
+        filename = f"{name}-{SOABI}{EXE_SUFFIX}"
         self._base: Path = resource_path(f"bases/{filename}")
         if self._base is None:
             msg = f"no base named {name!r} ({filename!r})"
@@ -250,9 +245,6 @@ class Executable:
                 name = name.replace(invalid, "_")
         name = os.path.normcase(name)
         self._internal_name: str = name
-        if not self.init_module_name.isidentifier():
-            msg = f"target_name is invalid: {self._name!r}"
-            raise OptionError(msg)
 
 
 def validate_executables(dist: Distribution, attr: str, value) -> None:
