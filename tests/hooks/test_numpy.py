@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import sys
-from subprocess import CalledProcessError
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_MACOS
+from cx_Freeze._compat import ABI_THREAD
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -96,17 +95,7 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
 
-    try:
-        output = tmp_package.run(executable, timeout=10)
-    except CalledProcessError as exc:
-        if IS_MACOS and sys.version_info[:2] >= (3, 10):
-            print(exc)
-            print(output)
-            pytest.xfail(
-                reason="scipy[zip] is failing on Python >= 3.10 [macos]"
-            )
-        raise
-
+    output = tmp_package.run(executable, timeout=10)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("scipy version")

@@ -93,12 +93,10 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("numpy.polynomial")
     finder.include_module("secrets")
 
-    code_string = module.file.read_text(encoding="utf_8")
-    code_string = code_string.replace(
-        "__file__", "__file__.replace('library.zip', '.')"
-    )
     module.code = compile(
-        code_string.replace("import numpy.f2py as f2py", "f2py = None"),
+        module.file.read_bytes()
+        .replace(b"__file__", b"__file__.replace('library.zip', '.')")
+        .replace(b"import numpy.f2py as f2py", b"f2py = None"),
         module.file.as_posix(),
         "exec",
         dont_inherit=True,
@@ -211,7 +209,7 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         return
 
     # patch the code when necessary
-    code_string = module.file.read_text(encoding="utf_8")
+    code_bytes = module.file.read_bytes()
 
     module_dir = module.file.parent
     exclude_dependent_files = False
@@ -236,9 +234,9 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             exclude_dependent_files = True
 
         # cgohlke/numpy-mkl-wheels, numpy 1.26.3 and mkl
-        if "def init_numpy_mkl():" in code_string:
-            code_string = code_string.replace(
-                "path = ", "path = f'{sys.prefix}\\lib\\mkl'  # "
+        if b"def init_numpy_mkl():" in code_bytes:
+            code_bytes = code_bytes.replace(
+                b"path = ", b"path = f'{sys.prefix}\\lib\\mkl'  # "
             )
             # create a fake module to activate mkl hook
             mkl_path = finder.cache_path.joinpath("mkl")
@@ -293,11 +291,11 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
             finder.exclude_dependent_files(file)
 
     if module.in_file_system == 0:
-        code_string = code_string.replace(
-            "__file__", "__file__.replace('library.zip', '.')"
+        code_bytes = code_bytes.replace(
+            b"__file__", b"__file__.replace('library.zip', '.')"
         )
     module.code = compile(
-        code_string,
+        code_bytes,
         module.file.as_posix(),
         "exec",
         dont_inherit=True,

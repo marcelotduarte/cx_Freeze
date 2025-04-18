@@ -4,7 +4,6 @@ scipy package is included.
 
 from __future__ import annotations
 
-from importlib.machinery import EXTENSION_SUFFIXES
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
@@ -20,9 +19,15 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
 
     Supported pypi and conda-forge versions (lasted tested version is 1.15.2).
     """
-    source_dir = module.file.parent.parent / f"{module.name}.libs"
-    if source_dir.exists():  # scipy >= 1.9.2 (windows)
-        target_dir = f"lib/{source_dir.name}"
+    module_dir = module.file.parent
+    # scipy >= 1.9.2 windows and linux
+    source_dir = module_dir.parent / f"{module.name}.libs"
+    target_dir = f"lib/{source_dir.name}"
+    if not source_dir.exists():
+        # scipy < 1.9.2 or macos
+        source_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
+        target_dir = f"lib/{module.name}/{source_dir.name}"
+    if source_dir.exists():
         for source in source_dir.iterdir():
             target = f"{target_dir}/{source.name}"
             finder.lib_files[source] = target
@@ -52,32 +57,16 @@ def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
         return  # it is detected correctly.
 
     # patch the code when necessary
-    code_string = module.file.read_text(encoding="utf_8")
-
-    # installed from pypi, scipy < 1.9.2 (windows) or all versions (macOS)
-    module_dir = module.file.parent
-    libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
-    if libs_dir.is_dir():
-        # copy any file at site-packages/scipy/.libs
-        finder.include_files(
-            libs_dir, f"lib/scipy/{libs_dir.name}", copy_dependent_files=False
-        )
-        # do not check dependencies already handled
-        extension = EXTENSION_SUFFIXES[0]
-        for file in module_dir.rglob(f"*{extension}"):
-            finder.exclude_dependent_files(file)
-
     if module.in_file_system == 0:
-        code_string = code_string.replace(
-            "__file__", "__file__.replace('library.zip', '.')"
+        module.code = compile(
+            module.file.read_bytes().replace(
+                b"__file__", b"__file__.replace('library.zip', '.')"
+            ),
+            module.file.as_posix(),
+            "exec",
+            dont_inherit=True,
+            optimize=finder.optimize,
         )
-    module.code = compile(
-        code_string,
-        module.file.as_posix(),
-        "exec",
-        dont_inherit=True,
-        optimize=finder.optimize,
-    )
 
 
 def load_scipy_interpolate(
