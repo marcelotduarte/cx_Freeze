@@ -12,6 +12,25 @@ print(f"Prefix: {sys.prefix}")
 print(f"Default encoding: {sys.getdefaultencoding()}")
 print(f"File system encoding: {sys.getfilesystemencoding()}\n")
 
+excluded_vars = [
+    "__builtins__",
+    "__cached__",
+    "__doc__",
+    "__file__",
+    "__loader__",
+    "__name__",
+    "__package__",
+    "__spec__",
+]
+
+print("BUILD_CONSTANTS variables:")
+for var in dir(BUILD_CONSTANTS):
+    if var in excluded_vars:
+        continue
+    attr = getattr(BUILD_CONSTANTS, var)
+    print(f"{var} = {attr!r}")
+print()
+
 print("ARGUMENTS:")
 for arg in sys.argv:
     print(f"{arg}")
@@ -21,22 +40,3 @@ print("PATH:")
 for path in sys.path:
     print(f"{path}")
 print()
-
-print(f"Executable: {sys.executable!r}\n")
-
-
-excluded_vars = [
-    "__builtins__",
-    "__cached__",
-    "__doc__",
-    "__loader__",
-    "__package__",
-    "__spec__",
-]
-
-print("== variables in BUILD_CONSTANTS ==\n")
-for var in dir(BUILD_CONSTANTS):
-    if var in excluded_vars:
-        continue
-    attr = BUILD_CONSTANTS.__getattribute__(var)
-    print(f"{var} = {attr!r}")

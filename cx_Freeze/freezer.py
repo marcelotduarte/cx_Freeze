@@ -113,12 +113,14 @@ class Freezer:
         zip_exclude_packages: Sequence[str] | None = None,
         zip_filename: Path | str | None = None,
     ) -> None:
-        self.executables: list[Executable] = self._validate_executables(
-            executables
-        )
-        self.constants_module: ConstantsModule = (
-            constants_module or ConstantsModule()
-        )
+        executables = self._validate_executables(executables)
+        self.executables: list[Executable] = executables
+        if constants_module is None:
+            constants_module = ConstantsModule(
+                metadata.version if metadata else None,
+                executables[0].copyright,
+            )
+        self.constants_module: ConstantsModule = constants_module
         self.includes: list[str] = list(includes or [])
         self.excludes: list[str] = list(excludes or [])
         self.packages: set[str] = set(packages or [])

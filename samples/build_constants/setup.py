@@ -16,10 +16,17 @@ setup(
     name="hello",
     version="0.1",
     description="Sample cx_Freeze script",
-    executables=["hello.py"],
+    executables=[
+        {"script": "hello.py", "copyright": "Copyright (C) 2025 cx_Freeze"}
+    ],
     options={
         "build_exe": {
-            "constants": ["A=7", 'B="hello=7"'],
+            "constants": [
+                "USER_UNDEFINED",
+                "USERDEFINED_A=7",
+                'USERDEFINED_B="hello=7"',
+                "USERDEFINED_C=",
+            ],
             "excludes": ["tkinter", "unittest"],
             "silent": True,
         },

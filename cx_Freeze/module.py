@@ -446,7 +446,7 @@ class ConstantsModule:
     ) -> None:
         self.module_name: str = module_name
         self.time_format: str = time_format
-        self.values: dict[str, str] = {}
+        self.values: dict[str, str | int | float] = {}
         self.values["BUILD_RELEASE_STRING"] = release_string
         self.values["BUILD_COPYRIGHT"] = copyright_string
         if constants:
@@ -457,11 +457,12 @@ class ConstantsModule:
                     value = None
                 else:
                     name, string_value = parts
-                    value = ast.literal_eval(string_value)
-                if (not name.isidentifier()) or iskeyword(name):
-                    msg = (
-                        f"Invalid constant name in ConstantsModule ({name!r})"
-                    )
+                    if string_value:
+                        value = ast.literal_eval(string_value)
+                    else:
+                        value = string_value
+                if not name.isidentifier() or iskeyword(name):
+                    msg = f"Invalid constant name ({name!r})"
                     raise OptionError(msg)
                 self.values[name] = value
 
@@ -472,15 +473,12 @@ class ConstantsModule:
         today = datetime.now(tz=timezone.utc)
         source_timestamp = 0
         for module in modules:
-            if module.file is None:
+            if (
+                module.file is None
+                or not module.file.exists()
+                or module.source_is_zip_file
+            ):
                 continue
-            if module.source_is_zip_file:
-                continue
-            if not module.file.exists():
-                msg = (
-                    f"No file named {module.file!s} (for module {module.name})"
-                )
-                raise OptionError(msg)
             timestamp = module.file.stat().st_mtime
             source_timestamp = max(source_timestamp, timestamp)
         stamp = datetime.fromtimestamp(source_timestamp, tz=timezone.utc)
