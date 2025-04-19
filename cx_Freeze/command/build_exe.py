@@ -287,13 +287,16 @@ class build_exe(Command):
         self.optimize = int(self.optimize or 0)
 
     def run(self) -> None:
+        executables = self.distribution.executables
         metadata = self.distribution.metadata
         constants_module = ConstantsModule(
-            metadata.version, constants=self.constants
+            metadata.version,
+            executables[0].copyright,
+            constants=self.constants,
         )
 
         freezer: Freezer = Freezer(
-            self.distribution.executables,
+            executables,
             constants_module,
             self.includes,
             self.excludes,

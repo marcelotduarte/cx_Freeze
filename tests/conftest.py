@@ -134,6 +134,7 @@ class TempPackage:
             )
             tmp_site = isolated_prefix / self.relative_site
             self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
+            self.monkeypatch.syspath_prepend(tmp_site)
         else:
             output = self.run(cmd, cwd=self.system_path)
         return output
