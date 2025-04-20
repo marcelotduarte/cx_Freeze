@@ -19,6 +19,7 @@ options = {
     "build_exe": {
         # exclude packages that are not really needed
         "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
+        "silent": True,
     },
 }
 
