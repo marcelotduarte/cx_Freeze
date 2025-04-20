@@ -87,7 +87,11 @@ def test_bcrypt(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("bcrypt")
+    if sys.version_info[:2] <= (3, 10):
+        # bcrypt < 4 supports Python <= 3.10
+        tmp_package.install("bcrypt<4")
+    else:
+        tmp_package.install("bcrypt")
     output = tmp_package.run()
     executable = tmp_package.executable("test_bcrypt")
     assert executable.is_file()

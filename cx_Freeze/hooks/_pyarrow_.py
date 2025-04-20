@@ -16,3 +16,4 @@ def load_pyarrow(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     finder.exclude_module("pyarrow.tests")
     finder.include_module("pyarrow.vendored.docscrape")
     finder.include_module("pyarrow.vendored.version")
+    finder.include_module("queue")

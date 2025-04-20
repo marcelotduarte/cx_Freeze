@@ -53,6 +53,7 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     """The bcrypt < 4.0 package requires the _cffi_backend module
     (loaded implicitly).
     """
+    # bcrypt < 4 supports Python <= 3.10
     if module.distribution is None or module.distribution.version[0] < 4:
         finder.include_module("_cffi_backend")
 
@@ -124,14 +125,13 @@ def load_crc32c(finder: ModuleFinder, module: Module) -> None:
 
 def load_cryptography(finder: ModuleFinder, module: Module) -> None:
     """The cryptography module requires the _cffi_backend module."""
+    include_cffi = True
     if module.distribution and module.distribution.requires:
         include_cffi = False
         for req in module.distribution.requires:
             if req.startswith("cffi"):
                 include_cffi = True
                 break
-    else:
-        include_cffi = True
     if include_cffi:
         finder.include_module("_cffi_backend")
 
