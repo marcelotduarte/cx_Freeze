@@ -23,14 +23,11 @@ PACKAGE_VERSION = []
 if IS_WINDOWS:
     PACKAGE_VERSION = [("", "")]
     if sys.version_info[:2] < (3, 12):
-        PACKAGE_VERSION = [
-            ("lief", "0.13.2"),
-        ]
+        PACKAGE_VERSION = [("lief", "0.13.2")]
     PACKAGE_VERSION = [
         ("lief", "0.14.1"),
         ("lief", "0.15.1"),
-        ("lief", "0.13.2"),
-        ("lief", "0.13.2"),
+        ("lief", "0.16.5"),
     ]
 elif IS_MINGW:
     PACKAGE_VERSION = [("", "")]
