@@ -46,11 +46,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
-    reason="argon2-cffi does not support Python 3.13t",
-    strict=True,
-)
 @zip_packages
 def test_anyio(tmp_package, zip_packages) -> None:
     """Test if anyio is working correctly."""
