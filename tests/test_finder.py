@@ -5,14 +5,15 @@ from __future__ import annotations
 import os
 
 import pytest
-from datatest import (
+
+from cx_Freeze import ConstantsModule, ModuleFinder
+
+from .datatest import (
     FIND_SPEC_TEST,
     INVALID_MODULE_NAME_TEST,
     SCAN_CODE_TEST,
     SYNTAX_ERROR_TEST,
 )
-
-from cx_Freeze import ConstantsModule, ModuleFinder
 
 
 class TestModuleFinder:

@@ -8,7 +8,10 @@ import sys
 from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 
 import pytest
-from datatest import (
+
+from cx_Freeze import ConstantsModule, ModuleFinder
+
+from .datatest import (
     ABSOLUTE_IMPORT_TEST,
     BYTECODE_TEST,
     CODING_DEFAULT_UTF8_TEST,
@@ -28,8 +31,6 @@ from datatest import (
     SAME_NAME_AS_BAD_TEST,
     SUB_PACKAGE_TEST,
 )
-
-from cx_Freeze import ConstantsModule, ModuleFinder
 
 # Each test description is a list of 5 items:
 #
