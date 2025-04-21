@@ -7,6 +7,7 @@ import sys
 
 import pytest
 
+from cx_Freeze._compat import IS_CONDA, IS_MINGW, IS_WINDOWS
 from cx_Freeze.dep_parser import PEParser
 
 if sys.platform != "win32":
@@ -72,14 +73,14 @@ def test_manifest(tmp_package) -> None:
     assert output.splitlines()[0].strip() == expected
 
 
-if sys.version_info[:2] < (3, 12):
-    lief_versions = pytest.mark.parametrize(
-        "lief_version", ["0.16.4", "0.15.1", "0.14.1", "0.13.2"]
-    )
-else:
-    lief_versions = pytest.mark.parametrize(
-        "lief_version", ["0.16.4", "0.15.1", "0.14.1"]
-    )
+LIEF_VERSIONS = ["disabled"]
+if IS_WINDOWS:
+    if sys.version_info[:2] < (3, 12) and not IS_CONDA:
+        LIEF_VERSIONS += ["0.13.2"]
+    LIEF_VERSIONS += ["0.14.1", "0.15.1", "0.16.4"]
+elif IS_MINGW:
+    LIEF_VERSIONS += ["installed"]
+lief_versions = pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
 
 
 @lief_versions
@@ -88,7 +89,10 @@ def test_simple_manifest(tmp_package, lief_version) -> None:
     is the compatible version for Windows 8.1, ie, 6.2.
     """
     tmp_package.create(SOURCE)
-    tmp_package.install(f"lief=={lief_version}")
+    if lief_version == "disabled":
+        tmp_package.monkeypatch.setenv("CX_FREEZE_BIND", "imagehlp")
+    elif lief_version != "installed":
+        tmp_package.install(f"lief=={lief_version}")
     tmp_package.run()
     executable = tmp_package.executable("test_simple_manifest")
     assert executable.is_file()
@@ -109,7 +113,10 @@ def test_uac_admin(tmp_package, lief_version) -> None:
         pytest.xfail(reason="User is admin")
 
     tmp_package.create(SOURCE)
-    tmp_package.install(f"lief=={lief_version}")
+    if lief_version == "disabled":
+        tmp_package.monkeypatch.setenv("CX_FREEZE_BIND", "imagehlp")
+    elif lief_version != "installed":
+        tmp_package.install(f"lief=={lief_version}")
     tmp_package.run()
     executable = tmp_package.executable("test_uac_admin")
     assert executable.is_file()
@@ -124,7 +131,10 @@ def test_uac_uiaccess(tmp_package, lief_version) -> None:
         pytest.xfail(reason="User is admin")
 
     tmp_package.create(SOURCE)
-    tmp_package.install(f"lief=={lief_version}")
+    if lief_version == "disabled":
+        tmp_package.monkeypatch.setenv("CX_FREEZE_BIND", "imagehlp")
+    elif lief_version != "installed":
+        tmp_package.install(f"lief=={lief_version}")
     tmp_package.run()
     executable = tmp_package.executable("test_uac_uiaccess")
     assert executable.is_file()

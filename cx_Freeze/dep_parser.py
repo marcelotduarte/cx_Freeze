@@ -11,6 +11,7 @@ import stat
 import subprocess
 from abc import ABC, abstractmethod
 from contextlib import suppress
+from ctypes.util import find_library
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -30,20 +31,9 @@ LDD_DISABLED = (
 )
 PE_EXT = (".exe", ".dll", ".pyd")
 MAGIC_ELF = b"\x7fELF"
-NON_ELF_EXT = [
-    ".a",
-    ".c",
-    ".h",
-    ".py",
-    ".pyc",
-    ".pyi",
-    ".pyx",
-    ".pxd",
-    ".txt",
-    ".html",
-    ".xml",
-]
-NON_ELF_EXT += [".png", ".jpg", ".gif", ".jar", ".json"]
+NON_ELF_EXT = [".a", ".c", ".gif", ".h", ".html", ".jar", ".jpeg", ".jpg"]
+NON_ELF_EXT += [".json", ".png", ".pxd", ".py", ".pyc", ".pyi", ".pyx"]
+NON_ELF_EXT += [".txt", ".xml"]
 
 
 class Parser(ABC):
@@ -75,11 +65,12 @@ class Parser(ABC):
     def find_library(
         self, name: str, search_path: list[str | Path] | None = None
     ) -> Path | None:
+        """Returns the pathname of a library, or None."""
         if search_path is None:
             search_path = self.search_path
         for directory in map(Path, search_path):
             library = directory / name
-            if library.is_file():
+            if self._is_binary(library):
                 return library.resolve()
         return None
 
@@ -220,7 +211,7 @@ class PEParser(Parser):
         """
         if self._pe is None:
             if self._silent < 3:
-                print("WARNING: ignoring read manifest for {filename}")
+                print(f"WARNING: ignoring read manifest for {filename}")
             return ""
         filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
@@ -239,7 +230,7 @@ class PEParser(Parser):
         """
         if self._pe is None:
             if self._silent < 3:
-                print("WARNING: ignoring write manifest for {filename}")
+                print(f"WARNING: ignoring write manifest for {filename}")
             return
         filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
@@ -267,15 +258,21 @@ class ELFParser(Parser):
         self._patchelf = shutil.which("patchelf")
         self._verify_patchelf()
 
+    def find_library(
+        self, name: str, search_path: list[str | Path] | None = None
+    ) -> Path | None:
+        library = super().find_library(name, search_path)
+        if library is None:
+            name = find_library(name)
+            if name:
+                library = super().find_library(name, search_path)
+        return library
+
     @staticmethod
     def is_elf(filename: str | Path) -> bool:
         """Check if the executable is an ELF."""
         filename = Path(filename)
-        if (
-            filename.suffix in NON_ELF_EXT
-            or filename.is_symlink()
-            or not filename.is_file()
-        ):
+        if filename.suffix in NON_ELF_EXT or not filename.is_file():
             return False
         with open(filename, "rb") as binary:
             four_bytes = binary.read(4)

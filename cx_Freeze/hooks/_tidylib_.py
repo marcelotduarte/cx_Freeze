@@ -5,7 +5,6 @@ tidylib package is included.
 from __future__ import annotations
 
 import sysconfig
-from ctypes.util import find_library
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX
@@ -21,9 +20,7 @@ def load_tidylib(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
     if not IS_LINUX:
         return
 
-    name = find_library("tidy")
-    if name:
-        parser = ELFParser(finder.path, [sysconfig.get_config_var("LIBDIR")])
-        library_path = parser.find_library(name)
-        if library_path:
-            finder.include_files(library_path, f"lib/{name}")
+    parser = ELFParser(finder.path, [sysconfig.get_config_var("LIBDIR")])
+    library_path = parser.find_library("tidy")
+    if library_path:
+        finder.include_files(library_path, f"lib/{library_path.name}")
