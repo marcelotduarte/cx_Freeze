@@ -21,11 +21,10 @@ DIST_ATTRS = {
 
 
 @pytest.mark.parametrize(
-    ("kwargs", "option", "result"),
+    ("install_dir", "expected"),
     [
         pytest.param(
-            {"install_dir": None},
-            "install_dir",
+            None,
             os.path.normpath(
                 Path(os.getenv("PROGRAMFILES"), "foo")
                 if sys.platform == "win32"
@@ -33,22 +32,18 @@ DIST_ATTRS = {
             ),
             id="install-dir=none",
         ),
-        pytest.param(
-            {"install_dir": "dist"},
-            "install_dir",
-            "dist",
-            id="install-dir=dist",
-        ),
+        pytest.param("dist", "dist", id="install-dir=dist"),
     ],
 )
-def test_install_exe_finalize_options(
-    kwargs: dict[str, ...], option: str, result
-) -> None:
+def test_install_exe_finalize_options(install_dir: str, expected: str) -> None:
     """Test the install_exe finalize_options."""
     dist = Distribution(DIST_ATTRS)
-    cmd = install_exe(dist, **kwargs)
+    cmd = install_exe(dist, install_dir=install_dir)
     cmd.finalize_options()
     cmd.ensure_finalized()
-    assert getattr(cmd, option) == result
-    assert len(cmd.get_inputs()) > 0
-    assert cmd.get_outputs() == []
+    returned = cmd.install_dir
+    inputs = cmd.get_inputs()
+    outputs = cmd.get_outputs()
+    assert returned == expected
+    assert len(inputs) > 0
+    assert outputs == []

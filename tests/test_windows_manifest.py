@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import importlib.metadata
 import sys
 
 import pytest
@@ -90,7 +91,13 @@ def test_simple_manifest(tmp_package, lief_version) -> None:
     tmp_package.create(SOURCE)
     if lief_version == "disabled":
         tmp_package.monkeypatch.setenv("CX_FREEZE_BIND", "imagehlp")
-    elif lief_version != "installed":
+    elif lief_version == "installed":
+        try:
+            importlib.metadata.distribution("lief")
+        except importlib.metadata.PackageNotFoundError:
+            print("WARNING: LIEF is not installed")
+            lief_version = "disabled"
+    else:
         tmp_package.install(f"lief=={lief_version}")
     tmp_package.run()
     executable = tmp_package.executable("test_simple_manifest")

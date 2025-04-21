@@ -13,6 +13,7 @@ from typing import ClassVar
 
 from setuptools import Command
 
+from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_rpm import bdist_rpm
 from cx_Freeze.exception import ExecError, PlatformError
 
@@ -46,11 +47,8 @@ class bdist_deb(Command):
         self.dist_dir = None
 
     def finalize_options(self) -> None:
-        if os.name != "posix":
-            msg = (
-                "don't know how to create DEB "
-                f"distributions on platform {os.name}"
-            )
+        if not IS_LINUX:
+            msg = "bdist_deb is supported only on Linux"
             raise PlatformError(msg)
         if not shutil.which("alien"):
             msg = "failed to find 'alien' for this platform."

@@ -23,6 +23,7 @@ from filelock import FileLock
 from setuptools import Command
 
 import cx_Freeze.icons
+from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.exception import ExecError, PlatformError
 
 __all__ = ["bdist_appimage"]
@@ -89,11 +90,8 @@ class bdist_appimage(Command):
         self._warnings = []
 
     def finalize_options(self) -> None:
-        if os.name != "posix":
-            msg = (
-                "don't know how to create AppImage "
-                f"distributions on platform {os.name}"
-            )
+        if not IS_LINUX:
+            msg = "bdist_appimage is supported only on Linux"
             raise PlatformError(msg)
 
         # inherit options

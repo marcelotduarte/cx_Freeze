@@ -7,14 +7,8 @@ import sys
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze._compat import PLATFORM
-
-bdist_msi = pytest.importorskip(
-    "cx_Freeze.command.bdist_msi", reason="Windows tests"
-).bdist_msi
-
-if sys.platform != "win32":
-    pytest.skip(reason="Windows tests", allow_module_level=True)
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze.command.bdist_msi import bdist_msi
 
 if sys.version_info[:2] >= (3, 13):
     pytest.skip(
@@ -30,6 +24,7 @@ DIST_ATTRS = {
 }
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_target_name() -> None:
     """Test the bdist_msi with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
@@ -40,6 +35,7 @@ def test_bdist_msi_target_name() -> None:
     assert cmd.fullname == "mytest-0.0"
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_target_name_and_version() -> None:
     """Test the bdist_msi with extra target options."""
     dist = Distribution(DIST_ATTRS)
@@ -51,6 +47,7 @@ def test_bdist_msi_target_name_and_version() -> None:
     assert cmd.fullname == "mytest-0.1"
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_default(tmp_package) -> None:
     """Test the msi_binary_data sample."""
     tmp_package.create_from_sample("msi_binary_data")
@@ -60,6 +57,7 @@ def test_bdist_msi_default(tmp_package) -> None:
     assert file_created.is_file()
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_target_name_with_extension(tmp_package) -> None:
     """Test the msi_extensions sample, with a specified target_name that
     includes an ".msi" extension.
@@ -71,6 +69,7 @@ def test_bdist_msi_target_name_with_extension(tmp_package) -> None:
     assert file_created.is_file()
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_target_name_with_extension_1(tmp_package) -> None:
     """Test the msi_summary_data sample."""
     msi_name = "output.1.msi"
@@ -81,6 +80,7 @@ def test_bdist_msi_target_name_with_extension_1(tmp_package) -> None:
     assert file_created.is_file()
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_with_license(tmp_package) -> None:
     """Test the msi_license sample."""
     platform = PLATFORM.replace("win-amd64", "win64")
@@ -92,6 +92,7 @@ def test_bdist_msi_with_license(tmp_package) -> None:
     assert file_created.is_file()
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_advanced(tmp_package) -> None:
     """Test the advanced sample."""
     msi_name = "output.msi"
@@ -102,6 +103,7 @@ def test_bdist_msi_advanced(tmp_package) -> None:
     assert file_created.is_file()
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_asmodule(tmp_package) -> None:
     """Test the asmodule sample."""
     msi_name = "output.msi"
@@ -112,6 +114,7 @@ def test_bdist_msi_asmodule(tmp_package) -> None:
     assert file_created.is_file()
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_sqlite(tmp_package) -> None:
     """Test the sqlite sample."""
     msi_name = "output.msi"
@@ -145,6 +148,7 @@ pyproject.toml
 """
 
 
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_advanced2(tmp_package) -> None:
     """Test the executables option."""
     tmp_package.create(SOURCE_HELLO)
