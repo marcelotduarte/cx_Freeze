@@ -10,17 +10,12 @@ from typing import TYPE_CHECKING
 import pytest
 from setuptools import Distribution
 
+from cx_Freeze._compat import IS_LINUX
+from cx_Freeze.command.bdist_deb import bdist_deb
 from cx_Freeze.exception import PlatformError
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-bdist_deb = pytest.importorskip(
-    "cx_Freeze.command.bdist_deb", reason="Linux tests"
-).bdist_deb
-
-if sys.platform != "linux":
-    pytest.skip(reason="Linux tests", allow_module_level=True)
 
 DIST_ATTRS = {
     "name": "foo",
@@ -34,15 +29,16 @@ DIST_ATTRS = {
 }
 
 
-def test_bdist_deb_not_posix(monkeypatch) -> None:
+@pytest.mark.skipif(IS_LINUX, reason="Test not on Linux platform")
+def test_bdist_deb_not_posix() -> None:
     """Test the bdist_deb fail if not on posix."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
-    monkeypatch.setattr("os.name", "nt")
     with pytest.raises(PlatformError, match="don't know how to create DEB"):
         cmd.finalize_options()
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb_not_alien(monkeypatch) -> None:
     """Test the bdist_deb uses alien."""
     dist = Distribution(DIST_ATTRS)
@@ -52,6 +48,7 @@ def test_bdist_deb_not_alien(monkeypatch) -> None:
         cmd.finalize_options()
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb_not_fakeroot(monkeypatch) -> None:
     """Test the bdist_deb uses fakeroot."""
     dist = Distribution(DIST_ATTRS)
@@ -62,6 +59,7 @@ def test_bdist_deb_not_fakeroot(monkeypatch) -> None:
         cmd.finalize_options()
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path) -> None:
     """Test the bdist_deb dry_run."""
     monkeypatch.chdir(tmp_path)
@@ -77,6 +75,7 @@ def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path) -> None:
     cmd.run()
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb_simple(tmp_package) -> None:
     """Test the simple sample with bdist_deb."""
     name = "hello"
@@ -106,6 +105,7 @@ def test_bdist_deb_simple(tmp_package) -> None:
     assert file_created.is_file(), pattern
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb_simple_pyproject(tmp_package) -> None:
     """Test the simple_pyproject sample with bdist_deb."""
     name = "hello"
@@ -136,6 +136,7 @@ def test_bdist_deb_simple_pyproject(tmp_package) -> None:
     assert file_created.is_file(), pattern
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb(tmp_package) -> None:
     """Test the sqlite sample with bdist_deb."""
     name = "test_sqlite3"
