@@ -21,7 +21,7 @@ from typing import ClassVar
 
 from setuptools import Command
 
-from cx_Freeze._compat import IS_CONDA, PYTHON_VERSION
+from cx_Freeze._compat import IS_CONDA, IS_LINUX, PYTHON_VERSION
 from cx_Freeze.exception import ExecError, FileError, PlatformError
 
 __all__ = ["bdist_rpm"]
@@ -204,11 +204,8 @@ class bdist_rpm(Command):
         self.debug = 0
 
     def finalize_options(self) -> None:
-        if os.name != "posix":
-            msg = (
-                "don't know how to create RPM "
-                f"distributions on platform {os.name}"
-            )
+        if not IS_LINUX:
+            msg = "bdist_rpm is supported only on Linux"
             raise PlatformError(msg)
 
         self._rpm = shutil.which("rpm")

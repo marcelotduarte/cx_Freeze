@@ -28,10 +28,12 @@ DIST_ATTRS = {
 
 @pytest.mark.skipif(IS_LINUX, reason="Test not on Linux platform")
 def test_bdist_rpm_not_posix() -> None:
-    """Test the bdist_rpm fail if not on posix."""
+    """Test the bdist_rpm fail if not on Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist)
-    with pytest.raises(PlatformError, match="don't know how to create RPM"):
+    with pytest.raises(
+        PlatformError, match="bdist_rpm is supported only on Linux"
+    ):
         cmd.finalize_options()
 
 

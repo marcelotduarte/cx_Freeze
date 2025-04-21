@@ -31,10 +31,12 @@ DIST_ATTRS = {
 
 @pytest.mark.skipif(IS_LINUX, reason="Test not on Linux platform")
 def test_bdist_deb_not_posix() -> None:
-    """Test the bdist_deb fail if not on posix."""
+    """Test the bdist_deb fail if not on Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
-    with pytest.raises(PlatformError, match="don't know how to create DEB"):
+    with pytest.raises(
+        PlatformError, match="bdist_deb is supported only on Linux"
+    ):
         cmd.finalize_options()
 
 
