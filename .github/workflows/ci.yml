@@ -76,7 +76,6 @@ jobs:
         with:
           sparse-checkout: |
             pyproject.toml
-            cx_Freeze/icons
             samples
             tests
 
@@ -84,7 +83,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-        if: matrix.python-version != '3.13t'
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -101,7 +99,7 @@ jobs:
 
       - name: Install dependencies to test
         run: |
-          uv sync --no-install-project --extra tests
+          uv pip install --upgrade -r pyproject.toml -r tests/requirements.txt
           uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
