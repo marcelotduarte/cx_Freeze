@@ -12,6 +12,56 @@ Release notes
 8.x releases
 ############
 
+Version 8.2 (Apr 22)
+--------------------
+#)  Bump version: 8.1.0 → 8.2.0 [ci skip] (:pull:`2922`) :user:`marcelotduarte`
+#)  ci: configure coverage paths (:pull:`2921`) :user:`marcelotduarte`
+#)  tests: fix pytest-cov issue (:pull:`2919`) :user:`marcelotduarte`
+#)  tests: use GHA Python 3.13t and small changes (:pull:`2920`) :user:`marcelotduarte`
+#)  tests: improve some tests for better coverage (:pull:`2918`) :user:`marcelotduarte`
+#)  build(deps): update setuptools requirement from <=78.1.0,>=65.6.3 to >=65.6.3,<=79.0.0 (:pull:`2916`) :user:`dependabot`
+#)  dep_parser: minor fix to improve tests (:pull:`2915`) :user:`marcelotduarte`
+#)  tests: fix dep_parser test in windows (:pull:`2914`) :user:`marcelotduarte`
+#)  tests: improve dep_parser test (:pull:`2913`) :user:`marcelotduarte`
+#)  tests: add anyio, asyncio, uvloop (:pull:`2912`) :user:`marcelotduarte`
+#)  tests: add pyarrow, bcrypt<4 (:pull:`2911`) :user:`marcelotduarte`
+#)  module: improve use of constansts, add tests (:pull:`2909`) :user:`marcelotduarte`
+#)  hooks: fix scipy[zip] in Python>=3.10 [macos] (:pull:`2908`) :user:`marcelotduarte`
+#)  hooks: fix mkl on zip and fix tests (:pull:`2907`) :user:`marcelotduarte`
+#)  tests: test ConstantsModule / BUILD_CONSTANTS (:pull:`2906`) :user:`marcelotduarte`
+#)  tests: add more tests for hooks of crypto packages (:pull:`2905`) :user:`marcelotduarte`
+#)  tests: improve coverage of Executable class (:pull:`2904`) :user:`marcelotduarte`
+#)  build(deps-doc): bump sphinx to 8.2.3 [ci skip] (:pull:`2903`) :user:`marcelotduarte`
+#)  tests: improve winversioninfo tests (:pull:`2901`) :user:`marcelotduarte`
+#)  tests: improve tmp_package fixture adding cwd (:pull:`2902`) :user:`marcelotduarte`
+#)  tests: add test for rasterio (test DistributionCache.binary_files) (:pull:`2900`) :user:`marcelotduarte`
+#)  tests: improve coverage a bit (:pull:`2899`) :user:`marcelotduarte`
+#)  tests: add tests to hooks of pytz and ctypes (:pull:`2893`) :user:`marcelotduarte`
+#)  cli: fix case comparison in windows (:pull:`2898`) :user:`marcelotduarte`
+#)  module: add 'name' property to DistributionCache (:pull:`2897`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2896`) :user:`pre-commit-ci`
+#)  build(deps-dev): bump bump-my-version from 1.1.1 to 1.1.2 (:pull:`2895`) :user:`dependabot`
+#)  tests: improve tests on windows (:pull:`2892`) :user:`marcelotduarte`
+#)  tests: improve hooks tests with a function to install a package (:pull:`2891`) :user:`marcelotduarte`
+#)  ci: Fetch only the required files for testing (:pull:`2890`) :user:`marcelotduarte`
+#)  tests: improve conftest (:pull:`2889`) :user:`marcelotduarte`
+#)  tests: add scipy sample as a hook test (:pull:`2888`) :user:`marcelotduarte`
+#)  tests: cleanup (:pull:`2887`) :user:`marcelotduarte`
+#)  tests: port more tests to use the new fixture 4 (:pull:`2886`) :user:`marcelotduarte`
+#)  tests: port more tests to use the new fixture 3 (:pull:`2885`) :user:`marcelotduarte`
+#)  tests: port more tests to use the new fixture 2 (:pull:`2884`) :user:`marcelotduarte`
+#)  tests: improve mp tests (:pull:`2882`) :user:`marcelotduarte`
+#)  tests: port more tests to use the new fixture (:pull:`2883`) :user:`marcelotduarte`
+#)  tests: add conftest and port stdlib hooks test to use it (:pull:`2881`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pull:`2880`) :user:`pre-commit-ci`
+#)  build(deps): bump pytest-cov from 6.1.0 to 6.1.1 (:pull:`2879`) :user:`dependabot`
+#)  hooks: fix scipy hook on mingw and catch similar errors (:pull:`2877`) :user:`marcelotduarte`
+#)  doc: small review [ci skip] (:pull:`2876`) :user:`marcelotduarte`
+#)  chore: use sys.prefix as frozen directory (:pull:`2874`) :user:`marcelotduarte`
+#)  chore: support for PEP 639 (:pull:`2873`) :user:`marcelotduarte`
+#)  chore: use importlib.resources (:pull:`2872`) :user:`marcelotduarte`
+#)  bdist_msi: Make MSI checkbox to "launch after install" optional (:pull:`2871`) :user:`jeroen`
+
 Version 8.1 (Apr 02)
 --------------------
 

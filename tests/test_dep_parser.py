@@ -59,7 +59,7 @@ def test_elf_parser(tmp_package) -> None:
     tmp_package.create(SOURCE)
     import sysconfig
 
-    name = "sqlite3"
+    name = "python"
     parser = ELFParser(sys.path, [sysconfig.get_config_var("LIBDIR")])
     library_path = parser.find_library(name)
     assert library_path, f"library not found for: {name}"
