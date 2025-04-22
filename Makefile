@@ -81,16 +81,13 @@ tests: install_pytest
 .PHONY: cov
 cov: install_pytest
 	@rm -rf build/coverage_html_report
-	@if [ -f .coverage ]; then mv .coverage .backup_coverage; fi
 	mkdir -p $(COV_TMPDIR)
-	cp .backup_coverage $(COV_TMPDIR)/.coverage || true
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples/ $(COV_TMPDIR)/
 	cp -a tests/ $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze"
-	cp $(COV_TMPDIR)/.coverage ./.coverage
+	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze"|| true
+	coverage combine -a $(COV_TMPDIR)/.coverage
 	coverage report
-	@if [ -f .backup_coverage ]; then coverage combine -a .backup_coverage; fi
 	coverage html
 
 .PHONY: release
