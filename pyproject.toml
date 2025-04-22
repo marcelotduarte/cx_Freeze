@@ -200,8 +200,8 @@ precision = 2
 
 [tool.coverage.paths]
 source = [
+    "cx_Freeze/",
     "*/cx_Freeze/",
-    ".venv/lib/python3.*/site-packages/cx_Freeze/",
 ]
 
 [tool.coverage.run]

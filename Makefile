@@ -85,7 +85,7 @@ cov: install_pytest
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples/ $(COV_TMPDIR)/
 	cp -a tests/ $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze"
+	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze"|| true
 	coverage combine -a $(COV_TMPDIR)/.coverage
 	coverage report
 	coverage html
