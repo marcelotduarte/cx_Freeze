@@ -5,12 +5,13 @@ from __future__ import annotations
 import os
 
 import pytest
-from datatest import SUB_PACKAGE_TEST
 from setuptools import Distribution
 
 from cx_Freeze._compat import BUILD_EXE_DIR, IS_WINDOWS
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
+
+from .datatest import SUB_PACKAGE_TEST
 
 BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
 

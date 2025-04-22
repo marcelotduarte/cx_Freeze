@@ -99,12 +99,12 @@ jobs:
 
       - name: Install dependencies to test
         run: |
-          uv pip install --upgrade -r pyproject.toml -r tests/requirements.txt
+          uv pip install --extra tests --upgrade -r pyproject.toml
           uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
 
       - name: Generate coverage report
         env:
-          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}"
+          COVERAGE_FILE: ".coverage.${{ strategy.job-index }}"
         run: uv run --no-project pytest -nauto --cov="cx_Freeze"
 
       - name: Upload coverage reports
