@@ -2,9 +2,10 @@
 SHELL=/bin/bash
 PATH := $(shell python -c "import sysconfig; print(sysconfig.get_path('scripts'))"):$(PATH)
 
-BUILDDIR := ./build
 PY_PLATFORM := $(shell python -c "import sysconfig; print(sysconfig.get_platform())")
 PRE_COMMIT_OPTIONS := --show-diff-on-failure --color=always --all-files --hook-stage=manual
+
+COV_TMPDIR := $(shell python -c "import tempfile; print(tempfile.mkdtemp())")
 
 .PHONY: all
 all: install
@@ -79,12 +80,18 @@ tests: install_pytest
 
 .PHONY: cov
 cov: install_pytest
-	@rm -rf $(BUILDDIR)/coverage_html_report
+	@rm -rf build/coverage_html_report
 	@if [ -f .coverage ]; then mv .coverage .backup_coverage; fi
-	pytest -nauto --cov="cx_Freeze" --cov-report=html
+	mkdir -p $(COV_TMPDIR)
+	cp .backup_coverage $(COV_TMPDIR)/.coverage || true
+	cp pyproject.toml $(COV_TMPDIR)/
+	cp -a samples/ $(COV_TMPDIR)/
+	cp -a tests/ $(COV_TMPDIR)/
+	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze"
+	cp $(COV_TMPDIR)/.coverage ./.coverage
 	coverage report
-	@python -m webbrowser -t $(BUILDDIR)/coverage_html_report/index.html
 	@if [ -f .backup_coverage ]; then coverage combine -a .backup_coverage; fi
+	coverage html
 
 .PHONY: release
 release:
