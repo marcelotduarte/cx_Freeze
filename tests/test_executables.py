@@ -14,8 +14,6 @@ from cx_Freeze import Executable
 from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS, SOABI
 from cx_Freeze.exception import OptionError, SetupError
 
-TOP_DIR = Path(__file__).resolve().parent.parent
-
 SOURCE_SETUP_TOML = """
 test_1.py
     print("Hello from cx_Freeze")
@@ -383,8 +381,9 @@ pyproject.toml
 def test_valid_icon(tmp_package) -> None:
     """Test with valid icon in any OS."""
     tmp_package.create(SOURCE_VALID_ICON)
-    # copy valid icons
-    for src in TOP_DIR.joinpath("cx_Freeze/icons").glob("py.*"):
+    # copy valid icons: cp $SRC/cx_Freeze/icons/py.* $DST/icon.*
+    src_dir = files("cx_Freeze").resolve()
+    for src in src_dir.joinpath("icons").glob("py.*"):
         shutil.copyfile(
             src, tmp_package.path.joinpath("icon").with_suffix(src.suffix)
         )
@@ -429,9 +428,9 @@ pyproject.toml
 def test_invalid_icon(tmp_package) -> None:
     """Test with invalid icon in Windows."""
     tmp_package.create(SOURCE_INVALID_ICON)
-    shutil.copyfile(
-        TOP_DIR / "cx_Freeze/icons/py.png", tmp_package.path / "icon.png"
-    )
+    # use an invalid icon: cp $SRC/cx_Freeze/icons/py.png $DST/icon.png
+    src_dir = files("cx_Freeze").resolve()
+    shutil.copyfile(src_dir / "icons/py.png", tmp_package.path / "icon.png")
     output = tmp_package.run()
     assert "WARNING: Icon file not found" not in output, "icon file not found"
     # it is expected the folowing warning if the icon is invalid

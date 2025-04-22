@@ -6,6 +6,7 @@ import os
 import re
 import string
 import sys
+import sysconfig
 from pathlib import Path
 from shutil import copytree, ignore_patterns, which
 from subprocess import check_output
@@ -14,10 +15,16 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import BUILD_EXE_DIR, EXE_SUFFIX
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+# copied from cx_Freeze._compat
+PLATFORM = sysconfig.get_platform()
+PYTHON_VERSION = sysconfig.get_python_version()
+ABI_THREAD = sysconfig.get_config_var("abi_thread") or ""
+BUILD_EXE_DIR = Path(f"build/exe.{PLATFORM}-{PYTHON_VERSION}{ABI_THREAD}")
+EXE_SUFFIX = sysconfig.get_config_var("EXE")
+
 
 HERE = Path(__file__).resolve().parent
 SAMPLES_DIR = HERE.parent / "samples"
