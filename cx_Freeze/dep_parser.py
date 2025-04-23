@@ -96,10 +96,11 @@ class Parser(ABC):
         (Implemented separately for each platform).
         """
 
-    @staticmethod
+    @staticmethod  # pragma: no cover
     def _is_binary(filename: Path) -> bool:
-        """Determines whether the file is a binary (executable, shared library)
-        file. (Overridden in each platform).
+        """Determines whether the file is a binary file
+        (executable, shared library).
+        (Implemented separately for each platform).
         """
         return filename.is_file()
 
@@ -156,12 +157,12 @@ class PEParser(Parser):
             self._pe = None
 
     @staticmethod
-    def is_pe(filename: str | Path) -> bool:
+    def _is_binary(filename: str | Path) -> bool:
         """Determines whether the file is a PE file."""
         filename = Path(filename)
         return filename.suffix.lower().endswith(PE_EXT) and filename.is_file()
 
-    _is_binary = is_pe
+    is_pe = _is_binary
 
     def _get_dependent_files(self, filename: Path) -> set[Path]:
         with filename.open("rb", buffering=0) as raw:
@@ -269,7 +270,7 @@ class ELFParser(Parser):
         return library
 
     @staticmethod
-    def is_elf(filename: str | Path) -> bool:
+    def _is_binary(filename: str | Path) -> bool:
         """Check if the executable is an ELF."""
         filename = Path(filename)
         if filename.suffix in NON_ELF_EXT or not filename.is_file():
@@ -278,7 +279,7 @@ class ELFParser(Parser):
             four_bytes = binary.read(4)
         return bool(four_bytes == MAGIC_ELF)
 
-    _is_binary = is_elf
+    is_elf = _is_binary
 
     def _get_dependent_files_ldd(self, filename: Path) -> set[Path]:
         dependent_files: set[Path] = set()

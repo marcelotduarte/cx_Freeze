@@ -27,7 +27,7 @@ file executable.
    * - option name
      - description
    * - .. option:: appimagekit
-     - path to AppImageKit [default: the latest version is downloaded]
+     - path to appimagetool (formerly AppImageKit) [default: the latest version is downloaded]
    * - .. option:: bdist_base
      - base directory for creating built distributions
    * - .. option:: build_dir (-b)
