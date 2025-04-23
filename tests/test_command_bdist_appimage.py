@@ -28,9 +28,8 @@ def test_bdist_appimage_not_posix() -> None:
     """Test the bdist_appimage fail if not on Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
-    with pytest.raises(
-        PlatformError, match="bdist_appimage is supported only on Linux"
-    ):
+    msg = "bdist_appimage is supported only on Linux"
+    with pytest.raises(PlatformError, match=msg):
         cmd.finalize_options()
 
 
