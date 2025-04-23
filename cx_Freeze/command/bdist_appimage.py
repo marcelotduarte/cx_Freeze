@@ -29,10 +29,9 @@ from cx_Freeze.exception import ExecError, PlatformError
 __all__ = ["bdist_appimage"]
 
 ARCH = platform.machine()
-APPIMAGEKIT_URL = "https://github.com/AppImage/AppImageKit/releases"
-APPIMAGEKIT_URL = "https://github.com/AppImage/appimagetool/releases"
-APPIMAGEKIT_PATH = f"download/continuous/appimagetool-{ARCH}.AppImage"
-APPIMAGEKIT_TOOL = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
+APPIMAGETOOL_RELEASES_URL = "https://github.com/AppImage/appimagetool/releases"
+APPIMAGETOOL_DOWNLOAD = f"download/continuous/appimagetool-{ARCH}.AppImage"
+APPIMAGETOOL_CACHE = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
 
 
 class bdist_appimage(Command):
@@ -43,7 +42,8 @@ class bdist_appimage(Command):
         (
             "appimagekit=",
             None,
-            f'path to AppImageKit [default: "{APPIMAGEKIT_TOOL}"]',
+            "path to appimagetool (formerly AppImageKit) "
+            f'[default: "{APPIMAGETOOL_CACHE}"]',
         ),
         (
             "bdist-base=",
@@ -149,18 +149,22 @@ class bdist_appimage(Command):
         self._get_appimagekit()
 
     def _get_appimagekit(self) -> None:
-        """Fetch AppImageKit from the web if not available locally."""
-        appimagekit = os.path.expanduser(self.appimagekit or APPIMAGEKIT_TOOL)
+        """Fetch appimagetool from the web if not available locally."""
+        appimagekit = os.path.expanduser(
+            self.appimagekit or APPIMAGETOOL_CACHE
+        )
         appimagekit_dir = os.path.dirname(appimagekit)
         self.mkpath(appimagekit_dir)
         with FileLock(appimagekit + ".lock"):
             if not os.path.exists(appimagekit):
                 self.announce(
-                    f"download and install AppImageKit from {APPIMAGEKIT_URL}",
+                    f"download and install appimagetool from {APPIMAGETOOL_RELEASES_URL}",
                     INFO,
                 )
                 urlretrieve(  # noqa: S310
-                    os.path.join(APPIMAGEKIT_URL, APPIMAGEKIT_PATH),
+                    os.path.join(
+                        APPIMAGETOOL_RELEASES_URL, APPIMAGETOOL_DOWNLOAD
+                    ),
                     appimagekit,
                 )
                 os.chmod(appimagekit, stat.S_IRWXU)

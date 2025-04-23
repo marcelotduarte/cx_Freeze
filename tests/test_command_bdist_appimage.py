@@ -7,6 +7,7 @@ import platform
 from pathlib import Path
 
 import pytest
+from filelock import FileLock
 from setuptools import Distribution
 
 from cx_Freeze._compat import IS_LINUX
@@ -34,6 +35,24 @@ def test_bdist_appimage_not_posix() -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_appimage_download_appimagetool() -> None:
+    """Test the bdist_appimage, force the download."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_appimage(dist)
+    cmd.finalize_options()
+    appimagekit = cmd.appimagekit
+    # remove
+    if os.path.exists(appimagekit):
+        with FileLock(appimagekit + ".lock"):
+            os.unlink(appimagekit)
+    # force the download
+    cmd2 = bdist_appimage(dist)
+    cmd2.finalize_options()
+    cmd2.ensure_finalized()
+    assert cmd2.fullname == "foo-0.0"
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_appimage_target_name() -> None:
     """Test the bdist_appimage with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
@@ -54,6 +73,19 @@ def test_bdist_appimage_target_name_and_version() -> None:
     cmd.finalize_options()
     cmd.ensure_finalized()
     assert cmd.fullname == "mytest-0.1"
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_appimage_target_name_and_name_none() -> None:
+    """Test the bdist_appimage with target options."""
+    attrs = DIST_ATTRS.copy()
+    del attrs["name"]
+    attrs["executables"].append("other.py")
+    dist = Distribution(attrs)
+    cmd = bdist_appimage(dist)
+    cmd.finalize_options()  # name = None, target_name = first script name
+    cmd.ensure_finalized()
+    assert cmd.fullname == "hello-0.0"
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
@@ -102,6 +134,24 @@ def test_bdist_appimage_skip_build(tmp_package) -> None:
     tmp_package.create_from_sample("tkinter")
     tmp_package.run()
     tmp_package.run("python setup.py bdist_appimage --skip-build")
+
+    file_created = (
+        tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
+    )
+    assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_appimage_skip_build_after_build_exe(tmp_package) -> None:
+    """Test the simple sample with bdist_appimage."""
+    name = "hello"
+    version = "0.1.2.3"
+    arch = platform.machine()
+
+    tmp_package.create_from_sample("simple")
+    tmp_package.run(
+        "python setup.py build_exe --silent bdist_appimage --quiet"
+    )
 
     file_created = (
         tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
