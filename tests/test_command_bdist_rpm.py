@@ -31,9 +31,8 @@ def test_bdist_rpm_not_posix() -> None:
     """Test the bdist_rpm fail if not on Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist)
-    with pytest.raises(
-        PlatformError, match="bdist_rpm is supported only on Linux"
-    ):
+    msg = "bdist_rpm is supported only on Linux"
+    with pytest.raises(PlatformError, match=msg):
         cmd.finalize_options()
 
 

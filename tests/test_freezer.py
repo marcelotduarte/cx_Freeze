@@ -66,10 +66,8 @@ def test_freezer_target_dir_in_path(tmp_package) -> None:
     tmp_package.create(SOURCE)
     target_dir = tmp_package.executable("hello").parent
     target_dir.mkdir(parents=True)
-    with pytest.raises(
-        OptionError,
-        match="the build_exe directory cannot be used as search path",
-    ):
+    msg = "the build_exe directory cannot be used as search path"
+    with pytest.raises(OptionError, match=msg):
         Freezer(executables=["hello.py"], path=[*sys.path, target_dir])
 
 
@@ -85,9 +83,8 @@ def test_freezer_target_dir_locked(tmp_package) -> None:
     tmp_package.create(SOURCE)
     target_dir = tmp_package.executable("hello").parent
     target_dir.mkdir(parents=True)
-    with pytest.raises(
-        OptionError, match="the build_exe directory cannot be cleaned"
-    ):
+    msg = "the build_exe directory cannot be cleaned"
+    with pytest.raises(OptionError, match=msg):
         Freezer(executables=["hello.py"], target_dir=target_dir)
 
 
@@ -128,9 +125,8 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
     tmp_package.create(SOURCE)
 
     # zip_include_packages and zip_exclude_packages are "*"
-    with pytest.raises(
-        OptionError, match="all packages cannot be included and excluded "
-    ):
+    msg = "all packages cannot be included and excluded "
+    with pytest.raises(OptionError, match=msg):
         Freezer(
             executables=["hello.py"],
             zip_include_packages=["*"],
@@ -144,9 +140,8 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
             zip_include_packages=["tkinter"],
             zip_exclude_packages=["tkinter"],
         )
-    with pytest.raises(
-        OptionError, match="packages 'tkinter, unittest' cannot be both"
-    ):
+    msg = "packages 'tkinter, unittest' cannot be both"
+    with pytest.raises(OptionError, match=msg):
         Freezer(
             executables=["hello.py"],
             zip_include_packages=["tkinter", "unittest"],

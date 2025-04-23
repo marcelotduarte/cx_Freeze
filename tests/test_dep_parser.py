@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import shutil
+import stat
 import sys
+import sysconfig
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import IS_CONDA, IS_LINUX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.dep_parser import ELFParser
+from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 SOURCE = """
 test.py
@@ -53,13 +61,38 @@ def test_parser(tmp_package, package, version) -> None:
     assert output.startswith("Hello from cx_Freeze")
 
 
-@pytest.mark.skipif(not IS_LINUX, reason="Linux tests")
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_elf_parser(tmp_package) -> None:
     """Test the search_path and find_library."""
     tmp_package.create(SOURCE)
-    import sysconfig
-
-    name = "python"
     parser = ELFParser(sys.path, [sysconfig.get_config_var("LIBDIR")])
-    library_path = parser.find_library(name)
-    assert library_path, f"library not found for: {name}"
+    names = ("python", "sqlite3")
+    found = None
+    for name in names:
+        found = parser.find_library(name)
+        if found:
+            break
+    assert found, f"library not found for: {names}"
+
+    # copy the library to use it for tests
+    filename: Path = tmp_package.path / found.name
+    shutil.copyfile(found, filename)
+    mode = filename.stat().st_mode
+    if mode & stat.S_IWUSR != 0:
+        filename.chmod(mode & ~stat.S_IWUSR)
+    so_names = parser.get_needed(filename)
+    new_names = sorted(so_names)
+    for i, so_name in enumerate(so_names):
+        parser.replace_needed(filename, so_name, new_names[i])
+    parser.set_soname(filename, "foo.so")
+
+    assert parser.get_rpath("foo") == ""
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_verify_patchelf(monkeypatch) -> None:
+    """Test the _verify_patchelf."""
+    monkeypatch.setattr("shutil.which", lambda cmd: cmd != "patchelf")
+    msg = "Cannot find required utility `patchelf` in PATH"
+    with pytest.raises(PlatformError, match=msg):
+        ELFParser([], [])

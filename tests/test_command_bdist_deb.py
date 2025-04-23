@@ -34,9 +34,8 @@ def test_bdist_deb_not_posix() -> None:
     """Test the bdist_deb fail if not on Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
-    with pytest.raises(
-        PlatformError, match="bdist_deb is supported only on Linux"
-    ):
+    msg = "bdist_deb is supported only on Linux"
+    with pytest.raises(PlatformError, match=msg):
         cmd.finalize_options()
 
 
