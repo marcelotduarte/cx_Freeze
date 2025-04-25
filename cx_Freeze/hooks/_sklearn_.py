@@ -22,7 +22,7 @@ def load_sklearn__distributor_init(
         # patch the code to search the correct directory
         code_string = module.file.read_text(encoding="utf_8")
         code_string = code_string.replace(
-            "libs_path =", "libs_path = __import__('sys').frozen_dir  #"
+            "libs_path =", "libs_path = __import__('sys').prefix  #"
         )
         module.code = compile(
             code_string,
