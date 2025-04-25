@@ -29,6 +29,15 @@ IS_MINGW = PLATFORM.startswith("mingw")
 IS_WINDOWS = PLATFORM.startswith("win")
 IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 
+EXE_SUFFIX = get_config_var("EXE")
+
+SOABI = get_config_var("SOABI")
+if SOABI is None or IS_MINGW:
+    # Python <= 3.12 on Windows
+    # Python 3.12 MSYS2 incorrectly returns only sys.implementation.cache_tag
+    platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
+    SOABI = f"{sys.implementation.cache_tag}-{platform_nodot}"
+
 
 class BuildBases(setuptools.command.build_ext.build_ext):
     """Build C bases and extension."""
@@ -150,14 +159,9 @@ class BuildBases(setuptools.command.build_ext.build_ext):
         # Examples of returned names:
         # console-cp39-win32.exe, console-cp39-win_amd64.exe,
         # console-cpython-39-x86_64-linux-gnu, console-cpython-39-darwin
-        ext_path = Path(*fullname.split("."))
-        name = ext_path.name
-        soabi = get_config_var("SOABI")
-        if soabi is None:  # Python <= 3.12 on Windows
-            platform_nodot = PLATFORM.replace(".", "").replace("-", "_")
-            soabi = f"{sys.implementation.cache_tag}-{platform_nodot}"
-        exe_suffix = get_config_var("EXE")
-        return os.fspath(ext_path.parent / f"{name}-{soabi}{exe_suffix}")
+        path = Path(*fullname.split("."))
+        name = path.name
+        return os.path.normcase(path.parent / f"{name}-{SOABI}{EXE_SUFFIX}")
 
     @staticmethod
     def _get_dll_path(name: str) -> Path:
