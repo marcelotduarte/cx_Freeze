@@ -6,7 +6,13 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    IS_ARM_64,
+    IS_LINUX,
+    IS_WINDOWS,
+    IS_X86_64,
+)
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -21,8 +27,10 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
         command += " --zip-include-packages=* --zip-exclude-packages="
 
     tmp_package.create_from_sample("pandas")
-    if sys.platform == "linux" and sys.version_info[:2] == (3, 10):
-        tmp_package.install("-i https://pypi.anaconda.org/intel/simple numpy")
+    if IS_LINUX and IS_X86_64 and sys.version_info[:2] == (3, 10):
+        tmp_package.install(
+            "numpy", index="https://pypi.anaconda.org/intel/simple"
+        )
     tmp_package.install("pandas")
     output = tmp_package.run(command)
     executable = tmp_package.executable("test_pandas")
@@ -58,7 +66,14 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
+    (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="rasterio not supported in windows/linux arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
     reason="rasterio does not support Python 3.13t",
     strict=True,
 )
