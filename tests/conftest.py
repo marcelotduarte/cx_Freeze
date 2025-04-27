@@ -9,7 +9,7 @@ import sys
 import sysconfig
 from pathlib import Path
 from shutil import copytree, ignore_patterns, which
-from subprocess import check_output
+from subprocess import CalledProcessError, check_output
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -129,21 +129,32 @@ class TempPackage:
         cwd = os.fspath(self.path if cwd is None else cwd)
         return check_output(command, text=True, timeout=timeout, cwd=cwd)
 
-    def install(self, package, isolated=True) -> str:
+    def install(
+        self, package, *, binary=True, index=None, isolated=True
+    ) -> str:
         if which("uv") is None:
-            pytest.skip(reason=f"{package} must be installed")
+            request = self.request
+            pytest.skip(
+                f"{request.config.args[0]}::{request.node.name} - {package} "
+                "must be installed"
+            )
 
         cmd = f"uv pip install {package}"
+        if binary:
+            cmd = f"{cmd} --no-build"
+        if index is not None:
+            cmd = f"{cmd} --index {index}"
         if isolated:
-            self.prefix = isolated_prefix = self.path / ".tmp_prefix"
-            output = self.run(
-                f"{cmd} --prefix={isolated_prefix} --python={sys.executable}"
-            )
-            tmp_site = isolated_prefix / self.relative_site
+            self.prefix = self.path / ".tmp_prefix"
+            cmd = f"{cmd} --prefix={self.prefix} --python={sys.executable}"
+        try:
+            output = self.run(cmd, cwd=self.system_path)
+        except CalledProcessError:
+            raise ModuleNotFoundError(package) from None
+        if isolated:
+            tmp_site = self.prefix / self.relative_site
             self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
             self.monkeypatch.syspath_prepend(tmp_site)
-        else:
-            output = self.run(cmd, cwd=self.system_path)
         return output
 
 
