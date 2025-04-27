@@ -4,9 +4,7 @@
 
 from pathlib import Path
 
-from cx_Freeze._typing import TypeAlias
-
-HANDLE: TypeAlias = int | None
+from cx_Freeze._typing import HANDLE
 
 class BindError(Exception):
     """BindError Exception."""
