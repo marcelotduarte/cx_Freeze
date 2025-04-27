@@ -62,11 +62,9 @@ Python requirements are installed automatically by pip or conda.
   .. code-block:: console
 
    filelock >= 3.12.3
-   importlib_metadata >= 6     (Python 3.9-3.10.2)
    packaging >= 24
-   setuptools >= 65.6.3        (setuptools >= 70.1 if installing from sources)
+   setuptools >= 65.6.3        (setuptools >= 77.0.3 if installing from sources)
    tomli >= 2.0.1              (Python 3.9-3.10)
-   typing_extensions >= 4.10.0 (Python 3.9)
    patchelf >= 0.14            (Linux)
    dmgbuild >= 1.6.1           (macOS)
    cabarchive >= 0.2.4         (Windows only)

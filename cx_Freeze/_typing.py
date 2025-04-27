@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path, PurePath
 
+from cx_Freeze.module import Module
+
 try:
     from typing import TypeAlias  # 3.10+
 except ImportError:
-    from typing_extensions import TypeAlias
+    from typing import Any as TypeAlias
 
-from cx_Freeze.module import Module
 
 DeferredList: TypeAlias = list[tuple[Module, Module, list[str]]]
 
@@ -19,4 +20,6 @@ IncludesList: TypeAlias = list[
 
 InternalIncludesList: TypeAlias = list[tuple[Path, PurePath]]
 
-__all__ = ["DeferredList", "IncludesList", "InternalIncludesList", "TypeAlias"]
+HANDLE: TypeAlias = int | None
+
+__all__ = ["HANDLE", "DeferredList", "IncludesList", "InternalIncludesList"]
