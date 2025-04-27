@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
+
+from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_WINDOWS
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -37,6 +41,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="rasterio not supported in windows/linux arm64",
+    strict=True,
+)
 @zip_packages
 def test_pyarrow(tmp_package, zip_packages: bool) -> None:
     """Test if pyarrow hook is working correctly."""
@@ -46,7 +56,10 @@ def test_pyarrow(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("pyarrow")
+    if IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t":
+        tmp_package.install("pyarrow>=20")
+    else:
+        tmp_package.install("pyarrow")
     output = tmp_package.run()
     executable = tmp_package.executable("test_pyarrow")
     assert executable.is_file()
