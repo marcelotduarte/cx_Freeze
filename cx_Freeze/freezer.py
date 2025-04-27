@@ -599,7 +599,9 @@ class Freezer:
         finder: ModuleFinder = self.finder
         cache_path = finder.cache_path
 
-        modules = [m for m in finder.modules if m.name not in finder.excludes]
+        modules: list[Module] = [
+            m for m in finder.modules if m.name not in finder.excludes
+        ]
         for module in finder.namespaces:
             # if namespace package should be written to zip file, convert it
             # to regular package, since then zipimport doesn't support PEP420
@@ -663,8 +665,23 @@ class Freezer:
                     and module.file is not None
                     and include_in_file_system == 0
                 ):
-                    parts = mod_name_parts[:-1]
-                    parts.append(module.file.name)
+                    parts = mod_name_parts.copy()
+                    if module.file.name.startswith("__init__."):
+                        # if a module init is distributed as compiled like
+                        # __init__.pyd, it should be copied with a new name
+                        # ending with the name of the parent module, and it
+                        # should be imported in the fake code.
+                        last = parts[-1]
+                        source = f"from {module.name}.{last} import *"
+                        module.code = compile(
+                            source, "__init__.py", "exec", dont_inherit=True
+                        )
+                        parts.append(
+                            module.file.name.replace("__init__.", f"{last}.")
+                        )
+                    else:
+                        parts.pop()
+                        parts.append(module.file.name)
                     target = target_lib_dir / ".".join(parts)
                     files_to_copy.append((module, target))
 
@@ -687,7 +704,10 @@ class Freezer:
                 if include_in_file_system >= 1 and module.file is not None:
                     parts = mod_name_parts.copy()
                     if module.code is None:
-                        parts.pop()
+                        # if a module init is distributed as compiled like
+                        # __init__.pyd, its name should be preserved.
+                        if not module.file.name.startswith("__init__."):
+                            parts.pop()
                         parts.append(module.file.name)
                         target_name = target_lib_dir.joinpath(*parts)
                         self._copy_file(
