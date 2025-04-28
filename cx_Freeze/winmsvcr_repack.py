@@ -110,7 +110,7 @@ def decode_manifest(directory: Path) -> dict[str, str]:
         msg = "Found no licences in the manifest"
         raise RuntimeError(msg)
     if len(licences) > 1:
-        msg = "Found more than one licence in the manfiest"
+        msg = "Found more than one licence in the manifest"
         raise RuntimeError(msg)
 
     # Find the files that are in the second CAB file. These have
@@ -139,7 +139,7 @@ def decode_manifest(directory: Path) -> dict[str, str]:
         msg = "Found no matches in the manifest"
         raise RuntimeError(msg)
     if len(runtimes) > 1:
-        msg = "Found more than one match in the manfiest"
+        msg = "Found more than one match in the manifest"
         raise RuntimeError(msg)
 
     return {

@@ -57,7 +57,9 @@ class SetupWriter:
         self.executable_name = self.get_value(
             "Executable file name", self.default_executable_name
         )
-        bases_prompt = "(C)onsole application, (G)UI application, or (S)ervice"
+        bases_prompt = (
+            "(C) console application, (G) GUI application, or (S) service"
+        )
         while True:
             self.base_code = self.get_value(bases_prompt, "C")
             if self.base_code in self.bases:

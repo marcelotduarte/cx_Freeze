@@ -101,7 +101,7 @@ DEFAULT_EXCLUDES: set[str] = {
     "UserString",
     "whichdb",
     "_winreg",  # named to winreg
-    # macos specfic removed in py3
+    # macos specific removed in py3
     # https://docs.python.org/2.7/library/mac.html?highlight=removed
     "autoGIL",
     "Carbon",

@@ -440,7 +440,7 @@ def load_qt_qtwidgets(finder: ModuleFinder, module: Module) -> None:
 def load_qt_uic(finder: ModuleFinder, module: Module) -> None:
     """The uic module makes use of "plugins" that need to be read directly and
     cannot be frozen; the PyQt5.QtWebKit and PyQt5.QtNetwork modules are
-    also implicity loaded.
+    also implicitly loaded.
     """
     name = _qt_implementation(module)
     source_dir = module.path[0] / "widget-plugins"

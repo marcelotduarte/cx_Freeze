@@ -29,7 +29,7 @@ python setup.py build
 
 # Run the sample
 
-Run in a command prompt or powershell with admin priviliges.
+Run in a command prompt or powershell with admin privileges.
 
 ```
 cx_FreezeSampleService --install test

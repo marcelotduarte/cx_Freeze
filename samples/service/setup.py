@@ -31,7 +31,7 @@ executables = [
 setup(
     name="cx_FreezeSampleService",
     version="0.1",
-    description="Sample cx_Freeze Windows serice",
+    description="Sample cx_Freeze Windows service",
     executables=executables,
     options=options,
 )

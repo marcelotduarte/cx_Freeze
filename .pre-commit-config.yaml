@@ -10,7 +10,9 @@ exclude: |
         cx_Freeze/importshed/.*.pyi|
         doc/src/conf.py
     )$
+
 repos:
+
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v5.0.0
   hooks:
@@ -34,9 +36,8 @@ repos:
     additional_dependencies:
     - validate-pyproject-schema-store[all]>=2024.11.22
 
-
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.11.6
+  rev: v0.11.7
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
@@ -49,6 +50,14 @@ repos:
     additional_dependencies:
     - black==25.1.0
     args: ["-l", "79"]
+
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.4.1
+  hooks:
+  - id: codespell
+    additional_dependencies:
+    - tomli
+    args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v20.1.0

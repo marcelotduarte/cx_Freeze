@@ -55,7 +55,7 @@ Version 7.1 (May 26)
 
 #)  hooks: add mkl (:pull:`2420`) :user:`marcelotduarte`
 #)  hooks: resolve dependencies to avoid symlink in numpy/mkl/blas conda linux (:pull:`2419`) :user:`marcelotduarte`
-#)  module: fix distribuition installer multiline (:pull:`2418`) :user:`marcelotduarte`
+#)  module: fix distribution installer multiline (:pull:`2418`) :user:`marcelotduarte`
 #)  ci: add test to do more 'parser' and 'module' coverage (:pull:`2416`) :user:`marcelotduarte`
 #)  freezer: resolve symlinks to always copy the source (:pull:`2415`) :user:`marcelotduarte`
 #)  build(deps): update setuptools requirement from <70,>=62.6 to >=62.6,<71 (:pull:`2413`) :user:`dependabot`
@@ -126,7 +126,7 @@ Version 7.0 (April 21)
 #)  doc: Correct some typographical errors and grammar errors (:pull:`2328`) :user:`marcelotduarte`
 #)  doc: show builtdist command as toctree and clickable in the table (:pull:`2327`) :user:`marcelotduarte`
 #)  doc: separates bdist commands to nest them in builtdist (:pull:`2325`) :user:`marcelotduarte`
-#)  doc: show pyproject.toml as fisrt example (:pull:`2326`) :user:`marcelotduarte`
+#)  doc: show pyproject.toml as first example (:pull:`2326`) :user:`marcelotduarte`
 #)  [pre-commit.ci] pre-commit autoupdate (:pull:`2324`) :user:`pre-commit-ci`
 #)  chore: move License to the project root dir (:pull:`2323`) :user:`marcelotduarte`
 #)  doc: fix furo edit button [ci skip] (:pull:`2322`) :user:`marcelotduarte`
@@ -216,7 +216,7 @@ Version 7.0 (April 21)
 #)  build(deps-dev): bump bump-my-version from 0.16.2 to 0.17.0 (:pull:`2213`) :user:`dependabot`
 #)  winversioninfo: fix version string and improve coverage/tests (:pull:`2211`) :user:`marcelotduarte`
 #)  chore: Update copyright year and license (:pull:`2209`) :user:`marcelotduarte`
-#)  docs: open extenal links in new tab (:pull:`2208`) :user:`marcelotduarte`
+#)  docs: open external links in new tab (:pull:`2208`) :user:`marcelotduarte`
 #)  hooks: add pyproj (:pull:`2207`) :user:`marcelotduarte`
 #)  winmsvcr: extend support for VS 2022 (:pull:`2204`) :user:`marcelotduarte`
 #)  hooks: opencv-python - minor fixes (:pull:`2206`) :user:`marcelotduarte`

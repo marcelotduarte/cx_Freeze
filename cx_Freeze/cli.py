@@ -127,9 +127,10 @@ def prepare_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--shortcut-dir",
         metavar="DIR",
-        help="the directory in which to place the shortcut when being instal"
-        "led by an MSI package; see the MSI Shortcut table documentation for "
-        "more information on what values can be placed here (Windows only)",
+        help="the directory in which to place the shortcut when being "
+        "installed by an MSI package; see the MSI Shortcut table "
+        "documentation for more information on what values can be placed here "
+        "(Windows only)",
     )
     parser.add_argument(
         "--copyright",
