@@ -23,7 +23,7 @@ Version 5.1 (November 2017)
 #)  Correct usage of scipy.lib (:pull:`281`).
 #)  Correct handling of __path__ attribute in module (:pull:`295`).
 #)  Fix gevent bug #42 (:pull:`301`).
-#)  Droppped support for Python 3.4.
+#)  Dropped support for Python 3.4.
 
 
 Version 5.0.2 (May 2017)
@@ -77,7 +77,7 @@ Version 5.0 (November 2016)
 #) Set copyDependentFiles = True for include files. (`PR #66`_)
 #) Reallow including modules with non-identifier names. (`PR #79`_)
 #) Fix missing space in Windows installer. (`PR #81`_)
-#) Use pattern "not in string" isntead of "string.find(pattern)" (`PR #76`_)
+#) Use pattern "not in string" instead of "string.find(pattern)" (`PR #76`_)
 #) Fix --add-to-path writing to the per-user instead of system environment
    (`PR #86`_)
 #) Fix documentation (`PR #77`_, `PR #78`_)
@@ -173,7 +173,7 @@ Version 4.3.3 (May 2014)
 
 #) Added support for release version of 3.4 (`PR #47`_, `PR #48`_)
 #) Added support for code signing in bdist_mac (`PR #40`_)
-#) Added custom Info.plist and Framework suport to bdist_mac (`PR #33`_)
+#) Added custom Info.plist and Framework support to bdist_mac (`PR #33`_)
 #) Added support for resolving dependencies on OS X where paths are relative
    (`PR #35`_)
 #) Added hook for QtWebKit module (`PR #36`_)
@@ -412,7 +412,7 @@ Version 4.1.1 (December 2009)
 #) Enhanced hooks further in order to perform hidden imports and avoid errors
    about missing modules for several additional commonly used packages and
    modules.
-#) Readded support for the zip include option.
+#) Re-added support for the zip include option.
 #) Avoid the error about digest mismatch when installing RPMs by modifying
    the spec files built with cx_Freeze.
 #) Ensure that manifest.txt is included in the source distribution.
@@ -485,7 +485,7 @@ Version 4.0 (September 2008)
 #) Added support for a hook that runs when a module is missing.
 #) Added support for binary path includes as well as excludes; use sequences
    rather than dictionaries as a more convenient API; exclude the standard
-   locations for 32-bit and 64-bit libaries in multi-architecture systems.
+   locations for 32-bit and 64-bit libraries in multi-architecture systems.
 #) Added support for searching zip files (egg files) for modules.
 #) Added support for handling system exit exceptions similarly to what Python
    does itself as requested by Sylvain.

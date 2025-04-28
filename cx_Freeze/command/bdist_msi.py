@@ -980,7 +980,7 @@ class bdist_msi(Command):
                 "I &accept the terms in the License Agreement",
                 None,
             )
-            # [proptery], value
+            # [property], value
             checkbox.event("[LicenseAcceptedClicked]", "1")
 
             add_data(
@@ -1274,7 +1274,7 @@ class bdist_msi(Command):
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent
-        # editting of the MSI is blocked.
+        # editing of the MSI is blocked.
         self.db = None
 
 

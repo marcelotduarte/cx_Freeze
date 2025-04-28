@@ -173,7 +173,7 @@ class Wordpad(WinForms.Form):
         self.menuFormatWordWrap.Index = 1
         self.menuFormatWordWrap.Click += self.OnClickFormatWordWrap
 
-        self.menuFormatFont.Text = "Fo&nt"
+        self.menuFormatFont.Text = "Fo&nt"  # codespell:ignore
         self.menuFormatFont.Index = 0
         self.menuFormatFont.Click += self.OnClickFormatFont
 

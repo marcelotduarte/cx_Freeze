@@ -204,7 +204,7 @@ class Executable:
 
     @property
     def shortcut_dir(self) -> Path:
-        """:return: tthe directory in which to place the shortcut when being
+        """:return: the directory in which to place the shortcut when being
         installed by an MSI package; see the MSI Shortcut table documentation
         for more information on what values can be placed here (Windows only).
         :rtype: Path

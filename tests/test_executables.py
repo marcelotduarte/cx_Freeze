@@ -433,7 +433,7 @@ def test_invalid_icon(tmp_package) -> None:
     shutil.copyfile(src_dir / "icons/py.png", tmp_package.path / "icon.png")
     output = tmp_package.run()
     assert "WARNING: Icon file not found" not in output, "icon file not found"
-    # it is expected the folowing warning if the icon is invalid
+    # it is expected the following warning if the icon is invalid
     assert "WARNING: Icon filename 'icon.png' has invalid type." in output
 
 

@@ -85,18 +85,18 @@ class bdist_dmg(Command):
             "window-rect",
             None,
             "Window rectangle in the form x, y, width, height. The position "
-            "of the window in ((x, y), (w, h)) format, with y co-ordinates "
+            "of the window in ((x, y), (w, h)) format, with y coordinates "
             "running from bottom to top. The Finder makes sure that the "
             "window will be on the user's display, so if you want your window "
             "at the top left of the display you could use (0, 100000) as the "
-            "x, y co-ordinates. Unfortunately it doesn't appear to be "
+            "x, y coordinates. Unfortunately it doesn't appear to be "
             "possible to position the window relative to the top left or "
             "relative to the centre of the user's screen.",
         ),
         (
             "icon-locations",
             None,
-            "A dictionary specifying the co-ordinates of items in the root "
+            "A dictionary specifying the coordinates of items in the root "
             "directory of the disk image, where the keys are filenames and "
             "the values are (x, y) tuples. e.g.: "
             'icon-locations = { "Applications": (100, 100), '

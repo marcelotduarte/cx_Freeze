@@ -338,7 +338,7 @@ class DarwinFile:
         return list(self.machOReferenceForTargetPath.values())
 
     def getMachOReferenceForPath(self, path: Path) -> MachOReference:
-        """Returns the reference pointing to the specified path, baed on paths
+        """Returns the reference pointing to the specified path, based on paths
         stored in self.machOReferenceTargetPath. Raises Exception if not
         available.
         """

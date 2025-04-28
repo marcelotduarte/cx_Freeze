@@ -218,7 +218,7 @@ Version 8.0 (Mar 21)
 #)  cli: add --verbose and --debug options (:pull:`2668`) :user:`marcelotduarte`
 #)  fix: remove incorrect excludes (:pull:`2667`) :user:`marcelotduarte`
 #)  fix: a more consise fix for namespace packages (:pull:`2665`) :user:`marcelotduarte`
-#)  hooks: zoneinfo has an error not catched by a typo in tests (:pull:`2666`) :user:`marcelotduarte`
+#)  hooks: zoneinfo has an error not caught by a typo in tests (:pull:`2666`) :user:`marcelotduarte`
 #)  [pre-commit.ci] pre-commit autoupdate (:pull:`2662`) :user:`pre-commit-ci`
 #)  build(deps-dev): bump bump-my-version from 0.28.0 to 0.28.1 (:pull:`2661`) :user:`dependabot`
 #)  chore: use convenient functions from stdlib that exist since 3.9 (:pull:`2658`) :user:`marcelotduarte`

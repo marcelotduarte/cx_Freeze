@@ -123,7 +123,7 @@ static int HandleSystemExitException()
     else {
         message = PyObject_Str(value);
         if (!message)
-            return FatalError("Cannot get string representation of messsage.");
+            return FatalError("Cannot get string representation of message.");
         DisplayMessageFromPythonObjects(caption, message);
         exitcode = 1;
     }

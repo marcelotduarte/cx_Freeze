@@ -690,7 +690,7 @@ def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
 
 
 def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
-    """The ltihooks module is not necessairly present so ignore it when it
+    """The ltihooks module is not necessarily present so ignore it when it
     cannot be found.
     """
     caller.ignore_names.add("ltihooks")
