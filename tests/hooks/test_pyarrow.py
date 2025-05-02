@@ -44,7 +44,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="rasterio not supported in windows/linux arm64",
+    reason="pyarrow not supported in windows arm64",
     strict=True,
 )
 @zip_packages

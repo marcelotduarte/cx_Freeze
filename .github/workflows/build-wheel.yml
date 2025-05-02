@@ -76,6 +76,12 @@ jobs:
                 },
                 {
                     "os": "windows",
+                    "os_version": "11-arm",
+                    "arch": "arm64",
+                    "tag": "cp3{11,12,13}-win_arm64",
+                },
+                {
+                    "os": "windows",
                     "os_version": "latest",
                     "arch": "x86_64",
                     "tag": "cp3*-win32",

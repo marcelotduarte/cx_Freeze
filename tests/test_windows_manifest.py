@@ -8,7 +8,7 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import IS_CONDA, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_MINGW, IS_WINDOWS
 from cx_Freeze.dep_parser import PEParser
 
 if sys.platform != "win32":
@@ -76,9 +76,12 @@ def test_manifest(tmp_package) -> None:
 
 LIEF_VERSIONS = []
 if IS_WINDOWS:
-    LIEF_VERSIONS += ["0.14.1", "0.15.1", "0.16.4"]
-    if sys.version_info[:2] < (3, 12) and not IS_CONDA:
-        LIEF_VERSIONS.insert(0, "0.13.2")
+    if IS_ARM_64:
+        LIEF_VERSIONS += ["disabled"]
+    else:
+        LIEF_VERSIONS += ["0.14.1", "0.15.1", "0.16.4"]
+        if sys.version_info[:2] < (3, 12) and not IS_CONDA:
+            LIEF_VERSIONS.insert(0, "0.13.2")
 elif IS_MINGW:
     LIEF_VERSIONS += ["installed"]
 
