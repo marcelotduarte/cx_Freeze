@@ -19,6 +19,12 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="pandas not supported in windows arm64",
+    strict=True,
+)
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
@@ -97,6 +103,12 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     assert lines[2].startswith("rasterio version")
 
 
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="pandas not supported in windows arm64",
+    strict=True,
+)
 @zip_packages
 def test_scipy(tmp_package, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""

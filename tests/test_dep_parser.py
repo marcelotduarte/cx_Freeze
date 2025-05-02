@@ -10,7 +10,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_CONDA, IS_LINUX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    IS_ARM_64,
+    IS_CONDA,
+    IS_LINUX,
+    IS_MINGW,
+    IS_WINDOWS,
+)
 from cx_Freeze.dep_parser import ELFParser
 from cx_Freeze.exception import PlatformError
 
@@ -24,13 +30,14 @@ test.py
 
 if IS_WINDOWS:
     PACKAGE_VERSION = [("imagehlp", "bind")]
-    if sys.version_info[:2] < (3, 12) and not IS_CONDA:
-        PACKAGE_VERSION += [("lief", "0.13.2")]
-    PACKAGE_VERSION += [
-        ("lief", "0.14.1"),
-        ("lief", "0.15.1"),
-        ("lief", "0.16.4"),  # to support pypi and conda
-    ]
+    if not IS_ARM_64:
+        if sys.version_info[:2] < (3, 12) and not IS_CONDA:
+            PACKAGE_VERSION += [("lief", "0.13.2")]
+        PACKAGE_VERSION += [
+            ("lief", "0.14.1"),
+            ("lief", "0.15.1"),
+            ("lief", "0.16.4"),  # to support pypi and conda
+        ]
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
 elif IS_LINUX:
