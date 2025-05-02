@@ -660,14 +660,23 @@ def load_yaml(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_zlib(finder: ModuleFinder, module: Module) -> None:
-    """In conda-forge Windows, the zlib module requires the zlib.dll to be
-    present in the executable directory.
+    """In Windows, the zlib module requires the zlib.dll to be present in the
+    executable directory if using conda-forge. However, the required shared
+    library is zlib1.dll in official Python >= 3.12.
     """
-    if IS_CONDA and IS_WINDOWS:
+    if not IS_WINDOWS:
+        return
+    if IS_CONDA:
         source = Path(sys.base_prefix, "Library/bin/zlib.dll")
         if source.exists():
             target = source.name
             finder.lib_files[source] = target
+    else:
+        # ensure zlib1.dll is copied if lief is not used in Python 3.12+
+        for source in Path(sys.base_prefix, "DLLs").glob("zlib*.dll"):
+            target = f"lib/{source.name}"
+            finder.lib_files[source] = target
+            finder.include_files(source, target)
 
 
 def load_zope_component(finder: ModuleFinder, module: Module) -> None:
