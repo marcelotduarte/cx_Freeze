@@ -119,8 +119,8 @@ using the conda-forge channel:
 
     python
     c-compiler
-    py-lief (Windows)
-    patchelf (Linux)
+    py-lief     #  Windows
+    patchelf    #  Linux
     # declare SDKROOT or CONDA_BUILD_SYSROOT (not required in Github Actions)
 
 An example for Linux:

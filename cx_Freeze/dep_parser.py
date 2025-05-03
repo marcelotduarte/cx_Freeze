@@ -121,14 +121,9 @@ class PEParser(Parser):
             except ImportError:
                 lief = None
             else:
-                try:
-                    # LIEF 0.15+
-                    lief.logging.set_level(lief.logging.LEVEL.ERROR)
-                except AttributeError:
-                    lief.logging.set_level(lief.logging.LOGGING_LEVEL.ERROR)
+                lief.logging.set_level(lief.logging.LEVEL.ERROR)
         super().__init__(path, bin_path_includes, silent)
-        if lief and hasattr(lief.PE, "ParserConfig"):
-            # LIEF 0.14+
+        if lief:
             imports_only = lief.PE.ParserConfig()
             imports_only.parse_exports = False
             imports_only.parse_imports = True
