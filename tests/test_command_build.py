@@ -13,7 +13,20 @@ test.py
 setup.py
     from cx_Freeze import setup
 
-    setup(executables=["test.py"])
+    options = {
+        "build_exe": {
+            "include_msvcr": True,
+            "excludes": ["tkinter", "unittest"],
+            "silent": True
+        }
+    }
+    setup(
+        name="test",
+        version="0.1.2.3",
+        description="Sample cx_Freeze script",
+        options=options,
+        executables=["test.py"],
+    )
 command
     python setup.py build
 """

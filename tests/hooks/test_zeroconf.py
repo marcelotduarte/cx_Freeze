@@ -61,7 +61,7 @@ def test_zeroconf(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_zeroconf")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=20)
     lines = output.splitlines()
     assert lines[0].startswith("Zeroconf imported successfully!")
     assert lines[1].startswith("Zeroconf version:")

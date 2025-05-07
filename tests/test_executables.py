@@ -31,6 +31,7 @@ pyproject.toml
     target_name = "test_2"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 command
@@ -48,15 +49,22 @@ setup.py
         {"script": "test_1.py", "target_name": "test_2"},
         Executable("test_1.py", target_name="test_3"),
     ]
-
+    options = {
+        "build_exe": {
+            "include_msvcr": True,
+            "excludes": ["tkinter", "unittest"],
+            "silent": True
+        }
+    }
     setup(
         name="hello",
         version="0.1.2.3",
         description="Sample cx_Freeze script",
         executables=executables,
+        options=options,
     )
 command
-    python setup.py build_exe --excludes=tkinter,unittest --silent
+    python setup.py build_exe
 """
 
 SOURCE_SETUP_CFG = """
@@ -69,6 +77,7 @@ setup.cfg
     description = Sample cx_Freeze script
 
     [build_exe]
+    include_msvcr = true
     excludes = tkinter,unittest
     silent = true
 command
@@ -89,6 +98,7 @@ pyproject.toml
     target_name = "test_2"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 setup.py
@@ -135,6 +145,7 @@ pyproject.toml
     script = "test_3.py"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 command
@@ -166,6 +177,7 @@ setup.py
 
     options = {
         "build_exe": {
+            "include_msvcr": True,
             "excludes": ["tkinter", "unittest"],
             "include_path": ["."],
             "silent": True
@@ -487,7 +499,7 @@ main.py
 namespace/package/__init__.py
     print("Hello from cx_Freeze")
 command
-    cxfreeze --script main.py --target-name test --silent
+    cxfreeze --script main.py --target-name test --silent --include-msvcr
 """
 
 SOURCE_NESTED_NAMESPACE = """\
@@ -514,7 +526,7 @@ namespace/package/one.py
 namespace/package/two.py
     print("Hello from cx_Freeze - module two")
 command
-    cxfreeze --script main.py --target-name test --silent
+    cxfreeze --script main.py --target-name test --silent --include-msvcr
 """
 
 

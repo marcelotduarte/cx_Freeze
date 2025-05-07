@@ -3,43 +3,41 @@
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 
-from cx_Freeze._compat import EXE_SUFFIX
+from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 
-SOURCE = """
+SOURCE_SETUP = """
 test.py
     print("Hello from cx_Freeze")
 setup.py
     from cx_Freeze import setup
 
-    setup(name="hello", version = "0.1.2.3", executables=["test.py"])
+    options = {
+        "build_exe": {
+            "include_msvcr": True,
+            "excludes": ["tkinter", "unittest"],
+            "silent": True
+        }
+    }
+    setup(
+        name="hello",
+        version="0.1.2.3",
+        description="Sample cx_Freeze script",
+        executables=["test.py"],
+        options=options,
+    )
+
 command
     python setup.py install --prefix=base --root=root
-"""
-
-SOURCE_PYPROJECT = """
-test.py
-    print("Hello from cx_Freeze")
-pyproject.toml
-    [project]
-    name = "hello"
-    version = "0.1.2.3"
-    description = "Sample cx_Freeze script"
-
-    [tool.cxfreeze]
-    executables = ["test.py"]
-command
-    cxfreeze install --prefix=base --root=root
 """
 
 
 def test_install(tmp_package) -> None:
     """Test a simple install."""
-    tmp_package.create(SOURCE)
+    tmp_package.create(SOURCE_SETUP)
 
-    if sys.platform == "win32":
+    if IS_MINGW or IS_WINDOWS:
         tmp_package.run("python setup.py install --root=root")
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
@@ -55,11 +53,32 @@ def test_install(tmp_package) -> None:
     assert output.startswith("Hello from cx_Freeze")
 
 
+SOURCE_PYPROJECT = """
+test.py
+    print("Hello from cx_Freeze")
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [tool.cxfreeze]
+    executables = ["test.py"]
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
+command
+    cxfreeze install --prefix=base --root=root
+"""
+
+
 def test_install_pyproject(tmp_package) -> None:
     """Test a simple install."""
     tmp_package.create(SOURCE_PYPROJECT)
 
-    if sys.platform == "win32":
+    if IS_MINGW or IS_WINDOWS:
         tmp_package.run("cxfreeze install --root=root")
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"

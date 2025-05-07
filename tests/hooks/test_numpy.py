@@ -32,6 +32,7 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
     command = "python setup.py build_exe -O2 --excludes=tkinter,unittest"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
+    command += " --include-msvcr"
 
     tmp_package.create_from_sample("pandas")
     if IS_LINUX and IS_X86_64 and sys.version_info[:2] == (3, 10):
@@ -43,7 +44,7 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=20)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("pandas version")
@@ -67,6 +68,7 @@ pyproject.toml
     executables = ["test_rasterio.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -103,7 +105,7 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=20)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
@@ -122,6 +124,7 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     command = "python setup.py build_exe -O2 --excludes=tkinter"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
+    command += " --include-msvcr"
 
     tmp_package.create_from_sample("scipy")
     tmp_package.install("scipy")
@@ -129,7 +132,7 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=20)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("scipy version")

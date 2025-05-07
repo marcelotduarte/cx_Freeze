@@ -73,6 +73,7 @@ pyproject.toml
     target_name = "secondchildpack"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = [
         "regularpack.configs",
         "regularpack.models",

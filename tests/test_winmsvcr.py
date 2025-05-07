@@ -32,8 +32,20 @@ UCRT_EXPECTED = (
 SOURCE = """
 hello.py
     print("Hello from cx_Freeze")
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "hello.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+    silent = true
 command
-    cxfreeze --script hello.py build_exe --silent --excludes=tkinter
+    cxfreeze build_exe
 """
 
 

@@ -11,15 +11,16 @@ import pytest
 SOURCE = """
 test.py
     print("Hello from cx_Freeze")
-command
-    cxfreeze --script test.py --target-dir=dist --excludes=tkinter
 """
 
 
 def test_cxfreeze(tmp_package) -> None:
     """Test cxfreeze."""
+    command = "cxfreeze --script test.py --target-dir=dist"
+    command += "--excludes=tkinter,unittest --include-msvcr"
+
     tmp_package.create(SOURCE)
-    output = tmp_package.run()
+    output = tmp_package.run(command)
 
     file_created = tmp_package.executable_in_dist("test")
     assert file_created.is_file(), f"file not found: {file_created}"
@@ -134,7 +135,8 @@ pyproject.toml
     build_exe = "dist"
     excludes = ["tkinter", "unittest"]
     includes = ["testfreeze_1", "testfreeze_2"]
-    #silent = true
+    include_msvcr = true
+    silent = true
 command
     cxfreeze build_exe --include-path=modules --default-path={os.pathsep.join(sys.path)}
 """
