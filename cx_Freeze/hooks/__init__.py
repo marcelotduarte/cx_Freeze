@@ -11,7 +11,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_WINDOWS
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.hooks.qthooks import get_qt_plugins_paths  # noqa: F401
 
 if TYPE_CHECKING:
@@ -460,7 +460,7 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     pythoncom = __import__("pythoncom")
     filename = Path(pythoncom.__file__)
     finder.include_files(
-        filename, Path("lib", filename.name), copy_dependent_files=False
+        filename, f"lib/{filename.name}", copy_dependent_files=IS_MINGW
     )
 
 
@@ -474,7 +474,7 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     pywintypes = __import__("pywintypes")
     filename = Path(pywintypes.__file__)
     finder.include_files(
-        filename, Path("lib", filename.name), copy_dependent_files=False
+        filename, f"lib/{filename.name}", copy_dependent_files=IS_MINGW
     )
 
 

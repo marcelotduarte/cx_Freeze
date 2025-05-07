@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_WINDOWS
+from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_MINGW, IS_WINDOWS
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -56,7 +56,7 @@ def test_argon2(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("argon2-cffi")
+    tmp_package.install("argon2_cffi")
     output = tmp_package.run()
     executable = tmp_package.executable("test_argon2")
     assert executable.is_file()
@@ -220,6 +220,8 @@ def test_cryptography(tmp_package, zip_packages) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_cryptography")
     assert executable.is_file()
+    if IS_MINGW:
+        tmp_package.monkeypatch.setenv("CRYPTOGRAPHY_OPENSSL_NO_LEGACY", "1")
     output = tmp_package.run(executable, timeout=10)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("cryptography fernet token:")
