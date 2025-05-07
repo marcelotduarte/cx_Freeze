@@ -10,17 +10,15 @@ __pycache__
 *.pyc
 sample.xlsx
 dump.sql
+.venv/
+
 # PyCharm and Spyder configuration files
 .idea
 .spyproject/
+.vscode/
+
 # Don't allow pipenv/piplock files to be directly commited ( usage of `pip` only expected )
 *Pipfile
 *Pipfile.lock
-# ignore locations for pytest coverage reports ( maybe wanted in future? )
-.coverage
-coverage.xml
-htmlcov
-tests/coverage_html_report
-tests/.coverage
-.venv/
-.vscode/
+# Ignore coverage reports
+.coverage*

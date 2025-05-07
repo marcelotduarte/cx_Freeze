@@ -10,6 +10,7 @@ from cx_Freeze._compat import (
     ABI_THREAD,
     IS_ARM_64,
     IS_LINUX,
+    IS_MINGW,
     IS_WINDOWS,
     IS_X86_64,
 )
@@ -75,6 +76,12 @@ pyproject.toml
     (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="rasterio not supported in windows/linux arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    IS_MINGW,
+    raises=ModuleNotFoundError,
+    reason="rasterio not supported in mingw",
     strict=True,
 )
 @pytest.mark.xfail(

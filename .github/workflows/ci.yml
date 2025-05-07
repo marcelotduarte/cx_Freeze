@@ -101,7 +101,8 @@ jobs:
       - name: Install dependencies to test
         run: |
           uv pip install --extra tests --upgrade -r pyproject.toml
-          uv pip install cx_Freeze --no-index --no-deps -f wheelhouse --reinstall
+          uv pip install cx_Freeze -f wheelhouse \
+              --no-build --no-deps --no-index --prerelease=allow --reinstall
 
       - name: Generate coverage report
         env:
