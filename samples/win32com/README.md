@@ -8,5 +8,5 @@ In a virtual environment, install by issuing the command:
 
 ```
 pip install --upgrade cx_Freeze pywin32
-cxfreeze --script test_win32com.py --silent
+cxfreeze --script test_win32com.py --include-msvcr --silent
 ```

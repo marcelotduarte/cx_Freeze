@@ -54,10 +54,12 @@ zip_packages = pytest.mark.parametrize(
 @zip_packages
 def test_build_constants(tmp_package, zip_packages: bool) -> None:
     """Test if build_constants is working correctly."""
-    tmp_package.create_from_sample("build_constants")
     command = "python setup.py build_exe --excludes=tkinter,unittest --silent"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
+    command += " --include-msvcr"
+
+    tmp_package.create_from_sample("build_constants")
     output = tmp_package.run(command)
     executable = tmp_package.executable("hello")
     assert executable.is_file()

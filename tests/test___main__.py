@@ -5,8 +5,21 @@ from __future__ import annotations
 SOURCE = """
 test.py
     print("Hello from cx_Freeze")
+pyproject.toml
+    [project]
+    name = "test"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "test.py"
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
 command
-    python -m cx_Freeze test.py --target-dir=dist --excludes=tkinter
+    python -m cx_Freeze build_exe --target-dir=dist
 """
 
 
