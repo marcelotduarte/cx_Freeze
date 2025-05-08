@@ -22,25 +22,18 @@ pylint:
 .PHONY: clean
 clean: uninstall
 	@$(MAKE) -C doc clean
-	@rm -f .coverage .backup_coverage || true
+	@rm -f .coverage* || true
 
 .PHONY: install
 install:
-ifeq ($(PY_PLATFORM),win-amd64)
-	if ! which uv; then\
-		python -m pip install --upgrade uv --disable-pip-version-check;\
-	fi
-else
-	ci/install-uv.sh
-endif
-	if ! which pre-commit || ! [ -f .git/hooks/pre-commit ]; then\
-		uv pip install --extra dev --upgrade -r pyproject.toml &&\
+	./ci/install-tools.sh
+	if ! [ -f .git/hooks/pre-commit ]; then\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
 
 .PHONY: uninstall
 uninstall:
-	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
+	@if [ -f .git/hooks/pre-commit ]; then\
 		pre-commit clean;\
 		pre-commit uninstall;\
 		rm -f .git/hooks/pre-commit;\
@@ -53,7 +46,7 @@ upgrade: clean install
 
 .PHONY: html
 html:
-	@if which pre-commit && [ -f .git/hooks/pre-commit ]; then\
+	@if [ -f .git/hooks/pre-commit ]; then\
 		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
 		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
@@ -65,27 +58,29 @@ htmltest:
 	$(MAKE) -C doc test
 
 .PHONY: doc
-doc: html
+doc:
+	$(MAKE) -C doc html
 	$(MAKE) -C doc epub
 	$(MAKE) -C doc pdf
 
-.PHONY: install_pytest
-install_pytest:
-	uv pip install --extra tests --upgrade -r pyproject.toml
-	./ci/build-wheel.sh
-
 .PHONY: tests
-tests: install_pytest
-	pytest -nauto --no-cov
+tests:
+	./ci/build-wheel.sh
+	mkdir -p $(COV_TMPDIR)
+	cp pyproject.toml $(COV_TMPDIR)/
+	cp -a samples/ $(COV_TMPDIR)/
+	cp -a tests/ $(COV_TMPDIR)/
+	cd $(COV_TMPDIR) && pytest -nauto --no-cov || true
 
 .PHONY: cov
-cov: install_pytest
+cov:
+	./ci/build-wheel.sh
 	@rm -rf build/coverage_html_report
 	mkdir -p $(COV_TMPDIR)
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples/ $(COV_TMPDIR)/
 	cp -a tests/ $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze"|| true
+	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze" || true
 	coverage combine -a $(COV_TMPDIR)/.coverage
 	coverage report
 	coverage html

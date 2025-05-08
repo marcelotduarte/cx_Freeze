@@ -3,7 +3,7 @@
 # Get script directory (without using /usr/bin/realpath)
 CI_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 # Install/update uv
-$CI_DIR/install-uv.sh
+$CI_DIR/install-tools.sh
 
 # Python information (platform and version)
 if ! [ -z "$UV_PYTHON" ]; then
@@ -60,34 +60,29 @@ while ! [ -z "$1" ]; do
     shift
 done
 
-# Functions and commands
-_verlte() {
-    echo -e $(echo -e "$1\n$2" | sort -V | head -n1)
-}
-
-_vergte() {
-    echo -e $(echo -e "$1\n$2" | sort -V -r | head -n1)
-}
-
+# Use of dev tools
 _bump_my_version () {
     local args=$*
-    # Use python <= 3.12 (python 3.13t is not supported)
-    local py_version=$(_verlte $PY_VERSION 3.12)
-    local value=$(uvx -p $py_version bump-my-version $args 2>/dev/null)
+    local value=$($HOME/bin/bump-my-version $args 2>/dev/null)
     echo $($PYTHON -c "print('$value'.replace('\r','').replace('\n',''), end='')")
 }
 
-_cibuildwheel () {
+_build_wheel () {
     local args=$*
-    # Use python >= 3.11 (python 3.13t is supported)
-    local py_version=$(_vergte $PY_VERSION 3.11)$PY_ABI_THREAD
-    # Do not export UV_* to avoid conflict with uv in cibuildwheel macOS/Windows
-    unset UV_SYSTEM_PYTHON
-    uvx -p $py_version cibuildwheel $args
+
+    if [[ $PY_PLATFORM == mingw* ]]; then
+        $PYTHON -m build -n -x --wheel -o wheelhouse
+    elif [[ $PY_PLATFORM == win* ]] && [[ $args == *--only* ]]; then
+        uv build -p $PY_VERSION$PY_ABI_THREAD --wheel -o wheelhouse
+    else
+        # Do not export UV_SYSTEM_PYTHON to avoid conflict with uv in
+        # cibuildwheel on macOS and Windows
+        unset UV_SYSTEM_PYTHON
+        $HOME/bin/cibuildwheel $args
+    fi
 }
 
-echo "::group::Install dependencies and build tools"
-uv pip install --upgrade -r pyproject.toml
+echo "::group::Detect version"
 VERSION=$(_bump_my_version show current_version)
 if [ -z $VERSION ]; then
     VERSION=$(grep "__version__ = " cx_Freeze/__init__.py | sed 's/-/./' | awk -F\" '{print $2}')
@@ -110,28 +105,27 @@ if [[ $PY_PLATFORM == linux* ]]; then
 fi
 echo "::group::Build wheel(s)"
 if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
-    set -x
     DIRTY=$(_bump_my_version show scm_info.dirty)
     FILEMASK="cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
     FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
     if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
-        if [[ $PY_PLATFORM == win* ]]; then
-            uv build -p $PY_VERSION$PY_ABI_THREAD --wheel -o wheelhouse
-        else
-            _cibuildwheel --only "$BUILD_TAG_DEFAULT"
-        fi
+        _build_wheel --only "$BUILD_TAG_DEFAULT"
     fi
-    set +x
 elif ! [ -z "$BUILD_TAG" ]; then
-    CIBW_BUILD="$BUILD_TAG" _cibuildwheel
+    CIBW_BUILD="$BUILD_TAG" _build_wheel
 else
-    _cibuildwheel
+    _build_wheel
 fi
 echo "::endgroup::"
 
 if [ "$INSTALL" == "true" ] || ! [ "$CI" == "true" ]; then
     echo "::group::Install cx_Freeze $VERSION_OK"
-    UV_PRERELEASE=allow \
-        uv pip install "cx_Freeze==$VERSION_OK" --no-index --no-deps -f wheelhouse --reinstall
+    if [[ $PY_PLATFORM == mingw* ]]; then
+        pip install "cx_Freeze==$VERSION_OK" -f wheelhouse \
+            --no-deps --no-index --force-reinstall
+    else
+        uv pip install "cx_Freeze==$VERSION_OK" -f wheelhouse \
+            --no-build --no-deps --no-index --prerelease=allow --reinstall
+    fi
     echo "::endgroup::"
 fi
