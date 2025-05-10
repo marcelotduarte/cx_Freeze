@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shutil
+import sys
 from importlib.resources import files
 
 import pytest
@@ -56,6 +57,18 @@ pyproject.toml
     silent = true
 """
 
+if sys.version_info[:2] < (3, 13):
+    PILLOW_VERSIONS = [
+        pytest.param("pillow<10", False, id="pillow<10"),
+        pytest.param("pillow<10", True, id="pillow<10][zip_packages"),
+        pytest.param("pillow<10.2", False, id="pillow<10.2"),
+        pytest.param("pillow<10.2", True, id="pillow<10.2][zip_packages"),
+    ]
+PILLOW_VERSIONS += [
+    pytest.param("pillow>=10.2", False, id="pillow>=10.2"),
+    pytest.param("pillow>=10.2", True, id="pillow>=10.2][zip_packages"),
+]
+
 
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
@@ -63,25 +76,7 @@ pyproject.toml
     reason="pillow not supported in windows arm64",
     strict=True,
 )
-@pytest.mark.parametrize(
-    ("package", "zip_packages"),
-    [
-        ("pillow<10", False),
-        ("pillow<10", True),
-        ("pillow<10.2", False),
-        ("pillow<10.2", True),
-        ("pillow>=10.2", False),
-        ("pillow>=10.2", True),
-    ],
-    ids=[
-        "pillow<10",
-        "pillow<10][zip_packages",
-        "pillow<10.2",
-        "pillow<10.2][zip_packages",
-        "pillow>=10.2",
-        "pillow>=10.2][zip_packages",
-    ],
-)
+@pytest.mark.parametrize(("package", "zip_packages"), PILLOW_VERSIONS)
 def test_pillow(tmp_package, package: str, zip_packages: bool) -> None:
     """Test if pillow hook is working correctly."""
     tmp_package.create(SOURCE_TEST_PILLOW)
