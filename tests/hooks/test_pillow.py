@@ -64,6 +64,8 @@ if sys.version_info[:2] < (3, 13):
         pytest.param("pillow<10.2", False, id="pillow<10.2"),
         pytest.param("pillow<10.2", True, id="pillow<10.2][zip_packages"),
     ]
+else:
+    PILLOW_VERSIONS = []
 PILLOW_VERSIONS += [
     pytest.param("pillow>=10.2", False, id="pillow>=10.2"),
     pytest.param("pillow>=10.2", True, id="pillow>=10.2][zip_packages"),
