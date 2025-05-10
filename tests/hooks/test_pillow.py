@@ -57,14 +57,15 @@ pyproject.toml
     silent = true
 """
 
-if sys.version_info[:2] < (3, 13):
+if sys.version_info[:2] < (3, 12):
     PILLOW_VERSIONS = [
         pytest.param("pillow<10", False, id="pillow<10"),
         pytest.param("pillow<10", True, id="pillow<10][zip_packages"),
+    ]
+if sys.version_info[:2] == (3, 12):
+    PILLOW_VERSIONS = [
         pytest.param("pillow<10.2", False, id="pillow<10.2"),
         pytest.param("pillow<10.2", True, id="pillow<10.2][zip_packages"),
-        pytest.param("pillow>=10.2", False, id="pillow>=10.2"),
-        pytest.param("pillow>=10.2", True, id="pillow>=10.2][zip_packages"),
     ]
 else:
     PILLOW_VERSIONS = [
