@@ -38,17 +38,21 @@ BUILD_TAG_DEFAULT="$PYTHON_TAG-$PLATFORM_TAG$PY_ABI_THREAD"
 # Usage
 if ! [ -z "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
-    echo "$0 [--all|TAG] [--archs=ARCHS]"
+    echo "$0 [--all|TAG] [--install]"
     echo "Where:"
     echo "  --all     Build all valid wheels for current OS."
     echo "  TAG       Force build the wheel for the given identifier."
     echo "            [default: $BUILD_TAG_DEFAULT]"
-    echo "  --install Install after build."
+    echo "  --install Install after build [default on local builds]."
     exit 1
 fi
 
 BUILD_TAG="$BUILD_TAG_DEFAULT"
-INSTALL=""
+if [ "$CI" == "true" ]; then
+    INSTALL=""
+else
+    INSTALL=true
+fi
 while ! [ -z "$1" ]; do
     if [ "$1" == "--all" ]; then
         BUILD_TAG=""
@@ -82,7 +86,7 @@ _build_wheel () {
     fi
 }
 
-echo "::group::Detect version"
+echo "::group::cx_Freeze version"
 VERSION=$(_bump_my_version show current_version)
 if [ -z $VERSION ]; then
     VERSION=$(grep "__version__ = " cx_Freeze/__init__.py | sed 's/-/./' | awk -F\" '{print $2}')
@@ -92,6 +96,7 @@ if [[ $VERSION == *-* ]]; then
 else
     VERSION_OK=$VERSION
 fi
+echo "Version: $VERSION ($VERSION_OK)"
 echo "::endgroup::"
 
 mkdir -p wheelhouse >/dev/null
@@ -106,9 +111,9 @@ fi
 echo "::group::Build wheel(s)"
 if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
     DIRTY=$(_bump_my_version show scm_info.dirty)
-    FILEMASK="cx_Freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
+    FILEMASK="cx_freeze-$VERSION_OK-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
     FILEEXISTS=$(ls wheelhouse/$FILEMASK.whl 2>/dev/null || echo '')
-    if [ "$DIRTY" != "False" ] || [ -z "$FILEEXISTS" ]; then
+    if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
         _build_wheel --only "$BUILD_TAG_DEFAULT"
     fi
 elif ! [ -z "$BUILD_TAG" ]; then
@@ -118,7 +123,7 @@ else
 fi
 echo "::endgroup::"
 
-if [ "$INSTALL" == "true" ] || ! [ "$CI" == "true" ]; then
+if [ "$INSTALL" == "true" ]; then
     echo "::group::Install cx_Freeze $VERSION_OK"
     if [[ $PY_PLATFORM == mingw* ]]; then
         pip install "cx_Freeze==$VERSION_OK" -f wheelhouse \

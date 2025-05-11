@@ -65,6 +65,7 @@ doc:
 
 .PHONY: tests
 tests:
+	./ci/install-tools.sh --tests
 	./ci/build-wheel.sh
 	mkdir -p $(COV_TMPDIR)
 	cp pyproject.toml $(COV_TMPDIR)/
@@ -74,6 +75,7 @@ tests:
 
 .PHONY: cov
 cov:
+	./ci/install-tools.sh --tests
 	./ci/build-wheel.sh
 	@rm -rf build/coverage_html_report
 	mkdir -p $(COV_TMPDIR)
