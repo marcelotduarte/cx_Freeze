@@ -37,7 +37,7 @@ repos:
     - validate-pyproject-schema-store[all]>=2024.11.22
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.11.8
+  rev: v0.11.9
   hooks:
   - id: ruff
     args: ["--fix", "--unsafe-fixes"]
@@ -60,7 +60,7 @@ repos:
     args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v20.1.3
+  rev: v20.1.4
   hooks:
   - id: clang-format
     args: ["--style={BasedOnStyle: WebKit, ColumnLimit: 79, AlignConsecutiveMacros: Consecutive, AlignTrailingComments: Always}"]
