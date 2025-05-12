@@ -117,7 +117,6 @@ def test_versions(tmp_package, platform: str, version: int) -> None:
         tmp_package.install("striprtf")
 
     copy_msvcr_files(tmp_package.path, platform, version)
-
     expected = [*MSVC_EXPECTED]
     if version == "15":
         expected.extend(UCRT_EXPECTED)
@@ -136,8 +135,8 @@ def test_nocache(tmp_package) -> None:
     if not (IS_MINGW or IS_WINDOWS):
         tmp_package.install("cabarchive")
         tmp_package.install("striprtf")
-    copy_msvcr_files(tmp_package.path, "win-amd64", "17", no_cache=True)
 
+    copy_msvcr_files(tmp_package.path, "win-amd64", "17", no_cache=True)
     names = [
         file.name.lower()
         for file in tmp_package.path.glob("*.dll")
@@ -150,6 +149,10 @@ def test_repack_main(tmp_package) -> None:
     """Test the cx_Freeze.winmsvcr_repack __main_ entry point."""
     from cx_Freeze.winmsvcr_repack import main_test
 
+    if not (IS_MINGW or IS_WINDOWS):
+        tmp_package.install("cabarchive")
+        tmp_package.install("striprtf")
+
     main_test(
         args=[
             f"--target-dir={tmp_package.path}",
@@ -157,7 +160,6 @@ def test_repack_main(tmp_package) -> None:
             "--version=17",
         ]
     )
-
     names = [
         file.name.lower()
         for file in tmp_package.path.glob("*.dll")
@@ -170,8 +172,11 @@ def test_repack_main_no_option(tmp_package) -> None:
     """Test argparse error exception."""
     from cx_Freeze.winmsvcr_repack import main_test
 
-    main_test(args=[])
+    if not (IS_MINGW or IS_WINDOWS):
+        tmp_package.install("cabarchive")
+        tmp_package.install("striprtf")
 
+    main_test(args=[])
     names = [
         file.name.lower()
         for file in tmp_package.path.glob("dist/*.dll")
