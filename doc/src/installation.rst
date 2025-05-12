@@ -7,7 +7,7 @@ installation works with the most common ones.
 
 .. tabs::
 
-   .. group-tab:: Pip
+   .. group-tab:: pip
 
       To install the latest version of :pypi:`cx_Freeze` using :pypi:`pip` into
       a virtual environment:
@@ -16,13 +16,13 @@ installation works with the most common ones.
 
          pip install --upgrade cx_Freeze
 
-   .. group-tab:: Uv
+   .. group-tab:: uv
 
       .. code-block:: console
 
          uv pip install --upgrade cx_Freeze
 
-   .. group-tab:: Conda
+   .. group-tab:: conda
 
       Installing cx_freeze from the conda-forge channel can be achieved with
       the command:

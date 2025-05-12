@@ -13,6 +13,10 @@ itself works on.
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=stable)](https://cx-freeze.readthedocs.io/en/stable/?badge=stable)
 
+# What's New v8.3:
+- Experimental support for Python 3.11 to 3.13 on Windows ARM64 (win_arm64).
+- Bug fixes, hooks, and more tests.
+
 # What's New v8.2:
 - Make MSI checkbox to "launch on finish" optional.
 - Bug fixes, hooks, and more tests.
