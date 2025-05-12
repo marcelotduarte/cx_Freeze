@@ -23,16 +23,14 @@ from typing import TYPE_CHECKING
 from urllib.error import ContentTooShortError
 from urllib.request import urlretrieve
 
-import cabarchive
 from filelock import FileLock
-from striprtf.striprtf import rtf_to_text
 
 from cx_Freeze._compat import PLATFORM
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-__all__ = ["copy_msvcr_files"]
+__all__ = ["copy_msvcr_files", "get_msvcr_files"]
 
 # All Microsoft CAB archives start with this signature
 MS_CAB_HEADER = b"MSCF\0\0\0\0"
@@ -69,6 +67,8 @@ def split_self_extract_exe(
 
 
 def unpack_cab(cabfile: Path, tmpdir: Path) -> None:
+    import cabarchive
+
     tmpdir.mkdir(exist_ok=True)
     cab = cabarchive.CabArchive(cabfile.read_bytes())
     for file in cab.values():
@@ -168,6 +168,8 @@ def fix_filename_and_copy(
 
 
 def unpack_exe(exe_filename: Path, unpack_dir: Path) -> Generator[Path]:
+    from striprtf.striprtf import rtf_to_text
+
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_path = Path(tmpdir)
         cabs = split_self_extract_exe(exe_filename, tmp_path)
@@ -266,7 +268,8 @@ def copy_msvcr_files(
             shutil.copy2(file, target_dir / file.name)
 
 
-def main() -> None:
+def main_test(args=None) -> None:
+    """Command line test."""
     parser = argparse.ArgumentParser(
         description="Extract MSVC runtime package"
     )
@@ -294,7 +297,7 @@ def main() -> None:
         help="Don't use the cached runtime",
         action="store_true",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     copy_msvcr_files(
         args.target_dir,
@@ -306,4 +309,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main_test()
