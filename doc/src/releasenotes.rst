@@ -12,6 +12,36 @@ Release notes
 8.x releases
 ############
 
+Version 8.3 (May 11)
+--------------------
+#)  Bump version: 8.3.0-dev.0 → 8.3.0 [ci skip] (:pull:`2953`) :user:`marcelotduarte`
+#)  chore: build wheels only for Python 3.11-3.13 on non conventional archs [ci skip] (:pull:`2952`) :user:`marcelotduarte`
+#)  tests: improve install-tools and fixes build-wheel (:pull:`2950`) :user:`marcelotduarte`
+#)  tests: improve build and test on mingw (:pull:`2947`) :user:`marcelotduarte`
+#)  tests: use include_msvcr because tests should pass in a clean system (:pull:`2949`) :user:`marcelotduarte`
+#)  tests: tweaks to work on mingw (:pull:`2948`) :user:`marcelotduarte`
+#)  build(deps): bump pytest-timeout from 2.3.1 to 2.4.0 (:pull:`2946`) :user:`dependabot`
+#)  build(deps): update setuptools requirement from <=80.3.0,>=65.6.3 to >=65.6.3,<=80.3.1 (:pull:`2945`) :user:`dependabot`
+#)  build(deps): update lief requirement to >= 0.15.1 [windows] (:pull:`2944`) :user:`marcelotduarte`
+#)  chore: experimental support for windows arm64 (:pull:`2943`) :user:`marcelotduarte`
+#)  hooks: ensure zlib1.dll is copied if lief is not used in Python 3.12+ (:pull:`2942`) :user:`marcelotduarte`
+#)  build(deps): update setuptools requirement from <=80.0.0,>=65.6.3 to >=65.6.3,<=80.1.0 (:pull:`2941`) :user:`dependabot`
+#)  hooks: add zeroconf (:pull:`2932`) :user:`marcelotduarte`
+#)  build(deps-dev): bump cibuildwheel from 2.23.2 to 2.23.3 (:pull:`2939`) :user:`dependabot`
+#)  build(deps): update setuptools requirement from <=79.0.1,>=65.6.3 to >=65.6.3,<=80.0.0 (:pull:`2940`) :user:`dependabot`
+#)  bases: update base executables and util module [ci skip] (:pull:`2937`) :user:`marcelotduarte`
+#)  hooks: typo in sklearn hook (:pull:`2930`) :user:`marcelotduarte`
+#)  chore: use codespell (:pull:`2936`) :user:`marcelotduarte`
+#)  hooks: support pyarrow 20 on windows (:pull:`2935`) :user:`marcelotduarte`
+#)  chore: get rid of typing_extensions (:pull:`2934`) :user:`marcelotduarte`
+#)  tests: improve fixture tmp_package (install binary) (:pull:`2933`) :user:`marcelotduarte`
+#)  compat: normalize SOABI in mingw python (:pull:`2931`) :user:`marcelotduarte`
+#)  build(deps): bump astral-sh/setup-uv from 5 to 6 (:pull:`2928`) :user:`dependabot`
+#)  build(deps): update setuptools requirement from <=79.0.0,>=65.6.3 to >=65.6.3,<=79.0.1 (:pull:`2927`) :user:`dependabot`
+#)  tests: improve dep_parser tests (:pull:`2925`) :user:`marcelotduarte`
+#)  tests: improve bdist_appimage (:pull:`2924`) :user:`marcelotduarte`
+#)  Bump version: 8.2.0 → 8.3.0-dev.0 [ci skip] (:pull:`2923`) :user:`marcelotduarte`
+
 Version 8.2 (Apr 22)
 --------------------
 #)  Bump version: 8.1.0 → 8.2.0 [ci skip] (:pull:`2922`) :user:`marcelotduarte`
