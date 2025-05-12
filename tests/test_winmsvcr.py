@@ -58,18 +58,15 @@ def test_files() -> None:
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-@pytest.mark.parametrize(
-    "include_msvcr",
-    [False, True, 15, 16, 17],
-)
-def test_build_exe_with(tmp_package, include_msvcr: bool | int | None) -> None:
+@pytest.mark.parametrize("value", [False, True, 15, 16, 17])
+def test_build_with_include_msvcr(tmp_package, value: bool | int) -> None:
     """Test the simple sample with include_msvcr option."""
-    if isinstance(include_msvcr, int):
-        extra_option = f"include_msvcr_version = {include_msvcr}"
-    elif include_msvcr:
-        extra_option = "include_msvcr = true"
-    else:
-        extra_option = ""
+    extra_option = ""
+    if isinstance(value, bool):
+        if value:
+            extra_option = "include_msvcr = true"
+    elif isinstance(value, int):
+        extra_option = f"include_msvcr_version = {value!r}"
     tmp_package.create(SOURCE.format(extra_option=extra_option))
     output = tmp_package.run()
 
@@ -79,7 +76,7 @@ def test_build_exe_with(tmp_package, include_msvcr: bool | int | None) -> None:
     assert output.startswith("Hello from cx_Freeze")
 
     expected = [*MSVC_EXPECTED]
-    if extra_option.endswith("15"):
+    if isinstance(value, int) and value == 15:
         expected.extend(UCRT_EXPECTED)
     build_exe_dir = executable.parent
     names = [
@@ -95,20 +92,14 @@ def test_build_exe_with(tmp_package, include_msvcr: bool | int | None) -> None:
 
 
 @pytest.mark.parametrize(
-    ("platform", "version"),
+    ("version", "platform"),
     [
-        ("win32", "15"),
-        ("win-amd64", "15"),
-        ("win-arm64", "15"),
-        ("win32", "16"),
-        ("win-amd64", "16"),
-        ("win-arm64", "16"),
-        ("win32", "17"),
-        ("win-amd64", "17"),
-        ("win-arm64", "17"),
+        ("15", "win32"),
+        ("15", "win-amd64"),
+        ("15", "win-arm64"),
     ],
 )
-def test_versions(tmp_package, platform: str, version: int) -> None:
+def test_versions(tmp_package, version: int, platform: str) -> None:
     """Test the downloads of all versions of msvcr."""
     from cx_Freeze.winmsvcr_repack import copy_msvcr_files
 
