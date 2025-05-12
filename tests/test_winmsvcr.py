@@ -97,6 +97,12 @@ def test_build_with_include_msvcr(tmp_package, value: bool | int) -> None:
         ("15", "win32"),
         ("15", "win-amd64"),
         ("15", "win-arm64"),
+        ("16", "win32"),
+        ("16", "win-amd64"),
+        ("16", "win-arm64"),
+        ("17", "win32"),
+        ("17", "win-amd64"),
+        ("17", "win-arm64"),
     ],
 )
 def test_versions(tmp_package, version: int, platform: str) -> None:
