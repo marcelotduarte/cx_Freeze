@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.winmsvcr_repack import copy_msvcr_files
 
 MSVC_EXPECTED = (
@@ -92,6 +92,8 @@ def test_build_with_include_msvcr(tmp_package, value: bool | str) -> None:
         assert not names
 
 
+@pytest.mark.skipif(IS_MACOS, reason="Windows tests")
+@pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 @pytest.mark.parametrize(
     ("version", "platform", "no_cache"),
     [
@@ -126,6 +128,7 @@ def test_versions(
     assert names != []
 
 
+@pytest.mark.skipif(IS_MACOS, reason="Windows tests")
 @pytest.mark.parametrize(
     ("version", "platform", "expected_exception", "expected_match"),
     [
@@ -147,6 +150,8 @@ def test_invalid(
         copy_msvcr_files(tmp_package.path, platform, version)
 
 
+@pytest.mark.skipif(IS_MACOS, reason="Windows tests")
+@pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 def test_repack_main(tmp_package) -> None:
     """Test the cx_Freeze.winmsvcr_repack __main_ entry point with args."""
     from cx_Freeze.winmsvcr_repack import main_test
@@ -170,6 +175,8 @@ def test_repack_main(tmp_package) -> None:
     assert names != []
 
 
+@pytest.mark.skipif(IS_MACOS, reason="Windows tests")
+@pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 def test_repack_main_no_option(tmp_package) -> None:
     """Test the cx_Freeze.winmsvcr_repack __main_ entry point without args."""
     from cx_Freeze.winmsvcr_repack import main_test
