@@ -213,12 +213,12 @@ def get_msvcr_files(
     if target_platform in EXE_FILENAMES:
         name = EXE_FILENAMES[target_platform]
     else:
-        msg = f"Architecture {target_platform} not supported"
+        msg = f"Architecture not supported: {target_platform!r}"
         raise RuntimeError(msg)
     if version is None:
         version = max(VC_VERSION_TABLE.keys())
     if version not in VC_VERSION_TABLE:
-        msg = f"Version {version} is not expected"
+        msg = f"Version is not expected: {version!r}"
         raise RuntimeError(msg)
 
     # use a cache dir

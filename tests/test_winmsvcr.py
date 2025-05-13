@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze.winmsvcr_repack import copy_msvcr_files
 
 MSVC_EXPECTED = (
     # VC 2015 and 2017
@@ -92,28 +93,28 @@ def test_build_with_include_msvcr(tmp_package, value: bool | str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("version", "platform"),
+    ("version", "platform", "no_cache"),
     [
-        ("15", "win32"),
-        ("15", "win-amd64"),
-        ("15", "win-arm64"),
-        ("16", "win32"),
-        ("16", "win-amd64"),
-        ("16", "win-arm64"),
-        ("17", "win32"),
-        ("17", "win-amd64"),
-        ("17", "win-arm64"),
+        ("15", "win32", False),
+        ("15", "win-amd64", False),
+        ("15", "win-arm64", False),
+        ("16", "win32", False),
+        ("16", "win-amd64", False),
+        ("16", "win-arm64", False),
+        ("17", "win32", False),
+        ("17", "win-amd64", True),  # just one no_cache is enough
+        ("17", "win-arm64", False),
     ],
 )
-def test_versions(tmp_package, version: int, platform: str) -> None:
+def test_versions(
+    tmp_package, version: int, platform: str, no_cache: bool
+) -> None:
     """Test the downloads of all versions of msvcr."""
-    from cx_Freeze.winmsvcr_repack import copy_msvcr_files
-
     if not (IS_MINGW or IS_WINDOWS):
         tmp_package.install("cabarchive")
         tmp_package.install("striprtf")
 
-    copy_msvcr_files(tmp_package.path, platform, version)
+    copy_msvcr_files(tmp_package.path, platform, version, no_cache=no_cache)
     expected = [*MSVC_EXPECTED]
     if version == "15":
         expected.extend(UCRT_EXPECTED)
@@ -125,25 +126,29 @@ def test_versions(tmp_package, version: int, platform: str) -> None:
     assert names != []
 
 
-def test_nocache(tmp_package) -> None:
-    """Test the downloads of one version of msvcr without use of cache."""
-    from cx_Freeze.winmsvcr_repack import copy_msvcr_files
-
+@pytest.mark.parametrize(
+    ("version", "platform", "expected_exception", "expected_match"),
+    [
+        (17, "win-amd64", RuntimeError, "Version is not expected"),
+        ("18", "win-amd64", RuntimeError, "Version is not expected"),
+        ("17", "", RuntimeError, "Architecture not supported"),
+        ("17", "win64", RuntimeError, "Architecture not supported"),
+    ],
+)
+def test_invalid(
+    tmp_package, version, platform, expected_exception, expected_match
+) -> None:
+    """Test invalid values to use with copy_msvcr_files function."""
     if not (IS_MINGW or IS_WINDOWS):
         tmp_package.install("cabarchive")
         tmp_package.install("striprtf")
 
-    copy_msvcr_files(tmp_package.path, "win-amd64", "17", no_cache=True)
-    names = [
-        file.name.lower()
-        for file in tmp_package.path.glob("*.dll")
-        if any(filter(file.match, MSVC_EXPECTED))
-    ]
-    assert names != []
+    with pytest.raises(expected_exception, match=expected_match):
+        copy_msvcr_files(tmp_package.path, platform, version)
 
 
 def test_repack_main(tmp_package) -> None:
-    """Test the cx_Freeze.winmsvcr_repack __main_ entry point."""
+    """Test the cx_Freeze.winmsvcr_repack __main_ entry point with args."""
     from cx_Freeze.winmsvcr_repack import main_test
 
     if not (IS_MINGW or IS_WINDOWS):
@@ -166,7 +171,7 @@ def test_repack_main(tmp_package) -> None:
 
 
 def test_repack_main_no_option(tmp_package) -> None:
-    """Test argparse error exception."""
+    """Test the cx_Freeze.winmsvcr_repack __main_ entry point without args."""
     from cx_Freeze.winmsvcr_repack import main_test
 
     if not (IS_MINGW or IS_WINDOWS):
