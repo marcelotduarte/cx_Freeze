@@ -249,7 +249,7 @@ def get_msvcr_files(
             else:
                 yield from unpack_dir.iterdir()
         else:
-            msg = f"{filename} not found"
+            msg = f"File not found: {filename}"
             raise RuntimeError(msg)
 
 
