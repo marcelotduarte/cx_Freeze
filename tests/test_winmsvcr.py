@@ -58,15 +58,15 @@ def test_files() -> None:
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-@pytest.mark.parametrize("value", [False, True, 15, 16, 17])
-def test_build_with_include_msvcr(tmp_package, value: bool | int) -> None:
+@pytest.mark.parametrize("value", [False, True, "15", "16", "17"])
+def test_build_with_include_msvcr(tmp_package, value: bool | str) -> None:
     """Test the simple sample with include_msvcr option."""
-    extra_option = ""
-    if isinstance(value, bool):
-        if value:
-            extra_option = "include_msvcr = true"
-    elif isinstance(value, int):
+    if isinstance(value, str):
         extra_option = f"include_msvcr_version = {value!r}"
+    elif isinstance(value, bool) and value:
+        extra_option = "include_msvcr = true"
+    else:
+        extra_option = ""
     tmp_package.create(SOURCE.format(extra_option=extra_option))
     output = tmp_package.run()
 
@@ -76,7 +76,7 @@ def test_build_with_include_msvcr(tmp_package, value: bool | int) -> None:
     assert output.startswith("Hello from cx_Freeze")
 
     expected = [*MSVC_EXPECTED]
-    if isinstance(value, int) and value == 15:
+    if isinstance(value, str) and value == "15":
         expected.extend(UCRT_EXPECTED)
     build_exe_dir = executable.parent
     names = [
@@ -126,7 +126,7 @@ def test_versions(tmp_package, version: int, platform: str) -> None:
 
 
 def test_nocache(tmp_package) -> None:
-    """Test the downloads of all versions of msvcr."""
+    """Test the downloads of one version of msvcr without use of cache."""
     from cx_Freeze.winmsvcr_repack import copy_msvcr_files
 
     if not (IS_MINGW or IS_WINDOWS):
