@@ -9,3 +9,15 @@ In a virtual environment, install by issuing the command:
 ```
 pip install cx_Freeze pillow --upgrade
 ```
+
+Using conda-forge:
+
+```
+conda install --conda-forge cx_freeze pillow
+```
+
+# To build:
+
+```
+cxfreeze build
+```
