@@ -1,25 +1,25 @@
-import os.path
 import sys
+from pathlib import Path
 
 from PIL import Image
 
 
-def find_data_file(filename) -> str:
+def find_data_file(filename: str) -> Path:
     if getattr(sys, "frozen", False):
         # The application is frozen
-        datadir = os.path.join(sys.prefix, "share")
+        datadir = Path(sys.prefix, "share")
     else:
         # The application is not frozen
         # Change this bit to match where you store your data files:
-        datadir = os.path.dirname(__file__)
-    return os.path.join(datadir, filename)
+        datadir = Path(__file__).resolve().parent
+    return datadir / filename
 
 
-print("Opening image with PIL")
+print("Hello from cx_Freeze: Opening image with PIL")
 
-filename_png = find_data_file("favicon.png")
-filename_pdf = os.path.join(os.path.dirname(filename_png), "test_pillow.pdf")
-with Image.open(filename_png) as im, open(filename_pdf, "w+b") as fp:
+filename_png = find_data_file("icon.png")
+filename_pdf = filename_png.parent / "test_pillow.pdf"
+with Image.open(filename_png) as im, filename_pdf.open("w+b") as fp:
     if im.mode == "RGBA":
         im2 = im.convert("RGB")
         im2.save(fp, format="PDF")
