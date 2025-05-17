@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.hooks.libs import replace_delvewheel_patch
+from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -19,22 +18,6 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
 
     Supported pypi and conda-forge versions (lasted tested version is 1.15.2).
     """
-    module_dir = module.file.parent
-    # scipy >= 1.9.2 windows and linux
-    source_dir = module_dir.parent / f"{module.name}.libs"
-    target_dir = f"lib/{source_dir.name}"
-    if not source_dir.exists():
-        # scipy < 1.9.2 or macos
-        source_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
-        target_dir = f"lib/{module.name}/{source_dir.name}"
-    if source_dir.exists():
-        for source in source_dir.iterdir():
-            target = f"{target_dir}/{source.name}"
-            finder.lib_files[source] = target
-        if IS_WINDOWS:
-            finder.include_files(source_dir, target_dir)
-            replace_delvewheel_patch(module)
-
     # Exclude unnecessary modules
     distribution = module.distribution
     if distribution:
