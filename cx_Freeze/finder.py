@@ -471,18 +471,31 @@ class ModuleFinder:
         if module.hook:
             module.hook(self)
 
+        import threading
+
         if module.code is not None:
             if self.replace_paths:
                 module.code = self._replace_paths_in_code(module)
 
             # Scan the module code for import statements
-            self._scan_code(module, deferred_imports)
+            # self._scan_code(module, deferred_imports)
+            thr = threading.Thread(
+                target=self._scan_code, args=(module, deferred_imports)
+            )
+            thr.start()
+            thr.join()
 
             # Verify __package__ in use
             module.code = self._replace_package_in_code(module)
 
         elif module.stub_code is not None:
-            self._scan_code(module, deferred_imports, module.stub_code)
+            # self._scan_code(module, deferred_imports, module.stub_code)
+            thr = threading.Thread(
+                target=self._scan_code,
+                args=(module, deferred_imports, module.stub_code),
+            )
+            thr.start()
+            thr.join()
 
         module.in_import = False
         return module
