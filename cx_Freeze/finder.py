@@ -471,6 +471,12 @@ class ModuleFinder:
         if module.hook:
             module.hook(self)
 
+        # Add dynamic libraries (dependencies) of the package
+        if module is module.root:
+            for source, target in module.libs():
+                self.lib_files.setdefault(source, target)
+                # use include_files on windows
+
         if module.code is not None:
             if self.replace_paths:
                 module.code = self._replace_paths_in_code(module)
