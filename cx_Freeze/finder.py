@@ -15,11 +15,13 @@ from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_WINDOWS
 from cx_Freeze.common import (
     code_object_replace,
     process_path_specs,
     resource_path,
 )
+from cx_Freeze.hooks.libs import replace_delvewheel_patch
 from cx_Freeze.hooks.unused_modules import (
     DEFAULT_EXCLUDES,
     DEFAULT_IGNORE_NAMES,
@@ -470,6 +472,16 @@ class ModuleFinder:
         # Run custom hook for the module
         if module.hook:
             module.hook(self)
+
+        # Add dynamic libraries (dependencies) of the package
+        if module is module.root:
+            for source, target in module.libs():
+                self.lib_files.setdefault(source, target)
+                # use include_files on windows
+                if IS_WINDOWS:
+                    self.include_files(source, target)
+            if IS_WINDOWS:
+                replace_delvewheel_patch(module)
 
         if module.code is not None:
             if self.replace_paths:
