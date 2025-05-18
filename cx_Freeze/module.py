@@ -343,6 +343,12 @@ class Module:
 
     def libs(self) -> Iterator[tuple(Path, str)]:
         """Dynamic libraries distributed along with the package/module."""
+        distribution = self.distribution
+        if distribution:
+            for file in distribution.binary_files:
+                yield file.locate().resolve(), f"lib/{file.as_posix()}"
+            return
+
         module_dir = self.file.parent
         names = [
             f"../{self.name}.libs",  # numpy >= 1.26.0, scipy >= 1.9.2
@@ -351,7 +357,6 @@ class Module:
         ]
         if IS_MACOS:
             names.append(f"{self.name}/.dylibs")  # scipy, pillow, etc on macos
-        distribution = self.distribution
         if distribution:
             names += [
                 f"../{distribution.normalized_name}.libs",  # pillow >= 10.2

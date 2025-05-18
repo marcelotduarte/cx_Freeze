@@ -8,7 +8,6 @@ import sys
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS
-from cx_Freeze.hooks.libs import replace_delvewheel_patch
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -34,13 +33,6 @@ class Hook(ModuleHook):
             and module.in_file_system == 0
         ):
             module.in_file_system = 1
-        distribution = module.distribution
-        if distribution:
-            for file in distribution.binary_files:
-                finder.include_files(
-                    file.locate().resolve(), f"lib/{file.as_posix()}"
-                )
-        replace_delvewheel_patch(module)
         finder.exclude_module("shapely.examples")  # shapely < 2.0
         finder.exclude_module("shapely.tests")  # shapely >= 2.0
 

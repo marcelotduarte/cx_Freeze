@@ -6,22 +6,43 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze.hooks.libs import replace_delvewheel_patch
+from cx_Freeze.module import ModuleHook
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
 
+__all__ = ["Hook"]
 
-def load_rasterio(finder: ModuleFinder, module: Module) -> None:
-    """The rasterio package loads items within itself in a way that causes
-    problems without libs and data being present.
+
+class Hook(ModuleHook):
+    """The Hook class for rasterio.
+
+    Supported pypi versions (tested with 1.4.x).
     """
-    finder.include_package("rasterio")
-    distribution = module.distribution
-    if distribution:
-        for file in distribution.binary_files:
-            finder.include_files(
-                file.locate().resolve(), f"lib/{file.as_posix()}"
-            )
-    replace_delvewheel_patch(module)
+
+    def rasterio(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        """The rasterio package loads items within itself in a way that causes
+        problems without libs and data being present.
+        """
+        # this can be optimized
+        finder.include_package("rasterio")
+
+    def rasterio__io(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        finder.include_module("rasterio.sample")
+        finder.include_module("rasterio.vrt")
+
+    def rasterio__warp(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        finder.include_module("rasterio._features")
