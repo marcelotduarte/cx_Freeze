@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/freezer.py: 89.83%</title>
+    <title>Coverage for cx_Freeze/freezer.py: 90.22%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/freezer.py</b>:
-            <span class="pc_cov">89.83%</span>
+            <span class="pc_cov">90.22%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">767 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">689<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">78<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">692<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">75<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">27<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-05-16 02:28 +0000
+            created at 2025-05-18 06:12 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -305,7 +305,7 @@
     <p class="pln"><span class="n"><a id="t223" href="#t223">223</a></span><span class="t">        <span class="nam">include_mode</span><span class="op">:</span> <span class="nam">bool</span> <span class="op">=</span> <span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t">    <span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_should_copy_file</span><span class="op">(</span><span class="nam">source</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t">        <span class="com"># handle pre-copy tasks, normally on the target path</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t">        <span class="nam">source</span><span class="op">,</span> <span class="nam">target</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_pre_copy_hook</span><span class="op">(</span><span class="nam">source</span><span class="op">,</span> <span class="nam">target</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1488,8 +1488,8 @@
     <p class="run"><span class="n"><a id="t1406" href="#t1406">1406</a></span><span class="t">                            <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1407" href="#t1407">1407</a></span><span class="t">                                <span class="nam">relative</span> <span class="op">=</span> <span class="nam">file</span><span class="op">.</span><span class="nam">relative_to</span><span class="op">(</span><span class="nam">target_dir</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1408" href="#t1408">1408</a></span><span class="t">                                <span class="nam">dependent_target</span> <span class="op">=</span> <span class="nam">file</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1409" href="#t1409">1409</a></span><span class="t">                            <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1410" href="#t1410">1410</a></span><span class="t">                                <span class="nam">relative</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1409" href="#t1409">1409</a></span><span class="t">                            <span class="key">except</span> <span class="nam">ValueError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1410" href="#t1410">1410</a></span><span class="t">                                <span class="nam">relative</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1411" href="#t1411">1411</a></span><span class="t">                                    <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">relpath</span><span class="op">(</span><span class="nam">file</span><span class="op">,</span> <span class="nam">target_dir</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1412" href="#t1412">1412</a></span><span class="t">                                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1413" href="#t1413">1413</a></span><span class="t">                            <span class="key">break</span>&nbsp;</span><span class="r"></span></p>
@@ -1512,7 +1512,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-05-16 02:28 +0000
+            created at 2025-05-18 06:12 +0000
         </p>
     </div>
 </footer>
