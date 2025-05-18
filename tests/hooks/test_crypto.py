@@ -141,18 +141,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="pycryptodome not supported in windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="pycryptodome does not support Python 3.13t",
-    strict=True,
-)
 @zip_packages
 def test_crypto(tmp_package, zip_packages) -> None:
     """Test if pycryptodome is working correctly."""
