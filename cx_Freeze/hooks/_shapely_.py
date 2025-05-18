@@ -33,7 +33,7 @@ class Hook(ModuleHook):
             and sys.version_info[:2] == (3, 9)
             and module.in_file_system == 0
         ):
-            module.in_file_system = 2
+            module.in_file_system = 1
         distribution = module.distribution
         if distribution:
             for file in distribution.binary_files:
