@@ -366,6 +366,8 @@ class bdist_mac(Command):
             self.copy_tree(
                 framework,
                 os.path.join(self.frameworks_dir, os.path.basename(framework)),
+                preserve_mode=True,
+                preserve_symlinks=True,
             )
 
         # Copy in Resources
