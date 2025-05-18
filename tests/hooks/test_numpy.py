@@ -137,3 +137,105 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("scipy version")
     assert len(lines) == 5, lines[2:]
+
+
+SOURCE_TEST_SHAPELY = """
+test_shapely.py
+    import numpy as np
+    import shapely
+    import shapely.geos
+    from shapely.geometry import box, Point
+
+    print("Hello from cx_Freeze")
+    print("numpy version", np.__version__)
+    print("shapely version", shapely.__version__)
+    print("shapely geos version", shapely.geos.geos_version)
+    print("shapely geos version string", shapely.geos.geos_version_string)
+
+    patch = Point(0.0, 0.0).buffer(10.0)
+    polygon = box(0, 0, 2, 2)
+    print(patch)
+    print(polygon)
+pyproject.toml
+    [project]
+    name = "test_shapely"
+    version = "0.1.2.3"
+
+    [tool.cxfreeze]
+    executables = ["test_shapely.py"]
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
+"""
+
+SOURCE_TEST_SHAPELY2 = """
+test_shapely.py
+    import numpy as np
+    import shapely
+    from shapely import Point
+
+    print("Hello from cx_Freeze")
+    print("numpy version", np.__version__)
+    print("shapely version", shapely.__version__)
+    print("shapely geos version", shapely.geos_version)
+    print("shapely geos version string", shapely.geos_version_string)
+
+    patch = Point(0.0, 0.0).buffer(10.0)
+    polygon = shapely.box(0, 0, 2, 2)
+    print(patch)
+    print(polygon)
+pyproject.toml
+    [project]
+    name = "test_shapely"
+    version = "0.1.2.3"
+
+    [tool.cxfreeze]
+    executables = ["test_shapely.py"]
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
+"""
+
+
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="shapely not supported in windows arm64",
+    strict=True,
+)
+@zip_packages
+def test_shapely(tmp_package, zip_packages: bool) -> None:
+    """Test if shapely hook is working correctly."""
+    # shapely 1.8.5 supports Python <= 3.11
+    if sys.version_info[:2] < (3, 10):
+        tmp_package.create(SOURCE_TEST_SHAPELY)
+        tmp_package.install("shapely<2")
+        tmp_package.install("numpy<2")
+    else:
+        tmp_package.create(SOURCE_TEST_SHAPELY2)
+        if sys.version_info[:2] == (3, 10):
+            tmp_package.install("shapely<2.1")
+        else:
+            tmp_package.install("shapely")
+    if zip_packages:
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
+    executable = tmp_package.executable("test_shapely")
+    assert executable.is_file()
+    output = tmp_package.run(executable, timeout=20)
+    lines = output.splitlines()
+    assert lines[0] == "Hello from cx_Freeze"
+    assert lines[1].startswith("numpy version")
+    assert lines[2].startswith("shapely version")
+    assert lines[3].startswith("shapely geos version")
+    assert lines[4].startswith("shapely geos version string")
+    assert lines[5].startswith("POLYGON")
+    assert lines[5].startswith("POLYGON")
+    assert lines[6].startswith("POLYGON")
