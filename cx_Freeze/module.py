@@ -345,8 +345,15 @@ class Module:
         """Dynamic libraries distributed along with the package/module."""
         distribution = self.distribution
         if distribution:
-            for file in distribution.binary_files:
-                yield file.locate().resolve(), f"lib/{file.as_posix()}"
+            for source in distribution.binary_files:
+                if (
+                    self.in_file_system == 0
+                    and not source.parent.name.endswith(".libs")
+                ):
+                    target = f"lib/{source.name}"
+                else:
+                    target = f"lib/{source.as_posix()}"
+                yield source.locate().resolve(), target
             return
 
         module_dir = self.file.parent

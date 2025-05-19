@@ -27,6 +27,9 @@ class Hook(ModuleHook):
         module: Module,  # noqa:ARG002
     ) -> None:
         """The pyarrow must include vendored modules."""
+        finder.exclude_module("pyarrow.include")
+        finder.exclude_module("pyarrow.includes")
+        finder.exclude_module("pyarrow.src")
         finder.exclude_module("pyarrow.tests")
         finder.include_module("pyarrow.vendored.docscrape")
         finder.include_module("pyarrow.vendored.version")
