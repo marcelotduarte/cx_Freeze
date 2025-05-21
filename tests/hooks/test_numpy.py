@@ -65,11 +65,14 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     if sys.version_info[:2] == (3, 9) and IS_LINUX:
-        tmp_package.install("numpy<2")
+        tmp_package.install("numpy<1.26")
         tmp_package.install("matplotlib<3.5")
     elif sys.version_info[:2] <= (3, 10):
-        tmp_package.install("numpy<2")
+        tmp_package.install("numpy<1.26")
         tmp_package.install("matplotlib<3.6")
+    elif sys.version_info[:2] <= (3, 11):
+        tmp_package.install("numpy<2")
+        tmp_package.install("matplotlib<3.7")
     else:
         tmp_package.install("matplotlib")
     output = tmp_package.run()
