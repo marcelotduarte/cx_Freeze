@@ -19,6 +19,67 @@ zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
 
+SOURCE_TEST_MATPLOTLIB = """
+test_matplotlib.py
+    import numpy as np
+    import matplotlib
+
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    t = np.arange(0, 3, 0.01)
+    plt.plot(t, 2 * np.sin(2 * np.pi * t))
+    plt.savefig("test.png")
+
+    print("Hello from cx_Freeze")
+    print("numpy version", np.__version__)
+    print("matplotlib version", matplotlib.__version__)
+pyproject.toml
+    [project]
+    name = "test_matplotlib"
+    version = "0.1.2.3"
+
+    [tool.cxfreeze]
+    executables = ["test_matplotlib.py"]
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
+"""
+
+
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="matplotlib not supported in windows arm64",
+    strict=True,
+)
+@zip_packages
+def test_matplotlib(tmp_package, zip_packages: bool) -> None:
+    """Test if matplotlib hook is working correctly."""
+    tmp_package.create(SOURCE_TEST_MATPLOTLIB)
+    if zip_packages:
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    if sys.version_info[:2] == (3, 9):
+        tmp_package.install("matplotlib<3.5")
+    elif sys.version_info[:2] == (3, 10):
+        tmp_package.install("matplotlib<3.6")
+    else:
+        tmp_package.install("matplotlib")
+    output = tmp_package.run()
+    executable = tmp_package.executable("test_matplotlib")
+    assert executable.is_file()
+    output = tmp_package.run(executable, timeout=20)
+    lines = output.splitlines()
+    assert lines[0] == "Hello from cx_Freeze"
+    assert lines[1].startswith("numpy version")
+    assert lines[2].startswith("matplotlib version")
+    assert tmp_package.path.joinpath("test.png").is_file()
+
 
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,

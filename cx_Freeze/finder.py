@@ -69,7 +69,7 @@ class ModuleFinder:
 
     def __init__(
         self,
-        constants_module: ConstantsModule | None = None,
+        constants_module: ConstantsModule,
         excludes: list[str] | None = None,
         include_files: IncludesList | None = None,
         path: list[str | Path] | None = None,
@@ -89,7 +89,7 @@ class ModuleFinder:
         self.zip_include_all_packages = zip_include_all_packages
         self.zip_exclude_packages: set = set(zip_exclude_packages or [])
         self.zip_include_packages: set = set(zip_include_packages or [])
-        self.constants_module = constants_module
+        self.constants_module: ConstantsModule = constants_module
         self.zip_includes: InternalIncludesList = process_path_specs(
             zip_includes
         )
