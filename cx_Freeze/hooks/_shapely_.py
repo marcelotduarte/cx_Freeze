@@ -35,6 +35,16 @@ class Hook(ModuleHook):
             module.in_file_system = 1
         finder.exclude_module("shapely.examples")  # shapely < 2.0
         finder.exclude_module("shapely.tests")  # shapely >= 2.0
+        if module.in_file_system == 0:  # shapely < 2.0 supports Python <= 3.11
+            module.code = compile(
+                module.file.read_bytes().replace(
+                    b"__file__", b"__file__.replace('library.zip', '.')"
+                ),
+                module.file.as_posix(),
+                "exec",
+                dont_inherit=True,
+                optimize=finder.optimize,
+            )
 
     def shapely_geos(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for shapely.geos for shapely < 2.0."""
