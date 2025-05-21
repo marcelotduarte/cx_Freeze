@@ -483,8 +483,7 @@ class ModuleFinder:
                 dirs = module.libs_dirs()
                 if dirs:
                     libs = self.constants_module.values.get("__LIBS__")
-                    libs_dirs = libs.split(os.pathsep) if libs else []
-                    libs_dirs += dirs
+                    libs_dirs = (libs.split(os.pathsep) if libs else []) + dirs
                     self.add_constant("__LIBS__", os.pathsep.join(libs_dirs))
 
         if module.code is not None:

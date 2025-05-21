@@ -101,10 +101,12 @@ def init() -> None:
         # add extra libs_dirs
         libs_dirs = getattr(BUILD_CONSTANTS, "__LIBS__", None)
         if libs_dirs:
-            for directory in libs_dirs.split(os.pathsep):
-                os.add_dll_directory(
-                    os.path.join(sys.prefix, "lib", directory)
+            for entry in libs_dirs.split(os.pathsep):
+                directory = os.path.normpath(
+                    os.path.join(sys.prefix, "lib", entry)
                 )
+                if os.path.isdir(directory):
+                    os.add_dll_directory(directory)
 
 
 def run() -> None:
