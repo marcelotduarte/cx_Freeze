@@ -98,7 +98,7 @@ def init() -> None:
                 env_path.insert(0, directory)
         env_path = [entry.replace(os.sep, "\\") for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
-        # add extra libs_dirs
+        # add extra "module.libs"
         libs_dirs = getattr(BUILD_CONSTANTS, "__LIBS__", None)
         if libs_dirs:
             for entry in libs_dirs.split(os.pathsep):

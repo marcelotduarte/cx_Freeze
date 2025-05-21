@@ -480,6 +480,9 @@ class ModuleFinder:
                 if IS_WINDOWS:
                     self.include_files(source, target)
             if IS_WINDOWS and module.in_file_system == 0:
+                # Save the directory "module.libs" to be used in __startup__
+                # to simulate what is patched by delvewheel. Using zip file
+                # the value of __file__ is in the zip, not in the "lib".
                 dirs = module.libs_dirs()
                 if dirs:
                     libs = self.constants_module.values.get("__LIBS__")

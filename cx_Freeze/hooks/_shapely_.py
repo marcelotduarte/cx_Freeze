@@ -35,7 +35,9 @@ class Hook(ModuleHook):
             module.in_file_system = 1
         finder.exclude_module("shapely.examples")  # shapely < 2.0
         finder.exclude_module("shapely.tests")  # shapely >= 2.0
-        if module.in_file_system == 0:  # shapely < 2.0 supports Python <= 3.11
+        if module.in_file_system == 0:
+            # shapely < 2.0 supports Python <= 3.11
+            # The directory must be found when uing delvewheel < 1.7.0
             module.code = compile(
                 module.file.read_bytes().replace(
                     b"__file__", b"__file__.replace('library.zip', '.')"
@@ -48,7 +50,7 @@ class Hook(ModuleHook):
 
     def shapely_geos(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for shapely.geos for shapely < 2.0."""
-        # patch the code when necessary
+        # The directory must be found
         if module.in_file_system == 0:
             module.code = compile(
                 module.file.read_bytes().replace(
