@@ -21,7 +21,6 @@ from cx_Freeze.common import (
     process_path_specs,
     resource_path,
 )
-from cx_Freeze.hooks.libs import replace_delvewheel_patch
 from cx_Freeze.hooks.unused_modules import (
     DEFAULT_EXCLUDES,
     DEFAULT_IGNORE_NAMES,
@@ -480,8 +479,13 @@ class ModuleFinder:
                 # use include_files on windows
                 if IS_WINDOWS:
                     self.include_files(source, target)
-            if IS_WINDOWS:
-                replace_delvewheel_patch(module)
+            if IS_WINDOWS and module.in_file_system == 0:
+                dirs = module.libs_dirs()
+                if dirs:
+                    libs = self.constants_module.values.get("__LIBS__")
+                    libs_dirs = libs.split(os.pathsep) if libs else []
+                    libs_dirs += dirs
+                    self.add_constant("__LIBS__", os.pathsep.join(libs_dirs))
 
         if module.code is not None:
             if self.replace_paths:

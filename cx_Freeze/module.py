@@ -140,7 +140,7 @@ class DistributionCache(metadata.PathDistribution):
             file.write("\n".join(record))
 
     @property
-    def binary_files(self) -> list[str]:
+    def binary_files(self) -> list[metadata.PackagePath]:
         """Return the binary files included in the package."""
         files = self.original.files or []
         if IS_MINGW or IS_WINDOWS:
@@ -357,25 +357,45 @@ class Module:
             return
 
         module_dir = self.file.parent
-        names = [
-            f"../{self.name}.libs",  # numpy >= 1.26.0, scipy >= 1.9.2
-            f"{self.name}/.libs",  # old numpy, scipy < 1.9.2
-            f"{self.name}/lib",  # torch
-        ]
-        if IS_MACOS:
-            names.append(f"{self.name}/.dylibs")  # scipy, pillow, etc on macos
+        for name in self.libs_dirs():
+            source_dir = module_dir.parent / name
+            target_dir = "lib" / name
+            for source in source_dir.iterdir():
+                yield source, f"{target_dir}/{source.name}"
+
+    def libs_dirs(self) -> list[str]:
+        """Return the directories where binary files of the package are
+        stored.
+        """
+        distribution = self.distribution
         if distribution:
-            names += [
-                f"../{distribution.normalized_name}.libs",  # pillow >= 10.2
-                f"../{distribution.name}.libs",  # Pillow < 10.2
-            ]
+            return list(
+                {file.parent.as_posix() for file in distribution.binary_files}
+            )
+
+        module_dir = self.file.parent
+        names = {
+            f"../{self.name}.libs",  # numpy >=1.26.0, scipy >=1.9.2
+            f"{self.name}/.libs",  # old numpy, scipy <1.9.2
+            f"{self.name}/lib",  # torch
+        }
+        if IS_MACOS:
+            names.add(f"{self.name}/.dylibs")  # scipy, pillow, etc on macos
+        if distribution:
+            names.update(
+                [
+                    f"../{distribution.normalized_name}.libs",  # pillow >=10.2
+                    f"../{distribution.name}.libs",  # Pillow <10.2
+                ]
+            )
+        valid_dirs = []
         for name in names:
             source_dir = module_dir.joinpath(name).resolve()
             if source_dir.exists():
-                target_dir = "lib" / source_dir.relative_to(module_dir.parent)
-                for source in source_dir.iterdir():
-                    yield source, f"{target_dir}/{source.name}"
-                break
+                valid_dirs.append(
+                    source_dir.relative_to(module_dir.parent).as_posix()
+                )
+        return valid_dirs
 
     def load_hook(self) -> None:
         """Load hook for the given module if one is present.
