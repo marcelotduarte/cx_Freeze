@@ -67,6 +67,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     if sys.version_info[:2] == (3, 9):
         tmp_package.install("matplotlib<3.5")
     elif sys.version_info[:2] == (3, 10):
+        tmp_package.install("numpy<2")
         tmp_package.install("matplotlib<3.6")
     else:
         tmp_package.install("matplotlib")
