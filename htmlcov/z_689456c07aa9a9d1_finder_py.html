@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/finder.py: 95.16%</title>
+    <title>Coverage for cx_Freeze/finder.py: 95.37%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/finder.py</b>:
-            <span class="pc_cov">95.16%</span>
+            <span class="pc_cov">95.37%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">475 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">452<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">23<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">453<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">22<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">5<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-05-21 20:30 +0000
+            created at 2025-05-21 22:22 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -151,7 +151,7 @@
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">        <span class="nam">constants_module</span><span class="op">:</span> <span class="nam">ConstantsModule</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">        <span class="nam">constants_module</span><span class="op">:</span> <span class="nam">ConstantsModule</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">        <span class="nam">excludes</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">        <span class="nam">include_files</span><span class="op">:</span> <span class="nam">IncludesList</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="nam">path</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span> <span class="op">|</span> <span class="nam">Path</span><span class="op">]</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -171,7 +171,7 @@
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">zip_include_all_packages</span> <span class="op">=</span> <span class="nam">zip_include_all_packages</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">zip_exclude_packages</span><span class="op">:</span> <span class="nam">set</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">zip_exclude_packages</span> <span class="key">or</span> <span class="op">[</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">zip_include_packages</span><span class="op">:</span> <span class="nam">set</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">zip_include_packages</span> <span class="key">or</span> <span class="op">[</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">constants_module</span> <span class="op">=</span> <span class="nam">constants_module</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">constants_module</span><span class="op">:</span> <span class="nam">ConstantsModule</span> <span class="op">=</span> <span class="nam">constants_module</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">zip_includes</span><span class="op">:</span> <span class="nam">InternalIncludesList</span> <span class="op">=</span> <span class="nam">process_path_specs</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">            <span class="nam">zip_includes</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -860,7 +860,7 @@
     <p class="pln"><span class="n"><a id="t778" href="#t778">778</a></span><span class="t">            <span class="key">if</span> <span class="nam">mod</span><span class="op">.</span><span class="nam">name</span> <span class="op">==</span> <span class="nam">name</span> <span class="key">or</span> <span class="nam">mod</span><span class="op">.</span><span class="nam">name</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="fst">f"</span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">.</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t779" href="#t779">779</a></span><span class="t">        <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t780" href="#t780">780</a></span><span class="t">        <span class="key">for</span> <span class="nam">mod</span> <span class="key">in</span> <span class="nam">modules_to_discard</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t781" href="#t781">781</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">modules</span><span class="op">.</span><span class="nam">remove</span><span class="op">(</span><span class="nam">mod</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t781" href="#t781">781</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">modules</span><span class="op">.</span><span class="nam">remove</span><span class="op">(</span><span class="nam">mod</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t782" href="#t782">782</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t783" href="#t783">783</a></span><span class="t">    <span class="key">def</span> <span class="nam">include_file_as_module</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t784" href="#t784">784</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span> <span class="nam">path</span><span class="op">:</span> <span class="nam">Path</span> <span class="op">|</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">name</span><span class="op">:</span> <span class="nam">str</span> <span class="op">|</span> <span class="key">None</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
@@ -963,7 +963,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-05-21 20:30 +0000
+            created at 2025-05-21 22:22 +0000
         </p>
     </div>
 </footer>
