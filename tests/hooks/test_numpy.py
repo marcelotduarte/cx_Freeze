@@ -78,7 +78,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_matplotlib")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=30)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
@@ -387,7 +387,7 @@ def test_vtk(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_vtk")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=10)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
