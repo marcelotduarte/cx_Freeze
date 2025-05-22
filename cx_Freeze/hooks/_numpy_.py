@@ -10,8 +10,7 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.hooks.libs import replace_delvewheel_patch
+from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -34,18 +33,8 @@ if TYPE_CHECKING:
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.2.4).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.2.6).
     """
-    source_dir = module.file.parent.parent / f"{module.name}.libs"
-    if source_dir.exists():  # numpy >= 1.26.0
-        target_dir = f"lib/{source_dir.name}"
-        for source in source_dir.iterdir():
-            target = f"{target_dir}/{source.name}"
-            finder.lib_files[source] = target
-        if IS_WINDOWS:
-            finder.include_files(source_dir, target_dir)
-            replace_delvewheel_patch(module)
-
     # Exclude unnecessary modules
     finder.exclude_module("numpy._configtool")
     finder.exclude_module("numpy.conftest")
@@ -93,10 +82,16 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("numpy.polynomial")
     finder.include_module("secrets")
 
+    code_bytes = module.file.read_bytes()
+    if module.in_file_system == 0:
+        code_bytes = code_bytes.replace(
+            b"__file__", b"__file__.replace('library.zip', '.')"
+        )
+    code_bytes = code_bytes.replace(
+        b"import numpy.f2py as f2py", b"f2py = None"
+    )
     module.code = compile(
-        module.file.read_bytes()
-        .replace(b"__file__", b"__file__.replace('library.zip', '.')")
-        .replace(b"import numpy.f2py as f2py", b"f2py = None"),
+        code_bytes,
         module.file.as_posix(),
         "exec",
         dont_inherit=True,
@@ -185,9 +180,10 @@ def load_numpy__core_overrides(finder: ModuleFinder, module: Module) -> None:
     """Recompile the numpy._core.overrides module to workaround optimization
     that removes docstrings, which are required for this module.
     """
-    code_string = module.file.read_text(encoding="utf_8")
     module.code = compile(
-        code_string.replace("dispatcher.__doc__", "dispatcher.__doc__ or ''"),
+        module.file.read_bytes().replace(
+            b"dispatcher.__doc__", b"dispatcher.__doc__ or ''"
+        ),
         module.file.as_posix(),
         "exec",
         dont_inherit=True,
@@ -214,16 +210,6 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     module_dir = module.file.parent
     exclude_dependent_files = False
     if distribution.installer == "pip":
-        # numpy < 1.26.0 - macOS or Windows
-        libs_dir = module_dir.joinpath(".dylibs" if IS_MACOS else ".libs")
-        if libs_dir.is_dir():
-            # copy any file at site-packages/numpy/.libs
-            target_dir = f"lib/numpy/{libs_dir.name}"
-            finder.include_files(
-                libs_dir, target_dir, copy_dependent_files=False
-            )
-            exclude_dependent_files = True
-
         # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl (Windows)
         libs_dir = module_dir / "DLLs"
         if libs_dir.is_dir():

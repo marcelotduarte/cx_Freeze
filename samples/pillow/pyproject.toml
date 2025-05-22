@@ -1,0 +1,12 @@
+[project]
+name = "test_pillow"
+version = "0.1.2.3"
+
+[tool.cxfreeze]
+executables = ["test_pillow.py"]
+
+[tool.cxfreeze.build_exe]
+include_files = [["icon.png", "share/icon.png"]]
+include_msvcr = true
+excludes = ["tkinter", "unittest"]
+silent = true

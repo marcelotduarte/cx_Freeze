@@ -16,11 +16,11 @@ from typing import TYPE_CHECKING
 
 from packaging.requirements import Requirement
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.exception import ModuleError, OptionError
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from types import CodeType
 
 __all__ = ["ConstantsModule", "Module", "ModuleHook"]
@@ -140,7 +140,7 @@ class DistributionCache(metadata.PathDistribution):
             file.write("\n".join(record))
 
     @property
-    def binary_files(self) -> list[str]:
+    def binary_files(self) -> list[metadata.PackagePath]:
         """Return the binary files included in the package."""
         files = self.original.files or []
         if IS_MINGW or IS_WINDOWS:
@@ -237,6 +237,23 @@ class Module:
             return None
         return Path(filename)
 
+    @property
+    def in_file_system(self) -> int:
+        """Returns a value indicating where the module/package will be stored:
+        0. in a zip file (not directly in the file system)
+        1. in the file system, package with modules and data
+        2. in the file system, only detected modules.
+        """
+        if self.parent is not None:
+            return self.parent.in_file_system
+        if self.path is None:
+            return 0
+        return self._in_file_system
+
+    @in_file_system.setter
+    def in_file_system(self, value: int) -> None:
+        self._in_file_system: int = value
+
     @cached_property
     def root_dir(self) -> Path | None:
         file = self.root.file
@@ -324,22 +341,61 @@ class Module:
                 lines.append(line)
         return "\n".join([*lines, ""]) if lines else None
 
-    @property
-    def in_file_system(self) -> int:
-        """Returns a value indicating where the module/package will be stored:
-        0. in a zip file (not directly in the file system)
-        1. in the file system, package with modules and data
-        2. in the file system, only detected modules.
-        """
-        if self.parent is not None:
-            return self.parent.in_file_system
-        if self.path is None:
-            return 0
-        return self._in_file_system
+    def libs(self) -> Iterator[tuple(Path, str)]:
+        """Dynamic libraries distributed along with the package/module."""
+        distribution = self.distribution
+        if distribution:
+            for source in distribution.binary_files:
+                if (
+                    self.in_file_system == 0
+                    and not source.parent.name.endswith(".libs")
+                ):
+                    target = f"lib/{source.name}"
+                else:
+                    target = f"lib/{source.as_posix()}"
+                yield source.locate().resolve(), target
+            return
 
-    @in_file_system.setter
-    def in_file_system(self, value: int) -> None:
-        self._in_file_system: int = value
+        module_dir = self.file.parent
+        for name in self.libs_dirs():
+            source_dir = module_dir.parent / name
+            target_dir = "lib" / name
+            for source in source_dir.iterdir():
+                yield source, f"{target_dir}/{source.name}"
+
+    def libs_dirs(self) -> list[str]:
+        """Return the directories where binary files of the package are
+        stored.
+        """
+        distribution = self.distribution
+        if distribution:
+            return list(
+                {file.parent.as_posix() for file in distribution.binary_files}
+            )
+
+        module_dir = self.file.parent
+        names = {
+            f"../{self.name}.libs",  # numpy >=1.26.0, scipy >=1.9.2
+            f"{self.name}/.libs",  # old numpy, scipy <1.9.2
+            f"{self.name}/lib",  # torch
+        }
+        if IS_MACOS:
+            names.add(f"{self.name}/.dylibs")  # scipy, pillow, etc on macos
+        if distribution:
+            names.update(
+                [
+                    f"../{distribution.normalized_name}.libs",  # pillow >=10.2
+                    f"../{distribution.name}.libs",  # Pillow <10.2
+                ]
+            )
+        valid_dirs = []
+        for name in names:
+            source_dir = module_dir.joinpath(name).resolve()
+            if source_dir.exists():
+                valid_dirs.append(
+                    source_dir.relative_to(module_dir.parent).as_posix()
+                )
+        return valid_dirs
 
     def load_hook(self) -> None:
         """Load hook for the given module if one is present.
@@ -423,7 +479,7 @@ class ModuleHook:
     """The Module Hook class."""
 
     def __init__(self, module: Module) -> None:
-        self.module = module
+        self.module = module  # the root module
         self.name = module.name.replace(".", "_").lower()
 
     def __call__(self, finder) -> None:

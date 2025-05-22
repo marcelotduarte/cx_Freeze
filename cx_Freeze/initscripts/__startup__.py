@@ -98,6 +98,15 @@ def init() -> None:
                 env_path.insert(0, directory)
         env_path = [entry.replace(os.sep, "\\") for entry in env_path]
         os.environ["PATH"] = os.pathsep.join(env_path)
+        # add extra "module.libs"
+        libs_dirs = getattr(BUILD_CONSTANTS, "__LIBS__", None)
+        if libs_dirs:
+            for entry in libs_dirs.split(os.pathsep):
+                directory = os.path.normpath(
+                    os.path.join(sys.prefix, "lib", entry)
+                )
+                if os.path.isdir(directory):
+                    os.add_dll_directory(directory)
 
 
 def run() -> None:
@@ -108,14 +117,15 @@ def run() -> None:
         module_init = __import__(f"__init__{name}")
     except ModuleNotFoundError:
         # but can be renamed when only one executable exists
-        num = BUILD_CONSTANTS._EXECUTABLES_NUMBER  # noqa: SLF001
+        executables = BUILD_CONSTANTS.__EXECUTABLES__.split(os.pathsep)
+        num = len(executables)
         if num > 1:
             msg = (
                 "Apparently, the original executable has been renamed to "
-                f"{name!r}. When multiple executables are generated, "
+                f"{name!r}. When multiple executables are frozen, "
                 "renaming is not allowed."
             )
             raise RuntimeError(msg) from None
-        name = get_name(BUILD_CONSTANTS._EXECUTABLE_NAME_0)  # noqa: SLF001
+        name = get_name(executables[0])
         module_init = __import__(f"__init__{name}")
     module_init.run(f"__main__{name}")
