@@ -349,9 +349,21 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
+    (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) not supported in windows arm64",
+    reason="vtkmodules (vtk) not supported in windows/linux arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    IS_MINGW,
+    raises=ModuleNotFoundError,
+    reason="vtkmodules (vtk) not supported in mingw",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="vtkmodules (vtk) does not support Python 3.13t",
     strict=True,
 )
 @zip_packages
@@ -365,7 +377,7 @@ def test_vtk(tmp_package, zip_packages: bool) -> None:
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     if sys.version_info[:2] == (3, 9):
         tmp_package.install("numpy<1.26")
-        tmp_package.install("vtk<9")
+        tmp_package.install("vtk<9.3")
     elif sys.version_info[:2] <= (3, 10):
         tmp_package.install("numpy<2")
         tmp_package.install("vtk<9.4")
