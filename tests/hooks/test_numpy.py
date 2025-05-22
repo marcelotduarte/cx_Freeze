@@ -305,3 +305,80 @@ def test_shapely(tmp_package, zip_packages: bool) -> None:
     assert lines[5].startswith("POLYGON")
     assert lines[5].startswith("POLYGON")
     assert lines[6].startswith("POLYGON")
+
+
+SOURCE_TEST_VTK = """
+test_vtk.py
+    import numpy as np
+    import vtkmodules
+    from vtkmodules.vtkCommonMath import vtkMatrix3x3
+
+    def main():
+        shape = (3, 3)
+        m = vtkMatrix3x3()
+        m.SetElement(2, 1, 2.0)  # Set element (2,1) to 2.0
+        print('Original matrix:')
+        print_matrix(m.GetData(), shape)
+        m.Invert()
+        print('Inverse:')
+        print_matrix(m.GetData(), shape)
+
+    def print_matrix(m, shape):
+        data = np.array(m)
+        data = data.reshape(shape)
+        print(data)
+
+    if __name__ == '__main__':
+        print("Hello from cx_Freeze")
+        print("numpy version", np.__version__)
+        print("vtkmodules version", vtkmodules.__version__)
+        main()
+pyproject.toml
+    [project]
+    name = "test_vtk"
+    version = "0.1.2.3"
+
+    [tool.cxfreeze]
+    executables = ["test_vtk.py"]
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
+"""
+
+
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="vtkmodules (vtk) not supported in windows arm64",
+    strict=True,
+)
+@zip_packages
+def test_vtk(tmp_package, zip_packages: bool) -> None:
+    """Test if vtkmodules hook is working correctly."""
+    tmp_package.create(SOURCE_TEST_VTK)
+    if zip_packages:
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    if sys.version_info[:2] == (3, 9):
+        tmp_package.install("numpy<1.26")
+        tmp_package.install("vtk<9")
+    elif sys.version_info[:2] <= (3, 10):
+        tmp_package.install("numpy<2")
+        tmp_package.install("vtk<9.4")
+    else:
+        tmp_package.install("numpy")
+        tmp_package.install("vtk")
+    output = tmp_package.run()
+    executable = tmp_package.executable("test_vtk")
+    assert executable.is_file()
+    output = tmp_package.run(executable, timeout=20)
+    lines = output.splitlines()
+    assert lines[0] == "Hello from cx_Freeze"
+    assert lines[1].startswith("numpy version")
+    assert lines[2].startswith("vtkmodules version")
+    assert lines[3].startswith("Original matrix:")
+    assert lines[7].startswith("Inverse:")
