@@ -11,10 +11,7 @@ from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.command.bdist_msi import bdist_msi
 
 if sys.version_info[:2] >= (3, 13):
-    pytest.skip(
-        reason="bdist_msi is not supported on Python 3.13 yet.",
-        allow_module_level=True,
-    )
+    pytest.importorskip("pymsilib", reason="pymsilib is required")
 
 DIST_ATTRS = {
     "name": "foo",

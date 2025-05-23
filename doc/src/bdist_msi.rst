@@ -6,7 +6,8 @@ their dependencies creating Windows installer packages.
 
 .. warning::
 
-   This command is not supported in Python 3.13. See :issue:`2837`.
+   In Python 3.13+, you must install 'pymsilib' to support this command.
+   See :issue:`2837`.
 
 The following options were added to the standard set of options for the
 command:

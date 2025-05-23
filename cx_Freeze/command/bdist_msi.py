@@ -21,7 +21,9 @@ __all__ = ["bdist_msi"]
 
 logger = logging.getLogger(__name__)
 
-if (IS_MINGW or IS_WINDOWS) and sys.version_info[:2] < (3, 13):
+msilib_ok = False
+
+if IS_MINGW or IS_WINDOWS:
 
     @contextlib.contextmanager
     def suppress_known_deprecation() -> contextlib.AbstractContextManager:
@@ -29,7 +31,7 @@ if (IS_MINGW or IS_WINDOWS) and sys.version_info[:2] < (3, 13):
             warnings.filterwarnings("ignore", "'msilib' is deprecated")
             yield
 
-    with suppress_known_deprecation():
+    with suppress_known_deprecation(), contextlib.suppress(ImportError):
         from msilib import (  # pylint: disable=deprecated-module
             CAB,
             PID_AUTHOR,
@@ -57,6 +59,8 @@ if (IS_MINGW or IS_WINDOWS) and sys.version_info[:2] < (3, 13):
         for index, info in enumerate(install_execute_sequence):
             if info[0] == "RemoveExistingProducts":
                 install_execute_sequence[index] = (info[0], info[1], 1450)
+
+        msilib_ok = True
 
 
 class bdist_msi(Command):
@@ -1058,11 +1062,12 @@ class bdist_msi(Command):
         self.launch_on_finish = None
 
     def finalize_options(self) -> None:
-        major = sys.version_info.major
-        minor = sys.version_info.minor
-        if (major, minor) >= (3, 13):
+        if not msilib_ok:
+            major = sys.version_info.major
+            minor = sys.version_info.minor
             msg = (
-                f"bdist_msi is not supported on Python {major}.{minor} yet.\n"
+                f"To support bdist_msi on Python {major}.{minor} you must "
+                "install 'pymsilib'.\n"
                 "       Please check the pinned issue "
                 "https://github.com/marcelotduarte/cx_Freeze/issues/2837"
             )
