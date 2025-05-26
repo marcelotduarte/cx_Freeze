@@ -724,7 +724,7 @@ class Freezer:
                 # otherwise, write to the zip file
                 elif module.code is not None:
                     zip_time = time.localtime(mtime)[:6]
-                    if zip_time[0] < 1980: 
+                    if zip_time[0] < 1980:
                         zip_time = (1980, 1, 1, 0, 0, 0)
                     target_name = "/".join(mod_name_parts)
                     if module.path:
