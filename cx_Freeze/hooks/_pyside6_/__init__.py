@@ -9,7 +9,6 @@ from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW
-from cx_Freeze.common import code_object_replace_function
 from cx_Freeze.hooks.qthooks import load_qt_qt3dinput as load_pyside6_qt3dinput
 from cx_Freeze.hooks.qthooks import (
     load_qt_qt3drender as load_pyside6_qt3drender,
@@ -121,7 +120,7 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch end
         """
     )
-    code = compile(
+    module.code = compile(
         code_string,
         module.file.as_posix(),
         "exec",
@@ -129,21 +128,11 @@ def load_pyside6(finder: ModuleFinder, module: Module) -> None:
         optimize=finder.optimize,
     )
 
-    # shiboken6 in zip_include_packages
-    shiboken6 = finder.include_package("shiboken6")
+    # small tweaks for shiboken6
     if module.in_file_system == 2:
-        shiboken6.in_file_system = 0
-    if shiboken6.in_file_system == 0:
-        name = "_additional_dll_directories"
-        source = f"""\
-        def {name}(package_dir):
-            return []
-        """
-        code = code_object_replace_function(code, name, source)
-    module.code = code
-
-    # extra modules
-    finder.include_module("inspect")  # for shiboken6
+        shiboken6 = finder.include_package("shiboken6")
+        shiboken6.in_file_system = 2
+    finder.include_module("inspect")
 
 
 __all__ = [

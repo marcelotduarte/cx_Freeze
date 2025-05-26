@@ -9,7 +9,6 @@ from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW
-from cx_Freeze.common import code_object_replace_function
 from cx_Freeze.hooks.qthooks import copy_qt_files
 from cx_Freeze.hooks.qthooks import load_qt_qtcore as load_pyside2_qtcore
 from cx_Freeze.hooks.qthooks import (
@@ -99,7 +98,7 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         # cx_Freeze patch end
         """
     )
-    code = compile(
+    module.code = compile(
         code_string,
         module.file.as_posix(),
         "exec",
@@ -107,20 +106,11 @@ def load_pyside2(finder: ModuleFinder, module: Module) -> None:
         optimize=finder.optimize,
     )
 
-    # shiboken2 in zip_include_packages
-    shiboken2 = finder.include_package("shiboken2")
+    # small tweaks for shiboken2
     if module.in_file_system == 2:
-        shiboken2.in_file_system = 0
-    if shiboken2.in_file_system == 0:
-        name = "_additional_dll_directories"
-        source = f"""\
-        def {name}(package_dir):
-            return []
-        """
-        code = code_object_replace_function(code, name, source)
-    finder.include_module("inspect")  # for shiboken2
-
-    module.code = code
+        shiboken2 = finder.include_package("shiboken2")
+        shiboken2.in_file_system = 2
+    finder.include_module("inspect")
 
 
 def load_pyside2_qtwebenginecore(finder: ModuleFinder, module: Module) -> None:
