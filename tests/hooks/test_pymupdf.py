@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import IS_ARM_64, IS_WINDOWS
+from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_WINDOWS
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -37,6 +37,12 @@ pyproject.toml
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="pymupdf not supported in windows arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pymupdf does not support Python 3.13t",
     strict=True,
 )
 @zip_packages
