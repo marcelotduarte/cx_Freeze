@@ -79,7 +79,7 @@ tests = [
         "coverage==7.8.2",
     "pytest-mock==3.14.1",
     "pytest-timeout==2.4.0",
-    "pytest-xdist==3.6.1",
+    "pytest-xdist==3.7.0",
 ]
 
 [project.entry-points."distutils.setup_keywords"]
