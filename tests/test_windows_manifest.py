@@ -77,7 +77,7 @@ def test_manifest(tmp_package) -> None:
 LIEF_VERSIONS = []
 if IS_WINDOWS:
     if IS_ARM_64:
-        LIEF_VERSIONS += ["disabled"]
+        LIEF_VERSIONS += ["0.16.6"]
     else:
         # use 0.16.4 to work with pypi and conda versions
         LIEF_VERSIONS += ["0.15.1", "0.16.4"]
