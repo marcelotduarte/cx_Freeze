@@ -39,12 +39,7 @@ pyproject.toml
     reason="pymupdf not supported in windows arm64",
     strict=True,
 )
-@pytest.mark.xfail(
-    IS_MINGW,
-    raises=ModuleNotFoundError,
-    reason="pymupdf not supported in mingw",
-    strict=True,
-)
+@pytest.mark.skipif(IS_MINGW, reason="pymupdf is broken in mingw")
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
