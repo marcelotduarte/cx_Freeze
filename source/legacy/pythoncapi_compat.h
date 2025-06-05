@@ -2199,6 +2199,71 @@ PyConfig_GetInt(const char *name, int *value)
 #endif  // PY_VERSION_HEX > 0x03090000 && !defined(PYPY_VERSION)
 
 
+#if PY_VERSION_HEX < 0x030F0000
+static inline PyObject*
+PySys_GetAttrString(const char *name)
+{
+#if PY_VERSION_HEX >= 0x03000000
+    PyObject *value = Py_XNewRef(PySys_GetObject(name));
+#else
+    PyObject *value = Py_XNewRef(PySys_GetObject((char*)name));
+#endif
+    if (value != NULL) {
+        return value;
+    }
+    if (!PyErr_Occurred()) {
+        PyErr_Format(PyExc_RuntimeError, "lost sys.%s", name);
+    }
+    return NULL;
+}
+
+static inline PyObject*
+PySys_GetAttr(PyObject *name)
+{
+#if PY_VERSION_HEX >= 0x03000000
+    const char *name_str = PyUnicode_AsUTF8(name);
+#else
+    const char *name_str = PyString_AsString(name);
+#endif
+    if (name_str == NULL) {
+        return NULL;
+    }
+
+    return PySys_GetAttrString(name_str);
+}
+
+static inline int
+PySys_GetOptionalAttrString(const char *name, PyObject **value)
+{
+#if PY_VERSION_HEX >= 0x03000000
+    *value = Py_XNewRef(PySys_GetObject(name));
+#else
+    *value = Py_XNewRef(PySys_GetObject((char*)name));
+#endif
+    if (*value != NULL) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline int
+PySys_GetOptionalAttr(PyObject *name, PyObject **value)
+{
+#if PY_VERSION_HEX >= 0x03000000
+    const char *name_str = PyUnicode_AsUTF8(name);
+#else
+    const char *name_str = PyString_AsString(name);
+#endif
+    if (name_str == NULL) {
+        *value = NULL;
+        return -1;
+    }
+
+    return PySys_GetOptionalAttrString(name_str, value);
+}
+#endif  // PY_VERSION_HEX < 0x030F00A1
+
+
 #ifdef __cplusplus
 }
 #endif
