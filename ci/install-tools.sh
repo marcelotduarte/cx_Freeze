@@ -1,14 +1,20 @@
 #!/bin/bash
 
 INSTALL_DIR="$HOME/bin"
-PY_VERSION=3.12
-
 mkdir -p "$INSTALL_DIR"
 
 if which python &>/dev/null; then
     PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
 else
     PY_PLATFORM=""
+fi
+
+IS_CONDA=$(! [ -z "$CONDA_EXE" ] && echo true)
+IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo true)
+if [ "$IS_MINGW" == "true" ]; then
+    PYTHON_FOR_DEV=$(which python)
+else
+    PYTHON_FOR_DEV=3.12
 fi
 
 # Usage
@@ -32,28 +38,62 @@ done
 
 echo "::group::Install dependencies and build tools"
 # Install/update uv and dev tools
-if [[ $PY_PLATFORM == mingw* ]]; then
-    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+if [ "$IS_CONDA" == "true" ]; then
+    SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
+    # Packages to install
+    pkgs=("uv" "python-build")
 
+    # Dependencies of the project
+    if [ -f requirements.txt ]; then
+        while read -r line; do
+            if [[ $line != *sys_platform* ]] || \
+               [[ $line == *sys_platform*==*${SYS_PLATFORM}* ]]; then
+                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                if [ "$name" == "cx_Logging" ]; then name="cx_logging"; fi
+                pkgs+=("$name")
+            fi
+        done < requirements.txt
+    fi
+
+    # pytest and dependencies
+    if [ -f tests/requirements.txt ]; then
+        if [ "$INSTALL_TESTS" == "true" ]; then
+            while read -r line; do
+                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                pkgs+=("$name")
+            done < tests/requirements.txt
+        fi
+    fi
+
+    # Install mamba to use it to speed up packages install
+    if ! which mamba &>/dev/null; then
+        conda install --quiet --yes mamba
+    fi
+    mamba install --quiet --yes ${pkgs[@]}
+elif [ "$IS_MINGW" == "true" ]; then
     # Packages to install
     pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
 
-    # Dependencies of cx_Freeze
-    while read -r line; do
-        if [[ $line != *sys_platform* ]] || \
-           [[ $line == *sys_platform*==*win32* ]]; then
-            name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
-            if [ "$name" == "cx_Logging" ]; then name="cx-logging"; fi
-            pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
-        fi
-    done < requirements.txt
+    # Dependencies of the project
+    if [ -f requirements.txt ]; then
+        while read -r line; do
+            if [[ $line != *sys_platform* ]] || \
+               [[ $line == *sys_platform*==*win32* ]]; then
+                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                if [ "$name" == "cx_Logging" ]; then name="cx-logging"; fi
+                pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
+            fi
+        done < requirements.txt
+    fi
 
     # pytest and dependencies
-    if [ "$INSTALL_TESTS" == "true" ]; then
-        while read -r line; do
-            name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
-            pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
-        done < tests/requirements.txt
+    if [ -f tests/requirements.txt ]; then
+        if [ "$INSTALL_TESTS" == "true" ]; then
+            while read -r line; do
+                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
+            done < tests/requirements.txt
+        fi
     fi
 
     pacman --needed --noconfirm --quiet -S ${pkgs[@]}
@@ -72,7 +112,7 @@ else
         fi
     fi
 
-    # Dependencies of cx_Freeze
+    # Dependencies of the project
     if [ "$INSTALL_TESTS" == "true" ]; then
         # including pytest and dependencies
         uv pip install --extra tests --upgrade -r pyproject.toml
@@ -82,14 +122,17 @@ else
 fi
 
 # Install dev tools
-while read -r line; do
-    name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
-    if [[ $PY_PLATFORM != mingw* ]] || [ "$name" != "cibuildwheel" ]; then
-        filename=$INSTALL_DIR/$name
-        echo "Create $filename"
-        echo "#!/bin/bash"> $filename
-        echo "uvx -p $PY_VERSION \"$line\" \$@">> $filename
-        chmod +x $filename
-    fi
-done < requirements-dev.txt
+if [ -f requirements-dev.txt ]; then
+    while read -r line; do
+        name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+        if [ "$IS_CONDA" != "true" ] || [ "$IS_MINGW" != "true" ] \
+        || [ "$name" != "cibuildwheel" ]; then
+            filename=$INSTALL_DIR/$name
+            echo "Create $filename"
+            echo "#!/bin/bash"> $filename
+            echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> $filename
+            chmod +x $filename
+        fi
+    done < requirements-dev.txt
+fi
 echo "::endgroup::"
