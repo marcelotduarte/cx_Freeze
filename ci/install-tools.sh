@@ -65,7 +65,7 @@ if [ "$IS_CONDA" == "true" ]; then
         fi
     fi
 
-    # Install mamba to use it to speed up packages install
+    # Install mamba and use it to speed up packages install
     if ! which mamba &>/dev/null; then
         conda install --quiet --yes mamba
     fi

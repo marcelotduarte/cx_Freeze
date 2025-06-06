@@ -108,7 +108,12 @@ NAME=$(grep "^name = " pyproject.toml | awk -F\" '{print $2}')
 NORMALIZED_NAME=${NAME,,}
 VERSION=$(_bump_my_version show current_version)
 if [ -z $VERSION ]; then
-    VERSION=$(grep "__version__ = " $NAME/__init__.py | sed 's/-/./' | awk -F\" '{print $2}')
+    if [ -d src ]; then
+        FILENAME=src/$NAME/__init__.py
+    else
+        FILENAME=$NAME/__init__.py
+    fi
+    VERSION=$(grep "__version__ = " $FILENAME | sed 's/-/./' | awk -F\" '{print $2}')
 fi
 if [[ $VERSION == *-* ]]; then
     NORMALIZED_VERSION=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
