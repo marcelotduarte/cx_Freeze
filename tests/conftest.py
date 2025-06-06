@@ -26,8 +26,9 @@ PYTHON_VERSION = sysconfig.get_python_version()
 ABI_THREAD = sysconfig.get_config_var("abi_thread") or ""
 BUILD_EXE_DIR = Path(f"build/exe.{PLATFORM}-{PYTHON_VERSION}{ABI_THREAD}")
 EXE_SUFFIX = sysconfig.get_config_var("EXE")
-IS_MINGW = PLATFORM.startswith("mingw")
 
+IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
+IS_MINGW = PLATFORM.startswith("mingw")
 
 HERE = Path(__file__).resolve().parent
 SAMPLES_DIR = HERE.parent / "samples"
@@ -135,6 +136,16 @@ class TempPackage:
     def install(
         self, package, *, binary=True, index=None, isolated=True
     ) -> str:
+        if IS_CONDA:
+            cmd = f"mamba install --quiet --yes {package}"
+            with FileLock(self.system_path / "conda.lock"):
+                try:
+                    output = self.run(cmd, cwd=self.system_path)
+                except CalledProcessError:
+                    raise ModuleNotFoundError(package) from None
+                print(output)
+            return None
+
         if IS_MINGW:
             MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
             require = Requirement(package)

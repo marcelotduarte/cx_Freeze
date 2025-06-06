@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.winmsvcr_repack import copy_msvcr_files
 
 MSVC_EXPECTED = (
@@ -92,6 +92,8 @@ def test_build_with_include_msvcr(tmp_package, value: bool | str) -> None:
         assert not names
 
 
+# Test only on Windows and Linux (not conda on Linux)
+@pytest.mark.skipif(IS_CONDA and not IS_WINDOWS, reason="Windows tests")
 @pytest.mark.skipif(IS_MACOS, reason="Windows tests")
 @pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 @pytest.mark.parametrize(
@@ -128,6 +130,7 @@ def test_versions(
     assert names != []
 
 
+@pytest.mark.skipif(IS_CONDA and not IS_WINDOWS, reason="Windows tests")
 @pytest.mark.skipif(IS_MACOS, reason="Windows tests")
 @pytest.mark.parametrize(
     ("version", "platform", "expected_exception", "expected_match"),
@@ -150,6 +153,7 @@ def test_invalid(
         copy_msvcr_files(tmp_package.path, platform, version)
 
 
+@pytest.mark.skipif(IS_CONDA and not IS_WINDOWS, reason="Windows tests")
 @pytest.mark.skipif(IS_MACOS, reason="Windows tests")
 @pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 def test_repack_main(tmp_package) -> None:
@@ -175,6 +179,7 @@ def test_repack_main(tmp_package) -> None:
     assert names != []
 
 
+@pytest.mark.skipif(IS_CONDA and not IS_WINDOWS, reason="Windows tests")
 @pytest.mark.skipif(IS_MACOS, reason="Windows tests")
 @pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 def test_repack_main_no_option(tmp_package) -> None:
