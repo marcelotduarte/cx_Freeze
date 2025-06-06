@@ -10,7 +10,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_ARM_64, IS_LINUX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    IS_ARM_64,
+    IS_CONDA,
+    IS_LINUX,
+    IS_MINGW,
+    IS_WINDOWS,
+)
 from cx_Freeze.dep_parser import ELFParser
 from cx_Freeze.exception import PlatformError
 
@@ -97,6 +103,7 @@ def test_verify_patchelf(monkeypatch) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+@pytest.mark.skipif(IS_LINUX and IS_CONDA, reason="Disabled on conda-forge")
 def test_verify_patchelf_older(tmp_package) -> None:
     """Test the _verify_patchelf with older version."""
     tmp_package.create(SOURCE)

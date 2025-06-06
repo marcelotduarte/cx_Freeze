@@ -56,7 +56,10 @@ def test_argon2(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("argon2_cffi")
+    if IS_MINGW:
+        tmp_package.install("argon2_cffi")
+    else:
+        tmp_package.install("argon2-cffi")
     output = tmp_package.run()
     executable = tmp_package.executable("test_argon2")
     assert executable.is_file()
