@@ -21,8 +21,12 @@ def load_pymupdf(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.update(
         ["mupdf_cppyy", "mupdf", "pymupdf_fonts", "PIL"]
     )
-    finder.include_module("pymupdf.mupdf")
-    finder.include_module("pymupdf.utils")
+    with suppress(ImportError):
+        finder.include_package("mupdf")  # conda
+    with suppress(ImportError):
+        finder.include_module("pymupdf.mupdf")
+    with suppress(ImportError):
+        finder.include_module("pymupdf.utils")
     with suppress(ImportError):
         finder.include_module("pymupdf._wxcolors")  # 1.25.4
 

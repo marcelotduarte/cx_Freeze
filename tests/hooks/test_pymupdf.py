@@ -6,7 +6,13 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    IS_ARM_64,
+    IS_CONDA,
+    IS_MINGW,
+    IS_WINDOWS,
+)
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -56,9 +62,9 @@ def test_pymupdf(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     if sys.version_info[:2] <= (3, 10):
-        package = "pymupdf==1.24.4"
+        package = "pymupdf~=1.24.4" if IS_CONDA else "pymupdf==1.24.4"
     elif sys.version_info[:2] < (3, 11):
-        package = "pymupdf==1.26"
+        package = "pymupdf<=1.26"
     else:
         package = "pymupdf"
     tmp_package.install(package)
