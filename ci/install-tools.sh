@@ -9,7 +9,7 @@ else
     PY_PLATFORM=""
 fi
 
-IS_CONDA=$(! [ -z "$CONDA_EXE" ] && echo true)
+IS_CONDA=$([ -n "$CONDA_EXE" ] && echo true)
 IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo true)
 if [ "$IS_MINGW" == "true" ]; then
     PYTHON_FOR_DEV=$(which python)
@@ -18,16 +18,16 @@ else
 fi
 
 # Usage
-if ! [ -z "$1" ] && [ "$1" == "--help" ]; then
+if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
     echo "$0 [--tests]"
     echo "Where:"
-    echo "  --tests Install additional packages to run `pytest`."
+    echo "  --tests Install additional packages to run 'pytest'."
     exit 1
 fi
 
 INSTALL_TESTS=""
-while ! [ -z "$1" ]; do
+while [ -n "$1" ]; do
     if [ "$1" == "--tests" ]; then
         INSTALL_TESTS=true
     else
@@ -48,10 +48,12 @@ if [ "$IS_CONDA" == "true" ]; then
         while read -r line; do
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*${SYS_PLATFORM}* ]]; then
-                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 if [ "$name" == "cx_Logging" ]; then name="cx_logging"; fi
                 if [ "$name" == "lief" ]; then name="py-lief"; fi
-                pkgs+=("$name")
+                if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
+                    pkgs+=("$name")
+                fi
             fi
         done < requirements.txt
     fi
@@ -60,7 +62,7 @@ if [ "$IS_CONDA" == "true" ]; then
     if [ -f tests/requirements.txt ]; then
         if [ "$INSTALL_TESTS" == "true" ]; then
             while read -r line; do
-                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 pkgs+=("$name")
             done < tests/requirements.txt
         fi
@@ -68,12 +70,13 @@ if [ "$IS_CONDA" == "true" ]; then
 
     # Install libmamba-solver and use it to speed up packages install
     echo "Update conda to use libmamba-solver"
-    $CONDA_EXE clean --index --quiet --yes
+    $CONDA_EXE clean --index-cache --logfiles --quiet --yes
     $CONDA_EXE update -n base conda --quiet --yes
     $CONDA_EXE install -n base conda-libmamba-solver --quiet --yes
     $CONDA_EXE config --set solver libmamba
     echo "Install packages"
-    $CONDA_EXE install --quiet --yes -c conda-forge ${pkgs[@]}
+    echo "${pkgs[@]}"
+    $CONDA_EXE install -c conda-forge "${pkgs[@]}" -S -q -y
 elif [ "$IS_MINGW" == "true" ]; then
     # Packages to install
     pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
@@ -83,9 +86,11 @@ elif [ "$IS_MINGW" == "true" ]; then
         while read -r line; do
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*win32* ]]; then
-                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 if [ "$name" == "cx_Logging" ]; then name="cx-logging"; fi
-                pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
+                if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
+                    pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
+                fi
             fi
         done < requirements.txt
     fi
@@ -94,14 +99,14 @@ elif [ "$IS_MINGW" == "true" ]; then
     if [ -f tests/requirements.txt ]; then
         if [ "$INSTALL_TESTS" == "true" ]; then
             while read -r line; do
-                name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
             done < tests/requirements.txt
         fi
     fi
 
     echo "Install packages"
-    pacman --needed --noconfirm --quiet -S ${pkgs[@]}
+    pacman --needed --noconfirm --quiet -S "${pkgs[@]}"
 else
     if [ "$CI" == "true" ]; then
         if ! which uv &>/dev/null; then
@@ -130,14 +135,14 @@ fi
 # Install dev tools
 if [ -f requirements-dev.txt ]; then
     while read -r line; do
-        name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
+        name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
         if [ "$IS_CONDA" != "true" ] || [ "$IS_MINGW" != "true" ] \
         || [ "$name" != "cibuildwheel" ]; then
             filename=$INSTALL_DIR/$name
             echo "Create $filename"
-            echo "#!/bin/bash"> $filename
-            echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> $filename
-            chmod +x $filename
+            echo "#!/bin/bash"> "$filename"
+            echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
+            chmod +x "$filename"
         fi
     done < requirements-dev.txt
 fi

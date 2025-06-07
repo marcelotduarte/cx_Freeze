@@ -142,7 +142,7 @@ class TempPackage:
             if require.marker is None or require.marker.evaluate():
                 package = require.name
             CONDA_EXE = os.environ["CONDA_EXE"]
-            cmd = f"{CONDA_EXE} install --quiet --yes {package}"
+            cmd = f"{CONDA_EXE} install -c conda-forge {package} -S -q -y"
             with FileLock(self.system_path / "conda.lock"):
                 try:
                     output = self.run(cmd, cwd=self.system_path)
