@@ -71,7 +71,7 @@ tests:
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples/ $(COV_TMPDIR)/
 	cp -a tests/ $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest -nauto --no-cov || true
+	cd $(COV_TMPDIR) && pytest -nauto --no-cov -v || true
 
 .PHONY: cov
 cov:

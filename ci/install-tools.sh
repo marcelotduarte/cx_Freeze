@@ -50,6 +50,7 @@ if [ "$IS_CONDA" == "true" ]; then
                [[ $line == *sys_platform*==*${SYS_PLATFORM}* ]]; then
                 name=$(echo $line | awk -F '[><=]+' '{ print $1 }')
                 if [ "$name" == "cx_Logging" ]; then name="cx_logging"; fi
+                if [ "$name" == "lief" ]; then name="py-lief"; fi
                 pkgs+=("$name")
             fi
         done < requirements.txt
@@ -65,11 +66,14 @@ if [ "$IS_CONDA" == "true" ]; then
         fi
     fi
 
-    # Install mamba and use it to speed up packages install
-    if ! which mamba &>/dev/null; then
-        conda install --quiet --yes mamba
-    fi
-    mamba install --quiet --yes ${pkgs[@]}
+    # Install libmamba-solver and use it to speed up packages install
+    echo "Update conda to use libmamba-solver"
+    $CONDA_EXE clean --index --quiet --yes
+    $CONDA_EXE update -n base conda --quiet --yes
+    $CONDA_EXE install -n base conda-libmamba-solver --quiet --yes
+    $CONDA_EXE config --set solver libmamba
+    echo "Install packages"
+    $CONDA_EXE install --quiet --yes -c conda-forge ${pkgs[@]}
 elif [ "$IS_MINGW" == "true" ]; then
     # Packages to install
     pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
@@ -96,6 +100,7 @@ elif [ "$IS_MINGW" == "true" ]; then
         fi
     fi
 
+    echo "Install packages"
     pacman --needed --noconfirm --quiet -S ${pkgs[@]}
 else
     if [ "$CI" == "true" ]; then
@@ -113,6 +118,7 @@ else
     fi
 
     # Dependencies of the project
+    echo "Install packages"
     if [ "$INSTALL_TESTS" == "true" ]; then
         # including pytest and dependencies
         uv pip install --extra tests --upgrade -r pyproject.toml

@@ -137,7 +137,12 @@ class TempPackage:
         self, package, *, binary=True, index=None, isolated=True
     ) -> str:
         if IS_CONDA:
-            cmd = f"mamba install --quiet --yes {package}"
+            # Ignore versions
+            require = Requirement(package)
+            if require.marker is None or require.marker.evaluate():
+                package = require.name
+            CONDA_EXE = os.environ["CONDA_EXE"]
+            cmd = f"{CONDA_EXE} install --quiet --yes {package}"
             with FileLock(self.system_path / "conda.lock"):
                 try:
                     output = self.run(cmd, cwd=self.system_path)
