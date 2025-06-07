@@ -1,5 +1,5 @@
 ci:
-  skip: [blacken-docs, build-docs]
+  skip: [blacken-docs, build-docs, shellcheck]
 
 exclude: |
   (?x)^(
