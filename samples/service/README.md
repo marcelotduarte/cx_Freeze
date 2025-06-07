@@ -10,7 +10,6 @@ value for <Name> is intended to differentiate between different invocations
 of the same service code -- for example for accessing different databases or
 using different configuration files.
 
-
 # Installation and requirements:
 
 In a virtual environment, install by issuing the command:

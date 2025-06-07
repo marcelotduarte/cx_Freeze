@@ -22,6 +22,7 @@ Please check the setup.py as example on how to use this feature.
 
 cx_Freeze imports automatically the following plugins depending of the use of
 some modules:
+
 - imageformats - QtGui
 - platforms - QtGui
 - mediaservice - QtMultimedia

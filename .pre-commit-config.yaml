@@ -1,109 +1,112 @@
 ci:
-    skip: [blacken-docs, build-docs]
+  skip: [blacken-docs, build-docs]
 
 exclude: |
-    (?x)^(
-        .bumpversion.cfg|
-        cx_Freeze/hooks/_pyqt5_/_resource.py|
-        cx_Freeze/hooks/_pyside2_/_resource.py|
-        cx_Freeze/hooks/_pyside6_/_resource.py|
-        cx_Freeze/importshed/.*.pyi|
-        doc/src/conf.py
-    )$
+  (?x)^(
+      cx_Freeze/hooks/_pyqt5_/_resource.py|
+      cx_Freeze/hooks/_pyside2_/_resource.py|
+      cx_Freeze/hooks/_pyside6_/_resource.py|
+      cx_Freeze/importshed/.*.pyi|
+      doc/src/conf.py
+  )$
 
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+      - id: trailing-whitespace
 
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
-  hooks:
-  - id: check-added-large-files
-  - id: check-case-conflict
-  - id: check-merge-conflict
-  - id: check-shebang-scripts-are-executable
-  - id: check-symlinks
-  - id: check-toml
-  - id: check-yaml
-  - id: end-of-file-fixer
-  - id: fix-byte-order-marker
-  - id: mixed-line-ending
-    args: ["--fix=lf"]
-  - id: trailing-whitespace
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+        additional_dependencies:
+          - validate-pyproject-schema-store[all]>=2024.11.22
 
-- repo: https://github.com/abravalheri/validate-pyproject
-  rev: v0.24.1
-  hooks:
-  - id: validate-pyproject
-    additional_dependencies:
-    - validate-pyproject-schema-store[all]>=2024.11.22
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff-check
+        args: ["--fix", "--show-fixes"]
+      - id: ruff-format
 
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.11.12
-  hooks:
-  - id: ruff-check
-    args: ["--fix", "--unsafe-fixes"]
-  - id: ruff-format
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: 1.19.1
+    hooks:
+      - id: blacken-docs
+        additional_dependencies:
+          - black==25.1.0
+        args: ["-l", "79"]
 
-- repo: https://github.com/adamchainz/blacken-docs
-  rev: 1.19.1
-  hooks:
-  - id: blacken-docs
-    additional_dependencies:
-    - black==25.1.0
-    args: ["-l", "79"]
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+        args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
 
-- repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
-  hooks:
-  - id: codespell
-    additional_dependencies:
-    - tomli
-    args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v20.1.5
+    hooks:
+      - id: clang-format
+        args: ["--style=file:source/.clang-format"]
+        exclude: |
+          (?x)^(source/bases/pythoncapi_compat.h|
+                source/legacy/pythoncapi_compat.h
+          )$
 
-- repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v20.1.5
-  hooks:
-  - id: clang-format
-    args: ["--style=file:source/.clang-format"]
-    exclude: |
-            (?x)^(source/bases/pythoncapi_compat.h|
-                  source/legacy/pythoncapi_compat.h
-            )$
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: "v3.5.3"
+    hooks:
+      - id: prettier
+        types_or: [yaml, markdown, html, css, scss, javascript, json]
+  - repo: local
+    hooks:
+      - id: pythoncapi
+        name: upgrade pythoncapi
+        entry: ci/pythoncapi.sh
+        language: system
+        files: ^(source/bases/pythoncapi_compat.h|
+          source/.*.c
+          )$
 
-- repo: local
-  hooks:
-  - id: pythoncapi
-    name: upgrade pythoncapi
-    entry: ci/pythoncapi.sh
-    language: system
-    files: ^(source/bases/pythoncapi_compat.h|
-             source/.*.c
-            )$
+  - repo: local
+    hooks:
+      - id: build-docs
+        name: build sphinx docs
+        language: system
+        entry: make -C doc html
+        always_run: true
+        pass_filenames: false
 
-- repo: local
-  hooks:
-  - id: build-docs
-    name: build sphinx docs
-    language: system
-    entry: make -C doc html
-    always_run: true
-    pass_filenames: false
+  - repo: local
+    hooks:
+      - id: license
+        name: license
+        language: system
+        entry: python ci/license.py
+        files: ^(doc/src/license.rst|
+          cx_Freeze/initscripts/frozen_application_license.txt
+          )$
 
-- repo: local
-  hooks:
-  - id: license
-    name: license
-    language: system
-    entry: python ci/license.py
-    files: ^(doc/src/license.rst|
-             cx_Freeze/initscripts/frozen_application_license.txt
-            )$
-
-- repo: local
-  hooks:
-  - id: requirements
-    name: requirements
-    language: system
-    entry: python ci/requirements.py
-    files: ^(pyproject.toml|requirements.txt|requirements-dev.txt|
-             doc/requirements.txt|tests/requirements.txt
-            )$
+  - repo: local
+    hooks:
+      - id: requirements
+        name: requirements
+        language: system
+        entry: python ci/requirements.py
+        files: ^(pyproject.toml|requirements.txt|requirements-dev.txt|
+          doc/requirements.txt|tests/requirements.txt
+          )$

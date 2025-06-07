@@ -1,4 +1,4 @@
-**cx\_Freeze** creates standalone executables from Python scripts, with the
+**cx_Freeze** creates standalone executables from Python scripts, with the
 same performance, is cross-platform and should work on any platform that Python
 itself works on.
 
@@ -14,18 +14,22 @@ itself works on.
 [![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=stable)](https://cx-freeze.readthedocs.io/en/stable/?badge=stable)
 
 # What's New v8.3:
+
 - Experimental support for Python 3.11 to 3.13 on Windows ARM64 (win_arm64).
 - Bug fixes, hooks, and more tests.
 
 # What's New v8.2:
+
 - Make MSI checkbox to "launch on finish" optional.
 - Bug fixes, hooks, and more tests.
 
 # What's New v8.1:
+
 - Add "launch on finish" checkbox to the MSI installer.
 - Bug fixes and improvements (including hook additions and enhancements).
 
 # What's New v8.0:
+
 - Python 3.13 support.
 - Python 3.13 free-threaded support for Linux and macOS.
 - Download and extract the [MSVC Redistributable files](https://cx-freeze.readthedocs.io/en/stable/faq.html#microsoft-visual-c-redistributable-package).
@@ -40,6 +44,7 @@ installation works with the most common ones, which are pip and conda.
 
 To install the latest version of `cx_Freeze` using `pip` into a
 virtual environment:
+
 ```
 pip install --upgrade cx_Freeze
 ```
@@ -53,6 +58,7 @@ pip install --extra-index-url https://test.pypi.org/simple/ cx_Freeze --pre --no
 
 Installing cx_freeze from the conda-forge channel can be achieved with the
 command:
+
 ```
 conda install conda-forge::cx_freeze
 ```
@@ -71,8 +77,8 @@ If you need help you can also ask on the
 
 # License
 
-cx\_Freeze uses a license derived from the
+cx_Freeze uses a license derived from the
 [Python Software Foundation License](https://www.python.org/psf/license).
-You can read the cx\_Freeze license in the
+You can read the cx_Freeze license in the
 [documentation](https://cx-freeze.readthedocs.io/en/stable/license.html)
 or in the [source repository](LICENSE.md).
