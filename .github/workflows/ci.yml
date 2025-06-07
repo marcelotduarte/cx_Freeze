@@ -32,7 +32,6 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -55,18 +54,17 @@ jobs:
       matrix:
         os: [ubuntu, windows, macos]
         os_version: [latest]
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.13t']
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.13t"]
         exclude:
           - os: windows
             os_version: latest
-            python-version: '3.13t'  # provisional
+            python-version: "3.13t" # provisional
     defaults:
       run:
         shell: bash
     env:
       UV_NO_PROGRESS: true
     steps:
-
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get install -qy alien fakeroot rpm
@@ -124,7 +122,6 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Download coverage data

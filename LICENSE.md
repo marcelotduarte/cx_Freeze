@@ -1,10 +1,10 @@
 # Licensing
 
--   Copyright © 2020-2025, Marcelo Duarte.
--   Copyright © 2007-2019, Anthony Tuininga.
--   Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta,
-    Canada.
--   All rights reserved.
+- Copyright © 2020-2025, Marcelo Duarte.
+- Copyright © 2007-2019, Anthony Tuininga.
+- Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta,
+  Canada.
+- All rights reserved.
 
 NOTE: This license is derived from the Python Software Foundation
 License which can be found at
