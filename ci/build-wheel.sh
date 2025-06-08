@@ -9,7 +9,7 @@ INSTALL_TOOLS="1"
 if [ -n "$UV_PYTHON" ]; then
     if ! which uv &>/dev/null; then
         # Install/update uv
-        "$CI_DIR"/install-tools.sh
+        "$CI_DIR/install-tools.sh"
         INSTALL_TOOLS="0"
     fi
     PYTHON=$(uv python find "$UV_PYTHON")
@@ -78,13 +78,13 @@ done
 
 # Install/update uv
 if [ "$INSTALL_TOOLS" == "1" ]; then
-    "$CI_DIR"/install-tools.sh
+    "$CI_DIR/install-tools.sh"
 fi
 
 # Use of dev tools
 _bump_my_version () {
     local value
-    value=$("$HOME"/bin/bump-my-version "$*" 2>/dev/null)
+    value=$("$HOME/bin/bump-my-version" "$*" 2>/dev/null)
     $PYTHON -c "print('$value'.replace('\r','').replace('\n',''), end='')"
 }
 
@@ -98,7 +98,7 @@ _build_wheel () {
         # Do not export UV_SYSTEM_PYTHON to avoid conflict with uv in
         # cibuildwheel on macOS and Windows
         unset UV_SYSTEM_PYTHON
-        "$HOME"/bin/cibuildwheel "$args"
+        "$HOME/bin/cibuildwheel" "$args"
     fi
 }
 
