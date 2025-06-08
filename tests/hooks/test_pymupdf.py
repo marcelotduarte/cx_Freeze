@@ -10,6 +10,8 @@ from cx_Freeze._compat import (
     ABI_THREAD,
     IS_ARM_64,
     IS_CONDA,
+    IS_LINUX,
+    IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
 )
@@ -39,13 +41,17 @@ pyproject.toml
 """
 
 
+@pytest.mark.skipif(
+    IS_CONDA and (IS_LINUX or IS_WINDOWS or (IS_ARM_64 and IS_MACOS)),
+    reason="pymupdf is broken in conda-forge (except on OSX64)",
+)
+@pytest.mark.skipif(IS_MINGW, reason="pymupdf is broken in mingw")
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="pymupdf not supported in windows arm64",
     strict=True,
 )
-@pytest.mark.skipif(IS_MINGW, reason="pymupdf is broken in mingw")
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
