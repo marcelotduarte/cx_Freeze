@@ -9,7 +9,9 @@ import pytest
 from cx_Freeze._compat import (
     ABI_THREAD,
     IS_ARM_64,
+    IS_CONDA,
     IS_LINUX,
+    IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
     IS_X86_64,
@@ -348,6 +350,10 @@ pyproject.toml
 """
 
 
+@pytest.mark.skipif(
+    IS_CONDA and (IS_LINUX or (IS_ARM_64 and IS_MACOS)),
+    reason="vtkmodules (vtk) is too slow in conda-forge (Linux and OSX_ARM64)",
+)
 @pytest.mark.xfail(
     (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
     raises=ModuleNotFoundError,
