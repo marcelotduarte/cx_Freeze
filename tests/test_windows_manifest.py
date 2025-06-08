@@ -8,7 +8,7 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_MINGW, IS_WINDOWS
 from cx_Freeze.dep_parser import PEParser
 
 if sys.platform != "win32":
@@ -78,9 +78,10 @@ LIEF_VERSIONS = []
 if IS_WINDOWS:
     if IS_ARM_64:
         LIEF_VERSIONS += ["0.16.6"]
+    elif IS_CONDA:
+        LIEF_VERSIONS += ["installed"]
     else:
-        # use 0.16.4 to work with pypi and conda versions
-        LIEF_VERSIONS += ["0.15.1", "0.16.4"]
+        LIEF_VERSIONS += ["0.15.1", "0.16.6"]
 elif IS_MINGW:
     LIEF_VERSIONS += ["installed"]
 

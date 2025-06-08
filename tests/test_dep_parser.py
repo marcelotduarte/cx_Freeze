@@ -32,9 +32,10 @@ if IS_WINDOWS:
     PACKAGE_VERSION = [("imagehlp", "bind")]
     if IS_ARM_64:
         PACKAGE_VERSION += [("lief", "0.16.6")]
+    elif IS_CONDA:
+        PACKAGE_VERSION += [("py-lief", "0.16.4")]
     else:
-        # use 0.16.4 to work with pypi and conda versions
-        PACKAGE_VERSION += [("lief", "0.15.1"), ("lief", "0.16.4")]
+        PACKAGE_VERSION += [("lief", "0.15.1"), ("lief", "0.16.6")]
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
 elif IS_LINUX:
