@@ -42,6 +42,8 @@ class ExtensionFinder(PathFinder):
             return None
         suffixes = EXTENSION_SUFFIXES
         for entry in sys.path:
+            if type(empty) is not str:
+                continue
             if ".zip" in entry:
                 continue
             for ext in suffixes:
