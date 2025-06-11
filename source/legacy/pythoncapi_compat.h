@@ -1457,6 +1457,18 @@ PyUnicodeWriter_WriteUTF8(PyUnicodeWriter *writer,
 }
 
 static inline int
+PyUnicodeWriter_WriteASCII(PyUnicodeWriter *writer,
+                           const char *str, Py_ssize_t size)
+{
+    if (size < 0) {
+        size = (Py_ssize_t)strlen(str);
+    }
+
+    return _PyUnicodeWriter_WriteASCIIString((_PyUnicodeWriter*)writer,
+                                             str, size);
+}
+
+static inline int
 PyUnicodeWriter_WriteWideChar(PyUnicodeWriter *writer,
                               const wchar_t *str, Py_ssize_t size)
 {

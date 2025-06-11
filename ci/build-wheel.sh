@@ -45,7 +45,7 @@ else
         PLATFORM_TAG_MASK="win*"
     fi
 fi
-BUILD_TAG_DEFAULT="$PYTHON_TAG"-"$PLATFORM_TAG""$PY_ABI_THREAD"
+BUILD_TAG_DEFAULT="$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG"
 
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
@@ -54,7 +54,7 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "Where:"
     echo "  --all     Build all valid wheels for current OS."
     echo "  TAG       Force build the wheel for the given identifier."
-    echo "            [default: ${BUILD_TAG_DEFAULT}]"
+    echo "            [default: $BUILD_TAG_DEFAULT]"
     echo "  --install Install after build [default on local builds]."
     exit 1
 fi
@@ -93,7 +93,7 @@ _build_wheel () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
     elif [[ $PY_PLATFORM == win* ]] && [[ $args == *--only* ]]; then
-        uv build -p "$PY_VERSION""$PY_ABI_THREAD" --wheel -o wheelhouse
+        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
     else
         # Do not export UV_SYSTEM_PYTHON to avoid conflict with uv in
         # cibuildwheel on macOS and Windows
@@ -125,19 +125,19 @@ echo "::endgroup::"
 
 mkdir -p wheelhouse >/dev/null
 if [[ $PY_PLATFORM == linux* ]]; then
-    FILEMASK="$NORMALIZED_NAME"-"$NORMALIZED_VERSION"
-    FILEEXISTS=$(ls wheelhouse/"$FILEMASK".tar.gz 2>/dev/null || echo '')
+    FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION"
+    FILEEXISTS=$(ls "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
     if [ -z "$FILEEXISTS" ]; then
         echo "::group::Build sdist"
-        uv build -p "$PY_VERSION""$PY_ABI_THREAD" --sdist -o wheelhouse
+        uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
         echo "::endgroup::"
     fi
 fi
 echo "::group::Build wheel(s)"
 if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
     DIRTY=$(_bump_my_version show scm_info.dirty)
-    FILEMASK="$NORMALIZED_NAME"-"$NORMALIZED_VERSION"-"$PYTHON_TAG"-"$PYTHON_TAG""$PY_ABI_THREAD"-"$PLATFORM_TAG_MASK"
-    FILEEXISTS=$(ls wheelhouse/"$FILEMASK".whl 2>/dev/null || echo '')
+    FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
+    FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
     if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
         _build_wheel --only "$BUILD_TAG_DEFAULT"
     fi
@@ -151,10 +151,10 @@ echo "::endgroup::"
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
     if [[ $PY_PLATFORM == mingw* ]]; then
-        pip install "$NORMALIZED_NAME"=="$NORMALIZED_VERSION" -f wheelhouse \
+        pip install "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
             --no-deps --no-index --force-reinstall
     else
-        uv pip install "$NORMALIZED_NAME"=="$NORMALIZED_VERSION" -f wheelhouse \
+        uv pip install "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
             --no-build --no-deps --no-index --prerelease=allow --reinstall
     fi
     echo "::endgroup::"
