@@ -11,6 +11,7 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
+@pytest.mark.venv
 @zip_packages
 def test_pillow(tmp_package, zip_packages: bool) -> None:
     """Test if pillow hook is working correctly."""

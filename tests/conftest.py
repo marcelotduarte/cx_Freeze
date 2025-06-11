@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import string
 import sys
 import sysconfig
 from pathlib import Path
-from shutil import copytree, ignore_patterns, which
+from shutil import copytree, ignore_patterns, rmtree, which
 from subprocess import CalledProcessError, check_output
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -29,6 +30,7 @@ EXE_SUFFIX = sysconfig.get_config_var("EXE")
 
 IS_CONDA = Path(sys.prefix, "conda-meta").is_dir()
 IS_MINGW = PLATFORM.startswith("mingw")
+HAVE_UV = which("uv") is not None
 
 HERE = Path(__file__).resolve().parent
 SAMPLES_DIR = HERE.parent / "samples"
@@ -48,8 +50,13 @@ class TempPackage:
         self.monkeypatch = monkeypatch
 
         # environment
+        self.sys_executable = Path(sys.executable)
+        self.prefix = Path(sys.prefix)
         self.system_path: Path = Path(os.getcwd())
         self.system_prefix: Path = Path(sys.prefix)
+        self.relative_bin = self.sys_executable.parent.relative_to(
+            self.system_prefix
+        )
         self.relative_site = Path(pytest.__file__).parent.parent.relative_to(
             self.system_prefix
         )
@@ -60,7 +67,6 @@ class TempPackage:
         MAXVAL = 30
         name = name[:MAXVAL]
         self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
-        self.prefix: Path | None = None
         monkeypatch.chdir(self.path)
 
     def create(self, source: str) -> None:
@@ -121,76 +127,145 @@ class TempPackage:
             command.split() if isinstance(command, str) else list(command)
         )
         if command[0] == "cxfreeze":
-            cxfreeze = which("cxfreeze")
-            if not cxfreeze:
-                cxfreeze = which("cxfreeze", path=os.pathsep.join(sys.path))
+            cxfreeze = which("cxfreeze", path=self.prefix / self.relative_bin)
             if cxfreeze:
                 command[0] = cxfreeze
             else:
                 command = ["python", "-m", "cx_Freeze"] + command[1:]
         if command[0] == "python":
-            command[0] = sys.executable
+            command[0] = self.sys_executable
         cwd = os.fspath(self.path if cwd is None else cwd)
         return check_output(command, text=True, timeout=timeout, cwd=cwd)
 
     def install(
-        self, package, *, binary=True, index=None, isolated=True
+        self,
+        package,
+        *,
+        binary: bool = True,
+        index: bool | str | None = None,
+        isolated=True,
     ) -> str:
+        require = Requirement(package)
+        if require.marker is not None and not require.marker.evaluate():
+            return None
+        pkg_name = require.name
+        pkg_spec = str(require.specifier)
         if IS_CONDA:
-            # Ignore versions
-            require = Requirement(package)
-            if require.marker is None or require.marker.evaluate():
-                package = require.name
-            CONDA_EXE = os.environ["CONDA_EXE"]
-            cmd = f"{CONDA_EXE} install -c conda-forge {package} -S -q -y"
-            with FileLock(self.system_path / "conda.lock"):
-                try:
-                    output = self.run(cmd, cwd=self.system_path)
-                except CalledProcessError:
-                    raise ModuleNotFoundError(package) from None
-                print(output)
-            return None
-
+            return self._install_conda(pkg_name)
         if IS_MINGW:
-            MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
-            require = Requirement(package)
-            if require.marker is None or require.marker.evaluate():
-                package = require.name
-            cmd = (
-                "pacman -S --needed --noconfirm --quiet "
-                f"{MINGW_PACKAGE_PREFIX}-python-{package}"
+            return self._install_mingw(pkg_name)
+        if HAVE_UV:
+            return self._install_uv(
+                pkg_name,
+                pkg_spec,
+                binary,
+                index,
+                isolated=isolated and self.prefix.name != ".venv",
             )
-            with FileLock("/var/lib/pacman/db.lck"):
-                try:
-                    output = self.run(cmd, cwd=self.system_path)
-                except CalledProcessError:
-                    raise ModuleNotFoundError(package) from None
-            return None
+        request = self.request
+        pytest.skip(
+            f"{request.config.args[0]}::{request.node.name} - {pkg_name} "
+            "must be installed"
+        )
 
-        if which("uv") is None:
-            request = self.request
-            pytest.skip(
-                f"{request.config.args[0]}::{request.node.name} - {package} "
-                "must be installed"
-            )
+    def _install_conda(self, pkg_name) -> str:
+        CONDA_EXE = os.environ["CONDA_EXE"]
+        cmd = f"{CONDA_EXE} install -c conda-forge {pkg_name} -S -q -y"
+        with FileLock(self.system_path / "conda.lock"):
+            try:
+                output = self.run(cmd, cwd=self.system_path)
+            except CalledProcessError:
+                raise ModuleNotFoundError(pkg_name) from None
+        return output
 
+    def _install_mingw(self, pkg_name) -> str:
+        MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
+        cmd = (
+            "pacman -S --needed --noconfirm --quiet "
+            f"{MINGW_PACKAGE_PREFIX}-python-{pkg_name}"
+        )
+        with FileLock("/var/lib/pacman/db.lck"):
+            try:
+                output = self.run(cmd, cwd=self.system_path)
+            except CalledProcessError:
+                raise ModuleNotFoundError(pkg_name) from None
+        return output
+
+    def _install_uv(
+        self,
+        pkg_name: str,
+        pkg_spec: str,
+        binary: bool = True,
+        index: bool | str | Path | None = None,
+        isolated: bool = False,
+    ) -> str:
+        package = f"{pkg_name}{pkg_spec}"
         cmd = f"uv pip install {package}"
         if binary:
             cmd = f"{cmd} --no-build"
-        if index is not None:
+        if index is False:
+            cmd = f"{cmd} --no-index"
+        elif isinstance(index, str):
             cmd = f"{cmd} --index {index}"
+        elif isinstance(index, Path):
+            cmd = f"{cmd} -f {index} --no-index"
         if isolated:
             self.prefix = self.path / ".tmp_prefix"
-            cmd = f"{cmd} --prefix={self.prefix} --python={sys.executable}"
+        if self.prefix.name == ".venv" or isolated:
+            cmd += f" --prefix={self.prefix} --python={self.sys_executable}"
         try:
             output = self.run(cmd, cwd=self.system_path)
         except CalledProcessError:
-            raise ModuleNotFoundError(package) from None
+            raise ModuleNotFoundError(pkg_name) from None
         if isolated:
-            tmp_site = self.prefix / self.relative_site
-            self.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
+            tmp_site = os.path.normpath(self.prefix / self.relative_site)
+            self.monkeypatch.setenv("PYTHONPATH", tmp_site)
             self.monkeypatch.syspath_prepend(tmp_site)
         return output
+
+    def venv(self) -> None:
+        if IS_CONDA or IS_MINGW:
+            return
+        if HAVE_UV:
+            self._venv_uv()
+
+    def _venv_uv(self) -> None:
+        # get the list of packages
+        output = self.run("uv pip list --format=json -q")
+        packages = json.loads(output)
+        # create venv
+        venv_prefix = self.path / ".venv"
+        pyproject = self.system_path.joinpath("pyproject.toml")
+        if pyproject.is_file():
+            self.run(f"uv venv --python={PYTHON_VERSION}")
+        else:
+            # use a venv clone
+            if sys.prefix != sys.base_prefix:
+                copytree(
+                    sys.prefix,  # self.system_prefix
+                    venv_prefix,
+                    symlinks=True,
+                    ignore=ignore_patterns(".lock"),
+                )
+            self.run(f"uv venv --python={PYTHON_VERSION} --allow-existing")
+        # point to the new environment
+        self.sys_executable = (
+            venv_prefix / self.relative_bin / self.sys_executable.name
+        )
+        self.prefix = venv_prefix
+        # install the packages in the new environment
+        if pyproject.is_file():
+            self._install_uv("-r", pyproject)
+            for pkg in packages:
+                if pkg["name"] != "cx-freeze":
+                    continue
+                project_location = pkg.get("editable_project_location")
+                if project_location:
+                    self._install_uv("-e", project_location)
+                else:
+                    wheelhouse = self.system_path / "wheelhouse"
+                    pkg_spec = f"=={pkg['version']}"
+                    self._install_uv("cx-freeze", pkg_spec, index=wheelhouse)
 
 
 @pytest.fixture
@@ -200,4 +275,22 @@ def tmp_package(
     monkeypatch: pytest.MonkeyPatch,
 ) -> TempPackage:
     """Create package in temporary path, based on source (or sample)."""
-    return TempPackage(request, tmp_path_factory, monkeypatch)
+    tmp_package = TempPackage(request, tmp_path_factory, monkeypatch)
+    # activate venv if has a venv mark
+    for _marker in request.node.iter_markers(name="venv"):
+        tmp_package.venv()
+    yield tmp_package
+    # remove the venv or temporary prefix to reduce disk usage
+    try:
+        tmp_package.prefix.relative_to(tmp_package.path)
+    except ValueError:
+        pass
+    else:
+        rmtree(tmp_package.prefix, ignore_errors=True)
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Register an additional marker."""
+    config.addinivalue_line(
+        "markers", "venv: mark test to run in a virtual environment"
+    )

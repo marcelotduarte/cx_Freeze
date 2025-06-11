@@ -9,6 +9,7 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
+@pytest.mark.venv
 @zip_packages
 def test_pytz(tmp_package, zip_packages: bool) -> None:
     """Test if pytz hook is working correctly."""

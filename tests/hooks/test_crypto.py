@@ -47,6 +47,7 @@ pyproject.toml
     reason="argon2-cffi does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_argon2(tmp_package, zip_packages) -> None:
     """Test if argon2-cffi is working correctly."""
@@ -94,6 +95,7 @@ pyproject.toml
     reason="bcrypt not supported in windows arm64",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_bcrypt(tmp_package, zip_packages) -> None:
     """Test if bcrypt is working correctly."""
@@ -144,6 +146,7 @@ pyproject.toml
 """
 
 
+@pytest.mark.venv
 @zip_packages
 def test_crypto(tmp_package, zip_packages) -> None:
     """Test if pycryptodome is working correctly."""
@@ -198,6 +201,7 @@ pyproject.toml
     reason="cryptography does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_cryptography(tmp_package, zip_packages) -> None:
     """Test if cryptography is working correctly."""
