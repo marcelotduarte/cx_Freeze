@@ -237,11 +237,10 @@ class TempPackage:
         output = self.run("uv pip list --format=json -q")
         packages = json.loads(output)
         # create venv
+        cmd = f"uv venv --python={PYTHON_VERSION}{ABI_THREAD}"
         venv_prefix = self.path / ".venv"
         pyproject = self.system_path.joinpath("pyproject.toml")
-        if pyproject.is_file():
-            self.run(f"uv venv --python={PYTHON_VERSION}")
-        else:
+        if not pyproject.is_file():
             # use a venv clone
             if sys.prefix != sys.base_prefix:
                 copytree(
@@ -250,7 +249,8 @@ class TempPackage:
                     symlinks=True,
                     ignore=ignore_patterns(".lock"),
                 )
-            self.run(f"uv venv --python={PYTHON_VERSION} --allow-existing")
+            cmd += " --allow-existing"
+        self.run(cmd)
         # point to the new environment
         self.sys_executable = (
             venv_prefix / self.relative_bin / self.sys_executable.name
