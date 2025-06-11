@@ -50,15 +50,18 @@ class TempPackage:
         self.monkeypatch = monkeypatch
 
         # environment
-        self.sys_executable = Path(sys.executable)
-        self.prefix = Path(sys.prefix)
+        self.prefix: Path = Path(sys.prefix)
+        self.prefix_is_venv: bool = False
+        self.sys_executable: Path = Path(sys.executable)
         self.system_path: Path = Path(os.getcwd())
         self.system_prefix: Path = Path(sys.prefix)
-        self.relative_bin = self.sys_executable.parent.relative_to(
+        self.relative_bin: str = self.sys_executable.parent.relative_to(
             self.system_prefix
-        )
-        self.relative_site = Path(pytest.__file__).parent.parent.relative_to(
-            self.system_prefix
+        ).as_posix()
+        self.relative_site: str = (
+            Path(pytest.__file__)
+            .parent.parent.relative_to(self.system_prefix)
+            .as_posix()
         )
 
         # make a temporary directory and set it as current
@@ -160,7 +163,7 @@ class TempPackage:
                 pkg_spec,
                 binary,
                 index,
-                isolated=isolated and self.prefix.name != ".venv",
+                isolated=isolated and not self.prefix_is_venv,
             )
         request = self.request
         pytest.skip(
@@ -211,7 +214,7 @@ class TempPackage:
             cmd = f"{cmd} -f {index} --no-index"
         if isolated:
             self.prefix = self.path / ".tmp_prefix"
-        if self.prefix.name == ".venv" or isolated:
+        if self.prefix_is_venv or isolated:
             cmd += f" --prefix={self.prefix} --python={self.sys_executable}"
         try:
             output = self.run(cmd, cwd=self.system_path)
@@ -253,6 +256,7 @@ class TempPackage:
             venv_prefix / self.relative_bin / self.sys_executable.name
         )
         self.prefix = venv_prefix
+        self.prefix_is_venv = True
         # install the packages in the new environment
         if pyproject.is_file():
             self._install_uv("-r", pyproject)
