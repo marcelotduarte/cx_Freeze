@@ -84,7 +84,7 @@ cov:
 	cp -a samples/ $(COV_TMPDIR)/
 	cp -a tests/ $(COV_TMPDIR)/
 	cp -a wheelhouse/ $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest -nauto --cov="cx_Freeze" || true
+	cd $(COV_TMPDIR) && pytest --durations=20 -nauto --cov="cx_Freeze" || true
 	coverage combine -a $(COV_TMPDIR)/.coverage
 	coverage report
 	coverage html

@@ -173,8 +173,11 @@ class TempPackage:
 
     def _install_conda(self, pkg_name) -> str:
         CONDA_EXE = os.environ["CONDA_EXE"]
-        cmd = f"{CONDA_EXE} install -c conda-forge {pkg_name} -S -q -y"
-        with FileLock(self.system_path / "conda.lock"):
+        cmd = (
+            f"{CONDA_EXE} install -p {self.prefix} {pkg_name} "
+            "-c conda-forge -S -q -y"
+        )
+        with FileLock(self.prefix / ".lock"):
             try:
                 output = self.run(cmd, cwd=self.system_path)
             except CalledProcessError:
@@ -227,10 +230,27 @@ class TempPackage:
         return output
 
     def venv(self) -> None:
-        if IS_CONDA or IS_MINGW:
+        if IS_CONDA:
+            self._venv_conda()
+        elif IS_MINGW:
             return
-        if HAVE_UV:
+        elif HAVE_UV:
             self._venv_uv()
+
+    def _venv_conda(self) -> None:
+        CONDA_EXE = os.environ["CONDA_EXE"]
+        CONDA_ENV = os.environ["CONDA_DEFAULT_ENV"]
+        # create venv
+        venv_prefix = self.path / ".conda"
+        cmd = f"{CONDA_EXE} create --clone {CONDA_ENV} -p {venv_prefix} -q -y"
+        with FileLock(self.prefix / ".lock"):
+            self.run(cmd)
+        # point to the new environment
+        self.sys_executable = (
+            venv_prefix / self.relative_bin / self.sys_executable.name
+        )
+        self.prefix = venv_prefix
+        self.prefix_is_venv = True
 
     def _venv_uv(self) -> None:
         # get the list of packages
@@ -271,6 +291,22 @@ class TempPackage:
                     pkg_spec = f"=={pkg['version']}"
                     self._install_uv("cx-freeze", pkg_spec, index=wheelhouse)
 
+    def cleanup(self) -> None:
+        # remove the venv or temporary prefix to reduce disk usage
+        try:
+            self.prefix.relative_to(self.path)
+        except ValueError:
+            pass
+        else:
+            if IS_CONDA:
+                CONDA_EXE = os.environ["CONDA_EXE"]
+                # remove venv
+                venv_prefix = self.prefix
+                cmd = f"{CONDA_EXE} remove --all -p {venv_prefix} -q -y"
+                self.run(cmd)
+            else:
+                rmtree(self.prefix, ignore_errors=True)
+
 
 @pytest.fixture
 def tmp_package(
@@ -279,18 +315,13 @@ def tmp_package(
     monkeypatch: pytest.MonkeyPatch,
 ) -> TempPackage:
     """Create package in temporary path, based on source (or sample)."""
-    tmp_package = TempPackage(request, tmp_path_factory, monkeypatch)
+    tmp_pkg = TempPackage(request, tmp_path_factory, monkeypatch)
     # activate venv if has a venv mark
-    for _marker in request.node.iter_markers(name="venv"):
-        tmp_package.venv()
-    yield tmp_package
+    if len(list(request.node.iter_markers(name="venv"))) > 0:
+        tmp_pkg.venv()
+    yield tmp_pkg
     # remove the venv or temporary prefix to reduce disk usage
-    try:
-        tmp_package.prefix.relative_to(tmp_package.path)
-    except ValueError:
-        pass
-    else:
-        rmtree(tmp_package.prefix, ignore_errors=True)
+    tmp_pkg.cleanup()
 
 
 def pytest_configure(config: pytest.Config) -> None:
