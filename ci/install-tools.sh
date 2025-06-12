@@ -49,7 +49,7 @@ if [ "$IS_CONDA" == "true" ]; then
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*${SYS_PLATFORM}* ]]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                if [ "$name" == "cx_Logging" ]; then name="cx_logging"; fi
+                if [ "$name" == "cx-logging" ]; then name="cx_logging"; fi
                 if [ "$name" == "lief" ]; then name="py-lief"; fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$name")
@@ -87,7 +87,6 @@ elif [ "$IS_MINGW" == "true" ]; then
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*win32* ]]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                if [ "$name" == "cx_Logging" ]; then name="cx-logging"; fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
                 fi
