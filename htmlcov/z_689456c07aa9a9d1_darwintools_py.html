@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/darwintools.py: 68.03%</title>
+    <title>Coverage for cx_Freeze/darwintools.py: 65.85%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/darwintools.py</b>:
-            <span class="pc_cov">68.03%</span>
+            <span class="pc_cov">65.85%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">366 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">249<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">117<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">241<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">125<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">8<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_dep_parser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.2">coverage.py v7.8.2</a>,
-            created at 2025-06-07 20:59 +0000
+            created at 2025-06-12 03:54 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -113,7 +113,7 @@
     <p class="run"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t"><span class="key">def</span> <span class="nam">isMachOFile</span><span class="op">(</span><span class="nam">path</span><span class="op">:</span> <span class="nam">Path</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="str">"""Determines whether the file is a Mach-O file."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="key">if</span> <span class="key">not</span> <span class="nam">path</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="key">return</span> <span class="str">b"Mach-O"</span> <span class="key">in</span> <span class="nam">subprocess</span><span class="op">.</span><span class="nam">check_output</span><span class="op">(</span><span class="op">(</span><span class="str">"file"</span><span class="op">,</span> <span class="nam">path</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -338,10 +338,10 @@
     <p class="mis show_mis"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t">        <span class="key">raise</span> <span class="nam">PlatformError</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t">    <span class="key">def</span> <span class="nam">resolveRPath</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">path</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">Path</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t">        <span class="key">for</span> <span class="nam">rpath</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">getRPath</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t">            <span class="nam">test_path</span> <span class="op">=</span> <span class="nam">rpath</span> <span class="op">/</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">.</span><span class="nam">relative_to</span><span class="op">(</span><span class="str">"@rpath"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t">            <span class="key">if</span> <span class="nam">isMachOFile</span><span class="op">(</span><span class="nam">test_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t">                <span class="key">return</span> <span class="nam">test_path</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t">        <span class="key">for</span> <span class="nam">rpath</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">getRPath</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t">            <span class="nam">test_path</span> <span class="op">=</span> <span class="nam">rpath</span> <span class="op">/</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">.</span><span class="nam">relative_to</span><span class="op">(</span><span class="str">"@rpath"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t">            <span class="key">if</span> <span class="nam">isMachOFile</span><span class="op">(</span><span class="nam">test_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t">                <span class="key">return</span> <span class="nam">test_path</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t263" href="#t263">263</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">self</span><span class="op">.</span><span class="nam">strict</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t264" href="#t264">264</a></span><span class="t">            <span class="com"># If not strictly enforcing rpath, return None here, and leave any</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t265" href="#t265">265</a></span><span class="t">            <span class="com"># error to .finalizeReferences() instead.</span>&nbsp;</span><span class="r"></span></p>
@@ -363,7 +363,7 @@
     <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t">        <span class="key">for</span> <span class="nam">raw_path</span> <span class="key">in</span> <span class="nam">raw_paths</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t">            <span class="nam">test_rp</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t">            <span class="key">if</span> <span class="nam">test_rp</span><span class="op">.</span><span class="nam">is_absolute</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">test_rp</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">test_rp</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t">            <span class="key">elif</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isLoaderPath</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">resolveLoader</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t">            <span class="key">elif</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isExecutablePath</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -384,7 +384,7 @@
     <p class="run"><span class="n"><a id="t302" href="#t302">302</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isExecutablePath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">:</span>  <span class="com"># replace @executable_path</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">resolveExecutable</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isRPath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">:</span>  <span class="com"># replace @rpath</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">resolveRPath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">resolveRPath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t">        <span class="nam">test_path</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t">        <span class="key">if</span> <span class="nam">test_path</span><span class="op">.</span><span class="nam">is_absolute</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>  <span class="com"># just use the path, if it is absolute</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t">            <span class="key">return</span> <span class="nam">test_path</span>&nbsp;</span><span class="r"></span></p>
@@ -658,7 +658,7 @@
     <p class="run"><span class="n"><a id="t576" href="#t576">576</a></span><span class="t">        <span class="nam">target_real_source</span> <span class="op">=</span> <span class="nam">targetDarwinFile</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t577" href="#t577">577</a></span><span class="t">        <span class="key">if</span> <span class="nam">real_source</span> <span class="op">!=</span> <span class="nam">target_real_source</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t578" href="#t578">578</a></span><span class="t">            <span class="com"># raise PlatformError(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t580" href="#t580">580</a></span><span class="t">                <span class="str">"*** WARNING ***\n"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t">                <span class="fst">f"</span><span class="fst">Attempting to copy two files to </span><span class="op">{</span><span class="nam">target_path</span><span class="op">}</span><span class="fst">\n</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t">                <span class="fst">f"</span><span class="fst">source 1: </span><span class="op">{</span><span class="nam">targetDarwinFile</span><span class="op">.</span><span class="nam">path</span><span class="op">}</span><span class="fst"> </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
@@ -818,7 +818,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_dep_parser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.2">coverage.py v7.8.2</a>,
-            created at 2025-06-07 20:59 +0000
+            created at 2025-06-12 03:54 +0000
         </p>
     </div>
 </footer>
