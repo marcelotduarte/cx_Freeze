@@ -63,6 +63,7 @@ pyproject.toml
     reason="av (pyAV) does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_av(tmp_package, zip_packages: bool) -> None:
     """Test if av hook is working correctly."""

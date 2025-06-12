@@ -47,6 +47,7 @@ pyproject.toml
     reason="zeroconf does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_zeroconf(tmp_package, zip_packages: bool) -> None:
     """Test if zeroconf hook is working correctly."""

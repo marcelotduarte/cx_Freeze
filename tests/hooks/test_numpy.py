@@ -57,6 +57,7 @@ pyproject.toml
     reason="matplotlib not supported in windows arm64",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     """Test if matplotlib hook is working correctly."""
@@ -94,6 +95,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     reason="pandas not supported in windows arm64",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
@@ -160,6 +162,7 @@ pyproject.toml
     reason="rasterio does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_rasterio(tmp_package, zip_packages: bool) -> None:
     """Test if rasterio hook is working correctly."""
@@ -186,6 +189,7 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     reason="pandas not supported in windows arm64",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_scipy(tmp_package, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""
@@ -275,6 +279,7 @@ pyproject.toml
     reason="shapely not supported in windows arm64",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_shapely(tmp_package, zip_packages: bool) -> None:
     """Test if shapely hook is working correctly."""
@@ -372,6 +377,7 @@ pyproject.toml
     reason="vtkmodules (vtk) does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_vtk(tmp_package, zip_packages: bool) -> None:
     """Test if vtkmodules hook is working correctly."""

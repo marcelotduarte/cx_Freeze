@@ -14,6 +14,7 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
+@pytest.mark.venv
 @zip_packages
 def test_win32com(tmp_package, zip_packages: bool) -> None:
     """Test that the win32com is working correctly."""
@@ -60,6 +61,7 @@ pyproject.toml
 """
 
 
+@pytest.mark.venv
 @zip_packages
 def test_win32com_shell(tmp_package, zip_packages: bool) -> None:
     """Test if zoneinfo hook is working correctly."""

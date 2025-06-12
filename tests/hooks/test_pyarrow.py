@@ -48,6 +48,7 @@ pyproject.toml
     reason="pyarrow not supported in windows arm64",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_pyarrow(tmp_package, zip_packages: bool) -> None:
     """Test if pyarrow hook is working correctly."""

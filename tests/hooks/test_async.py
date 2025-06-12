@@ -46,6 +46,7 @@ pyproject.toml
 """
 
 
+@pytest.mark.venv
 @zip_packages
 def test_anyio(tmp_package, zip_packages) -> None:
     """Test if anyio is working correctly."""

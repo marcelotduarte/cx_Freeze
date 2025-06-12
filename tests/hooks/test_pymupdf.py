@@ -58,6 +58,7 @@ pyproject.toml
     reason="pymupdf does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.venv
 @zip_packages
 def test_pymupdf(tmp_package, zip_packages: bool) -> None:
     """Test if pymupdf hook is working correctly."""
