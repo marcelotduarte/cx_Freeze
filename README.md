@@ -1,6 +1,7 @@
-**cx_Freeze** creates standalone executables from Python scripts, with the
-same performance, is cross-platform and should work on any platform that Python
-itself works on.
+**cx_Freeze** Creates standalone executables from Python scripts with the same performance
+as the original script.
+
+It is cross-platform and should work on any platform that Python runs on.
 
 [![PyPI version](https://img.shields.io/pypi/v/cx_Freeze)](https://pypi.org/project/cx-freeze/)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/cx_Freeze)](https://pypistats.org/packages/cx-freeze)

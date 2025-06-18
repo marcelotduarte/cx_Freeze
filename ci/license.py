@@ -20,9 +20,10 @@ ERROR2 = "Error updating frozen license text"
 
 
 def update_frozen_license() -> int:
-    """Updates the license text that is incorporated in frozen programs
-    (in cx_Freeze/initscripts/frozen_application_license.txt) to ensure
-    it is in sync with the cx_Freeze license in documentation.
+    """Updates the license text that is incorporated in frozen programs.
+
+    Update license in cx_Freeze/initscripts/frozen_application_license.txt
+    to ensure it is in sync with the cx_Freeze license in documentation.
     """
     srcpath = Path("LICENSE.md")
     dstpath = Path("cx_Freeze/initscripts/frozen_application_license.txt")
