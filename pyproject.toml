@@ -263,6 +263,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:pkg_resources.*",
     "ignore::DeprecationWarning:setuptools.*",
 ]
+tmp_path_retention_count = 1
 
 [tool.ruff]
 extend-exclude = [
