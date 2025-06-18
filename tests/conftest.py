@@ -51,7 +51,6 @@ class TempPackage:
 
         # environment
         self.prefix: Path = Path(sys.prefix)
-        self.prefix_is_venv: bool = False
         self.sys_executable: Path = Path(sys.executable)
         self.system_path: Path = Path(os.getcwd())
         self.system_prefix: Path = Path(sys.prefix)
@@ -70,7 +69,7 @@ class TempPackage:
         MAXVAL = 30
         name = name[:MAXVAL]
         self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
-        monkeypatch.chdir(self.path)
+        os.chdir(self.path)
 
     def create(self, source: str) -> None:
         """Create package in temporary path, based on source."""
@@ -159,11 +158,7 @@ class TempPackage:
             return self._install_mingw(pkg_name)
         if HAVE_UV:
             return self._install_uv(
-                pkg_name,
-                pkg_spec,
-                binary,
-                index,
-                isolated=isolated and not self.prefix_is_venv,
+                pkg_name, pkg_spec, binary, index, isolated
             )
         request = self.request
         pytest.skip(
@@ -206,7 +201,7 @@ class TempPackage:
         isolated: bool = False,
     ) -> str:
         package = f"{pkg_name}{pkg_spec}"
-        cmd = f"uv pip install {package}"
+        cmd = f"uv pip install {package} --python={self.sys_executable}"
         if binary:
             cmd = f"{cmd} --no-build"
         if index is False:
@@ -216,70 +211,116 @@ class TempPackage:
         elif isinstance(index, Path):
             cmd = f"{cmd} -f {index} --no-index"
         if isolated:
-            self.prefix = self.path / ".tmp_prefix"
-        if self.prefix_is_venv or isolated:
-            cmd += f" --prefix={self.prefix} --python={self.sys_executable}"
+            cmd = f"{cmd} --prefix={self.path / '.tmp_prefix'}"
+        else:
+            cmd = f"{cmd} --prefix={self.prefix}"
         try:
             output = self.run(cmd, cwd=self.system_path)
         except CalledProcessError:
             raise ModuleNotFoundError(pkg_name) from None
         if isolated:
-            tmp_site = os.path.normpath(self.prefix / self.relative_site)
+            tmp_site = os.path.normpath(
+                self.path / ".tmp_prefix" / self.relative_site
+            )
             self.monkeypatch.setenv("PYTHONPATH", tmp_site)
             self.monkeypatch.syspath_prepend(tmp_site)
         return output
 
-    def venv(self) -> None:
+    def cleanup(self) -> None:
+        # remove the temporary prefix to reduce disk usage
+        tmp_prefix = self.path / ".tmp_prefix"
+        if tmp_prefix.is_dir():
+            rmtree(tmp_prefix, ignore_errors=True)
+        os.chdir(self.system_path)
+
+
+class TempPackageVenv(TempPackage):
+    """Base class to create package in temporary path using venv."""
+
+    def __init__(
+        self,
+        request: pytest.FixtureRequest,
+        tmp_path_factory: pytest.TempPathFactory,
+        monkeypatch: pytest.MonkeyPatch | None = None,
+    ) -> None:
+        if monkeypatch is None:
+            monkeypatch = pytest.MonkeyPatch()
+        super().__init__(request, tmp_path_factory, monkeypatch)
+        self.lock = None
+        if IS_MINGW:
+            return
+        # make prefix
+        # using loadfile, the prefix is on top of the pytest tmp_path and
+        # is shared by test functions on the same module
+        dist = os.environ["PYTEST_XDIST_DIST"]
+        if dist in ("no", "loadfile"):
+            root_tmp_dir = self.path.parent.parent
+            if dist == "loadfile":
+                root_tmp_dir = root_tmp_dir.parent
+        else:  # probably dist = "load"
+            root_tmp_dir = self.path
+        vname = request.module.__name__.replace(".", "_")
+        if IS_CONDA:
+            self.prefix = root_tmp_dir / f".conda_{vname}"
+        elif HAVE_UV:
+            self.prefix = root_tmp_dir / f".venv_{vname}"
+        self.lock = FileLock(f"{self.prefix}.lock")
+        self.lock.acquire()
+        # create venv
         if IS_CONDA:
             self._venv_conda()
-        elif IS_MINGW:
-            return
         elif HAVE_UV:
             self._venv_uv()
+
+    def _install_uv(
+        self,
+        pkg_name: str,
+        pkg_spec: str,
+        binary: bool = True,
+        index: bool | str | Path | None = None,
+        isolated: bool = False,  # noqa:ARG002
+    ) -> str:
+        super()._install_uv(pkg_name, pkg_spec, binary, index, isolated=False)
 
     def _venv_conda(self) -> None:
         CONDA_EXE = os.environ["CONDA_EXE"]
         CONDA_ENV = os.environ["CONDA_DEFAULT_ENV"]
-        # create venv
-        venv_prefix = self.path / ".conda"
-        cmd = f"{CONDA_EXE} create --clone {CONDA_ENV} -p {venv_prefix} -q -y"
-        with FileLock(self.prefix / ".lock"):
-            self.run(cmd)
+        # create a clone venv
+        self.run(
+            f"{CONDA_EXE} create --clone {CONDA_ENV} -p {self.prefix} -q -y",
+            cwd=self.system_path,
+        )
         # point to the new environment
         self.sys_executable = (
-            venv_prefix / self.relative_bin / self.sys_executable.name
+            self.prefix / self.relative_bin / self.sys_executable.name
         )
-        self.prefix = venv_prefix
-        self.prefix_is_venv = True
 
     def _venv_uv(self) -> None:
         # get the list of packages
-        output = self.run("uv pip list --format=json -q")
+        output = self.run("uv pip list --format=json -q", cwd=self.system_path)
         packages = json.loads(output)
         # create venv
-        cmd = f"uv venv --python={PYTHON_VERSION}{ABI_THREAD}"
-        venv_prefix = self.path / ".venv"
+        cmd = f"uv venv --python={PYTHON_VERSION}{ABI_THREAD} {self.prefix}"
         pyproject = self.system_path.joinpath("pyproject.toml")
         if not pyproject.is_file():
             # use a venv clone
             if sys.prefix != sys.base_prefix:
                 copytree(
                     sys.prefix,  # self.system_prefix
-                    venv_prefix,
+                    self.prefix,
                     symlinks=True,
                     ignore=ignore_patterns(".lock"),
                 )
             cmd += " --allow-existing"
-        self.run(cmd)
+        self.run(cmd, cwd=self.system_path)
         # point to the new environment
         self.sys_executable = (
-            venv_prefix / self.relative_bin / self.sys_executable.name
+            self.prefix / self.relative_bin / self.sys_executable.name
         )
-        self.prefix = venv_prefix
-        self.prefix_is_venv = True
         # install the packages in the new environment
         if pyproject.is_file():
             self._install_uv("-r", pyproject)
+            # install cx-freeze, editable or from wheelhouse
             for pkg in packages:
                 if pkg["name"] != "cx-freeze":
                     continue
@@ -292,36 +333,72 @@ class TempPackage:
                     self._install_uv("cx-freeze", pkg_spec, index=wheelhouse)
 
     def cleanup(self) -> None:
-        # remove the venv or temporary prefix to reduce disk usage
-        try:
-            self.prefix.relative_to(self.path)
-        except ValueError:
-            pass
-        else:
-            if IS_CONDA:
-                CONDA_EXE = os.environ["CONDA_EXE"]
-                # remove venv
-                venv_prefix = self.prefix
-                cmd = f"{CONDA_EXE} remove --all -p {venv_prefix} -q -y"
-                self.run(cmd)
-            else:
-                rmtree(self.prefix, ignore_errors=True)
+        # remove the venv to reduce disk usage
+        if IS_CONDA:
+            CONDA_EXE = os.environ["CONDA_EXE"]
+            # remove conda env
+            self.run(
+                f"{CONDA_EXE} remove --all -p {self.prefix} -q -y",
+                cwd=self.system_path,
+            )
+        elif self.prefix.is_relative_to(self.path):
+            rmtree(self.prefix, ignore_errors=True)
+        if self.lock:
+            self.lock.release()
+        os.chdir(self.system_path)
 
 
 @pytest.fixture
-def tmp_package(
+def _tmp_package(
     request: pytest.FixtureRequest,
     tmp_path_factory: pytest.TempPathFactory,
     monkeypatch: pytest.MonkeyPatch,
 ) -> TempPackage:
     """Create package in temporary path, based on source (or sample)."""
     tmp_pkg = TempPackage(request, tmp_path_factory, monkeypatch)
-    # activate venv if has a venv mark
-    if len(list(request.node.iter_markers(name="venv"))) > 0:
-        tmp_pkg.venv()
     yield tmp_pkg
-    # remove the venv or temporary prefix to reduce disk usage
     tmp_pkg.cleanup()
+
+
+@pytest.fixture
+def _tmp_package_venv(
+    request: pytest.FixtureRequest,
+    tmp_path_factory: pytest.TempPathFactory,
+    monkeypatch: pytest.MonkeyPatch,
+) -> TempPackage:
+    """Create package in temporary path, based on source (or sample)
+    using a virtual environment.
+    """
+    tmp_pkg = TempPackageVenv(request, tmp_path_factory, monkeypatch)
+    yield tmp_pkg
+    tmp_pkg.cleanup()
+
+
+@pytest.fixture(scope="module")
+def _tmp_package_venv_module(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> TempPackage:
+    """Create package in temporary path, based on source (or sample)
+    using a virtual environment per module (for use with --dist=loadfile).
+    """
+    tmp_pkg = TempPackageVenv(request, tmp_path_factory)
+    yield tmp_pkg
+    tmp_pkg.cleanup()
+
+
+@pytest.fixture
+def tmp_package(request: pytest.FixtureRequest) -> TempPackage:
+    """Create package in temporary path, based on source (or sample)."""
+    # activate venv if has a venv mark
+    is_venv = len(list(request.node.iter_markers(name="venv"))) > 0
+    dist = os.environ["PYTEST_XDIST_DIST"]
+    # fixture dispatch
+    if is_venv and dist in ("no", "loadfile"):
+        yield request.getfixturevalue("_tmp_package_venv_module")
+    elif is_venv:
+        yield request.getfixturevalue("_tmp_package_venv")
+    else:
+        yield request.getfixturevalue("_tmp_package")
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -329,3 +406,6 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers", "venv: mark test to run in a virtual environment"
     )
+    # pytest-xdist uses subprocess
+    # so a environment variable can be use to pass data
+    os.environ["PYTEST_XDIST_DIST"] = getattr(config.option, "dist", "no")
