@@ -1,7 +1,5 @@
 """Compiled functions for cx_Freeze itself."""
 
-# ruff: noqa: ARG001
-
 from pathlib import Path
 
 from cx_Freeze._typing import HANDLE

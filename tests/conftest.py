@@ -134,7 +134,7 @@ class TempPackage:
             if cxfreeze:
                 command[0] = cxfreeze
             else:
-                command = ["python", "-m", "cx_Freeze"] + command[1:]
+                command = ["python", "-m", "cx_Freeze", *command[1:]]
         if command[0] == "python":
             command[0] = self.sys_executable
         cwd = os.fspath(self.path if cwd is None else cwd)
