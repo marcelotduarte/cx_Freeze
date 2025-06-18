@@ -14,7 +14,7 @@ from cx_Freeze import Executable, setup
 executables = [
     Executable(
         script="hello.py",
-        # You can also specify an icon for the executable that will be reused for the dmg
+        # an icon for the executable will be reused for the dmg
         # only the first executable is used for the icon
         # icon="../../cx_Freeze/icons/python.icns" #noqa: ERA001
     )
@@ -43,7 +43,9 @@ setup(
                         "Disagree",
                         "Print",
                         "Save",
-                        "If you agree, click Agree to continue the installation. If you do not agree, click Disagree to cancel the installation.",
+                        "If you agree, click Agree to continue the "
+                        "installation. If you do not agree, click Disagree "
+                        "to cancel the installation.",
                     ]
                 },
             },

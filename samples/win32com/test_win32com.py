@@ -52,7 +52,8 @@ class ConnectableClient:
     def __init__(self) -> None:
         self.last_event_arg = None
 
-    # A client must implement QI, and respond to a query for the Event interface.
+    # A client must implement QI, and respond to a query for the Event
+    # interface.
     # In addition, it must provide a COM object (which server.util.wrap) does.
     def _query_interface_(self, iid):  # noqa: ANN202
         import win32com.server.util

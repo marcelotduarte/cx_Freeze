@@ -158,7 +158,8 @@ class bdist_appimage(Command):
         with FileLock(appimagekit + ".lock"):
             if not os.path.exists(appimagekit):
                 self.announce(
-                    f"download and install appimagetool from {APPIMAGETOOL_RELEASES_URL}",
+                    "download and install appimagetool from "
+                    f"{APPIMAGETOOL_RELEASES_URL}",
                     INFO,
                 )
                 urlretrieve(  # noqa: S310

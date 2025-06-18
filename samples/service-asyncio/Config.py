@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Config.py
 #   This file defines information about the service. The first four
 # attributes are expected to be defined and if they are not an exception will
@@ -34,7 +34,7 @@
 #       whether the service should monitor session changes (optional). If
 #       True, session changes will call the method 'session_changed' with the
 #       parameters sessionId and eventTypeId.
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 from __future__ import annotations
 

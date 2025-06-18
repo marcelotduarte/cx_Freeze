@@ -234,8 +234,8 @@ DEFAULT_EXCLUDES.update(["test", "test.support"])
 # remove modules mapped to internal modules
 DEFAULT_EXCLUDES.update(
     [
-        "importlib._bootstrap",  # mapped to _frozen_importlib
-        "importlib._bootstrap_external",  # mapped to _frozen_importlib_external
+        "importlib._bootstrap",  # mapped-> _frozen_importlib
+        "importlib._bootstrap_external",  # _frozen_importlib_external
     ]
 )
 

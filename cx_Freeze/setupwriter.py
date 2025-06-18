@@ -97,7 +97,8 @@ class SetupWriter:
             w("executables = [")
             if self.executable_name != self.default_executable_name:
                 w(
-                    f"    Executable({self.script!r}, base=base, target_name = {self.executable_name!r})"
+                    f"    Executable({self.script!r}, base=base, "
+                    f"target_name = {self.executable_name!r})"
                 )
             else:
                 w(f"    Executable({self.script!r}, base=base)")

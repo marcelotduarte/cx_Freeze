@@ -14,7 +14,7 @@ from cx_Freeze import Executable, setup
 executables = [
     Executable(
         script="hello.py",
-        # You can also specify an icon for the executable that will be reused for the dmg
+        # an icon for the executable will be reused for the dmg
         # only the first executable is used for the icon
         # icon="../../cx_Freeze/icons/python.icns" #noqa: ERA001
     ),
@@ -33,7 +33,8 @@ setup(
         "bdist_dmg": {
             "applications_shortcut": True,
             "volume_label": "Howdy Yall",
-            # from the svg color list, but all of these work too https://dmgbuild.readthedocs.io/en/latest/settings.html#background
+            # from the svg color list, but all of these work too
+            # https://dmgbuild.readthedocs.io/en/latest/settings.html#background
             "background": "darkviolet",
             "show_status_bar": True,
             "show_tab_view": True,
