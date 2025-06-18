@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for cx_Freeze/command/bdist_appimage.py: 94.87%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_0e7a078a6d875882_bdist_deb_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.8.2">coverage.py v7.8.2</a>,
-            created at 2025-06-14 01:25 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.1">coverage.py v7.9.1</a>,
+            created at 2025-06-18 04:51 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -333,7 +333,7 @@
     <p class="pln"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t"><span class="fst">            # If running from an extracted image, fix APPDIR</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t"><span class="fst">            if [ -z "$APPIMAGE" ]; then</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t"><span class="fst">                self="$(readlink -f -- $0)"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="fst">                export APPDIR="${</span> <span class="fst">self%/*}</span> <span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t"><span class="fst">                export APPDIR="${{</span><span class="fst">self%/*}}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t"><span class="fst">            fi</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t"><span class="fst">            # Call the application entry point</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t"><span class="fst">            "$APPDIR/</span><span class="op">{</span><span class="nam">executable</span><span class="op">.</span><span class="nam">target_name</span><span class="op">}</span><span class="fst">" "$@"</span>&nbsp;</span><span class="r"></span></p>
@@ -395,8 +395,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_0e7a078a6d875882_bdist_deb_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.8.2">coverage.py v7.8.2</a>,
-            created at 2025-06-14 01:25 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.1">coverage.py v7.9.1</a>,
+            created at 2025-06-18 04:51 +0000
         </p>
     </div>
 </footer>
