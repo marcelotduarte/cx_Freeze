@@ -12,6 +12,8 @@ from cx_Freeze.module import Module, ModuleHook
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
 
+__all__ = ["Hook"]
+
 
 class Hook(ModuleHook):
     """The Module Hook class."""
@@ -69,6 +71,3 @@ class Hook(ModuleHook):
                 return _os.path.join(root_lib, ".".join(dir_comps))
             """
             module.code = code_object_replace_function(code, name, source)
-
-
-__all__ = ["Hook"]
