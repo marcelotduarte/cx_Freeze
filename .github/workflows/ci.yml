@@ -105,7 +105,7 @@ jobs:
       - name: Generate coverage report
         env:
           COVERAGE_FILE: ".coverage.${{ strategy.job-index }}"
-        run: uv run --no-project pytest -nauto --cov="cx_Freeze"
+        run: uv run --no-project pytest --dist=loadfile --durations=20 -nauto --cov="cx_Freeze"
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4

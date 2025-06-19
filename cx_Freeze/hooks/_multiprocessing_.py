@@ -4,6 +4,7 @@ multiprocessing package is included.
 
 from __future__ import annotations
 
+import sys
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -12,6 +13,13 @@ from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
+
+# Notes:
+# - fork in Unix (including macOS) is native
+# - spawn in Windows is native since 4.3.4, but was improved in v6.2
+# - spawn and forkserver in Unix is implemented in v6.15.4 #1956
+# - monkeypatch context to do automatic freeze_support in v7.1 #2382
+# - monkeypatch context to fix bug introduced in Python 3.13.4 in v8.4 #3009
 
 
 def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
@@ -65,14 +73,9 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
             "set_start_method",
         ]
     )
-    # Support for:
-    # - fork in Unix (including macOS) is native;
-    # - spawn in Windows is native since 4.3.4, but was improved in 6.2;
-    # - spawn and forkserver in Unix is implemented here in 6.15.4 #1956;
-    # - monkeypatch get_context to do automatic freeze_support in 7.1 #2382;
-    if IS_MINGW or IS_WINDOWS:
-        return
     if module.file.suffix == ".pyc":  # source unavailable
+        return
+    if IS_MINGW or IS_WINDOWS:
         return
     source = rf"""
     # cx_Freeze patch start
@@ -130,29 +133,44 @@ def load_multiprocessing(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_multiprocessing_context(finder: ModuleFinder, module: Module) -> None:
-    """Monkeypath get_context to do automatic freeze_support."""
-    if IS_MINGW or IS_WINDOWS:
-        return
+    """Monkeypath context to do automatic freeze_support on Linux and MacOS.
+    Also, fix Python 3.13.4+ bug introduced by gh-80334 on Windows.
+    """
     if module.file.suffix == ".pyc":  # source unavailable
         return
-    source = rf"""
-    # cx_Freeze patch start
-    def _freeze_support(self):
-        from {module.root.name}.spawn import freeze_support
-        freeze_support()
-    BaseContext.freeze_support = _freeze_support
-    BaseContext._get_base_context = BaseContext.get_context
-    def _get_base_context(self, method=None):
-        self.freeze_support()
-        return self._get_base_context(method)
-    BaseContext.get_context = _get_base_context
-    DefaultContext._get_default_context = DefaultContext.get_context
-    def _get_default_context(self, method=None):
-        self.freeze_support()
-        return self._get_default_context(method)
-    DefaultContext.get_context = _get_default_context
-    # cx_Freeze patch end
-    """
+    if IS_MINGW or IS_WINDOWS:
+        if sys.version_info[:3] >= (3, 13, 4):
+            source = rf"""
+            # cx_Freeze patch start
+            def _freeze_support(self):
+                from {module.root.name}.spawn import freeze_support
+                freeze_support()
+            BaseContext.freeze_support = _freeze_support
+            # cx_Freeze patch end
+            """
+        else:
+            return
+    else:
+        source = rf"""
+        # cx_Freeze patch start
+        def _freeze_support(self):
+            from {module.root.name}.spawn import freeze_support
+            freeze_support()
+        BaseContext.freeze_support = _freeze_support
+
+        BaseContext._get_base_context = BaseContext.get_context
+        def _get_base_context(self, method=None):
+            self.freeze_support()
+            return self._get_base_context(method)
+        BaseContext.get_context = _get_base_context
+
+        DefaultContext._get_default_context = DefaultContext.get_context
+        def _get_default_context(self, method=None):
+            self.freeze_support()
+            return self._get_default_context(method)
+        DefaultContext.get_context = _get_default_context
+        # cx_Freeze patch end
+        """
     code_string = module.file.read_text(encoding="utf_8") + dedent(source)
     module.code = compile(
         code_string,
