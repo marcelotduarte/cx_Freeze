@@ -19,4 +19,5 @@ class Hook(MPHook):
 
     def __init__(self, module: Module) -> None:
         super().__init__(module)
-        self.name = "multiprocess"
+        # remap to ...
+        self.name = "multiprocessing"
