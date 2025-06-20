@@ -2,16 +2,22 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    IS_ARM_64,
+    IS_CONDA,
+    IS_LINUX,
+    IS_MINGW,
+    IS_WINDOWS,
+)
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
-
-pytest.importorskip(
-    "multiprocess", reason="Depends on extra package: multiprocess"
-)
 
 SOURCE = """\
 sample0.py
@@ -87,7 +93,7 @@ EXPECTED_OUTPUT = [
 
 
 def _parameters_data() -> Iterator:
-    import multiprocess as mp
+    import multiprocessing as mp
 
     methods = mp.get_all_start_methods()
     for method in methods:
@@ -98,9 +104,25 @@ def _parameters_data() -> Iterator:
             sample = f"sample{i}"
             test_id = f"{sample}-{method}"
             yield pytest.param(source, sample, expected, False, id=test_id)
-            # zip_packages test removed, too slow
+            # zip_packages tests removed, multiprocess is too slow
 
 
+@pytest.mark.skipif(IS_CONDA, reason="Disabled test in conda-forge")
+@pytest.mark.skipif(IS_MINGW, reason="Disabled test in mingw")
+@pytest.mark.skipif(not IS_LINUX, reason="Disabled test")
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="multiprocess does not support Windows arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="multiprocess does not support Python 3.13t",
+    strict=True,
+)
+@pytest.mark.venv
 @pytest.mark.parametrize(
     ("source", "sample", "expected", "zip_packages"), _parameters_data()
 )
@@ -109,6 +131,7 @@ def test_multiprocess(
 ) -> None:
     """Provides test cases for multiprocess."""
     tmp_package.create(source)
+    tmp_package.install("multiprocess")
     if zip_packages:
         output = tmp_package.run(
             "cxfreeze build_exe"
