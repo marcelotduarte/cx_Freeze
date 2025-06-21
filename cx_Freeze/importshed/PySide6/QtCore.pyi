@@ -3,5 +3,5 @@
 import PySide6.QtCore
 import os
 import enum
-from collections.abc import Iterable
+import collections.abc
 from shiboken6 import Shiboken

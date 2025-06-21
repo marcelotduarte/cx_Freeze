@@ -5,5 +5,6 @@ import PySide6.QtCore
 import PySide6.QtGui
 import PySide6.Qt3DCore
 import PySide6.Qt3DRender
+import collections.abc
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken

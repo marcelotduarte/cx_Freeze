@@ -6,5 +6,6 @@ import PySide6.QtGui
 import PySide6.QtQml
 import os
 import enum
+import collections.abc
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken

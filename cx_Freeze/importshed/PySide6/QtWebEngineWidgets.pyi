@@ -6,4 +6,5 @@ import PySide6.QtGui
 import PySide6.QtWidgets
 import PySide6.QtPrintSupport
 import PySide6.QtWebEngineCore
+import collections.abc
 from PySide6.QtCore import Signal

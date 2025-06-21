@@ -5,4 +5,5 @@ import PySide6.QtCore
 import PySide6.QtNetwork
 import os
 import enum
+import collections.abc
 from shiboken6 import Shiboken
