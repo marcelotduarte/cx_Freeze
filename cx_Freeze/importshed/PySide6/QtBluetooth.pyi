@@ -4,5 +4,6 @@ import PySide6.QtBluetooth
 import PySide6.QtCore
 import os
 import enum
+import collections.abc
 from PySide6.QtCore import Signal
 from shiboken6 import Shiboken

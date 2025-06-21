@@ -4,4 +4,5 @@ import PySide6.QtStateMachine
 import PySide6.QtCore
 import PySide6.QtGui
 import enum
+import collections.abc
 from PySide6.QtCore import Signal
