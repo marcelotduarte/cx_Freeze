@@ -17,6 +17,8 @@ from cx_Freeze._compat import (
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+TIMEOUT_VERY_VERY_SLOW = 180 if IS_CONDA else 90
+
 SOURCE = """\
 sample0.py
     from multiprocess import Pool, freeze_support, set_start_method
@@ -135,5 +137,7 @@ def test_multiprocess(
     assert executable.is_file()
     # use a higher timeout because when using dill it is up to 25x slower
     # sample3 using multiprocessing/pickler runs in 0,543s x 13,591s
-    output = tmp_package.run(executable, cwd=executable.parent, timeout=90)
+    output = tmp_package.run(
+        executable, cwd=executable.parent, timeout=TIMEOUT_VERY_VERY_SLOW
+    )
     assert output.splitlines()[-1] == expected

@@ -16,6 +16,8 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
+TIMEOUT_SLOW = 60 if IS_CONDA else 20
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -77,7 +79,7 @@ def test_av(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_av")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("av version")

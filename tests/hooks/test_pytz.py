@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import pytest
 
+TIMEOUT = 10
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -24,7 +26,7 @@ def test_pytz(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_pytz")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     lines = output.splitlines()
     assert lines[0].startswith("UTC")
     assert lines[1].startswith("Brazil")

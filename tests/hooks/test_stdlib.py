@@ -8,6 +8,8 @@ import pytest
 
 from cx_Freeze._compat import IS_MACOS
 
+TIMEOUT = 10
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -44,7 +46,7 @@ def test_ctypes(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_ctypes")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("Hello ctypes")
 
@@ -62,7 +64,7 @@ def test_sqlite(tmp_package, zip_packages: bool) -> None:
         output = tmp_package.run()
     executable = tmp_package.executable("test_sqlite3")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.startswith("dump.sql created")
 
 
@@ -102,7 +104,7 @@ def test_ssl(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_ssl")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("ssl")
     assert output.splitlines()[2] != ""
@@ -142,7 +144,7 @@ def test_tkinter(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_tk")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     # Compare the start of the returned path, version independent.
     # This is necessary when the OS has an older tcl/tk version than the
     # version contained in the cx_Freeze wheels.
@@ -165,7 +167,7 @@ def test_tkinter_bdist_mac(tmp_package) -> None:
     build_app_dir = tmp_package.path / "build" / f"{bundle_name}.app"
     executable = build_app_dir / "Contents/MacOS/test_tk"
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     # Compare the start of the returned path, version independent.
     # This is necessary when the OS has an older tcl/tk version than the
     # version contained in the cx_Freeze wheels.
@@ -189,7 +191,7 @@ def test_tz(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_tz")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     lines = output.splitlines()
     assert lines[0].startswith("TZPATH")
     assert lines[1].startswith("Available")

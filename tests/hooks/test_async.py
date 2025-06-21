@@ -10,6 +10,8 @@ import pytest
 
 from cx_Freeze._compat import ABI_THREAD
 
+TIMEOUT = 10
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -62,5 +64,5 @@ def test_anyio(tmp_package, zip_packages) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_anyio")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
