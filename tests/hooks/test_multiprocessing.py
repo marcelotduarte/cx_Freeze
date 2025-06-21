@@ -9,6 +9,8 @@ import pytest
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+TIMEOUT = 10
+
 SOURCE = """\
 sample0.py
     from multiprocessing import Pool, freeze_support, set_start_method
@@ -115,5 +117,7 @@ def test_multiprocessing(
         output = tmp_package.run()
     executable = tmp_package.executable(sample)
     assert executable.is_file()
-    output = tmp_package.run(executable, cwd=executable.parent, timeout=10)
+    output = tmp_package.run(
+        executable, cwd=executable.parent, timeout=TIMEOUT
+    )
     assert output.splitlines()[-1] == expected

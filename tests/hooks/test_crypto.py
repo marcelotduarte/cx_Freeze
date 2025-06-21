@@ -8,6 +8,8 @@ import pytest
 
 from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_MINGW, IS_WINDOWS
 
+TIMEOUT = 10
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -64,7 +66,7 @@ def test_argon2(tmp_package, zip_packages) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_argon2")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("argon2 hash:")
 
@@ -113,7 +115,7 @@ def test_bcrypt(tmp_package, zip_packages) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_bcrypt")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("bcrypt gensalt:")
 
@@ -160,7 +162,7 @@ def test_crypto(tmp_package, zip_packages) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_crypto")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("cryptodome publickey:")
 
@@ -217,6 +219,6 @@ def test_cryptography(tmp_package, zip_packages) -> None:
     assert executable.is_file()
     if IS_MINGW:
         tmp_package.monkeypatch.setenv("CRYPTOGRAPHY_OPENSSL_NO_LEGACY", "1")
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     assert output.splitlines()[0] == "Hello from cx_Freeze"
     assert output.splitlines()[1].startswith("cryptography fernet token:")
