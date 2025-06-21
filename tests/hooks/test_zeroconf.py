@@ -6,7 +6,9 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_WINDOWS
+from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_CONDA, IS_WINDOWS
+
+TIMEOUT_SLOW = 60 if IS_CONDA else 20
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -62,7 +64,7 @@ def test_zeroconf(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_zeroconf")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0].startswith("Zeroconf imported successfully!")
     assert lines[1].startswith("Zeroconf version:")

@@ -6,6 +6,8 @@ import sys
 
 import pytest
 
+TIMEOUT = 10
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -31,7 +33,7 @@ def test_pillow(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_pillow")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     lines = output.splitlines()
     assert lines[0].startswith("Hello from cx_Freeze")
     assert lines[1] == "OK"

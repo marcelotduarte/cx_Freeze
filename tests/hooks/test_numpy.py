@@ -17,6 +17,10 @@ from cx_Freeze._compat import (
     IS_X86_64,
 )
 
+TIMEOUT = 10
+TIMEOUT_SLOW = 60 if IS_CONDA else 20
+TIMEOUT_VERY_SLOW = 90 if IS_CONDA else 30
+
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -81,7 +85,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_matplotlib")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=60)
+    output = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
@@ -114,7 +118,7 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("pandas version")
@@ -176,7 +180,7 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
@@ -204,7 +208,7 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("scipy version")
@@ -302,7 +306,7 @@ def test_shapely(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_shapely")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=20)
+    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
@@ -399,7 +403,7 @@ def test_vtk(tmp_package, zip_packages: bool) -> None:
     output = tmp_package.run()
     executable = tmp_package.executable("test_vtk")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
+    output = tmp_package.run(executable, timeout=TIMEOUT)
     lines = output.splitlines()
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
