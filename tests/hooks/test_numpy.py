@@ -207,7 +207,7 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
     command += " --include-msvcr"
 
     tmp_package.create_from_sample("scipy")
-    tmp_package.install("scipy")
+    tmp_package.install("scipy<1.16")
     output = tmp_package.run(command)
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
