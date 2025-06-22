@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
 TIMEOUT = 10
@@ -23,13 +21,6 @@ def test_pillow(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.version_info[:2] < (3, 12):
-        package = "pillow<10"
-    elif sys.version_info[:2] == (3, 12):
-        package = "pillow<10.2"
-    else:
-        package = "pillow"
-    tmp_package.install(package)
     output = tmp_package.run()
     executable = tmp_package.executable("test_pillow")
     assert executable.is_file()

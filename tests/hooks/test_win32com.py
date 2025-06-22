@@ -26,8 +26,7 @@ def test_win32com(tmp_package, zip_packages: bool) -> None:
     command += " --include-msvcr --silent"
 
     tmp_package.create_from_sample("win32com")
-    # pywin32 must be installed on venv
-    tmp_package.install("pywin32", isolated=False)
+    tmp_package.install("pywin32")
     output = tmp_package.run(command)
     executable = tmp_package.executable("test_win32com")
     assert executable.is_file()
@@ -52,6 +51,7 @@ pyproject.toml
     [project]
     name = "test"
     version = "0.1.2.3"
+    dependencies = ["pywin32"]
 
     [tool.cxfreeze]
     executables = ["test.py"]
@@ -73,8 +73,6 @@ def test_win32com_shell(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    # pywin32 must be installed on venv
-    tmp_package.install("pywin32", isolated=False)
     output = tmp_package.run()
     executable = tmp_package.executable("test")
     assert executable.is_file()

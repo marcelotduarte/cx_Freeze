@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_CONDA, IS_WINDOWS
+from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_WINDOWS
 
 TIMEOUT_SLOW = 60 if IS_CONDA else 20
 
@@ -33,6 +31,10 @@ pyproject.toml
     [project]
     name = "test_pyarrow"
     version = "0.1.2.3"
+    dependencies = [
+        "pyarrow;python_version < '3.13'",
+        "pyarrow>=20;python_version >= '3.13'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_pyarrow.py"]
@@ -60,10 +62,6 @@ def test_pyarrow(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t":
-        tmp_package.install("pyarrow>=20")
-    else:
-        tmp_package.install("pyarrow")
     output = tmp_package.run()
     executable = tmp_package.executable("test_pyarrow")
     assert executable.is_file()

@@ -27,6 +27,7 @@ pyproject.toml
     [project]
     name = "test_argon2"
     version = "0.1.2.3"
+    #dependencies = ["argon2-cffi"]
 
     [tool.cxfreeze]
     executables = ["test_argon2.py"]
@@ -81,6 +82,10 @@ pyproject.toml
     [project]
     name = "test_bcrypt"
     version = "0.1.2.3"
+    dependencies = [
+        "bcrypt<4;python_version <= '3.10'",
+        "bcrypt>=4;python_version >= '3.11'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_bcrypt.py"]
@@ -107,11 +112,6 @@ def test_bcrypt(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.version_info[:2] <= (3, 10):
-        # bcrypt < 4 supports Python <= 3.10
-        tmp_package.install("bcrypt<4")
-    else:
-        tmp_package.install("bcrypt")
     output = tmp_package.run()
     executable = tmp_package.executable("test_bcrypt")
     assert executable.is_file()
@@ -138,6 +138,7 @@ pyproject.toml
     [project]
     name = "test_crypto"
     version = "0.1.2.3"
+    dependencies = ["pycryptodome"]
 
     [tool.cxfreeze]
     executables = ["test_crypto.py"]
@@ -158,7 +159,6 @@ def test_crypto(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("pycryptodome")
     output = tmp_package.run()
     executable = tmp_package.executable("test_crypto")
     assert executable.is_file()
@@ -181,6 +181,7 @@ pyproject.toml
     [project]
     name = "test_cryptography"
     version = "0.1.2.3"
+    dependencies = ["cryptography"]
 
     [tool.cxfreeze]
     executables = ["test_cryptography.py"]
@@ -213,7 +214,6 @@ def test_cryptography(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("cryptography")
     output = tmp_package.run()
     executable = tmp_package.executable("test_cryptography")
     assert executable.is_file()

@@ -18,6 +18,11 @@ import pytest
 from filelock import FileLock
 from packaging.requirements import Requirement
 
+if sys.version_info < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
@@ -68,6 +73,7 @@ class TempPackage:
         name = re.sub(r"[\W]", "_", name)
         MAXVAL = 30
         name = name[:MAXVAL]
+        self.basename = name
         self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
         os.chdir(self.path)
 
@@ -141,67 +147,84 @@ class TempPackage:
 
     def install(
         self,
-        package,
+        packages: str | list[str],
         *,
         binary: bool = True,
         index: bool | str | None = None,
         isolated=True,
     ) -> str:
-        require = Requirement(package)
-        if require.marker is not None and not require.marker.evaluate():
+        if isinstance(packages, str):
+            packages = [packages]
+        names = []
+        names_and_specs = []
+        for package in packages:
+            require = Requirement(package)
+            if require.marker is not None and not require.marker.evaluate():
+                continue
+            names.append(require.name)
+            names_and_specs.append(f"{require.name}{require.specifier!s}")
+        if not names:
             return None
-        pkg_name = require.name
-        pkg_spec = str(require.specifier)
         if IS_CONDA:
-            return self._install_conda(pkg_name)
+            return self._install_conda(names)
         if IS_MINGW:
-            return self._install_mingw(pkg_name)
+            return self._install_mingw(names)
         if HAVE_UV:
-            return self._install_uv(
-                pkg_name, pkg_spec, binary, index, isolated
-            )
+            return self._install_uv(names_and_specs, binary, index, isolated)
         request = self.request
         pytest.skip(
-            f"{request.config.args[0]}::{request.node.name} - {pkg_name} "
+            f"{request.config.args[0]}::{request.node.name} - {names} "
             "must be installed"
         )
 
-    def _install_conda(self, pkg_name) -> str:
+    def install_dependencies(self, pyproject: Path | None = None) -> None:
+        """Install dependencies for the test, as specified in the
+        pyproject.toml.
+        """
+        if pyproject is None:
+            pyproject = self.path / "pyproject.toml"
+        if pyproject.is_file():
+            with pyproject.open("rb") as f:
+                data = tomllib.load(f)
+            dependencies = data.get("project", {}).get("dependencies", [])
+            self.install(dependencies)
+
+    def _install_conda(self, packages: list[str]) -> str:
         CONDA_EXE = os.environ["CONDA_EXE"]
+        packages = " ".join(packages)
         cmd = (
-            f"{CONDA_EXE} install -p {self.prefix} {pkg_name} "
-            "-c conda-forge -S -q -y"
+            f"{CONDA_EXE} install -c conda-forge -S -q -y -p {self.prefix} "
+            f"{packages}"
         )
         with FileLock(self.prefix / ".lock"):
             try:
                 output = self.run(cmd, cwd=self.system_path)
             except CalledProcessError:
-                raise ModuleNotFoundError(pkg_name) from None
+                raise ModuleNotFoundError(packages) from None
         return output
 
-    def _install_mingw(self, pkg_name) -> str:
+    def _install_mingw(self, packages: list[str]) -> str:
         MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
-        cmd = (
-            "pacman -S --needed --noconfirm --quiet "
-            f"{MINGW_PACKAGE_PREFIX}-python-{pkg_name}"
-        )
+        for i, package in enumerate(packages):
+            packages[i] = f"{MINGW_PACKAGE_PREFIX}-python-{package}"
+        packages = " ".join(packages)
+        cmd = f"pacman -S --needed --noconfirm --quiet {packages}"
         with FileLock("/var/lib/pacman/db.lck"):
             try:
                 output = self.run(cmd, cwd=self.system_path)
             except CalledProcessError:
-                raise ModuleNotFoundError(pkg_name) from None
+                raise ModuleNotFoundError(packages) from None
         return output
 
     def _install_uv(
         self,
-        pkg_name: str,
-        pkg_spec: str,
+        packages: list[str],
         binary: bool = True,
         index: bool | str | Path | None = None,
         isolated: bool = False,
     ) -> str:
-        package = f"{pkg_name}{pkg_spec}"
-        cmd = f"uv pip install {package} --python={self.sys_executable}"
+        packages = " ".join(packages)
+        cmd = f"uv pip install --python={self.sys_executable} {packages}"
         if binary:
             cmd = f"{cmd} --no-build"
         if index is False:
@@ -217,7 +240,7 @@ class TempPackage:
         try:
             output = self.run(cmd, cwd=self.system_path)
         except CalledProcessError:
-            raise ModuleNotFoundError(pkg_name) from None
+            raise ModuleNotFoundError(packages) from None
         if isolated:
             tmp_site = os.path.normpath(
                 self.path / ".tmp_prefix" / self.relative_site
@@ -272,15 +295,26 @@ class TempPackageVenv(TempPackage):
         elif HAVE_UV:
             self._venv_uv()
 
+    def create(self, source: str) -> None:
+        self.path = self.tmp_path_factory.mktemp(self.basename, numbered=True)
+        os.chdir(self.path)
+        super().create(source)
+        self.install_dependencies()
+
+    def create_from_sample(self, sample: str) -> None:
+        self.path = self.tmp_path_factory.mktemp(self.basename, numbered=True)
+        os.chdir(self.path)
+        super().create_from_sample(sample)
+        self.install_dependencies()
+
     def _install_uv(
         self,
-        pkg_name: str,
-        pkg_spec: str,
+        packages: list[str],
         binary: bool = True,
         index: bool | str | Path | None = None,
         isolated: bool = False,  # noqa:ARG002
     ) -> str:
-        super()._install_uv(pkg_name, pkg_spec, binary, index, isolated=False)
+        return super()._install_uv(packages, binary, index, isolated=False)
 
     def _venv_conda(self) -> None:
         CONDA_EXE = os.environ["CONDA_EXE"]
@@ -301,7 +335,7 @@ class TempPackageVenv(TempPackage):
         packages = json.loads(output)
         # create venv
         cmd = f"uv venv --python={PYTHON_VERSION}{ABI_THREAD} {self.prefix}"
-        pyproject = self.system_path.joinpath("pyproject.toml")
+        pyproject = self.system_path / "pyproject.toml"
         if not pyproject.is_file():
             # use a venv clone
             if sys.prefix != sys.base_prefix:
@@ -317,20 +351,21 @@ class TempPackageVenv(TempPackage):
         self.sys_executable = (
             self.prefix / self.relative_bin / self.sys_executable.name
         )
-        # install the packages in the new environment
+        # install cx_Freeze and dependencies in the new environment
+        # using cx_Freeze pyproject.toml
         if pyproject.is_file():
-            self._install_uv("-r", pyproject)
+            self.install_dependencies(pyproject)
             # install cx-freeze, editable or from wheelhouse
             for pkg in packages:
                 if pkg["name"] != "cx-freeze":
                     continue
                 project_location = pkg.get("editable_project_location")
                 if project_location:
-                    self._install_uv("-e", project_location)
+                    self._install_uv(["-e", project_location])
                 else:
                     wheelhouse = self.system_path / "wheelhouse"
-                    pkg_spec = f"=={pkg['version']}"
-                    self._install_uv("cx-freeze", pkg_spec, index=wheelhouse)
+                    pkg_spec = f"cx-freeze=={pkg['version']}"
+                    self._install_uv([pkg_spec], index=wheelhouse)
 
     def cleanup(self) -> None:
         # remove the venv to reduce disk usage

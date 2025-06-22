@@ -16,7 +16,6 @@ zip_packages = pytest.mark.parametrize(
 def test_pytz(tmp_package, zip_packages: bool) -> None:
     """Test if pytz hook is working correctly."""
     tmp_package.create_from_sample("pytz")
-    tmp_package.install("pytz")
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()
