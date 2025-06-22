@@ -73,6 +73,7 @@ class TempPackage:
         name = re.sub(r"[\W]", "_", name)
         MAXVAL = 30
         name = name[:MAXVAL]
+        self.basename = name
         self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
         os.chdir(self.path)
 
@@ -295,10 +296,14 @@ class TempPackageVenv(TempPackage):
             self._venv_uv()
 
     def create(self, source: str) -> None:
+        self.path = self.tmp_path_factory.mktemp(self.basename, numbered=True)
+        os.chdir(self.path)
         super().create(source)
         self.install_dependencies()
 
     def create_from_sample(self, sample: str) -> None:
+        self.path = self.tmp_path_factory.mktemp(self.basename, numbered=True)
+        os.chdir(self.path)
         super().create_from_sample(sample)
         self.install_dependencies()
 
