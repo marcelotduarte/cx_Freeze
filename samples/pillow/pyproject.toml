@@ -2,7 +2,7 @@
 name = "test_pillow"
 version = "0.1.2.3"
 dependencies = [
-    "pillow<10;python_version <= '3.12'",
+    "pillow<10;python_version < '3.12'",
     "pillow<10.2;python_version == '3.12'",
     "pillow>=10.2;python_version > '3.12'",
 ]
