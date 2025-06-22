@@ -33,8 +33,8 @@
 | cx\_Freeze/setupwriter.py             |       78 |       78 |      0.00% |     3-126 |
 | cx\_Freeze/winmsvcr.py                |        3 |        0 |    100.00% |           |
 | cx\_Freeze/winmsvcr\_repack.py        |      158 |       15 |     90.51% |110-111, 113-114, 139-140, 142-143, 241-244, 252-253, 312 |
-| cx\_Freeze/winversioninfo.py          |      211 |        6 |     97.16% |56, 142-143, 236-238 |
-|                             **TOTAL** | **4675** |  **723** | **84.53%** |           |
+| cx\_Freeze/winversioninfo.py          |      211 |       11 |     94.79% |43, 56, 142-143, 227-229, 236-238, 382 |
+|                             **TOTAL** | **4675** |  **728** | **84.43%** |           |
 
 
 ## Setup coverage badge
