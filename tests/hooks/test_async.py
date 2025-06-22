@@ -38,6 +38,7 @@ pyproject.toml
     [project]
     name = "test_anyio"
     version = "0.1.2.3"
+    dependencies = ["anyio"]
 
     [tool.cxfreeze]
     executables = ["test_anyio.py"]
@@ -58,7 +59,6 @@ def test_anyio(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("anyio")
     if sys.platform != "win32" and ABI_THREAD == "":
         tmp_package.install("uvloop")
     output = tmp_package.run()

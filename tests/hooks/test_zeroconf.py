@@ -27,6 +27,7 @@ pyproject.toml
     [project]
     name = "test_zeroconf"
     version = "0.1.2.3"
+    dependencies = ["zeroconf>=0.146.3"]
 
     [tool.cxfreeze]
     executables = ["test_zeroconf.py"]
@@ -54,7 +55,6 @@ pyproject.toml
 def test_zeroconf(tmp_package, zip_packages: bool) -> None:
     """Test if zeroconf hook is working correctly."""
     tmp_package.create(SOURCE_TEST)
-    tmp_package.install("zeroconf>=0.146.3")
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()

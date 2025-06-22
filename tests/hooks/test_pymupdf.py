@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.hooks of pyarrow."""
+"""Tests for cx_Freeze.hooks of pymupdf."""
 
 from __future__ import annotations
 
@@ -32,6 +32,11 @@ pyproject.toml
     [project]
     name = "test_pymupdf"
     version = "0.1.2.3"
+    dependencies = [
+        "pymupdf==1.24.4;python_version == '3.9'",
+        "pymupdf<=1.26;python_version <= '3.11'",
+        "pymupdf>1.26;python_version >= '3.12'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_pymupdf.py"]
@@ -70,13 +75,6 @@ def test_pymupdf(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.version_info[:2] <= (3, 10):
-        package = "pymupdf~=1.24.4" if IS_CONDA else "pymupdf==1.24.4"
-    elif sys.version_info[:2] < (3, 11):
-        package = "pymupdf<=1.26"
-    else:
-        package = "pymupdf"
-    tmp_package.install(package)
     output = tmp_package.run()
     executable = tmp_package.executable("test_pymupdf")
     assert executable.is_file()

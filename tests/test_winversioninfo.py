@@ -129,6 +129,7 @@ class TestVersionInfo:
         with pytest.raises(FileNotFoundError):
             version.stamp(f"test{EXE_SUFFIX}")
 
+    @pytest.mark.venv
     @pytest.mark.parametrize(
         "option",
         [
@@ -142,7 +143,7 @@ class TestVersionInfo:
         tmp_package.create(SOURCE_SIMPLE_TEST)
         if option == "--pywin32":
             tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
-            tmp_package.install("pywin32", isolated=False)
+            tmp_package.install("pywin32")
         tmp_package.run()
 
         executable = tmp_package.executable("test")
@@ -160,10 +161,10 @@ class TestVersionInfo:
         with pytest.raises(SystemExit):
             main_test(args=[])
 
+    @pytest.mark.venv
     def test_main_with_environ(self, tmp_package) -> None:
         """Test argparse error exception."""
-        # pywin32 must be installed on venv
-        tmp_package.install("pywin32", isolated=False)
+        tmp_package.install("pywin32")
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
         with pytest.raises(CalledProcessError):
             tmp_package.run("python -m cx_Freeze.winversioninfo")

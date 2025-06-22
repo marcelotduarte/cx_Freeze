@@ -44,6 +44,16 @@ pyproject.toml
     [project]
     name = "test_matplotlib"
     version = "0.1.2.3"
+    dependencies = [
+        "numpy<1.26;python_version <= '3.10'",
+        "numpy<2;python_version == '3.11'",
+        "numpy>=2;python_version >= '3.12'",
+        "matplotlib<3.5;python_version == '3.9' and sys_platform == 'linux'",
+        "matplotlib<3.6;python_version == '3.9' and sys_platform != 'linux'",
+        "matplotlib<3.6;python_version == '3.10'",
+        "matplotlib<3.7;python_version == '3.11'",
+        "matplotlib>=3.7;python_version >= '3.12'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_matplotlib.py"]
@@ -71,17 +81,6 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.version_info[:2] == (3, 9) and IS_LINUX:
-        tmp_package.install("numpy<1.26")
-        tmp_package.install("matplotlib<3.5")
-    elif sys.version_info[:2] <= (3, 10):
-        tmp_package.install("numpy<1.26")
-        tmp_package.install("matplotlib<3.6")
-    elif sys.version_info[:2] <= (3, 11):
-        tmp_package.install("numpy<2")
-        tmp_package.install("matplotlib<3.7")
-    else:
-        tmp_package.install("matplotlib")
     output = tmp_package.run()
     executable = tmp_package.executable("test_matplotlib")
     assert executable.is_file()
@@ -137,6 +136,12 @@ pyproject.toml
     [project]
     name = "test_rasterio"
     version = "0.1.2.3"
+    dependencies = [
+        "numpy<1.26;python_version <= '3.10'",
+        "numpy<2;python_version == '3.11'",
+        "numpy>=2;python_version >= '3.12'",
+        "rasterio",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_rasterio.py"]
@@ -176,7 +181,6 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("rasterio")
     output = tmp_package.run()
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
@@ -236,6 +240,10 @@ pyproject.toml
     [project]
     name = "test_shapely"
     version = "0.1.2.3"
+    dependencies = [
+        "numpy<1.26",
+        "shapely",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_shapely.py"]
@@ -266,6 +274,13 @@ pyproject.toml
     [project]
     name = "test_shapely"
     version = "0.1.2.3"
+    dependencies = [
+        "numpy<1.26;python_version <= '3.10'",
+        "numpy<2;python_version == '3.11'",
+        "numpy>=2;python_version >= '3.12'",
+        "shapely<2.1;python_version == '3.10'",
+        "shapely>=2.1;python_version > '3.10'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_shapely.py"]
@@ -290,14 +305,8 @@ def test_shapely(tmp_package, zip_packages: bool) -> None:
     # shapely 1.8.5 supports Python <= 3.11
     if sys.version_info[:2] < (3, 10):
         tmp_package.create(SOURCE_TEST_SHAPELY)
-        tmp_package.install("shapely<2")
-        tmp_package.install("numpy<2")
     else:
         tmp_package.create(SOURCE_TEST_SHAPELY2)
-        if sys.version_info[:2] == (3, 10):
-            tmp_package.install("shapely<2.1")
-        else:
-            tmp_package.install("shapely")
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()
@@ -348,6 +357,14 @@ pyproject.toml
     [project]
     name = "test_vtk"
     version = "0.1.2.3"
+    dependencies = [
+        "numpy<1.26;python_version <= '3.10'",
+        "numpy<2;python_version == '3.11'",
+        "numpy>=2;python_version >= '3.12'",
+        "vtk<9.3;python_version <= '3.10'",
+        "vtk<9.4;python_version == '3.11'",
+        "vtk>=9.4;python_version >= '3.12'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test_vtk.py"]
@@ -391,15 +408,6 @@ def test_vtk(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.version_info[:2] == (3, 9):
-        tmp_package.install("numpy<1.26")
-        tmp_package.install("vtk<9.3")
-    elif sys.version_info[:2] <= (3, 10):
-        tmp_package.install("numpy<2")
-        tmp_package.install("vtk<9.4")
-    else:
-        tmp_package.install("numpy")
-        tmp_package.install("vtk")
     output = tmp_package.run()
     executable = tmp_package.executable("test_vtk")
     assert executable.is_file()

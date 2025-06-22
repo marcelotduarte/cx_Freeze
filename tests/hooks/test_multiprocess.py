@@ -76,6 +76,7 @@ pyproject.toml
     name = "test_mp"
     version = "0.1.2.3"
     description = "Sample for test with cx_Freeze"
+    dependencies = ["multiprocess"]
 
     [tool.cxfreeze]
     executables = ["sample0.py", "sample1.py", "sample2.py", "sample3.py"]
@@ -125,14 +126,12 @@ def test_multiprocess(
 ) -> None:
     """Provides test cases for multiprocess."""
     tmp_package.create(source)
-    tmp_package.install("multiprocess")
     if zip_packages:
-        output = tmp_package.run(
-            "cxfreeze build_exe"
-            " --zip-include-packages=* --zip-exclude-packages="
-        )
-    else:
-        output = tmp_package.run()
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
     executable = tmp_package.executable(sample)
     assert executable.is_file()
     # use a higher timeout because when using dill it is up to 25x slower

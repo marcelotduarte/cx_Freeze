@@ -115,8 +115,7 @@ def test_versions(
 ) -> None:
     """Test the downloads of all versions of msvcr."""
     if not (IS_MINGW or IS_WINDOWS):
-        tmp_package.install("cabarchive")
-        tmp_package.install("striprtf")
+        tmp_package.install(["cabarchive", "striprtf"])
 
     copy_msvcr_files(tmp_package.path, platform, version, no_cache=no_cache)
     expected = [*MSVC_EXPECTED]
@@ -146,8 +145,7 @@ def test_invalid(
 ) -> None:
     """Test invalid values to use with copy_msvcr_files function."""
     if not (IS_MINGW or IS_WINDOWS):
-        tmp_package.install("cabarchive")
-        tmp_package.install("striprtf")
+        tmp_package.install(["cabarchive", "striprtf"])
 
     with pytest.raises(expected_exception, match=expected_match):
         copy_msvcr_files(tmp_package.path, platform, version)
@@ -161,8 +159,7 @@ def test_repack_main(tmp_package) -> None:
     from cx_Freeze.winmsvcr_repack import main_test
 
     if not (IS_MINGW or IS_WINDOWS):
-        tmp_package.install("cabarchive")
-        tmp_package.install("striprtf")
+        tmp_package.install(["cabarchive", "striprtf"])
 
     main_test(
         args=[
@@ -187,8 +184,7 @@ def test_repack_main_no_option(tmp_package) -> None:
     from cx_Freeze.winmsvcr_repack import main_test
 
     if not (IS_MINGW or IS_WINDOWS):
-        tmp_package.install("cabarchive")
-        tmp_package.install("striprtf")
+        tmp_package.install(["cabarchive", "striprtf"])
 
     main_test(args=[])
     names = [

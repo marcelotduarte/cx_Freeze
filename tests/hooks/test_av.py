@@ -32,6 +32,7 @@ pyproject.toml
     [project]
     name = "test_av"
     version = "0.1.2.3"
+    dependencies = ["av"]
 
     [tool.cxfreeze]
     executables = ["test_av.py"]
@@ -75,7 +76,6 @@ def test_av(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.install("av")
     output = tmp_package.run()
     executable = tmp_package.executable("test_av")
     assert executable.is_file()
