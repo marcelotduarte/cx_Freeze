@@ -41,7 +41,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="argon2-cffi not supported in windows arm64",
+    reason="argon2-cffi does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.xfail(
@@ -99,7 +99,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="bcrypt not supported in windows arm64",
+    reason="bcrypt does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.venv
@@ -195,7 +195,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="cryptography not supported in windows arm64",
+    reason="cryptography does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.xfail(

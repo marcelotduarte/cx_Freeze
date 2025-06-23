@@ -51,13 +51,13 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="av (pyAV) not supported in mingw",
+    reason="av (pyAV) does not support mingw",
     strict=True,
 )
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="av (pyAV) not supported in windows arm64",
+    reason="av (pyAV) does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.xfail(

@@ -68,7 +68,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="matplotlib not supported in windows arm64",
+    reason="matplotlib does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.venv
@@ -95,7 +95,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="pandas not supported in windows arm64",
+    reason="pandas does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.venv
@@ -162,7 +162,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="rasterio not supported in mingw",
+    reason="rasterio does not support mingw",
     strict=True,
 )
 @pytest.mark.xfail(
@@ -194,7 +194,7 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="pandas not supported in windows arm64",
+    reason="scipy does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.venv
@@ -295,7 +295,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="shapely not supported in windows arm64",
+    reason="shapely does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.venv
@@ -383,13 +383,13 @@ pyproject.toml
 @pytest.mark.xfail(
     (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) not supported in windows/linux arm64",
+    reason="vtkmodules (vtk) does not support Windows/Linux arm64",
     strict=True,
 )
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) not supported in mingw",
+    reason="vtkmodules (vtk) does not support mingw",
     strict=True,
 )
 @pytest.mark.xfail(
