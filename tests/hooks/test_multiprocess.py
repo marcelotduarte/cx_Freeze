@@ -132,6 +132,7 @@ def test_multiprocess(
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     output = tmp_package.run()
+
     executable = tmp_package.executable(sample)
     assert executable.is_file()
     # use a higher timeout because when using dill it is up to 25x slower

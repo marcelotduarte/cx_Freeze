@@ -109,12 +109,12 @@ def test_multiprocessing(
     """Provides test cases for multiprocessing."""
     tmp_package.create(source)
     if zip_packages:
-        output = tmp_package.run(
-            "cxfreeze build_exe"
-            " --zip-include-packages=* --zip-exclude-packages="
-        )
-    else:
-        output = tmp_package.run()
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
+
     executable = tmp_package.executable(sample)
     assert executable.is_file()
     output = tmp_package.run(
