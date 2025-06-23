@@ -4,6 +4,7 @@ scipy package is included.
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 def load_scipy(finder: ModuleFinder, module: Module) -> None:
     """The scipy package.
 
-    Supported pypi and conda-forge versions (lasted tested version is 1.15.2).
+    Supported pypi and conda-forge versions (lasted tested version is 1.16.0).
     """
     # Exclude unnecessary modules
     distribution = module.distribution
@@ -32,6 +33,8 @@ def load_scipy(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("scipy._lib")
     finder.include_package("scipy.misc")
     finder.include_package("scipy.optimize")
+    with suppress(ImportError):
+        finder.include_module("scipy._cyutility")  # v1.16.0
 
 
 def load_scipy__distributor_init(finder: ModuleFinder, module: Module) -> None:
