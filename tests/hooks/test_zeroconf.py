@@ -41,7 +41,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="zeroconf not supported in windows arm64",
+    reason="zeroconf does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.xfail(
