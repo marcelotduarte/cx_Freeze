@@ -82,6 +82,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     output = tmp_package.run()
+
     executable = tmp_package.executable("test_matplotlib")
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
@@ -102,18 +103,19 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
+    tmp_package.create_from_sample("pandas")
     command = "python setup.py build_exe -O2 --excludes=tkinter,unittest"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
     command += " --include-msvcr"
 
-    tmp_package.create_from_sample("pandas")
     if IS_LINUX and IS_X86_64 and sys.version_info[:2] == (3, 10):
         tmp_package.install(
             "numpy", index="https://pypi.anaconda.org/intel/simple"
         )
     tmp_package.install("pandas")
     output = tmp_package.run(command)
+
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
@@ -182,6 +184,7 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     output = tmp_package.run()
+
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
@@ -189,6 +192,39 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     assert lines[0] == "Hello from cx_Freeze"
     assert lines[1].startswith("numpy version")
     assert lines[2].startswith("rasterio version")
+
+
+SOURCE_TEST_SCIPY = """
+test_scipy.py
+    import numpy as np
+    import scipy
+    from scipy.spatial.transform import Rotation
+
+    print("numpy version", np.__version__)
+    print("scipy version", scipy.__version__)
+    print(Rotation.from_euler("XYZ", [10, 10, 10], degrees=True).as_matrix())
+pyproject.toml
+    [project]
+    name = "test_scipy"
+    version = "0.1.2.3"
+    dependencies = [
+        "numpy<1.26;python_version <= '3.10'",
+        "numpy<2;python_version == '3.11'",
+        "numpy>=2;python_version >= '3.12'",
+        "scipy<1.9.2;python_version == '3.9'",
+        "scipy<1.16;python_version == '3.10'",
+        "scipy>=1.16;python_version >= '3.11'",
+    ]
+
+    [tool.cxfreeze]
+    executables = ["test_scipy.py"]
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter"]
+    include_msvcr = true
+    optimize = 2
+    silent = true
+"""
 
 
 @pytest.mark.xfail(
@@ -201,17 +237,16 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
 @zip_packages
 def test_scipy(tmp_package, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""
-    command = "python setup.py build_exe -O2 --excludes=tkinter"
+    tmp_package.create(SOURCE_TEST_SCIPY)
     if zip_packages:
-        command += " --zip-include-packages=* --zip-exclude-packages="
-    command += " --include-msvcr"
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
 
-    tmp_package.create_from_sample("scipy")
-    tmp_package.install("scipy<1.16")
-    output = tmp_package.run(command)
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
-
     output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
@@ -313,6 +348,7 @@ def test_shapely(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     output = tmp_package.run()
+
     executable = tmp_package.executable("test_shapely")
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
@@ -409,6 +445,7 @@ def test_vtk(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     output = tmp_package.run()
+
     executable = tmp_package.executable("test_vtk")
     assert executable.is_file()
     output = tmp_package.run(executable, timeout=TIMEOUT)
