@@ -1491,7 +1491,8 @@ PyUnicodeWriter_WriteSubstring(PyUnicodeWriter *writer, PyObject *str,
                                Py_ssize_t start, Py_ssize_t end)
 {
     if (!PyUnicode_Check(str)) {
-        PyErr_Format(PyExc_TypeError, "expect str, not %T", str);
+        PyErr_Format(PyExc_TypeError, "expect str, not %s",
+                     Py_TYPE(str)->tp_name);
         return -1;
     }
     if (start < 0 || start > end) {

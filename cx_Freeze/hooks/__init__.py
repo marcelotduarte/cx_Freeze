@@ -115,7 +115,9 @@ def load_charset_normalizer_md(finder: ModuleFinder, module: Module) -> None:
 
 def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
     """Ignore names that should not be confused with modules to be imported."""
-    module.global_names.update(["ProcessPoolExecutor", "ThreadPoolExecutor"])
+    from cx_Freeze.hooks.global_names import CONCURRENT_FUTURES_GLOBAL_NAMES
+
+    module.global_names.update(CONCURRENT_FUTURES_GLOBAL_NAMES)
 
 
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
@@ -476,46 +478,6 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     finder.include_files(
         filename, f"lib/{filename.name}", copy_dependent_files=IS_MINGW
     )
-
-
-def load_re(finder: ModuleFinder, module: Module) -> None:
-    """Ignore names that should not be confused with modules to be imported."""
-    if module.path:  # package since Python 3.11
-        module.global_names.update(
-            [
-                "match",
-                "fullmatch",
-                "search",
-                "sub",
-                "subn",
-                "split",
-                "findall",
-                "finditer",
-                "compile",
-                "purge",
-                "escape",
-                "error",
-                "Pattern",
-                "Match",
-                "A",
-                "I",
-                "L",
-                "M",
-                "S",
-                "X",
-                "U",
-                "ASCII",
-                "IGNORECASE",
-                "LOCALE",
-                "MULTILINE",
-                "DOTALL",
-                "VERBOSE",
-                "UNICODE",
-                "NOFLAG",
-                "RegexFlag",
-                "PatternError",
-            ]
-        )
 
 
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:

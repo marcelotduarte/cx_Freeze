@@ -9,6 +9,8 @@ from pkgutil import resolve_name
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
+from cx_Freeze.hooks.global_names import ZONEINFO_GLOBAL_NAMES
+
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
     from cx_Freeze.module import Module
@@ -21,7 +23,7 @@ def load_zoneinfo(finder: ModuleFinder, module: Module) -> None:
     """The zoneinfo package requires timezone data,
     that can be the in tzdata package, if installed.
     """
-    module.global_names.add("TZPATH")
+    module.global_names.update(ZONEINFO_GLOBAL_NAMES)
     try:
         finder.include_package("tzdata")
     except ImportError:

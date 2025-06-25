@@ -6,11 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cx_Freeze.module import ModuleHook
+from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
-    from cx_Freeze.module import Module
 
 __all__ = ["Hook"]
 

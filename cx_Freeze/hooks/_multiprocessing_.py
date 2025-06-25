@@ -9,6 +9,7 @@ from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze.hooks.global_names import MULTIPROCESSING_GLOBAL_NAMES
 from cx_Freeze.module import ModuleHook
 
 if TYPE_CHECKING:
@@ -38,47 +39,8 @@ class Hook(ModuleHook):
         works for all OS, not only Windows.
         """
         # Ignore names that should not be confused with modules to be imported
-        module.global_names.update(
-            [
-                "Array",
-                "AuthenticationError",
-                "Barrier",
-                "BoundedSemaphore",
-                "BufferTooShort",
-                "Condition",
-                "Event",
-                "JoinableQueue",
-                "Lock",
-                "Manager",
-                "Pipe",
-                "Pool",
-                "Process",
-                "ProcessError",
-                "Queue",
-                "RLock",
-                "RawArray",
-                "RawValue",
-                "Semaphore",
-                "SimpleQueue",
-                "TimeoutError",
-                "Value",
-                "active_children",
-                "allow_connection_pickling",
-                "cpu_count",
-                "current_process",
-                "freeze_support",
-                "get_all_start_methods",
-                "get_context",
-                "get_logger",
-                "get_start_method",
-                "log_to_stderr",
-                "parent_process",
-                "reducer",
-                "set_executable",
-                "set_forkserver_preload",
-                "set_start_method",
-            ]
-        )
+        module.global_names.update(MULTIPROCESSING_GLOBAL_NAMES)
+
         if module.file.suffix == ".pyc":  # source unavailable
             return
         if IS_MINGW or IS_WINDOWS:
