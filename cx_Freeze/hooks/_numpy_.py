@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 def load_numpy(finder: ModuleFinder, module: Module) -> None:
     """The numpy package.
 
-    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.2.6).
+    Supported pypi and conda-forge versions (tested from 1.21.2 to 2.3.1).
     """
     # Exclude unnecessary modules
     finder.exclude_module("numpy._configtool")
@@ -306,9 +306,10 @@ def load_numpy_strings(_finder: ModuleFinder, module: Module) -> None:
     module.global_names.update(NUMPY_STRINGS_GLOBAL_NAMES)
 
 
-def load_numpy_testing(_, module: Module) -> None:
+def load_numpy_testing(finder: ModuleFinder, module: Module) -> None:
     """Define the global names to avoid spurious missing modules."""
     module.global_names.update(NUMPY_TESTING_GLOBAL_NAMES)
+    finder.include_package("numpy.testing")
 
 
 def load_numpy_testing__private_utils(_, module: Module) -> None:
