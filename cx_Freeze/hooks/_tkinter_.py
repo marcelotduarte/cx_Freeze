@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import EXT_SUFFIX, IS_WINDOWS
 from cx_Freeze.common import resource_path
+from cx_Freeze.hooks.global_names import TKINTER_GLOBAL_NAMES
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -21,9 +22,12 @@ def load_tkinter(finder: ModuleFinder, module: Module) -> None:
     """The tkinter module has data files (also called tcl/tk libraries) that
     are required to be loaded at runtime.
     """
+    # Ignore names that should not be confused with modules to be imported
+    module.global_names.update(TKINTER_GLOBAL_NAMES)
+
+    # manylinux (and macpython) wheels store tcl/tk libraries and extension
     tcl_library = None
     tk_library = None
-    # manylinux (and macpython) wheels store tcl/tk libraries and extension
     share = resource_path("bases/share")
     lib_dynload_tkinter = resource_path(
         f"bases/lib-dynload/_tkinter{EXT_SUFFIX}"

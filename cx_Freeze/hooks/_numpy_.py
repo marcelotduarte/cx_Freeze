@@ -11,6 +11,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
+from cx_Freeze.hooks.global_names import (
+    NUMPY__CORE_GLOBAL_NAMES,
+    NUMPY__CORE_NUMERICTYPES_GLOBAL_NAMES,
+    NUMPY_LINALG_GLOBAL_NAMES,
+    NUMPY_MA_GLOBAL_NAMES,
+    NUMPY_RANDOM_GLOBAL_NAMES,
+    NUMPY_RANDOM_MTRAND_GLOBAL_NAMES,
+    NUMPY_STRINGS_GLOBAL_NAMES,
+    NUMPY_TESTING_GLOBAL_NAMES,
+)
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
@@ -43,6 +53,7 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     finder.exclude_module("numpy._pyinstaller")
     finder.exclude_module("numpy.random._examples")
     finder.exclude_module("numpy.typing.mypy_plugin")
+    module.ignore_names.add("numpy.distutils")
 
     # Exclude/Include modules based on distribution and/or version
     distribution = module.distribution
@@ -109,71 +120,25 @@ def load_numpy___config__(_, module: Module) -> None:
     module.ignore_names.add("yaml")
 
 
-# see list from numpy/__init__.py
-NUMPY_GLOBAL_NAMES = """
-    False_, ScalarType, True_,
-    abs, absolute, acos, acosh, add, all, allclose,
-    amax, amin, any, arange, arccos, arccosh, arcsin, arcsinh,
-    arctan, arctan2, arctanh, argmax, argmin, argpartition, argsort,
-    argwhere, around, array, array2string, array_equal, array_equiv,
-    array_repr, array_str, asanyarray, asarray, ascontiguousarray,
-    asfortranarray, asin, asinh, atan, atanh, atan2, astype, atleast_1d,
-    atleast_2d, atleast_3d, base_repr, binary_repr, bitwise_and,
-    bitwise_count, bitwise_invert, bitwise_left_shift, bitwise_not,
-    bitwise_or, bitwise_right_shift, bitwise_xor, block, bool, bool_,
-    broadcast, busday_count, busday_offset, busdaycalendar, byte, bytes_,
-    can_cast, cbrt, cdouble, ceil, character, choose, clip, clongdouble,
-    complex128, complex64, complexfloating, compress, concat, concatenate,
-    conj, conjugate, convolve, copysign, copyto, correlate, cos, cosh,
-    count_nonzero, cross, csingle, cumprod, cumsum, cumulative_prod,
-    cumulative_sum, datetime64, datetime_as_string, datetime_data,
-    deg2rad, degrees, diagonal, divide, divmod, dot, double, dtype, e,
-    einsum, einsum_path, empty, empty_like, equal, errstate, euler_gamma,
-    exp, exp2, expm1, fabs, finfo, flatiter, flatnonzero, flexible,
-    float16, float32, float64, float_power, floating, floor, floor_divide,
-    fmax, fmin, fmod, format_float_positional, format_float_scientific,
-    frexp, from_dlpack, frombuffer, fromfile, fromfunction, fromiter,
-    frompyfunc, fromstring, full, full_like, gcd, generic, geomspace,
-    get_printoptions, getbufsize, geterr, geterrcall, greater,
-    greater_equal, half, heaviside, hstack, hypot, identity, iinfo,
-    indices, inexact, inf, inner, int16, int32, int64, int8, int_, intc,
-    integer, intp, invert, is_busday, isclose, isdtype, isfinite,
-    isfortran, isinf, isnan, isnat, isscalar, issubdtype, lcm, ldexp,
-    left_shift, less, less_equal, lexsort, linspace, little_endian, log,
-    log10, log1p, log2, logaddexp, logaddexp2, logical_and, logical_not,
-    logical_or, logical_xor, logspace, long, longdouble, longlong, matmul,
-    matvec, matrix_transpose, max, maximum, may_share_memory, mean, memmap,
-    min, min_scalar_type, minimum, mod, modf, moveaxis, multiply, nan,
-    ndarray, ndim, nditer, negative, nested_iters, newaxis, nextafter,
-    nonzero, not_equal, number, object_, ones, ones_like, outer, partition,
-    permute_dims, pi, positive, pow, power, printoptions, prod,
-    promote_types, ptp, put, putmask, rad2deg, radians, ravel, recarray,
-    reciprocal, record, remainder, repeat, require, reshape, resize,
-    result_type, right_shift, rint, roll, rollaxis, round, sctypeDict,
-    searchsorted, set_printoptions, setbufsize, seterr, seterrcall, shape,
-    shares_memory, short, sign, signbit, signedinteger, sin, single, sinh,
-    size, sort, spacing, sqrt, square, squeeze, stack, std,
-    str_, subtract, sum, swapaxes, take, tan, tanh, tensordot,
-    timedelta64, trace, transpose, true_divide, trunc, typecodes, ubyte,
-    ufunc, uint, uint16, uint32, uint64, uint8, uintc, uintp, ulong,
-    ulonglong, unsignedinteger, unstack, ushort, var, vdot, vecdot,
-    vecmat, void, vstack, where, zeros, zeros_like
-"""
-
-
 def load_numpy_core(_, module: Module) -> None:  # NumPy < 2.0
     """Set the numpy.core global names."""
-    module.global_names.update(
-        NUMPY_GLOBAL_NAMES.replace("\n", "").replace(" ", "").split(",")
-    )
+    module.global_names.update(NUMPY__CORE_GLOBAL_NAMES)
     module.global_names.add("geterrobj")
 
 
 def load_numpy__core(_, module: Module) -> None:
     """Set the numpy._core global names."""
-    module.global_names.update(
-        NUMPY_GLOBAL_NAMES.replace("\n", "").replace(" ", "").split(",")
-    )
+    module.global_names.update(NUMPY__CORE_GLOBAL_NAMES)
+
+
+def load_numpy__core_numerictypes(_, module: Module) -> None:
+    """The numpy._core.numerictypes module adds a number of items to itself
+    dynamically; define these to avoid spurious errors about missing modules.
+    """
+    module.global_names.update(NUMPY__CORE_NUMERICTYPES_GLOBAL_NAMES)
+
+
+load_numpy_core_numerictypes = load_numpy__core_numerictypes  # numpy < 2.0
 
 
 def load_numpy__core_overrides(finder: ModuleFinder, module: Module) -> None:
@@ -289,28 +254,6 @@ def load_numpy__distributor_init(finder: ModuleFinder, module: Module) -> None:
     )
 
 
-def load_numpy_core_numerictypes(_, module: Module) -> None:
-    """The numpy.core.numerictypes module adds a number of items to itself
-    dynamically; define these to avoid spurious errors about missing modules.
-    """
-    module.global_names.update(
-        [
-            "bool_",
-            "cdouble",
-            "complexfloating",
-            "csingle",
-            "double",
-            "float64",
-            "float_",
-            "inexact",
-            "intc",
-            "int32",
-            "number",
-            "single",
-        ]
-    )
-
-
 def load_numpy_lib_utils(_, module: Module) -> None:  # numpy<2
     """The module numpy.lib.utils optionally imports the threadpoolctl module;
     ignore the error if the module cannot be found.
@@ -325,14 +268,17 @@ def load_numpy_lib__utils_impl(_, module: Module) -> None:
     module.ignore_names.add("threadpoolctl")
 
 
-def load_numpy_linalg(
-    finder: ModuleFinder,
-    module: Module,  # noqa: ARG001
-) -> None:
+def load_numpy_linalg(finder: ModuleFinder, module: Module) -> None:
     """The numpy.linalg module implicitly loads the lapack_lite module; make
     sure this happens.
     """
+    module.global_names.update(NUMPY_LINALG_GLOBAL_NAMES)
     finder.include_module("numpy.linalg.lapack_lite")
+
+
+def load_numpy_ma(_finder: ModuleFinder, module: Module) -> None:
+    """Define the global names to avoid spurious missing modules."""
+    module.global_names.update(NUMPY_MA_GLOBAL_NAMES)
 
 
 def load_numpy__pytesttester(_, module: Module) -> None:
@@ -341,13 +287,28 @@ def load_numpy__pytesttester(_, module: Module) -> None:
     module.ignore_names.update(["numpy.distutils", "pytest"])
 
 
+def load_numpy_random(_finder: ModuleFinder, module: Module) -> None:
+    """Define the global names to avoid spurious missing modules."""
+    module.global_names.update(NUMPY_RANDOM_GLOBAL_NAMES)
+
+
 def load_numpy_random_mtrand(_, module: Module) -> None:
     """The numpy.random.mtrand module is an extension module and the numpy
     module imports * from this module; define the list of global names
     available to this module in order to avoid spurious errors about missing
     modules.
     """
-    module.global_names.update(["rand", "randn"])
+    module.global_names.update(NUMPY_RANDOM_MTRAND_GLOBAL_NAMES)
+
+
+def load_numpy_strings(_finder: ModuleFinder, module: Module) -> None:
+    """Define the global names to avoid spurious missing modules."""
+    module.global_names.update(NUMPY_STRINGS_GLOBAL_NAMES)
+
+
+def load_numpy_testing(_, module: Module) -> None:
+    """Define the global names to avoid spurious missing modules."""
+    module.global_names.update(NUMPY_TESTING_GLOBAL_NAMES)
 
 
 def load_numpy_testing__private_utils(_, module: Module) -> None:
