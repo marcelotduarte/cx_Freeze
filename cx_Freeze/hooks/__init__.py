@@ -113,6 +113,16 @@ def load_charset_normalizer_md(finder: ModuleFinder, module: Module) -> None:
         finder.include_module("charset_normalizer.md__mypyc")
 
 
+def load_collections(finder: ModuleFinder, module: Module) -> None:
+    """Sets the alias for collections.abc."""
+    try:
+        finder.include_module("collections.abc")
+    except ImportError:
+        # collections.abc module does not exist in Python 3.13+
+        # >>> _sys.modules['collections.abc'] = _collections_abc
+        finder.add_alias("collections.abc", "_collections_abc")
+
+
 def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
     """Ignore names that should not be confused with modules to be imported."""
     from cx_Freeze.hooks.global_names import CONCURRENT_FUTURES_GLOBAL_NAMES
@@ -597,16 +607,6 @@ def load_win32file(finder: ModuleFinder, module: Module) -> None:
     """
     finder.include_module("pywintypes")
     finder.include_module("win32timezone")
-
-
-def load_wx_lib_pubsub_core(finder: ModuleFinder, module: Module) -> None:
-    """The wx.lib.pubsub.core module modifies the search path which cannot
-    be done in a frozen application in the same way; modify the module
-    search path here instead so that the right modules are found; note
-    that this only works if the import of wx.lib.pubsub.setupkwargs
-    occurs first.
-    """
-    module.path.insert(0, module.file.parent / "kwargs")
 
 
 def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
