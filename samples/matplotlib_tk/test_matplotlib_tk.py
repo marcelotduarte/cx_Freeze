@@ -13,7 +13,7 @@ from matplotlib.backends.backend_tkagg import (
 from matplotlib.figure import Figure
 
 root = tk.Tk()
-root.wm_title("Embedding in Tk")
+root.wm_title("cx_Freeze/matplotlib/tkinter sample")
 
 fig = Figure(figsize=(5, 4), dpi=100)
 t = np.arange(0, 3, 0.01)

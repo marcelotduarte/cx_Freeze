@@ -13,7 +13,9 @@ from matplotlib.figure import Figure
 
 class CanvasFrame(wx.Frame):
     def __init__(self) -> None:
-        wx.Frame.__init__(self, None, -1, "CanvasFrame", size=(550, 350))
+        wx.Frame.__init__(
+            self, None, -1, "cx_Freeze/matplotlib/wx sample", size=(550, 350)
+        )
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot()

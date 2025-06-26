@@ -6,28 +6,45 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cx_Freeze.module import Module, ModuleHook
+
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
-    from cx_Freeze.module import Module
+
+__all__ = ["Hook"]
 
 
-def load_pygments(finder: ModuleFinder, module: Module) -> None:  # noqa: ARG001
-    """The pygments package dynamically load styles."""
-    finder.include_package("pygments.styles")
-    finder.include_package("pygments.lexers")
-    finder.include_package("pygments.formatters")
+class Hook(ModuleHook):
+    """The Hook class for pygments."""
 
+    def pygments(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        """The pygments package dynamically load styles."""
+        finder.include_package("pygments.styles")
+        finder.include_package("pygments.lexers")
+        finder.include_package("pygments.formatters")
 
-def load_pygments_lexer(_, module: Module) -> None:
-    """Ignore optional package."""
-    module.ignore_names.add("chardet")
+    def pygments_lexer(self, _finder: ModuleFinder, module: Module) -> None:
+        """Ignore optional package."""
+        module.ignore_names.add("chardet")
 
+    def pygments_lexers_cplint(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional package."""
+        module.ignore_names.add("pygments.lexers.PrologLexer")
 
-def load_pygments_formatters_img(_, module: Module) -> None:
-    """Ignore optional package."""
-    module.ignore_names.add("PIL")
+    def pygments_formatters_img(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional package."""
+        module.ignore_names.add("PIL")
 
-
-def load_pygments_formatters_html(_, module: Module) -> None:
-    """Ignore optional package."""
-    module.ignore_names.add("ctags")
+    def pygments_formatters_html(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional package."""
+        module.ignore_names.add("ctags")

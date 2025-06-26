@@ -48,7 +48,7 @@ pyproject.toml
         "numpy<1.26;python_version <= '3.10'",
         "numpy<2;python_version == '3.11'",
         "numpy>=2;python_version >= '3.12'",
-        "matplotlib<3.5;python_version == '3.9' and sys_platform == 'linux'",
+        "matplotlib<3.4;python_version == '3.9' and sys_platform == 'linux'",
         "matplotlib<3.6;python_version == '3.9' and sys_platform != 'linux'",
         "matplotlib<3.6;python_version == '3.10'",
         "matplotlib<3.7;python_version == '3.11'",
@@ -60,7 +60,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include_msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
 
@@ -150,7 +150,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include_msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
 
@@ -220,7 +220,7 @@ pyproject.toml
     executables = ["test_scipy.py"]
 
     [tool.cxfreeze.build_exe]
-    excludes = ["tkinter"]
+    excludes = ["tkinter", "PySide6", "shiboken6"]
     include_msvcr = true
     optimize = 2
     silent = true
@@ -322,7 +322,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include_msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
 
@@ -407,7 +407,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include_msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
 

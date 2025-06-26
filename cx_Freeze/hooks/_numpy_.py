@@ -110,6 +110,36 @@ def load_numpy(finder: ModuleFinder, module: Module) -> None:
     )
 
 
+def load_numpy_compat(_, module: Module) -> None:
+    # deprecated since 1.26.0, available until 2.2.6, removed in 2.3.0
+    module.global_names.update(
+        [
+            "Path",
+            "asbytes",
+            "asbytes_nested",
+            "asstr",
+            "asunicode",
+            "asunicode_nested",
+            "basestring",
+            "bytes",
+            "contextlib_nullcontext",
+            "getexception",
+            "integer_types",
+            "is_pathlib_path",
+            "isfileobj",
+            "long",
+            "npy_load_module",
+            "open_latin1",
+            "os_PathLike",
+            "os_fspath",
+            "pickle",
+            "sixu",
+            "strchar",
+            "unicode",
+        ]
+    )
+
+
 def load_numpy_compat_py3k(_, module: Module) -> None:
     """Ignore errors if optionally imported module cannot be found."""
     module.ignore_names.add("pickle5")
@@ -124,6 +154,7 @@ def load_numpy_core(_, module: Module) -> None:  # NumPy < 2.0
     """Set the numpy.core global names."""
     module.global_names.update(NUMPY__CORE_GLOBAL_NAMES)
     module.global_names.add("geterrobj")
+    module.global_names.add("Inf")
 
 
 def load_numpy__core(_, module: Module) -> None:
@@ -317,6 +348,7 @@ def load_numpy_testing__private_utils(_, module: Module) -> None:
     module.ignore_names.update(
         ["numpy.distutils.misc_util", "psutil", "pytest", "win32pdh"]
     )
+    module.exclude_names.update(["pytest"])
 
 
 def load_numpy__typing(_, module: Module) -> None:
