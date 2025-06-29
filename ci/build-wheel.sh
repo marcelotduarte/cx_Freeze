@@ -88,6 +88,16 @@ _bump_my_version () {
     $PYTHON -c "print('$value'.replace('\r','').replace('\n',''), end='')"
 }
 
+_build_sdist () {
+    if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
+        $PYTHON -m build -n -x --sdist -o wheelhouse
+    else
+        #uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
+        #$PYTHON -m build --sdist -o wheelhouse
+        "$HOME/bin/pyproject-build" --sdist -o wheelhouse
+    fi
+}
+
 _build_wheel () {
     local args=$*
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
@@ -124,18 +134,16 @@ echo "Version: $VERSION ($NORMALIZED_VERSION)"
 echo "::endgroup::"
 
 mkdir -p wheelhouse >/dev/null
-if [[ $PY_PLATFORM == linux* ]]; then
-    FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION"
-    FILEEXISTS=$(ls "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
-    if [ -z "$FILEEXISTS" ]; then
-        echo "::group::Build sdist"
-        uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
-        echo "::endgroup::"
-    fi
+DIRTY=$(_bump_my_version show scm_info.dirty)
+FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION"
+FILEEXISTS=$(ls "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
+if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
+    echo "::group::Build sdist"
+    _build_sdist
+    echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
 if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
-    DIRTY=$(_bump_my_version show scm_info.dirty)
     FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
     FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
     if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
