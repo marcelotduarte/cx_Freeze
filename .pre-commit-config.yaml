@@ -35,7 +35,7 @@ repos:
           - validate-pyproject-schema-store[all]>=2024.11.22
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.0
+    rev: v0.12.1
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -58,7 +58,7 @@ repos:
         args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v20.1.6
+    rev: v20.1.7
     hooks:
       - id: clang-format
         args: ["--style=file:source/.clang-format"]
@@ -69,7 +69,7 @@ repos:
         types_or: [c, c++]
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.6.0
+    rev: v3.6.2
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]

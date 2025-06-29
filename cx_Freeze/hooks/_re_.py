@@ -17,8 +17,11 @@ __all__ = ["Hook"]
 
 
 class Hook(ModuleHook):
-    """Ignore names that should not be confused with modules to be imported."""
+    """The Hook class for 're' module."""
 
     def re(self, _finder: ModuleFinder, module: Module) -> None:
+        """Ignore names that should not be confused with modules to be
+        imported.
+        """
         if module.path:  # package since Python 3.11
             module.global_names.update(RE_GLOBAL_NAMES)

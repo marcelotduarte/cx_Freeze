@@ -8,10 +8,13 @@ import contextlib
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
+from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
-    from cx_Freeze.module import Module
+
+
+__all__ = ["Hook"]
 
 _setuptools_extern = [
     "setuptools.extern.jaraco.functools",
@@ -29,162 +32,181 @@ _setuptools_extern = [
 ]
 
 
-def load_setuptools(finder: ModuleFinder, module: Module) -> None:
-    """The setuptools must load the _distutils and _vendor subpackage."""
-    finder.exclude_module("setuptools.tests")
-    finder.exclude_module("setuptools._distutils.tests")
-    with contextlib.suppress(ImportError):
-        finder.include_package(f"{module.name}._distutils")
-    with contextlib.suppress(ImportError):
-        finder.include_package(f"{module.name}._vendor")
+class Hook(ModuleHook):
+    """The Hook class for setuptools."""
 
+    def setuptools(self, finder: ModuleFinder, module: Module) -> None:
+        """The setuptools must load the _distutils and _vendor subpackage."""
+        finder.exclude_module("setuptools.tests")
+        finder.exclude_module("setuptools._distutils.tests")
+        with contextlib.suppress(ImportError):
+            finder.include_package(f"{module.name}._distutils")
+        with contextlib.suppress(ImportError):
+            finder.include_package(f"{module.name}._vendor")
 
-def load_setuptools_command_build(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("typing_extensions")
+    def setuptools_command_build(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("typing_extensions")
 
+    def setuptools_command_build_ext(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(["Cython.Distutils.build_ext", "dl"])
 
-def load_setuptools_command_build_ext(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(["Cython.Distutils.build_ext", "dl"])
+    def setuptools_command_easy_install(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.jaraco.text")
 
+    def setuptools_command_egg_info(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(
+            ["setuptools.extern.jaraco.text", "setuptools.extern.packaging"]
+        )
 
-def load_setuptools_command_easy_install(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.jaraco.text")
+    def setuptools_config_setupcfg(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(_setuptools_extern)
 
+    def setuptools_config__apply_pyprojecttoml(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.packaging.specifiers")
 
-def load_setuptools_command_egg_info(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(
-        ["setuptools.extern.jaraco.text", "setuptools.extern.packaging"]
-    )
+    def setuptools_config_expand(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.more_itertools")
 
+    def setuptools_config_pyprojecttoml(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(
+            ["setuptools.extern.more_itertools", "setuptools.extern.tomli"]
+        )
 
-def load_setuptools_config_setupcfg(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(_setuptools_extern)
+    def setuptools_config__validate_pyproject_formats(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(
+            ["packaging", "trove_classifiers", "typing_extensions"]
+        )
 
+    def setuptools_depends(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.packaging")
 
-def load_setuptools_config__apply_pyprojecttoml(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.packaging.specifiers")
+    def setuptools_dist(self, _finder: ModuleFinder, module: Module) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(_setuptools_extern)
 
+    def setuptools__entry_points(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(_setuptools_extern)
 
-def load_setuptools_config_expand(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.more_itertools")
+    def setuptools_extension(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """The setuptools.extension module optionally loads
+        Pyrex.Distutils.build_ext but its absence is not considered an error.
+        """
+        module.ignore_names.add("Pyrex.Distutils.build_ext")
 
+    def setuptools__importlib(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(
+            [
+                "importlib_metadata",
+                "setuptools.extern.importlib_metadata",
+                "setuptools.extern.importlib_resources",
+            ]
+        )
 
-def load_setuptools_config_pyprojecttoml(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(
-        ["setuptools.extern.more_itertools", "setuptools.extern.tomli"]
-    )
+    def setuptools__itertools(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.more_itertools")
 
+    def setuptools__normalization(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.packaging")
 
-def load_setuptools_config__validate_pyproject_formats(
-    _, module: Module
-) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(
-        ["packaging", "trove_classifiers", "typing_extensions"]
-    )
+    def setuptools_monkey(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        """Add hidden module."""
+        finder.include_module("setuptools.msvc")
 
+    def setuptools_package_index(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.more_itertools")
 
-def load_setuptools_depends(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.packaging")
+    def setuptools__reqs(self, _finder: ModuleFinder, module: Module) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(_setuptools_extern)
 
+    def setuptools_sandbox(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("org.python.modules.posix.PosixModule")
 
-def load_setuptools_dist(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(_setuptools_extern)
+    def setuptools__vendor_jaraco_text(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(
+            [
+                "setuptools.extern.importlib_resources",
+                "setuptools.extern.jaraco.context",
+                "setuptools.extern.jaraco.functools",
+            ]
+        )
 
+    def setuptools__vendor_jaraco_functools(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("setuptools.extern.more_itertools")
 
-def load_setuptools__entry_points(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(_setuptools_extern)
+    def setuptools__vendor_packaging_metadata(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.add("typing_extensions")
 
+    def setuptools_wheel(self, _finder: ModuleFinder, module: Module) -> None:
+        """Ignore optional modules."""
+        module.ignore_names.update(_setuptools_extern)
 
-def load_setuptools_extension(_, module: Module) -> None:
-    """The setuptools.extension module optionally loads
-    Pyrex.Distutils.build_ext but its absence is not considered an error.
-    """
-    module.ignore_names.add("Pyrex.Distutils.build_ext")
-
-
-def load_setuptools__importlib(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(
-        [
-            "importlib_metadata",
-            "setuptools.extern.importlib_metadata",
-            "setuptools.extern.importlib_resources",
-        ]
-    )
-
-
-def load_setuptools__itertools(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.more_itertools")
-
-
-def load_setuptools__normalization(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.packaging")
-
-
-def load_setuptools_monkey(
-    finder: ModuleFinder,
-    module: Module,  # noqa: ARG001
-) -> None:
-    """Add hidden module."""
-    finder.include_module("setuptools.msvc")
-
-
-def load_setuptools_package_index(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.more_itertools")
-
-
-def load_setuptools__reqs(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(_setuptools_extern)
-
-
-def load_setuptools_sandbox(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("org.python.modules.posix.PosixModule")
-
-
-def load_setuptools__vendor_jaraco_text(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(
-        [
-            "setuptools.extern.importlib_resources",
-            "setuptools.extern.jaraco.context",
-            "setuptools.extern.jaraco.functools",
-        ]
-    )
-
-
-def load_setuptools__vendor_jaraco_functools(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("setuptools.extern.more_itertools")
-
-
-def load_setuptools__vendor_packaging_metadata(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.add("typing_extensions")
-
-
-def load_setuptools_wheel(_, module: Module) -> None:
-    """Ignore optional modules."""
-    module.ignore_names.update(_setuptools_extern)
-
-
-def load_setuptools_windows_support(_, module: Module) -> None:
-    """Ignore optional modules."""
-    if not (IS_MINGW or IS_WINDOWS):
-        module.exclude_names.update(["ctypes", "ctypes.wintypes"])
+    def setuptools_windows_support(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional modules."""
+        if not (IS_MINGW or IS_WINDOWS):
+            module.exclude_names.update(["ctypes", "ctypes.wintypes"])
