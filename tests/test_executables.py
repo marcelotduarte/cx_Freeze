@@ -11,7 +11,7 @@ import pytest
 from setuptools import Distribution
 
 from cx_Freeze import Executable
-from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS, SOABI
+from cx_Freeze._compat import EXE_SUFFIX, IS_CONDA, IS_MINGW, IS_WINDOWS, SOABI
 from cx_Freeze.exception import OptionError, SetupError
 
 SOURCE_SETUP_TOML = """
@@ -577,3 +577,54 @@ def test_executable_namespace(
     stop += package_or_module
     for i in range(start, stop):
         assert lines[i].endswith("False")
+
+
+SOURCE_VALID_SYS_PATH = """
+test_sys_path.py
+    import os
+    import sys
+    from pathlib import Path
+
+    def get_module_path_list(current_path):
+        parent_path = os.path.abspath(os.path.join(current_path, "modules"))
+        return [current_path, parent_path]
+
+    now_path = Path.cwd()
+
+    module_path_list = get_module_path_list(now_path)
+    sys.path.extend(module_path_list)
+
+    # import a package thas has modules in C/C++ or rust
+    import numpy
+    print("Hello from cx_Freeze")
+    print(f"{numpy.__name__} loaded!")
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+    dependencies = ["numpy"]
+
+    [[tool.cxfreeze.executables]]
+    script = "test_sys_path.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+    silent = false
+"""
+
+
+@pytest.mark.skipif(IS_CONDA, reason="Disabled on conda-forge")
+@pytest.mark.venv
+def test_valid_sys_path(tmp_package) -> None:
+    """Test if sys.path has valid values."""
+    tmp_package.create(SOURCE_VALID_SYS_PATH)
+    output = tmp_package.run()
+
+    file_created = tmp_package.executable("test_sys_path")
+    assert file_created.is_file(), f"file not found: {file_created}"
+
+    output = tmp_package.run(file_created, timeout=10)
+    lines = output.splitlines()
+    assert lines[0].startswith("Hello from cx_Freeze")
+    assert lines[1].startswith("numpy loaded!")
