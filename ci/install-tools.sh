@@ -144,5 +144,13 @@ if [ -f requirements-dev.txt ]; then
             chmod +x "$filename"
         fi
     done < requirements-dev.txt
+    # pyproject-build
+    if [ "$IS_CONDA" != "true" ] || [ "$IS_MINGW" != "true" ]; then
+        filename=$INSTALL_DIR/pyproject-build
+        echo "Create $filename"
+        echo "#!/bin/bash"> "$filename"
+        echo "uvx -p $PYTHON_FOR_DEV --from build pyproject-build \$@">> "$filename"
+        chmod +x "$filename"
+    fi
 fi
 echo "::endgroup::"
