@@ -615,6 +615,7 @@ pyproject.toml
 
 
 @pytest.mark.skipif(IS_CONDA, reason="Disabled on conda-forge")
+@pytest.mark.skipif(IS_MINGW, reason="Disabled on msys2")
 @pytest.mark.venv
 def test_valid_sys_path(tmp_package) -> None:
     """Test if sys.path has valid values."""
