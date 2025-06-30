@@ -400,43 +400,25 @@ class Module:
     def load_hook(self) -> None:
         """Load hook for the given module if one is present.
 
-        For instance, a load hook for PyQt5.QtCore:
+        For instance, to load a hook for PIL.Image:
         - Using ModuleHook class:
             # module and hook methods are lowercased.
-            hook = pyqt5.Hook()
-            hook.qt_qtcore()
+            from cx_Freeze.hooks import _pil_ as pil
+            hook = pil.Hook()
+            hook.pil_image(...)
         - For functions present in hooks.__init__:
             # module and load hook functions use the original case.
-            load_PyQt5_QtCore()
-        - For functions in a separated module:
-            # module and load hook functions are lowercased.
-            pyqt5.load_pyqt5_qtcore()
+            from cx_Freeze.hooks import load_PIL_Image
+            load_PIL_Image(...)
         """
         if not isinstance(self.root.hook, ModuleHook):
             try:
                 # new style hook using ModuleHook class - top-level call
                 root_name = self.root.name.lower()
-                try:
-                    hook_cls = resolve_name(
-                        f"cx_Freeze.hooks._{root_name}_:Hook"
-                    )
-                except (AttributeError, ValueError):
-                    hook_cls = None
-                if hook_cls and issubclass(hook_cls, ModuleHook):
+                hook_cls = resolve_name(f"cx_Freeze.hooks._{root_name}_:Hook")
+                if issubclass(hook_cls, ModuleHook):
                     self.root.hook = hook_cls(self.root)
-                else:
-                    # old style hook with lowercased functions
-                    name = self.name.replace(".", "_").lower()
-                    try:
-                        func = resolve_name(
-                            f"cx_Freeze.hooks._{root_name}_:load_{name}"
-                        )
-                    except (AttributeError, ValueError):
-                        pass
-                    else:
-                        self.hook = partial(func, module=self)
-                    return
-            except ImportError:
+            except (AttributeError, ValueError, ImportError):
                 # old style hook with functions at hooks.__init__
                 name = self.name.replace(".", "_")
                 try:
