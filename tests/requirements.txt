@@ -4,4 +4,4 @@ pytest-cov==6.2.1
 coverage==7.9.1
 pytest-mock==3.14.1
 pytest-timeout==2.4.0
-pytest-xdist==3.7.0
+pytest-xdist==3.8.0
