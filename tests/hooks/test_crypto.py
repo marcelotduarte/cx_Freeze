@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.hooks of crypto packages."""
+"""Tests for hooks of crypto packages."""
 
 from __future__ import annotations
 

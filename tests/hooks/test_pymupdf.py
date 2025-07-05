@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.hooks of pymupdf."""
+"""Tests for hooks of pymupdf."""
 
 from __future__ import annotations
 
