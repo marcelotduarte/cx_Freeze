@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.hooks of pyarrow."""
+"""Tests for hooks of pyarrow."""
 
 from __future__ import annotations
 
