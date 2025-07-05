@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.hooks._pytz_."""
+"""Tests for hooks of pytz."""
 
 from __future__ import annotations
 

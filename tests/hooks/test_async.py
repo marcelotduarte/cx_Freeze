@@ -1,5 +1,5 @@
-"""Tests for cx_Freeze.hooks of async package anyio, and implicitly the
-asyncio and uvloop packages.
+"""Tests for hooks of anyio async package
+(implicitly test the asyncio and uvloop packages).
 """
 
 from __future__ import annotations

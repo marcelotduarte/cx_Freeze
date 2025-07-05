@@ -11,3 +11,9 @@ pip install -U cx_Freeze tzdata
 ```
 
 Please note that `tzdata` is not required in macOS and Linux.
+
+# To build:
+
+```
+cxfreeze build
+```

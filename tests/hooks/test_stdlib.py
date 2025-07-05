@@ -1,4 +1,4 @@
-"""Tests for some cx_Freeze.hooks using stdlib packages."""
+"""Tests for some hooks of stdlib packages."""
 
 from __future__ import annotations
 

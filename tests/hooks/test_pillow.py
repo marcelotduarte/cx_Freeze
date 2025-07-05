@@ -1,4 +1,4 @@
-"""Tests for cx_Freeze.hooks of pillow."""
+"""Tests for hooks of PIL (Pillow)."""
 
 from __future__ import annotations
 

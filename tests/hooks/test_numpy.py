@@ -1,4 +1,6 @@
-"""Tests for cx_Freeze.hooks of numpy, pandas and scipy."""
+"""Tests for hooks of numpy, matplotlib, pandas, raterio, scipy, shapely, and
+vtk.
+"""
 
 from __future__ import annotations
 
