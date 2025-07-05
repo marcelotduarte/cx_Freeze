@@ -1098,7 +1098,7 @@ PYPARSING_GLOBAL_NAMES = [
     "NoMatch",
     "NotAny",
     "OneOrMore",
-    "only once",
+    "OnlyOnce",
     "OpAssoc",
     "Opt",
     "Optional",
@@ -1404,6 +1404,22 @@ TKINTER_GLOBAL_NAMES = [
     "image_names",
     "image_types",
     "mainloop",
+]
+ZMQ_BACKEND_GLOBAL_NAMES = [
+    "Context",
+    "Frame",
+    "IPC_PATH_MAX_LEN",
+    "Message",
+    "Socket",
+    "curve_keypair",
+    "curve_public",
+    "has",
+    "proxy",
+    "proxy_steerable",
+    "strerror",
+    "zmq_errno",
+    "zmq_poll",
+    "zmq_version_info",
 ]
 ZONEINFO_GLOBAL_NAMES = [
     "InvalidTZPathWarning",

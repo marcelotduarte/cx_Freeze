@@ -19,7 +19,7 @@ zip_packages = pytest.mark.parametrize(
 @pytest.mark.venv
 @zip_packages
 def test_win32com(tmp_package, zip_packages: bool) -> None:
-    """Test that the win32com is working correctly."""
+    """Test if win32com hook is working correctly."""
     tmp_package.create_from_sample("win32com")
     tmp_package.install("pywin32")
     command = "cxfreeze --script test_win32com.py --excludes=tkinter,unittest"
@@ -66,7 +66,7 @@ pyproject.toml
 @pytest.mark.venv
 @zip_packages
 def test_win32com_shell(tmp_package, zip_packages: bool) -> None:
-    """Test if zoneinfo hook is working correctly."""
+    """Test if win32com hook is working correctly."""
     tmp_package.create(SOURCE_WIN32COM_SHELL)
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"

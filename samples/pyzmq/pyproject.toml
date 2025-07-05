@@ -1,0 +1,13 @@
+[project]
+name = "test_pyzmq"
+version = "0.2"
+description = "cx_Freeze script to test pyzmq server and client"
+dependencies = ["pyzmq>=20.0"]
+
+[tool.cxfreeze]
+executables = ["pyzmq_server.py", "pyzmq_client.py"]
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest"]
+include_msvcr = true
+silent = true

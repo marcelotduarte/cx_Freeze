@@ -2,25 +2,8 @@ from __future__ import annotations
 
 import sys
 import time
-from contextlib import AbstractContextManager
 
-import zmq
-
-
-class ignore(AbstractContextManager):
-    def __init__(self, call) -> None:
-        self.call = call
-
-    def __enter__(self):  # noqa: ANN204
-        if hasattr(self.call, "__enter__"):
-            return self.call
-        return self
-
-    def __exit__(self, *exc_info):  # noqa: ANN204
-        if hasattr(self.call, "__exit__"):
-            return self.call.__exit__
-        return None
-
+import zmq  # pyzmq >= 20.0
 
 port = 5556
 timeout = None
@@ -28,7 +11,7 @@ for arg in sys.argv[1:]:
     if arg.startswith("--timeout="):
         timeout = int(arg[len("--timeout=") :])
     if arg.startswith("--port="):
-        timeout = int(arg[len("--port=") :])
+        port = int(arg[len("--port=") :])
     elif arg.isdecimal():
         port = int(arg)
 
@@ -44,7 +27,7 @@ if timeout:
 
 print(f"Client connecting to {url}")
 try:
-    with ignore(socket.connect(url)):
+    with socket.connect(url):
         while True:
             if timeout and time.monotonic() >= timeout:
                 request = "Close"
