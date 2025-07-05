@@ -2,6 +2,7 @@
 name = "test_tz"
 version = "0.1.2.3"
 description = "cx_Freeze script to test zoneinfo/tzdata"
+dependencies = ["tzdata;sys_platform == 'win32'"]
 
 [tool.cxfreeze]
 executables = ["test_tz.py"]

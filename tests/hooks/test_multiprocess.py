@@ -1,4 +1,4 @@
-"""Tests for multiprocess."""
+"""Tests for hooks of multiprocess."""
 
 from __future__ import annotations
 

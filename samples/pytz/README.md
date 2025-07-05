@@ -9,3 +9,15 @@ In a virtual environment, install by issuing the command:
 ```
 pip install cx_Freeze pytz --upgrade
 ```
+
+Using conda-forge:
+
+```
+conda install --conda-forge cx_freeze pytz
+```
+
+# To build:
+
+```
+cxfreeze build
+```

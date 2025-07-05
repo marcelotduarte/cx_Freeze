@@ -1,4 +1,4 @@
-"""Tests for some cx_Freeze.hooks."""
+"""Tests for hooks of win32com (pywin32)."""
 
 from __future__ import annotations
 
