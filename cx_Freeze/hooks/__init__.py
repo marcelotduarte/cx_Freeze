@@ -547,16 +547,6 @@ def load_time(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("_strptime")
 
 
-def load_tokenizers(finder: ModuleFinder, module: Module) -> None:
-    """On Linux the tokenizers.libs directory is not copied."""
-    if module.path is None:
-        return
-    libs_name = "tokenizers.libs"
-    source_dir = module.path[0].parent / libs_name
-    if source_dir.exists():
-        finder.include_files(source_dir, Path("lib", libs_name))
-
-
 def load_typing(finder: ModuleFinder, module: Module) -> None:
     """Optimize typing module."""
     finder.add_alias("typing.io", "io")

@@ -19,7 +19,6 @@ from cx_Freeze.hooks.global_names import (
     NUMPY_RANDOM_GLOBAL_NAMES,
     NUMPY_RANDOM_MTRAND_GLOBAL_NAMES,
     NUMPY_STRINGS_GLOBAL_NAMES,
-    NUMPY_TESTING_GLOBAL_NAMES,
 )
 from cx_Freeze.module import Module, ModuleHook
 
@@ -59,6 +58,7 @@ class Hook(ModuleHook):
         finder.exclude_module("numpy.f2py")
         finder.exclude_module("numpy._pyinstaller")
         finder.exclude_module("numpy.random._examples")
+        finder.exclude_module("numpy.testing")
         finder.exclude_module("numpy.typing.mypy_plugin")
         module.ignore_names.add("numpy.distutils")
 
@@ -107,6 +107,9 @@ class Hook(ModuleHook):
             )
         code_bytes = code_bytes.replace(
             b"import numpy.f2py as f2py", b"f2py = None"
+        )
+        code_bytes = code_bytes.replace(
+            b"import numpy.testing as testing", b"testing = None"
         )
         module.code = compile(
             code_bytes,
@@ -315,6 +318,7 @@ class Hook(ModuleHook):
         """
         module.global_names.update(NUMPY_LINALG_GLOBAL_NAMES)
         finder.include_module("numpy.linalg.lapack_lite")
+        finder.include_module("numpy.linalg._umath_linalg")
 
     def numpy_ma(self, _finder: ModuleFinder, module: Module) -> None:
         """Define the global names to avoid spurious missing modules."""
@@ -324,8 +328,12 @@ class Hook(ModuleHook):
         self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Remove optional modules in the numpy._pytesttester module."""
-        module.exclude_names.update(["numpy.distutils", "pytest"])
-        module.ignore_names.update(["numpy.distutils", "pytest"])
+        module.exclude_names.update(
+            ["numpy.distutils", "numpy.testing", "pytest"]
+        )
+        module.ignore_names.update(
+            ["numpy.distutils", "numpy.testing", "pytest"]
+        )
 
     def numpy_random(self, _finder: ModuleFinder, module: Module) -> None:
         """Define the global names to avoid spurious missing modules."""
@@ -344,20 +352,6 @@ class Hook(ModuleHook):
     def numpy_strings(self, _finder: ModuleFinder, module: Module) -> None:
         """Define the global names to avoid spurious missing modules."""
         module.global_names.update(NUMPY_STRINGS_GLOBAL_NAMES)
-
-    def numpy_testing(self, finder: ModuleFinder, module: Module) -> None:
-        """Define the global names to avoid spurious missing modules."""
-        module.global_names.update(NUMPY_TESTING_GLOBAL_NAMES)
-        finder.include_package("numpy.testing")
-
-    def numpy_testing__private_utils(
-        self, _finder: ModuleFinder, module: Module
-    ) -> None:
-        """Ignore optional modules."""
-        module.ignore_names.update(
-            ["numpy.distutils.misc_util", "psutil", "pytest", "win32pdh"]
-        )
-        module.exclude_names.update(["pytest"])
 
     def numpy__typing(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional module."""

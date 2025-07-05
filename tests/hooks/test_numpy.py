@@ -16,7 +16,6 @@ from cx_Freeze._compat import (
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
-    IS_X86_64,
 )
 
 TIMEOUT = 10
@@ -106,22 +105,19 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
 def test_pandas(tmp_package, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
     tmp_package.create_from_sample("pandas")
-    command = "python setup.py build_exe -O2 --excludes=tkinter,unittest"
     if zip_packages:
-        command += " --zip-include-packages=* --zip-exclude-packages="
-    command += " --include-msvcr"
-
-    if IS_LINUX and IS_X86_64 and sys.version_info[:2] == (3, 10):
-        tmp_package.install(
-            "numpy", index="https://pypi.anaconda.org/intel/simple"
-        )
-    tmp_package.install("pandas")
-    output = tmp_package.run(command)
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    output = tmp_package.run()
+    print(output)
 
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
     output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    print(output)
     lines = output.splitlines()
     assert lines[0].startswith("numpy version")
     assert lines[1].startswith("pandas version")
