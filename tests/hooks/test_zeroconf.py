@@ -61,6 +61,7 @@ def test_zeroconf(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     output = tmp_package.run()
+    print(output)
 
     executable = tmp_package.executable("test_zeroconf")
     assert executable.is_file()

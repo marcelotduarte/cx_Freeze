@@ -15,3 +15,9 @@ Using conda-forge:
 ```
 conda install --conda-forge cx_freeze pandas
 ```
+
+# To build:
+
+```
+cxfreeze build
+```
