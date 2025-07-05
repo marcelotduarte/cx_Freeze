@@ -1,0 +1,20 @@
+[project]
+name = "test_pandas.py"
+version = "0.1.2.3"
+dependencies = [
+    "numpy<1.26;python_version <= '3.10'",
+    "numpy<2;python_version == '3.11'",
+    "numpy>=2;python_version >= '3.12'",
+    "pandas<2.0;python_version <= '3.10'",
+    "pandas<2.3;python_version == '3.11'",
+    "pandas>=2.3;python_version >= '3.12'",
+]
+
+[tool.cxfreeze]
+executables = ["test_pandas.py"]
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest", "email", "http", "xml", "pydoc"]
+include_msvcr = true
+optimize = 2
+silent = true
