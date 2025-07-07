@@ -163,7 +163,8 @@ def test_zip_exclude_packages(tmp_package) -> None:
 
 
 @pytest.mark.skipif(
-    not HAVE_UV, reason="uv needed to install editable package"
+    not HAVE_UV or sys.version_info < (3, 10),
+    reason="uv and 3.10+ are needed for editable packages",
 )
 def test_editable_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
