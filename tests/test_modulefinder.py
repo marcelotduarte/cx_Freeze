@@ -168,7 +168,9 @@ def test_zip_exclude_packages(tmp_package) -> None:
 def test_editable_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(EDITABLE_PACKAGE_TEST[4])
-    tmp_package._install_uv(["-e", f"{tmp_package.path}/foo-bar"])
+    tmp_package._install_uv(  # noqa: SLF001
+        ["-e", f"{tmp_package.path}/foo-bar"]
+    )
     _do_test(
         tmp_package,
         *EDITABLE_PACKAGE_TEST,
