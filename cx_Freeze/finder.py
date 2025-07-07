@@ -393,7 +393,9 @@ class ModuleFinder:
                 ):
                     try:
                         mod = importlib.import_module(f.stem)
-                        spec = mod._EditableFinder.find_spec(name, path)
+                        spec = mod._EditableFinder.find_spec(
+                            name, path
+                        )  # noqa SLF001
                         if spec:
                             return spec
                     except (ImportError, AttributeError) as e:

@@ -11,12 +11,15 @@ import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
 
+from .conftest import HAVE_UV
+
 from .datatest import (
     ABSOLUTE_IMPORT_TEST,
     BYTECODE_TEST,
     CODING_DEFAULT_UTF8_TEST,
     CODING_EXPLICIT_CP1252_TEST,
     CODING_EXPLICIT_UTF8_TEST,
+    EDITABLE_PACKAGE_TEST,
     EXTENDED_OPARGS_TEST,
     IMPORT_CALL_TEST,
     MAYBE_TEST,
@@ -157,4 +160,19 @@ def test_zip_exclude_packages(tmp_package) -> None:
         zip_exclude_packages=["p"],
         zip_include_packages=["*"],
         zip_include_all_packages=True,
+    )
+
+
+@pytest.mark.skipif(
+    not HAVE_UV, reason="uv needed to install editable package"
+)
+def test_editable_packages(tmp_package) -> None:
+    """Provides test cases for ModuleFinder class."""
+    tmp_package.create(EDITABLE_PACKAGE_TEST[4])
+    tmp_package._install_uv(
+        ["-e", f"{tmp_package.path}/foo-bar"]
+    )  # noqa SLF001
+    _do_test(
+        tmp_package,
+        *EDITABLE_PACKAGE_TEST,
     )
