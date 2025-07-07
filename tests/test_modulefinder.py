@@ -12,7 +12,6 @@ import pytest
 from cx_Freeze import ConstantsModule, ModuleFinder
 
 from .conftest import HAVE_UV
-
 from .datatest import (
     ABSOLUTE_IMPORT_TEST,
     BYTECODE_TEST,
@@ -169,9 +168,7 @@ def test_zip_exclude_packages(tmp_package) -> None:
 def test_editable_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(EDITABLE_PACKAGE_TEST[4])
-    tmp_package._install_uv(
-        ["-e", f"{tmp_package.path}/foo-bar"]
-    )  # noqa SLF001
+    tmp_package._install_uv(["-e", f"{tmp_package.path}/foo-bar"])
     _do_test(
         tmp_package,
         *EDITABLE_PACKAGE_TEST,
