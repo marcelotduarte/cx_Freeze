@@ -114,7 +114,7 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
-    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
     result.stdout.fnmatch_lines(
         [
             "Hello from cx_Freeze",

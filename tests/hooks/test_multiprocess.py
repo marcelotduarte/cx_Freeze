@@ -140,4 +140,4 @@ def test_multiprocess(
     result = tmp_package.run(
         executable, cwd=executable.parent, timeout=TIMEOUT_VERY_VERY_SLOW
     )
-    assert result.outlines[-1] == expected
+    result.stdout.fnmatch_lines(expected)

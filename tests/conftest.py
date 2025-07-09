@@ -355,7 +355,7 @@ class TempPackageVenv(TempPackage):
     def _venv_uv(self) -> None:
         # get the list of packages
         result = self.run("uv pip list --format=json -q", cwd=self.system_path)
-        packages = json.loads(result.outlines[0])
+        packages = json.loads(str(result.stdout))
         # create venv
         cmd = f"uv venv --python={PYTHON_VERSION}{ABI_THREAD} {self.prefix}"
         self.run(cmd, cwd=self.system_path)

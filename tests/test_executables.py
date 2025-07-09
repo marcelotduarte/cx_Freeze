@@ -446,7 +446,7 @@ def test_invalid_icon(tmp_package) -> None:
     result = tmp_package.freeze()
     result.stdout.no_fnmatch_line("WARNING: Icon file not found")
     # it is expected the following warning if the icon is invalid
-    result.stdout.fnmatch_line(
+    result.stdout.fnmatch_lines(
         "WARNING: Icon filename 'icon.png' has invalid type."
     )
 
@@ -605,7 +605,7 @@ pyproject.toml
     name = "hello"
     version = "0.1.2.3"
     description = "Sample cx_Freeze script"
-    dependencies = ["numpy"]
+    dependencies = ["numpy<2"]
 
     [[tool.cxfreeze.executables]]
     script = "test_sys_path.py"

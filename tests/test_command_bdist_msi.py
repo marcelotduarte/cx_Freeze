@@ -51,7 +51,7 @@ def test_bdist_msi_target_name_and_version() -> None:
 def test_bdist_msi_default(tmp_package) -> None:
     """Test the msi_binary_data sample."""
     tmp_package.create_from_sample("msi_binary_data")
-    tmp_package.run("cxfreeze bdist_msi")
+    tmp_package.freeze("cxfreeze bdist_msi")
     platform = PLATFORM.replace("win-amd64", "win64")
     file_created = tmp_package.path / "dist" / f"hello-0.1.2.3-{platform}.msi"
     assert file_created.is_file()
@@ -64,7 +64,7 @@ def test_bdist_msi_target_name_with_extension(tmp_package) -> None:
     """
     msi_name = "output.msi"
     tmp_package.create_from_sample("msi_extensions")
-    tmp_package.run(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -75,7 +75,7 @@ def test_bdist_msi_target_name_with_extension_1(tmp_package) -> None:
     msi_name = "output.1.msi"
 
     tmp_package.create_from_sample("msi_summary_data")
-    tmp_package.run(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -87,7 +87,7 @@ def test_bdist_msi_with_license(tmp_package) -> None:
     msi_name = f"hello-0.1-{platform}.msi"
 
     tmp_package.create_from_sample("msi_license")
-    tmp_package.run("python setup.py bdist_msi")
+    tmp_package.freeze("python setup.py bdist_msi")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -98,7 +98,7 @@ def test_bdist_msi_advanced(tmp_package) -> None:
     msi_name = "output.msi"
 
     tmp_package.create_from_sample("advanced")
-    tmp_package.run(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -109,7 +109,7 @@ def test_bdist_msi_asmodule(tmp_package) -> None:
     msi_name = "output.msi"
 
     tmp_package.create_from_sample("asmodule")
-    tmp_package.run(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -120,7 +120,7 @@ def test_bdist_msi_sqlite(tmp_package) -> None:
     msi_name = "output.msi"
 
     tmp_package.create_from_sample("sqlite")
-    tmp_package.run(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -152,6 +152,6 @@ pyproject.toml
 def test_bdist_msi_advanced2(tmp_package) -> None:
     """Test the executables option."""
     tmp_package.create(SOURCE_HELLO)
-    tmp_package.run("cxfreeze bdist_msi")
+    tmp_package.freeze("cxfreeze bdist_msi")
     file_created = tmp_package.path / "dist" / "output.msi"
     assert file_created.is_file()

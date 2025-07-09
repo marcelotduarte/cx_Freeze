@@ -38,7 +38,7 @@ def test_install(tmp_package) -> None:
     tmp_package.create(SOURCE_SETUP)
 
     if IS_MINGW or IS_WINDOWS:
-        tmp_package.run("python setup.py install --root=root")
+        tmp_package.freeze("python setup.py install --root=root")
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
     else:
@@ -79,7 +79,7 @@ def test_install_pyproject(tmp_package) -> None:
     tmp_package.create(SOURCE_PYPROJECT)
 
     if IS_MINGW or IS_WINDOWS:
-        tmp_package.run("cxfreeze install --root=root")
+        tmp_package.freeze("cxfreeze install --root=root")
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
     else:

@@ -32,6 +32,6 @@ def test_bdist_mac(tmp_package) -> None:
     base_name = f"{name}-{version}"
 
     tmp_package.create_from_sample("simple")
-    tmp_package.run("python setup.py bdist_mac")
+    tmp_package.freeze("python setup.py bdist_mac")
     file_created = tmp_package.path / "build" / f"{base_name}.app"
     assert file_created.is_dir(), f"{base_name}.app"

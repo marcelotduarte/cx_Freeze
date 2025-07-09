@@ -182,9 +182,8 @@ def test_tz(tmp_package, zip_packages: bool) -> None:
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     result = tmp_package.freeze()
-    lines = result.outlines
-    if "? tzdata imported from zoneinfo_hook" in lines[0]:
-        tmp_package.install("tzdata")
+    if "? tzdata imported from zoneinfo_hook" in str(result.stdout):
+        tmp_package.install_dependencies()
         tmp_package.freeze()
 
     executable = tmp_package.executable("test_tz")

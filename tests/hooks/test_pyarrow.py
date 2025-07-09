@@ -66,5 +66,15 @@ def test_pyarrow(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_pyarrow")
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    result.stdout.fnmatch_lines(["Hello from cx_Freeze", "pyarrow version *"])
-    assert len(result.outlines) == 8, result.outlines[1:]
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "pyarrow version *",
+            "pyarrow.Table",
+            "col1: int64",
+            "col2: string",
+            "----",
+            "col1: *",
+            "col2: *",
+        ]
+    )

@@ -167,4 +167,4 @@ class TestVersionInfo:
         tmp_package.install("pywin32")
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
         with pytest.raises(CalledProcessError):
-            tmp_package.run("python -m cx_Freeze.winversioninfo")
+            tmp_package.freeze("python -m cx_Freeze.winversioninfo")

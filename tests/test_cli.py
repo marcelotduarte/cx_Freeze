@@ -32,14 +32,14 @@ def test_cxfreeze(tmp_package) -> None:
 def test_cxfreeze_help(tmp_package) -> None:
     """Test cxfreeze help."""
     tmp_package.create(SOURCE)
-    result = tmp_package.run("cxfreeze --help")
+    result = tmp_package.freeze("cxfreeze --help")
     result.stdout.fnmatch_lines("usage: *")
 
 
 def test_cxfreeze_additional_help(tmp_package) -> None:
     """Test cxfreeze additional help."""
     tmp_package.create(SOURCE)
-    result = tmp_package.run("cxfreeze build_exe --help")
+    result = tmp_package.freeze("cxfreeze build_exe --help")
     result.stdout.fnmatch_lines("*--help-commands*")
 
 
@@ -103,7 +103,7 @@ def test_cxfreeze_without_options(tmp_package) -> None:
     """Test cxfreeze without options."""
     tmp_package.create(SOURCE)
     with pytest.raises(CalledProcessError):
-        tmp_package.run("cxfreeze")
+        tmp_package.freeze("cxfreeze")
 
 
 SOURCE_TEST_PATH = f"""

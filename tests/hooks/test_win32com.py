@@ -32,10 +32,15 @@ def test_win32com(tmp_package, zip_packages: bool) -> None:
     assert executable.is_file()
 
     result = tmp_package.run(executable, timeout=TIMEOUT)
-    lines = result.outlines
-    assert lines[0].startswith("Sent and received 'Hello from cx_Freeze'")
-    assert lines[-1].startswith("Everything seemed to work!")
-    assert len(lines) == 5, lines
+    result.stdout.fnmatch_lines(
+        [
+            "Sent and received 'Hello from cx_Freeze'",
+            "Sent and received b'Here is a null*'",
+            "Sent and received 'Here is a null*'",
+            "Sent and received 'test-*'",
+            "Everything seemed to work!",
+        ]
+    )
 
 
 SOURCE_WIN32COM_SHELL = """
