@@ -96,7 +96,7 @@ command
 def test_excludes(tmp_package) -> None:
     """Test the build_exe excludes option."""
     tmp_package.create(SOURCE)
-    output = tmp_package.run()
+    tmp_package.freeze()
     for fullname in (
         "regularpack",
         "namespacepack.firstchildpack",
@@ -106,8 +106,8 @@ def test_excludes(tmp_package) -> None:
         executable = tmp_package.executable(name)
         assert executable.is_file()
 
-        output = tmp_package.run(executable, timeout=10)
-        lines = output.splitlines()
+        result = tmp_package.run(executable, timeout=10)
+        lines = result.outlines
         assert lines[0].startswith(f"Hello, {name}")
 
         pkg_dir = executable.parent / "lib" / fullname.replace(".", "/")

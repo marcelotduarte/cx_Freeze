@@ -131,7 +131,7 @@ def test_bdist_appimage_skip_build(tmp_package) -> None:
     arch = platform.machine()
 
     tmp_package.create_from_sample("tkinter")
-    tmp_package.run()
+    tmp_package.freeze()
     tmp_package.run("python setup.py bdist_appimage --skip-build")
 
     file_created = (

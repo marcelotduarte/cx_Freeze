@@ -62,19 +62,33 @@ def test_build_constants(tmp_package, zip_packages: bool) -> None:
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
     command += " --include-msvcr"
-    output = tmp_package.run(command)
+    tmp_package.run(command)
 
     executable = tmp_package.executable("hello")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    lines = output.splitlines()
-    assert lines[0].startswith("Hello from cx_Freeze")
-    assert lines[8].startswith("BUILD_CONSTANTS")
-    assert lines[9].startswith("BUILD_COPYRIGHT = 'Copyright (C)")
-    assert lines[14].startswith("USERDEFINED_A = 7")
-    assert lines[15].startswith("USERDEFINED_B = 'hello=7'")
-    assert lines[16].startswith("USERDEFINED_C = ''")
-    assert lines[17].startswith("USER_UNDEFINED = None")
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "The current date is *",
+            "",
+            "Executable:*",
+            "Prefix:*",
+            "Default encoding:*",
+            "File system encoding:*",
+            "",
+            "BUILD_CONSTANTS variables:",
+            "BUILD_COPYRIGHT = 'Copyright (C) *",
+            "BUILD_HOST = *",
+            "BUILD_RELEASE_STRING = *",
+            "BUILD_TIMESTAMP = *",
+            "SOURCE_TIMESTAMP = *",
+            "USERDEFINED_A = 7",
+            "USERDEFINED_B = 'hello=7'",
+            "USERDEFINED_C = ''",
+            "USER_UNDEFINED = None",
+        ]
+    )
 
 
 @pytest.mark.parametrize(
@@ -141,10 +155,10 @@ def test_egg_info(tmp_package) -> None:
     shutil.copytree(tmp_package.path / "extra", tmp_site, dirs_exist_ok=True)
     tmp_package.monkeypatch.setenv("PYTHONPATH", os.path.normpath(tmp_site))
 
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_egg_info")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output.splitlines()[0] == "Hello from cx_Freeze"
-    assert output.splitlines()[1].startswith("Hello module1")
-    assert output.splitlines()[2].startswith("Hello module2")
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines(
+        ["Hello from cx_Freeze", "Hello module1", "Hello module2"]
+    )

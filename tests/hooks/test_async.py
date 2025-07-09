@@ -61,8 +61,8 @@ def test_anyio(tmp_package, zip_packages) -> None:
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
     if sys.platform != "win32" and ABI_THREAD == "":
         tmp_package.install("uvloop")
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_anyio")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    assert output.splitlines()[0] == "Hello from cx_Freeze"
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines(["Hello from cx_Freeze"])

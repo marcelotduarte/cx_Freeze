@@ -131,13 +131,13 @@ def test_multiprocess(
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable(sample)
     assert executable.is_file()
     # use a higher timeout because when using dill it is up to 25x slower
     # sample3 using multiprocessing/pickler runs in 0,543s x 13,591s
-    output = tmp_package.run(
+    result = tmp_package.run(
         executable, cwd=executable.parent, timeout=TIMEOUT_VERY_VERY_SLOW
     )
-    assert output.splitlines()[-1] == expected
+    assert result.outlines[-1] == expected

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import string
 import sys
 import sysconfig
@@ -69,11 +68,11 @@ class TempPackage:
         )
 
         # make a temporary directory and set it as current
-        name = request.node.name
-        name = re.sub(r"[\W]", "_", name)
-        MAXVAL = 30
-        name = name[:MAXVAL]
-        self.basename = name
+        if hasattr(request, "function"):
+            name: str = request.function.__name__
+        else:
+            name = request.node.name
+        self._name = name
         self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
         os.chdir(self.path)
 
@@ -110,16 +109,18 @@ class TempPackage:
     def executable_in_dist(self, base_name: str) -> Path:
         return self.path / "dist" / f"{base_name}{EXE_SUFFIX}"
 
-    def run(
+    def freeze(
         self,
         command: Sequence | Path | None = None,
         cwd: str | Path | None = None,
-        timeout=None,
-    ) -> str:
-        """Execute a command, specified in 'command', or read the command
-        contained in the file named 'command', or execute the default
-        command.
+        env: dict[str, str] | None = None,
+        timeout: float | None = None,
+    ) -> pytest.RunResult:
+        """Execute the command to freeze the current test sample, which can be
+        specified in 'command', or read the command contained in the file named
+        'command', or detect the default command to use.
         """
+        __tracebackhide__ = True
         if command is None:
             command_file = self.path / "command"
             if command_file.exists():
@@ -142,8 +143,27 @@ class TempPackage:
                 command = ["python", "-m", "cx_Freeze", *command[1:]]
         if command[0] == "python":
             command[0] = self.sys_executable
+        return self.run(command, cwd=cwd, env=env, timeout=timeout)
+
+    def run(
+        self,
+        command: Sequence | Path,
+        cwd: str | Path | None = None,
+        env: dict[str, str] | None = None,
+        timeout: float | None = None,
+    ) -> pytest.RunResult:
+        """Execute a command, specified in 'command'."""
+        __tracebackhide__ = True
+        if isinstance(command, Path):
+            command = [os.fspath(command)]
+        command = (
+            command.split() if isinstance(command, str) else list(command)
+        )
         cwd = os.fspath(self.path if cwd is None else cwd)
-        return check_output(command, text=True, timeout=timeout, cwd=cwd)
+        output = check_output(
+            command, cwd=cwd, env=env, text=True, timeout=timeout
+        )
+        return pytest.RunResult(0, output.splitlines(), [], 0)
 
     def install(
         self,
@@ -189,7 +209,7 @@ class TempPackage:
             dependencies = data.get("project", {}).get("dependencies", [])
             self.install(dependencies)
 
-    def _install_conda(self, packages: list[str]) -> str:
+    def _install_conda(self, packages: list[str]) -> pytest.RunResult:
         CONDA_EXE = os.environ["CONDA_EXE"]
         packages = " ".join(packages)
         cmd = (
@@ -203,7 +223,7 @@ class TempPackage:
                 raise ModuleNotFoundError(packages) from None
         return output
 
-    def _install_mingw(self, packages: list[str]) -> str:
+    def _install_mingw(self, packages: list[str]) -> pytest.RunResult:
         MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
         for i, package in enumerate(packages):
             packages[i] = f"{MINGW_PACKAGE_PREFIX}-python-{package}"
@@ -222,7 +242,7 @@ class TempPackage:
         binary: bool = True,
         index: bool | str | Path | None = None,
         isolated: bool = False,
-    ) -> str:
+    ) -> pytest.RunResult:
         packages = " ".join(packages)
         cmd = f"uv pip install --python={self.sys_executable} {packages}"
         if binary:
@@ -269,9 +289,6 @@ class TempPackageVenv(TempPackage):
         if monkeypatch is None:
             monkeypatch = pytest.MonkeyPatch()
         super().__init__(request, tmp_path_factory, monkeypatch)
-        self.lock = None
-        if IS_MINGW:
-            return
         # make prefix
         # using loadfile, the prefix is on top of the pytest tmp_path and
         # is shared by test functions on the same module
@@ -282,13 +299,17 @@ class TempPackageVenv(TempPackage):
                 root_tmp_dir = root_tmp_dir.parent
         else:  # probably dist = "load"
             root_tmp_dir = self.path
+        self._dist = dist
+        self._lock = None
+        if IS_MINGW:
+            return
         vname = request.module.__name__.replace(".", "_")
         if IS_CONDA:
             self.prefix = root_tmp_dir / f".conda_{vname}"
         elif HAVE_UV:
             self.prefix = root_tmp_dir / f".venv_{vname}"
-        self.lock = FileLock(f"{self.prefix}.lock")
-        self.lock.acquire()
+        self._lock = FileLock(f"{self.prefix}.lock")
+        self._lock.acquire()
         # create venv
         if IS_CONDA:
             self._venv_conda()
@@ -296,14 +317,16 @@ class TempPackageVenv(TempPackage):
             self._venv_uv()
 
     def create(self, source: str) -> None:
-        self.path = self.tmp_path_factory.mktemp(self.basename, numbered=True)
-        os.chdir(self.path)
+        if self._dist == "loadfile":
+            self.path = self.tmp_path_factory.mktemp(self._name, numbered=True)
+            os.chdir(self.path)
         super().create(source)
         self.install_dependencies()
 
     def create_from_sample(self, sample: str) -> None:
-        self.path = self.tmp_path_factory.mktemp(self.basename, numbered=True)
-        os.chdir(self.path)
+        if self._dist == "loadfile":
+            self.path = self.tmp_path_factory.mktemp(self._name, numbered=True)
+            os.chdir(self.path)
         super().create_from_sample(sample)
         self.install_dependencies()
 
@@ -313,7 +336,7 @@ class TempPackageVenv(TempPackage):
         binary: bool = True,
         index: bool | str | Path | None = None,
         isolated: bool = False,  # noqa:ARG002
-    ) -> str:
+    ) -> pytest.RunResult:
         return super()._install_uv(packages, binary, index, isolated=False)
 
     def _venv_conda(self) -> None:
@@ -331,21 +354,10 @@ class TempPackageVenv(TempPackage):
 
     def _venv_uv(self) -> None:
         # get the list of packages
-        output = self.run("uv pip list --format=json -q", cwd=self.system_path)
-        packages = json.loads(output)
+        result = self.run("uv pip list --format=json -q", cwd=self.system_path)
+        packages = json.loads(result.outlines[0])
         # create venv
         cmd = f"uv venv --python={PYTHON_VERSION}{ABI_THREAD} {self.prefix}"
-        pyproject = self.system_path / "pyproject.toml"
-        if not pyproject.is_file():
-            # use a venv clone
-            if sys.prefix != sys.base_prefix:
-                copytree(
-                    sys.prefix,  # self.system_prefix
-                    self.prefix,
-                    symlinks=True,
-                    ignore=ignore_patterns(".lock"),
-                )
-            cmd += " --allow-existing"
         self.run(cmd, cwd=self.system_path)
         # point to the new environment
         self.sys_executable = (
@@ -353,6 +365,7 @@ class TempPackageVenv(TempPackage):
         )
         # install cx_Freeze and dependencies in the new environment
         # using cx_Freeze pyproject.toml
+        pyproject = self.system_path / "pyproject.toml"
         if pyproject.is_file():
             self.install_dependencies(pyproject)
             # install cx-freeze, editable or from wheelhouse
@@ -378,8 +391,8 @@ class TempPackageVenv(TempPackage):
             )
         elif self.prefix.is_relative_to(self.path):
             rmtree(self.prefix, ignore_errors=True)
-        if self.lock:
-            self.lock.release()
+        if self._lock:
+            self._lock.release()
         os.chdir(self.system_path)
 
 

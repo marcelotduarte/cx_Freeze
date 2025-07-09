@@ -26,13 +26,13 @@ def test_win32com(tmp_package, zip_packages: bool) -> None:
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
     command += " --include-msvcr --silent"
-    output = tmp_package.run(command)
+    tmp_package.freeze(command)
 
     executable = tmp_package.executable("test_win32com")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    lines = output.splitlines()
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    lines = result.outlines
     assert lines[0].startswith("Sent and received 'Hello from cx_Freeze'")
     assert lines[-1].startswith("Everything seemed to work!")
     assert len(lines) == 5, lines
@@ -73,11 +73,9 @@ def test_win32com_shell(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    print(output)
-    lines = output.splitlines()
-    assert lines[0].startswith("<PyIShellLink at")
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines("<PyIShellLink at*")

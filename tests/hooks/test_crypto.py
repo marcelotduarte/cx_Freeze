@@ -64,12 +64,11 @@ def test_argon2(tmp_package, zip_packages) -> None:
         tmp_package.install("argon2_cffi")
     else:
         tmp_package.install("argon2-cffi")
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_argon2")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    assert output.splitlines()[0] == "Hello from cx_Freeze"
-    assert output.splitlines()[1].startswith("argon2 hash:")
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines(["Hello from cx_Freeze", "argon2 hash: *"])
 
 
 SOURCE_BCRYPT = """
@@ -112,12 +111,11 @@ def test_bcrypt(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_bcrypt")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    assert output.splitlines()[0] == "Hello from cx_Freeze"
-    assert output.splitlines()[1].startswith("bcrypt gensalt:")
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines(["Hello from cx_Freeze", "bcrypt gensalt: *"])
 
 
 SOURCE_CRYPTO = """
@@ -159,12 +157,13 @@ def test_crypto(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_crypto")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    assert output.splitlines()[0] == "Hello from cx_Freeze"
-    assert output.splitlines()[1].startswith("cryptodome publickey:")
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines(
+        ["Hello from cx_Freeze", "cryptodome publickey:*"]
+    )
 
 
 SOURCE_CRYPTOGRAPHY = """
@@ -214,11 +213,12 @@ def test_cryptography(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_cryptography")
     assert executable.is_file()
     if IS_MINGW:
         tmp_package.monkeypatch.setenv("CRYPTOGRAPHY_OPENSSL_NO_LEGACY", "1")
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    assert output.splitlines()[0] == "Hello from cx_Freeze"
-    assert output.splitlines()[1].startswith("cryptography fernet token:")
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines(
+        ["Hello from cx_Freeze", "cryptography fernet token: *"]
+    )

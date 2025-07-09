@@ -15,7 +15,8 @@ def find_data_file(filename: str) -> Path:
     return datadir / filename
 
 
-print("Hello from cx_Freeze: Opening image with PIL")
+print("Hello from cx_Freeze")
+print("Opening image with PIL")
 
 filename_png = find_data_file("icon.png")
 filename_pdf = filename_png.parent / "test_pillow.pdf"

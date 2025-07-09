@@ -42,15 +42,15 @@ def test_install(tmp_package) -> None:
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
     else:
-        tmp_package.run()
+        tmp_package.freeze()
         prefix = "base/lib/hello-0.1.2.3"
     install_dir = tmp_package.path / "root" / prefix
 
     file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
 SOURCE_PYPROJECT = """
@@ -83,12 +83,12 @@ def test_install_pyproject(tmp_package) -> None:
         program_files = Path(os.getenv("PROGRAMFILES"))
         prefix = program_files.relative_to(program_files.anchor) / "hello"
     else:
-        tmp_package.run()
+        tmp_package.freeze()
         prefix = "base/lib/hello-0.1.2.3"
     install_dir = tmp_package.path / "root" / prefix
 
     file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")

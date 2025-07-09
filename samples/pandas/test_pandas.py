@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+print("Hello from cx_Freeze")
 print("numpy version", np.__version__)
 print("pandas version", pd.__version__)
 

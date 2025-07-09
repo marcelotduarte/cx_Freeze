@@ -220,14 +220,14 @@ def test_executables(
 ) -> None:
     """Test the executables option."""
     tmp_package.create(source)
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     for i in range(1, number_of_executables):
         file_created = tmp_package.executable(f"test_{i}")
         assert file_created.is_file(), f"file not found: {file_created}"
 
-        output = tmp_package.run(file_created, timeout=10)
-        assert output.startswith("Hello from cx_Freeze")
+        result = tmp_package.run(file_created, timeout=10)
+        result.stdout.fnmatch_lines("Hello from cx_Freeze*")
 
 
 TEST_VALID_PARAMETERS = [
@@ -399,22 +399,22 @@ def test_valid_icon(tmp_package) -> None:
         shutil.copyfile(
             src, tmp_package.path.joinpath("icon").with_suffix(src.suffix)
         )
-    output = tmp_package.run()
-    assert "WARNING: Icon file not found" not in output, "icon file not found"
+    result = tmp_package.freeze()
+    result.stdout.no_fnmatch_line("WARNING: Icon file not found")
 
     file_created = tmp_package.executable("test_icon")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
 def test_not_found_icon(tmp_package) -> None:
     """Test with not found icon in any OS."""
     # same test as before, without icons
     tmp_package.create(SOURCE_VALID_ICON)
-    output = tmp_package.run()
-    assert "WARNING: Icon file not found" in output, "icon file not found"
+    result = tmp_package.freeze()
+    result.stdout.fnmatch_lines("WARNING: Icon file not found: icon.svg")
 
 
 SOURCE_INVALID_ICON = """
@@ -443,10 +443,12 @@ def test_invalid_icon(tmp_package) -> None:
     # use an invalid icon: cp $SRC/cx_Freeze/icons/py.png $DST/icon.png
     src_dir = files("cx_Freeze").resolve()
     shutil.copyfile(src_dir / "icons/py.png", tmp_package.path / "icon.png")
-    output = tmp_package.run()
-    assert "WARNING: Icon file not found" not in output, "icon file not found"
+    result = tmp_package.freeze()
+    result.stdout.no_fnmatch_line("WARNING: Icon file not found")
     # it is expected the following warning if the icon is invalid
-    assert "WARNING: Icon filename 'icon.png' has invalid type." in output
+    result.stdout.fnmatch_line(
+        "WARNING: Icon filename 'icon.png' has invalid type."
+    )
 
 
 SOURCE_RENAME = """
@@ -470,16 +472,16 @@ pyproject.toml
 def test_executable_rename(tmp_package) -> None:
     """Test if the executable can be renamed."""
     tmp_package.create(SOURCE_RENAME)
-    output = tmp_package.run()
+    tmp_package.freeze()
     file_created = tmp_package.executable("test_0")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     file_renamed = file_created.rename(file_created.parent / "test_zero")
-    output = tmp_package.run(file_renamed, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_renamed, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
 SOURCE_NAMESPACE = """\
@@ -558,19 +560,19 @@ def test_executable_namespace(
     if zip_packages:
         with tmp_package.path.joinpath("command").open("a") as f:
             f.write(" --zip-include-packages=* --zip-exclude-packages=")
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    lines = output.splitlines()
+    result = tmp_package.run(file_created, timeout=10)
     start = 0
     stop = hello
-    for i in range(start, stop):
-        assert lines[i].startswith("Hello from cx_Freeze")
+    expected = ["Hello from cx_Freeze*" for _i in range(start, stop)]
+    result.stdout.fnmatch_lines(expected)
     start += hello
     stop += namespace
+    lines = result.outlines
     for i in range(start, stop):
         assert lines[i].endswith("True")
     start += namespace
@@ -620,12 +622,10 @@ pyproject.toml
 def test_valid_sys_path(tmp_package) -> None:
     """Test if sys.path has valid values."""
     tmp_package.create(SOURCE_VALID_SYS_PATH)
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     file_created = tmp_package.executable("test_sys_path")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    lines = output.splitlines()
-    assert lines[0].startswith("Hello from cx_Freeze")
-    assert lines[1].startswith("numpy loaded!")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines(["Hello from cx_Freeze", "numpy loaded!"])

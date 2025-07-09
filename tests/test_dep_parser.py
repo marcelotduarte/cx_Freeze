@@ -55,15 +55,15 @@ def test_parser(tmp_package, package, version) -> None:
         tmp_package.install(f"{package}=={version}")
 
     # first run, count the files
-    output = tmp_package.run(
+    tmp_package.freeze(
         "cxfreeze --script test.py --excludes=tkinter,unittest --silent"
     )
 
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")

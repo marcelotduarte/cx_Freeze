@@ -69,12 +69,12 @@ def test_build_with_include_msvcr(tmp_package, value: bool | str) -> None:
     else:
         extra_option = ""
     tmp_package.create(SOURCE.format(extra_option=extra_option))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("hello")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     expected = [*MSVC_EXPECTED]
     if isinstance(value, str) and value == "15":

@@ -26,10 +26,10 @@ command
 def test___main__(tmp_package) -> None:
     """Test __main__."""
     tmp_package.create(SOURCE)
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     file_created = tmp_package.executable_in_dist("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")

@@ -327,5 +327,5 @@ def test_freezer_zip_filename(
     executable = target_dir / tmp_package.executable("hello").name
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
