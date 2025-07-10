@@ -606,7 +606,7 @@ pyproject.toml
     version = "0.1.2.3"
     description = "Sample cx_Freeze script"
     dependencies = [
-        "numpy<1.26;python_version <= '3.12'",
+        "numpy<2.0;python_version <= '3.12'",
         "numpy<2.2;python_version == '3.13'",
         "numpy>2.2;python_version > '3.13'",
     ]
