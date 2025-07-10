@@ -1,0 +1,18 @@
+[project]
+name = "hello"
+version = "0.1.2.3"
+description = "Sample cx_Freeze script"
+
+[[tool.cxfreeze.executables]]
+script = "hello.py"
+copyright = "Copyright (C) 2025 cx_Freeze"
+
+[tool.cxfreeze.build_exe]
+constants = [
+    "USER_UNDEFINED",
+    "USERDEFINED_A=7",
+    "USERDEFINED_B='hello=7'",
+    "USERDEFINED_C=",
+]
+excludes = ["tkinter", "unittest"]
+silent = true

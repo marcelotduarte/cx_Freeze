@@ -113,11 +113,11 @@ def test_multiprocessing(
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable(sample)
     assert executable.is_file()
-    output = tmp_package.run(
+    result = tmp_package.run(
         executable, cwd=executable.parent, timeout=TIMEOUT
     )
-    assert output.splitlines()[-1] == expected
+    result.stdout.fnmatch_lines(expected)

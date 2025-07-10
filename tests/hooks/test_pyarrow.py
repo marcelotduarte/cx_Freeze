@@ -62,11 +62,19 @@ def test_pyarrow(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
     executable = tmp_package.executable("test_pyarrow")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    lines = output.splitlines()
-    assert lines[0] == "Hello from cx_Freeze"
-    assert lines[1].startswith("pyarrow version")
-    assert len(lines) == 8, lines[1:]
+    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "pyarrow version *",
+            "pyarrow.Table",
+            "col1: int64",
+            "col2: string",
+            "----",
+            "col1: *",
+            "col2: *",
+        ]
+    )

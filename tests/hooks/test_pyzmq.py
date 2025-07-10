@@ -35,17 +35,15 @@ def test_pyzmq(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
-    print(output)
+    tmp_package.freeze()
     pyzmq_server = tmp_package.executable("pyzmq_server")
     assert pyzmq_server.is_file()
     pyzmq_client = tmp_package.executable("pyzmq_client")
     assert pyzmq_client.is_file()
 
     def thread_run(cmd: str, lines: list[str]) -> None:
-        output = tmp_package.run(cmd)
-        print(output)
-        lines += output.splitlines()
+        result = tmp_package.run(cmd)
+        lines += result.outlines
 
     port = 5556 if zip_packages else 5555
     lines_server = []

@@ -37,24 +37,24 @@ def test_build(tmp_package) -> None:
     tmp_package.create(SOURCE)
 
     # first run, count the files
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     build_exe_dir = file_created.parent
     files1 = sorted(build_exe_dir.rglob("*"))
 
     # second run to test target_dir "starts in a clean directory"
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    output = tmp_package.run(file_created, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     files2 = sorted(build_exe_dir.rglob("*"))
 

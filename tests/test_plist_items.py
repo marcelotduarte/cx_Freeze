@@ -58,7 +58,7 @@ command
 def test_plist_items(tmp_package) -> None:
     """Test that the plist_items option is working correctly."""
     tmp_package.create(PLIST_TEST)
-    tmp_package.run()
+    tmp_package.freeze()
     # Test that the additional keys were correctly added to the plist.
     sys.path.insert(0, os.fspath(tmp_package.path))
     data = import_module("plist_data")

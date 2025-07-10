@@ -60,12 +60,11 @@ def test_zeroconf(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
-    print(output)
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_zeroconf")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    lines = output.splitlines()
-    assert lines[0].startswith("Zeroconf imported successfully!")
-    assert lines[1].startswith("Zeroconf version:")
+    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result.stdout.fnmatch_lines(
+        ["Zeroconf imported successfully!", "Zeroconf version: *"]
+    )

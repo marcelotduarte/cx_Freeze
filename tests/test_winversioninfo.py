@@ -144,13 +144,13 @@ class TestVersionInfo:
         if option == "--pywin32":
             tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
             tmp_package.install("pywin32")
-        tmp_package.run()
+        tmp_package.freeze()
 
         executable = tmp_package.executable("test")
         assert executable.is_file(), f"file not found: {executable}"
 
-        output = tmp_package.run(executable, timeout=10)
-        assert output.startswith("Hello from cx_Freeze")
+        result = tmp_package.run(executable, timeout=10)
+        result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
         main_test(args=["--version=0.2", option, f"{executable}"])
         captured = capsys.readouterr()
@@ -167,4 +167,4 @@ class TestVersionInfo:
         tmp_package.install("pywin32")
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
         with pytest.raises(CalledProcessError):
-            tmp_package.run("python -m cx_Freeze.winversioninfo")
+            tmp_package.freeze("python -m cx_Freeze.winversioninfo")

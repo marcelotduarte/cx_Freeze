@@ -15,10 +15,8 @@ from .datatest import SUB_PACKAGE_TEST
 
 BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
 
-OUTPUT1 = "Hello from cx_Freeze Advanced #1\nTest freeze module #1\n"
-OUTPUT2 = "Hello from cx_Freeze Advanced #2\nTest freeze module #2\n"
-
-OUTPUT_SUBPACKAGE_TEST = "This is p.p1\nThis is p.q.q1\n"
+OUTPUT0 = "Hello from cx_Freeze Advanced #{}"
+OUTPUT1 = "Test freeze module #{}"
 
 DIST_ATTRS = {
     "name": "foo",
@@ -365,55 +363,56 @@ def test_build_exe_script_args(
 def test_build_exe_advanced(tmp_package) -> None:
     """Test the advanced sample."""
     tmp_package.create_from_sample("advanced")
-    output = tmp_package.run(
-        "python setup.py build_exe --silent --excludes=tkinter"
-    )
+    tmp_package.freeze("python setup.py build_exe --silent --excludes=tkinter")
 
     executable = tmp_package.executable("advanced_1")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output == OUTPUT1
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines([OUTPUT0.format(1), OUTPUT1.format(1)])
 
     executable = tmp_package.executable("advanced_2")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output == OUTPUT2
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines([OUTPUT0.format(2), OUTPUT1.format(2)])
 
 
 def test_build_exe_asmodule(tmp_package) -> None:
     """Test the asmodule sample."""
     tmp_package.create_from_sample("asmodule")
-    output = tmp_package.run(BUILD_EXE_CMD)
+    tmp_package.freeze(BUILD_EXE_CMD)
 
     executable = tmp_package.executable("asmodule")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output.startswith("Hello from cx_Freeze")
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
+
+
+OUTPUT_SUBPACKAGE_TEST = ["This is p.p1", "This is p.q.q1"]
 
 
 def test_zip_include_packages(tmp_package) -> None:
     """Test the simple sample with zip_include_packages option."""
     source = SUB_PACKAGE_TEST[4]
     tmp_package.create(source)
-    output = tmp_package.run(
+    tmp_package.freeze(
         f"{BUILD_EXE_CMD} --zip-exclude-packages=* --zip-include-packages=p",
     )
 
     executable = tmp_package.executable("main")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output == OUTPUT_SUBPACKAGE_TEST
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines(OUTPUT_SUBPACKAGE_TEST)
 
 
 def test_zip_exclude_packages(tmp_package) -> None:
     """Test the simple sample with zip_exclude_packages option."""
     source = SUB_PACKAGE_TEST[4]
     tmp_package.create(source)
-    output = tmp_package.run(
+    tmp_package.freeze(
         f"{BUILD_EXE_CMD} --zip-exclude-packages=p --zip-include-packages=*",
     )
 
     executable = tmp_package.executable("main")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=10)
-    assert output == OUTPUT_SUBPACKAGE_TEST
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines(OUTPUT_SUBPACKAGE_TEST)

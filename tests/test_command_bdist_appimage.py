@@ -118,7 +118,7 @@ def test_bdist_appimage_target_name_with_extension(tmp_package) -> None:
     outfile = os.path.join(cmd.dist_dir, name)
     cmd.save_as_file("data", outfile, mode="rwx")
 
-    tmp_package.run(f"python setup.py bdist_appimage --target-name {name}")
+    tmp_package.freeze(f"python setup.py bdist_appimage --target-name {name}")
     file_created = Path(outfile)
     assert file_created.is_file()
 
@@ -131,8 +131,8 @@ def test_bdist_appimage_skip_build(tmp_package) -> None:
     arch = platform.machine()
 
     tmp_package.create_from_sample("tkinter")
-    tmp_package.run()
-    tmp_package.run("python setup.py bdist_appimage --skip-build")
+    tmp_package.freeze()
+    tmp_package.freeze("python setup.py bdist_appimage --skip-build")
 
     file_created = (
         tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
@@ -148,7 +148,7 @@ def test_bdist_appimage_skip_build_after_build_exe(tmp_package) -> None:
     arch = platform.machine()
 
     tmp_package.create_from_sample("simple")
-    tmp_package.run(
+    tmp_package.freeze(
         "python setup.py build_exe --silent bdist_appimage --quiet"
     )
 
@@ -166,7 +166,7 @@ def test_bdist_appimage_simple(tmp_package) -> None:
     arch = platform.machine()
 
     tmp_package.create_from_sample("simple")
-    tmp_package.run("python setup.py bdist_appimage --quiet")
+    tmp_package.freeze("python setup.py bdist_appimage --quiet")
 
     file_created = (
         tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"

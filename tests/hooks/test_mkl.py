@@ -37,15 +37,22 @@ def test_mkl(tmp_package, zip_packages: bool) -> None:
     tmp_package.install(
         "numpy", index="https://pypi.anaconda.org/intel/simple"
     )
-    output = tmp_package.run()
-    print(output)
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    print(output)
-    lines = output.splitlines()
-    assert lines[0].startswith("numpy version")
-    assert lines[1].startswith("pandas version")
-    assert len(lines) == 8, lines[2:]
+    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "numpy version *",
+            "pandas version *",
+            " *",
+            "0*",
+            "1*",
+            "2*",
+            "3*",
+            "4*",
+        ]
+    )

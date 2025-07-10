@@ -1,5 +1,5 @@
-"""Tests for hooks of numpy, matplotlib, pandas, raterio, scipy, shapely, and
-vtk.
+"""Tests for hooks:
+numpy, matplotlib, pandas, raterio, scipy, shapely, and vtk.
 """
 
 from __future__ import annotations
@@ -82,15 +82,14 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_matplotlib")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
-    lines = output.splitlines()
-    assert lines[0] == "Hello from cx_Freeze"
-    assert lines[1].startswith("numpy version")
-    assert lines[2].startswith("matplotlib version")
+    result = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
+    result.stdout.fnmatch_lines(
+        ["Hello from cx_Freeze", "numpy version *", "matplotlib version *"]
+    )
     assert tmp_package.path.joinpath("test.png").is_file()
 
 
@@ -110,18 +109,25 @@ def test_pandas(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
-    print(output)
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_pandas")
     assert executable.is_file()
 
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    print(output)
-    lines = output.splitlines()
-    assert lines[0].startswith("numpy version")
-    assert lines[1].startswith("pandas version")
-    assert len(lines) == 8, lines[2:]
+    result = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "numpy version *",
+            "pandas version *",
+            " *",
+            "0*",
+            "1*",
+            "2*",
+            "3*",
+            "4*",
+        ]
+    )
 
 
 SOURCE_TEST_RASTERIO = """
@@ -181,15 +187,14 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    lines = output.splitlines()
-    assert lines[0] == "Hello from cx_Freeze"
-    assert lines[1].startswith("numpy version")
-    assert lines[2].startswith("rasterio version")
+    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result.stdout.fnmatch_lines(
+        ["Hello from cx_Freeze", "numpy version *", "rasterio version *"]
+    )
 
 
 SOURCE_TEST_SCIPY = """
@@ -198,6 +203,7 @@ test_scipy.py
     import scipy
     from scipy.spatial.transform import Rotation
 
+    print("Hello from cx_Freeze")
     print("numpy version", np.__version__)
     print("scipy version", scipy.__version__)
     print(Rotation.from_euler("XYZ", [10, 10, 10], degrees=True).as_matrix())
@@ -241,15 +247,21 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_scipy")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    lines = output.splitlines()
-    assert lines[0].startswith("numpy version")
-    assert lines[1].startswith("scipy version")
-    assert len(lines) == 5, lines[2:]
+    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "numpy version *",
+            "scipy version *",
+            "[[*",
+            " [*",
+            " [*",
+        ]
+    )
 
 
 SOURCE_TEST_SHAPELY = """
@@ -345,20 +357,22 @@ def test_shapely(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_shapely")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    lines = output.splitlines()
-    assert lines[0] == "Hello from cx_Freeze"
-    assert lines[1].startswith("numpy version")
-    assert lines[2].startswith("shapely version")
-    assert lines[3].startswith("shapely geos version")
-    assert lines[4].startswith("shapely geos version string")
-    assert lines[5].startswith("POLYGON")
-    assert lines[5].startswith("POLYGON")
-    assert lines[6].startswith("POLYGON")
+    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "numpy version *",
+            "shapely version *",
+            "shapely geos version *",
+            "shapely geos version string *",
+            "POLYGON *",
+            "POLYGON *",
+        ]
+    )
 
 
 SOURCE_TEST_VTK = """
@@ -442,14 +456,17 @@ def test_vtk(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    output = tmp_package.run()
+    tmp_package.freeze()
 
     executable = tmp_package.executable("test_vtk")
     assert executable.is_file()
-    output = tmp_package.run(executable, timeout=TIMEOUT)
-    lines = output.splitlines()
-    assert lines[0] == "Hello from cx_Freeze"
-    assert lines[1].startswith("numpy version")
-    assert lines[2].startswith("vtkmodules version")
-    assert lines[3].startswith("Original matrix:")
-    assert lines[7].startswith("Inverse:")
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result.stdout.fnmatch_lines(
+        [
+            "Hello from cx_Freeze",
+            "numpy version *",
+            "vtkmodules version *",
+            "Original matrix:",
+            "Inverse:",
+        ]
+    )
