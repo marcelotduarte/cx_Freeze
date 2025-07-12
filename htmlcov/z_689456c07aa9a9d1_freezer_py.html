@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/freezer.py: 87.14%</title>
+    <title>Coverage for cx_Freeze/freezer.py: 87.53%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/freezer.py</b>:
-            <span class="pc_cov">87.14%</span>
+            <span class="pc_cov">87.53%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">770 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">671<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">99<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">674<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">96<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">27<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-12 04:27 +0000
+            created at 2025-07-12 07:40 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -975,9 +975,9 @@
     <p class="pln"><span class="n"><a id="t893" href="#t893">893</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t894" href="#t894">894</a></span><span class="t">                <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t895" href="#t895">895</a></span><span class="t">                    <span class="nam">version</span><span class="op">.</span><span class="nam">stamp</span><span class="op">(</span><span class="nam">target_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t896" href="#t896">896</a></span><span class="t">                <span class="key">except</span> <span class="op">(</span><span class="nam">FileNotFoundError</span><span class="op">,</span> <span class="nam">RuntimeError</span><span class="op">)</span> <span class="key">as</span> <span class="nam">exc</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t897" href="#t897">897</a></span><span class="t">                    <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">silent</span> <span class="op">&lt;</span> <span class="num">3</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t898" href="#t898">898</a></span><span class="t">                        <span class="nam">print</span><span class="op">(</span><span class="nam">warning_msg</span><span class="op">,</span> <span class="nam">exc</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t896" href="#t896">896</a></span><span class="t">                <span class="key">except</span> <span class="op">(</span><span class="nam">FileNotFoundError</span><span class="op">,</span> <span class="nam">RuntimeError</span><span class="op">)</span> <span class="key">as</span> <span class="nam">exc</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t897" href="#t897">897</a></span><span class="t">                    <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">silent</span> <span class="op">&lt;</span> <span class="num">3</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t898" href="#t898">898</a></span><span class="t">                        <span class="nam">print</span><span class="op">(</span><span class="nam">warning_msg</span><span class="op">,</span> <span class="nam">exc</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t899" href="#t899">899</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t900" href="#t900">900</a></span><span class="t">        <span class="com"># Add icon</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t901" href="#t901">901</a></span><span class="t">        <span class="key">if</span> <span class="nam">exe</span><span class="op">.</span><span class="nam">icon</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -1513,7 +1513,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-12 04:27 +0000
+            created at 2025-07-12 07:40 +0000
         </p>
     </div>
 </footer>
