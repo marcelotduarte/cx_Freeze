@@ -445,3 +445,21 @@ setup.py
     )
 """,
 ]
+
+EDITABLE_PACKAGE_TEST = [
+    "main",
+    ["foobar", "foobar.baz", "main"],
+    [],
+    [],
+    """\
+main.py
+    import foobar.baz
+foo-bar/setup.py
+    from distutils.core import setup
+    setup(name="foo-bar", version="0.0.1", packages=["foobar"])
+foo-bar/foobar/__init__.py
+    print('This is foobar')
+foo-bar/foobar/baz.py
+    print('This is foobar.baz')
+""",
+]
