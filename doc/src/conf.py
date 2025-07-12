@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinx_issues",
     "sphinx_new_tab_link",
     "sphinx_tabs.tabs",
     "myst_parser",
@@ -235,24 +236,22 @@ man_pages = [
     )
 ]
 
+# -- Options for sphinx extensions --------------------------------------------
+
 # sphinx.ext.extlinks
 extlinks = {
     # github
     "repository": ("https://github.com/marcelotduarte/cx_Freeze/%s", "%s"),
-    "issue": (
-        "https://github.com/marcelotduarte/cx_Freeze/issues/%s",
-        "Issue #%s",
-    ),
-    "pull": ("https://github.com/marcelotduarte/cx_Freeze/pull/%s", "#%s"),
-    "user": ("https://github.com/%s", "@%s"),
-    # python
     "packaging": ("https://packaging.python.org/%s", "%s"),
-    "pypi": ("https://pypi.org/project/%s", "%s"),
     "pythondocs": ("https://docs.python.org/3/%s", "%s"),
     "setuptools": ("https://setuptools.pypa.io/en/latest/%s", "%s"),
 }
 
+# sphinx_issues
+issues_github_path = "marcelotduarte/cx_Freeze"
+
 # sphinx_tabs.tabs
 sphinx_tabs_disable_tab_closing = True
+
 # sphinx-new-tab-link
 new_tab_link_show_external_link_icon = True

@@ -18,25 +18,25 @@ Version 5.1 (November 2017)
 ---------------------------
 
 #)  Use fixed library location on all platforms; should correct the error
-    "no module named __startup__" (:pull:`286`).
-#)  Correct sqlite3 hook for use in Python 2.7 (:pull:`272`).
-#)  Correct usage of scipy.lib (:pull:`281`).
-#)  Correct handling of __path__ attribute in module (:pull:`295`).
-#)  Fix gevent bug #42 (:pull:`301`).
+    "no module named __startup__" (:pr:`286`).
+#)  Correct sqlite3 hook for use in Python 2.7 (:pr:`272`).
+#)  Correct usage of scipy.lib (:pr:`281`).
+#)  Correct handling of __path__ attribute in module (:pr:`295`).
+#)  Fix gevent bug #42 (:pr:`301`).
 #)  Dropped support for Python 3.4.
 
 
 Version 5.0.2 (May 2017)
 ------------------------
 
-#) Correct handling of import in child thread (:pull:`245`)
+#) Correct handling of import in child thread (:pr:`245`)
 #) Correct handling of "dis" module with Python 3.5.1 (:issue:`225`)
 #) Correct handling of "multiprocess.process" module (:issue:`230`)
-#) Correct attempt to assign variable to an empty list (:pull:`260`)
-#) Improved README (:pull:`235`, :pull:`236`)
-#) Add hook for pythonnet package (:pull:`251`)
-#) Add hook for sqlite3 and improve win32file hook (:pull:`261`)
-#) Add FAQ entry (:pull:`267`)
+#) Correct attempt to assign variable to an empty list (:pr:`260`)
+#) Improved README (:pr:`235`, :pr:`236`)
+#) Add hook for pythonnet package (:pr:`251`)
+#) Add hook for sqlite3 and improve win32file hook (:pr:`261`)
+#) Add FAQ entry (:pr:`267`)
 
 
 Version 5.0.1 (January 2017)
