@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 import platform
-import sys
-from shutil import which
-from subprocess import run
 
 import pytest
 from setuptools import Distribution
@@ -56,7 +53,7 @@ def test_bdist_rpm_options(options) -> None:
         cmd.ensure_finalized()
     except PlatformError as exc:
         if "failed to find rpmbuild" in exc.args[0]:
-            pytest.xfail("rpmbuild not installed")
+            pytest.xfail("rpmbuild is not installed")
         else:
             pytest.fail(exc.args[0])
 
@@ -72,7 +69,7 @@ def test_bdist_rpm_options_run(tmp_package, options) -> None:
         cmd.ensure_finalized()
     except PlatformError as exc:
         if "failed to find rpmbuild" in exc.args[0]:
-            pytest.xfail("rpmbuild not installed")
+            pytest.xfail("rpmbuild is not installed")
         else:
             pytest.fail(exc.args[0])
     cmd.run()
@@ -87,22 +84,17 @@ def test_bdist_rpm_simple(tmp_package) -> None:
     dist_created = tmp_package.path / "dist"
 
     tmp_package.create_from_sample("simple")
-    process = run(
-        [sys.executable, "setup.py", "bdist_rpm", "--quiet"],
-        text=True,
-        capture_output=True,
-        check=False,
-        cwd=tmp_package.path,
-    )
-    if process.returncode != 0:
-        if "failed to find rpmbuild" in process.stderr:
-            pytest.xfail("rpmbuild not installed")
+    result = tmp_package.freeze("python setup.py  bdist_rpm --quiet")
+    if result.ret != 0:
+        msg = str(result.stderr)
+        if "failed to find rpmbuild" in msg:
+            pytest.xfail("rpmbuild is not installed")
         else:
-            pytest.fail(process.stderr)
+            pytest.fail(msg)
 
     base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}-1.{arch}.rpm"
-    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
+    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm was not created"
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
@@ -114,23 +106,17 @@ def test_bdist_rpm_simple_pyproject(tmp_package) -> None:
     dist_created = tmp_package.path / "dist"
 
     tmp_package.create_from_sample("simple_pyproject")
-    cxfreeze = which("cxfreeze")
-    process = run(
-        [cxfreeze, "bdist_rpm", "--quiet"],
-        text=True,
-        capture_output=True,
-        check=False,
-        cwd=tmp_package.path,
-    )
-    if process.returncode != 0:
-        if "failed to find rpmbuild" in process.stderr:
-            pytest.xfail("rpmbuild not installed")
+    result = tmp_package.freeze("cxfreeze bdist_rpm --quiet")
+    if result.ret != 0:
+        msg = str(result.stderr)
+        if "failed to find rpmbuild" in msg:
+            pytest.xfail("rpmbuild is not installed")
         else:
-            pytest.fail(process.stderr)
+            pytest.fail(msg)
 
     base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}-1.{arch}.rpm"
-    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
+    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm was not created"
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
@@ -142,20 +128,16 @@ def test_bdist_rpm(tmp_package) -> None:
     dist_created = tmp_package.path / "dist"
 
     tmp_package.create_from_sample("sqlite")
-    process = run(
-        [sys.executable, "setup.py", "bdist_rpm"],
-        text=True,
-        capture_output=True,
-        check=False,
-        cwd=tmp_package.path,
-    )
-    print(process.stdout)
-    if process.returncode != 0:
-        if "failed to find rpmbuild" in process.stderr:
-            pytest.xfail("rpmbuild not installed")
+    result = tmp_package.freeze("python setup.py bdist_rpm")
+    print(result.stdout)
+    print(result.stderr)
+    if result.ret != 0:
+        msg = str(result.stderr)
+        if "failed to find rpmbuild" in msg:
+            pytest.xfail("rpmbuild is not installed")
         else:
-            pytest.fail(process.stderr)
+            pytest.fail(msg)
 
     base_name = f"{name}-{version}"
     file_created = dist_created / f"{base_name}-1.{arch}.rpm"
-    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm"
+    assert file_created.is_file(), f"{base_name}-1.{arch}.rpm was not created"
