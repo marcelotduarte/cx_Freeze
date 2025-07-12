@@ -5,11 +5,11 @@ from __future__ import annotations
 import json
 import os
 import string
+import subprocess
 import sys
 import sysconfig
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
-from subprocess import CalledProcessError, check_output
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -132,17 +132,6 @@ class TempPackage:
         elif isinstance(command, Path):
             command = [os.fspath(command)]
 
-        command = (
-            command.split() if isinstance(command, str) else list(command)
-        )
-        if command[0] == "cxfreeze":
-            cxfreeze = which("cxfreeze", path=self.prefix / self.relative_bin)
-            if cxfreeze:
-                command[0] = cxfreeze
-            else:
-                command = ["python", "-m", "cx_Freeze", *command[1:]]
-        if command[0] == "python":
-            command[0] = self.sys_executable
         return self.run(command, cwd=cwd, env=env, timeout=timeout)
 
     def run(
@@ -159,11 +148,30 @@ class TempPackage:
         command = (
             command.split() if isinstance(command, str) else list(command)
         )
+        if command[0] == "cxfreeze":
+            cxfreeze = which("cxfreeze", path=self.prefix / self.relative_bin)
+            if cxfreeze:
+                command[0] = cxfreeze
+            else:
+                command = ["python", "-m", "cx_Freeze", *command[1:]]
+        if command[0] == "python":
+            command[0] = self.sys_executable
         cwd = os.fspath(self.path if cwd is None else cwd)
-        output = check_output(
-            command, cwd=cwd, env=env, text=True, timeout=timeout
+        process = subprocess.run(
+            command,
+            capture_output=True,
+            check=False,
+            cwd=cwd,
+            env=env,
+            text=True,
+            timeout=timeout,
         )
-        return pytest.RunResult(0, output.splitlines(), [], 0)
+        return pytest.RunResult(
+            process.returncode,
+            process.stdout.splitlines(),
+            process.stderr.splitlines(),
+            0,
+        )
 
     def install(
         self,
@@ -217,11 +225,10 @@ class TempPackage:
             f"{packages}"
         )
         with FileLock(self.prefix / ".lock"):
-            try:
-                output = self.run(cmd, cwd=self.system_path)
-            except CalledProcessError:
+            result = self.run(cmd, cwd=self.system_path)
+            if result.ret > 0:
                 raise ModuleNotFoundError(packages) from None
-        return output
+        return result
 
     def _install_mingw(self, packages: list[str]) -> pytest.RunResult:
         MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
@@ -230,11 +237,10 @@ class TempPackage:
         packages = " ".join(packages)
         cmd = f"pacman -S --needed --noconfirm --quiet {packages}"
         with FileLock("/var/lib/pacman/db.lck"):
-            try:
-                output = self.run(cmd, cwd=self.system_path)
-            except CalledProcessError:
+            result = self.run(cmd, cwd=self.system_path)
+            if result.ret > 0:
                 raise ModuleNotFoundError(packages) from None
-        return output
+        return result
 
     def _install_uv(
         self,
@@ -257,9 +263,8 @@ class TempPackage:
             cmd = f"{cmd} --prefix={self.path / '.tmp_prefix'}"
         else:
             cmd = f"{cmd} --prefix={self.prefix}"
-        try:
-            output = self.run(cmd, cwd=self.system_path)
-        except CalledProcessError:
+        result = self.run(cmd, cwd=self.system_path)
+        if result.ret > 0:
             raise ModuleNotFoundError(packages) from None
         if isolated:
             tmp_site = os.path.normpath(
@@ -267,7 +272,7 @@ class TempPackage:
             )
             self.monkeypatch.setenv("PYTHONPATH", tmp_site)
             self.monkeypatch.syspath_prepend(tmp_site)
-        return output
+        return result
 
     def cleanup(self) -> None:
         # remove the temporary prefix to reduce disk usage

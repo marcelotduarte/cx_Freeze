@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from subprocess import CalledProcessError
 
 import pytest
 from packaging.version import Version
@@ -166,5 +165,5 @@ class TestVersionInfo:
         """Test argparse error exception."""
         tmp_package.install("pywin32")
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")
-        with pytest.raises(CalledProcessError):
-            tmp_package.freeze("python -m cx_Freeze.winversioninfo")
+        result = tmp_package.run("python -m cx_Freeze.winversioninfo")
+        assert result.ret > 0

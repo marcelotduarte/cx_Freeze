@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-from subprocess import CalledProcessError
-
-import pytest
 
 SOURCE = """
 test.py
@@ -102,8 +99,8 @@ def test_cxfreeze_deprecated_option(tmp_package) -> None:
 def test_cxfreeze_without_options(tmp_package) -> None:
     """Test cxfreeze without options."""
     tmp_package.create(SOURCE)
-    with pytest.raises(CalledProcessError):
-        tmp_package.freeze("cxfreeze")
+    result = tmp_package.freeze("cxfreeze")
+    assert result.ret > 0
 
 
 SOURCE_TEST_PATH = f"""

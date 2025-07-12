@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-from shutil import which
-from subprocess import run
 from typing import TYPE_CHECKING
 
 import pytest
@@ -84,21 +81,15 @@ def test_bdist_deb_simple(tmp_package) -> None:
     dist_created = tmp_package.path / "dist"
 
     tmp_package.create_from_sample("simple")
-    process = run(
-        [sys.executable, "setup.py", "bdist_deb"],
-        text=True,
-        capture_output=True,
-        check=False,
-        cwd=tmp_package.path,
-    )
-    if process.returncode != 0:
-        msg = process.stderr
+    result = tmp_package.freeze("python setup.py bdist_deb")
+    if result.ret != 0:
+        msg = str(result.stderr)
         if "failed to find 'alien'" in msg:
             pytest.xfail("alien not installed")
         elif "Unpacking of '" in msg and "' failed at" in msg:
             pytest.xfail("cpio 2.13 bug")
         else:
-            pytest.fail(process.stderr)
+            pytest.fail(msg)
 
     pattern = f"{name}_{version}-?_*.deb"
     file_created = next(dist_created.glob(pattern), None)
@@ -114,22 +105,15 @@ def test_bdist_deb_simple_pyproject(tmp_package) -> None:
     dist_created = tmp_package.path / "dist"
 
     tmp_package.create_from_sample("simple_pyproject")
-    cxfreeze = which("cxfreeze")
-    process = run(
-        [cxfreeze, "bdist_deb"],
-        text=True,
-        capture_output=True,
-        check=False,
-        cwd=tmp_package.path,
-    )
-    if process.returncode != 0:
-        msg = process.stderr
+    result = tmp_package.freeze("cxfreeze bdist_deb")
+    if result.ret != 0:
+        msg = str(result.stderr)
         if "failed to find 'alien'" in msg:
             pytest.xfail("alien not installed")
         elif "Unpacking of '" in msg and "' failed at" in msg:
             pytest.xfail("cpio 2.13 bug")
         else:
-            pytest.fail(process.stderr)
+            pytest.fail(msg)
 
     pattern = f"{name}_{version}-?_*.deb"
     file_created = next(dist_created.glob(pattern), None)
@@ -145,21 +129,17 @@ def test_bdist_deb(tmp_package) -> None:
     dist_created = tmp_package.path / "dist2"
 
     tmp_package.create_from_sample("sqlite")
-    process = run(
-        [sys.executable, "setup.py", "bdist_deb", "--dist-dir", dist_created],
-        text=True,
-        capture_output=True,
-        check=False,
-        cwd=tmp_package.path,
+    result = tmp_package.freeze(
+        f"python setup.py bdist_deb --dist-dir {dist_created}"
     )
-    if process.returncode != 0:
-        msg = process.stderr
+    if result.ret != 0:
+        msg = str(result.stderr)
         if "failed to find 'alien'" in msg:
             pytest.xfail("alien not installed")
         elif "Unpacking of '" in msg and "' failed at" in msg:
             pytest.xfail("cpio 2.13 bug")
         else:
-            pytest.fail(process.stderr)
+            pytest.fail(msg)
 
     pattern = f"{name.replace('_', '-')}_{version}-?_*.deb"
     file_created = next(dist_created.glob(pattern), None)
