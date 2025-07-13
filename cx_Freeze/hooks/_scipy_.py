@@ -8,6 +8,18 @@ from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
+from cx_Freeze.hooks.global_names import (
+    SCIPY__LIB_ARRAY_API_COMPAT_GLOBAL_NAMES,
+    SCIPY_INTEGRATE_GLOBAL_NAMES,
+    SCIPY_INTERPOLATE_GLOBAL_NAMES,
+    SCIPY_LINALG_GLOBAL_NAMES,
+    SCIPY_OPTIMIZE_GLOBAL_NAMES,
+    SCIPY_SPARSE_GLOBAL_NAMES,
+    SCIPY_SPARSE_LINALG_GLOBAL_NAMES,
+    SCIPY_SPATIAL_GLOBAL_NAMES,
+    SCIPY_SPECIAL_GLOBAL_NAMES,
+    SCIPY_STATS_GLOBAL_NAMES,
+)
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -28,17 +40,19 @@ class Hook(ModuleHook):
         # Exclude unnecessary modules
         distribution = module.distribution
         if distribution:
+            # Exclude tests
+            excludes = set()
             files = distribution.original.files or []
             for file in files:
                 if file.parent.match("**/tests"):
-                    mod = file.parent.as_posix().replace("/", ".")
-                    finder.exclude_module(mod)
+                    excludes.add(file.parent.as_posix().replace("/", "."))
+            # >>> excludes.discard("scipy.special.tests")
+            for exclude in excludes:
+                finder.exclude_module(exclude)
         finder.exclude_module("scipy.conftest")
 
-        finder.include_package("scipy.integrate")
         finder.include_package("scipy._lib")
         finder.include_package("scipy.misc")
-        finder.include_package("scipy.optimize")
         with suppress(ImportError):
             finder.include_module("scipy._cyutility")  # v1.16.0
 
@@ -46,6 +60,7 @@ class Hook(ModuleHook):
         self, finder: ModuleFinder, module: Module
     ) -> None:
         """Fix the location of dependent files in Windows and macOS."""
+        module.ignore_names.add("scipy._distributor_init_local")
         if IS_LINUX or IS_MINGW:
             return  # it is detected correctly.
 
@@ -61,20 +76,49 @@ class Hook(ModuleHook):
                 optimize=finder.optimize,
             )
 
+    def scipy_integrate(self, finder: ModuleFinder, module: Module) -> None:
+        """Set the module global names."""
+        module.global_names.update(SCIPY_INTEGRATE_GLOBAL_NAMES)
+        finder.include_package("scipy.integrate")
+
     def scipy_interpolate(
         self,
         finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
+        module: Module,
     ) -> None:
         """The scipy.interpolate must be loaded as a package."""
-        finder.exclude_module("scipy.interpolate.tests")
+        module.global_names.update(SCIPY_INTERPOLATE_GLOBAL_NAMES)
         finder.include_package("scipy.interpolate")
+
+    def scipy__lib_array_api_compat(
+        self,
+        finder: ModuleFinder,  # noqa: ARG002
+        module: Module,
+    ) -> None:
+        """Set the module global names."""
+        module.global_names.update(SCIPY__LIB_ARRAY_API_COMPAT_GLOBAL_NAMES)
+
+    def scipy__lib__docscrape(
+        self,
+        finder: ModuleFinder,  # noqa: ARG002
+        module: Module,
+    ) -> None:
+        module.exclude_names.update(["sphinx.ext.autodoc"])
+
+    def scipy__lib__testutils(
+        self,
+        finder: ModuleFinder,  # noqa: ARG002
+        module: Module,
+    ) -> None:
+        module.exclude_names.update(
+            ["Cython.Compiler.Version", "cython", "psutil", "pytest"]
+        )
 
     def scipy_linalg(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.linalg module loads items within itself in a way that
         causes problems without the entire package being present.
         """
-        module.global_names.add("norm")
+        module.global_names.update(SCIPY_LINALG_GLOBAL_NAMES)
         finder.include_package("scipy.linalg")
 
     def scipy_linalg_interface_gen(
@@ -91,16 +135,20 @@ class Hook(ModuleHook):
         module: Module,  # noqa: ARG002
     ) -> None:
         """The scipy.ndimage must be loaded as a package."""
-        finder.exclude_module("scipy.ndimage.tests")
         finder.include_package("scipy.ndimage")
+
+    def scipy_optimize(self, finder: ModuleFinder, module: Module) -> None:
+        """Set the module global names."""
+        module.global_names.update(SCIPY_OPTIMIZE_GLOBAL_NAMES)
+        finder.include_package("scipy.optimize")
 
     def scipy_sparse(
         self,
         finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
+        module: Module,
     ) -> None:
         """The scipy.sparse must be loaded as a package."""
-        finder.exclude_module("scipy.sparse.tests")
+        module.global_names.update(SCIPY_SPARSE_GLOBAL_NAMES)
         finder.include_package("scipy.sparse")
 
     def scipy_sparse_csgraph(
@@ -109,8 +157,13 @@ class Hook(ModuleHook):
         module: Module,  # noqa: ARG002
     ) -> None:
         """The scipy.sparse.csgraph must be loaded as a package."""
-        finder.exclude_module("scipy.sparse.csgraph.tests")
         finder.include_package("scipy.sparse.csgraph")
+
+    def scipy_sparse_linalg(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Set the module global names."""
+        module.global_names.update(SCIPY_SPARSE_LINALG_GLOBAL_NAMES)
 
     def scipy_sparse_linalg__dsolve_linsolve(
         self,
@@ -125,11 +178,11 @@ class Hook(ModuleHook):
     def scipy_spatial(
         self,
         finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
+        module: Module,
     ) -> None:
         """The scipy.spatial must be loaded as a package."""
+        module.global_names.update(SCIPY_SPATIAL_GLOBAL_NAMES)
         finder.include_package("scipy.spatial")
-        finder.exclude_module("scipy.spatial.tests")
         if IS_WINDOWS or IS_MINGW:
             finder.exclude_module("scipy.spatial.cKDTree")
 
@@ -140,15 +193,14 @@ class Hook(ModuleHook):
     ) -> None:
         """The scipy.spatial.transform must be loaded as a package."""
         finder.include_package("scipy.spatial.transform")
-        finder.exclude_module("scipy.spatial.transform.tests")
 
     def scipy_special(
         self,
         finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
+        module: Module,
     ) -> None:
         """The scipy.special must be loaded as a package."""
-        finder.exclude_module("scipy.special.tests")
+        module.global_names.update(SCIPY_SPECIAL_GLOBAL_NAMES)
         finder.include_package("scipy.special")
         finder.include_package("scipy.special._precompute")
 
@@ -163,11 +215,32 @@ class Hook(ModuleHook):
         """
         module.global_names.add("gammaln")
 
+    def scipy_special__mptestutils(
+        self,
+        finder: ModuleFinder,  # noqa: ARG002
+        module: Module,
+    ) -> None:
+        module.exclude_names.add("pytest")
+
+    def scipy_special__testutils(
+        self,
+        finder: ModuleFinder,  # noqa: ARG002
+        module: Module,
+    ) -> None:
+        module.exclude_names.add("pytest")
+
     def scipy_stats(
+        self,
+        finder: ModuleFinder,
+        module: Module,
+    ) -> None:
+        """The scipy.stats must be loaded as a package."""
+        module.global_names.update(SCIPY_STATS_GLOBAL_NAMES)
+        finder.include_package("scipy.stats")
+
+    def scipy_stats__sobol(
         self,
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The scipy.stats must be loaded as a package."""
-        finder.exclude_module("scipy.stats.tests")
-        finder.include_package("scipy.stats")
+        finder.include_package("importlib.resources")
