@@ -166,6 +166,8 @@ class TempPackage:
             text=True,
             timeout=timeout,
         )
+        print(process.stdout)
+        print(process.stderr)
         return pytest.RunResult(
             process.returncode,
             process.stdout.splitlines(),
