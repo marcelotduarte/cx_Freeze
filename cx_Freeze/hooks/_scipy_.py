@@ -81,11 +81,7 @@ class Hook(ModuleHook):
         module.global_names.update(SCIPY_INTEGRATE_GLOBAL_NAMES)
         finder.include_package("scipy.integrate")
 
-    def scipy_interpolate(
-        self,
-        finder: ModuleFinder,
-        module: Module,
-    ) -> None:
+    def scipy_interpolate(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.interpolate must be loaded as a package."""
         module.global_names.update(SCIPY_INTERPOLATE_GLOBAL_NAMES)
         finder.include_package("scipy.interpolate")
@@ -142,11 +138,12 @@ class Hook(ModuleHook):
         module.global_names.update(SCIPY_OPTIMIZE_GLOBAL_NAMES)
         finder.include_package("scipy.optimize")
 
-    def scipy_sparse(
-        self,
-        finder: ModuleFinder,
-        module: Module,
+    def scipy_optimize__constraints(
+        self, finder: ModuleFinder, module: Module
     ) -> None:
+        self._fix_suppress_warnings(finder, module)
+
+    def scipy_sparse(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.sparse must be loaded as a package."""
         module.global_names.update(SCIPY_SPARSE_GLOBAL_NAMES)
         finder.include_package("scipy.sparse")
@@ -175,11 +172,7 @@ class Hook(ModuleHook):
         """
         module.ignore_names.add("scikits.umfpack")
 
-    def scipy_spatial(
-        self,
-        finder: ModuleFinder,
-        module: Module,
-    ) -> None:
+    def scipy_spatial(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.spatial must be loaded as a package."""
         module.global_names.update(SCIPY_SPATIAL_GLOBAL_NAMES)
         finder.include_package("scipy.spatial")
@@ -194,11 +187,7 @@ class Hook(ModuleHook):
         """The scipy.spatial.transform must be loaded as a package."""
         finder.include_package("scipy.spatial.transform")
 
-    def scipy_special(
-        self,
-        finder: ModuleFinder,
-        module: Module,
-    ) -> None:
+    def scipy_special(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.special must be loaded as a package."""
         module.global_names.update(SCIPY_SPECIAL_GLOBAL_NAMES)
         finder.include_package("scipy.special")
@@ -229,14 +218,20 @@ class Hook(ModuleHook):
     ) -> None:
         module.exclude_names.add("pytest")
 
-    def scipy_stats(
-        self,
-        finder: ModuleFinder,
-        module: Module,
-    ) -> None:
+    def scipy_stats(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.stats must be loaded as a package."""
         module.global_names.update(SCIPY_STATS_GLOBAL_NAMES)
         finder.include_package("scipy.stats")
+
+    def scipy_stats__binned_statistic(
+        self, finder: ModuleFinder, module: Module
+    ) -> None:
+        self._fix_suppress_warnings(finder, module)
+
+    def scipy_stats__stats_py(
+        self, finder: ModuleFinder, module: Module
+    ) -> None:
+        self._fix_suppress_warnings(finder, module)
 
     def scipy_stats__sobol(
         self,
@@ -244,3 +239,20 @@ class Hook(ModuleHook):
         module: Module,  # noqa: ARG002
     ) -> None:
         finder.include_package("importlib.resources")
+
+    def _fix_suppress_warnings(
+        self, finder: ModuleFinder, module: Module
+    ) -> None:
+        code_bytes = module.file.read_bytes()
+        if b"suppress_warnings" in code_bytes:
+            code_bytes = code_bytes.replace(
+                b"from numpy.testing import suppress_warnings",
+                b"from warnings import catch_warnings as suppress_warnings",
+            )
+            module.code = compile(
+                code_bytes,
+                module.file.as_posix(),
+                "exec",
+                dont_inherit=True,
+                optimize=finder.optimize,
+            )
