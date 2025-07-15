@@ -143,13 +143,19 @@ class DistributionCache(metadata.PathDistribution):
     def binary_files(self) -> list[metadata.PackagePath]:
         """Return the binary files included in the package."""
         files = self.original.files or []
+
         if IS_MINGW or IS_WINDOWS:
+            # all .dll's
             return [file for file in files if file.suffix.lower() == ".dll"]
+
+        # Linux and macOS
         extensions = tuple([ext for ext in EXTENSION_SUFFIXES if ext != ".so"])
+        # all .so* or .dylib as long as it is not a python extension
         return [
             file
             for file in files
-            if file.match("*.so*") and not file.name.endswith(extensions)
+            if (file.match("*.so*") or file.match("*.dylib"))
+            and not file.name.endswith(extensions)
         ]
 
     @property
@@ -345,15 +351,21 @@ class Module:
         """Dynamic libraries distributed along with the package/module."""
         distribution = self.distribution
         if distribution:
-            for source in distribution.binary_files:
-                if (
-                    self.in_file_system == 0
-                    and not source.parent.name.endswith(".libs")
-                ):
-                    target = f"lib/{source.name}"
-                else:
+            if self.in_file_system == 0:
+                # the module is in zip file and binary files are
+                for source in distribution.binary_files:
+                    # .. not in library directories
+                    if not source.parent.name.endswith((".libs", ".dylibs")):
+                        target = f"lib/{source.name}"
+                    else:
+                        target = f"lib/{source.as_posix()}"
+                    yield source.locate().resolve(), target
+            else:
+                # the module is in file system, so consider
+                # mirroring the binary files to the lib directory
+                for source in distribution.binary_files:
                     target = f"lib/{source.as_posix()}"
-                yield source.locate().resolve(), target
+                    yield source.locate().resolve(), target
             return
 
         module_dir = self.file.parent
