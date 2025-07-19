@@ -4,6 +4,7 @@ scikit-learn package is included.
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -42,6 +43,8 @@ class Hook(ModuleHook):
                 finder.exclude_module(exclude)
         finder.exclude_module("sklearn._build_utils")
         finder.exclude_module("sklearn.utils._testing")
+        with suppress(ImportError):
+            finder.include_module("sklearn._cyutility")  # v1.7.1
 
     def sklearn__distributor_init(
         self, finder: ModuleFinder, module: Module
