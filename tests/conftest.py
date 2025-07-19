@@ -132,6 +132,10 @@ class TempPackage:
         elif isinstance(command, Path):
             command = [os.fspath(command)]
 
+        if env is None:
+            env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+
         return self.run(command, cwd=cwd, env=env, timeout=timeout)
 
     def run(
