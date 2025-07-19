@@ -9,27 +9,30 @@ else
     PY_PLATFORM=""
 fi
 
-IS_CONDA=$([ -n "$CONDA_EXE" ] && echo true)
-IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo true)
-if [ "$IS_MINGW" == "true" ]; then
-    PYTHON_FOR_DEV=$(which python)
-else
-    PYTHON_FOR_DEV=3.12
-fi
+IS_CONDA=$([ -n "$CONDA_EXE" ] && echo 1)
+IS_LINUX=$([[ $PY_PLATFORM == linux* ]] && echo 1)
+IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo 1)
+
+# For Linux
+PYTHON_FOR_DEV="3.12"
 
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
     echo "$0 [--tests]"
     echo "Where:"
+    echo "  --dev   Install additional packages for development."
     echo "  --tests Install additional packages to run 'pytest'."
     exit 1
 fi
 
+INSTALL_DEV=""
 INSTALL_TESTS=""
 while [ -n "$1" ]; do
-    if [ "$1" == "--tests" ]; then
-        INSTALL_TESTS=true
+    if [ "$1" == "--dev" ]; then
+        INSTALL_DEV="1"
+    elif [ "$1" == "--tests" ]; then
+        INSTALL_TESTS="1"
     else
         echo "WARNING: invalid option '$1'"
     fi
@@ -38,7 +41,7 @@ done
 
 echo "::group::Install dependencies and build tools"
 # Install/update uv and dev tools
-if [ "$IS_CONDA" == "true" ]; then
+if [ "$IS_CONDA" == "1" ]; then
     SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
     # Packages to install
     pkgs=("uv" "python-build")
@@ -59,13 +62,11 @@ if [ "$IS_CONDA" == "true" ]; then
     fi
 
     # pytest and dependencies
-    if [ -f tests/requirements.txt ]; then
-        if [ "$INSTALL_TESTS" == "true" ]; then
-            while read -r line; do
-                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                pkgs+=("$name")
-            done < tests/requirements.txt
-        fi
+    if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
+        while read -r line; do
+            name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+            pkgs+=("$name")
+        done < tests/requirements.txt
     fi
 
     # Install libmamba-solver and use it to speed up packages install
@@ -77,7 +78,7 @@ if [ "$IS_CONDA" == "true" ]; then
     echo "Install packages"
     echo "${pkgs[@]}"
     $CONDA_EXE install -c conda-forge "${pkgs[@]}" -S -q -y
-elif [ "$IS_MINGW" == "true" ]; then
+elif [ "$IS_MINGW" == "1" ]; then
     # Packages to install
     pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
 
@@ -95,19 +96,17 @@ elif [ "$IS_MINGW" == "true" ]; then
     fi
 
     # pytest and dependencies
-    if [ -f tests/requirements.txt ]; then
-        if [ "$INSTALL_TESTS" == "true" ]; then
-            while read -r line; do
-                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
-            done < tests/requirements.txt
-        fi
+    if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
+        while read -r line; do
+            name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+            pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
+        done < tests/requirements.txt
     fi
 
     echo "Install packages"
     pacman --needed --noconfirm --quiet -S "${pkgs[@]}"
 else
-    if [ "$CI" == "true" ]; then
+    if [ "$CI" == "1" ]; then
         if ! which uv &>/dev/null; then
             echo "error: Please install uv"
             exit 1
@@ -123,7 +122,7 @@ else
 
     # Dependencies of the project
     echo "Install packages"
-    if [ "$INSTALL_TESTS" == "true" ]; then
+    if [ "$INSTALL_TESTS" == "1" ]; then
         # including pytest and dependencies
         uv pip install --extra tests --upgrade -r pyproject.toml
     else
@@ -132,25 +131,23 @@ else
 fi
 
 # Install dev tools
-if [ -f requirements-dev.txt ]; then
-    while read -r line; do
-        name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-        if [ "$IS_CONDA" != "true" ] || [ "$IS_MINGW" != "true" ] \
-        || [ "$name" != "cibuildwheel" ]; then
-            filename=$INSTALL_DIR/$name
-            echo "Create $filename"
-            echo "#!/bin/bash"> "$filename"
-            echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
-            chmod +x "$filename"
+if [ "$INSTALL_DEV" == "1" ]; then
+    if [ "$IS_LINUX" == "1" ] || [ "$IS_MINGW" == "1" ] || \
+       [ "$IS_CONDA" == "1" ]; then
+        if [ -f requirements-dev.txt ]; then
+            while read -r line; do
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                filename=$INSTALL_DIR/$name
+                echo "Create $filename"
+                echo "#!/bin/bash"> "$filename"
+                echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
+                chmod +x "$filename"
+            done < requirements-dev.txt
         fi
-    done < requirements-dev.txt
-    # pyproject-build
-    if [ "$IS_CONDA" != "true" ] || [ "$IS_MINGW" != "true" ]; then
-        filename=$INSTALL_DIR/pyproject-build
-        echo "Create $filename"
-        echo "#!/bin/bash"> "$filename"
-        echo "uvx -p $PYTHON_FOR_DEV --from build pyproject-build \$@">> "$filename"
-        chmod +x "$filename"
+    else
+        # macOS and Windows
+        uv pip install --extra dev --upgrade -r pyproject.toml
+        uv pip install --upgrade build
     fi
 fi
 echo "::endgroup::"

@@ -34,7 +34,7 @@ else
     if [[ $PY_PLATFORM == linux* ]]; then
         PLATFORM_TAG=many${PY_PLATFORM/-/_}
         PLATFORM_TAG_MASK=${PLATFORM_TAG/_/*_}
-        if ! [ "$CI" == "true" ] && which podman >/dev/null; then
+        if ! [ "$CI" == "true" ] && which podman &>/dev/null; then
             export CIBW_CONTAINER_ENGINE=podman
         fi
     elif [[ $PY_PLATFORM == macosx* ]]; then
@@ -76,25 +76,57 @@ while [ -n "$1" ]; do
     shift
 done
 
-# Install/update uv
-if [ "$INSTALL_TOOLS" == "1" ]; then
-    "$CI_DIR/install-tools.sh"
+# Install/update uv and dev tools
+INSTALL_DEV="0"
+if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
+    if ! [ -e "$HOME/bin/bump-my-version" ]; then
+        INSTALL_DEV="1"
+    fi
+else
+    if [[ $PY_PLATFORM == linux* ]]; then
+        if ! [ -e "$HOME/bin/bump-my-version" ] || \
+           ! [ -e "$HOME/bin/cibuildwheel" ]; then
+            INSTALL_DEV="1"
+        fi
+    else
+        if ! which bump-my-version &>/dev/null || \
+           ! which cibuildwheel &>/dev/null || \
+           ! which pyproject-build &>/dev/null; then
+            INSTALL_DEV="1"
+        fi
+    fi
+fi
+
+if [ "$INSTALL_TOOLS" == "1" ] || [ "$INSTALL_DEV" == "1" ]; then
+    if [ "$INSTALL_DEV" == "1" ]; then
+        "$CI_DIR/install-tools.sh" --dev
+    else
+        "$CI_DIR/install-tools.sh"
+    fi
 fi
 
 # Use of dev tools
 _bump_my_version () {
     local value
-    value=$("$HOME/bin/bump-my-version" "$*" 2>/dev/null)
+    if which bump-my-version &>/dev/null; then
+        value=$(bump-my-version "$*" 2>/dev/null)
+    elif [ -e "$HOME/bin/bump-my-version" ]; then
+        value=$("$HOME/bin/bump-my-version" "$*" 2>/dev/null)
+    else
+        exit 1
+    fi
     $PYTHON -c "print('$value'.replace('\r','').replace('\n',''), end='')"
 }
 
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    else
-        #uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
-        #$PYTHON -m build --sdist -o wheelhouse
+    elif [ -e "$HOME/bin/pyproject-build" ]; then
         "$HOME/bin/pyproject-build" --sdist -o wheelhouse
+    elif which pyproject-build &>/dev/null; then
+         $PYTHON -m build --sdist -o wheelhouse
+    else
+        uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
     fi
 }
 
@@ -104,17 +136,23 @@ _build_wheel () {
         $PYTHON -m build -n -x --wheel -o wheelhouse
     elif [[ $PY_PLATFORM == win* ]] && [[ $args == *--only* ]]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
+    elif [[ $PY_PLATFORM == macos* ]] && [[ $args == *--only* ]]; then
+        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
     else
         # Do not export UV_SYSTEM_PYTHON to avoid conflict with uv in
         # cibuildwheel on macOS and Windows
         unset UV_SYSTEM_PYTHON
-        "$HOME/bin/cibuildwheel" "$args"
+        if [ -e "$HOME/bin/cibuildwheel" ]; then
+            "$HOME/bin/cibuildwheel" "$args"
+        else
+            $PYTHON -m cibuildwheel "$args"
+        fi
     fi
 }
 
 echo "::group::Project version"
 NAME=$(grep "^name = " pyproject.toml | awk -F\" '{print $2}')
-NORMALIZED_NAME=${NAME,,}
+NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
 VERSION=$(_bump_my_version show current_version)
 if [ -z "$VERSION" ]; then
     if [ -d src ]; then
