@@ -249,9 +249,8 @@ class DarwinFile:
         # interpreter? Apparently not a big issue in practice, since the
         # code has been like this forever.
         if self.isExecutablePath(path):
-            return self.path.parent / Path(path).relative_to(
-                "@executable_path/"
-            )
+            relative_path = Path(path).relative_to("@executable_path")
+            return self.path.parent / relative_path
         msg = f"resolveExecutable() called on bad path: {path}"
         raise PlatformError(msg)
 
@@ -346,7 +345,10 @@ class DarwinFile:
             return self.machOReferenceForTargetPath[path]
         except KeyError:
             msg = f"Path {path} is not a path referenced from DarwinFile"
-            raise PlatformError(msg) from None
+            if self.strict:
+                raise PlatformError(msg) from None
+            print(f"WARNING: {msg}")
+            return None
 
 
 class MachOCommand:
@@ -691,7 +693,7 @@ class DarwinFileTracker:
 
         for darwin_file in self._copied_file_list:
             # Skip text files
-            if darwin_file.path.suffix == ".txt":
+            if darwin_file.path.suffix in (".pyi", ".txt"):
                 continue
 
             # get the relative path to darwin_file in build directory
