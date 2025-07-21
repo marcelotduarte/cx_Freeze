@@ -2,17 +2,10 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
 from cx_Freeze._compat import (
-    ABI_THREAD,
-    IS_ARM_64,
     IS_CONDA,
-    IS_LINUX,
-    IS_MINGW,
-    IS_WINDOWS,
 )
 
 TIMEOUT = 10
@@ -98,41 +91,22 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_CONDA and (not IS_LINUX or sys.version_info[:2] > (3, 11)),
-    raises=ModuleNotFoundError,
-    reason="ortools is supported in conda python <= 3.11 on Linux only",
-    strict=True,
-)
-@pytest.mark.xfail(
-    IS_MINGW,
-    raises=ModuleNotFoundError,
-    reason="ortools not supported in mingw",
-    strict=True,
-)
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="ortools does not support Windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t" and not IS_LINUX,
-    raises=ModuleNotFoundError,
-    reason="ortools supports Python 3.13t on Linux only",
-    strict=True,
-)
+@pytest.mark.skipif(not IS_CONDA, reason="conda-forge test only")
 @pytest.mark.venv
 @zip_packages
-def test_ortools(tmp_package, zip_packages: bool) -> None:
+def test_ortools_pip_on_conda(tmp_package, zip_packages: bool) -> None:
     """Test if ortools is working correctly."""
-    tmp_package.map_package_to_conda["ortools"] = "ortools-python"
-    tmp_package.create(SOURCE_TEST)
+    tmp_package.create(SOURCE_TEST.replace("dependencies", "#dependencies"))
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    # install from pypi
+    tmp_package.install("pip")
+    tmp_package.run(
+        "python -m pip install ortools", cwd=tmp_package.system_path
+    )
     tmp_package.freeze()
 
     executable = tmp_package.executable("test_ortools")

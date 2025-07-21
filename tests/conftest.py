@@ -8,6 +8,7 @@ import string
 import subprocess
 import sys
 import sysconfig
+from contextlib import suppress
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
@@ -54,17 +55,15 @@ class TempPackage:
         self.monkeypatch = monkeypatch
 
         # environment
-        self.prefix: Path = Path(sys.prefix)
-        self.sys_executable: Path = Path(sys.executable)
+        sysexe = Path(sys.executable)
+        prefix = Path(sys.prefix)
+        self.prefix: Path = prefix
+        self.sys_executable: Path = sysexe
         self.system_path: Path = Path(os.getcwd())
-        self.system_prefix: Path = Path(sys.prefix)
-        self.relative_bin: str = self.sys_executable.parent.relative_to(
-            self.system_prefix
-        ).as_posix()
+        self.system_prefix: Path = prefix
+        self.relative_bin: str = sysexe.parent.relative_to(prefix).as_posix()
         self.relative_site: str = (
-            Path(pytest.__file__)
-            .parent.parent.relative_to(self.system_prefix)
-            .as_posix()
+            Path(pytest.__file__).parent.parent.relative_to(prefix).as_posix()
         )
 
         # make a temporary directory and set it as current
@@ -75,6 +74,10 @@ class TempPackage:
         self._name = name
         self.path: Path = tmp_path_factory.mktemp(name, numbered=True)
         os.chdir(self.path)
+
+        # packages mapping
+        self.map_package_to_conda: dict[str, str] = {}
+        self.map_package_to_mingw: dict[str, str] = {}
 
     def create(self, source: str) -> None:
         """Create package in temporary path, based on source."""
@@ -225,6 +228,9 @@ class TempPackage:
 
     def _install_conda(self, packages: list[str]) -> pytest.RunResult:
         CONDA_EXE = os.environ["CONDA_EXE"]
+        for i, package in enumerate(packages):
+            with suppress(KeyError):
+                packages[i] = self.map_package_to_conda[package]
         packages = " ".join(packages)
         cmd = (
             f"{CONDA_EXE} install -c conda-forge -S -q -y -p {self.prefix} "
@@ -239,6 +245,8 @@ class TempPackage:
     def _install_mingw(self, packages: list[str]) -> pytest.RunResult:
         MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
         for i, package in enumerate(packages):
+            with suppress(KeyError):
+                packages[i] = self.map_package_to_mingw[package]
             packages[i] = f"{MINGW_PACKAGE_PREFIX}-python-{package}"
         packages = " ".join(packages)
         cmd = f"pacman -S --needed --noconfirm --quiet {packages}"

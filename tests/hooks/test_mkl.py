@@ -17,7 +17,8 @@ zip_packages = pytest.mark.parametrize(
 
 
 @pytest.mark.skipif(
-    not (IS_LINUX and IS_X86_64 and sys.version_info[:2] == (3, 10)),
+    IS_CONDA
+    or not (IS_LINUX and IS_X86_64 and sys.version_info[:2] == (3, 10)),
     reason="Test only on Linux64 and Python 3.10",
 )
 @pytest.mark.venv

@@ -168,7 +168,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="rasterio does not support mingw",
+    reason="rasterio not supported in mingw",
     strict=True,
 )
 @pytest.mark.xfail(

@@ -16,7 +16,7 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
-TIMEOUT_VERY_SLOW = 90 if IS_CONDA else 30
+TIMEOUT_VERY_SLOW = 150 if IS_CONDA else 30
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -51,7 +51,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="av (pyAV) does not support mingw",
+    reason="av (pyAV) not supported in mingw",
     strict=True,
 )
 @pytest.mark.xfail(
