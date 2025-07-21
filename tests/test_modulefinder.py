@@ -10,8 +10,8 @@ from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
+from cx_Freeze._compat import IS_CONDA, IS_MINGW
 
-from .conftest import HAVE_UV
 from .datatest import (
     ABSOLUTE_IMPORT_TEST,
     BYTECODE_TEST,
@@ -162,8 +162,10 @@ def test_zip_exclude_packages(tmp_package) -> None:
     )
 
 
+@pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
+@pytest.mark.skipif(IS_CONDA, reason="Disabled in conda-forge")
 @pytest.mark.skipif(
-    not HAVE_UV or sys.version_info < (3, 10),
+    sys.version_info < (3, 10),
     reason="uv and 3.10+ are needed for editable packages",
 )
 def test_editable_packages(tmp_package) -> None:

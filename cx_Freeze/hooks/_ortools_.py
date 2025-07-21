@@ -18,6 +18,9 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for ortools."""
 
-    def ortools(self, _finder: ModuleFinder, module: Module) -> None:
+    def ortools(self, finder: ModuleFinder, module: Module) -> None:
         if module.in_file_system == 0:
             module.in_file_system = 2
+        distribution = module.distribution
+        if distribution.installer == "conda":
+            finder.include_module("numpy")
