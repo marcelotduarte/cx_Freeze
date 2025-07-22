@@ -4,7 +4,9 @@ AV (PyAV) package is included.
 
 from __future__ import annotations
 
+import sys
 from contextlib import suppress
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import ModuleHook
@@ -20,7 +22,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for AV (pyAV).
 
-    Supported pypi versions (tested from 11.0 to 14.4.0).
+    Supported pypi versions (tested from 11.0 to 15.0).
     """
 
     def av(self, finder: ModuleFinder, module: Module) -> None:
@@ -30,10 +32,17 @@ class Hook(ModuleHook):
         with suppress(ImportError):
             finder.include_module("av.deprecation")
 
+        # conda-forge Windows
+        source = Path(sys.base_prefix, "Library/bin/SDL3.dll")
+        if source.exists():
+            target = f"lib/{source.name}"
+            finder.lib_files[source] = target
+            finder.include_files(source, target)
+
     def av_container(
         self,
         finder: ModuleFinder,
-        module: Module,  # noqa:ARG002
+        module: Module,  # noqa: ARG002
     ) -> None:
         """Newer version of AV needs uuid."""
         finder.include_module("uuid")
