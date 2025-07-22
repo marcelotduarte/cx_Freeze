@@ -1,0 +1,173 @@
+{
+  "manifest": {
+    "test_app": ["test_manifest", "test_simple_manifest"],
+    "platform": ["windows", "mingw"]
+  },
+  "matplotlib": {
+    "test_app": "gui:matplotlib_eg",
+    "find_links": [
+      "https://wxpython.org/Phoenix/snapshot-builds/",
+      "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04/",
+      "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04/"
+    ],
+    "requirements": ["numpy", "pillow --no-deps", "matplotlib", "wxPython"]
+  },
+  "matplotlib_tk": {
+    "test_app": "gui:test_matplotlib_tk",
+    "requirements": ["numpy", "pillow --no-deps", "matplotlib"]
+  },
+  "opencv": {
+    "test_app": "gui:test_opencv",
+    "requirements": [
+      "opencv-python --mingw=python-opencv --conda=py-opencv",
+      "opencv-contrib-python --platform=macos --conda=opencv",
+      "vtk"
+    ]
+  },
+  "orjson": {
+    "test_app": "test_orjson",
+    "requirements": "orjson",
+    "platform": ["!mingw"]
+  },
+  "pandas": {
+    "test_app": "test_pandas",
+    "requirements": ["numpy", "pandas"]
+  },
+  "pillow": {
+    "test_app": "test_pillow",
+    "requirements": "pillow --no-deps"
+  },
+  "pycountry": {
+    "test_app": "test",
+    "requirements": "pycountry"
+  },
+  "pydantic": {
+    "test_app": "test_pydantic",
+    "requirements": "pydantic"
+  },
+  "pyqt5": {
+    "test_app": "gui:test_pyqt5",
+    "requirements": "PyQt5 --conda=pyqt"
+  },
+  "pyqt5-simplebrowser": {
+    "test_app": ["gui:test_simplebrowser"],
+    "requirements": [
+      "PyQt5 --conda=pyqt",
+      "PyQtWebEngine --conda=pyqtwebengine"
+    ],
+    "platform": ["!mingw"]
+  },
+  "pyqt6": {
+    "test_app": "gui:test_pyqt6",
+    "requirements": ["PyQt6", "PyQt6-Qt6 --mingw="],
+    "platform": ["!conda"],
+    "comment": "conda doesn't support pyqt6"
+  },
+  "pyqt6-qml": {
+    "test_app": "gui:test_qml",
+    "requirements": ["PyQt6", "PyQt6-Qt6 --mingw="],
+    "platform": ["!conda"]
+  },
+  "pyqt6-simplebrowser": {
+    "test_app": "gui:test_simplebrowser",
+    "requirements": [
+      "PyQt6",
+      "PyQt6-Qt6 --mingw=",
+      "PyQt6-WebEngine --mingw=",
+      "PyQt6-WebEngine-Qt6 --mingw="
+    ],
+    "platform": ["!mingw", "!conda"]
+  },
+  "pyside2": {
+    "test_app": "gui:test_pyside2",
+    "requirements": "PySide2",
+    "platform": ["!macos:arm64"],
+    "python-versions": ["3.8", "3.9", "3.10"],
+    "comment": "pyside2 does not support macos arm64"
+  },
+  "pyside2-simplebrowser": {
+    "test_app": "gui:test_simplebrowser",
+    "requirements": ["PySide2", "--conda=qt-webengine"],
+    "platform": ["!macos:arm64", "!mingw"],
+    "python-versions": ["3.8", "3.9", "3.10"]
+  },
+  "pyside6": {
+    "test_app": "gui:test_pyside6",
+    "requirements": "PySide6"
+  },
+  "pyside6-qml": {
+    "test_app": "gui:test_qml",
+    "requirements": "PySide6"
+  },
+  "pyside6-simplebrowser": {
+    "test_app": "gui:test_simplebrowser",
+    "requirements": "PySide6",
+    "platform": ["!mingw", "!conda"]
+  },
+  "pythonnet-demo": {
+    "test_app": ["gui:helloform", "gui:splitter", "gui:wordpad"],
+    "requirements": [
+      "pythonnet==2.5.2 --python-version<'3.9'",
+      "pythonnet>=3.0.0 --python-version>='3.9'"
+    ],
+    "platform": ["windows"]
+  },
+  "pytz": {
+    "test_app": "test_pytz",
+    "requirements": "pytz"
+  },
+  "pyzmq": {
+    "test_app": [
+      "svc:pyzmq_server",
+      "cli:pyzmq_client --timeout=4",
+      "svc:kill"
+    ],
+    "requirements": "pyzmq"
+  },
+  "replace": {
+    "test_app": "test_replace"
+  },
+  "service": {
+    "test_app": [
+      "cx_FreezeSampleService --install sample",
+      "cx_FreezeSampleService --uninstall sample"
+    ],
+    "requirements": "cx-logging",
+    "platform": ["windows", "mingw"]
+  },
+  "service-asyncio": {
+    "test_app": [
+      "cx_FreezeSampleServiceAsyncio --install sample",
+      "cx_FreezeSampleServiceAsyncio --uninstall sample"
+    ],
+    "requirements": "cx-logging",
+    "platform": ["windows", "mingw"]
+  },
+  "simple": {
+    "test_app": [
+      "hello",
+      "cmd:pwd",
+      "cmd:ls -l",
+      "cmd:cp -v hello* Test_Hello.exe",
+      "cmd:win:copy hello.exe Test_Hello.exe",
+      "Test_Hello.exe ação ótica côncavo peña"
+    ]
+  },
+  "simple_pyproject": {
+    "test_app": "hello"
+  },
+  "simple_setup_cfg": {
+    "test_app": "hello"
+  },
+  "sqlite": {
+    "test_app": "test_sqlite3"
+  },
+  "tz": {
+    "test_app": "test_tz",
+    "requirements": "tzdata --platform=windows,mingw"
+  },
+  "tkinter": {
+    "test_app": "gui:test_tkinter",
+    "requirements": "--mingw=tk --conda=tk"
+  }
+}
