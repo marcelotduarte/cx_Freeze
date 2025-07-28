@@ -1386,6 +1386,10 @@ class LinuxFreezer(Freezer, ELFParser):
         lib_files = self.finder.lib_files
         fix_rpath = set()
         fix_needed = {}
+        site_packages_dir = next(
+            (path for path in self.path if path.endswith("site-packages")),
+            None,
+        )
         for dependent in self.get_dependent_files(source):
             if not self._should_copy_file(dependent):
                 continue
@@ -1403,11 +1407,18 @@ class LinuxFreezer(Freezer, ELFParser):
             else:
                 # put the dependency (relatively) in the target_dir subtree
                 # this is possible with most packages installed by pip
-                try:
+                if dependent_source.is_relative_to(source_dir):
                     relative = dependent_source.relative_to(source_dir)
                     # dependency located with source or in a subdirectory
                     dependent_target = target_dir / relative
-                except ValueError:
+                elif site_packages_dir and dependent_source.is_relative_to(
+                    site_packages_dir
+                ):
+                    # put the dependency in the in the target_dir under the same
+                    # path as it is in the site-packages folder
+                    relative = dependent_source.relative_to(site_packages_dir)
+                    dependent_target = self.target_dir / "lib" / relative
+                else:
                     # put the dependency in target_dir along with the binary
                     # file being copied, unless the dependency has already been
                     # copied to another location and is relative to the source
