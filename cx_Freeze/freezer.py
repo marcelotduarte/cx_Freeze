@@ -1386,7 +1386,8 @@ class LinuxFreezer(Freezer, ELFParser):
         lib_files = self.finder.lib_files
         fix_rpath = set()
         fix_needed = {}
-        site_packages_dir = next(
+        conda_prefix = Path(os.environ["CONDA_PREFIX"]) if IS_CONDA else None
+        site_packages = next(
             (path for path in self.path if path.endswith("site-packages")),
             None,
         )
@@ -1411,13 +1412,22 @@ class LinuxFreezer(Freezer, ELFParser):
                     relative = dependent_source.relative_to(source_dir)
                     # dependency located with source or in a subdirectory
                     dependent_target = target_dir / relative
-                elif site_packages_dir and dependent_source.is_relative_to(
-                    site_packages_dir
+                elif site_packages and dependent_source.is_relative_to(
+                    site_packages
                 ):
                     # put the dependency in the in the target_dir under the same
                     # path as it is in the site-packages folder
-                    relative = dependent_source.relative_to(site_packages_dir)
+                    relative = dependent_source.relative_to(site_packages)
                     dependent_target = self.target_dir / "lib" / relative
+                elif conda_prefix and dependent_source.is_relative_to(
+                    conda_prefix / "lib"
+                ):
+                    # put conda libs where they are in the conda env
+                    rel = dependent_source.relative_to(conda_prefix / "lib")
+                    dependent_target = self.target_dir / "lib" / rel
+                    relative = Path(
+                        os.path.relpath(dependent_target, target_dir)
+                    )
                 else:
                     # put the dependency in target_dir along with the binary
                     # file being copied, unless the dependency has already been
