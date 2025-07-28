@@ -8,6 +8,8 @@ import pytest
 
 from ..conftest import IS_CONDA
 
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+
 TIMEOUT = 10
 
 QT_IMPLS = []
@@ -53,13 +55,14 @@ pyproject.toml
 
 
 def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
-    if sys.platform == "win32":
-        lib_pattern = "**/*.dll"
+    if IS_MINGW or IS_WINDOWS:
+        extension = "*.dll"
+    elif IS_MACOS:
+        extension = "*.dylib"
     else:
-        lib_pattern = "**/*.so*"
-
+        extension = "*.so*"
     libs = {}
-    for p in build_lib_dir.glob(lib_pattern):
+    for p in build_lib_dir.glob(f"**/{extension}"):
         if p.name not in libs:
             libs[p.name] = []
         libs[p.name].append(str(p.relative_to(build_lib_dir)))
