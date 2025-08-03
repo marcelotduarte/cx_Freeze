@@ -231,6 +231,7 @@ def test_tkinter_bdist_mac(tmp_package) -> None:
     result.stdout.fnmatch_lines(f"{expected}*")
 
 
+@pytest.mark.venv(install_dependencies=False)
 @zip_packages
 def test_tz(tmp_package, zip_packages: bool) -> None:
     """Test if zoneinfo hook is working correctly."""

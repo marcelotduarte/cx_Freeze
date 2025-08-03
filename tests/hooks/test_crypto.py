@@ -27,7 +27,7 @@ pyproject.toml
     [project]
     name = "test_argon2"
     version = "0.1.2.3"
-    #dependencies = ["argon2-cffi"]
+    dependencies = ["argon2-cffi"]
 
     [tool.cxfreeze]
     executables = ["test_argon2.py"]
@@ -54,16 +54,13 @@ pyproject.toml
 @zip_packages
 def test_argon2(tmp_package, zip_packages) -> None:
     """Test if argon2-cffi is working correctly."""
+    tmp_package.map_package_to_mingw["argon2-cffi"] = "argon2_cffi"
     tmp_package.create(SOURCE_ARGON2)
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if IS_MINGW:
-        tmp_package.install("argon2_cffi")
-    else:
-        tmp_package.install("argon2-cffi")
     tmp_package.freeze()
     executable = tmp_package.executable("test_argon2")
     assert executable.is_file()

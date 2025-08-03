@@ -105,12 +105,13 @@ def test_verify_patchelf(monkeypatch) -> None:
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 @pytest.mark.skipif(IS_LINUX and IS_CONDA, reason="Disabled on conda-forge")
+@pytest.mark.venv
 def test_verify_patchelf_older(tmp_package) -> None:
     """Test the _verify_patchelf with older version."""
     tmp_package.create(SOURCE)
     tmp_package.install("patchelf<0.14")
 
-    tmp_bin = tmp_package.path / ".tmp_prefix" / "bin"
+    tmp_bin = tmp_package.prefix / "bin"
 
     tmp_package.monkeypatch.setattr("shutil.which", lambda cmd: tmp_bin / cmd)
     msg = r"patchelf\s+(\d+(.\d+)?)\s+found."

@@ -149,3 +149,33 @@ def test_ortools(tmp_package, zip_packages: bool) -> None:
             suffix = "]"
         lines.append(f"{prefix}vars_{i}(*){suffix}")
     result.stdout.fnmatch_lines(lines)
+
+
+@pytest.mark.skipif(not IS_CONDA, reason="conda-forge test only")
+@pytest.mark.venv(install_dependencies=False)
+@zip_packages
+def test_ortools_pip_on_conda(tmp_package, zip_packages: bool) -> None:
+    """Test if ortools is working in conda-forge using pip."""
+    tmp_package.create(SOURCE_TEST)
+    if zip_packages:
+        pyproject = tmp_package.path / "pyproject.toml"
+        buf = pyproject.read_bytes().decode().splitlines()
+        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
+        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    # install from pypi
+    tmp_package.install("ortools", backend="pip")
+    tmp_package.freeze()
+
+    executable = tmp_package.executable("test_ortools")
+    assert executable.is_file()
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    lines = []
+    for i in range(100):
+        prefix = " "
+        suffix = ","
+        if i == 0:
+            prefix = "["
+        elif i == 99:
+            suffix = "]"
+        lines.append(f"{prefix}vars_{i}(*){suffix}")
+    result.stdout.fnmatch_lines(lines)
