@@ -156,16 +156,14 @@ class Hook(ModuleHook):
         """Ignore errors if optionally imported module cannot be found."""
         module.ignore_names.add("yaml")
 
-    def numpy_core(
-        self, _finder: ModuleFinder, module: Module
-    ) -> None:  # NumPy < 2.0
-        """Set the numpy.core global names."""
+    def numpy_core(self, _finder: ModuleFinder, module: Module) -> None:
+        """Set the numpy.core global names (numpy < 2.0)."""
         module.global_names.update(NUMPY__CORE_GLOBAL_NAMES)
         module.global_names.add("geterrobj")
         module.global_names.add("Inf")
 
     def numpy__core(self, _finder: ModuleFinder, module: Module) -> None:
-        """Set the numpy._core global names."""
+        """Set the numpy._core global names (numpy >= 2.0)."""
         module.global_names.update(NUMPY__CORE_GLOBAL_NAMES)
 
     def numpy__core_numerictypes(
@@ -241,7 +239,13 @@ class Hook(ModuleHook):
         elif distribution.installer == "conda":
             prefix = Path(sys.prefix)
             conda_meta = prefix / "conda-meta"
-            packages = ["libblas", "libcblas", "liblapack", "llvm-openmp"]
+            packages = [
+                "libblas",
+                "libcblas",
+                "liblapack",
+                "intel-openmp",
+                "llvm-openmp",
+            ]
             blas_options = ["libopenblas", "mkl"]
             packages += blas_options
             for package in packages:
