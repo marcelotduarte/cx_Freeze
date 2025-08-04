@@ -16,16 +16,16 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
-@pytest.mark.venv
+@pytest.mark.venv(scope="module")
 @zip_packages
 def test_win32com(tmp_package, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""
     tmp_package.create_from_sample("win32com")
-    tmp_package.install("pywin32")
     command = "cxfreeze --script test_win32com.py --excludes=tkinter,unittest"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
     command += " --include-msvcr --silent"
+    tmp_package.install("pywin32")
     tmp_package.freeze(command)
 
     executable = tmp_package.executable("test_win32com")
@@ -68,7 +68,7 @@ pyproject.toml
 """
 
 
-@pytest.mark.venv
+@pytest.mark.venv(scope="module")
 @zip_packages
 def test_win32com_shell(tmp_package, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""

@@ -10,7 +10,6 @@ from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
-from cx_Freeze._compat import IS_CONDA, IS_MINGW
 
 from .datatest import (
     ABSOLUTE_IMPORT_TEST,
@@ -162,18 +161,14 @@ def test_zip_exclude_packages(tmp_package) -> None:
     )
 
 
-@pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
-@pytest.mark.skipif(IS_CONDA, reason="Disabled in conda-forge")
 @pytest.mark.skipif(
     sys.version_info < (3, 10),
-    reason="uv and 3.10+ are needed for editable packages",
+    reason="Python 3.10+ needed for editable packages",
 )
 def test_editable_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(EDITABLE_PACKAGE_TEST[4])
-    tmp_package._install_uv(  # noqa: SLF001
-        ["-e", f"{tmp_package.path}/foo-bar"]
-    )
+    tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
     _do_test(
         tmp_package,
         *EDITABLE_PACKAGE_TEST,

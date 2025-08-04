@@ -6,18 +6,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import (
-    IS_ARM_64,
-    IS_CONDA,
-    IS_LINUX,
-    IS_MINGW,
-    IS_WINDOWS,
-)
+from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_LINUX, IS_WINDOWS
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-TIMEOUT_VERY_VERY_SLOW = 180 if IS_CONDA else 90
+TIMEOUT_ULTRA_VERY_SLOW = 240 if IS_CONDA else 60
 
 SOURCE = """\
 sample0.py
@@ -108,8 +102,6 @@ def _parameters_data() -> Iterator:
             # zip_packages tests removed, multiprocess is too slow
 
 
-@pytest.mark.skipif(IS_CONDA, reason="Disabled test in conda-forge")
-@pytest.mark.skipif(IS_MINGW, reason="Disabled test in mingw")
 @pytest.mark.skipif(not IS_LINUX, reason="Disabled test")
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
@@ -117,7 +109,7 @@ def _parameters_data() -> Iterator:
     reason="multiprocess does not support Windows arm64",
     strict=True,
 )
-@pytest.mark.venv
+@pytest.mark.venv(scope="module")
 @pytest.mark.parametrize(
     ("source", "sample", "expected", "zip_packages"), _parameters_data()
 )
@@ -138,6 +130,6 @@ def test_multiprocess(
     # use a higher timeout because when using dill it is up to 25x slower
     # sample3 using multiprocessing/pickler runs in 0,543s x 13,591s
     result = tmp_package.run(
-        executable, cwd=executable.parent, timeout=TIMEOUT_VERY_VERY_SLOW
+        executable, cwd=executable.parent, timeout=TIMEOUT_ULTRA_VERY_SLOW
     )
     result.stdout.fnmatch_lines(expected)
