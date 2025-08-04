@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/module.py: 87.01%</title>
+    <title>Coverage for cx_Freeze/module.py: 86.44%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/module.py</b>:
-            <span class="pc_cov">87.01%</span>
+            <span class="pc_cov">86.44%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">354 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">308<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">46<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">306<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">48<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">15<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_setupwriter_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.0">coverage.py v7.10.0</a>,
-            created at 2025-08-02 22:33 +0000
+            created at 2025-08-04 15:24 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -155,7 +155,7 @@
     <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">            <span class="key">for</span> <span class="nam">source</span> <span class="key">in</span> <span class="nam">source_path</span><span class="op">.</span><span class="nam">rglob</span><span class="op">(</span><span class="str">"*"</span><span class="op">)</span><span class="op">:</span>  <span class="com"># type: Path</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">                <span class="nam">target</span> <span class="op">=</span> <span class="nam">target_path</span> <span class="op">/</span> <span class="nam">source</span><span class="op">.</span><span class="nam">relative_to</span><span class="op">(</span><span class="nam">source_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">                <span class="key">if</span> <span class="nam">source</span><span class="op">.</span><span class="nam">is_dir</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">                    <span class="nam">target</span><span class="op">.</span><span class="nam">mkdir</span><span class="op">(</span><span class="nam">exist_ok</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">                    <span class="nam">target</span><span class="op">.</span><span class="nam">mkdir</span><span class="op">(</span><span class="nam">exist_ok</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">                <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">                    <span class="nam">target</span><span class="op">.</span><span class="nam">write_bytes</span><span class="op">(</span><span class="nam">source</span><span class="op">.</span><span class="nam">read_bytes</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">        <span class="key">elif</span> <span class="nam">source_path</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -445,7 +445,7 @@
     <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">                <span class="com"># the module is in file system, so consider</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t">                <span class="com"># mirroring the binary files to the lib directory</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">                <span class="key">for</span> <span class="nam">source</span> <span class="key">in</span> <span class="nam">distribution</span><span class="op">.</span><span class="nam">binary_files</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">                <span class="key">for</span> <span class="nam">source</span> <span class="key">in</span> <span class="nam">distribution</span><span class="op">.</span><span class="nam">binary_files</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t">                    <span class="nam">target</span> <span class="op">=</span> <span class="fst">f"</span><span class="fst">lib/</span><span class="op">{</span><span class="nam">source</span><span class="op">.</span><span class="nam">as_posix</span><span class="op">(</span><span class="op">)</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">                    <span class="key">yield</span> <span class="nam">source</span><span class="op">.</span><span class="nam">locate</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="nam">target</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
@@ -634,7 +634,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_setupwriter_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.0">coverage.py v7.10.0</a>,
-            created at 2025-08-02 22:33 +0000
+            created at 2025-08-04 15:24 +0000
         </p>
     </div>
 </footer>
