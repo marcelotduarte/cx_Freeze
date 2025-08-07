@@ -30,7 +30,9 @@ __all__ = ["bdist_appimage"]
 
 ARCH = platform.machine()
 APPIMAGETOOL_RELEASES_URL = "https://github.com/AppImage/appimagetool/releases"
+TYPE2RUNTIME_RELEASES_URL = "https://github.com/AppImage/type2-runtime/releases"
 APPIMAGETOOL_DOWNLOAD = f"download/continuous/appimagetool-{ARCH}.AppImage"
+TYPE2RUNTIME_DOWNLOAD = f"download/continuous/runtime-{ARCH}"
 APPIMAGETOOL_CACHE = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
 
 
@@ -44,6 +46,11 @@ class bdist_appimage(Command):
             None,
             "path to appimagetool (formerly AppImageKit) "
             f'[default: "{APPIMAGETOOL_CACHE}"]',
+        ),
+        (
+            "runtime=",
+            None,
+            "path to type2 runtime (optional)",
         ),
         (
             "bdist-base=",
@@ -76,6 +83,7 @@ class bdist_appimage(Command):
 
     def initialize_options(self) -> None:
         self.appimagekit = None
+        self.runtime = None
 
         self.bdist_base = None
         self.build_dir = None
@@ -145,31 +153,39 @@ class bdist_appimage(Command):
             if build_exe:
                 build_exe.silent = self.silent
 
-        # validate or download appimagekit
-        self._get_appimagekit()
-
-    def _get_appimagekit(self) -> None:
-        """Fetch appimagetool from the web if not available locally."""
-        appimagekit = os.path.expanduser(
-            self.appimagekit or APPIMAGETOOL_CACHE
+        # validate or download appimagetool
+        self.appimagekit = self._get_file(
+            self.appimagekit or APPIMAGETOOL_CACHE,
+            APPIMAGETOOL_RELEASES_URL,
+            APPIMAGETOOL_DOWNLOAD
         )
-        appimagekit_dir = os.path.dirname(appimagekit)
-        self.mkpath(appimagekit_dir)
-        with FileLock(appimagekit + ".lock"):
-            if not os.path.exists(appimagekit):
-                self.announce(
-                    "download and install appimagetool from "
-                    f"{APPIMAGETOOL_RELEASES_URL}",
-                    INFO,
-                )
-                urlretrieve(  # noqa: S310
-                    os.path.join(
-                        APPIMAGETOOL_RELEASES_URL, APPIMAGETOOL_DOWNLOAD
-                    ),
-                    appimagekit,
-                )
-                os.chmod(appimagekit, stat.S_IRWXU)
-        self.appimagekit = appimagekit
+
+        # optionally, download type2 runtime
+        self.runtime = self._get_file(
+            self.runtime,
+            TYPE2RUNTIME_RELEASES_URL,
+            TYPE2RUNTIME_DOWNLOAD
+        )
+
+    def _get_file(self, file_path: str | None, releases_url: str, download_path: str) -> str | None:
+        """Fetch appimagetool or (optional) runtime from the web if not available locally."""
+        if file_path is not None:
+            file_path = os.path.expanduser(file_path)
+            self.mkpath(os.path.dirname(file_path))
+            with FileLock(file_path + ".lock"):
+                if not os.path.exists(file_path):
+                    self.announce(
+                        f"download and install {os.path.basename(download_path)}"
+                        f" from {releases_url}",
+                        INFO,
+                    )
+                    urlretrieve(  # noqa: S310
+                        os.path.join(releases_url, download_path),
+                        file_path,
+                    )
+                    if os.path.splitext(file_path)[1] == ".AppImage":
+                        os.chmod(file_path, stat.S_IRWXU)
+        return file_path
 
     def run(self) -> None:
         # Create the application bundle
@@ -263,7 +279,10 @@ class bdist_appimage(Command):
 
         # Build an AppImage from an AppDir
         os.environ["ARCH"] = ARCH
-        cmd = [self.appimagekit, "--no-appstream", appdir, output]
+        cmd = [self.appimagekit]
+        if self.runtime is not None:
+            cmd.extend(["--runtime-file", self.runtime])
+        cmd.extend(["--no-appstream", appdir, output])
         if find_library("fuse") is None:  # libfuse.so.2 is not found
             cmd.insert(1, "--appimage-extract-and-run")
         with FileLock(self.appimagekit + ".lock"):

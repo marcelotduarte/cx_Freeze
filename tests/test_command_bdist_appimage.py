@@ -52,6 +52,19 @@ def test_bdist_appimage_download_appimagetool() -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_appimage_download_runtime(tmp_path) -> None:
+    """Test bdist_appimage for "offline" builds."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_appimage(dist)
+    # use locally installed appimagetool and runtime
+    cmd.appimagekit = str(tmp_path / "appimagetool.AppImage")
+    cmd.runtime = str(tmp_path / "type2_runtime")
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+    assert cmd.fullname == "foo-0.0"
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_appimage_target_name() -> None:
     """Test the bdist_appimage with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
