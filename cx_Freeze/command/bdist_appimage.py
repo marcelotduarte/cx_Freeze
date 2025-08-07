@@ -30,7 +30,9 @@ __all__ = ["bdist_appimage"]
 
 ARCH = platform.machine()
 APPIMAGETOOL_RELEASES_URL = "https://github.com/AppImage/appimagetool/releases"
-TYPE2RUNTIME_RELEASES_URL = "https://github.com/AppImage/type2-runtime/releases"
+TYPE2RUNTIME_RELEASES_URL = (
+    "https://github.com/AppImage/type2-runtime/releases"
+)
 APPIMAGETOOL_DOWNLOAD = f"download/continuous/appimagetool-{ARCH}.AppImage"
 TYPE2RUNTIME_DOWNLOAD = f"download/continuous/runtime-{ARCH}"
 APPIMAGETOOL_CACHE = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
@@ -157,17 +159,17 @@ class bdist_appimage(Command):
         self.appimagekit = self._get_file(
             self.appimagekit or APPIMAGETOOL_CACHE,
             APPIMAGETOOL_RELEASES_URL,
-            APPIMAGETOOL_DOWNLOAD
+            APPIMAGETOOL_DOWNLOAD,
         )
 
         # optionally, download type2 runtime
         self.runtime = self._get_file(
-            self.runtime,
-            TYPE2RUNTIME_RELEASES_URL,
-            TYPE2RUNTIME_DOWNLOAD
+            self.runtime, TYPE2RUNTIME_RELEASES_URL, TYPE2RUNTIME_DOWNLOAD
         )
 
-    def _get_file(self, file_path: str | None, releases_url: str, download_path: str) -> str | None:
+    def _get_file(
+        self, file_path: str | None, releases_url: str, download_path: str
+    ) -> str | None:
         """Fetch appimagetool or (optional) runtime from the web if not available locally."""
         if file_path is not None:
             file_path = os.path.expanduser(file_path)
