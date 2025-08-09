@@ -71,7 +71,7 @@ tests:
 	cp -a samples $(COV_TMPDIR)/
 	cp -a tests $(COV_TMPDIR)/
 	cp -a wheelhouse $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest --dist=loadfile -nauto --no-cov -v || true
+	cd $(COV_TMPDIR) && pytest --dist=loadfile -nauto -v || true
 
 .PHONY: cov
 cov:
@@ -82,8 +82,8 @@ cov:
 	cp -a samples $(COV_TMPDIR)/
 	cp -a tests $(COV_TMPDIR)/
 	cp -a wheelhouse $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest --dist=loadfile --durations=20 -nauto --cov="cx_Freeze" || true
-	coverage combine -a $(COV_TMPDIR)/.coverage
+	cd $(COV_TMPDIR) && coverage run ||true
+	coverage combine --keep -a $(COV_TMPDIR)/
 	coverage report
 	coverage html
 
