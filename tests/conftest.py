@@ -12,7 +12,7 @@ import sys
 import sysconfig
 from contextlib import suppress
 from pathlib import Path
-from shutil import copytree, ignore_patterns, rmtree, which
+from shutil import copyfile, copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -216,6 +216,11 @@ class TempPackage:
         )
         print(process.stdout)
         print(process.stderr)
+        if os.environ.get("COVERAGE_RUN", "") == "true":
+            for src in Path(cwd).glob(".coverage*"):
+                dst = self.system_path / src.name
+                if src != dst:
+                    copyfile(src, dst)
         return pytest.RunResult(
             process.returncode,
             process.stdout.splitlines(),
