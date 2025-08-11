@@ -12,6 +12,109 @@ Release notes
 8.x releases
 ############
 
+Version 8.4 (Aug 11)
+--------------------
+#)  Bump version: 8.4.0-dev.0 → 8.4.0 [ci skip] (:pr:`3066`) :user:`marcelotduarte`
+#)  chore: replace pytest-cov with pure coverage with patch subprocess support (:pr:`3065`) :user:`marcelotduarte`
+#)  build(deps): bump actions/download-artifact from 4 to 5 (:pr:`3062`) :user:`dependabot`
+#)  build(deps): bump coverage from 7.10.1 to 7.10.2 (:pr:`3061`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3060`) :user:`pre-commit-ci`
+#)  build(deps): bump coverage from 7.9.2 to 7.10.1 (:pr:`3057`) :user:`dependabot`
+#)  tests: improve venv tests and add support for pip installer (:pr:`3059`) :user:`marcelotduarte`
+#)  hooks: fix numpy+mkl on conda [ci skip] (:pr:`3058`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3056`) :user:`pre-commit-ci`
+#)  hooks: fix pyav on conda windows [ci skip] (:pr:`3054`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 1.2.0 to 1.2.1 (:pr:`3053`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3052`) :user:`pre-commit-ci`
+#)  tests: make ortools tests pass on conda (:pr:`3051`) :user:`marcelotduarte`
+#)  chore: improve dev tools (:pr:`3050`) :user:`marcelotduarte`
+#)  module: fix support for dylibs [macos] (:pr:`3046`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3044`) :user:`pre-commit-ci`
+#)  hooks: support scikit-learn 1.7, optimization, add test (:pr:`3043`) :user:`marcelotduarte`
+#)  hooks: optimize scipy (partially) (:pr:`3042`) :user:`marcelotduarte`
+#)  chore: use sphinx-issues (:pr:`3041`) :user:`marcelotduarte`
+#)  fix: use the latest manylinux image to fix sqlite3 issue on linux (:pr:`3040`) :user:`marcelotduarte`
+#)  finder: detect editable packages (Python 3.10+ only) (:pr:`3036`) :user:`frmdstryr`
+#)  tests: improve conftest to better capture stderr (:pr:`3039`) :user:`marcelotduarte`
+#)  tests: improvements using pytest.RunResult (:pr:`3037`) :user:`marcelotduarte`
+#)  hooks: more optimization to numpy hooks, separated test for mkl (:pr:`3035`) :user:`marcelotduarte`
+#)  hooks: update pyproj, add test (:pr:`3034`) :user:`marcelotduarte`
+#)  chore: tweak docstring [ci skip] (:pr:`3033`) :user:`marcelotduarte`
+#)  hooks: optimize pyzmq, add test (:pr:`3032`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.9.1 to 7.9.2 (:pr:`3031`) :user:`dependabot`
+#)  build(deps): bump pytest-xdist from 3.7.0 to 3.8.0 (:pr:`3030`) :user:`dependabot`
+#)  module: cleanup (:pr:`3029`) :user:`marcelotduarte`
+#)  hooks: convert qt hooks to use ModuleHook (:pr:`3028`) :user:`marcelotduarte`
+#)  fix: build sdist and wheel issues (:pr:`3027`) :user:`marcelotduarte`
+#)  hooks: convert a bunch of hooks to use ModuleHook - part 2 (:pr:`3026`) :user:`marcelotduarte`
+#)  tests: add test for PR 2998 (:pr:`3025`) :user:`marcelotduarte`
+#)  startup: Fixed crash when sys.path contains non-str type (:pr:`2998`) :user:`68433151+1ZUMIKun`
+#)  hooks: convert a bunch of hooks to use ModuleHook (:pr:`3024`) :user:`marcelotduarte`
+#)  bases: update base executables and util module [ci skip] (:pr:`3023`) :user:`marcelotduarte`
+#)  hooks: optimize pandas (partially) (:pr:`3022`) :user:`marcelotduarte`
+#)  hooks: optimize matplotlib, fonttools, pyparsing and others (:pr:`3021`) :user:`marcelotduarte`
+#)  hooks: update global_names for some modules, especially numpy (:pr:`3020`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3019`) :user:`pre-commit-ci`
+#)  hooks: support for scipy 1.16 (:pr:`3018`) :user:`marcelotduarte`
+#)  tests: small revision [ci skip] (:pr:`3017`) :user:`marcelotduarte`
+#)  tests: tweak grammar [ci skip] (:pr:`3016`) :user:`marcelotduarte`
+#)  tests: improve conftest - add install_dependencies (:pr:`3015`) :user:`marcelotduarte`
+#)  tests: sets a longer timeout for slower tests in conda [ci skip] (:pr:`3014`) :user:`marcelotduarte`
+#)  hooks: update stub for qt [ci skip] (:pr:`3013`) :user:`marcelotduarte`
+#)  tests: enable a minimal test for multiprocess hook (:pr:`3011`) :user:`marcelotduarte`
+#)  hooks: multiprocessing and multiprocess refactored (:pr:`3010`) :user:`marcelotduarte`
+#)  hooks: multiprocessing - fix Python 3.13.4+ bug introduced by gh-80334 on Windows (:pr:`3009`) :user:`marcelotduarte`
+#)  bases: update base executables and util module [ci skip] (:pr:`3008`) :user:`marcelotduarte`
+#)  chore: fix ruff D104, E501 (partial) [ci skip] (:pr:`3007`) :user:`marcelotduarte`
+#)  build(deps): bump pytest from 8.4.0 to 8.4.1 (:pr:`3006`) :user:`dependabot`
+#)  tests: reduce fixture setup phase and reduce disk usage (:pr:`3005`) :user:`marcelotduarte`
+#)  build(deps): bump ruff to 0.12.0 and revision of rules [ci skip] (:pr:`3004`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.9.0 to 7.9.1 (:pr:`3003`) :user:`dependabot`
+#)  build(deps): bump pytest-cov from 6.1.1 to 6.2.1 (:pr:`3002`) :user:`dependabot`
+#)  build(deps): bump coverage from 7.8.2 to 7.9.0 (:pr:`3001`) :user:`dependabot`
+#)  build(deps): update patchelf requirements to >=0.14,<0.18 [ci skip] (:pr:`3000`) :user:`marcelotduarte`
+#)  tests: implement a venv to tests hooks (:pr:`2997`) :user:`marcelotduarte`
+#)  build-wheel: fix regression [ci skip] (:pr:`2999`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 1.1.4 to 1.2.0 (:pr:`2996`) :user:`dependabot`
+#)  tests: disable slow tests on conda-forge [ci skip] (:pr:`2994`) :user:`marcelotduarte`
+#)  tests: fix tests using lief and pymupdf on conda-forge [ci skip] (:pr:`2993`) :user:`marcelotduarte`
+#)  chore: string format (cosmetic) [ci skip] (:pr:`2992`) :user:`marcelotduarte`
+#)  chore: use shellcheck (:pr:`2991`) :user:`marcelotduarte`
+#)  chore: use prettier [ci skip] (:pr:`2990`) :user:`marcelotduarte`
+#)  tests: fix test on conda windows and use libmanba-solver [ci skip] (:pr:`2989`) :user:`marcelotduarte`
+#)  chore: add support to install tools/requirements on conda (:pr:`2988`) :user:`marcelotduarte`
+#)  tests: add support to test on conda build [ci skip] (:pr:`2987`) :user:`marcelotduarte`
+#)  hooks: fix pymupdf to work in conda [ci skip] (:pr:`2986`) :user:`marcelotduarte`
+#)  sources: upgrade pythoncapi_compat.h [ci skip] (:pr:`2985`) :user:`marcelotduarte`
+#)  build(deps): bump pytest from 8.3.5 to 8.4.0 (:pr:`2984`) :user:`dependabot`
+#)  tests: pymupdf is broken in mingw [ci skip] (:pr:`2983`) :user:`marcelotduarte`
+#)  tests: pymupdf not supported in mingw [ci skip] (:pr:`2982`) :user:`marcelotduarte`
+#)  build(deps): update lief requirement from <=0.16.5,>=0.15.1 to >=0.15.1,<=0.16.6 (:pr:`2981`) :user:`marcelotduarte`
+#)  build(deps): bump pytest-xdist from 3.6.1 to 3.7.0 (:pr:`2979`) :user:`dependabot`
+#)  build(deps): update setuptools requirement from <=80.8.0,>=65.6.3 to >=65.6.3,<=80.9.0 (:pr:`2978`) :user:`dependabot`
+#)  hooks: fix pymupdf - add tests (:pr:`2977`) :user:`marcelotduarte`
+#)  freeser: Fix errors with invalid file dates in zipfile (:pr:`2975`) :user:`108782125+DamitusThyYeetus123`
+#)  hooks: after #2962, adjust pyside2 and pyside6 (:pr:`2976`) :user:`marcelotduarte`
+#)  build(deps): bump pytest-mock from 3.14.0 to 3.14.1 (:pr:`2974`) :user:`dependabot`
+#)  bases: update base executables and util module [ci skip] (:pr:`2973`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.8.1 to 7.8.2 (:pr:`2972`) :user:`dependabot`
+#)  chore: update pythoncapi_compat (:pr:`2971`) :user:`marcelotduarte`
+#)  module: A rewrite of how dynamic libraries distributed with a package are frozen (:pr:`2962`) :user:`marcelotduarte`
+#)  tests: add matplotlib (:pr:`2969`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 1.1.3 to 1.1.4 (:pr:`2968`) :user:`dependabot`
+#)  build(deps): bump coverage from 7.8.0 to 7.8.1 (:pr:`2967`) :user:`dependabot`
+#)  build(deps): update setuptools requirement from <=80.7.1,>=65.6.3 to >=65.6.3,<=80.8.0 (:pr:`2966`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`2965`) :user:`pre-commit-ci`
+#)  build(deps-dev): bump bump-my-version from 1.1.2 to 1.1.3 (:pr:`2964`) :user:`dependabot`
+#)  hooks: fix shapely in linux - add tests (:pr:`2963`) :user:`marcelotduarte`
+#)  bdist_mac: Update include_frameworks copy to preserve symlinks (:pr:`2959`) :user:`exiva`
+#)  build(deps): update setuptools requirement from <=80.4.0,>=65.6.3 to >=65.6.3,<=80.7.1 (:pr:`2960`) :user:`dependabot`
+#)  build(deps): bump pluggy from 1.5.0 to 1.6.0 (:pr:`2961`) :user:`dependabot`
+#)  tests: add one more test for dep_parser module (:pr:`2958`) :user:`marcelotduarte`
+#)  test: module.DistributionCache test conversion of egg_info to dist_info (:pr:`2957`) :user:`marcelotduarte`
+#)  tests: skip msvcr tests in mingw and macos [ci skip] (:pr:`2956`) :user:`marcelotduarte`
+#)  tests: add winmsvcr_repack tests (:pr:`2955`) :user:`marcelotduarte`
+
 Version 8.3 (May 11)
 --------------------
 #)  Bump version: 8.3.0-dev.0 → 8.3.0 [ci skip] (:pr:`2953`) :user:`marcelotduarte`
