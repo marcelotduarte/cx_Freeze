@@ -1,12 +1,10 @@
-"""Tests for hooks for qt"""
+"""Tests for hooks for qt."""
 
 from __future__ import annotations
 
 import pytest
 
-from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
-
-from ..conftest import IS_CONDA
+from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
 
 TIMEOUT = 10
 
@@ -53,6 +51,7 @@ pyproject.toml
 
 
 def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
+    """Look for any duplicate libs files in the build lib dir."""
     if IS_MINGW or IS_WINDOWS:
         extension = "*.dll"
     elif IS_MACOS:
@@ -74,10 +73,10 @@ def test_qt(tmp_package, qt_impl) -> None:
     """Test if anyio is working correctly."""
     tmp_package.create(
         SOURCE_QT
-        % dict(
-            qt_mod=qt_impl,
-            qt_dep=qt_impl.lower().rstrip("456") if IS_CONDA else qt_impl,
-        )
+        % {
+            "qt_mod": qt_impl,
+            "qt_dep": qt_impl.lower().rstrip("456") if IS_CONDA else qt_impl,
+        }
     )
     tmp_package.freeze()
 
