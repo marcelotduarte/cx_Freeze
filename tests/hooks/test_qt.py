@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
-from ..conftest import IS_CONDA
-
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
+
+from ..conftest import IS_CONDA
 
 TIMEOUT = 10
 
