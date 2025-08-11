@@ -94,7 +94,7 @@ cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
 
 [project.urls]
 Home = "https://marcelotduarte.github.io/cx_Freeze"
-Changelog = "https://cx-freeze.readthedocs.io/en/stable/releasenotes.html"
+Changelog = "https://github.com/marcelotduarte/cx_Freeze/blob/main/CHANGELOG.md"
 Documentation = "https://cx-freeze.readthedocs.io"
 Source = "https://github.com/marcelotduarte/cx_Freeze"
 Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
@@ -117,7 +117,7 @@ target-version = ["py39"]
 
 [tool.bumpversion]
 commit = true
-current_version = "8.4.0-dev.0"
+current_version = "8.4.0"
 message = "Bump version: {current_version} → {new_version} [ci skip]"
 parse = """(?x)
     (?P<major>0|[1-9]\\d*)\\.

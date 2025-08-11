@@ -14,30 +14,6 @@ It is cross-platform and should work on any platform that Python runs on.
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=stable)](https://cx-freeze.readthedocs.io/en/stable/?badge=stable)
 
-# What's New v8.3:
-
-- Experimental support for Python 3.11 to 3.13 on Windows ARM64 (win_arm64).
-- Bug fixes, hooks, and more tests.
-
-# What's New v8.2:
-
-- Make MSI checkbox to "launch on finish" optional.
-- Bug fixes, hooks, and more tests.
-
-# What's New v8.1:
-
-- Add "launch on finish" checkbox to the MSI installer.
-- Bug fixes and improvements (including hook additions and enhancements).
-
-# What's New v8.0:
-
-- Python 3.13 support.
-- Python 3.13 free-threaded support for Linux and macOS.
-- Download and extract the [MSVC Redistributable files](https://cx-freeze.readthedocs.io/en/stable/faq.html#microsoft-visual-c-redistributable-package).
-- Implement bases using PEP587 - Python Initialization Configuration.
-- Drop Python 3.8 support.
-- Bug fixes and improvements (including hook additions and enhancements).
-
 # Installation
 
 Choose the Python package manager according to your system. See how the
@@ -68,10 +44,13 @@ Please check the
 [installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
 for more information.
 
+# Changelog
+
+[Changelog](https://github.com/marcelotduarte/cx_Freeze/blob/main/CHANGELOG.md)
+
 # Documentation
 
-The official documentation is available
-[here](https://cx-freeze.readthedocs.io).
+[Documentation](https://cx-freeze.readthedocs.io).
 
 If you need help you can also ask on the
 [discussion](https://github.com/marcelotduarte/cx_Freeze/discussions) channel.
