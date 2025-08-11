@@ -30,12 +30,10 @@ __all__ = ["bdist_appimage"]
 
 ARCH = platform.machine()
 APPIMAGETOOL_RELEASES_URL = "https://github.com/AppImage/appimagetool/releases"
-TYPE2RUNTIME_RELEASES_URL = (
-    "https://github.com/AppImage/type2-runtime/releases"
-)
 APPIMAGETOOL_DOWNLOAD = f"download/continuous/appimagetool-{ARCH}.AppImage"
-TYPE2RUNTIME_DOWNLOAD = f"download/continuous/runtime-{ARCH}"
 APPIMAGETOOL_CACHE = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
+RUNTIME_RELEASES_URL = "https://github.com/AppImage/type2-runtime/releases"
+RUNTIME_DOWNLOAD = f"download/continuous/runtime-{ARCH}"
 
 
 class bdist_appimage(Command):
@@ -50,7 +48,7 @@ class bdist_appimage(Command):
             f'[default: "{APPIMAGETOOL_CACHE}"]',
         ),
         (
-            "runtime=",
+            "runtime-file=",
             None,
             "path to type2 runtime (optional)",
         ),
@@ -85,7 +83,7 @@ class bdist_appimage(Command):
 
     def initialize_options(self) -> None:
         self.appimagekit = None
-        self.runtime = None
+        self.runtime_file = None
 
         self.bdist_base = None
         self.build_dir = None
@@ -163,8 +161,8 @@ class bdist_appimage(Command):
         )
 
         # optionally, download type2 runtime
-        self.runtime = self._get_file(
-            self.runtime, TYPE2RUNTIME_RELEASES_URL, TYPE2RUNTIME_DOWNLOAD
+        self.runtime_file = self._get_file(
+            self.runtime_file, RUNTIME_RELEASES_URL, RUNTIME_DOWNLOAD
         )
 
     def _get_file(
@@ -282,11 +280,11 @@ class bdist_appimage(Command):
         # Build an AppImage from an AppDir
         os.environ["ARCH"] = ARCH
         cmd = [self.appimagekit]
-        if self.runtime is not None:
-            cmd.extend(["--runtime-file", self.runtime])
-        cmd.extend(["--no-appstream", appdir, output])
         if find_library("fuse") is None:  # libfuse.so.2 is not found
-            cmd.insert(1, "--appimage-extract-and-run")
+            cmd.append("--appimage-extract-and-run")
+        if self.runtime_file is not None:
+            cmd.extend(["--runtime-file", self.runtime_file])
+        cmd.extend(["--no-appstream", appdir, output])
         with FileLock(self.appimagekit + ".lock"):
             self.spawn(cmd, search_path=0)
         if not os.path.exists(output):

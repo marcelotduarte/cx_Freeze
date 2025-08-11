@@ -58,7 +58,7 @@ def test_bdist_appimage_download_runtime(tmp_path) -> None:
     cmd = bdist_appimage(dist)
     # use locally installed appimagetool and runtime
     cmd.appimagekit = str(tmp_path / "appimagetool.AppImage")
-    cmd.runtime = str(tmp_path / "type2_runtime")
+    cmd.runtime_file = str(tmp_path / "type2_runtime")
     cmd.finalize_options()
     cmd.ensure_finalized()
     assert cmd.fullname == "foo-0.0"
