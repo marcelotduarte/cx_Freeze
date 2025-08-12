@@ -4,18 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 
 TIMEOUT = 10
-
-QT_IMPLS = []
-for qt_impl in ("PyQt6", "PySide6", "PyQt5", "PySide2"):
-    try:
-        __import__(qt_impl)
-        QT_IMPLS.append(qt_impl)
-    except ImportError:
-        pass
-
 
 SOURCE_QT = """
 test_qt.py
@@ -39,7 +30,7 @@ pyproject.toml
     [project]
     name = "test_qt"
     version = "0.1.2.3"
-    dependencies = ["%(qt_dep)s"]
+    dependencies = ["%(qt_mod)s"]
 
     [tool.cxfreeze]
     executables = ["test_qt.py"]
@@ -67,17 +58,19 @@ def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
 
 
 @pytest.mark.venv
-@pytest.mark.skipif(not QT_IMPLS, reason="No Qt libraries installed")
-@pytest.mark.parametrize("qt_impl", QT_IMPLS)
+@pytest.mark.parametrize("qt_impl", ["PyQt6", "PySide6", "PyQt5", "PySide2"])
 def test_qt(tmp_package, qt_impl) -> None:
-    """Test if anyio is working correctly."""
-    tmp_package.create(
-        SOURCE_QT
-        % {
-            "qt_mod": qt_impl,
-            "qt_dep": qt_impl.lower().rstrip("456") if IS_CONDA else qt_impl,
+    """Test if qt is working correctly."""
+    tmp_package.map_package_to_conda.update(
+        {
+            "PyQt6": "-c anaconda pyqt=6",
+            "PyQt5": "-c anaconda pyqt=5",
+            "PySide2": "pyside2",
+            "PySide6": "pyside6",
         }
     )
+    tmp_package.map_package_to_mingw[qt_impl] = qt_impl.lower()
+    tmp_package.create(SOURCE_QT % {"qt_mod": qt_impl})
     tmp_package.freeze()
 
     # Test frozen app
