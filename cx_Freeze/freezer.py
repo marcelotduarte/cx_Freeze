@@ -1386,7 +1386,11 @@ class LinuxFreezer(Freezer, ELFParser):
         lib_files = self.finder.lib_files
         fix_rpath = set()
         fix_needed = {}
-        conda_prefix = Path(os.environ["CONDA_PREFIX"]) if IS_CONDA else None
+        conda_prefix = (
+            Path(os.environ["CONDA_PREFIX"])
+            if "CONDA_PREFIX" in os.environ
+            else None
+        )
         site_packages = next(
             (path for path in self.path if path.endswith("site-packages")),
             None,
