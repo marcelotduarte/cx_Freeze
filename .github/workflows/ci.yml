@@ -70,7 +70,7 @@ jobs:
         run: sudo apt-get install -qy alien fakeroot rpm
 
       - name: Fetch only the required files for testing
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           sparse-checkout: |
             pyproject.toml
@@ -120,7 +120,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download coverage data
         uses: actions/download-artifact@v5
