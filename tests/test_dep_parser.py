@@ -111,8 +111,7 @@ def test_verify_patchelf_older(tmp_package) -> None:
     tmp_package.create(SOURCE)
     tmp_package.install("patchelf<0.14")
 
-    tmp_bin = tmp_package.prefix / "bin"
-
+    tmp_bin = tmp_package.venv_prefix / "bin"
     tmp_package.monkeypatch.setattr("shutil.which", lambda cmd: tmp_bin / cmd)
     msg = r"patchelf\s+(\d+(.\d+)?)\s+found."
     with pytest.raises(ValueError, match=msg):
