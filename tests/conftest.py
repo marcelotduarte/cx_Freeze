@@ -173,7 +173,10 @@ class TempPackage:
         if python_path:
             if "build_exe" not in command and "build" in command:
                 command.append("build_exe")
-            build_exe = command.index("build_exe")
+            try:
+                build_exe = command.index("build_exe")
+            except ValueError:
+                build_exe = len(command)
             if build_exe > 0:
                 command.insert(build_exe + 1, f"--include-path={python_path}")
 
