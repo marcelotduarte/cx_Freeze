@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import site
 import sys
 from pkgutil import resolve_name
 from typing import ClassVar
@@ -260,7 +261,13 @@ class build_exe(Command):
             self.path = self.path.replace(os.pathsep, ",")
         include_path = self.include_path
         if include_path:
-            self.path = include_path + normalize_to_list(self.path or sys.path)
+            sys_path = sys.path.copy()
+            cur_path = normalize_to_list(self.path or sys_path)
+            known_paths = set(cur_path)
+            for sitedir in include_path:
+                site.addsitedir(sitedir, known_paths)
+            self.path = list(known_paths - set(cur_path)) + cur_path
+            sys.path = sys.path
 
         # the degree of silencing, set from either the silent or silent-level
         # option, as appropriate
