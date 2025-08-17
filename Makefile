@@ -70,7 +70,6 @@ tests:
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples $(COV_TMPDIR)/
 	cp -a tests $(COV_TMPDIR)/
-	cp -a wheelhouse $(COV_TMPDIR)/
 	cd $(COV_TMPDIR) && pytest --dist=loadfile -nauto -v || true
 
 .PHONY: cov
@@ -81,7 +80,6 @@ cov:
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples $(COV_TMPDIR)/
 	cp -a tests $(COV_TMPDIR)/
-	cp -a wheelhouse $(COV_TMPDIR)/
 	cd $(COV_TMPDIR) && coverage run ||true
 	coverage combine --keep --quiet -a $(COV_TMPDIR)/
 	coverage report

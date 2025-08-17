@@ -147,7 +147,7 @@ class TempPackage:
 
     def freeze(
         self,
-        command: Sequence | Path | None = None,
+        command: Sequence | None = None,
         cwd: str | Path | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
@@ -165,8 +165,17 @@ class TempPackage:
                 command = "cxfreeze build"
             else:
                 command = "python setup.py build"
-        elif isinstance(command, Path):
-            command = [os.fspath(command)]
+        command = (
+            command.split() if isinstance(command, str) else list(command)
+        )
+
+        python_path = env and env.get("PYTHONPATH")  # pop
+        if python_path:
+            if "build_exe" not in command and "build" in command:
+                command.append("build_exe")
+            build_exe = command.index("build_exe")
+            if build_exe > 0:
+                command.insert(build_exe + 1, f"--include-path={python_path}")
 
         with self._lock:
             return self.run(command, cwd=cwd, env=env, timeout=timeout)
