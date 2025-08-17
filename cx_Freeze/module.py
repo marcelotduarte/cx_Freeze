@@ -370,10 +370,9 @@ class Module:
 
         module_dir = self.file.parent
         for name in self.libs_dirs():
-            source_dir = module_dir.parent / name
-            target_dir = "lib" / name
-            for source in source_dir.iterdir():
-                yield source, f"{target_dir}/{source.name}"
+            for source in module_dir.parent.joinpath(name).iterdir():
+                target = f"lib/{name}/{source.name}"
+                yield source, target
 
     def libs_dirs(self) -> list[str]:
         """Return the directories where binary files of the package are
