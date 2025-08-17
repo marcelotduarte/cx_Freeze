@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/winversioninfo.py: 94.79%</title>
+    <title>Coverage for cx_Freeze/winversioninfo.py: 97.16%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/winversioninfo.py</b>:
-            <span class="pc_cov">94.79%</span>
+            <span class="pc_cov">97.16%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">211 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">200<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">11<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">205<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">6<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="index.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
-            created at 2025-08-17 07:15 +0000
+            created at 2025-08-17 08:35 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -122,7 +122,7 @@
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t"><span class="com"># set CX_FREEZE_STAMP=pywin32</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t"><span class="com"># pip install -U pywin32</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t"><span class="key">if</span> <span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="str">"CX_FREEZE_STAMP"</span><span class="op">,</span> <span class="str">""</span><span class="op">)</span> <span class="op">==</span> <span class="str">"pywin32"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">    <span class="nam">CX_FREEZE_STAMP</span> <span class="op">=</span> <span class="str">"pywin32"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">    <span class="nam">CX_FREEZE_STAMP</span> <span class="op">=</span> <span class="str">"pywin32"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t"><span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="nam">CX_FREEZE_STAMP</span> <span class="op">=</span> <span class="str">"internal"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -306,9 +306,9 @@
     <p class="run"><span class="n"><a id="t224" href="#t224">224</a></span><span class="t">                <span class="nam">msg</span> <span class="op">=</span> <span class="str">"install pywin32 extension first"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t225" href="#t225">225</a></span><span class="t">                <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span> <span class="key">from</span> <span class="nam">exc</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t226" href="#t226">226</a></span><span class="t">            <span class="com"># comments length must be limited to 15kb (uses WORD='h')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">comments</span> <span class="op">=</span> <span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">comments</span> <span class="key">or</span> <span class="str">""</span><span class="op">)</span><span class="op">[</span><span class="op">:</span> <span class="nam">COMMENTS_MAX_LEN</span> <span class="op">//</span> <span class="num">2</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t">            <span class="nam">version_stamp</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">fspath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">,</span> <span class="nam">self</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t227" href="#t227">227</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">comments</span> <span class="op">=</span> <span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">comments</span> <span class="key">or</span> <span class="str">""</span><span class="op">)</span><span class="op">[</span><span class="op">:</span> <span class="nam">COMMENTS_MAX_LEN</span> <span class="op">//</span> <span class="num">2</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t228" href="#t228">228</a></span><span class="t">            <span class="nam">version_stamp</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">fspath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">,</span> <span class="nam">self</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t229" href="#t229">229</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t230" href="#t230">230</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t231" href="#t231">231</a></span><span class="t">        <span class="com"># internal</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t232" href="#t232">232</a></span><span class="t">        <span class="nam">string_version_info</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">version_info</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -461,7 +461,7 @@
     <p class="pln"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">"__main__"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t">    <span class="com"># simple test</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t">    <span class="nam">main_test</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t">    <span class="nam">main_test</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -471,7 +471,7 @@
             <a class="nav" href="index.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
-            created at 2025-08-17 07:15 +0000
+            created at 2025-08-17 08:35 +0000
         </p>
     </div>
 </footer>
