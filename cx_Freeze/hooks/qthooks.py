@@ -195,11 +195,11 @@ class QtHook(ModuleHook):
         name = _qt_implementation(module)
         variable = "BinariesPath" if IS_WINDOWS else "LibrariesPath"
         if IS_MINGW or IS_WINDOWS:
-            patterns = ["Qt*.dll"]
+            patterns = ["*.dll"]
         else:
-            patterns = ["Qt*.so*"]
+            patterns = ["*.so*"]
             if IS_MACOS:
-                patterns.append("Qt*.dylib")
+                patterns.append("*.dylib")
         for pattern in patterns:
             for source, target in _get_qt_files(name, variable, pattern):
                 finder.lib_files.setdefault(source, target.as_posix())
