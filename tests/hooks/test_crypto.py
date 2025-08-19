@@ -54,7 +54,7 @@ pyproject.toml
 @zip_packages
 def test_argon2(tmp_package, zip_packages) -> None:
     """Test if argon2-cffi is working correctly."""
-    tmp_package.map_package_to_mingw["argon2-cffi"] = "argon2_cffi"
+    tmp_package.map_package_to_mingw["argon2-cffi"] = "python-argon2_cffi"
     tmp_package.create(SOURCE_ARGON2)
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"

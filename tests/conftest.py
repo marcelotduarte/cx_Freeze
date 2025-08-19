@@ -331,8 +331,12 @@ class TempPackage:
             with suppress(KeyError):
                 packages[i] = self.map_package_to_conda[package]
         packages = " ".join(packages)
-        prefix = self.prefix
-        cmd = f"conda install -c conda-forge -S -q -y -p {prefix} {packages}"
+        cmd = f"conda install -S -q -y -p {self.prefix}"
+        if not any(
+            opc for opc in ("-c", "--channel", "::") if opc in packages
+        ):
+            cmd = f"{cmd} -c conda-forge"
+        cmd = f"{cmd} {packages}"
         result = self.run(cmd, cwd=self.system_path)
         if result.ret > 0:
             raise ModuleNotFoundError(packages) from None
@@ -344,8 +348,8 @@ class TempPackage:
             try:
                 package = self.map_package_to_mingw[pkg]
             except KeyError:
-                package = pkg
-            packages[i] = f"{MINGW_PACKAGE_PREFIX}-python-{package}"
+                package = f"python-{pkg}"
+            packages[i] = f"{MINGW_PACKAGE_PREFIX}-{package}"
         packages = " ".join(packages)
         cmd = f"pacman -S --needed --noconfirm --quiet {packages}"
         result = self.run(cmd, cwd=self.system_path)
@@ -528,7 +532,9 @@ class TempPackageVenv(TempPackage):
         # activate the venv
         if self.backend == "mingw":
             # do not use venv in mingw
-            pass
+            self.venv_prefix = self._prefix
+            self.venv_python = self._python
+            self.venv_lock = self._lock
         else:
             # point to the new environment (or reuse an existing one)
             prefix = self._root / f".{self.backend}-{self._name}"
