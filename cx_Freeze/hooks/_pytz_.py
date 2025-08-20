@@ -33,10 +33,20 @@ class Hook(ModuleHook):
             source_path = Path(
                 os.getenv("PYTZ_TZDATADIR", "/usr/share/zoneinfo")
             )
-        if source_path.is_dir():
-            if module.in_file_system == 0:
-                finder.zip_include_files(source_path, "pytz/zoneinfo")
+            if not source_path.is_dir():
                 return
+        code_bytes = module.file.read_bytes()
+        if module.in_file_system == 0:
+            finder.zip_include_files(source_path, "pytz/zoneinfo")
+            # patch source code
+            source = """
+                # cx_Freeze patch start
+                import warnings
+                warnings.filterwarnings("ignore", "pkg_resources")
+                # cx_Freeze patch end
+            """
+            code_bytes = dedent(source).encode() + code_bytes
+        else:
             target_path = "share/zoneinfo"
             finder.include_files(
                 source_path, target_path, copy_dependent_files=False
@@ -58,11 +68,11 @@ class Hook(ModuleHook):
                 )
                 # cx_Freeze patch end
             """
-            code_string = module.file.read_text(encoding="utf_8")
-            module.code = compile(
-                code_string + dedent(source),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
-            )
+            code_bytes += dedent(source).encode()
+        module.code = compile(
+            code_bytes,
+            module.file.as_posix(),
+            "exec",
+            dont_inherit=True,
+            optimize=finder.optimize,
+        )
