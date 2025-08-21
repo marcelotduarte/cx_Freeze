@@ -329,3 +329,56 @@ def test_freezer_zip_filename(
 
     result = tmp_package.run(executable, timeout=10)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
+
+
+SOURCE_WITH_EXTRA_FILES = """
+hello.py
+    import module
+    module.show()
+module/__init__.py
+    def show() -> None:
+        print("Hello from cx_Freeze")
+module/__init__.pyc
+module/hello.pyi
+    def show() -> None:
+        ...
+module/hello.pyx
+    # pyx
+module/hello.pxd
+    # pxd
+module/py.typed
+"""
+
+
+def test_freezer_copy_package_data(tmp_package) -> None:
+    """Test freezer._copy_package_data."""
+    tmp_package.create(SOURCE_WITH_EXTRA_FILES)
+
+    freezer = Freezer(
+        executables=["hello.py"], path=[tmp_package.path, *sys.path]
+    )
+    freezer.freeze()
+
+    executable = tmp_package.executable("hello")
+    assert executable.is_file()
+    result = tmp_package.run(executable, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
+
+    ignore_patterns = [
+        "*.pxd",
+        "*.py",
+        # "*.pyc", # this pattern is not copied by _copy_package_data itself.
+        "*.pyi",
+        "*.pyo",
+        "*.pyx",
+        "__pycache__",
+        "py.typed",
+    ]
+    if not IS_MACOS:
+        ignore_patterns.append(".DS_store")
+    names = [
+        file.name
+        for file in freezer.target_dir.joinpath("lib").rglob("*")
+        if any(filter(file.match, ignore_patterns))
+    ]
+    assert names == []
