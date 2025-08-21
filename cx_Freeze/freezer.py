@@ -252,7 +252,18 @@ class Freezer:
 
     def _copy_package_data(self, module: Module, target_dir: Path) -> None:
         """Copy any non-Python files to the target directory."""
-        ignore_patterns = ("__pycache__", "*.py", "*.pyc", "*.pyo")
+        ignore_patterns = [
+            "*.pxd",
+            "*.py",
+            "*.pyc",
+            "*.pyi",
+            "*.pyo",
+            "*.pyx",
+            "__pycache__",
+            "py.typed",
+        ]
+        if not IS_MACOS:
+            ignore_patterns.append(".DS_store")
 
         def copy_tree(
             source_dir: Path, target_dir: Path, excludes: set[str]
