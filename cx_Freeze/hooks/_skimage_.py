@@ -58,12 +58,12 @@ class Hook(ModuleHook):
         finder.include_package("skimage.io")
 
         # Include pillow plugin
-        """try:
+        try:
             finder.include_module("PIL")
         except ImportError:
             pass
         else:
-            finder.include_module("imageio.plugins.pillow")"""
+            finder.include_module("imageio.plugins.pillow")
 
     def skimage_data(self, finder: ModuleFinder, module: Module) -> None:
         # using zip file, copy data to share folder
