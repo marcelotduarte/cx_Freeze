@@ -201,10 +201,13 @@ class Module:
         self._file: Path | None = self._file_validate(filename)
         self.parent: Module | None = parent
         self.root: Module = parent.root if parent else self
+
         self.code: CodeType | None = None
         self.cache_path: Path | None = None
         self.distribution: DistributionCache | None = None
         self.hook: ModuleHook | Callable | None = None
+        self.lazy: bool = False
+
         self.exclude_names: set[str] = set()
         self.global_names: set[str] = set()
         self.ignore_names: set[str] = set()
@@ -278,16 +281,20 @@ class Module:
         filename = self._file
         if filename is None:
             return None
-        ext = "".join(filename.suffixes)
-        if ext not in EXTENSION_SUFFIXES or self.root_dir is None:
-            return None
 
+        if self.root_dir is None:
+            return None
         try:
             package = filename.parent.relative_to(self.root_dir.parent)
         except ValueError:
             return None
+
+        ext = "".join(filename.suffixes)
+        if ext not in EXTENSION_SUFFIXES and not self.root.lazy:
+            return None
         stem = filename.name.removesuffix(ext)
         stub_name = f"{stem}.pyi"
+
         # search for the stub file already parsed in the distribution
         importshed = Path(__file__).resolve().parent / "importshed"
         source_file = importshed / package / stub_name
