@@ -26,7 +26,7 @@ clean: uninstall
 
 .PHONY: install
 install:
-	./ci/install-tools.sh
+	./ci/install-tools.sh --dev
 	if ! [ -f .git/hooks/pre-commit ]; then\
 		pre-commit install --install-hooks --overwrite -t pre-commit;\
 	fi
