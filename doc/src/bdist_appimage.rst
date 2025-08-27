@@ -28,6 +28,8 @@ file executable.
      - description
    * - .. option:: appimagekit
      - path to appimagetool (formerly AppImageKit) [default: the latest version is downloaded]
+   * - .. option:: runtime_file
+     - path to type2 runtime [default: the latest version is downloaded by appimagetool]
    * - .. option:: bdist_base
      - base directory for creating built distributions
    * - .. option:: build_dir (-b)
