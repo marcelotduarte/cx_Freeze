@@ -24,7 +24,10 @@ test_qt.py
 
     timer.start(500)
     timer.timeout.connect(quit)
-    app.exec()
+    if hasattr(app, "exec"):
+        app.exec()
+    else:
+        app.exec_()
 
 pyproject.toml
     [project]
@@ -64,7 +67,7 @@ def test_qt(tmp_package, qt_impl) -> None:
     tmp_package.map_package_to_conda.update(
         {
             "PyQt6": "-c anaconda pyqt=6",
-            "PyQt5": "-c anaconda pyqt=5",
+            "PyQt5": "pyqt=5",
             "PySide2": "pyside2",
             "PySide6": "pyside6",
         }
