@@ -1,5 +1,5 @@
 coverage==7.10.6
-pytest==8.4.1
+pytest==8.4.2
 pluggy==1.6.0
 pytest-mock==3.14.1
 pytest-timeout==2.4.0
