@@ -57,9 +57,10 @@ class Parser(ABC):
         env_path = os.environ["PATH"].split(os.pathsep)
         new_path = []
         for path in self._path + self._bin_path_includes + env_path:
-            resolved_path = Path(path).resolve()
-            if resolved_path not in new_path and resolved_path.is_dir():
-                new_path.append(resolved_path)
+            with suppress(PermissionError):
+                resolved_path = Path(path).resolve()
+                if resolved_path not in new_path and resolved_path.is_dir():
+                    new_path.append(resolved_path)
         return new_path
 
     def find_library(
