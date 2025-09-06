@@ -15,10 +15,10 @@ import os
 import sys
 
 try:
+    import cx_Freeze
     import cx_Freeze.util
 except ImportError:
-    print("Please install a cx-freeze package to test", file=sys.stderr)
-    sys.exit(-1)
+    cx_Freeze = None
 
 
 def print_usage() -> int:
@@ -33,8 +33,23 @@ def main() -> int:
     if sys.platform != "win32":
         print(sys.argv[0] + " is only for windows", file=sys.stderr)
         return -1
+    if cx_Freeze is None:
+        print("Please install 'cx-freeze' package to test", file=sys.stderr)
+        return -1
+    path = None
+    start = 1
+    if sys.argv[1] == "--path":
+        paths = sys.argv[2]
+        print("--path", paths)
+        start = 3
+        os.environ["PATH"] = paths + os.pathsep + os.environ["PATH"]
+    elif sys.argv[1] == "--dllpath":
+        paths = sys.argv[2]
+        start = 3
+        print("--dllpath", paths)
+        os.add_dll_directory(paths)
     res = 0
-    for i in range(1, len(sys.argv)):
+    for i in range(start, len(sys.argv)):
         path = sys.argv[i]
         print(path)
         try:
