@@ -366,3 +366,7 @@ strict-checking = true
 
 [tool.ruff.lint.flake8-unused-arguments]
 ignore-variadic-names = true
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 50

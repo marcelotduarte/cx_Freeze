@@ -133,7 +133,7 @@ def test_uac_admin(tmp_package, lief_version) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_uac_admin")
     assert executable.is_file()
-    with pytest.raises(OSError, match="[WinError 740]"):
+    with pytest.raises(OSError, match=r"[WinError 740]"):
         tmp_package.run(executable, timeout=10)
 
 
@@ -149,5 +149,5 @@ def test_uac_uiaccess(tmp_package, lief_version) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_uac_uiaccess")
     assert executable.is_file()
-    with pytest.raises(OSError, match="[WinError 740]"):
+    with pytest.raises(OSError, match=r"[WinError 740]"):
         tmp_package.run(executable, timeout=10)
