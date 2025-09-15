@@ -61,7 +61,7 @@ requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = [
-    "bump-my-version==1.2.1",
+    "bump-my-version==1.2.2",
     "cibuildwheel==2.23.3",
     "pre-commit==4.3.0",           # python_version >= 3.9
 ]
