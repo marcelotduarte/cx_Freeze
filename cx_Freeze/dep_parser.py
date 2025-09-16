@@ -234,12 +234,9 @@ class PEParser(Parser):
             binary = self._pe.parse(raw, self.resource_only or filename.name)
         resources_manager = binary.resources_manager
         resources_manager.manifest = manifest
-        builder = self._pe.Builder(binary)
-        builder.build_resources(True)
-        builder.build()
         with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
             tmp_path = Path(tmp_dir, filename.name)
-            builder.write(os.fspath(tmp_path))
+            binary.write(os.fspath(tmp_path))
             shutil.move(tmp_path, filename)
 
 
