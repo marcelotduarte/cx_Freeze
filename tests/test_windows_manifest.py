@@ -77,11 +77,11 @@ def test_manifest(tmp_package) -> None:
 LIEF_VERSIONS = []
 if IS_WINDOWS:
     if IS_ARM_64:
-        LIEF_VERSIONS += ["0.16.6"]
+        LIEF_VERSIONS += ["0.16.6", "0.17.0"]
     elif IS_CONDA:
         LIEF_VERSIONS += ["installed"]
     else:
-        LIEF_VERSIONS += ["0.15.1", "0.16.6"]
+        LIEF_VERSIONS += ["0.15.1", "0.16.6", "0.17.0"]
 elif IS_MINGW:
     LIEF_VERSIONS += ["installed"]
 
