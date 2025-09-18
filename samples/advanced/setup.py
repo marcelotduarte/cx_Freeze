@@ -13,6 +13,7 @@ from cx_Freeze import setup
 
 options = {
     "build_exe": {
+        "include_msvcr": True,
         "includes": ["testfreeze_1", "testfreeze_2"],
         "path": [*sys.path, "modules"],
     }

@@ -55,9 +55,9 @@ def test_parser(tmp_package, package, version) -> None:
         tmp_package.install(f"{package}=={version}")
 
     # first run, count the files
-    tmp_package.freeze(
-        "cxfreeze --script test.py --excludes=tkinter,unittest --silent"
-    )
+    command = "cxfreeze --script test.py --silent"
+    command += " --excludes=tkinter,unittest --include-msvcr"
+    tmp_package.freeze(command)
 
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"

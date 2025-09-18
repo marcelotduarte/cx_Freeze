@@ -310,7 +310,9 @@ def test_freezer_zip_filename(
     """Test freezer zip_filename option."""
     tmp_package.create(SOURCE)
 
-    freezer = Freezer(executables=["hello.py"], silent=True, **kwargs)
+    freezer = Freezer(
+        executables=["hello.py"], include_msvcr=True, silent=True, **kwargs
+    )
     target_dir = freezer.target_dir
 
     freezer.freeze()
@@ -355,7 +357,9 @@ def test_freezer_copy_package_data(tmp_package) -> None:
     tmp_package.create(SOURCE_WITH_EXTRA_FILES)
 
     freezer = Freezer(
-        executables=["hello.py"], path=[tmp_package.path, *sys.path]
+        executables=["hello.py"],
+        include_msvcr=True,
+        path=[tmp_package.path, *sys.path],
     )
     freezer.freeze()
 

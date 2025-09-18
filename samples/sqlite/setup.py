@@ -22,6 +22,7 @@ setup(
     executables=["test_sqlite3.py"],
     options={
         "build_exe": {
+            "include_msvcr": True,
             "excludes": ["tkinter"],
             "path": search_path,
             "replace_paths": [("*", "")],

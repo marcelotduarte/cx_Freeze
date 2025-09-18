@@ -122,6 +122,7 @@ pyproject.toml
     executables = ["test_egg_info.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 extra/module1.py

@@ -10,9 +10,16 @@ if __name__ == '__main__'.
 # subdirectory that contains the files needed to run the script without Python
 from cx_Freeze import setup
 
+options = {
+    "build_exe": {
+        "include_msvcr": True,
+    }
+}
+
 setup(
     name="asmodule",
     version="0.1",
     description="Sample cx_Freeze script",
+    options=options,
     executables=["asmodule.py"],
 )

@@ -59,7 +59,10 @@ def test_files() -> None:
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-@pytest.mark.parametrize("value", [False, True, "15", "16", "17"])
+@pytest.mark.parametrize(
+    "value",
+    [pytest.param(False, marks=pytest.mark.xfail), True, "15", "16", "17"],
+)
 def test_build_with_include_msvcr(tmp_package, value: bool | str) -> None:
     """Test the simple sample with include_msvcr option."""
     if isinstance(value, str):

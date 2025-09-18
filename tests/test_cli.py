@@ -13,11 +13,10 @@ test.py
 
 def test_cxfreeze(tmp_package) -> None:
     """Test cxfreeze."""
+    tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --target-dir=dist"
     command += " --excludes=tkinter,unittest --include-msvcr"
-
-    tmp_package.create(SOURCE)
-    tmp_package.run(command)
+    tmp_package.freeze(command)
 
     executable = tmp_package.executable_in_dist("test")
     assert executable.is_file(), f"file not found: {executable}"
@@ -43,9 +42,9 @@ def test_cxfreeze_additional_help(tmp_package) -> None:
 def test_cxfreeze_debug_verbose(tmp_package) -> None:
     """Test cxfreeze --debug --verbose."""
     tmp_package.create(SOURCE)
-    tmp_package.freeze(
-        "cxfreeze --script test.py --debug --verbose --excludes=tkinter"
-    )
+    command = "cxfreeze --script test.py --debug --verbose"
+    command += " --excludes=tkinter,unittest --include-msvcr"
+    tmp_package.freeze(command)
 
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
@@ -57,9 +56,9 @@ def test_cxfreeze_debug_verbose(tmp_package) -> None:
 def test_cxfreeze_target_name_not_isidentifier(tmp_package) -> None:
     """Test cxfreeze --target-name not isidentifier, but valid filename."""
     tmp_package.create(SOURCE)
-    tmp_package.freeze(
-        "cxfreeze --script test.py --target-name=12345 --excludes=tkinter",
-    )
+    command = "cxfreeze --script test.py --target-name=12345"
+    command += " --excludes=tkinter,unittest --include-msvcr"
+    tmp_package.freeze(command)
 
     file_created = tmp_package.executable("12345")
     assert file_created.is_file(), f"file not found: {file_created}"
@@ -72,7 +71,9 @@ def test_cxfreeze_deprecated_behavior(tmp_package) -> None:
     """Test cxfreeze deprecated behavior."""
     tmp_package.create(SOURCE)
     tmp_package.path.joinpath("test.py").rename(tmp_package.path / "test2")
-    tmp_package.freeze("cxfreeze --install-dir=dist --excludes=tkinter test2")
+    command = "cxfreeze --install-dir=dist test2"
+    command += " --excludes=tkinter,unittest --include-msvcr"
+    tmp_package.freeze(command)
 
     file_created = tmp_package.executable_in_dist("test2")
     assert file_created.is_file(), f"file not found: {file_created}"
@@ -84,9 +85,9 @@ def test_cxfreeze_deprecated_behavior(tmp_package) -> None:
 def test_cxfreeze_deprecated_option(tmp_package) -> None:
     """Test cxfreeze deprecated option."""
     tmp_package.create(SOURCE)
-    result = tmp_package.freeze(
-        "cxfreeze -c -O -OO test.py --target-dir=dist --excludes=tkinter",
-    )
+    command = "cxfreeze -c -O -OO test.py --target-dir=dist"
+    command += " --excludes=tkinter,unittest --include-msvcr"
+    result = tmp_package.freeze(command)
     assert "WARNING: deprecated" in str(result.stdout)
 
     file_created = tmp_package.executable_in_dist("test")

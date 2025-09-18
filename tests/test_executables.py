@@ -385,6 +385,7 @@ pyproject.toml
     icon = "icon"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
@@ -431,6 +432,7 @@ pyproject.toml
     icon = "icon.png"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
@@ -464,6 +466,7 @@ pyproject.toml
     script = "test_0.py"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
