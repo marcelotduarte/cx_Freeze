@@ -140,7 +140,7 @@ jobs:
             OPTIONAL=""
           fi
           VERSION_NEW=$VERSION_BASE$OPTIONAL-dev.$SOURCE_DATE_EPOCH
-          uvx bump-my-version bump --no-tag build --new-version=$VERSION_NEW 2>/dev/null
+          uvx -w "click<8.3.0" bump-my-version bump --no-tag build --new-version=$VERSION_NEW 2>/dev/null
           git log -1
 
       - name: Build sdist and wheels
