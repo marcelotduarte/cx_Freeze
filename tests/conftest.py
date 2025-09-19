@@ -591,6 +591,9 @@ class TempPackageVenv(TempPackage):
                         self.run(cmd, cwd=self.system_path)
 
                 self.request.config.add_cleanup(_conda_cleanup)
+            elif self.backend == "mingw":
+                # venv is not used in mingw
+                pass
             elif prefix.is_dir():
                 rmtree(prefix, ignore_errors=True)
 
