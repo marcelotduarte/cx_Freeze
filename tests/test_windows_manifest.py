@@ -46,6 +46,7 @@ pyproject.toml
     target_name = "test_uac_uiaccess"
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 simple.manifest

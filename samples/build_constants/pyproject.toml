@@ -14,5 +14,6 @@ constants = [
     "USERDEFINED_B='hello=7'",
     "USERDEFINED_C=",
 ]
+include_msvcr = true
 excludes = ["tkinter", "unittest"]
 silent = true

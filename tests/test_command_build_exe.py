@@ -13,7 +13,10 @@ from cx_Freeze.exception import SetupError
 
 from .datatest import SUB_PACKAGE_TEST
 
-BUILD_EXE_CMD = "python setup.py build_exe --silent --excludes=tkinter"
+BUILD_EXE_CMD = (
+    "python setup.py build_exe"
+    " --excludes=tkinter,unittest --include-msvcr --silent"
+)
 
 OUTPUT0 = "Hello from cx_Freeze Advanced #{}"
 OUTPUT1 = "Test freeze module #{}"
@@ -363,7 +366,7 @@ def test_build_exe_script_args(
 def test_build_exe_advanced(tmp_package) -> None:
     """Test the advanced sample."""
     tmp_package.create_from_sample("advanced")
-    tmp_package.freeze("python setup.py build_exe --silent --excludes=tkinter")
+    tmp_package.freeze(BUILD_EXE_CMD)
 
     executable = tmp_package.executable("advanced_1")
     assert executable.is_file()

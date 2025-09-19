@@ -8,5 +8,6 @@ dependencies = ["pytz"]
 executables = ["test_pytz.py"]
 
 [tool.cxfreeze.build_exe]
+include_msvcr = true
 excludes = ["tkinter", "unittest"]
 silent = true

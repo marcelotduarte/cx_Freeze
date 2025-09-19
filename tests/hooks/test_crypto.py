@@ -33,6 +33,7 @@ pyproject.toml
     executables = ["test_argon2.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -87,6 +88,7 @@ pyproject.toml
     executables = ["test_bcrypt.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -139,6 +141,7 @@ pyproject.toml
     executables = ["test_crypto.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -183,6 +186,7 @@ pyproject.toml
     executables = ["test_cryptography.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """

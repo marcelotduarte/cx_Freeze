@@ -44,6 +44,7 @@ pyproject.toml
     executables = ["test_anyio.py"]
 
     [tool.cxfreeze.build_exe]
+    include_msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """

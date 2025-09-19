@@ -17,6 +17,11 @@ setup(
     name="test_tkinter",
     version="0.3.2",
     description="Sample cx_Freeze Tkinter script",
-    options={"build_exe": {"include_files": include_files}},
+    options={
+        "build_exe": {
+            "include_msvcr": True,
+            "include_files": include_files,
+        }
+    },
     executables=executables,
 )

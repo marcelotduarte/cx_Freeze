@@ -13,15 +13,19 @@ from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 SOURCE_SIMPLE_TEST = """
 test.py
     print("Hello from cx_Freeze")
-setup.py
-    from cx_Freeze import setup
+pyproject.toml
+    [project]
+    name = "test"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
 
-    setup(
-        name="hello",
-        version="0.1.2.3",
-        description="Sample cx_Freeze script",
-        executables=["test.py"],
-    )
+    [[tool.cxfreeze.executables]]
+    script = "test.py"
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent = true
 """
 
 
