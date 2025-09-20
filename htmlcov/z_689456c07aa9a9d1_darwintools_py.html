@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/darwintools.py: 71.89%</title>
+    <title>Coverage for cx_Freeze/darwintools.py: 74.32%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze/darwintools.py</b>:
-            <span class="pc_cov">71.89%</span>
+            <span class="pc_cov">74.32%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">370 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">266<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">104<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">275<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">95<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">8<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_dep_parser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.6">coverage.py v7.10.6</a>,
-            created at 2025-09-19 23:41 +0000
+            created at 2025-09-20 00:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -330,9 +330,9 @@
     <p class="pln"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t">        <span class="com"># consider making this resolve to the directory of the python</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t">        <span class="com"># interpreter? Apparently not a big issue in practice, since the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t">        <span class="com"># code has been like this forever.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isExecutablePath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t">            <span class="nam">relative_path</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">.</span><span class="nam">relative_to</span><span class="op">(</span><span class="str">"@executable_path"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="nam">relative_path</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t251" href="#t251">251</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isExecutablePath</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t252" href="#t252">252</a></span><span class="t">            <span class="nam">relative_path</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">path</span><span class="op">)</span><span class="op">.</span><span class="nam">relative_to</span><span class="op">(</span><span class="str">"@executable_path"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t253" href="#t253">253</a></span><span class="t">            <span class="key">return</span> <span class="nam">self</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="nam">relative_path</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t254" href="#t254">254</a></span><span class="t">        <span class="nam">msg</span> <span class="op">=</span> <span class="fst">f"</span><span class="fst">resolveExecutable() called on bad path: </span><span class="op">{</span><span class="nam">path</span><span class="op">}</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t255" href="#t255">255</a></span><span class="t">        <span class="key">raise</span> <span class="nam">PlatformError</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -365,8 +365,8 @@
     <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">test_rp</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t">            <span class="key">elif</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isLoaderPath</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">resolveLoader</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t">            <span class="key">elif</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isExecutablePath</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">resolveExecutable</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t">            <span class="key">elif</span> <span class="nam">self</span><span class="op">.</span><span class="nam">isExecutablePath</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t">                <span class="nam">rpath</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">resolveExecutable</span><span class="op">(</span><span class="nam">raw_path</span><span class="op">)</span><span class="op">.</span><span class="nam">resolve</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t">        <span class="nam">rpath</span> <span class="op">=</span> <span class="op">[</span><span class="nam">raw_path</span> <span class="key">for</span> <span class="nam">raw_path</span> <span class="key">in</span> <span class="nam">rpath</span> <span class="key">if</span> <span class="nam">raw_path</span><span class="op">.</span><span class="nam">exists</span><span class="op">(</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">referencing_file</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -705,7 +705,7 @@
     <p class="run"><span class="n"><a id="t623" href="#t623">623</a></span><span class="t">        <span class="key">for</span> <span class="nam">file</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_copied_file_list</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t624" href="#t624">624</a></span><span class="t">            <span class="key">if</span> <span class="nam">file</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">name</span> <span class="op">==</span> <span class="nam">basename</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t625" href="#t625">625</a></span><span class="t">                <span class="key">return</span> <span class="nam">file</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t626" href="#t626">626</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t627" href="#t627">627</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t628" href="#t628">628</a></span><span class="t">    <span class="key">def</span> <span class="nam">finalizeReferences</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t629" href="#t629">629</a></span><span class="t">        <span class="str">"""This function does a final pass through the references for all the</span>&nbsp;</span><span class="r"></span></p>
@@ -742,7 +742,7 @@
     <p class="run run2"><span class="n"><a id="t660" href="#t660">660</a></span><span class="t">                        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t661" href="#t661">661</a></span><span class="t">                        <span class="key">if</span> <span class="nam">potential_target</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t662" href="#t662">662</a></span><span class="t">                            <span class="com"># If we cannot find any likely candidate, fail.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t663" href="#t663">663</a></span><span class="t">                            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">strict</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t663" href="#t663">663</a></span><span class="t">                            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">strict</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t664" href="#t664">664</a></span><span class="t">                                <span class="nam">copied_file</span><span class="op">.</span><span class="nam">printFileInformation</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t665" href="#t665">665</a></span><span class="t">                                <span class="nam">msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t666" href="#t666">666</a></span><span class="t">                                    <span class="fst">f"</span><span class="fst">finalizeReferences() failed to resolve</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
@@ -750,13 +750,13 @@
     <p class="mis mis2 show_mis"><span class="n"><a id="t668" href="#t668">668</a></span><span class="t">                                    <span class="fst">f"</span><span class="fst">[</span><span class="op">{</span><span class="nam">copied_file</span><span class="op">.</span><span class="nam">path</span><span class="op">}</span><span class="fst">].</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t669" href="#t669">669</a></span><span class="t">                                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t670" href="#t670">670</a></span><span class="t">                                <span class="key">raise</span> <span class="nam">PlatformError</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t">                            <span class="nam">print</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t672" href="#t672">672</a></span><span class="t">                                <span class="str">"\nWARNING: Could not resolve dynamic link to "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t673" href="#t673">673</a></span><span class="t">                                <span class="fst">f"</span><span class="fst">[</span><span class="op">{</span><span class="nam">reference</span><span class="op">.</span><span class="nam">raw_path</span><span class="op">}</span><span class="fst">] in file </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t674" href="#t674">674</a></span><span class="t">                                <span class="fst">f"</span><span class="fst">[</span><span class="op">{</span><span class="nam">copied_file</span><span class="op">.</span><span class="nam">path</span><span class="op">}</span><span class="fst">], and could </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t675" href="#t675">675</a></span><span class="t">                                <span class="str">"not find any likely intended target."</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t">                            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t">                            <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t671" href="#t671">671</a></span><span class="t">                            <span class="nam">print</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t672" href="#t672">672</a></span><span class="t">                                <span class="str">"\nWARNING: Could not resolve dynamic link to "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t673" href="#t673">673</a></span><span class="t">                                <span class="fst">f"</span><span class="fst">[</span><span class="op">{</span><span class="nam">reference</span><span class="op">.</span><span class="nam">raw_path</span><span class="op">}</span><span class="fst">] in file </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t674" href="#t674">674</a></span><span class="t">                                <span class="fst">f"</span><span class="fst">[</span><span class="op">{</span><span class="nam">copied_file</span><span class="op">.</span><span class="nam">path</span><span class="op">}</span><span class="fst">], and could </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t675" href="#t675">675</a></span><span class="t">                                <span class="str">"not find any likely intended target."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t676" href="#t676">676</a></span><span class="t">                            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t677" href="#t677">677</a></span><span class="t">                            <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t678" href="#t678">678</a></span><span class="t">                        <span class="nam">print</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t679" href="#t679">679</a></span><span class="t">                            <span class="fst">f"</span><span class="fst">WARNING: In file [</span><span class="op">{</span><span class="nam">copied_file</span><span class="op">.</span><span class="nam">path</span><span class="op">}</span><span class="fst">]</span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t680" href="#t680">680</a></span><span class="t">                            <span class="fst">f"</span><span class="fst"> guessing that </span><span class="op">{</span><span class="nam">reference</span><span class="op">.</span><span class="nam">raw_path</span><span class="op">}</span><span class="fst"> </span><span class="fst">"</span>&nbsp;</span><span class="r"></span></p>
@@ -820,7 +820,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_dep_parser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.6">coverage.py v7.10.6</a>,
-            created at 2025-09-19 23:41 +0000
+            created at 2025-09-20 00:26 +0000
         </p>
     </div>
 </footer>
