@@ -140,11 +140,7 @@ if [ "$INSTALL_DEV" == "1" ]; then
                 filename=$INSTALL_DIR/$name
                 echo "Create $filename"
                 echo "#!/bin/bash"> "$filename"
-                if [ "$name" == "bump-my-version" ]; then
-                    echo "uvx -p $PYTHON_FOR_DEV -w \"click<8.3.0\" \"$line\" \$@">> "$filename"
-                else
-                    echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
-                fi
+                echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
                 chmod +x "$filename"
             done < requirements-dev.txt
         fi
