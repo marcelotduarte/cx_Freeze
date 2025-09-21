@@ -1,4 +1,0 @@
-BasedOnStyle: WebKit
-ColumnLimit: 79
-AlignConsecutiveMacros: Consecutive
-AlignTrailingComments: Always

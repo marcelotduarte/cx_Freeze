@@ -2,7 +2,6 @@
 requires = [
     # setuptools 77.0.3+ supports PEP 639
     "setuptools>=77.0.3,<=80.9.0",
-    "cx-logging>=3.1 ;sys_platform == 'win32'",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -18,7 +17,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: C",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
@@ -34,6 +32,7 @@ classifiers = [
 ]
 dependencies = [
     "filelock>=3.12.3",
+    "freeze-core>=0.1.0",
     "packaging>=24",
     "setuptools>=65.6.3,<=80.9.0",
     "tomli>=2.0.1 ;python_version < '3.11'",
@@ -48,7 +47,6 @@ dependencies = [
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
     "cabarchive>=0.2.4 ;sys_platform == 'win32'",
-    "cx-logging>=3.1 ;sys_platform == 'win32' and platform_machine != 'ARM64'",
     "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32'",
     "striprtf>=0.0.26 ;sys_platform == 'win32'",
 ]
@@ -62,7 +60,6 @@ requires-python = ">=3.9"
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.3",
-    "cibuildwheel==2.23.3",
     "pre-commit==4.3.0",           # python_version >= 3.9
 ]
 doc = [
@@ -152,37 +149,6 @@ filename = "doc/src/conf.py"
 values = ["dev", "alpha", "rc", "final"]
 optional_value = "final"
 
-[tool.cibuildwheel]
-before-build = "uv pip install -r pyproject.toml"
-build-frontend = "build[uv]"
-build-verbosity = 1
-enable = ["cpython-freethreading"]
-skip = [
-    "cp3{9,10,13}-musllinux_*",
-    "cp3{9,10,13}-manylinux_ppc64le",
-    "cp313t-win*",
-]
-
-[tool.cibuildwheel.linux]
-archs = "x86_64 aarch64 ppc64le"
-before-build = """
-cd /opt/_internal && tar -xvf static-libs-for-embedding-only.tar.xz
-"""
-# keep this setting until cibuildwheel uses the tag 2025.07.12-0 or higher
-# https://github.com/marcelotduarte/cx_Freeze/issues/3038
-# https://github.com/pypa/manylinux/issues/1809
-manylinux-x86_64-image = "quay.io/pypa/manylinux2014_x86_64:latest"
-manylinux-aarch64-image = "quay.io/pypa/manylinux2014_aarch64:latest"
-manylinux-ppc64le-image = "quay.io/pypa/manylinux2014_ppc64le:latest"
-musllinux-x86_64-image = "quay.io/pypa/musllinux2014_x86_64:latest"
-musllinux-aarch64-image = "quay.io/pypa/musllinux2014_aarch64:latest"
-
-[tool.cibuildwheel.macos]
-archs = "universal2"
-repair-wheel-command = """
-delocate-wheel --require-archs {delocate_archs} -L bases/lib -w {dest_dir} {wheel}
-"""
-
 [tool.coverage.html]
 directory = "build/coverage_html_report"
 
@@ -201,7 +167,6 @@ exclude_also = [
 ignore_errors = true
 omit = [
     "*/cx_Freeze/hooks/*",
-    "*/cx_Freeze/initscripts/*",
     "*/cx_Freeze/_typing.py",
 ]
 precision = 2
@@ -354,10 +319,8 @@ ignore = [
 typing-modules = ["cx_Freeze._typing"]
 
 [tool.ruff.lint.per-file-ignores]
-"cx_Freeze/bases/__init__.py" = ["D104"]
 "cx_Freeze/command/_pydialog.py" = ["ERA001"]
 "cx_Freeze/command/bdist_msi.py" = ["ERA001"]
-"cx_Freeze/initscripts/*" = ["S102"]
 "samples/*" = ["D1"]
 "tests/*" = ["S101"]
 

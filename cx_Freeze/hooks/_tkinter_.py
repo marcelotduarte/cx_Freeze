@@ -34,16 +34,9 @@ class Hook(ModuleHook):
         # manylinux (and macpython) wheels store tcl/tk libraries and extension
         tcl_library = None
         tk_library = None
-        share = resource_path("bases/share")
-        lib_dynload_tkinter = resource_path(
-            f"bases/lib-dynload/_tkinter{EXT_SUFFIX}"
-        )
-        if (
-            share
-            and share.is_dir()
-            and lib_dynload_tkinter
-            and lib_dynload_tkinter.exists()
-        ):
+        share = resource_path("share")
+        lib_tkinter = resource_path(f"lib/_tkinter{EXT_SUFFIX}")
+        if share and share.is_dir() and lib_tkinter and lib_tkinter.exists():
             tcl_library = next(share.glob("tcl*.*"), None)
             tk_library = next(share.glob("tk*.*"), None)
         if tcl_library is None:

@@ -79,18 +79,17 @@ class Executable:
                 self._base: Path = filename
                 self._ext: str = filename.suffix
                 return
-        # The default base is the legacy console, except for
-        # Python 3.13, that supports only the new console
-        version = sys.version_info[:2]
-        if version < (3, 13):
-            name = name or "console_legacy"
-        else:
-            name = name or "console"
         # silently ignore gui and service on non-windows systems
         if not (IS_WINDOWS or IS_MINGW) and name in ("gui", "service"):
-            name = "console"
+            name = None
+        # The default base is console
+        name = name or "console"
+        if name.lower().startswith("win32"):
+            name = f"legacy/{name.lower()}"
+        if not name.startswith("legacy"):
+            name = f"bases/{name}"
         filename = f"{name}-{SOABI}{EXE_SUFFIX}"
-        self._base: Path = resource_path(f"bases/{filename}")
+        self._base: Path = resource_path(filename)
         if self._base is None:
             msg = f"no base named {name!r} ({filename!r})"
             raise OptionError(msg)

@@ -16,16 +16,12 @@ if TYPE_CHECKING:
 
 
 def resource_path(name: str | Path) -> Path | None:
-    """Return the path to a resource file shipped with cx_Freeze.
+    """Return the path to a resource file shipped with freeze-core.
 
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
-    resource = importlib_resources.files(__package__) / name
-    if resource.exists():
-        return resource
-    # Support for name argument in the old Camelcase value
-    resource = resource.parent / resource.name.lower()
+    resource = importlib_resources.files("freeze_core") / name
     if resource.exists():
         return resource
     return None

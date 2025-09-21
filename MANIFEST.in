@@ -2,11 +2,8 @@ include LICENSE.md
 include Makefile
 include requirements.txt
 include requirements-dev.txt
-include cx_Freeze/util.pyi
 recursive-include cx_Freeze/hooks *.conf *.sh *.qrc
-recursive-include cx_Freeze/icons *.icns *.ico *.png *.svg
 recursive-include cx_Freeze/importshed *.pyi
-recursive-include cx_Freeze/initscripts *.txt
 recursive-include doc Makefile *.py *.rst *.txt
 recursive-include samples *.*
 prune samples/*/build

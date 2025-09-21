@@ -30,9 +30,10 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
     PYTHON_VERSION,
 )
+from cx_Freeze._license import frozen_license
 from cx_Freeze.common import process_path_specs, resource_path
 from cx_Freeze.dep_parser import ELFParser, Parser, PEParser
-from cx_Freeze.exception import FileError, OptionError
+from cx_Freeze.exception import OptionError
 from cx_Freeze.executable import Executable
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import ConstantsModule, DistributionCache, Module
@@ -197,6 +198,15 @@ class Freezer:
                 raise OptionError(msg) from None
         self._targetdir: Path = path
 
+    def _add_license(self) -> None:
+        """Add the freeze-core license file into frozen application."""
+        license_file = frozen_license(self.finder.cache_path)
+        self._copy_file(
+            license_file,
+            self.target_dir / license_file.name,
+            copy_dependent_files=False,
+        )
+
     def _add_resources(self, exe: Executable) -> None:
         """Add resources for an executable, platform dependent."""
         # Copy icon into application. (Overridden on Windows)
@@ -349,19 +359,8 @@ class Freezer:
             mode = target_path.stat().st_mode
             target_path.chmod(mode | stat.S_IWUSR)
 
-        # copy a file with a the cx_freeze license into frozen application
-        respath = resource_path("initscripts/frozen_application_license.txt")
-        if respath is None:
-            msg = "Unable to find license for frozen application."
-            raise FileError(msg)
-        self._copy_file(
-            respath.absolute(),
-            self.target_dir / "frozen_application_license.txt",
-            copy_dependent_files=False,
-            include_mode=False,
-        )
-
-        # Add resources like version metadata and icon
+        # Add license and resources like version metadata and icon
+        self._add_license()
         self._add_resources(exe)
 
     @abstractmethod
@@ -525,18 +524,18 @@ class Freezer:
         modules when it differs from the running python built-in modules.
         """
         path = list(map(os.path.normpath, path or sys.path))
-        dynload = resource_path("bases/lib-dynload")
-        if dynload and dynload.is_dir():
-            # add bases/lib-dynload to the finder path, if has modules
+        core_lib = resource_path("lib")
+        if core_lib and core_lib.is_dir():
+            # add freeze-core 'lib' to the finder path, if has modules
             ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
-            if len(list(dynload.glob(f"*{ext_suffix}"))) > 0:
+            if len(list(core_lib.glob(f"*{ext_suffix}"))) > 0:
                 index = 0
                 dest_shared = sysconfig.get_config_var("DESTSHARED")
                 if dest_shared:
                     with suppress(ValueError, IndexError):
                         index = path.index(dest_shared)
                         path.pop(index)
-                path.insert(index, os.path.normpath(dynload))
+                path.insert(index, os.path.normpath(core_lib))
         return path
 
     @staticmethod
@@ -1151,7 +1150,7 @@ class DarwinFreezer(Freezer, Parser):
 
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[Path] = []
-        # Check for distributed "cx_Freeze/bases/lib/Python"
+        # Check for distributed "freeze_core/lib/Python"
         name = f"Python{ABI_THREAD.upper()}"
         for bin_path in self._default_bin_path_includes():
             fullname = Path(bin_path, name).resolve()
@@ -1179,9 +1178,9 @@ class DarwinFreezer(Freezer, Parser):
 
     def _default_bin_path_includes(self) -> list[str]:
         # use macpython distributed files if available
-        bases_lib = resource_path("bases/lib")
-        if bases_lib:
-            return self._validate_bin_path([bases_lib])
+        core_lib = resource_path("lib")
+        if core_lib:
+            return self._validate_bin_path([core_lib])
         # use default
         return super()._default_bin_path_includes()
 

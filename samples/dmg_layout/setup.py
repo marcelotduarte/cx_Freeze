@@ -16,7 +16,7 @@ executables = [
         script="hello.py",
         # an icon for the executable will be reused for the dmg
         # only the first executable is used for the icon
-        # icon="../../cx_Freeze/icons/python.icns" #noqa: ERA001
+        # icon=resource_path("icons/python.icns") #noqa: ERA001
     ),
     Executable(script="hello2.py"),
 ]

@@ -22,8 +22,8 @@ from zipfile import ZipFile
 from filelock import FileLock
 from setuptools import Command
 
-import cx_Freeze.icons
 from cx_Freeze._compat import IS_LINUX
+from cx_Freeze.common import resource_path
 from cx_Freeze.exception import ExecError, PlatformError
 
 __all__ = ["bdist_appimage"]
@@ -217,8 +217,8 @@ class bdist_appimage(Command):
             )
         if executable.icon is None:
             icon_name = "logox128.png"
-            icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
-            self.copy_file(os.path.join(icon_source_dir, icon_name), icons_dir)
+            icon_filename = os.fspath(resource_path(f"icons/{icon_name}"))
+            self.copy_file(icon_filename, icons_dir)
         else:
             icon_name = executable.icon.name
             self.move_file(os.path.join(appdir, icon_name), icons_dir)

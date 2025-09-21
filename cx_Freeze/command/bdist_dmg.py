@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from dmgbuild.core import DMGError, build_dmg
 from setuptools import Command
 
-import cx_Freeze.icons
-from cx_Freeze import Executable
+from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, PlatformError
+
+if TYPE_CHECKING:
+    from cx_Freeze import Executable
 
 __all__ = ["bdist_dmg"]
 
@@ -257,8 +259,7 @@ class bdist_dmg(Command):
             )
         if executable.icon is None:
             icon_name = "setup.icns"
-            icon_source_dir = os.path.dirname(cx_Freeze.icons.__file__)
-            self.icon = os.path.join(icon_source_dir, icon_name)
+            self.icon = os.fspath(resource_path(f"icons/{icon_name}"))
         else:
             self.icon = os.path.abspath(executable.icon)
 
