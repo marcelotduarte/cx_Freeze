@@ -8,103 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  matrix:
-    name: Generate matrix of builds
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Extra includes
-        id: includes
-        run: |
-          import json, os
-          include = [
-              {
-                  "os": "ubuntu",
-                  "os_version": "latest",
-                  "arch": "x86_64",
-                  "tag": "cp3*-manylinux_x86_64",
-              },
-              {
-                  "os": "windows",
-                  "os_version": "latest",
-                  "arch": "x86_64",
-                  "tag": "cp3*-win_amd64",
-              },
-              {
-                  "os": "macos",
-                  "os_version": "13",
-                  "arch": "universal2",
-                  "tag": "cp3{9,10,11}-macosx_universal2",
-              },
-              {
-                  "os": "macos",
-                  "os_version": "14",
-                  "arch": "universal2",
-                  "tag": "cp3{12,13}*-macosx_universal2",
-              },
-          ]
-          if "${{ github.event_name }}" != "pull_request":
-            include += [
-                {
-                    "os": "ubuntu",
-                    "os_version": "latest",
-                    "arch": "x86_64",
-                    "tag": "cp3{11,12,13}*-musllinux_x86_64",
-                },
-                {
-                    "os": "ubuntu",
-                    "os_version": "24.04-arm",
-                    "arch": "arm64",
-                    "tag": "cp3{11,12,13}*-manylinux_aarch64",
-                },
-                {
-                    "os": "ubuntu",
-                    "os_version": "24.04-arm",
-                    "arch": "arm64",
-                    "tag": "cp3{11,12,13}*-musllinux_aarch64",
-                },
-                {
-                    "os": "ubuntu",
-                    "os_version": "22.04",
-                    "arch": "ppc64le",
-                    "tag": "cp3{11,12,13}*-manylinux_ppc64le",
-                },
-                {
-                    "os": "windows",
-                    "os_version": "11-arm",
-                    "arch": "arm64",
-                    "tag": "cp3{11,12,13}-win_arm64",
-                },
-                {
-                    "os": "windows",
-                    "os_version": "latest",
-                    "arch": "x86_64",
-                    "tag": "cp3*-win32",
-                },
-            ]
-          with open(os.environ["GITHUB_OUTPUT"], "a+") as f:
-            print("data="+json.dumps({"include": include}), file=f)
-          print("data="+json.dumps({"include": include}))
-        shell: python
-
-    outputs:
-      data: ${{ steps.includes.outputs.data }}
-
   build_wheel:
-    needs: matrix
-    strategy:
-      fail-fast: false
-      # macos-14 is arm64 (apple silicon), macos-13 is x86_64
-      matrix: ${{ fromJSON(needs.matrix.outputs.data) }}
-    name: Build [${{ matrix.os }}-${{ matrix.os_version }}-${{ matrix.arch }}](job-${{ strategy.job-index }})
-    runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
-    defaults:
-      run:
-        shell: bash
+    name: Build wheel
+    runs-on: ubuntu-latest
     env:
       UV_SYSTEM_PYTHON: true
     steps:
@@ -119,12 +25,6 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "pyproject.toml"
-
-      - name: Set up QEMU
-        if: runner.os == 'Linux' && matrix.arch != 'x86_64' && matrix.arch != 'arm64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ matrix.arch }}
 
       - name: Bump new dev version
         if: github.event_name != 'release'
@@ -144,12 +44,12 @@ jobs:
           git log -1
 
       - name: Build sdist and wheels
-        run: ./ci/build-wheel.sh "${{ matrix.tag }}"
+        run: ./ci/build-wheel.sh
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cx-freeze-whl-${{ matrix.os }}-job-${{ strategy.job-index }}
+          name: cx-freeze-wheel
           path: wheelhouse
           compression-level: 0 # no compression
 
@@ -168,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           path: wheelhouse
-          pattern: cx-freeze-whl-*
+          pattern: cx-freeze-wheel
           merge-multiple: true
 
       - name: Publish package to PyPI
@@ -177,48 +77,3 @@ jobs:
           packages-dir: wheelhouse/
           skip-existing: true
           verbose: true
-
-  update_bases:
-    if: github.event_name == 'push' || github.event_name == 'release'
-    name: Update cx_Freeze/bases and util module
-    needs: build_wheel
-    permissions:
-      contents: write
-      id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          ref: main
-          repository: marcelotduarte/cx_Freeze
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v5
-        with:
-          path: wheelhouse
-          pattern: cx-freeze-whl-windows-*
-          merge-multiple: true
-
-      - name: If changed, extract and update the base executables and util module
-        run: |
-          SHA256SUM1=$(cat source/*.c source/bases/* | sha256sum | awk '{print $1}')
-          SHA256SUM2=$(cat cx_Freeze/bases/__init__.py | awk '{print $2}')
-          if [ $SHA256SUM1 != $SHA256SUM2 ]; then
-            git config user.name "Marcelo Duarte"
-            git config user.email marcelotduarte@users.noreply.github.com
-            git checkout -B update_bases main
-            # Remove any file that match - remove previous versions too
-            git rm --ignore-unmatch 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
-            # Extract base executables and util module
-            for file in wheelhouse/*.whl; do
-              unzip -o $file 'cx_Freeze/bases/*-win*.exe' 'cx_Freeze/util.*-win*.pyd'
-            done
-            git add cx_Freeze/bases/*-win*.exe cx_Freeze/util.*-win*.pyd
-            # Save the new SHA256SUM
-            echo "# $SHA256SUM1" > cx_Freeze/bases/__init__.py
-            git add cx_Freeze/bases/__init__.py
-            # Update
-            git commit -m "bases: update base executables and util module [ci skip]"
-            git push origin update_bases
-          fi

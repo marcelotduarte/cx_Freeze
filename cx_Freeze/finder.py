@@ -149,11 +149,11 @@ class ModuleFinder:
     def _builtin_modules(self) -> set[str]:
         """The built-in modules are determined based on the cx_Freeze build."""
         builtin_modules: set[str] = set(sys.builtin_module_names)
-        dynload = resource_path("bases/lib-dynload")
-        if dynload and dynload.is_dir():
-            # discard modules that exist in bases/lib-dynload
+        core_lib = resource_path("lib")
+        if core_lib and core_lib.is_dir():
+            # discard modules that exist in freeze-core 'lib'
             ext_suffix = get_config_var("EXT_SUFFIX")
-            for file in dynload.glob(f"*{ext_suffix}"):
+            for file in core_lib.glob(f"*{ext_suffix}"):
                 builtin_modules.discard(file.name.removesuffix(ext_suffix))
         return builtin_modules
 

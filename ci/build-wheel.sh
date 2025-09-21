@@ -20,58 +20,29 @@ else
 fi
 PY_PLATFORM=$($PYTHON -c "import sysconfig; print(sysconfig.get_platform(), end='')")
 PY_VERSION=$($PYTHON -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
-PY_VERSION_NODOT=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('py_version_nodot'), end='')")
 PY_ABI_THREAD=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
 
 IS_CONDA=$([ -n "$CONDA_EXE" ] && echo "1")
 IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
 
-PYTHON_TAG=cp$PY_VERSION_NODOT
-if [ "$IS_CONDA" == "1" ]; then
-    PLATFORM_TAG=${PY_PLATFORM/-/_}
-    PLATFORM_TAG_MASK=$PLATFORM_TAG
-else
-    if [[ $PY_PLATFORM == linux* ]]; then
-        PLATFORM_TAG=many${PY_PLATFORM/-/_}
-        PLATFORM_TAG_MASK=${PLATFORM_TAG/_/*_}
-        if ! [ "$CI" == "true" ] && which podman &>/dev/null; then
-            export CIBW_CONTAINER_ENGINE=podman
-        fi
-    elif [[ $PY_PLATFORM == macosx* ]]; then
-        PLATFORM_TAG=macosx_universal2
-        PLATFORM_TAG_MASK="macosx_*"
-    else
-        PLATFORM_TAG=${PY_PLATFORM/-/_}
-        PLATFORM_TAG_MASK="win*"
-    fi
-fi
-BUILD_TAG_DEFAULT="$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG"
-
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
-    echo "$0 [--all|TAG] [--install]"
+    echo "$0 [--install]"
     echo "Where:"
-    echo "  --all     Build all valid wheels for current OS."
-    echo "  TAG       Force build the wheel for the given identifier."
-    echo "            [default: $BUILD_TAG_DEFAULT]"
     echo "  --install Install after build [default on local builds]."
     exit 1
 fi
 
-BUILD_TAG="$BUILD_TAG_DEFAULT"
+BUILD_TAG=py3-none-any
 if [ "$CI" == "true" ]; then
     INSTALL="0"
 else
     INSTALL="1"
 fi
 while [ -n "$1" ]; do
-    if [ "$1" == "--all" ]; then
-        BUILD_TAG=""
-    elif [ "$1" == "--install" ]; then
+    if [ "$1" == "--install" ]; then
         INSTALL="1"
-    else
-        BUILD_TAG="$1"
     fi
     shift
 done
@@ -84,13 +55,11 @@ if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
     fi
 else
     if [[ $PY_PLATFORM == linux* ]]; then
-        if ! [ -e "$HOME/bin/bump-my-version" ] || \
-           ! [ -e "$HOME/bin/cibuildwheel" ]; then
+        if ! [ -e "$HOME/bin/bump-my-version" ]; then
             INSTALL_DEV="1"
         fi
     else
         if ! which bump-my-version &>/dev/null || \
-           ! which cibuildwheel &>/dev/null || \
            ! which pyproject-build &>/dev/null; then
             INSTALL_DEV="1"
         fi
@@ -121,8 +90,6 @@ _bump_my_version () {
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    elif [ -e "$HOME/bin/pyproject-build" ]; then
-        "$HOME/bin/pyproject-build" --sdist -o wheelhouse
     elif which pyproject-build &>/dev/null; then
          $PYTHON -m build --sdist -o wheelhouse
     else
@@ -131,22 +98,12 @@ _build_sdist () {
 }
 
 _build_wheel () {
-    local args=$*
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
-    elif [[ $PY_PLATFORM == win* ]] && [[ $args == *--only* ]]; then
-        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-    elif [[ $PY_PLATFORM == macos* ]] && [[ $args == *--only* ]]; then
-        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
+    elif which pyproject-build &>/dev/null; then
+         $PYTHON -m build --wheel -o wheelhouse
     else
-        # Do not export UV_SYSTEM_PYTHON to avoid conflict with uv in
-        # cibuildwheel on macOS and Windows
-        unset UV_SYSTEM_PYTHON
-        if [ -e "$HOME/bin/cibuildwheel" ]; then
-            "$HOME/bin/cibuildwheel" "$args"
-        else
-            $PYTHON -m cibuildwheel "$args"
-        fi
+        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
     fi
 }
 
@@ -181,15 +138,9 @@ if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
-if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
-    FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
-    FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
-    if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
-        _build_wheel --only "$BUILD_TAG_DEFAULT"
-    fi
-elif [ -n "$BUILD_TAG" ]; then
-    CIBW_BUILD="$BUILD_TAG" _build_wheel
-else
+FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$BUILD_TAG"
+FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
+if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
     _build_wheel
 fi
 echo "::endgroup::"

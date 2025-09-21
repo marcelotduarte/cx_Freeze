@@ -1,4 +1,5 @@
 filelock>=3.12.3
+freeze-core>=0.1.1
 packaging>=24
 setuptools>=65.6.3,<=80.9.0
 tomli>=2.0.1 ;python_version < '3.11'
@@ -10,6 +11,5 @@ patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'ppc64le'
 patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 's390x'
 dmgbuild>=1.6.1 ;sys_platform == 'darwin'
 cabarchive>=0.2.4 ;sys_platform == 'win32'
-cx-logging>=3.1 ;sys_platform == 'win32' and platform_machine != 'ARM64'
 lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32'
 striprtf>=0.0.26 ;sys_platform == 'win32'

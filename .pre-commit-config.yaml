@@ -58,17 +58,6 @@ repos:
         args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v21.1.1
-    hooks:
-      - id: clang-format
-        args: ["--style=file:source/.clang-format"]
-        exclude: |
-          (?x)^(source/bases/pythoncapi_compat.h|
-                source/legacy/pythoncapi_compat.h
-          )$
-        types_or: [c, c++]
-
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.6.2
     hooks:
@@ -91,16 +80,6 @@ repos:
         entry: make -C doc html
         always_run: true
         pass_filenames: false
-
-  - repo: local
-    hooks:
-      - id: license
-        name: license
-        language: system
-        entry: python ci/license.py
-        files: ^(doc/src/license.rst|
-          cx_Freeze/initscripts/frozen_application_license.txt
-          )$
 
   - repo: local
     hooks:

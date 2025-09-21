@@ -232,9 +232,9 @@ class VersionInfo:
         string_version_info = self.version_info(path)
         if CX_FREEZE_STAMP == "internal":
             try:
-                util = import_module("cx_Freeze.util")
+                util = import_module("freeze_core.util")
             except ImportError as exc:
-                msg = "cx_Freeze.util extension not found"
+                msg = "freeze_core.util extension not found"
                 raise RuntimeError(msg) from exc
             handle = util.BeginUpdateResource(path, 0)
             util.UpdateResource(
