@@ -36,7 +36,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           path: wheelhouse
-          pattern: cx-freeze-whl-*
+          pattern: cx-freeze-wheel
           merge-multiple: true
 
       - name: Publish package to TestPyPI
@@ -93,7 +93,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           merge-multiple: true
-          pattern: cx-freeze-whl-${{ matrix.os }}*
+          pattern: cx-freeze-wheel
           path: wheelhouse
 
       - name: Install dependencies to test

@@ -271,8 +271,8 @@ if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}"),
         ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}"),
-        ("base", "Win32GUI", f"legacy/Win32GUI-{SOABI}{EXE_SUFFIX}"),
-        ("base", "Win32Service", f"legacy/Win32Service-{SOABI}{EXE_SUFFIX}"),
+        ("base", "Win32GUI", f"legacy/win32gui-{SOABI}{EXE_SUFFIX}"),
+        ("base", "Win32Service", f"legacy/win32service-{SOABI}{EXE_SUFFIX}"),
     ]
 else:
     TEST_VALID_PARAMETERS += [
