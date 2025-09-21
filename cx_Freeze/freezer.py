@@ -1187,7 +1187,7 @@ class DarwinFreezer(Freezer, Parser):
 
     def _default_bin_path_includes(self) -> list[str]:
         # use macpython distributed files if available
-        core_lib = resource_path("lib")
+        core_lib = resource_path("bases/lib")
         if core_lib:
             return self._validate_bin_path([core_lib])
         # use default
