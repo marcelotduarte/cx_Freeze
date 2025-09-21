@@ -45,9 +45,18 @@ if TYPE_CHECKING:
 
 if IS_WINDOWS or IS_MINGW:
     with suppress(ImportError):
-        from .util import AddIcon, GetSystemDir, GetWindowsDir, UpdateCheckSum
+        from freeze_core.util import (
+            AddIcon,
+            GetSystemDir,
+            GetWindowsDir,
+            UpdateCheckSum,
+        )
 elif IS_MACOS:
-    from .darwintools import DarwinFile, DarwinFileTracker, MachOReference
+    from cx_Freeze.darwintools import (
+        DarwinFile,
+        DarwinFileTracker,
+        MachOReference,
+    )
 
 __all__ = ["ConstantsModule", "Executable", "Freezer"]
 

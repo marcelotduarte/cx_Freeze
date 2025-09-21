@@ -108,7 +108,7 @@ class Parser(ABC):
 
 class PEParser(Parser):
     """`PEParser` is based on the `lief` package. If it is disabled,
-    use the old friend `cx_Freeze.util` extension module.
+    use the old friend `freeze_core.util` extension module.
     """
 
     def __init__(
@@ -145,7 +145,7 @@ class PEParser(Parser):
         if lief:
             self._pe = lief.PE
         else:
-            from cx_Freeze.util import BindError, GetDependentFiles
+            from freeze_core.util import BindError, GetDependentFiles
 
             self.GetDependentFiles = GetDependentFiles
             self.BindError = BindError

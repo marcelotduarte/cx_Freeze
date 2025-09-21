@@ -15,7 +15,7 @@ import os
 import sys
 
 try:
-    import cx_Freeze.util
+    import freeze_core.util
 except ImportError:
     print("Please install a cx-freeze package to test", file=sys.stderr)
     sys.exit(-1)
@@ -38,8 +38,8 @@ def main() -> int:
         path = sys.argv[i]
         print(path)
         try:
-            dependent_files = cx_Freeze.util.GetDependentFiles(path)
-        except cx_Freeze.util.BindError as exc:
+            dependent_files = freeze_core.util.GetDependentFiles(path)
+        except freeze_core.util.BindError as exc:
             dependent_files = []
             print("error during GetDependentFiles() of ")
             print(f"{path!r}: {exc!s}", file=sys.stderr)
