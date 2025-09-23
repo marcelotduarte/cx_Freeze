@@ -1043,7 +1043,7 @@ class WinFreezer(Freezer, PEParser):
 
     def _post_freeze_hook(self) -> None:
         if self.include_msvcr:
-            from cx_Freeze.winmsvcr_repack import get_msvcr_files
+            from freeze_core.winmsvcr_repack import get_msvcr_files
 
             # remove MSVC runtime from default excludes
             excludes = set(self.default_bin_excludes)
@@ -1062,7 +1062,7 @@ class WinFreezer(Freezer, PEParser):
 
     def _runtime_files(self) -> set[str]:
         """Deal with C-runtime files."""
-        from cx_Freeze.winmsvcr import MSVC_FILES, UCRT_FILES
+        from freeze_core.winmsvcr import MSVC_FILES, UCRT_FILES
 
         return [*MSVC_FILES, *UCRT_FILES]
 

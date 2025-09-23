@@ -32,7 +32,7 @@ classifiers = [
 ]
 dependencies = [
     "filelock>=3.12.3",
-    "freeze-core>=0.1.1",
+    "freeze-core>=0.2.0",
     "packaging>=24",
     "setuptools>=65.6.3,<=80.9.0",
     "tomli>=2.0.1 ;python_version < '3.11'",
@@ -46,9 +46,7 @@ dependencies = [
     # macOS
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
-    "cabarchive>=0.2.4 ;sys_platform == 'win32'",
     "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32'",
-    "striprtf>=0.0.26 ;sys_platform == 'win32'",
 ]
 dynamic = ["version"]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
