@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.6">coverage.py v7.10.6</a>,
-            created at 2025-09-22 18:43 +0000
+            created at 2025-09-23 07:33 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1125,7 +1125,7 @@
     <p class="pln"><span class="n"><a id="t1043" href="#t1043">1043</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1044" href="#t1044">1044</a></span><span class="t">    <span class="key">def</span> <span class="nam">_post_freeze_hook</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1045" href="#t1045">1045</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">include_msvcr</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1046" href="#t1046">1046</a></span><span class="t">            <span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">winmsvcr_repack</span> <span class="key">import</span> <span class="nam">get_msvcr_files</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1046" href="#t1046">1046</a></span><span class="t">            <span class="key">from</span> <span class="nam">freeze_core</span><span class="op">.</span><span class="nam">winmsvcr_repack</span> <span class="key">import</span> <span class="nam">get_msvcr_files</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1047" href="#t1047">1047</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1048" href="#t1048">1048</a></span><span class="t">            <span class="com"># remove MSVC runtime from default excludes</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1049" href="#t1049">1049</a></span><span class="t">            <span class="nam">excludes</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">default_bin_excludes</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1144,7 +1144,7 @@
     <p class="pln"><span class="n"><a id="t1062" href="#t1062">1062</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1063" href="#t1063">1063</a></span><span class="t">    <span class="key">def</span> <span class="nam">_runtime_files</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="nam">set</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1064" href="#t1064">1064</a></span><span class="t">        <span class="str">"""Deal with C-runtime files."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1065" href="#t1065">1065</a></span><span class="t">        <span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">winmsvcr</span> <span class="key">import</span> <span class="nam">MSVC_FILES</span><span class="op">,</span> <span class="nam">UCRT_FILES</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1065" href="#t1065">1065</a></span><span class="t">        <span class="key">from</span> <span class="nam">freeze_core</span><span class="op">.</span><span class="nam">winmsvcr</span> <span class="key">import</span> <span class="nam">MSVC_FILES</span><span class="op">,</span> <span class="nam">UCRT_FILES</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1066" href="#t1066">1066</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1067" href="#t1067">1067</a></span><span class="t">        <span class="key">return</span> <span class="op">[</span><span class="op">*</span><span class="nam">MSVC_FILES</span><span class="op">,</span> <span class="op">*</span><span class="nam">UCRT_FILES</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1068" href="#t1068">1068</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -1532,7 +1532,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.10.6">coverage.py v7.10.6</a>,
-            created at 2025-09-22 18:43 +0000
+            created at 2025-09-23 07:33 +0000
         </p>
     </div>
 </footer>
