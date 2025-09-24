@@ -34,16 +34,7 @@ The project's code layout
     code.
   * ``freezer.py`` - The core class for freezing scripts into executables.
   * ``module.py`` - Base class for Module and ConstantsModule.
-  * ``winmsvcr.py`` - DLL list of MSVC runtimes.
   * ``winversioninfo.py`` - Module for the VersionInfo base class.
 
 * ``doc/`` - The Sphinx documentation.
 * ``samples/`` - Examples of using cx_Freeze with a number of common modules.
-* ``source/`` (C files)
-
-  * ``bases/`` - The source of the base executables which are used to launch
-    your Python applications. Different bases serve for different types of
-    application on Windows (GUI, console application or service). The base
-    executable calls the initscript, which in turn calls the user's code.
-  * ``util.c`` - Compiled functions for cx_Freeze itself. Compiles to
-    :file:`cx_Freeze.util`. Functions are used only on Windows.
