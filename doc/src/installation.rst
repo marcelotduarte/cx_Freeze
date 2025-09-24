@@ -61,17 +61,14 @@ Python requirements are installed automatically by pip or conda.
 
   .. code-block:: console
 
+   freeze-core >= 0.2.0
    filelock >= 3.12.3
    packaging >= 24
    setuptools >= 65.6.3     #  setuptools >= 77.0.3 if installing from sources
    tomli >= 2.0.1           #  Python 3.9-3.10
-   patchelf >= 0.14         #  Linux
+   patchelf >= 0.14,<0.18   #  Linux
    dmgbuild >= 1.6.1        #  macOS
-   cabarchive >= 0.2.4      #  Windows
-   cx_Logging >= 3.1        #  Windows
    lief >= 0.15.1           #  Windows
-   striprtf >= 0.0.26       #  Windows
-   C compiler               #  required only if installing from sources
 
 .. note:: If you have trouble with patchelf, check :ref:`patchelf`.
 

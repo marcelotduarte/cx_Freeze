@@ -18,6 +18,12 @@ Setup
 
 The source code can be found on :repository:`Github <>`.
 
+.. note::
+
+   #. It is recommended to use a virtual environment.
+   #. Please check the requirements for python on your system
+      (see :ref:`python_requirements`).
+
 You can use ``git`` to clone the repository:
 
   .. code-block:: console
@@ -34,63 +40,11 @@ If you don't have make installed, run:
     pip install -e .[dev,doc]
     pre-commit install --install-hooks --overwrite -t pre-commit
 
-.. note::
-
-   #. It is recommended to use a virtual environment.
-   #. Please check the requirements for python on your system
-      (see :ref:`python_requirements`).
-
-Building redistributable binary wheels
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When ``python -m build`` or ``pip wheel`` is used to build a cx_Freeze wheel,
-that wheel will rely on external shared libraries. Such wheels
-therefore will only run on the system on which they are built. See
-`Building and installing or uploading artifacts
-<https://pypackaging-native.github.io/meta-topics/build_steps_conceptual/#building-and-installing-or-uploading-artifacts>`_
-for more context on that.
-
-A wheel like that is therefore an intermediate stage to producing a binary that
-can be distributed. That final binary may be a wheel - in that case, run
-``auditwheel`` (Linux) or ``delocate`` (macOS) to vendor the required shared
-libraries into the wheel.
-
-To reach this, cx_Freeze's binary wheels is built using :pypi:`cibuildwheel`.
+To build wheel locally, run:
 
   .. code-block:: console
 
-    pip install --upgrade cibuildwheel
-
-For instance, in a Linux environment, Python 3.10, to build locally, run:
-
-  .. code-block:: console
-
-    cibuildwheel --only cp310-manylinux_x86_64
-
-To run a Linux build on your development machine, Docker or Podman should be
-installed. To use podman:
-
-  .. code-block:: console
-
-    CIBW_CONTAINER_ENGINE=podman cibuildwheel --only cp310-manylinux_x86_64
-
-Using macOS:
-
-  .. code-block:: console
-
-    cibuildwheel --only cp310-macosx_universal2
-
-.. note::
-
-   Please read:
-
-   #. `Run cibuildwheel locally
-      <https://cibuildwheel.readthedocs.io/en/stable/setup/#local>`_.
-   #. `Linux builds
-      <https://cibuildwheel.pypa.io/en/stable/setup/#linux-builds>`_.
-   #. `macOS / Windows builds
-      <https://cibuildwheel.pypa.io/en/stable/setup/#macos-windows-builds>`_.
-
+    make wheel
 
 Building documentation
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -118,8 +72,8 @@ using the conda-forge channel:
   .. code-block:: console
 
     python
-    c-compiler
     py-lief     #  Windows
+    dmgbuild    #  macOS
     patchelf    #  Linux
     # declare SDKROOT or CONDA_BUILD_SYSROOT (not required in Github Actions)
 
@@ -129,8 +83,8 @@ An example for Linux:
 
     git clone https://github.com/marcelotduarte/cx_Freeze
     cd cx_Freeze
-    conda create -n cx311conda -c conda-forge python=3.11 c-compiler -y
-    conda activate cx311conda
+    conda create -n cx313conda -c conda-forge python=3.13 -y
+    conda activate cx313conda
     conda install -c conda-forge patchelf -y
     conda install -c conda-forge --file=requirements-dev.txt
     pre-commit install --install-hooks --overwrite -t pre-commit
