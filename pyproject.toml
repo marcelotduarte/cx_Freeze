@@ -34,7 +34,6 @@ dependencies = [
     "filelock>=3.12.3",
     "freeze-core>=0.2.0",
     "packaging>=24",
-    "python-msilib>=0.1.1 ;python_version >= '3.13'",
     "setuptools>=65.6.3,<=80.9.0",
     "tomli>=2.0.1 ;python_version < '3.11'",
     # Linux
@@ -48,6 +47,7 @@ dependencies = [
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
     "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32'",
+    "python-msilib>=0.1.1 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 dynamic = ["version"]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
