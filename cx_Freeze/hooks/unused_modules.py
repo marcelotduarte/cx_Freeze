@@ -199,8 +199,15 @@ if PY_VERSION >= (3, 10):
 if PY_VERSION >= (3, 11):
     DEFAULT_EXCLUDES.add("binhex")
 if PY_VERSION >= (3, 12):
-    DEFAULT_EXCLUDES.update(["distutils", "imp", "smtpd"])
-    # asynchat and asyncore are available as pyasynchat and pyasyncore packages
+    DEFAULT_EXCLUDES.update(
+        [
+            # "asynchat",  # available as pyasynchat
+            # "asyncore",  # available as pyasyncore
+            "distutils",
+            "imp",
+            "smtpd",
+        ]
+    )
 if PY_VERSION >= (3, 13):
     DEFAULT_EXCLUDES.update(
         [
@@ -214,7 +221,7 @@ if PY_VERSION >= (3, 13):
             "imghdr",
             "lib2to3",
             "mailcap",
-            "msilib",
+            # "msilib",  # available as python-msilib
             "nis",
             "nntplib",
             "ossaudiodev",

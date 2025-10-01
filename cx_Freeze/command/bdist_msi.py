@@ -14,14 +14,16 @@ from typing import ClassVar
 from packaging.version import Version
 from setuptools import Command
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import ABI_THREAD, IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.exception import OptionError, PlatformError
 
 __all__ = ["bdist_msi"]
 
 logger = logging.getLogger(__name__)
 
-if (IS_MINGW or IS_WINDOWS) and sys.version_info[:2] < (3, 13):
+if (IS_MINGW or IS_WINDOWS) and not (
+    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t"
+):
 
     @contextlib.contextmanager
     def suppress_known_deprecation() -> contextlib.AbstractContextManager:
@@ -1058,11 +1060,9 @@ class bdist_msi(Command):
         self.launch_on_finish = None
 
     def finalize_options(self) -> None:
-        major = sys.version_info.major
-        minor = sys.version_info.minor
-        if (major, minor) >= (3, 13):
+        if sys.version_info[:2] == (3, 13) and ABI_THREAD == "t":
             msg = (
-                f"bdist_msi is not supported on Python {major}.{minor} yet.\n"
+                "bdist_msi is not supported on Python 3.13t yet.\n"
                 "       Please check the pinned issue "
                 "https://github.com/marcelotduarte/cx_Freeze/issues/2837"
             )
