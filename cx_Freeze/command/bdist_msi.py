@@ -2,36 +2,27 @@
 
 from __future__ import annotations
 
-import contextlib
 import logging
 import os
 import re
 import shutil
-import sys
-import warnings
 from typing import ClassVar
 
 from packaging.version import Version
 from setuptools import Command
 
-from cx_Freeze._compat import ABI_THREAD, IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.exception import OptionError, PlatformError
 
 __all__ = ["bdist_msi"]
 
 logger = logging.getLogger(__name__)
 
-if (IS_MINGW or IS_WINDOWS) and not (
-    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t"
-):
+if IS_MINGW or IS_WINDOWS:
+    import warnings
 
-    @contextlib.contextmanager
-    def suppress_known_deprecation() -> contextlib.AbstractContextManager:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", "'msilib' is deprecated")
-            yield
-
-    with suppress_known_deprecation():
+    warnings.filterwarnings("ignore", "'msilib' is deprecated")
+    try:
         from msilib import (  # pylint: disable=deprecated-module
             CAB,
             PID_AUTHOR,
@@ -59,6 +50,10 @@ if (IS_MINGW or IS_WINDOWS) and not (
         for index, info in enumerate(install_execute_sequence):
             if info[0] == "RemoveExistingProducts":
                 install_execute_sequence[index] = (info[0], info[1], 1450)
+
+        msilib_ok = True
+    except ImportError:
+        msilib_ok = False
 
 
 class bdist_msi(Command):
@@ -1060,9 +1055,9 @@ class bdist_msi(Command):
         self.launch_on_finish = None
 
     def finalize_options(self) -> None:
-        if sys.version_info[:2] == (3, 13) and ABI_THREAD == "t":
+        if not msilib_ok:
             msg = (
-                "bdist_msi is not supported on Python 3.13t yet.\n"
+                "bdist_msi is not supported in your platform yet.\n"
                 "       Please check the pinned issue "
                 "https://github.com/marcelotduarte/cx_Freeze/issues/2837"
             )
