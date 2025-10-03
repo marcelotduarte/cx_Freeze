@@ -2,19 +2,11 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze._compat import ABI_THREAD, IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
 from cx_Freeze.command.bdist_msi import bdist_msi
-
-if sys.version_info[:2] == (3, 13) and ABI_THREAD == "t":
-    pytest.skip(
-        reason="bdist_msi is not supported on Python 3.13t yet.",
-        allow_module_level=True,
-    )
 
 DIST_ATTRS = {
     "name": "foo",
