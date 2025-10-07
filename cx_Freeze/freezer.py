@@ -34,7 +34,6 @@ from cx_Freeze._license import frozen_license
 from cx_Freeze.common import process_path_specs, resource_path
 from cx_Freeze.dep_parser import ELFParser, Parser, PEParser
 from cx_Freeze.exception import OptionError
-from cx_Freeze.executable import Executable
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.module import ConstantsModule, DistributionCache, Module
 
@@ -42,15 +41,15 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
     from cx_Freeze._typing import IncludesList, InternalIncludesList
+    from cx_Freeze.executable import Executable
 
 if IS_WINDOWS or IS_MINGW:
-    with suppress(ImportError):
-        from freeze_core.util import (
-            AddIcon,
-            GetSystemDir,
-            GetWindowsDir,
-            UpdateCheckSum,
-        )
+    from freeze_core.util import (
+        AddIcon,
+        GetSystemDir,
+        GetWindowsDir,
+        UpdateCheckSum,
+    )
 elif IS_MACOS:
     from cx_Freeze.darwintools import (
         DarwinFile,
@@ -58,7 +57,7 @@ elif IS_MACOS:
         MachOReference,
     )
 
-__all__ = ["ConstantsModule", "Executable", "Freezer"]
+__all__ = ["Freezer"]
 
 WARNING_PIP_CX_FREEZE_IN_CONDA_PYTHON = """WARNING:
 

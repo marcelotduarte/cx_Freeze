@@ -15,8 +15,9 @@ from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.command.install import Install as install
 from cx_Freeze.command.install_exe import install_exe
 from cx_Freeze.executable import Executable, validate_executables
-from cx_Freeze.finder import Module, ModuleFinder
-from cx_Freeze.freezer import ConstantsModule, Freezer
+from cx_Freeze.finder import ModuleFinder
+from cx_Freeze.freezer import Freezer
+from cx_Freeze.module import ConstantsModule, Module
 
 __all__ = [
     "ConstantsModule",
