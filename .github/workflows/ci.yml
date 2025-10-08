@@ -82,7 +82,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           activate-environment: true
           cache-dependency-glob: "pyproject.toml"
