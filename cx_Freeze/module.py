@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from types import CodeType
 
-__all__ = ["ConstantsModule", "Module", "ModuleHook"]
+__all__ = ["ConstantsModule", "DistributionCache", "Module", "ModuleHook"]
 
 
 class DistributionCache(metadata.PathDistribution):

@@ -60,7 +60,7 @@ STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
 STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 HAVE_ARGUMENT = opcode.HAVE_ARGUMENT
 
-__all__ = ["Module", "ModuleFinder"]
+__all__ = ["ModuleFinder"]
 
 logger = logging.getLogger(__name__)
 
