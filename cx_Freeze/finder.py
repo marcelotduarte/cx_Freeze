@@ -15,6 +15,7 @@ from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
+from cx_Freeze._bytecode import scan_code
 from cx_Freeze._compat import IS_WINDOWS
 from cx_Freeze.common import (
     code_object_replace,
@@ -41,24 +42,8 @@ if TYPE_CHECKING:
 ALL_SUFFIXES = importlib.machinery.all_suffixes()
 
 
-CALL_FUNCTION = opcode.opmap.get("CALL_FUNCTION")
-CALL = opcode.opmap.get("CALL")
-PRECALL = opcode.opmap.get("PRECALL")
-PUSH_NULL = opcode.opmap.get("PUSH_NULL")
-
-EXTENDED_ARG = opcode.opmap["EXTENDED_ARG"]
 LOAD_CONST = opcode.opmap["LOAD_CONST"]
-LOAD_NAME = opcode.opmap["LOAD_NAME"]
-IMPORT_NAME = opcode.opmap["IMPORT_NAME"]
-IMPORT_FROM = opcode.opmap["IMPORT_FROM"]
-# Python 3.12+ uses CALL_INTRINSIC_1 with argument 2
-IMPORT_STAR = (
-    opcode.opmap.get("IMPORT_STAR") or opcode.opmap["CALL_INTRINSIC_1"]
-)
 STORE_NAME = opcode.opmap["STORE_NAME"]
-STORE_GLOBAL = opcode.opmap["STORE_GLOBAL"]
-STORE_OPS = (STORE_NAME, STORE_GLOBAL)
-HAVE_ARGUMENT = opcode.HAVE_ARGUMENT
 
 __all__ = ["ModuleFinder"]
 
@@ -670,70 +655,14 @@ class ModuleFinder:
         """
         if code is None:
             code = module.code
-        arguments = []
-        name = None
-        import_call = 0
+
         imported_module = None
-        extended_arg = 0
-        co_code = code.co_code
-        for i in range(0, len(co_code), 2):
-            opc = co_code[i]
-            if opc >= HAVE_ARGUMENT:
-                arg = co_code[i + 1] | extended_arg
-                extended_arg = (arg << 8) if opc == EXTENDED_ARG else 0
-            else:
-                arg = None
-                extended_arg = 0
-
-            # keep track of constants (these are used for importing)
-            # immediately restart loop so arguments are retained
-            if opc == LOAD_CONST:
-                arguments.append(code.co_consts[arg])
-                continue
-
-            # __import__ call
-            if opc == LOAD_NAME:
-                name = code.co_names[arg]
-                continue
-            if PUSH_NULL and opc == PUSH_NULL:
-                continue
-            if name and name == "__import__" and len(arguments) == 1:
-                # Try to identify a __import__ call
-                # Python 3.13 bytecode:
-                # 1            2 LOAD_NAME                0 (__import__)
-                #              4 PUSH_NULL
-                #              6 LOAD_CONST               0 ('pkgutil')
-                #              8 CALL                     1
-                # Python 3.12 bytecode:
-                # 20           2 PUSH_NULL
-                #              4 LOAD_NAME                0 (__import__)
-                #              6 LOAD_CONST               0 ('pkgutil')
-                #              8 CALL                     1
-                # Python 3.6 to 3.10 uses CALL_FUNCTION instead of CALL
-                # Python 3.11 uses PRECALL then CALL
-                if CALL_FUNCTION and (opc, arg) == (CALL_FUNCTION, 1):
-                    import_call = 1
-                elif PRECALL:
-                    if (opc, arg) == (PRECALL, 1):
-                        import_call = arg
-                        continue
-                    arg = import_call
-                if CALL and (opc, arg) == (CALL, 1):
-                    import_call = 1
-
-            # import statement: attempt to import module or __import__
-            if opc == IMPORT_NAME or import_call == 1:
-                if opc == IMPORT_NAME:
-                    name = code.co_names[arg]
-                else:
-                    name = arguments[0]
-                    arguments = []
-                    logger.debug("Scan code detected __import__(%r)", name)
-                if len(arguments) >= 2:
-                    relative_import_index, from_list = arguments[-2:]
-                else:
-                    relative_import_index = -1
-                    from_list = arguments[0] if arguments else []
+        for opc, args in scan_code(code):
+            # import statement: attempt to import module
+            if "import" in opc:
+                name, relative_import_index, from_list = args
+                if opc in ("__import__", "import_module"):
+                    logger.debug("Scan code detected %s(%r)", opc, name)
                 if name not in module.exclude_names:
                     imported_module = self._import_module(
                         name, deferred_imports, module, relative_import_index
@@ -751,24 +680,13 @@ class ModuleFinder:
                         )
 
             # import * statement: copy all global names
-            elif (
-                opc == IMPORT_STAR
-                and (arg == 2 if opc > HAVE_ARGUMENT else None)
-                and top_level
-                and imported_module is not None
-            ):
+            elif opc == "star" and top_level and imported_module is not None:
                 module.global_names.update(imported_module.global_names)
 
             # store operation: track only top level
-            elif top_level and opc in STORE_OPS:
-                name = code.co_names[arg]
+            elif opc == "store" and top_level:
+                (name,) = args
                 module.global_names.add(name)
-
-            # reset arguments; these are only needed for import statements so
-            # ignore them in all other cases!
-            arguments = []
-            name = None
-            import_call = 0
 
         # Scan the code objects from function & class definitions
         for constant in code.co_consts:

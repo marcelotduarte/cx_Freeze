@@ -128,18 +128,6 @@ find_spec/hello.py
 """,
 ]
 
-IMPORT_CALL_TEST = [
-    "testpkg1",
-    ["testpkg1", "fake_pkgutil"],
-    [],
-    [],
-    """\
-testpkg1/__init__.py
-    __path__ = __import__('fake_pkgutil').extend_path(__path__, __name__)
-fake_pkgutil.py
-""",
-]
-
 INVALID_MODULE_NAME_TEST = [
     "testpkg1",
     [],
@@ -374,7 +362,6 @@ b/c.py
 """,
 ]
 
-
 SCAN_CODE_TEST = [
     "imports_sample",
     ["imports_sample"],
@@ -391,6 +378,34 @@ imports_sample.py
     import modg.submod
     try: pass
     finally: import modh
+""",
+]
+
+SCAN_CODE_IMPORT_CALL_TEST = [
+    "testpkg1",
+    ["testpkg1", "fake_pkgutil"],
+    [],
+    [],
+    """\
+testpkg1/__init__.py
+    __path__ = __import__('fake_pkgutil').extend_path(__path__, __name__)
+fake_pkgutil.py
+""",
+]
+
+SCAN_CODE_IMPORT_MODULE_TEST = [
+    "module1",
+    ["module1", "module2"],
+    [],
+    [],
+    """\
+module1.py
+    from importlib import import_module
+    module2 = import_module("module2")
+    module2.ok()
+module2.py
+    def ok():
+        print("ok")
 """,
 ]
 
