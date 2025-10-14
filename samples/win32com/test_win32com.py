@@ -10,7 +10,10 @@ is cheated on - so this is still working as a fully-fledged server.
 from typing import ClassVar
 
 import pythoncom
+import win32com.client.connect
+import win32com.client.dynamic
 import win32com.server.connect
+import win32com.server.policy
 import win32com.server.util
 
 # This is the IID of the Events interface both Client and Server support.
