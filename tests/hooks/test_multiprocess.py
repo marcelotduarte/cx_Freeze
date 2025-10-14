@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -108,6 +109,12 @@ def _parameters_data() -> Iterator:
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="multiprocess does not support Windows arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14),
+    raises=ModuleNotFoundError,
+    reason="multiprocess does not support Python 3.14+",
     strict=True,
 )
 @pytest.mark.venv(scope="module")

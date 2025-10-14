@@ -60,7 +60,11 @@ def test_anyio(tmp_package, zip_packages) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.platform != "win32" and ABI_THREAD == "":
+    if (
+        sys.platform != "win32"
+        and sys.version_info[:2] <= (3, 13)
+        and ABI_THREAD == ""
+    ):
         tmp_package.install("uvloop")
     tmp_package.freeze()
     executable = tmp_package.executable("test_anyio")

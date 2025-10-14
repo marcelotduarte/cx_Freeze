@@ -1,6 +1,4 @@
-"""Tests for hooks:
-numpy, matplotlib, pandas, raterio, scipy, shapely, and vtk.
-"""
+"""Tests for hooks: scipy, skimage and sklearn."""
 
 from __future__ import annotations
 
@@ -59,12 +57,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="scipy does not support Windows arm64",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_scipy(tmp_package, zip_packages: bool) -> None:
@@ -149,6 +141,12 @@ pyproject.toml
     reason="scikit-image does not support Python 3.13t on Windows",
     strict=True,
 )
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14),
+    raises=ModuleNotFoundError,
+    reason="scikit-image does not support Python 3.14+",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_skimage(tmp_package, zip_packages: bool) -> None:
@@ -200,6 +198,12 @@ pyproject.toml
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="scikit-learn does not support Windows arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="scikit-image does not support Python 3.14t",
     strict=True,
 )
 @pytest.mark.venv

@@ -46,7 +46,7 @@ pyproject.toml
     strict=True,
 )
 @pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="zeroconf does not support Python 3.13t",
     strict=True,

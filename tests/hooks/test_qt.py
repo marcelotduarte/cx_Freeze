@@ -78,6 +78,12 @@ def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
     reason="Qt does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14),
+    raises=ModuleNotFoundError,
+    reason="Qt does not support Python 3.14+",
+    strict=True,
+)
 @pytest.mark.venv
 @pytest.mark.parametrize("qt_impl", ["PyQt6", "PySide6", "PyQt5", "PySide2"])
 def test_qt(tmp_package, qt_impl) -> None:
