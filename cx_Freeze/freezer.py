@@ -50,6 +50,9 @@ if IS_WINDOWS or IS_MINGW:
         GetWindowsDir,
         UpdateCheckSum,
     )
+    from freeze_core.winmsvcr import MSVC_FILES, UCRT_FILES
+    from freeze_core.winmsvcr_repack import get_msvcr_files
+
 elif IS_MACOS:
     from cx_Freeze.darwintools import (
         DarwinFile,
@@ -1042,8 +1045,6 @@ class WinFreezer(Freezer, PEParser):
 
     def _post_freeze_hook(self) -> None:
         if self.include_msvcr:
-            from freeze_core.winmsvcr_repack import get_msvcr_files
-
             # remove MSVC runtime from default excludes
             excludes = set(self.default_bin_excludes)
             runtime = self._runtime_files()
@@ -1061,8 +1062,6 @@ class WinFreezer(Freezer, PEParser):
 
     def _runtime_files(self) -> set[str]:
         """Deal with C-runtime files."""
-        from freeze_core.winmsvcr import MSVC_FILES, UCRT_FILES
-
         return [*MSVC_FILES, *UCRT_FILES]
 
     def _default_bin_excludes(self) -> list[str]:

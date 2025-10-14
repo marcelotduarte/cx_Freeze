@@ -88,7 +88,8 @@ class Hook(ModuleHook):
                 #import os, signal
                 #os.kill(os.getppid(), signal.SIGHUP)
                 #_sys.exit(os.EX_SOFTWARE)
-                from {module.name}.spawn import freeze_support as _freeze_support
+                from {module.name}.spawn import \
+                    freeze_support as _freeze_support
                 _freeze_support()
         # cx_Freeze patch end
         """

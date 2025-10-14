@@ -242,7 +242,7 @@ class Hook(ModuleHook):
     def pandas_io_feather_format(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """Ignore optional modules in the pandas.io.parsers.base_parser module."""
+        """Ignore optional modules in pandas.io.parsers.base_parser module."""
         module.ignore_names.update(["pyarrow"])
 
     def pandas_io_formats_printing(
@@ -270,13 +270,13 @@ class Hook(ModuleHook):
     def pandas_io_formats_style_render(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """Ignore optional modules in the pandas.io.formats.style_render module."""
+        """Ignore optional modules in pandas.io.formats.style_render module."""
         module.ignore_names.update(
             ["markupsafe", "pandas.api.types.is_list_like"]
         )
 
     def pandas_io_gbq(self, _finder: ModuleFinder, module: Module) -> None:
-        """Ignore optional modules in the pandas.io.parsers.base_parser module."""
+        """Ignore optional modules in pandas.io.parsers.base_parser module."""
         module.ignore_names.update(["google.auth.credentials"])
 
     def pandas_io_html(self, _finder: ModuleFinder, module: Module) -> None:
@@ -290,7 +290,7 @@ class Hook(ModuleHook):
     def pandas_io_parsers_base_parser(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """Ignore optional modules in the pandas.io.parsers.base_parser module."""
+        """Ignore optional modules in pandas.io.parsers.base_parser module."""
         module.ignore_names.update(["pyarrow"])
 
     def pandas_io_parquet(self, _finder: ModuleFinder, module: Module) -> None:

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
+from cx_Freeze.hooks.global_names import CONCURRENT_FUTURES_GLOBAL_NAMES
 from cx_Freeze.hooks.qthooks import get_qt_plugins_paths  # noqa: F401
 
 if TYPE_CHECKING:
@@ -125,8 +126,6 @@ def load_collections(finder: ModuleFinder, module: Module) -> None:
 
 def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
     """Ignore names that should not be confused with modules to be imported."""
-    from cx_Freeze.hooks.global_names import CONCURRENT_FUTURES_GLOBAL_NAMES
-
     module.global_names.update(CONCURRENT_FUTURES_GLOBAL_NAMES)
 
 

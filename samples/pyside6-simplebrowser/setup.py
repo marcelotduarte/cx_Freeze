@@ -24,10 +24,15 @@ options = {
         "codesign_entitlements": os.path.join(
             os.path.dirname(__file__), "codesign-entitlements.plist"
         ),
-        "codesign_identity": None,  # Set this to enable signing with custom identity (replaces adhoc signature)
-        "codesign_options": "runtime",  # Ensure codesign uses 'hardened runtime'
-        "codesign_verify": False,  # Enable to get more verbose logging regarding codesign
-        "spctl_assess": False,  # Enable to get more verbose logging regarding codesign
+        # Set this to enable signing with custom identity
+        # (replaces adhoc signature)
+        "codesign_identity": None,
+        # Ensure codesign uses 'hardened runtime'
+        "codesign_options": "runtime",
+        # Enable to get more verbose logging regarding codesign
+        "codesign_verify": False,
+        # Enable to get more verbose logging regarding codesign
+        "spctl_assess": False,
     },
 }
 

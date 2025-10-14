@@ -118,7 +118,7 @@ class PEParser(Parser):
             lief = None
         else:
             try:
-                import lief
+                import lief  # noqa: PLC0415
             except ImportError:
                 lief = None
             else:
@@ -145,7 +145,10 @@ class PEParser(Parser):
         if lief:
             self._pe = lief.PE
         else:
-            from freeze_core.util import BindError, GetDependentFiles
+            from freeze_core.util import (  # noqa: PLC0415
+                BindError,
+                GetDependentFiles,
+            )
 
             self.GetDependentFiles = GetDependentFiles
             self.BindError = BindError

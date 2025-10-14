@@ -10,7 +10,10 @@ is cheated on - so this is still working as a fully-fledged server.
 from typing import ClassVar
 
 import pythoncom
+import win32com.client.connect
+import win32com.client.dynamic
 import win32com.server.connect
+import win32com.server.policy
 import win32com.server.util
 
 # This is the IID of the Events interface both Client and Server support.
@@ -56,8 +59,6 @@ class ConnectableClient:
     # interface.
     # In addition, it must provide a COM object (which server.util.wrap) does.
     def _query_interface_(self, iid):  # noqa: ANN202
-        import win32com.server.util
-
         # Note that this seems like a necessary hack.  I am responding to
         # IID_IConnectDemoEvents but only creating an IDispatch gateway object.
         if iid == IID_IConnectDemoEvents:
@@ -83,10 +84,6 @@ def CheckEvent(server, client, val, verbose) -> None:
 # In the real world, it is likely that the code controlling the server
 # will be in the same class as that getting the notifications.
 def simple_test(verbose=0) -> None:
-    import win32com.client.connect
-    import win32com.client.dynamic
-    import win32com.server.policy
-
     server = win32com.client.dynamic.Dispatch(
         win32com.server.util.wrap(ConnectableServer())
     )

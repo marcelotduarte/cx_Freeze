@@ -104,7 +104,7 @@ def test_cxfreeze_without_options(tmp_package) -> None:
     assert result.ret > 0
 
 
-SOURCE_TEST_PATH = f"""
+SOURCE_TEST_PATH = """
 advanced_1.py
     print("Hello from cx_Freeze Advanced #1")
     module = __import__("testfreeze_1")
@@ -133,8 +133,6 @@ pyproject.toml
     includes = ["testfreeze_1", "testfreeze_2"]
     include_msvcr = true
     silent = true
-command
-    cxfreeze build_exe --include-path=modules --default-path={os.pathsep.join(sys.path)}
 """
 OUTPUT0 = "Hello from cx_Freeze Advanced #{}"
 OUTPUT1 = "Test freeze module #{}"
@@ -143,7 +141,10 @@ OUTPUT1 = "Test freeze module #{}"
 def test_cxfreeze_include_path(tmp_package) -> None:
     """Test cxfreeze."""
     tmp_package.create(SOURCE_TEST_PATH)
-    tmp_package.freeze()
+    tmp_package.freeze(
+        "cxfreeze build_exe"
+        f" --include-path=modules --default-path={os.pathsep.join(sys.path)}"
+    )
 
     executable = tmp_package.executable_in_dist("advanced_1")
     assert executable.is_file()

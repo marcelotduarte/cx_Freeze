@@ -62,7 +62,7 @@ pyproject.toml
 @pytest.mark.xfail(
     sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="cryptography does not support Python 3.13t",
+    reason="pymupdf does not support Python 3.13t",
     strict=True,
 )
 @pytest.mark.venv
