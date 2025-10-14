@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from cx_Freeze._compat import (
+    ABI_THREAD,
     IS_ARM_64,
     IS_CONDA,
     IS_LINUX,
@@ -54,6 +57,12 @@ pyproject.toml
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="pymupdf does not support Windows arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="cryptography does not support Python 3.13t",
     strict=True,
 )
 @pytest.mark.venv

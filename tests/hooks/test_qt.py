@@ -75,13 +75,7 @@ def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="Qt does not support Python 3.13t",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="Qt does not support Python 3.14+",
+    reason="Qt does not support Python 3.13t/3.14t",
     strict=True,
 )
 @pytest.mark.venv

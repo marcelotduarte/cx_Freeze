@@ -105,16 +105,14 @@ def _parameters_data() -> Iterator:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Disabled test")
+@pytest.mark.skipif(
+    sys.version_info[:2] >= (3, 14),
+    reason="multiprocess does not support Python 3.14+",
+)
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="multiprocess does not support Windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="multiprocess does not support Python 3.14+",
     strict=True,
 )
 @pytest.mark.venv(scope="module")
