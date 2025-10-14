@@ -6,6 +6,8 @@ import sys
 
 import pytest
 
+from cx_Freeze._compat import ABI_THREAD
+
 TIMEOUT = 10
 
 if sys.platform != "win32":
@@ -16,6 +18,12 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
+@pytest.mark.xfail(
+    ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pywin32 does not support Python 3.13t/3.14t",
+    strict=True,
+)
 @pytest.mark.venv(scope="module")
 @zip_packages
 def test_win32com(tmp_package, zip_packages: bool) -> None:

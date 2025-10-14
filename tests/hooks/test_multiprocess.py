@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -104,6 +105,10 @@ def _parameters_data() -> Iterator:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Disabled test")
+@pytest.mark.skipif(
+    sys.version_info[:2] >= (3, 14),
+    reason="multiprocess does not support Python 3.14+",
+)
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,

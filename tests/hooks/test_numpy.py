@@ -177,6 +177,12 @@ pyproject.toml
     reason="rasterio does not support Python 3.13t",
     strict=True,
 )
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14),
+    raises=ModuleNotFoundError,
+    reason="rasterio does not support Python 3.14+",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_rasterio(tmp_package, zip_packages: bool) -> None:
@@ -377,6 +383,12 @@ pyproject.toml
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="vtkmodules (vtk) does not support Python 3.13t",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14),
+    raises=ModuleNotFoundError,
+    reason="vtkmodules (vtk) does not support Python 3.14+",
     strict=True,
 )
 @pytest.mark.venv

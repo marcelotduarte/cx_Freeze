@@ -22,7 +22,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for AV (pyAV).
 
-    Supported pypi versions (tested from 11.0 to 15.0).
+    Supported pypi versions (tested from 11.0 to 16.0.1).
     """
 
     def av(self, finder: ModuleFinder, module: Module) -> None:
