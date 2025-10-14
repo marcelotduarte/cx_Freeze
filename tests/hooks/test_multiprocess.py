@@ -90,7 +90,7 @@ EXPECTED_OUTPUT = [
 
 
 def _parameters_data() -> Iterator:
-    import multiprocessing as mp
+    import multiprocessing as mp  # noqa: PLC0415
 
     methods = mp.get_all_start_methods()
     for method in methods:

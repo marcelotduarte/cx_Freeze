@@ -231,7 +231,7 @@ def main() -> None:
     if args.target_dir:
         argv.append(f"--build-exe={args.target_dir}")
     if args.debug:
-        import setuptools.dist
+        import setuptools.dist  # noqa: PLC0415
 
         os.environ["DISTUTILS_DEBUG"] = "1"
         setuptools.dist.DEBUG = 1

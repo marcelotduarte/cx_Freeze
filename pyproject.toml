@@ -295,25 +295,18 @@ select = [
     "YTT",  # flake8-2020
 ]
 ignore = [
-    # ignored for now, but should be revised in future
-    # last revised using ruff 0.12.0
-    "D102",     # Missing docstring in public method
-    "D205",     # 1 blank line required between summary line and description
-    "D401",     # First line of docstring should be in imperative mood
-    "PERF203",  # `try`-`except` within a loop incurs performance overhead
-    # ignore the following
     "D105",     # Missing docstring in magic method
     "D107",     # Missing docstring in `__init__`
     "D203",     # conflict with D211
     "D213",     # conflict with D212
-    "PLC0415",  # `import` should be at the top-level of a file
+    # should be revised in future - last revised using ruff 0.14.0
+    "D102",     # Missing docstring in public method
+    "D205",     # 1 blank line required between summary line and description
+    "D401",     # First line of docstring should be in imperative mood
     "PLR2004",  # magic-value-comparison
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
-    "PYI021",   # Docstrings should not be included in stubs
-    # avoid the rules that may cause conflict with formatter
-    "E501",
     # prone to false positives: https://github.com/astral-sh/ruff/issues/4045
     "S603",
 ]
@@ -322,6 +315,7 @@ typing-modules = ["cx_Freeze._typing"]
 [tool.ruff.lint.per-file-ignores]
 "cx_Freeze/command/_pydialog.py" = ["ERA001"]
 "cx_Freeze/command/bdist_msi.py" = ["ERA001"]
+"samples/pydantic/test_pydantic.py" = ["E501"]
 "samples/*" = ["D1"]
 "tests/*" = ["S101"]
 
