@@ -150,7 +150,10 @@ def load_cryptography(finder: ModuleFinder, module: Module) -> None:
 def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
     """The ctypes.util module should filter import names."""
     if not IS_MACOS:
+        finder.exclude_module("ctypes.macholib")
         module.ignore_names.add("ctypes.macholib.dyld")
+    if not sys.platform.startswith("aix"):
+        module.exclude_names.add("ctypes._aix")
 
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
@@ -166,6 +169,9 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
                     target = f"lib/{source.name}"
                     finder.lib_files[source] = target
                     finder.include_files(source, target)
+    # Python 3.14+
+    with suppress(ImportError):
+        finder.include_module("ctypes._layout")
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:

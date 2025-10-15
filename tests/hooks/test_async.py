@@ -31,7 +31,11 @@ test_anyio.py
     run(
         main,
         backend_options={
-            "use_uvloop": sys.platform != "win32" and ABI_THREAD == ""
+            "use_uvloop": (
+                sys.platform != "win32"
+                and sys.version_info[:2] <= (3, 13)
+                and ABI_THREAD == ""
+            )
         },
     )
 pyproject.toml

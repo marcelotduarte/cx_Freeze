@@ -21,18 +21,20 @@ else:
             yield (i, i, op, arg)
 
 
-CALL = opmap.get("CALL")  # Python >= 3.11
+CALL = opmap.get("CALL")  # Python 3.11+
 CALL_FUNCTION = opmap.get("CALL_FUNCTION")  # Python <= 3.10
-PRECALL = opmap.get("PRECALL")  # Python == 3.11
-PUSH_NULL = opmap.get("PUSH_NULL")  # Python >= 3.11
+PRECALL = opmap.get("PRECALL")  # Python 3.11 only
+PUSH_NULL = opmap.get("PUSH_NULL")  # Python 3.11+
 
 EXTENDED_ARG = opmap["EXTENDED_ARG"]
 LOAD_CONST = opmap["LOAD_CONST"]
 LOAD_NAME = opmap["LOAD_NAME"]
+LOAD_SMALL_INT = opmap.get("LOAD_SMALL_INT")  # Python 3.14
+
 IMPORT_NAME = opmap["IMPORT_NAME"]
 IMPORT_FROM = opmap["IMPORT_FROM"]
-IMPORT_STAR = opmap.get("IMPORT_STAR")  # Python <= 3.11
-CALL_INTRINSIC_1 = opmap.get("CALL_INTRINSIC_1")  # Python >= 3.12
+IMPORT_STAR = opmap.get("IMPORT_STAR")  # Python up to 3.11
+CALL_INTRINSIC_1 = opmap.get("CALL_INTRINSIC_1")  # Python 3.12+
 
 STORE_NAME = opmap["STORE_NAME"]
 STORE_GLOBAL = opmap["STORE_GLOBAL"]
@@ -53,6 +55,10 @@ def scan_code(code: CodeType) -> Generator:
         # immediately restart loop so arguments are retained
         if opc == LOAD_CONST:
             arguments.append(consts[arg])
+            continue
+        # constants in Python 3.14
+        if LOAD_SMALL_INT and opc == LOAD_SMALL_INT:
+            arguments.append(arg)
             continue
 
         # keep track of the name which can be the name of the import func
@@ -82,7 +88,7 @@ def scan_code(code: CodeType) -> Generator:
             #              4 LOAD_NAME                0 (__import__)
             #              6 LOAD_CONST               0 ('pkgutil')
             #              8 CALL                     1
-            # Python 3.13 bytecode of a __import__ call:
+            # Python 3.13-3.14 bytecode of a __import__ call:
             # 1            2 LOAD_NAME                0 (__import__)
             #              4 PUSH_NULL
             #              6 LOAD_CONST               0 ('pkgutil')
@@ -104,10 +110,10 @@ def scan_code(code: CodeType) -> Generator:
 
         # import * statement: copy all global names
         elif IMPORT_STAR and opc == IMPORT_STAR:
-            # Python 3.9-3.11
+            # Python up to 3.11
             yield "star", ()
         elif CALL_INTRINSIC_1 and (opc, arg) == (CALL_INTRINSIC_1, 2):
-            # Python 3.12-3.13
+            # Python 3.12+
             yield "star", ()
 
         # store operation: track only top level
