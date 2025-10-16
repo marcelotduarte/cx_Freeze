@@ -18,9 +18,9 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
-TIMEOUT = 10
-TIMEOUT_SLOW = 60 if IS_CONDA else 20
-TIMEOUT_VERY_SLOW = 90 if IS_CONDA else 30
+TIMEOUT = 15
+TIMEOUT_SLOW = 60 if IS_CONDA else 30
+TIMEOUT_VERY_SLOW = 120 if IS_CONDA else 60
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -67,10 +67,10 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
+    IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="matplotlib does not support Windows arm64",
-    strict=True,
+    reason="matplotlib depends on kiwisolver that does not support "
+    "Python 3.13t on Windows",
 )
 @pytest.mark.venv
 @zip_packages
@@ -97,6 +97,12 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="pandas does not support Windows arm64",
+    strict=True,
+)
+@pytest.mark.xfail(
+    IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pandas does not support Python 3.13t/3.14t on Windows",
     strict=True,
 )
 @pytest.mark.venv

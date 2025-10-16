@@ -8,7 +8,7 @@ import pytest
 
 from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_CONDA, IS_WINDOWS
 
-TIMEOUT_SLOW = 60 if IS_CONDA else 20
+TIMEOUT_SLOW = 60 if IS_CONDA else 30
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]

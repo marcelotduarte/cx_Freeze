@@ -10,7 +10,14 @@ import pytest
 from setuptools import Distribution
 
 from cx_Freeze import Executable
-from cx_Freeze._compat import EXE_SUFFIX, IS_CONDA, IS_MINGW, IS_WINDOWS, SOABI
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    EXE_SUFFIX,
+    IS_CONDA,
+    IS_MINGW,
+    IS_WINDOWS,
+    SOABI,
+)
 from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, SetupError
 
@@ -263,17 +270,34 @@ TEST_VALID_PARAMETERS = [
     ),
     ("base", None, f"bases/console-{SOABI}{EXE_SUFFIX}"),
 ]
+
+# In Python < 3.13, legacy bases are available
 if sys.version_info[:2] < (3, 13):
     TEST_VALID_PARAMETERS += [
         ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
     ]
+    if IS_WINDOWS or IS_MINGW:
+        TEST_VALID_PARAMETERS += [
+            ("base", "Win32GUI", f"legacy/win32gui-{SOABI}{EXE_SUFFIX}"),
+        ]
+        if sys.version_info[:2] > (3, 9):
+            TEST_VALID_PARAMETERS += [
+                (
+                    "base",
+                    "Win32Service",
+                    f"legacy/win32service-{SOABI}{EXE_SUFFIX}",
+                ),
+            ]
+
+# In Python 3.9, 3.13t and 3.14t service is not available
 if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
-        ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}"),
-        ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}"),
-        ("base", "Win32GUI", f"legacy/win32gui-{SOABI}{EXE_SUFFIX}"),
-        ("base", "Win32Service", f"legacy/win32service-{SOABI}{EXE_SUFFIX}"),
+        ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}")
     ]
+    if sys.version_info[:2] > (3, 9) and ABI_THREAD == "":
+        TEST_VALID_PARAMETERS += [
+            ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}")
+        ]
 else:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/console-{SOABI}{EXE_SUFFIX}"),

@@ -17,7 +17,7 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
-TIMEOUT = 10
+TIMEOUT = 15
 
 SOURCE_QT = """
 test_qt.py

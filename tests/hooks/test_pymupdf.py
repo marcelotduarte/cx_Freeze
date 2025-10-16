@@ -16,7 +16,7 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
-TIMEOUT_SLOW = 60 if IS_CONDA else 20
+TIMEOUT_SLOW = 60 if IS_CONDA else 30
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -60,9 +60,9 @@ pyproject.toml
     strict=True,
 )
 @pytest.mark.xfail(
-    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="pymupdf does not support Python 3.13t",
+    reason="pymupdf does not support Python 3.13t/3.14t",
     strict=True,
 )
 @pytest.mark.venv

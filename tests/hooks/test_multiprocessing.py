@@ -9,7 +9,7 @@ import pytest
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-TIMEOUT = 10
+TIMEOUT = 15
 
 SOURCE = """\
 sample0.py

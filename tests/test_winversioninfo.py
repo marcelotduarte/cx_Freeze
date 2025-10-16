@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from packaging.version import Version
 
-from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import ABI_THREAD, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 SOURCE_SIMPLE_TEST = """
@@ -164,6 +164,12 @@ class TestVersionInfo:
         with pytest.raises(SystemExit):
             main_test(args=[])
 
+    @pytest.mark.xfail(
+        ABI_THREAD == "t",
+        raises=ModuleNotFoundError,
+        reason="pywin32 does not support Python 3.13t/3.14t",
+        strict=True,
+    )
     @pytest.mark.venv
     def test_main_with_environ(self, tmp_package) -> None:
         """Test argparse error exception."""

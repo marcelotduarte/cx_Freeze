@@ -8,7 +8,15 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    IS_ARM_64,
+    IS_CONDA,
+    IS_MINGW,
+    IS_WINDOWS,
+    IS_X86_32,
+    IS_X86_64,
+)
 from cx_Freeze.dep_parser import PEParser
 
 if sys.platform != "win32":
@@ -77,12 +85,14 @@ def test_manifest(tmp_package) -> None:
 
 LIEF_VERSIONS = []
 if IS_WINDOWS:
-    if IS_ARM_64:
-        LIEF_VERSIONS += ["0.16.6", "0.17.0"]
-    elif IS_CONDA:
+    if IS_CONDA:
         LIEF_VERSIONS += ["installed"]
-    else:
-        LIEF_VERSIONS += ["0.15.1", "0.16.6", "0.17.0"]
+    elif IS_ARM_64 and sys.version_info[:2] <= (3, 13) and ABI_THREAD == "":
+        LIEF_VERSIONS += ["0.16.6", "0.17.0"]
+    elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
+        if sys.version_info[:2] <= (3, 13):
+            LIEF_VERSIONS += ["0.15.1", "0.16.6"]
+        LIEF_VERSIONS += ["0.17.0"]
 elif IS_MINGW:
     LIEF_VERSIONS += ["installed"]
 
