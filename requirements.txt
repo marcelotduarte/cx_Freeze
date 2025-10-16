@@ -1,4 +1,4 @@
-freeze-core>=0.2.1
+freeze-core>=0.2.2
 packaging>=24
 setuptools>=78.1.1,<=80.9.0
 tomli>=2.0.1 ;python_version < '3.11'

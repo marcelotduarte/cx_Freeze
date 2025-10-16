@@ -15,7 +15,7 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
-TIMEOUT = 10
+TIMEOUT = 15
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]

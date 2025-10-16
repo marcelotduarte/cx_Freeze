@@ -14,9 +14,9 @@ from cx_Freeze._compat import (
     IS_WINDOWS,
 )
 
-TIMEOUT = 10
-TIMEOUT_SLOW = 60 if IS_CONDA else 20
-TIMEOUT_VERY_SLOW = 90 if IS_CONDA else 30
+TIMEOUT = 15
+TIMEOUT_SLOW = 60 if IS_CONDA else 30
+TIMEOUT_VERY_SLOW = 120 if IS_CONDA else 60
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]

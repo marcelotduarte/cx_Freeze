@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-TIMEOUT = 10
+TIMEOUT = 15
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]

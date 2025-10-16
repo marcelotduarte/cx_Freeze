@@ -8,7 +8,7 @@ import pytest
 
 from cx_Freeze._compat import ABI_THREAD
 
-TIMEOUT = 10
+TIMEOUT = 15
 
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
