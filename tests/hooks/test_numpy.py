@@ -67,10 +67,10 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
+    IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="matplotlib does not support Windows arm64",
-    strict=True,
+    reason="matplotlib depends on kiwisolver that does not support "
+    "Python 3.13t on Windows",
 )
 @pytest.mark.venv
 @zip_packages
