@@ -89,7 +89,7 @@ if IS_WINDOWS:
         LIEF_VERSIONS += ["installed"]
     elif IS_ARM_64 and sys.version_info[:2] <= (3, 13) and ABI_THREAD == "":
         LIEF_VERSIONS += ["0.16.6", "0.17.0"]
-    elif IS_X86_32 or IS_X86_64:
+    elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
         LIEF_VERSIONS += ["0.15.1", "0.16.6", "0.17.0"]
 elif IS_MINGW:
     LIEF_VERSIONS += ["installed"]

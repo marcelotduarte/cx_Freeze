@@ -37,7 +37,7 @@ if IS_WINDOWS:
         PACKAGE_VERSION += [("py-lief", "0.16.6")]
     elif IS_ARM_64 and sys.version_info[:2] <= (3, 13) and ABI_THREAD == "":
         PACKAGE_VERSION += [("lief", "0.16.6"), ("lief", "0.17.0")]
-    elif IS_X86_32 or IS_X86_64:
+    elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
         PACKAGE_VERSION += [
             ("lief", "0.15.1"),
             ("lief", "0.16.6"),

@@ -76,6 +76,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pywin32 does not support Python 3.13t/3.14t",
+    strict=True,
+)
 @pytest.mark.venv(scope="module")
 @zip_packages
 def test_win32com_shell(tmp_package, zip_packages: bool) -> None:

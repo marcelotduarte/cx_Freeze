@@ -99,6 +99,12 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     reason="pandas does not support Windows arm64",
     strict=True,
 )
+@pytest.mark.xfail(
+    IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pandas does not support Python 3.13t/3.14t on Windows",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
