@@ -168,15 +168,16 @@ class bdist_appimage(Command):
     def _get_file(
         self, file_path: str | None, releases_url: str, download_path: str
     ) -> str | None:
-        """Fetch appimagetool or (optional) runtime from the web if not available locally."""
+        """Fetch appimagetool from the web if not available locally."""
         if file_path is not None:
             file_path = os.path.expanduser(file_path)
             self.mkpath(os.path.dirname(file_path))
             with FileLock(file_path + ".lock"):
                 if not os.path.exists(file_path):
                     self.announce(
-                        f"download and install {os.path.basename(download_path)}"
-                        f" from {releases_url}",
+                        "download and install "
+                        f"{os.path.basename(download_path)} "
+                        f"from {releases_url}",
                         INFO,
                     )
                     urlretrieve(  # noqa: S310
