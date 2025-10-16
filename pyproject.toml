@@ -48,7 +48,8 @@ dependencies = [
     # macOS
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
-    "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32'",
+    "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32' and platform_machine != 'ARM64'",
+    "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32' and platform_machine == 'ARM64' and python_version <= '3.13'",
     "python-msilib>=0.2.0 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 dynamic = ["version"]

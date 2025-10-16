@@ -120,13 +120,50 @@ else
         fi
     fi
 
-    # Dependencies of the project
-    echo "Install packages"
-    if [ "$INSTALL_TESTS" == "1" ]; then
-        # including pytest and dependencies
-        uv pip install --extra tests --upgrade -r pyproject.toml
+    # Lief is not available for Python 3.13t and 3.14t
+    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+    PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
+    PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
+    IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo 1)
+    if [ "$IS_WINDOWS" == "1" ] && \
+       { [ "$PY_VER_ABI" == "3.13t" ] || [ "$PY_VER_ABI" == "3.14t" ]; }; then
+        # Packages to install
+        pkgs=()
+
+        # Dependencies of the project
+        if [ -f requirements.txt ]; then
+            while read -r line; do
+                if [[ $line != *sys_platform* ]] || \
+                   [[ $line == *sys_platform*==*win32* ]]; then
+                    name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                    if [ "$name" == "lief" ]; then continue; fi
+                    if [ "$name" == "tomli" ]; then continue; fi
+                    name_and_version=$(echo "$line" | awk '{ print $1 }')
+                    pkgs+=("$name_and_version")
+                fi
+            done < requirements.txt
+        fi
+
+        # pytest and dependencies
+        if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
+            while read -r line; do
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                pkgs+=("$name")
+            done < tests/requirements.txt
+        fi
+
+        echo "Install packages"
+        uv pip install --upgrade "${pkgs[@]}"
+
     else
-        uv pip install --upgrade -r pyproject.toml
+        # Dependencies of the project
+        echo "Install packages"
+        if [ "$INSTALL_TESTS" == "1" ]; then
+            # including pytest and dependencies
+            uv pip install --upgrade -r pyproject.toml --extra tests
+        else
+            uv pip install --upgrade -r pyproject.toml
+        fi
     fi
 fi
 
