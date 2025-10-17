@@ -39,15 +39,16 @@ def test_bdist_appimage_download_appimagetool() -> None:
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
     cmd.finalize_options()
-    appimagekit = cmd.appimagekit
+    appimagetool = cmd.appimagetool
     # remove
-    if os.path.exists(appimagekit):
-        with FileLock(appimagekit + ".lock"):
-            os.unlink(appimagekit)
+    if os.path.exists(appimagetool):
+        with FileLock(appimagetool + ".lock"):
+            os.unlink(appimagetool)
     # force the download
     cmd2 = bdist_appimage(dist)
     cmd2.finalize_options()
     cmd2.ensure_finalized()
+    assert os.path.exists(cmd2.appimagetool)
     assert cmd2.fullname == "foo-0.0"
 
 
@@ -57,10 +58,12 @@ def test_bdist_appimage_download_runtime(tmp_path) -> None:
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
     # use locally installed appimagetool and runtime
-    cmd.appimagekit = str(tmp_path / "appimagetool.AppImage")
+    cmd.appimagetool = str(tmp_path / "appimagetool.AppImage")
     cmd.runtime_file = str(tmp_path / "type2_runtime")
     cmd.finalize_options()
     cmd.ensure_finalized()
+    assert os.path.exists(cmd.appimagetool)
+    assert os.path.exists(cmd.runtime_file)
     assert cmd.fullname == "foo-0.0"
 
 

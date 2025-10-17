@@ -25,32 +25,33 @@ The available commands for built distributions are:
    bdist_msi.rst
    bdist_rpm.rst
 
-+-----------------------+---------------------------------------+-----------+
-| Command               | Description                           | Notes     |
-+=======================+=======================================+===========+
-| :doc:`bdist_appimage` | AppImage application bundle           | \(1)      |
-|                       | (:file:`.AppImage`)                   |           |
-+-----------------------+---------------------------------------+-----------+
-| :doc:`bdist_deb`      | DEB distribution (:file:`.deb`)       | \(2) \(3) |
-+-----------------------+---------------------------------------+-----------+
-| :doc:`bdist_dmg`      | DMG disk image (:file:`.dmg`)         |           |
-+-----------------------+---------------------------------------+-----------+
-| :doc:`bdist_mac`      | Mac application bundle (:file:`.app`) |           |
-+-----------------------+---------------------------------------+-----------+
-| :doc:`bdist_msi`      | Windows installer (:file:`.msi`)      |           |
-+-----------------------+---------------------------------------+-----------+
-| :doc:`bdist_rpm`      | RPM distribution (:file:`.rpm`)       | \(3)      |
-+-----------------------+---------------------------------------+-----------+
++-----------------------+---------------------------------------+-------------+
+| Command               | Description                           | Notes       |
++=======================+=======================================+=============+
+| :doc:`bdist_appimage` | AppImage application bundle           | [1]_        |
+|                       | (:file:`.AppImage`)                   |             |
++-----------------------+---------------------------------------+-------------+
+| :doc:`bdist_deb`      | DEB distribution (:file:`.deb`)       | [2]_ [3]_   |
++-----------------------+---------------------------------------+-------------+
+| :doc:`bdist_dmg`      | DMG disk image (:file:`.dmg`)         |             |
++-----------------------+---------------------------------------+-------------+
+| :doc:`bdist_mac`      | Mac application bundle (:file:`.app`) |             |
++-----------------------+---------------------------------------+-------------+
+| :doc:`bdist_msi`      | Windows installer (:file:`.msi`)      |             |
++-----------------------+---------------------------------------+-------------+
+| :doc:`bdist_rpm`      | RPM distribution (:file:`.rpm`)       | [3]_        |
++-----------------------+---------------------------------------+-------------+
 
 .. versionadded:: 7.0
    Support for the ``bdist_appimage`` and ``bdist_deb`` commands.
 
-.. note::
+.. admonition:: Notes
 
-   #. requires external :program:`AppImageKit`
+   .. [1] requires external :program:`appimagetool`
       (the latest version is downloaded if not specified or not found).
 
-   #. requires external :program:`alien` and :program:`fakeroot` utilities.
+   .. [2] requires external :program:`alien` and :program:`fakeroot`
+      utilities.
 
-   #. requires external :program:`rpm` utility, version 3.0.4 or better
+   .. [3] requires external :program:`rpm` utility, version 3.0.4 or better
       (use ``rpm --version`` to find out which version you have).

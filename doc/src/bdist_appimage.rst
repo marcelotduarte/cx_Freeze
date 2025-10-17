@@ -2,7 +2,7 @@ bdist_appimage
 ==============
 
 An `AppImage <https://docs.appimage.org/>`_ is a downloadable file for Linux
-that contains an application and everything the application needs to run
+[1]_ that contains an application and everything the application needs to run
 (e.g., libraries, icons, fonts, translations, etc.) that cannot be reasonably
 expected to be part of each target system.
 
@@ -14,10 +14,11 @@ their desktop environment’s file manager, by running it from the console etc.
 It is crucial to understand that AppImage is merely a format for distributing
 applications. In this regard, AppImage is like a `.zip` file or an `.iso` file.
 
-When cx_Freeze calls appimagetool to create an AppImage application bundle
-(an :file:`.AppImage` file), it builds a read-only image of a
+When cx_Freeze calls :program:`appimagetool` to create an AppImage application
+bundle (an :file:`.AppImage` file), it builds a read-only image of a
 :ref:`cx_freeze_build_exe` directory, then prepends the runtime, and marks the
-file executable.
+file as executable.
+
 
 .. list-table::
    :header-rows: 1
@@ -26,10 +27,10 @@ file executable.
 
    * - option name
      - description
-   * - .. option:: appimagekit
-     - path to appimagetool (formerly AppImageKit) [default: the latest version is downloaded]
+   * - .. option:: appimagetool
+     - path to appimagetool [default: the latest version is downloaded]
    * - .. option:: runtime_file
-     - path to type2 runtime [default: the latest version is downloaded by appimagetool]
+     - path to type2 runtime [default: the latest version is downloaded]
    * - .. option:: bdist_base
      - base directory for creating built distributions
    * - .. option:: build_dir (-b)
@@ -49,6 +50,11 @@ file executable.
      - suppress all output except warnings
 
 .. versionadded:: 7.0
+   :doc:`bdist_appimage` command.
+.. versionchanged:: 8.5
+   Replaced the ``appimagekit`` option with the :option:`appimagetool` option.
+.. versionadded:: 8.5
+   :option:`runtime_file` option.
 
 
 To specify the same options on the command line, this is the help command that
@@ -70,3 +76,6 @@ shows the equivalent options:
 
 .. seealso::
   `AppImage | Linux apps that run anywhere <https://appimage.org/>`_
+
+.. [1] AppImage is for Linux (and compatible systems such as Windows with
+   WSL2 and FreeBSD with the Linuxulator).
