@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import logging
 import sys
+from contextlib import suppress
 from opcode import opmap
+from textwrap import dedent
+from types import CodeType
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-    from types import CodeType
+
+    from cx_Freeze.module import Module
 
 if sys.version_info[:2] >= (3, 13):
     from dis import _unpack_opargs
@@ -43,7 +47,83 @@ STORE_OPS = (STORE_NAME, STORE_GLOBAL)
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["scan_code"]
+__all__ = [
+    "code_object_replace",
+    "code_object_replace_function",
+    "code_object_replace_package",
+    "scan_code",
+]
+
+
+def code_object_replace(code: CodeType, **kwargs) -> CodeType:
+    """Return a copy of the code object with new values for the specified
+    fields.
+    """
+    with suppress(ValueError, KeyError):
+        kwargs["co_consts"] = tuple(kwargs["co_consts"])
+    return code.replace(**kwargs)
+
+
+def code_object_replace_function(
+    code: CodeType, name: str, source: str
+) -> CodeType:
+    """Return a copy of the code object with the function 'name' replaced."""
+    if code is None:
+        return code
+
+    new_code = compile(
+        dedent(source), code.co_filename, "exec", dont_inherit=True
+    )
+    new_co_func = None
+    for constant in new_code.co_consts:
+        if isinstance(constant, CodeType) and constant.co_name == name:
+            new_co_func = constant
+            break
+    if new_co_func is None:
+        return code
+
+    consts = list(code.co_consts)
+    for i, constant in enumerate(consts):
+        if isinstance(constant, CodeType) and constant.co_name == name:
+            consts[i] = code_object_replace(
+                new_co_func, co_firstlineno=constant.co_firstlineno
+            )
+            break
+    return code_object_replace(code, co_consts=consts)
+
+
+def code_object_replace_package(module: Module) -> CodeType:
+    """Replace the value of __package__ directly in the code, when the
+    module is in a package and will be stored in shared zip file.
+    """
+    code = module.code
+    # Check if module is in a package and will be stored in zip file
+    # and is not defined in the module, like 'six' do
+    if (
+        code is None
+        or module.parent is None
+        or "__package__" in module.global_names
+        or module.in_file_system >= 1
+    ):
+        return code
+    # Only if the code references it.
+    if "__package__" in code.co_names:
+        consts = list(code.co_consts)
+        pkg_const_index = len(consts)
+        pkg_name_index = code.co_names.index("__package__")
+        if pkg_const_index > 255 or pkg_name_index > 255:
+            # Don't touch modules with many constants or names;
+            # This is good for now.
+            return code
+        # Insert a bytecode to set __package__ as module.parent.name
+        codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
+        codestring = bytes(codes) + code.co_code
+        if module.file.stem == "__init__":
+            consts.append(module.name)
+        else:
+            consts.append(module.parent.name)
+        code = code_object_replace(code, co_code=codestring, co_consts=consts)
+    return code
 
 
 def scan_code(code: CodeType) -> Generator:
