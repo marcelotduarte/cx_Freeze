@@ -67,7 +67,7 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    IS_WINDOWS and sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    IS_WINDOWS and sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="matplotlib depends on kiwisolver that does not support "
     "Python 3.13t on Windows",

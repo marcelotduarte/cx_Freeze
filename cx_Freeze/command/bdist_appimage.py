@@ -29,11 +29,14 @@ from cx_Freeze.exception import ExecError, PlatformError
 __all__ = ["bdist_appimage"]
 
 ARCH = platform.machine()
+
 APPIMAGETOOL_RELEASES_URL = "https://github.com/AppImage/appimagetool/releases"
 APPIMAGETOOL_DOWNLOAD = f"download/continuous/appimagetool-{ARCH}.AppImage"
 APPIMAGETOOL_CACHE = f"~/.local/bin/appimagetool-{ARCH}.AppImage"
+
 RUNTIME_RELEASES_URL = "https://github.com/AppImage/type2-runtime/releases"
 RUNTIME_DOWNLOAD = f"download/continuous/runtime-{ARCH}"
+RUNTIME_CACHE = f"~/.cache/cxfreeze/appimage/runtime-{ARCH}"
 
 
 class bdist_appimage(Command):
@@ -42,15 +45,14 @@ class bdist_appimage(Command):
     description = "create a Linux AppImage"
     user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         (
-            "appimagekit=",
+            "appimagetool=",
             None,
-            "path to appimagetool (formerly AppImageKit) "
-            f'[default: "{APPIMAGETOOL_CACHE}"]',
+            f'path to appimagetool [default: "{APPIMAGETOOL_CACHE}"]',
         ),
         (
             "runtime-file=",
             None,
-            "path to type2 runtime (optional)",
+            f'path to type2 runtime [default: "{RUNTIME_CACHE}"]',
         ),
         (
             "bdist-base=",
@@ -82,7 +84,7 @@ class bdist_appimage(Command):
     ]
 
     def initialize_options(self) -> None:
-        self.appimagekit = None
+        self.appimagetool = None
         self.runtime_file = None
 
         self.bdist_base = None
@@ -153,40 +155,31 @@ class bdist_appimage(Command):
             if build_exe:
                 build_exe.silent = self.silent
 
-        # validate or download appimagetool
-        self.appimagekit = self._get_file(
-            self.appimagekit or APPIMAGETOOL_CACHE,
-            APPIMAGETOOL_RELEASES_URL,
-            APPIMAGETOOL_DOWNLOAD,
+        # download tools if not in cache
+        self.appimagetool = self._get_file(
+            self.appimagetool or APPIMAGETOOL_CACHE,
+            os.path.join(APPIMAGETOOL_RELEASES_URL, APPIMAGETOOL_DOWNLOAD),
         )
-
-        # optionally, download type2 runtime
         self.runtime_file = self._get_file(
-            self.runtime_file, RUNTIME_RELEASES_URL, RUNTIME_DOWNLOAD
+            self.runtime_file or RUNTIME_CACHE,
+            os.path.join(RUNTIME_RELEASES_URL, RUNTIME_DOWNLOAD),
         )
 
-    def _get_file(
-        self, file_path: str | None, releases_url: str, download_path: str
-    ) -> str | None:
-        """Fetch appimagetool from the web if not available locally."""
-        if file_path is not None:
-            file_path = os.path.expanduser(file_path)
-            self.mkpath(os.path.dirname(file_path))
-            with FileLock(file_path + ".lock"):
-                if not os.path.exists(file_path):
-                    self.announce(
-                        "download and install "
-                        f"{os.path.basename(download_path)} "
-                        f"from {releases_url}",
-                        INFO,
-                    )
-                    urlretrieve(  # noqa: S310
-                        os.path.join(releases_url, download_path),
-                        file_path,
-                    )
-                    if os.path.splitext(file_path)[1] == ".AppImage":
-                        os.chmod(file_path, stat.S_IRWXU)
-        return file_path
+    def _get_file(self, filename: str, full_url: str) -> str:
+        """Fetch 'filename' from the web if not available locally."""
+        filename = os.path.expanduser(filename)
+        self.mkpath(os.path.dirname(filename))
+        with FileLock(filename + ".lock"):
+            if not os.path.exists(filename):
+                msg = (
+                    "download and install "
+                    f"{os.path.basename(filename)} from {full_url}"
+                )
+                self.announce(msg, INFO)
+                urlretrieve(full_url, filename)  # noqa: S310
+                if os.path.splitext(filename)[1] == ".AppImage":
+                    os.chmod(filename, stat.S_IRWXU)
+        return filename
 
     def run(self) -> None:
         # Create the application bundle
@@ -280,19 +273,19 @@ class bdist_appimage(Command):
 
         # Build an AppImage from an AppDir
         os.environ["ARCH"] = ARCH
-        cmd = [self.appimagekit]
+        cmd = [self.appimagetool]
         if find_library("fuse") is None:  # libfuse.so.2 is not found
             cmd.append("--appimage-extract-and-run")
         if self.runtime_file is not None:
             cmd.extend(["--runtime-file", self.runtime_file])
         cmd.extend(["--no-appstream", appdir, output])
-        with FileLock(self.appimagekit + ".lock"):
+        with FileLock(self.appimagetool + ".lock"):
             self.spawn(cmd, search_path=0)
+
+        self.warnings()
         if not os.path.exists(output):
             msg = "Could not build AppImage"
             raise ExecError(msg)
-
-        self.warnings()
 
     def save_as_file(self, data, outfile, mode="r") -> tuple[str, int]:
         """Save an input data to a file respecting verbose, dry-run and force
