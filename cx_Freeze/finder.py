@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import importlib.machinery
 import logging
-import opcode
 import os
 import sys
 from contextlib import suppress
@@ -15,13 +14,13 @@ from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
-from cx_Freeze._bytecode import scan_code
-from cx_Freeze._compat import IS_WINDOWS
-from cx_Freeze.common import (
+from cx_Freeze._bytecode import (
     code_object_replace,
-    process_path_specs,
-    resource_path,
+    code_object_replace_package,
+    scan_code,
 )
+from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze.common import process_path_specs, resource_path
 from cx_Freeze.hooks.unused_modules import (
     DEFAULT_EXCLUDES,
     DEFAULT_IGNORE_NAMES,
@@ -41,9 +40,6 @@ if TYPE_CHECKING:
 
 ALL_SUFFIXES = importlib.machinery.all_suffixes()
 
-
-LOAD_CONST = opcode.opmap["LOAD_CONST"]
-STORE_NAME = opcode.opmap["STORE_NAME"]
 
 __all__ = ["ModuleFinder"]
 
@@ -522,7 +518,7 @@ class ModuleFinder:
             self._scan_code(module, deferred_imports)
 
             # Verify __package__ in use
-            module.code = self._replace_package_in_code(module)
+            module.code = code_object_replace_package(module)
         elif module.stub_code is not None:
             self._scan_code(module, deferred_imports, module.stub_code)
 
@@ -566,42 +562,6 @@ class ModuleFinder:
         if module_name not in caller.ignore_names:
             callers = self._bad_modules.setdefault(module_name, {})
             callers[caller.name] = None
-
-    @staticmethod
-    def _replace_package_in_code(module: Module) -> CodeType:
-        """Replace the value of __package__ directly in the code, when the
-        module is in a package and will be stored in shared zip file.
-        """
-        code = module.code
-        # Check if module is in a package and will be stored in zip file
-        # and is not defined in the module, like 'six' do
-        if (
-            code is None
-            or module.parent is None
-            or "__package__" in module.global_names
-            or module.in_file_system >= 1
-        ):
-            return code
-        # Only if the code references it.
-        if "__package__" in code.co_names:
-            consts = list(code.co_consts)
-            pkg_const_index = len(consts)
-            pkg_name_index = code.co_names.index("__package__")
-            if pkg_const_index > 255 or pkg_name_index > 255:
-                # Don't touch modules with many constants or names;
-                # This is good for now.
-                return code
-            # Insert a bytecode to set __package__ as module.parent.name
-            codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
-            codestring = bytes(codes) + code.co_code
-            if module.file.stem == "__init__":
-                consts.append(module.name)
-            else:
-                consts.append(module.parent.name)
-            code = code_object_replace(
-                code, co_code=codestring, co_consts=consts
-            )
-        return code
 
     def _replace_paths_in_code(
         self, module: Module, code: CodeType | None = None
