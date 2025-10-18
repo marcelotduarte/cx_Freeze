@@ -187,4 +187,7 @@ def test_bdist_appimage_simple(tmp_package) -> None:
     file_created = (
         tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
     )
-    assert file_created.is_file(), f"{name}-{version}-{arch}.AppImage"
+    assert file_created.is_file(), f"file not found: {file_created}"
+
+    result = tmp_package.run(file_created, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")

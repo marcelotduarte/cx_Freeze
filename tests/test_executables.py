@@ -308,8 +308,10 @@ else:
 @pytest.mark.parametrize(("option", "value", "result"), TEST_VALID_PARAMETERS)
 def test_valid(tmp_package, option, value, result) -> None:
     """Test valid values to use in Executable class."""
+    expected_app_type = None
     if value == "absolutepath":
         if option == "base":
+            expected_app_type = "console"
             value = tmp_package.path / f"console_test{EXE_SUFFIX}"
             shutil.copyfile(
                 resource_path(f"bases/console-{SOABI}{EXE_SUFFIX}"), value
@@ -319,6 +321,18 @@ def test_valid(tmp_package, option, value, result) -> None:
             shutil.copyfile(resource_path("initscripts/console.py"), value)
 
     executable = Executable("test.py", **{option: value})
+
+    if expected_app_type is None:
+        if option == "base":
+            expected_app_type = value or "console"
+        else:
+            expected_app_type = (
+                executable.base.stem.lower()
+                .removeprefix("win32")
+                .removesuffix(f"-{SOABI}{EXE_SUFFIX}")
+            )
+    assert executable.app_type == expected_app_type
+
     returned = getattr(executable, option)
     if isinstance(value, Path) and value.is_absolute():
         assert returned == value
