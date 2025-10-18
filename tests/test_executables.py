@@ -323,14 +323,12 @@ def test_valid(tmp_package, option, value, result) -> None:
     executable = Executable("test.py", **{option: value})
 
     if expected_app_type is None:
-        if option == "base":
-            expected_app_type = value or "console"
-        else:
-            expected_app_type = (
-                executable.base.stem.lower()
-                .removeprefix("win32")
-                .removesuffix(f"-{SOABI}{EXE_SUFFIX}")
-            )
+        base = value or "console" if option == "base" else executable.base.stem
+        expected_app_type = (
+            base.lower()
+            .removeprefix("win32")
+            .removesuffix(f"-{SOABI}{EXE_SUFFIX}")
+        )
     assert executable.app_type == expected_app_type
 
     returned = getattr(executable, option)
