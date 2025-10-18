@@ -325,9 +325,7 @@ def test_valid(tmp_package, option, value, result) -> None:
     if expected_app_type is None:
         base = value or "console" if option == "base" else executable.base.stem
         expected_app_type = (
-            base.lower()
-            .removeprefix("win32")
-            .removesuffix(f"-{SOABI}{EXE_SUFFIX}")
+            base.lower().removeprefix("win32").removesuffix(f"-{SOABI}")
         )
     assert executable.app_type == expected_app_type
 
