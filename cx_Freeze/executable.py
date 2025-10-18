@@ -59,6 +59,8 @@ class Executable:
         self._shortcut_name: str | None = None
         self._shortcut_dir: Path | None = None
 
+        self.app_type = "console"
+
         self.main_script = script
         self.init_script = init_script
         self.base = base
@@ -91,11 +93,16 @@ class Executable:
                 self._base = filename
                 self._ext = filename.suffix
                 return
-        # silently ignore gui and service on non-windows systems
-        if not (IS_WINDOWS or IS_MINGW) and name in ("gui", "service"):
-            name = None
+
         # The default base is console
         name = name or "console"
+
+        # Get the app type (console, gui or service)
+        self.app_type = name.lower().removeprefix("win32")
+
+        # On non-windows systems the base console is used for any type of app
+        if not (IS_WINDOWS or IS_MINGW) and name in ("gui", "service"):
+            name = "console"
         if name.lower().startswith("win32"):
             name = f"legacy/{name.lower()}"
         if not name.startswith("legacy"):

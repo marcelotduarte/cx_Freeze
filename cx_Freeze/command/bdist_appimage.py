@@ -182,7 +182,10 @@ class bdist_appimage(Command):
         return filename
 
     def run(self) -> None:
-        # Create the application bundle
+        """Create the application bundle.
+
+        https://docs.appimage.org/reference/appdir.html
+        """
         if not self.skip_build:
             self.run_command("build_exe")
 
@@ -193,7 +196,7 @@ class bdist_appimage(Command):
         if os.path.exists(output):
             os.unlink(output)
 
-        # Make AppDir folder
+        # Create AppDir format
         appdir = os.path.join(self.bdist_base, "AppDir")
         if os.path.exists(appdir):
             self.execute(shutil.rmtree, (appdir,), msg=f"removing {appdir}")
@@ -213,7 +216,7 @@ class bdist_appimage(Command):
             filename.unlink()
             library_data.unlink()
 
-        # Add icon, desktop file, entrypoint
+        # Add icons, desktop file and entrypoint
         share_icons = os.path.join("share", "icons")
         icons_dir = os.path.join(appdir, share_icons)
         self.mkpath(icons_dir)
@@ -233,7 +236,17 @@ class bdist_appimage(Command):
             icon_name = executable.icon.name
             self.move_file(os.path.join(appdir, icon_name), icons_dir)
         relative_reference = os.path.join(share_icons, icon_name)
+
+        # .DirIcon is a symlink to executable.icon or logox128.png
         origin = os.path.join(appdir, ".DirIcon")
+        self.execute(
+            os.symlink,
+            (relative_reference, origin),
+            msg=f"linking {origin} -> {relative_reference}",
+        )
+        origin = os.path.join(
+            appdir, f"{self.target_name}.{os.path.splitext(icon_name)[1]}"
+        )
         self.execute(
             os.symlink,
             (relative_reference, origin),
@@ -248,7 +261,7 @@ class bdist_appimage(Command):
             Comment={self.distribution.get_description()}
             Icon=/{share_icons}/{os.path.splitext(icon_name)[0]}
             Categories=Development;
-            Terminal=true
+            Terminal={"false" if executable.app_type == "gui" else "true"}
             X-AppImage-Arch={ARCH}
             X-AppImage-Name={self.target_name}
             X-AppImage-Version={self.target_version or ""}
