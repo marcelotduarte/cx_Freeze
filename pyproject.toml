@@ -21,7 +21,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -33,10 +32,10 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "freeze-core>=0.2.2",
+    "freeze-core>=0.3.0",
     "packaging>=24",
     "setuptools>=78.1.1,<=80.9.0",
-    "tomli>=2.0.1 ;python_version < '3.11'",
+    "tomli>=2.0.1 ;python_version == '3.10'",
     # Linux
     "filelock>=3.12.3 ;sys_platform == 'linux'",
     "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
@@ -50,19 +49,19 @@ dependencies = [
     # Windows
     "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32' and platform_machine != 'ARM64'",
     "lief>=0.15.1,<=0.17.0 ;sys_platform == 'win32' and platform_machine == 'ARM64' and python_version <= '3.13'",
-    "python-msilib>=0.2.0 ;sys_platform == 'win32' and python_version >= '3.13'",
+    "python-msilib>=0.3.0 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 dynamic = ["version"]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
 license = "PSF-2.0"
 license-files = ["LICENSE.md"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.4",
-    "pre-commit==4.3.0",           # python_version >= 3.9
+    "pre-commit==4.3.0",           # python_version >= 3.10
 ]
 doc = [
     "sphinx==8.2.3 ;python_version >= '3.11'",
@@ -113,7 +112,7 @@ namespaces = false
 
 [tool.black]
 line-length = 79
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.bumpversion]
 commit = true
@@ -232,7 +231,7 @@ ignore-paths = [
 ]
 jobs = 0
 output-format = "colorized"
-py-version = [3, 9]
+py-version = [3, 10]
 
 [tool.pytest.ini_options]
 minversion = "7.0"

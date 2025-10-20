@@ -2,7 +2,6 @@
 
 # https://github.com/pydantic/pydantic?tab=readme-ov-file#a-simple-example
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -10,7 +9,7 @@ from pydantic import BaseModel
 class User(BaseModel):
     id: int
     name: str = "John Doe"
-    signup_ts: Optional[datetime] = None  # noqa: FA100
+    signup_ts: datetime | None = None
     friends: list[int] = []
 
 

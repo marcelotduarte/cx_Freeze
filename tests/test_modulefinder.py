@@ -195,10 +195,6 @@ def test_zip_exclude_packages(tmp_package) -> None:
     )
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 10),
-    reason="Python 3.10+ needed for editable packages",
-)
 def test_editable_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(EDITABLE_PACKAGE_TEST[4])

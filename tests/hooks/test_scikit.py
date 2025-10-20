@@ -41,7 +41,6 @@ pyproject.toml
         "numpy<1.26;python_version <= '3.10'",
         "numpy<2;python_version == '3.11'",
         "numpy>=2;python_version >= '3.12'",
-        "scipy<1.9.2;python_version == '3.9'",
         "scipy<1.16;python_version == '3.10'",
         "scipy>=1.16;python_version >= '3.11'",
     ]

@@ -3,14 +3,9 @@
 from __future__ import annotations
 
 from pathlib import Path, PurePath
+from typing import TypeAlias
 
 from cx_Freeze.module import Module
-
-try:
-    from typing import TypeAlias  # 3.10+
-except ImportError:
-    from typing import Any as TypeAlias
-
 
 DeferredList: TypeAlias = list[tuple[Module, Module, list[str]]]
 

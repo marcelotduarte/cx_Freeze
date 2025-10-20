@@ -94,7 +94,7 @@ use code like this:
 Microsoft Visual C++ Redistributable Package
 --------------------------------------------
 
-Python 3.9-3.13 on Windows requires the `Microsoft Visual C++ Redistributable
+Python 3.10-3.14 on Windows requires the `Microsoft Visual C++ Redistributable
 <https://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist>`_,
 and because of how this is installed, **cx_Freeze** by default does NOT
 automatically copy it for your application, however this can be changed,

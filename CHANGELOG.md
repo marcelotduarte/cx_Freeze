@@ -1,5 +1,5 @@
-**cx_Freeze** Creates standalone executables from Python scripts with the same performance
-as the original script.
+**cx_Freeze** Creates standalone executables from Python scripts with the same
+performance as the original script.
 
 It is cross-platform and should work on any platform that Python runs on.
 
@@ -26,7 +26,7 @@ It is cross-platform and should work on any platform that Python runs on.
 # Version 8.0 (2025-05-21)
 
 - Python 3.13 support.
-- Python 3.13 free-threaded support for Linux and macOS.
+- Experimental support for Python 3.13 free-threaded on Linux and macOS.
 - Download and extract the [MSVC Redistributable files](https://cx-freeze.readthedocs.io/en/stable/faq.html#microsoft-visual-c-redistributable-package).
 - Implement bases using PEP587 - Python Initialization Configuration.
 - Drop Python 3.8 support.

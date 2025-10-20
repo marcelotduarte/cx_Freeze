@@ -49,8 +49,6 @@ pyproject.toml
         "numpy<1.26;python_version <= '3.10'",
         "numpy<2;python_version == '3.11'",
         "numpy>=2;python_version >= '3.12'",
-        "matplotlib<3.4;python_version == '3.9' and sys_platform == 'linux'",
-        "matplotlib<3.6;python_version == '3.9' and sys_platform != 'linux'",
         "matplotlib<3.6;python_version == '3.10'",
         "matplotlib<3.7;python_version == '3.11'",
         "matplotlib>=3.7;python_version >= '3.12'",
@@ -213,41 +211,6 @@ SOURCE_TEST_SHAPELY = """
 test_shapely.py
     import numpy as np
     import shapely
-    import shapely.geos
-    from shapely.geometry import box, Point
-
-    print("Hello from cx_Freeze")
-    print("numpy version", np.__version__)
-    print("shapely version", shapely.__version__)
-    print("shapely geos version", shapely.geos.geos_version)
-    print("shapely geos version string", shapely.geos.geos_version_string)
-
-    patch = Point(0.0, 0.0).buffer(10.0)
-    polygon = box(0, 0, 2, 2)
-    print(patch)
-    print(polygon)
-pyproject.toml
-    [project]
-    name = "test_shapely"
-    version = "0.1.2.3"
-    dependencies = [
-        "numpy<1.26",
-        "shapely",
-    ]
-
-    [tool.cxfreeze]
-    executables = ["test_shapely.py"]
-
-    [tool.cxfreeze.build_exe]
-    include_msvcr = true
-    excludes = ["tkinter", "unittest"]
-    silent = true
-"""
-
-SOURCE_TEST_SHAPELY2 = """
-test_shapely.py
-    import numpy as np
-    import shapely
     from shapely import Point
 
     print("Hello from cx_Freeze")
@@ -293,10 +256,7 @@ pyproject.toml
 def test_shapely(tmp_package, zip_packages: bool) -> None:
     """Test if shapely hook is working correctly."""
     # shapely 1.8.5 supports Python <= 3.11
-    if sys.version_info[:2] < (3, 10):
-        tmp_package.create(SOURCE_TEST_SHAPELY)
-    else:
-        tmp_package.create(SOURCE_TEST_SHAPELY2)
+    tmp_package.create(SOURCE_TEST_SHAPELY)
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()

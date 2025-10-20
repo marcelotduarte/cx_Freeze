@@ -4,7 +4,6 @@ importlib namespace is included.
 
 from __future__ import annotations
 
-from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -27,8 +26,7 @@ class Hook(ModuleHook):
         # include module used by importlib._bootstrap_external
         # (internally mapped to _frozen_importlib_external)
         finder.include_module("importlib.metadata")
-        with suppress(ImportError):
-            finder.include_module("importlib.readers")  # Python 3.10+
+        finder.include_module("importlib.readers")
 
     def importlib_metadata(self, finder: ModuleFinder, module: Module) -> None:
         """The importlib.metadata module should filter import names."""
