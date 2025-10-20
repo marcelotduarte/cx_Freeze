@@ -64,8 +64,8 @@ Python requirements are installed automatically by pip or conda.
    freeze-core >= 0.2.0
    filelock >= 3.12.3
    packaging >= 24
-   setuptools >= 65.6.3     #  setuptools >= 77.0.3 if installing from sources
-   tomli >= 2.0.1           #  Python 3.9-3.10
+   setuptools >= 65.6.3     #  setuptools >= 78.1.1 if installing from sources
+   tomli >= 2.0.1           #  Python 3.10
    patchelf >= 0.14,<0.18   #  Linux
    dmgbuild >= 1.6.1        #  macOS
    lief >= 0.15.1           #  Windows

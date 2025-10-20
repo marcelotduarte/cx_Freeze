@@ -355,15 +355,9 @@ class ModuleFinder:
         name: str, path: Sequence[str] | None
     ) -> importlib.machinery.ModuleSpec | None:
         """Find the spec for a module installed as an editable package."""
-        if hasattr(importlib.metadata, "packages_distributions"):
-            # the distribution name may vary from the module name (eg may
-            # include '-'). packages_distributions returns the mapping but is
-            # only available on 3.10+
-            dist_names = importlib.metadata.packages_distributions().get(
-                name, []
-            )
-        else:
-            dist_names = [name]
+        # the distribution name may vary from the module name (eg may
+        # include '-'). packages_distributions returns the mapping
+        dist_names = importlib.metadata.packages_distributions().get(name, [])
 
         for dist_name in dist_names:
             dist = importlib.metadata.distribution(dist_name)

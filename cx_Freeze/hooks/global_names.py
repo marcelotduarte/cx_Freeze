@@ -2505,6 +2505,7 @@ ZMQ_BACKEND_GLOBAL_NAMES = [
     "Frame",
     "IPC_PATH_MAX_LEN",
     "Message",
+    "PYZMQ_DRAFT_API",
     "Socket",
     "curve_keypair",
     "curve_public",

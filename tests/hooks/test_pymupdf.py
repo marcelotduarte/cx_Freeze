@@ -33,7 +33,6 @@ pyproject.toml
     name = "test_pymupdf"
     version = "0.1.2.3"
     dependencies = [
-        "pymupdf==1.24.4;python_version == '3.9'",
         "pymupdf<=1.26;python_version <= '3.11'",
         "pymupdf>1.26;python_version >= '3.12'",
     ]

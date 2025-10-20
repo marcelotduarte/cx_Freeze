@@ -279,22 +279,19 @@ if sys.version_info[:2] < (3, 13):
     if IS_WINDOWS or IS_MINGW:
         TEST_VALID_PARAMETERS += [
             ("base", "Win32GUI", f"legacy/win32gui-{SOABI}{EXE_SUFFIX}"),
+            (
+                "base",
+                "Win32Service",
+                f"legacy/win32service-{SOABI}{EXE_SUFFIX}",
+            ),
         ]
-        if sys.version_info[:2] > (3, 9):
-            TEST_VALID_PARAMETERS += [
-                (
-                    "base",
-                    "Win32Service",
-                    f"legacy/win32service-{SOABI}{EXE_SUFFIX}",
-                ),
-            ]
 
-# In Python 3.9, 3.13t and 3.14t service is not available
+# In Python 3.13t and 3.14t service is not available
 if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}")
     ]
-    if sys.version_info[:2] > (3, 9) and ABI_THREAD == "":
+    if ABI_THREAD == "":
         TEST_VALID_PARAMETERS += [
             ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}")
         ]

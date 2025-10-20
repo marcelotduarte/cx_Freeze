@@ -4,10 +4,8 @@ shapely package is included.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 
-from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -27,12 +25,6 @@ class Hook(ModuleHook):
 
     def shapely(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for shapely."""
-        if (
-            IS_MACOS
-            and sys.version_info[:2] == (3, 9)
-            and module.in_file_system == 0
-        ):
-            module.in_file_system = 1
         finder.exclude_module("shapely.examples")  # shapely < 2.0
         finder.exclude_module("shapely.tests")  # shapely >= 2.0
         if module.in_file_system == 0:
