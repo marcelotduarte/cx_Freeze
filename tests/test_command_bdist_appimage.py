@@ -28,7 +28,7 @@ def test_bdist_appimage_not_posix() -> None:
     """Test the bdist_appimage fail if not on Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
-    msg = "bdist_appimage is supported only on Linux"
+    msg = "bdist_appimage is only supported on Linux"
     with pytest.raises(PlatformError, match=msg):
         cmd.finalize_options()
 
@@ -157,16 +157,17 @@ def test_bdist_appimage_skip_build(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_appimage_skip_build_after_build_exe(tmp_package) -> None:
-    """Test the simple sample with bdist_appimage."""
+def test_bdist_appimage_implicit_skip_build(tmp_package) -> None:
+    """Test the simple sample with build_exe then a bdist_appimage.
+
+    This forces a implicit skip_build.
+    """
     name = "hello"
     version = "0.1.2.3"
     arch = platform.machine()
 
     tmp_package.create_from_sample("simple")
-    tmp_package.freeze(
-        "python setup.py build_exe --silent bdist_appimage --quiet"
-    )
+    tmp_package.freeze("python setup.py build_exe --silent bdist_appimage")
 
     file_created = (
         tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
