@@ -106,6 +106,7 @@ class Executable:
         if name.lower().startswith("win32"):
             name = f"legacy/{name.lower()}"
         if not name.startswith("legacy"):
+            self.app_type = name.lower()
             name = f"bases/{name}"
         filename = f"{name}-{SOABI}{EXE_SUFFIX}"
         self._base = resource_path(filename)

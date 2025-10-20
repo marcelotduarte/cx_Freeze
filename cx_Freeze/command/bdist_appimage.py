@@ -2,17 +2,17 @@
 
 https://appimage.org/
 https://docs.appimage.org/
-https://docs.appimage.org/packaging-guide/manual.html#ref-manual
+https://docs.appimage.org/packaging-guide/manual.html
 """
 
 from __future__ import annotations
 
+import logging
 import os
 import platform
 import shutil
 import stat
 from ctypes.util import find_library
-from logging import INFO, WARNING
 from pathlib import Path
 from textwrap import dedent
 from typing import ClassVar
@@ -27,6 +27,8 @@ from cx_Freeze.common import resource_path
 from cx_Freeze.exception import ExecError, PlatformError
 
 __all__ = ["bdist_appimage"]
+
+logger = logging.getLogger(__name__)
 
 ARCH = platform.machine()
 
@@ -101,7 +103,7 @@ class bdist_appimage(Command):
 
     def finalize_options(self) -> None:
         if not IS_LINUX:
-            msg = "bdist_appimage is supported only on Linux"
+            msg = "bdist_appimage is only supported on Linux"
             raise PlatformError(msg)
 
         # inherit options
@@ -118,8 +120,14 @@ class bdist_appimage(Command):
         )
         # for the bdist commands, there is a chance that build_exe has already
         # been executed, so check skip_build if build_exe have_run
-        if not self.skip_build and self.distribution.have_run.get("build_exe"):
-            self.skip_build = 1
+        if self.distribution.have_run.get("build_exe"):
+            if not self.skip_build:
+                self.skip_build = 1
+        elif self.silent is not None:
+            self.verbose = not self.silent
+            build_exe = self.distribution.command_obj.get("build_exe")
+            if build_exe:
+                build_exe.silent = 1
 
         if self.target_name is None:
             if self.distribution.metadata.name:
@@ -149,12 +157,6 @@ class bdist_appimage(Command):
             self.app_name = f"{name}-{ARCH}.AppImage"
             self.fullname = name
 
-        if self.silent is not None:
-            self.verbose = 0 if self.silent else 2
-            build_exe = self.distribution.command_obj.get("build_exe")
-            if build_exe:
-                build_exe.silent = self.silent
-
         # download tools if not in cache
         self.appimagetool = self._get_file(
             self.appimagetool or APPIMAGETOOL_CACHE,
@@ -175,7 +177,7 @@ class bdist_appimage(Command):
                     "download and install "
                     f"{os.path.basename(filename)} from {full_url}"
                 )
-                self.announce(msg, INFO)
+                self.announce(msg, logging.INFO)
                 urlretrieve(full_url, filename)  # noqa: S310
                 if os.path.splitext(filename)[1] == ".AppImage":
                     os.chmod(filename, stat.S_IRWXU)
@@ -245,7 +247,7 @@ class bdist_appimage(Command):
             msg=f"linking {origin} -> {relative_reference}",
         )
         origin = os.path.join(
-            appdir, f"{self.target_name}.{os.path.splitext(icon_name)[1]}"
+            appdir, f"{self.target_name}{os.path.splitext(icon_name)[1]}"
         )
         self.execute(
             os.symlink,
@@ -286,11 +288,15 @@ class bdist_appimage(Command):
 
         # Build an AppImage from an AppDir
         os.environ["ARCH"] = ARCH
+        if self.target_version:
+            os.environ["VERSION"] = self.target_version
         cmd = [self.appimagetool]
         if find_library("fuse") is None:  # libfuse.so.2 is not found
             cmd.append("--appimage-extract-and-run")
         if self.runtime_file is not None:
             cmd.extend(["--runtime-file", self.runtime_file])
+        if self.verbose >= 1:
+            cmd.append("--verbose")
         cmd.extend(["--no-appstream", appdir, output])
         with FileLock(self.appimagetool + ".lock"):
             self.spawn(cmd, search_path=0)
@@ -309,7 +315,7 @@ class bdist_appimage(Command):
                 self.warn_delayed(f"not creating {outfile} (output exists)")
             return (outfile, 0)
         if self.verbose >= 1:
-            self.announce(f"creating {outfile}", INFO)
+            self.announce(f"creating {outfile}", logging.INFO)
 
         if self.dry_run:
             return (outfile, 1)
@@ -331,4 +337,4 @@ class bdist_appimage(Command):
 
     def warnings(self) -> None:
         for msg in self._warnings:
-            self.announce(f"WARNING: {msg}", WARNING)
+            self.announce(f"WARNING: {msg}", logging.WARNING)
