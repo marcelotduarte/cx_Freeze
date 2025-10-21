@@ -19,10 +19,10 @@ __all__ = ["bdist_dmg"]
 
 
 class bdist_dmg(Command):
-    """Create a Mac DMG disk image containing the Mac application bundle."""
+    """Create a macOS DMG disk image containing the application bundle."""
 
     description = (
-        "create a Mac DMG disk image containing the Mac application bundle"
+        "create a macOS DMG disk image containing the macOS application bundle"
     )
     user_options: ClassVar[list[tuple[str, str | None, str]]] = [
         ("volume-label=", None, "Volume label of the DMG disk image"),

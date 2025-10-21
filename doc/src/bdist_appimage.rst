@@ -1,6 +1,9 @@
 bdist_appimage
 ==============
 
+AppImage
+--------
+
 An `AppImage <https://docs.appimage.org/>`_ is a downloadable file for Linux
 [1]_ that contains an application and everything the application needs to run
 (e.g., libraries, icons, fonts, translations, etc.) that cannot be reasonably
@@ -12,53 +15,24 @@ is made executable, a user can just run it, either by double clicking it in
 their desktop environment’s file manager, by running it from the console etc.
 
 It is crucial to understand that AppImage is merely a format for distributing
-applications. In this regard, AppImage is like a `.zip` file or an `.iso` file.
+applications. In this regard, AppImage is like a :file:`.zip` file or an
+:file:`.iso` file.
 
-When cx_Freeze calls :program:`appimagetool` to create an AppImage application
-bundle (an :file:`.AppImage` file), it builds a read-only image of a
-:ref:`cx_freeze_build_exe` directory, then prepends the runtime, and marks the
+.. seealso::
+  `AppImage | Linux apps that run anywhere <https://appimage.org/>`_
+
+bdist_appimage command options
+------------------------------
+
+When **cx_Freeze** calls :program:`appimagetool` to create an AppImage
+application bundle, it builds a read-only image of a :ref:`cx_freeze_build_exe`
+directory, then prepends the runtime file, the entrypoint, a desktop file,
+icon from :option:`Executable.icon <icon>` option (or a default icon)
+and an optional update information, and finally marks the :file:`.AppImage`
 file as executable.
 
-
-.. list-table::
-   :header-rows: 1
-   :widths: 240 560
-   :width: 100%
-
-   * - option name
-     - description
-   * - .. option:: appimagetool
-     - path to appimagetool [default: the latest version is downloaded]
-   * - .. option:: runtime_file
-     - path to type2 runtime [default: the latest version is downloaded]
-   * - .. option:: bdist_base
-     - base directory for creating built distributions
-   * - .. option:: build_dir (-b)
-     - directory of built executables and dependent files
-   * - .. option:: dist_dir (-d)
-     - directory to put final built distributions in [default: "dist"]
-   * - .. option:: skip_build
-     - skip rebuilding everything (for testing/debugging)
-   * - .. option:: target_name
-     - name of the file to create; if the name ends with ".AppImage"
-       then it is used verbatim, otherwise, information about the
-       program version and platform will be added to the installer name
-       [default: metadata name or the name of the first executable].
-   * - .. option:: target_version
-     - version of the file to create [default: metadata version if available]
-   * - .. option:: silent (-s)
-     - suppress all output except warnings
-
-.. versionadded:: 7.0
-   :doc:`bdist_appimage` command.
-.. versionchanged:: 8.5
-   Replaced the ``appimagekit`` option with the :option:`appimagetool` option.
-.. versionadded:: 8.5
-   :option:`runtime_file` option.
-
-
-To specify the same options on the command line, this is the help command that
-shows the equivalent options:
+The following options were added to the standard set of options for the
+command:
 
 .. tabs::
 
@@ -66,16 +40,51 @@ shows the equivalent options:
 
       .. code-block:: console
 
-        cxfreeze bdist_appimage --help
+        cxfreeze bdist_appimage
 
    .. group-tab:: setup.py
 
       .. code-block:: console
 
-        python setup.py bdist_appimage --help
+        python setup.py bdist_appimage
 
-.. seealso::
-  `AppImage | Linux apps that run anywhere <https://appimage.org/>`_
+.. list-table::
+   :header-rows: 1
+   :widths: 350 600
+   :width: 100%
+
+   * - option name, command line equivalent
+     - description
+   * - .. option:: appimagetool, --appimagetool
+     - path to appimagetool [default: the latest version is downloaded]
+   * - .. option:: runtime_file, --runtime-file
+     - path to type2 runtime [default: the latest version is downloaded]
+   * - .. option:: target_name, --target-name
+     - name of the file to create; if the name ends with ".AppImage"
+       then it is used verbatim, otherwise, information about the
+       program version and platform will be added to the installer name
+       [default: metadata name or the name of the first executable]
+   * - .. option:: target_version, --target-version
+     - version of the file to create [default: metadata version if available]
+   * - .. option:: bdist_base, --bdist-base
+     - base directory for creating built distributions
+   * - .. option:: build_dir, --build-dir, -b
+     - directory of built executables and dependent files
+   * - .. option:: dist_dir, --dist-dir, -d
+     - directory to put final built distributions in [default: "dist"]
+   * - .. option:: skip_build, --skip-build
+     - skip rebuilding everything (for testing/debugging)
+   * - .. option:: silent, --silent, -s
+     - suppress all output except warnings
+
+.. versionadded:: 7.0
+   :doc:`bdist_appimage` command.
+.. versionchanged:: 8.5
+   Renamed the ``appimagekit`` option to :option:`appimagetool` option.
+.. versionadded:: 8.5
+   :option:`runtime_file` option.
+
+------------------
 
 .. [1] AppImage is for Linux (and compatible systems such as Windows with
    WSL2 and FreeBSD with the Linuxulator).

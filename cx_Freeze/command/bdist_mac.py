@@ -25,9 +25,9 @@ __all__ = ["bdist_mac"]
 
 
 class bdist_mac(Command):
-    """Create a Mac application bundle."""
+    """Create a macOS application bundle."""
 
-    description = "create a Mac application bundle"
+    description = "create a macOS application bundle"
 
     plist_items: list[tuple[str, str]]
     include_frameworks: list[str]

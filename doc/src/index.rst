@@ -1,4 +1,3 @@
-
 Welcome to cx_Freeze's documentation!
 =====================================
 
@@ -7,8 +6,9 @@ creates standalone executables from Python scripts with the same performance
 as the original script. It is cross-platform and should work on any platform
 that Python runs on.
 
-The current version of **cx_Freeze** is |version| that supports Python_ 3.10 to
-3.14, providing on pypi, wheels for Linux (x86_64, aarch64, ppc64le),
+The current version of **cx_Freeze** is |version|
+that supports Python_ 3.10 to 3.14,
+providing on pypi, wheels for Linux (x86_64, aarch64, ppc64le),
 macOS (universal2) and Windows (win32, win_amd64, win_arm64).
 
 .. versionadded:: 8.0

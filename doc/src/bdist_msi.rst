@@ -11,9 +11,23 @@ their dependencies creating Windows installer packages.
 The following options were added to the standard set of options for the
 command:
 
+.. tabs::
+
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: console
+
+        cxfreeze bdist_msi
+
+   .. group-tab:: setup.py
+
+      .. code-block:: console
+
+        python setup.py bdist_msi
+
 .. list-table::
    :header-rows: 1
-   :widths: 250 550
+   :widths: 300 700
    :width: 100%
 
    * - option name
@@ -81,22 +95,6 @@ command:
     :option:`license_file` option.
 .. versionadded:: 8.2
     :option:`launch_on_finish` option.
-
-This is the equivalent help to specify the same options on the command line:
-
-.. tabs::
-
-   .. group-tab:: pyproject.toml
-
-      .. code-block:: console
-
-        cxfreeze bdist_msi --help
-
-   .. group-tab:: setup.py
-
-      .. code-block:: console
-
-        python setup.py bdist_msi --help
 
 For example:
 

@@ -2,7 +2,7 @@ cxfreeze script
 ===============
 
 The ``cxfreeze`` script is included with other Python scripts. On Windows and
-the Mac this is in the ``Scripts`` subdirectory of your Python installation
+the macOS this is in the ``Scripts`` subdirectory of your Python installation
 whereas on Unix platforms this is in the bin directory of the prefix where
 Python is installed.
 
@@ -105,10 +105,10 @@ Further customization can be done using the following options:
    show this help message and exit
 
 .. versionadded:: 6.10
-    ``manifest`` and ``uac-admin`` options.
+    :option:`--manifest` and :option:`--uac-admin` options.
 
 .. versionadded:: 7.0
-    ``uac-uiaccess`` option.
+    :option:`--uac-uiaccess` option.
 
 .. versionadded:: 8.0
-    ``debug`` and  ``verbose`` options.
+    :option:`--debug` and :option:`--verbose` options.

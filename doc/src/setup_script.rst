@@ -156,7 +156,7 @@ includes for your application, by running the setup script as:
 
     python setup.py bdist_msi
 
-On Mac OS X, you can use ``bdist_mac`` to create a Mac application bundle or
+On macOS, you can use ``bdist_mac`` to create a Mac application bundle or
 ``bdist_dmg`` to build a Mac disk image.
 
 

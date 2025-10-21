@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 # (earlier rpaths have higher priority, i believe)
 #
 # Resolving these variables (particularly @rpath) requires tracing through the
-# sequence linked MachO files leading the the current file, to determine which
+# sequence linked Mach-O files leading the the current file, to determine which
 # directories are included in the current rpath.
 
 
@@ -36,7 +36,7 @@ def isMachOFile(path: Path) -> bool:
 
 
 class MachOReference:
-    """Represents a linking reference from MachO file to another file."""
+    """Represents a linking reference from Mach-O file to another file."""
 
     def __init__(
         self,
@@ -119,7 +119,7 @@ class DarwinFile:
             self.isMachO = False
             return
 
-        # if this is a MachO file, extract linking information from it
+        # if this is a Mach-O file, extract linking information from it
         self.isMachO = True
         self.commands = MachOCommand._getMachOCommands(self.path)
         self.loadCommands = [
@@ -352,7 +352,7 @@ class DarwinFile:
 
 
 class MachOCommand:
-    """Represents a load command in a MachO file."""
+    """Represents a load command in a Mach-O file."""
 
     def __init__(self, lines: list[str]) -> None:
         self.lines = lines
