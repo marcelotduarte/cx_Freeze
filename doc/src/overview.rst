@@ -12,9 +12,10 @@ There are three different ways to use **cx_Freeze**:
 
 cx_Freeze normally produces a folder containing an executable file for your
 program and the shared libraries (DLLs or .so files) needed to run it.
-You can make a simple Windows installer using a :doc:`setup script <setup_script>`
-with the ``bdist_msi`` option, or a Mac disk image with ``bdist_dmg``. For a
-more advanced Windows installer, use a separate tool like `Inno Setup
+You can make a simple Windows installer using a
+:doc:`setup script <setup_script>`
+with the :doc:`bdist_msi` option, or a macOS disk image with :doc:`bdist_dmg`.
+For a more advanced Windows installer, use a separate tool like `Inno Setup
 <https://www.jrsoftware.org/isinfo.php>`_ to package the files that cx_Freeze
 collects.
 

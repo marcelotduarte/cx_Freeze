@@ -1,13 +1,13 @@
 bdist_dmg
 =========
 
-This command is available on Mac OS X systems; it creates an application
+This command is available on macOS systems; it creates an application
 bundle, then package it into a DMG disk image suitable for distribution and
 installation.
 
 .. list-table::
    :header-rows: 1
-   :widths: 240 560
+   :widths: 300 700
    :width: 100%
 
    * - option name
@@ -34,7 +34,7 @@ installation.
        respectively.
    * - .. option:: background
      - A rgb color in the form #3344ff, svg named color like goldenrod, a path
-       to an image, or the words 'builtin-arrow'. [default: None]
+       to an image, or the words "builtin-arrow". [default: None]
    * - .. option:: show_status_bar
      - Show the status bar in the Finder window. [default: False]
    * - .. option:: show_tab_view
@@ -64,28 +64,31 @@ installation.
    * - .. option:: show_icon_preview
      - Show icon preview in the Finder window. [default: False]
    * - .. option:: license
-     - Dictionary specifying license details with 'default-language',
-       'licenses', and 'buttons'.
+     - Dictionary specifying license details with "default-language",
+       "licenses", and "buttons".
 
-       default-language: Language code (e.g., 'en_US') if no matching system
+       default-language: Language code (e.g., "en_US") if no matching system
        language.
        licenses: Map of language codes to license file paths
-       (e.g., {'en_US': 'path/to/license_en.txt'}).
+       (e.g., {"en_US": "path/to/license_en.txt"}).
        buttons: Map of language codes to UI strings
        ([language, agree, disagree, print, save, instruction]).
-       Example: {'default-language': 'en_US', 'licenses':
-       {'en_US': 'path/to/license_en.txt'},
-       'buttons': {'en_US': ['English', 'Agree', 'Disagree', 'Print', 'Save',
-       'Instruction text']}}
+       Example: {"default-language": "en_US", "licenses":
+       {"en_US": "path/to/license_en.txt"},
+       "buttons": {"en_US": ["English", "Agree", "Disagree", "Print", "Save",
+       "Instruction text"]}}
 
 .. versionadded:: 7.2
-    ``format``, ``filesystem``, ``size``, ``background``, ``show_status_bar``,
-    ``show_tab_view``, ``show_path_bar``, ``show_sidebar``, ``sidebar_width``,
-    ``windows_rect``, ``icon_locations``, ``default_view``, ``show_icon_preview``,
-    ``license`` options.
+    :option:`format`, :option:`filesystem`, :option:`size`,
+    :option:`background`, :option:`show_status_bar`, :option:`show_tab_view`,
+    :option:`show_path_bar`, :option:`show_sidebar`, :option:`sidebar_width`,
+    :option:`windows_rect`, :option:`icon_locations`, :option:`default_view`,
+    :option:`show_icon_preview`, :option:`license` options.
 
-The above options come from the `dmgbuild` package. For more information, see
-the `dmgbuild documentation <https://dmgbuild.readthedocs.io/en/latest/>`_.
+.. seealso::
+  The above options come from the :program:`dmgbuild` package. For more
+  information, see the
+  `dmgbuild documentation <https://dmgbuild.readthedocs.io/en/latest/>`_.
 
 This is the equivalent help to specify the same options on the command line:
 

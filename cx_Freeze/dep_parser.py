@@ -92,7 +92,7 @@ class Parser(ABC):
     @abstractmethod
     def _get_dependent_files(self, filename: Path) -> set[Path]:
         """Return the file's dependencies using platform-specific tools
-        (lief package or the imagehlp library on Windows, otool on Mac OS X or
+        (lief package or the imagehlp library on Windows, otool on macOS X or
         ldd on Linux); limit this list by the exclusion lists as needed.
         (Implemented separately for each platform).
         """

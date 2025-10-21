@@ -7,9 +7,9 @@ Creating RPM packages
 The RPM format is used by many popular Linux distributions, including Red Hat,
 SuSE, and Mandrake.  If one of these (or any of the other RPM-based Linux
 distributions) is your usual environment, creating RPM packages for other users
-of that same distribution is trivial. Depending on the complexity of your module
-distribution and differences between Linux distributions, you may also be able
-to create RPMs that work on different RPM-based distributions.
+of that same distribution is trivial. Depending on the complexity of your
+module distribution and differences between Linux distributions, you may also
+be able to create RPMs that work on different RPM-based distributions.
 
 The usual way to create an RPM of your module distribution is to run the
 :command:`bdist_rpm` command:
@@ -137,11 +137,13 @@ handled automatically by the cx_Freeze:
 
 #. create the "binary" RPM
 
+.. % FIXME: :option:`!spec_only` option
+
 If you wish, you can separate these three steps.  You can use the
-:option:`!--spec-only` option to make :command:`bdist_rpm` just create the
+:option:`!spec_only` option to make :command:`bdist_rpm` just create the
 :file:`.spec` file and exit; in this case, the :file:`.spec` file will be
-written to the "distribution directory"---normally :file:`dist/`, but
-customizable with the :option:`!--dist-dir` option.  (Normally, the :file:`.spec`
+written to the "distribution directory" ---normally :file:`dist/`, but
+customizable with the :option:`dist_dir` option.  (Normally, the :file:`.spec`
 file winds up deep in the "build tree," in a temporary directory created by
 :command:`bdist_rpm`.)
 

@@ -27,8 +27,8 @@ encountering a recursion error when trying to compute the list of dependencies,
 or the `lib` folder of the frozen application containing many unnecessary
 packages.
 In this case, use **cx_Freeze** in a virtualenv. Alternatively, the
-`setup_script` also offers the :option:`excludes` option to explicitly
-exclude dependencies that would otherwise be included.
+:ref:`cx_freeze_build_exe` also offers the :option:`excludes` option to
+explicitly exclude dependencies that would otherwise be included.
 
 Specifying modules and packages
 -------------------------------
@@ -48,20 +48,20 @@ error as soon as it starts.
 
 There are two ways to debug what's going on:
 
-1. Freeze your application with the ``gui`` base (see :doc:`setup_script`
-   or :doc:`script`). This doesn't use a console window and reports errors in
-   a dialog box.
+1. Freeze your application with the :option:`Executable.base="gui" <base>`
+   (Or ``cxfreeze`` :option:`--base=gui`).
+   This doesn't use a console window and reports errors in a dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen
-   executable from the command line. This will let you see any error messages
-   in the console.
+   executable from the command line.
+   This will let you see any error messages in the console.
 
 Freezing for other platforms
 ----------------------------
 
-**cx_Freeze** works on Windows, Mac, and Linux, but on each platform, it only
+**cx_Freeze** works on Windows, macOS, and Linux, but on each platform, it only
 makes an executable that runs on that platform. So if you want to freeze your
 programs for Windows, freeze it on Windows; if you want to run it on Macs,
-freeze it on a Mac.
+freeze it on a macOS.
 
 At a pinch, you can try to make a Windows executable using `Wine
 <https://www.winehq.org/>`_. Our experience is that you need to copy some files
@@ -75,7 +75,7 @@ Using data files
 
 Applications often need data files besides the code, such as icons. Using a
 :doc:`setup script <setup_script>`, you can list data files or directories in
-the :option:`include_files` option to :ref:`cx_freeze_build_exe`. They'll be
+the :ref:`cx_freeze_build_exe` :option:`include_files` option. They'll be
 copied to the build directory alongside the executable. Then to find them,
 use code like this:
 
@@ -84,7 +84,7 @@ use code like this:
     def find_data_file(filename):
         if getattr(sys, "frozen", False):
             # The application is frozen
-            datadir = sys.prefix  # datadir = os.path.dirname(sys.executable)
+            datadir = sys.prefix
         else:
             # The application is not frozen
             # Change this bit to match where you store your data files:
@@ -152,7 +152,7 @@ After changing the above option, no further configuration is required.
 Single-file executables
 -----------------------
 
-Recently, the :doc:`bdist_appimage` command was introduced for Linux,
+**cx_Freeze** 7.0, introduced the :doc:`bdist_appimage` command for Linux,
 which supports the construction of a single exe file, where all your
 application's libraries are incorporated into an executable file.
 
@@ -170,12 +170,14 @@ Also, you can use other tools to compress the build directory from
 License for frozen programs
 ---------------------------
 
-When a python script is frozen with **cx_Freeze**, a small amount of **cx_Freeze**
-code is incorporated into the frozen program.  That code is used to configure
-and start Python, running the script when the frozen program is launched.
-The incorporated **cx_Freeze** code is covered by the terms of the
-**cx_Freeze** :doc:`license`, which requires a copy of the license to be
-included with the frozen program.
+When a python script is frozen with **cx_Freeze**, a small amount of
+**freeze_core** code is incorporated into the frozen program.  That code is
+used to configure and start Python, running the script when the frozen program
+is launched.
+The incorporated **freeze_core** code is covered by the terms of the
+`freeze-core license
+<https://github.com/marcelotduarte/freeze-core/blob/main/LICENSE>`_,
+which requires a copy of the license to be included with the frozen program.
 
 In order to make it easy to comply with this requirement, **cx_Freeze** will
 automatically include a copy of the license, as a text file, as part of
