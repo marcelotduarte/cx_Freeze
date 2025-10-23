@@ -56,6 +56,10 @@ class bdist_appimage(Command):
             None,
             f'path to type2 runtime [default: "{RUNTIME_CACHE}"]',
         ),
+        ("sign", None, "Sign with gpg or gpg2"),
+        ("sign-key=", None, "Key ID to use for gpg/gpg2 signatures"),
+        ("target-name=", None, "name of the file to create"),
+        ("target-version=", None, "version of the file to create"),
         (
             "bdist-base=",
             None,
@@ -76,8 +80,6 @@ class bdist_appimage(Command):
             None,
             "skip rebuilding everything (for testing/debugging)",
         ),
-        ("target-name=", None, "name of the file to create"),
-        ("target-version=", None, "version of the file to create"),
         ("silent", "s", "suppress all output except warnings"),
     ]
     boolean_options: ClassVar[list[str]] = [
@@ -88,14 +90,16 @@ class bdist_appimage(Command):
     def initialize_options(self) -> None:
         self.appimagetool = None
         self.runtime_file = None
+        self.sign = None
+        self.sign_key = None
+        self.target_name = None
+        self.target_version = None
 
         self.bdist_base = None
         self.build_dir = None
         self.dist_dir = None
         self.skip_build = None
 
-        self.target_name = None
-        self.target_version = None
         self.fullname = None
         self.silent = None
 
@@ -294,10 +298,14 @@ class bdist_appimage(Command):
         if find_library("fuse") is None:  # libfuse.so.2 is not found
             cmd.append("--appimage-extract-and-run")
         if self.runtime_file is not None:
-            cmd.extend(["--runtime-file", self.runtime_file])
+            cmd += ["--runtime-file", self.runtime_file]
+        if self.sign is not None:
+            cmd.append("--sign")
+        if self.sign_key is not None:
+            cmd += ["--sign-key", self.sign_key]
         if self.verbose >= 1:
             cmd.append("--verbose")
-        cmd.extend(["--no-appstream", appdir, output])
+        cmd += ["--no-appstream", appdir, output]
         with FileLock(self.appimagetool + ".lock"):
             self.spawn(cmd, search_path=0)
 
