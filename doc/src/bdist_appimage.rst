@@ -59,6 +59,10 @@ command:
      - path to appimagetool [default: the latest version is downloaded]
    * - .. option:: runtime_file, --runtime-file
      - path to type2 runtime [default: the latest version is downloaded]
+   * - .. option:: sign, --sign
+     - Sign with gpg or gpg2
+   * - .. option:: sign_key, --sign-key
+     - Key ID to use for gpg/gpg2 signatures
    * - .. option:: target_name, --target-name
      - name of the file to create; if the name ends with ".AppImage"
        then it is used verbatim, otherwise, information about the
@@ -82,7 +86,16 @@ command:
 .. versionchanged:: 8.5
    Renamed the ``appimagekit`` option to :option:`appimagetool` option.
 .. versionadded:: 8.5
-   :option:`runtime_file` option.
+   :option:`runtime_file`, :option:`sign` and :option:`sign_key` options.
+
+Signing AppImages
+-----------------
+
+AppImages can be digitally signed by the person that who produced the AppImage,
+who at creation time uses :option:`sign` or :option:`sign_key` options.
+
+.. seealso::
+  `Signing AppImages <https://docs.appimage.org/packaging-guide/optional/signatures.html>`_
 
 ------------------
 
