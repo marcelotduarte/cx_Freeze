@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
 from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_WINDOWS
@@ -52,12 +50,6 @@ pyproject.toml
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="pyarrow does not support Windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="pyarrow does not support Python 3.14+",
     strict=True,
 )
 @pytest.mark.venv

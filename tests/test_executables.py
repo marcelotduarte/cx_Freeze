@@ -13,6 +13,7 @@ from cx_Freeze import Executable
 from cx_Freeze._compat import (
     ABI_THREAD,
     EXE_SUFFIX,
+    IS_ARM_64,
     IS_CONDA,
     IS_MINGW,
     IS_WINDOWS,
@@ -271,8 +272,8 @@ TEST_VALID_PARAMETERS = [
     ("base", None, f"bases/console-{SOABI}{EXE_SUFFIX}"),
 ]
 
-# In Python < 3.13, legacy bases are available
-if sys.version_info[:2] < (3, 13):
+# In Python < 3.13 legacy bases are available, except on arm64
+if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
     TEST_VALID_PARAMETERS += [
         ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
     ]
@@ -286,12 +287,14 @@ if sys.version_info[:2] < (3, 13):
             ),
         ]
 
-# In Python 3.13t and 3.14t service is not available
+# gui and service are available on Windows
 if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}")
     ]
-    if ABI_THREAD == "":
+    # In Python 3.13t and 3.14t service is not available
+    # nor in arm64
+    if ABI_THREAD == "" and not IS_ARM_64:
         TEST_VALID_PARAMETERS += [
             ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}")
         ]

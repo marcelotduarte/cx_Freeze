@@ -10,6 +10,7 @@ from cx_Freeze._compat import (
     ABI_THREAD,
     IS_ARM_64,
     IS_CONDA,
+    IS_LINUX,
     IS_MACOS,
     IS_WINDOWS,
 )
@@ -38,10 +39,9 @@ pyproject.toml
     name = "test_scipy"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
-        "numpy<2;python_version == '3.11'",
-        "numpy>=2;python_version >= '3.12'",
-        "scipy<1.16;python_version == '3.10'",
+        "numpy<2;python_version < '3.11'",
+        "numpy>=2;python_version >= '3.11'",
+        "scipy<1.16;python_version < '3.11'",
         "scipy>=1.16;python_version >= '3.11'",
     ]
 
@@ -108,7 +108,7 @@ pyproject.toml
     name = "test_skimage"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
+        "numpy<2;python_version < '3.11'",
         "scikit-image",
     ]
 
@@ -138,6 +138,15 @@ pyproject.toml
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t" and IS_WINDOWS,
     raises=ModuleNotFoundError,
     reason="scikit-image does not support Python 3.13t on Windows",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 13)
+    and ABI_THREAD == "t"
+    and IS_LINUX
+    and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="scikit-image does not support Python 3.13t on Linux arm64",
     strict=True,
 )
 @pytest.mark.xfail(
@@ -177,10 +186,9 @@ pyproject.toml
     name = "test_sklearn"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
-        "scikit-learn<1.3;python_version <= '3.10'",
-        "scikit-learn<1.5;python_version == '3.11'",
-        "scikit-learn>=1.7;python_version >= '3.12'",
+        "numpy<2;python_version < '3.11'",
+        "scikit-learn<1.7;python_version < '3.11'",
+        "scikit-learn>=1.7;python_version >= '3.11'",
     ]
 
     [tool.cxfreeze]

@@ -46,12 +46,10 @@ pyproject.toml
     name = "test_matplotlib"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
-        "numpy<2;python_version == '3.11'",
-        "numpy>=2;python_version >= '3.12'",
-        "matplotlib<3.6;python_version == '3.10'",
-        "matplotlib<3.7;python_version == '3.11'",
-        "matplotlib>=3.7;python_version >= '3.12'",
+        "numpy<2;python_version < '3.11'",
+        "numpy>=2;python_version >= '3.11'",
+        "matplotlib<3.7;python_version < '3.11'",
+        "matplotlib>=3.7;python_version >= '3.11'",
     ]
 
     [tool.cxfreeze]
@@ -147,9 +145,8 @@ pyproject.toml
     name = "test_rasterio"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
-        "numpy<2;python_version == '3.11'",
-        "numpy>=2;python_version >= '3.12'",
+        "numpy<2;python_version < '3.11'",
+        "numpy>=2;python_version >= '3.11'",
         "rasterio",
     ]
 
@@ -228,11 +225,10 @@ pyproject.toml
     name = "test_shapely"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
-        "numpy<2;python_version == '3.11'",
-        "numpy>=2;python_version >= '3.12'",
-        "shapely<2.1;python_version == '3.10'",
-        "shapely>=2.1;python_version > '3.10'",
+        "numpy<2;python_version < '3.11'",
+        "numpy>=2;python_version >= '3.11'",
+        "shapely<2.1;python_version < '3.11'",
+        "shapely>=2.1;python_version >= '3.11'",
     ]
 
     [tool.cxfreeze]
@@ -310,14 +306,7 @@ pyproject.toml
     [project]
     name = "test_vtk"
     version = "0.1.2.3"
-    dependencies = [
-        "numpy<1.26;python_version <= '3.10'",
-        "numpy<2;python_version == '3.11'",
-        "numpy>=2;python_version >= '3.12'",
-        "vtk<9.3;python_version <= '3.10'",
-        "vtk<9.4;python_version == '3.11'",
-        "vtk>=9.4;python_version >= '3.12'",
-    ]
+    dependencies = ["vtk"]
 
     [tool.cxfreeze]
     executables = ["test_vtk.py"]
@@ -334,9 +323,9 @@ pyproject.toml
     reason="vtkmodules (vtk) is too slow in conda-forge (Linux and OSX_ARM64)",
 )
 @pytest.mark.xfail(
-    (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
+    IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support Windows/Linux arm64",
+    reason="vtkmodules (vtk) does not support Windows arm64",
     strict=True,
 )
 @pytest.mark.xfail(
@@ -348,7 +337,7 @@ pyproject.toml
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support Python 3.13t",
+    reason="vtkmodules (vtk) does not support Python 3.13t/3.14t",
     strict=True,
 )
 @pytest.mark.xfail(
