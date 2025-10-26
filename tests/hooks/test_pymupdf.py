@@ -32,10 +32,7 @@ pyproject.toml
     [project]
     name = "test_pymupdf"
     version = "0.1.2.3"
-    dependencies = [
-        "pymupdf<=1.26;python_version <= '3.11'",
-        "pymupdf>1.26;python_version >= '3.12'",
-    ]
+    dependencies = ["pymupdf"]
 
     [tool.cxfreeze]
     executables = ["test_pymupdf.py"]
