@@ -47,7 +47,7 @@ jobs:
         run: ./ci/build-wheel.sh
 
       - name: Upload the artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: cx-freeze-wheel
           path: wheelhouse
