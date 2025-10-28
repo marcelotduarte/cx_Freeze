@@ -88,14 +88,9 @@ class ModuleFinder:
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
         self.lib_files: dict[Path, str] = {}
-        if hasattr(importlib.metadata, "packages_distributions"):
-            # the distribution name may vary from the module name (eg may include '-').
-            # packages_distributions returns the mapping but is only available on 3.10+
-            self.packages_distributions = (
-                importlib.metadata.packages_distributions()
-            )
-        else:
-            self.packages_distributions = None
+        self.packages_distributions = (
+            importlib.metadata.packages_distributions()
+        )
 
     def cleanup(self) -> None:
         self._tmp_dir.cleanup()
@@ -362,11 +357,7 @@ class ModuleFinder:
         self, name: str, path: Sequence[str] | None
     ) -> importlib.machinery.ModuleSpec | None:
         """Find the spec for a module installed as an editable package."""
-        if self.packages_distributions is None:
-            dist_names = [name]
-        else:
-            dist_names = self.packages_distributions.get(name, [])
-        for dist_name in dist_names:
+        for dist_name in self.packages_distributions.get(name, []):
             dist = importlib.metadata.distribution(dist_name)
             if not dist:
                 continue
