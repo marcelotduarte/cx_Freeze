@@ -91,7 +91,9 @@ class ModuleFinder:
         if hasattr(importlib.metadata, "packages_distributions"):
             # the distribution name may vary from the module name (eg may include '-').
             # packages_distributions returns the mapping but is only available on 3.10+
-            self.packages_distributions = importlib.metadata.packages_distributions()
+            self.packages_distributions = (
+                importlib.metadata.packages_distributions()
+            )
         else:
             self.packages_distributions = None
 
@@ -363,9 +365,7 @@ class ModuleFinder:
         if self.packages_distributions is None:
             dist_names = [name]
         else:
-            dist_names = self.packages_distributions.get(
-                name, []
-            )
+            dist_names = self.packages_distributions.get(name, [])
         for dist_name in dist_names:
             dist = importlib.metadata.distribution(dist_name)
             if not dist:
