@@ -11,12 +11,8 @@ from typing import ClassVar
 from packaging.version import Version
 from setuptools import Command
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS, IS_X86_64
 from cx_Freeze.exception import OptionError, PlatformError
-
-__all__ = ["bdist_msi"]
-
-logger = logging.getLogger(__name__)
 
 if IS_MINGW or IS_WINDOWS:
     import warnings
@@ -54,6 +50,17 @@ if IS_MINGW or IS_WINDOWS:
         msilib_ok = True
     except ImportError:
         msilib_ok = False
+
+__all__ = ["bdist_msi"]
+
+logger = logging.getLogger(__name__)
+
+if IS_ARM_64:
+    MSI_PLATFORM = "win-arm64"
+elif IS_X86_64:
+    MSI_PLATFORM = "win64"
+else:
+    MSI_PLATFORM = "win32"
 
 
 class bdist_msi(Command):
@@ -1094,9 +1101,8 @@ class bdist_msi(Command):
         name = self.target_name
         version = self.target_version or self.distribution.get_version()
         self.fullname = f"{name}-{version}"
-        platform = PLATFORM.replace("win-amd64", "win64")
         if self.initial_target_dir is None:
-            if platform == "win64" or platform.startswith("mingw_x86_64"):
+            if IS_ARM_64 or IS_X86_64:
                 program_files_folder = "ProgramFiles64Folder"
             else:
                 program_files_folder = "ProgramFilesFolder"
@@ -1210,15 +1216,13 @@ class bdist_msi(Command):
 
         # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
-        platform = PLATFORM.replace("win-amd64", "win64")
-
         msi_name: str
         if os.path.splitext(self.target_name)[1].lower() == ".msi":
             msi_name = self.target_name
         elif self.target_version:
-            msi_name = f"{self.fullname}-{platform}.msi"
+            msi_name = f"{self.fullname}-{MSI_PLATFORM}.msi"
         else:
-            msi_name = f"{self.target_name}-{platform}.msi"
+            msi_name = f"{self.target_name}-{MSI_PLATFORM}.msi"
         installer_name = os.path.join(self.dist_dir, msi_name)
         installer_name = os.path.abspath(installer_name)
         if os.path.exists(installer_name):
