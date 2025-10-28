@@ -14,10 +14,6 @@ from setuptools import Command
 from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS, IS_X86_64
 from cx_Freeze.exception import OptionError, PlatformError
 
-__all__ = ["bdist_msi"]
-
-logger = logging.getLogger(__name__)
-
 if IS_MINGW or IS_WINDOWS:
     import warnings
 
@@ -54,6 +50,17 @@ if IS_MINGW or IS_WINDOWS:
         msilib_ok = True
     except ImportError:
         msilib_ok = False
+
+__all__ = ["bdist_msi"]
+
+logger = logging.getLogger(__name__)
+
+if IS_ARM_64:
+    MSI_PLATFORM = "win-arm64"
+elif IS_X86_64:
+    MSI_PLATFORM = "win64"
+else:
+    MSI_PLATFORM = "win32"
 
 
 class bdist_msi(Command):
@@ -1209,20 +1216,13 @@ class bdist_msi(Command):
 
         # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
-        if IS_ARM_64:
-            platform = "win-arm64"
-        elif IS_X86_64:
-            platform = "win64"
-        else:
-            platform = "win32"
-
         msi_name: str
         if os.path.splitext(self.target_name)[1].lower() == ".msi":
             msi_name = self.target_name
         elif self.target_version:
-            msi_name = f"{self.fullname}-{platform}.msi"
+            msi_name = f"{self.fullname}-{MSI_PLATFORM}.msi"
         else:
-            msi_name = f"{self.target_name}-{platform}.msi"
+            msi_name = f"{self.target_name}-{MSI_PLATFORM}.msi"
         installer_name = os.path.join(self.dist_dir, msi_name)
         installer_name = os.path.abspath(installer_name)
         if os.path.exists(installer_name):
