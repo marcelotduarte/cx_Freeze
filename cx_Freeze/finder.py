@@ -88,7 +88,9 @@ class ModuleFinder:
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
         self.lib_files: dict[Path, str] = {}
-        self.packages_distributions = importlib.metadata.packages_distributions()
+        self.packages_distributions = (
+            importlib.metadata.packages_distributions()
+        )
 
     def cleanup(self) -> None:
         self._tmp_dir.cleanup()
@@ -351,8 +353,8 @@ class ModuleFinder:
             return None
         return module
 
-    def _find_editable_spec(self,
-        name: str, path: Sequence[str] | None
+    def _find_editable_spec(
+        self, name: str, path: Sequence[str] | None
     ) -> importlib.machinery.ModuleSpec | None:
         """Find the spec for a module installed as an editable package."""
         # the distribution name may vary from the module name (eg may
