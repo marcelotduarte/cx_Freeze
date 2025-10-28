@@ -357,6 +357,8 @@ class ModuleFinder:
         self, name: str, path: Sequence[str] | None
     ) -> importlib.machinery.ModuleSpec | None:
         """Find the spec for a module installed as an editable package."""
+        # the distribution name may vary from the module name (eg may
+        # include '-'). packages_distributions returns the mapping
         for dist_name in self.packages_distributions.get(name, []):
             dist = importlib.metadata.distribution(dist_name)
             if not dist:
