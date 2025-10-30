@@ -5,10 +5,9 @@ from __future__ import annotations
 import os
 
 import pytest
-from freeze_core.winmsvcr import MSVC_FILES, UCRT_FILES
 from setuptools import Distribution
 
-from cx_Freeze._compat import BUILD_EXE_DIR, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, IS_WINDOWS
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 
@@ -65,6 +64,21 @@ DIST_ATTRS = {
             {"include_msvcr": True},
             {"include_msvcr": IS_WINDOWS},
             id="include-msvcr=true",
+        ),
+        pytest.param(
+            {"include_msvcr_version": "15"},
+            {"include_msvcr": IS_WINDOWS, "include_msvcr_version": "15"},
+            id="include-msvcr-version=15",
+        ),
+        pytest.param(
+            {"include_msvcr_version": "16"},
+            {"include_msvcr": IS_WINDOWS, "include_msvcr_version": "16"},
+            id="include-msvcr-version=16",
+        ),
+        pytest.param(
+            {"include_msvcr_version": "17"},
+            {"include_msvcr": IS_WINDOWS, "include_msvcr_version": "17"},
+            id="include-msvcr-version=17",
         ),
         pytest.param(
             {"replace_paths": [("*", "")]},
@@ -347,6 +361,21 @@ def test_build_exe_finalize_options_raises(
             {"include_msvcr": IS_WINDOWS},
             id="--include-msvcr",
         ),
+        pytest.param(
+            ["--include-msvcr-version=15"],
+            {"include_msvcr": IS_WINDOWS, "include_msvcr_version": "15"},
+            id="--include-msvcr-version=15",
+        ),
+        pytest.param(
+            ["--include-msvcr-version=16"],
+            {"include_msvcr": IS_WINDOWS, "include_msvcr_version": "16"},
+            id="--include-msvcr-version=16",
+        ),
+        pytest.param(
+            ["--include-msvcr-version=17"],
+            {"include_msvcr": IS_WINDOWS, "include_msvcr_version": "17"},
+            id="--include-msvcr-version=17",
+        ),
     ],
 )
 def test_build_exe_script_args(
@@ -389,64 +418,6 @@ def test_build_exe_asmodule(tmp_package) -> None:
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=10)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
-
-
-SOURCE_TEST_INCLUDE_MSVCR = """
-hello.py
-    print("Hello from cx_Freeze")
-pyproject.toml
-    [project]
-    name = "hello"
-    version = "0.1.2.3"
-    description = "Sample cx_Freeze script"
-
-    [[tool.cxfreeze.executables]]
-    script = "hello.py"
-
-    [tool.cxfreeze.build_exe]
-    excludes = ["tkinter", "unittest"]
-    silent = true
-    {extra_option}
-"""
-
-
-@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-@pytest.mark.parametrize(
-    "value",
-    [pytest.param(False, marks=pytest.mark.xfail), True, "15", "16", "17"],
-)
-def test_build_exe_include_msvcr(tmp_package, value: bool | str) -> None:
-    """Test the simple sample with include_msvcr option."""
-    if isinstance(value, str):
-        extra_option = f"include_msvcr_version = {value!r}"
-    elif isinstance(value, bool) and value:
-        extra_option = "include_msvcr = true"
-    else:
-        extra_option = ""
-    tmp_package.create(
-        SOURCE_TEST_INCLUDE_MSVCR.format(extra_option=extra_option)
-    )
-    tmp_package.freeze()
-
-    executable = tmp_package.executable("hello")
-    assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
-    result.stdout.fnmatch_lines("Hello from cx_Freeze")
-
-    expected = [*MSVC_FILES]
-    if isinstance(value, str) and value == "15":
-        expected.extend(UCRT_FILES)
-    build_exe_dir = executable.parent
-    names = [
-        file.name.lower()
-        for file in build_exe_dir.glob("*.dll")
-        if any(filter(file.match, expected))
-    ]
-    # include-msvcr copies the files only on Windows, but not in MingW
-    if IS_WINDOWS and extra_option:
-        assert names != []
-    else:
-        assert not names
 
 
 OUTPUT_SUBPACKAGE_TEST = ["This is p.p1", "This is p.q.q1"]
