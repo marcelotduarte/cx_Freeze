@@ -72,7 +72,7 @@ doc = [
     "myst-parser==4.0.1 ;python_version >= '3.11'",
 ]
 tests = [
-    "coverage==7.11.0",
+    "coverage==7.11.1",
     "filelock>=3.12.3",
     "pytest==8.4.2",
         "pluggy==1.6.0",
