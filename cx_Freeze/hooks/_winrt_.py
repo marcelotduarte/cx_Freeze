@@ -28,7 +28,9 @@ class Hook(ModuleHook):
     def __getattr__(self, name: str) -> Any:
         if name.startswith("winrt_"):
 
-            def _include_subpackage(finder: ModuleFinder, module: Module) -> None:
+            def _include_subpackage(
+                finder: ModuleFinder, module: Module
+            ) -> None:
                 finder.include_package(module.name)
 
             return _include_subpackage
