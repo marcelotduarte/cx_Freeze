@@ -639,6 +639,18 @@ def load_zope_component(finder: ModuleFinder, module: Module) -> None:
 #
 
 
+def missing_backports_zstd(finder: ModuleFinder, caller: Module) -> None:
+    """The backports.zstd package is available only for Python < 3.14."""
+    if "compression" in sys.stdlib_module_names:  # py 3.14+
+        caller.ignore_names.add("backports.zstd")
+
+
+def missing_compression(finder: ModuleFinder, caller: Module) -> None:
+    """The compression package is present only on Python 3.14+."""
+    if "compression" not in sys.stdlib_module_names:  # py 3.14+
+        caller.ignore_names.add("compression")
+
+
 def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
     """The gdk module is buried inside gtk so there is no need to concern
     ourselves with an error saying that it cannot be found.
