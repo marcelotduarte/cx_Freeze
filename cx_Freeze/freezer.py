@@ -62,17 +62,17 @@ elif IS_MACOS:
 
 __all__ = ["Freezer"]
 
-WARNING_PIP_CX_FREEZE_IN_CONDA_PYTHON = """WARNING:
+WARNING_PIP_FREEZE_CORE_IN_CONDA_PYTHON = """WARNING:
 
-    It is not recommended to use cx_Freeze installed from pip with conda \
-python.
-    To install cx_Freeze as conda package (cx_freeze):
-        pip uninstall cx_Freeze
-        conda install conda-forge::cx_freeze
+    It is not recommended to use freeze-core installed using pip in the conda \
+python environment.
+    To install freeze-core as conda package (freeze_core):
+        pip uninstall freeze_core
+        conda install conda-forge::freeze_core
 
-    To fix this issue, refer to the documentation:
+    See why in article 'Using Pip in a Conda Environment':
         \
-https://cx-freeze.readthedocs.io/en/stable/installation.html#conda-forge
+https://www.anaconda.com/blog/using-pip-in-a-conda-environment
 
     On macOS, you should get an error shortly.
 """
@@ -232,9 +232,9 @@ class Freezer:
 
     def _check_installation(self) -> None:
         if IS_CONDA:
-            dist = DistributionCache(self.finder.cache_path, "cx_Freeze")
+            dist = DistributionCache(self.finder.cache_path, "freeze_core")
             if dist.installer == "pip":
-                print(WARNING_PIP_CX_FREEZE_IN_CONDA_PYTHON, file=sys.stderr)
+                print(WARNING_PIP_FREEZE_CORE_IN_CONDA_PYTHON, file=sys.stderr)
 
     def _copy_file(
         self,
