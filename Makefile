@@ -95,6 +95,7 @@ release:
 	@echo "--or--"
 	@echo "  bump-my-version bump patch --new-version=X.XX.X"
 	@echo "--then--"
+	@echo "  git push origin `git branch --show-current`"
 	@echo "  git push origin `git branch --show-current` --tags"
 
 .PHONY: release-dev

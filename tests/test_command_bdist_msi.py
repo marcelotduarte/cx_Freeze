@@ -5,15 +5,20 @@ from __future__ import annotations
 import pytest
 from setuptools import Distribution
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, PLATFORM
+from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS, IS_X86_64
 from cx_Freeze.command.bdist_msi import bdist_msi
 
 DIST_ATTRS = {
     "name": "foo",
-    "version": "0.0",
     "executables": ["hello.py"],
     "script_name": "setup.py",
 }
+if IS_ARM_64:
+    MSI_PLATFORM = "win-arm64"
+elif IS_X86_64:
+    MSI_PLATFORM = "win64"
+else:
+    MSI_PLATFORM = "win32"
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
@@ -24,7 +29,8 @@ def test_bdist_msi_target_name() -> None:
     cmd.target_name = "mytest"
     cmd.finalize_options()
     cmd.ensure_finalized()
-    assert cmd.fullname == "mytest-0.0"
+    assert cmd.fullname == "mytest-0.0.0"
+    assert cmd.target_name == "mytest"
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
@@ -37,6 +43,7 @@ def test_bdist_msi_target_name_and_version() -> None:
     cmd.finalize_options()
     cmd.ensure_finalized()
     assert cmd.fullname == "mytest-0.1"
+    assert cmd.target_name == "mytest"
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
@@ -44,8 +51,9 @@ def test_bdist_msi_default(tmp_package) -> None:
     """Test the msi_binary_data sample."""
     tmp_package.create_from_sample("msi_binary_data")
     tmp_package.freeze("cxfreeze bdist_msi")
-    platform = PLATFORM.replace("win-amd64", "win64")
-    file_created = tmp_package.path / "dist" / f"hello-0.1.2.3-{platform}.msi"
+    file_created = (
+        tmp_package.path / "dist" / f"hello-0.1.2.3-{MSI_PLATFORM}.msi"
+    )
     assert file_created.is_file()
 
 
@@ -75,8 +83,7 @@ def test_bdist_msi_target_name_with_extension_1(tmp_package) -> None:
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_with_license(tmp_package) -> None:
     """Test the msi_license sample."""
-    platform = PLATFORM.replace("win-amd64", "win64")
-    msi_name = f"hello-0.1-{platform}.msi"
+    msi_name = f"hello-0.1-{MSI_PLATFORM}.msi"
 
     tmp_package.create_from_sample("msi_license")
     tmp_package.freeze("python setup.py bdist_msi")
