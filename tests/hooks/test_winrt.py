@@ -13,7 +13,9 @@ TIMEOUT = 15
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
 
-zip_packages = pytest.mark.parametrize("zip_packages", [False, True], ids=["", "zip_packages"])
+zip_packages = pytest.mark.parametrize(
+    "zip_packages", [False, True], ids=["", "zip_packages"]
+)
 
 
 SOURCE_WINRT = """
