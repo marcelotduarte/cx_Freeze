@@ -277,14 +277,15 @@ class bdist_appimage(Command):
             os.path.join(appdir, f"{self.target_name}.desktop"),
         )
         entrypoint = f"""\
-            #! /bin/bash
+            #!/bin/sh
             # If running from an extracted image, fix APPDIR
             if [ -z "$APPIMAGE" ]; then
-                self="$(readlink -f -- $0)"
+                self="$(readlink -f -- "$0")"
                 export APPDIR="${{self%/*}}"
             fi
             # Call the application entry point
-            "$APPDIR/{executable.target_name}" "$@"
+            # Use 'exec' to avoid a new process from being started.
+            exec "$APPDIR/{executable.target_name}" "$@"
         """
         self.save_as_file(
             dedent(entrypoint), os.path.join(appdir, "AppRun"), mode="x"
