@@ -152,6 +152,11 @@ if os.name != "nt":
             "winsound",
             "win32api",
             "win32con",
+            "win32com.client",
+            "win32com.server",
+            "win32com.server.dispatcher",
+            "win32com.server.policy",
+            "win32com.server.util",
             "win32com.shell",
             "win32gui",
             "win32event",
@@ -164,6 +169,7 @@ if os.name != "nt":
             "win32security",
             "win32service",
             "win32stat",
+            "win32timezone",
             "win32wnet",
             "wx.activex",
         ]
@@ -173,7 +179,16 @@ if os.name != "nt":
 if sys.platform != "aix":
     DEFAULT_EXCLUDES.add("_aix_support")
 if sys.platform != "darwin":
-    DEFAULT_EXCLUDES.update(["mac", "macurl2path", "_scproxy", "_osx_support"])
+    DEFAULT_EXCLUDES.update(
+        [
+            "appscript",
+            "appscript.reference",
+            "mac",
+            "macurl2path",
+            "_scproxy",
+            "_osx_support",
+        ]
+    )
 if os.name != "os2":
     DEFAULT_EXCLUDES.update(["os2", "os2emxpath", "_emx_link"])
 if os.name != "ce":
@@ -189,10 +204,18 @@ if "__pypy__" not in sys.builtin_module_names:
 PY_VERSION = sys.version_info[:2]
 
 # removed in version 3.3 and 3.8
-DEFAULT_EXCLUDES.update(["cElementTree", "macpath"])
-if PY_VERSION >= (3, 9):
+if PY_VERSION < (3, 10):
     DEFAULT_EXCLUDES.update(
-        ["_dummy_thread", "dummy_threading", "_dummy_threading"]
+        [
+            # 3.3
+            "cElementTree",
+            # 3.8
+            "macpath",
+            # 3.9
+            "_dummy_thread",
+            "dummy_threading",
+            "_dummy_threading",
+        ]
     )
 if PY_VERSION >= (3, 10):
     DEFAULT_EXCLUDES.update(["formatter", "parser"])
@@ -288,6 +311,22 @@ if PY_VERSION >= (3, 9):
     DEFAULT_IGNORE_NAMES.add("backports.zoneinfo")
 if PY_VERSION >= (3, 11):
     DEFAULT_IGNORE_NAMES.add("exceptiongroup")
+if PY_VERSION >= (3, 14):
+    DEFAULT_IGNORE_NAMES.add("backports.zstd")
+
+# ignore new libraries in Python 3.10+
+if PY_VERSION < (3, 11):
+    DEFAULT_IGNORE_NAMES.update(["tomllib", "wsgiref.types"])
+if PY_VERSION < (3, 14):
+    DEFAULT_IGNORE_NAMES.update(
+        [
+            "annotationlib",
+            "concurrent.interpreters",
+            "compression",
+            "string.templatelib",
+        ]
+    )
+
 
 # ignore all default excludes
 DEFAULT_IGNORE_NAMES.update(DEFAULT_EXCLUDES)
