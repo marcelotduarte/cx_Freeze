@@ -49,7 +49,7 @@ dependencies = [
     # Windows
     "lief>=0.15.1,<=0.17.1 ;sys_platform == 'win32' and platform_machine != 'ARM64'",
     "lief>=0.15.1,<=0.17.1 ;sys_platform == 'win32' and platform_machine == 'ARM64' and python_version <= '3.13'",
-    "python-msilib>=0.4.0 ;sys_platform == 'win32' and python_version >= '3.13'",
+    "python-msilib>=0.4.1 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 dynamic = ["version"]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
