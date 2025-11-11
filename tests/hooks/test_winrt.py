@@ -6,14 +6,14 @@ import sys
 
 import pytest
 
+from cx_Freeze._compat import ABI_THREAD
+
 TIMEOUT = 15
 
 if sys.platform != "win32":
     pytest.skip(reason="Windows tests", allow_module_level=True)
 
-zip_packages = pytest.mark.parametrize(
-    "zip_packages", [False, True], ids=["", "zip_packages"]
-)
+zip_packages = pytest.mark.parametrize("zip_packages", [False, True], ids=["", "zip_packages"])
 
 
 SOURCE_WINRT = """
@@ -46,6 +46,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pywinrt does not support Python 3.13t/3.14t",
+    strict=True,
+)
 @pytest.mark.venv(scope="module")
 @zip_packages
 def test_winrt(tmp_package, zip_packages: bool) -> None:
