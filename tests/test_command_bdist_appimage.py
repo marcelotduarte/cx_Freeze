@@ -185,10 +185,11 @@ def test_bdist_appimage_simple(tmp_package) -> None:
     tmp_package.create_from_sample("simple")
     tmp_package.freeze("python setup.py bdist_appimage --quiet")
 
-    file_created = (
-        tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
-    )
-    assert file_created.is_file(), f"file not found: {file_created}"
+    app = tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
+    assert app.is_file(), f"file not found: {app}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(app, timeout=10)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
+
+    result = tmp_package.run(f"{app} --appimage-extract-and-run", timeout=10)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
