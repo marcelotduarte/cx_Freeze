@@ -72,6 +72,7 @@ pyproject.toml
 @zip_packages
 def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     """Test if matplotlib hook is working correctly."""
+    tmp_package.map_package_to_conda["matplotlib"] = "matplotlib-base"
     tmp_package.create(SOURCE_TEST_MATPLOTLIB)
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"

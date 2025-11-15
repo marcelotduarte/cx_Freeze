@@ -108,8 +108,8 @@ _build_wheel () {
 }
 
 echo "::group::Project version"
-NAME=$(grep "^name = " pyproject.toml | awk -F\" '{print $2}')
-NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]')
+NAME=$(grep -m1 "^name = " pyproject.toml | awk -F\" '{print $2}')
+NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
 VERSION=$(_bump_my_version show current_version)
 if [ -z "$VERSION" ]; then
     if [ -d src ]; then

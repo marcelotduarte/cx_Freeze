@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD
+from cx_Freeze._compat import ABI_THREAD, IS_CONDA, IS_MINGW
 
 TIMEOUT = 15
 
@@ -48,6 +48,18 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    IS_MINGW,
+    raises=ModuleNotFoundError,
+    reason="pywinrt not supported in mingw",
+    strict=True,
+)
+@pytest.mark.xfail(
+    IS_CONDA,
+    raises=ModuleNotFoundError,
+    reason="pywinrt not supported in conda",
+    strict=True,
+)
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
