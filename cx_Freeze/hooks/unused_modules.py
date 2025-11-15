@@ -203,8 +203,7 @@ if "__pypy__" not in sys.builtin_module_names:
 # removed in python versions > 3.0
 PY_VERSION = sys.version_info[:2]
 
-# removed in version 3.3 and 3.8
-if PY_VERSION < (3, 10):
+if PY_VERSION >= (3, 10):
     DEFAULT_EXCLUDES.update(
         [
             # 3.3
@@ -215,10 +214,11 @@ if PY_VERSION < (3, 10):
             "_dummy_thread",
             "dummy_threading",
             "_dummy_threading",
+            # 3.10
+            "formatter",
+            "parser",
         ]
     )
-if PY_VERSION >= (3, 10):
-    DEFAULT_EXCLUDES.update(["formatter", "parser"])
 if PY_VERSION >= (3, 11):
     DEFAULT_EXCLUDES.add("binhex")
 if PY_VERSION >= (3, 12):
