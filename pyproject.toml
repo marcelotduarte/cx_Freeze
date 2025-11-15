@@ -233,9 +233,9 @@ jobs = 0
 output-format = "colorized"
 py-version = [3, 10]
 
-[tool.pytest.ini_options]
-minversion = "7.0"
-addopts = "-rpfEsXx"
+[tool.pytest]
+minversion = "9.0"
+addopts = ["-rpfEsXx"]
 testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:distutils.*",
