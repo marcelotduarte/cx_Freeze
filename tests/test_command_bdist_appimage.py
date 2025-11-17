@@ -189,9 +189,13 @@ def test_bdist_appimage_simple(tmp_package) -> None:
     arch = platform.machine()
 
     tmp_package.create_from_sample("simple")
+    env = os.environ.copy()
+    if env.get("GITHUB_REPOSITORY"):
+        env.setdefault("GITHUB_TOKEN", "fake-token")
     tmp_package.freeze(
         "python setup.py -v bdist_appimage"
-        f" --target-name={name} --target-version={version}"
+        f" --target-name={name} --target-version={version}",
+        env=env,
     )
 
     app = tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
@@ -203,6 +207,6 @@ def test_bdist_appimage_simple(tmp_package) -> None:
     result = tmp_package.run(f"{app} --appimage-extract-and-run", timeout=10)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
-    if os.getenv("GITHUB_REPOSITORY"):
+    if env.get("GITHUB_REPOSITORY"):
         zsync_created = app.parent / f"{app.name}.zsync"
         assert zsync_created.is_file(), f"file not found: {zsync_created}"
