@@ -6,6 +6,9 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Run tests & display coverage
@@ -25,6 +28,11 @@ jobs:
     steps:
       # DO NOT run actions/checkout here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
       - name: Post comment
         uses: py-cov-action/python-coverage-comment-action@6494290850a5098c2836298dad8f11082b4ceaa9 # v3
         with:
