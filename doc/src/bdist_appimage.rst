@@ -88,7 +88,8 @@ command:
 .. versionchanged:: 8.5
    Renamed the ``appimagekit`` option to :option:`appimagetool` option.
 .. versionadded:: 8.5
-   :option:`runtime_file`, :option:`sign` and :option:`sign_key` options.
+   :option:`runtime_file`, :option:`sign`, :option:`sign_key` and
+   :option:`updateinformation` options.
 
 Signing AppImages
 -----------------
