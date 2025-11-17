@@ -63,6 +63,8 @@ command:
      - Sign with gpg or gpg2
    * - .. option:: sign_key, --sign-key
      - Key ID to use for gpg/gpg2 signatures
+   * - .. option:: updateinformation, --updateinformation
+     - Embed update information STRING and generate zsync file
    * - .. option:: target_name, --target-name
      - name of the file to create; if the name ends with ".AppImage"
        then it is used verbatim, otherwise, information about the
@@ -96,6 +98,46 @@ who at creation time uses :option:`sign` or :option:`sign_key` options.
 
 .. seealso::
   `Signing AppImages <https://docs.appimage.org/packaging-guide/optional/signatures.html>`_
+
+Making AppImages updateable
+---------------------------
+
+.. % https://docs.appimage.org/packaging-guide/optional/updates.html#making-appimages-updateable-via-external-tools
+
+To make an AppImage updateable, you need to embed information that describes
+where to check for updates and how into the AppImage. The update information
+always travels alongside the application, so that the end user does not have
+to do anything special in order to be able to check for updates.
+
+.. % https://docs.appimage.org/packaging-guide/optional/updates.html#using-appimagetool
+
+Use :option:`updateinformation` to embed update information (as specified in
+the AppImageSpec) and generate the corresponding :file:`.zsync` file you can
+upload to the place mentioned in the update information.
+
+Here is an example of usage:
+
+.. tabs::
+
+   .. group-tab:: pyproject.toml
+
+      .. code-block:: toml
+
+        [tool.cxfreeze.bdist_appimage]
+        updateinformation = "zsync|https://example.com/path/simple/simple.AppImage.zsync"
+
+
+   .. group-tab:: setup.py
+
+      .. code-block:: python
+
+        TODO
+
+The string "zsync|..." is called the *update information*.
+
+.. seealso::
+  `AppImageSpec | update-information <https://github.com/AppImage/AppImageSpec/blob/master/draft.md#update-information>`_
+
 
 ------------------
 

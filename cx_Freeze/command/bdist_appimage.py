@@ -58,6 +58,11 @@ class bdist_appimage(Command):
         ),
         ("sign", None, "Sign with gpg or gpg2"),
         ("sign-key=", None, "Key ID to use for gpg/gpg2 signatures"),
+        (
+            "updateinformation=",
+            None,
+            "Embed update information STRING and generate zsync file",
+        ),
         ("target-name=", None, "name of the file to create"),
         ("target-version=", None, "version of the file to create"),
         (
@@ -92,6 +97,7 @@ class bdist_appimage(Command):
         self.runtime_file = None
         self.sign = None
         self.sign_key = None
+        self.updateinformation = None
         self.target_name = None
         self.target_version = None
 
@@ -203,7 +209,7 @@ class bdist_appimage(Command):
             os.unlink(output)
 
         # Create AppDir format
-        appdir = os.path.join(self.bdist_base, "AppDir")
+        appdir = os.path.abspath(os.path.join(self.bdist_base, "AppDir"))
         if os.path.exists(appdir):
             self.execute(shutil.rmtree, (appdir,), msg=f"removing {appdir}")
         self.mkpath(appdir)
@@ -304,11 +310,25 @@ class bdist_appimage(Command):
             cmd.append("--sign")
         if self.sign_key is not None:
             cmd += ["--sign-key", self.sign_key]
+        if self.updateinformation is not None:
+            cmd += ["--updateinformation", self.updateinformation]
+        # check for github, travis or gitlab
+        elif (
+            os.getenv("GITHUB_REPOSITORY")
+            or os.getenv("TRAVIS_REPO_SLUG")
+            or os.getenv("CI_COMMIT_REF_NAME")
+        ):
+            cmd.append("--guess")
         if self.verbose >= 1:
             cmd.append("--verbose")
         cmd += ["--no-appstream", appdir, output]
         with FileLock(self.appimagetool + ".lock"):
-            self.spawn(cmd, search_path=0)
+            cwd = os.getcwd()
+            os.chdir(self.dist_dir)
+            try:
+                self.spawn(cmd, search_path=0)
+            finally:
+                os.chdir(cwd)
 
         self.warnings()
         if not os.path.exists(output):
