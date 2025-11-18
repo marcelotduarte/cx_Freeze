@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_0e7a078a6d875882_bdist_rpm_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.11.3">coverage.py v7.11.3</a>,
-            created at 2025-11-17 03:21 +0000
+            created at 2025-11-18 19:52 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -129,9 +129,9 @@
     <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">            <span class="key">if</span> <span class="nam">info</span><span class="op">[</span><span class="num">0</span><span class="op">]</span> <span class="op">==</span> <span class="str">"RemoveExistingProducts"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">                <span class="nam">install_execute_sequence</span><span class="op">[</span><span class="nam">index</span><span class="op">]</span> <span class="op">=</span> <span class="op">(</span><span class="nam">info</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">,</span> <span class="nam">info</span><span class="op">[</span><span class="num">1</span><span class="op">]</span><span class="op">,</span> <span class="num">1450</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="nam">msilib_ok</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="nam">HAS_MSILIB</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="key">except</span> <span class="nam">ImportError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">        <span class="nam">msilib_ok</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">        <span class="nam">HAS_MSILIB</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="nam">__all__</span> <span class="op">=</span> <span class="op">[</span><span class="str">"bdist_msi"</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -1144,11 +1144,11 @@
     <p class="run"><span class="n"><a id="t1062" href="#t1062">1062</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">launch_on_finish</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1063" href="#t1063">1063</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1064" href="#t1064">1064</a></span><span class="t">    <span class="key">def</span> <span class="nam">finalize_options</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1065" href="#t1065">1065</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">msilib_ok</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1065" href="#t1065">1065</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">HAS_MSILIB</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1066" href="#t1066">1066</a></span><span class="t">            <span class="nam">msg</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t1067" href="#t1067">1067</a></span><span class="t">                <span class="str">"bdist_msi is not supported in your platform yet.\n"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t1068" href="#t1068">1068</a></span><span class="t">                <span class="str">"       Please check the pinned issue "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t1069" href="#t1069">1069</a></span><span class="t">                <span class="str">"https://github.com/marcelotduarte/cx_Freeze/issues/2837"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1068" href="#t1068">1068</a></span><span class="t">                <span class="str">"       Please install python-msilib on Python 3.13+ from "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1069" href="#t1069">1069</a></span><span class="t">                <span class="str">"https://github.com/marcelotduarte/python-msilib"</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t1070" href="#t1070">1070</a></span><span class="t">            <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1071" href="#t1071">1071</a></span><span class="t">            <span class="key">raise</span> <span class="nam">PlatformError</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1072" href="#t1072">1072</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">set_undefined_options</span><span class="op">(</span><span class="str">"bdist"</span><span class="op">,</span> <span class="op">(</span><span class="str">"skip_build"</span><span class="op">,</span> <span class="str">"skip_build"</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1373,7 +1373,7 @@
             <a class="nav" href="z_0e7a078a6d875882_bdist_rpm_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.11.3">coverage.py v7.11.3</a>,
-            created at 2025-11-17 03:21 +0000
+            created at 2025-11-18 19:52 +0000
         </p>
     </div>
 </footer>
