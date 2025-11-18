@@ -5,11 +5,12 @@ Development
 Getting started
 ---------------
 
-**cx_Freeze** is a volunteer maintained open source project and we welcome
-contributions of all forms. The sections below will help you get started with
-development, testing, and documentation. We’re pleased that you are interested
-in working on cx_Freeze. This document is meant to get you setup to work on
-cx_Freeze and to act as a guide and reference to the development setup.
+:program:`cx_Freeze` is a volunteer maintained open source project and we
+welcome contributions of all forms. The sections below will help you get
+started with development, testing, and documentation. We’re pleased that you
+are interested in working on :program:`cx_Freeze`. This document is meant to
+get you setup to work on :program:`cx_Freeze` and to act as a guide and
+reference to the development setup.
 If you face any issues during this process, please open an issue about it on
 the issue tracker.
 

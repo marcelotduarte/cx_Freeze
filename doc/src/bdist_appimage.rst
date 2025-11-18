@@ -24,7 +24,7 @@ applications. In this regard, AppImage is like a :file:`.zip` file or an
 bdist_appimage command options
 ------------------------------
 
-When **cx_Freeze** calls :program:`appimagetool` to create an AppImage
+When :program:`cx_Freeze` calls :program:`appimagetool` to create an AppImage
 application bundle, it builds a read-only image of a :ref:`cx_freeze_build_exe`
 directory, then prepends the runtime file, the entrypoint, a desktop file,
 icon from :option:`Executable.icon <icon>` option (or a default icon)

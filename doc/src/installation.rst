@@ -33,11 +33,6 @@ installation works with the most common ones.
       .. seealso:: `cx_freeze-feedstock
          <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
 
-.. warning::
-  It is not recommended to use ``pip`` in conda environment. See why in
-  `Using Pip in a Conda Environment
-  <https://www.anaconda.com/blog/using-pip-in-a-conda-environment>`_.
-
 .. note::
   The recommended way to use cx_Freeze is in a virtual environment such as
   those provided by :pythondocs:`python -m venv <library/venv.html>`,
@@ -60,16 +55,20 @@ Python requirements are installed automatically by pip or conda.
 
   .. code-block:: console
 
-   freeze-core >= 0.2.0
-   filelock >= 3.12.3
+   freeze-core >= 0.4.0
    packaging >= 24
-   setuptools >= 65.6.3     #  setuptools >= 78.1.1 if installing from sources
-   tomli >= 2.0.1           #  Python 3.10
+   setuptools >= 78.1.1,<81
+   tomli >= 2.0.1           #  Python 3.10, Python 3.11+ has tomllib
+   filelock >= 3.15.3       #  Linux
    patchelf >= 0.14,<0.18   #  Linux
    dmgbuild >= 1.6.1        #  macOS
    lief >= 0.15.1           #  Windows
+   python-msilib >= 0.4.1   #  Python 3.13+ on Windows
 
-.. note:: If you have trouble with patchelf, check :ref:`patchelf`.
+.. note::
+
+   #. If you have trouble with patchelf, check :ref:`patchelf`.
+   #. ``lief`` in conda-forge is named ``py-lief``.
 
 Download the source code
 ------------------------
