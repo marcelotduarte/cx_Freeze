@@ -24,7 +24,7 @@ Further customization can be done using the following options:
     script which will be executed upon startup; if the
     name of the file is not an absolute file name, the
     subdirectory initscripts (rooted in the directory in
-    which the **cx_Freeze** package is found) will be searched
+    which the :program:`cx_Freeze` package is found) will be searched
     for a file matching the name
 
 .. option:: --base=NAME, --base-name=NAME

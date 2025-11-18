@@ -4,10 +4,10 @@ Frequently Asked Questions
 Problems with running frozen programs
 -------------------------------------
 
-A common problem is that **cx_Freeze** hasn't automatically detected that a
-file needs to be copied. Modules that your code imports are detected, but if
-they're dynamically loaded - e.g. by a plugin system - you have to tell
-**cx_Freeze** about them. This is easy using a :doc:`setup_script`:
+A common problem is that :program:`cx_Freeze` hasn't automatically detected
+that a file needs to be copied. Modules that your code imports are detected,
+but if they're dynamically loaded - e.g. by a plugin system - you have to tell
+:program:`cx_Freeze` about them. This is easy using a :doc:`setup_script`:
 
 * For Python code, specify the module names in the :option:`includes` or
   :option:`packages` options.
@@ -21,19 +21,20 @@ Problems with freezing programs
 -------------------------------
 
 To determine which packages need to be copied with your application,
-**cx_Freeze** follows the imports. If your installation contains a lot of
-packages, this may lead to undesired behavior, such as **cx_Freeze**
+:program:`cx_Freeze` follows the imports. If your installation contains a lot
+of packages, this may lead to undesired behavior, such as :program:`cx_Freeze`
 encountering a recursion error when trying to compute the list of dependencies,
 or the `lib` folder of the frozen application containing many unnecessary
 packages.
-In this case, use **cx_Freeze** in a virtualenv. Alternatively, the
+In this case, use :program:`cx_Freeze` in a virtualenv. Alternatively, the
 :ref:`cx_freeze_build_exe` also offers the :option:`excludes` option to
 explicitly exclude dependencies that would otherwise be included.
 
 Specifying modules and packages
 -------------------------------
 
-The definitions of modules and packages are different. See Python documentation.
+The definitions of modules and packages are different.
+See Python documentation.
 
 * :pythondocs:`Modules <tutorial/modules.html>`.
 * :pythondocs:`Packages <tutorial/modules.html#packages>`.
@@ -58,15 +59,16 @@ There are two ways to debug what's going on:
 Freezing for other platforms
 ----------------------------
 
-**cx_Freeze** works on Windows, macOS, and Linux, but on each platform, it only
-makes an executable that runs on that platform. So if you want to freeze your
-programs for Windows, freeze it on Windows; if you want to run it on Macs,
-freeze it on a macOS.
+:program:`cx_Freeze` works on Windows, macOS, and Linux, but on each platform,
+it only makes an executable that runs on that platform. So if you want to
+freeze your programs for Windows, freeze it on Windows; if you want to run it
+on Macs, freeze it on a macOS.
 
 At a pinch, you can try to make a Windows executable using `Wine
-<https://www.winehq.org/>`_. Our experience is that you need to copy some files
-manually after **cx_Freeze** has run to make the executable work. We don't
-recommend this option.
+<https://www.winehq.org/>`_. Starting with version 8.0, where
+:option:`include_msvcr` began using redistributable files, creating executables
+in Wine is possible with no difference compared to Windows, however using
+Python is a bit more laborious.
 
 .. _data_files:
 
@@ -96,7 +98,7 @@ Microsoft Visual C++ Redistributable Package
 
 Python 3.10-3.14 on Windows requires the `Microsoft Visual C++ Redistributable
 <https://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist>`_,
-and because of how this is installed, **cx_Freeze** by default does NOT
+and because of how this is installed, :program:`cx_Freeze` by default does NOT
 automatically copy it for your application, however this can be changed,
 but note that:
 
@@ -139,9 +141,9 @@ Removing the MAX_PATH Limitation
 Windows historically has limited path lengths to 260 characters. This meant
 that paths longer than this would not resolve and errors would result.
 
-Support for long paths is enabled for executables built in **cx_Freeze** as
-long as the administrator activates the "Enable Win32 long paths" group policy
-or sets ``LongPathsEnabled`` to ``1`` in the registry key
+Support for long paths is enabled for executables built in :program:`cx_Freeze`
+as long as the administrator activates the "Enable Win32 long paths" group
+policy or sets ``LongPathsEnabled`` to ``1`` in the registry key
 ``HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem``.
 
 After changing the above option, no further configuration is required.
@@ -152,16 +154,16 @@ After changing the above option, no further configuration is required.
 Single-file executables
 -----------------------
 
-**cx_Freeze** 7.0, introduced the :doc:`bdist_appimage` command for Linux,
-which supports the construction of a single exe file, where all your
+:program:`cx_Freeze` 7.0, introduced the :doc:`bdist_appimage` command for
+Linux, which supports the construction of a single exe file, where all your
 application's libraries are incorporated into an executable file.
 
-On other systems, this is not supported by **cx_Freeze**, however, for
+On other systems, this is not supported by :program:`cx_Freeze`, however, for
 distribution, on Windows, you can use :doc:`bdist_msi`, and on macOS,
 you can use :doc:`bdist_dmg`.
 
 Also, you can use other tools to compress the build directory from
-**cx_Freeze** into a self-extracting archive:
+:program:`cx_Freeze` into a self-extracting archive:
 
 * `IExpress <https://en.wikipedia.org/wiki/IExpress>`_
 
@@ -170,7 +172,7 @@ Also, you can use other tools to compress the build directory from
 License for frozen programs
 ---------------------------
 
-When a python script is frozen with **cx_Freeze**, a small amount of
+When a python script is frozen with :program:`cx_Freeze`, a small amount of
 **freeze_core** code is incorporated into the frozen program.  That code is
 used to configure and start Python, running the script when the frozen program
 is launched.
@@ -179,8 +181,8 @@ The incorporated **freeze_core** code is covered by the terms of the
 <https://github.com/marcelotduarte/freeze-core/blob/main/LICENSE>`_,
 which requires a copy of the license to be included with the frozen program.
 
-In order to make it easy to comply with this requirement, **cx_Freeze** will
-automatically include a copy of the license, as a text file, as part of
+In order to make it easy to comply with this requirement, :program:`cx_Freeze`
+will automatically include a copy of the license, as a text file, as part of
 the frozen program.
 
 .. _patchelf:
@@ -215,7 +217,7 @@ Multiprocessing support
 -----------------------
 
 On Linux, macOS, and Windows, :pythondocs:`multiprocessing
-<library/multiprocessing.html>` support is managed by **cx_Freeze**,
+<library/multiprocessing.html>` support is managed by :program:`cx_Freeze`,
 including support for PyTorch
 `torch.multiprocessing <https://pytorch.org/docs/stable/multiprocessing.html>`_
 and `multiprocess <https://multiprocess.readthedocs.io/en/latest>`_.

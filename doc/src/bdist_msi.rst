@@ -1,12 +1,11 @@
 bdist_msi
 =========
 
-This command is implemented by cx_Freeze to handle installing executables and
-their dependencies creating Windows installer packages.
+This command is implemented by :program:`cx_Freeze` to handle installing
+executables and their dependencies creating Windows installer packages.
 
-.. warning::
-
-   This command is not supported in Python 3.13t. See :issue:`2837`.
+For Python 3.13+ :program:`cx_Freeze` is using :pypi:`python-msilib` with
+support for Windows x64 and also for Windows ARM64.
 
 The following options were added to the standard set of options for the
 command:

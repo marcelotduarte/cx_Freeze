@@ -10,8 +10,10 @@ The project's code layout
       (create Linux AppImage format).
     * ``bdist_deb.py`` - Implements the 'bdist_deb' command
       (create DEB binary distributions).
-    * ``bdist_mac.py`` - Implements the 'bdist_dmg' and 'bdist_mac' commands
-      (create macOS dmg and/or app blundle.
+    * ``bdist_dmg.py`` - Implements the 'bdist_dmg' command
+      (create macOS dmg blundle).
+    * ``bdist_mac.py`` - Implements the 'bdist_mac' command
+      (create macOS app blundle).
     * ``bdist_msi.py`` - Implements the 'bdist_msi' command
       (create Windows installer packages).
     * ``bdist_rpm.py`` - Implements the 'bdist_rpm' command
@@ -22,8 +24,6 @@ The project's code layout
 
   * ``hooks/`` - A collection of functions which are triggered automatically
     by ``finder.py`` when certain packages are included or not found.
-  * ``initscripts/`` - Python scripts which set up the interpreter to run from
-    frozen code, then load the code from the zip file and set it running.
   * ``cli.py`` - The code behind the :doc:`cxfreeze script <../script>`.
   * ``common.py`` - Common utility functions shared between cx_Freeze modules.
   * ``dep_parser.py`` - Implements `Parser` interface to create an abstraction

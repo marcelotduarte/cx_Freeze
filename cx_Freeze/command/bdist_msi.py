@@ -47,9 +47,9 @@ if IS_MINGW or IS_WINDOWS:
             if info[0] == "RemoveExistingProducts":
                 install_execute_sequence[index] = (info[0], info[1], 1450)
 
-        msilib_ok = True
+        HAS_MSILIB = True
     except ImportError:
-        msilib_ok = False
+        HAS_MSILIB = False
 
 __all__ = ["bdist_msi"]
 
@@ -1062,11 +1062,11 @@ class bdist_msi(Command):
         self.launch_on_finish = None
 
     def finalize_options(self) -> None:
-        if not msilib_ok:
+        if not HAS_MSILIB:
             msg = (
                 "bdist_msi is not supported in your platform yet.\n"
-                "       Please check the pinned issue "
-                "https://github.com/marcelotduarte/cx_Freeze/issues/2837"
+                "       Please install python-msilib on Python 3.13+ from "
+                "https://github.com/marcelotduarte/python-msilib"
             )
             raise PlatformError(msg)
         self.set_undefined_options("bdist", ("skip_build", "skip_build"))
