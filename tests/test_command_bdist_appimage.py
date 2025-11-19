@@ -194,7 +194,7 @@ def test_bdist_appimage_simple(tmp_package) -> None:
     tmp_package.create_from_sample("simple")
     tmp_package.freeze(
         "python setup.py -v bdist_appimage"
-        " --updateinformation=guest "
+        " --updateinformation=guess "
         f" --target-name={name} --target-version={version}"
     )
 
