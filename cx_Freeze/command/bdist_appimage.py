@@ -312,7 +312,7 @@ class bdist_appimage(Command):
         if self.sign_key is not None:
             cmd += ["--sign-key", self.sign_key]
         if self.updateinformation is not None:
-            if self.updateinformation == "guest":
+            if self.updateinformation == "guess":
                 # check for github, travis or gitlab
                 if (
                     os.environ.get("GITHUB_REPOSITORY")
