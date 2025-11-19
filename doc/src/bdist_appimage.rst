@@ -64,7 +64,7 @@ command:
    * - .. option:: sign_key, --sign-key
      - Key ID to use for gpg/gpg2 signatures
    * - .. option:: updateinformation, --updateinformation
-     - Embed update information STRING and generate zsync file
+     - Embed update information STRING (or 'guess') and generate zsync file;
    * - .. option:: target_name, --target-name
      - name of the file to create; if the name ends with ".AppImage"
        then it is used verbatim, otherwise, information about the
@@ -115,6 +115,9 @@ to do anything special in order to be able to check for updates.
 Use :option:`updateinformation` to embed update information (as specified in
 the AppImageSpec) and generate the corresponding :file:`.zsync` file you can
 upload to the place mentioned in the update information.
+A special value **guess** can be used to guess update information based on
+GitHub or GitLab environment variables.
+
 
 Here is an example of usage:
 

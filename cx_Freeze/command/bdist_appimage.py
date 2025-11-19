@@ -61,7 +61,8 @@ class bdist_appimage(Command):
         (
             "updateinformation=",
             None,
-            "Embed update information STRING and generate zsync file",
+            "Embed update information STRING (or 'guess') "
+            "and generate zsync file",
         ),
         ("target-name=", None, "name of the file to create"),
         ("target-version=", None, "version of the file to create"),
@@ -311,14 +312,20 @@ class bdist_appimage(Command):
         if self.sign_key is not None:
             cmd += ["--sign-key", self.sign_key]
         if self.updateinformation is not None:
-            cmd += ["--updateinformation", self.updateinformation]
-        # check for github, travis or gitlab
-        elif (
-            os.getenv("GITHUB_REPOSITORY")
-            or os.getenv("TRAVIS_REPO_SLUG")
-            or os.getenv("CI_COMMIT_REF_NAME")
-        ):
-            cmd.append("--guess")
+            if self.updateinformation == "guest":
+                # check for github, travis or gitlab
+                if (
+                    os.environ.get("GITHUB_REPOSITORY")
+                    or os.environ.get("TRAVIS_REPO_SLUG")
+                    or os.environ.get("CI_COMMIT_REF_NAME")
+                ):
+                    if os.environ.get("GITHUB_REPOSITORY"):
+                        # appimagetool requires a GitHub token, but doesn't
+                        # actually use it.
+                        os.environ.setdefault("GITHUB_TOKEN", "fake-token")
+                    cmd.append("--guess")
+            else:
+                cmd += ["--updateinformation", self.updateinformation]
         if self.verbose >= 1:
             cmd.append("--verbose")
         cmd += ["--no-appstream", appdir, output]
