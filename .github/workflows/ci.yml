@@ -5,8 +5,9 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
   workflow_dispatch:
 
 concurrency:
@@ -15,6 +16,7 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build_wheel:
