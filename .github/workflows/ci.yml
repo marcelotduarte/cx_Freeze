@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
