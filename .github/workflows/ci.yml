@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
   pull_request:
     branches:
       - main
@@ -15,6 +18,7 @@ concurrency:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build_wheel:
