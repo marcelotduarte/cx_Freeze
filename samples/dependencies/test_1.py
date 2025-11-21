@@ -40,9 +40,7 @@ for line in os.popen(cmdline):  # noqa: S605
 print()
 
 print("testing with sys.path into PATH environ")
-os.environ["PATH"] = (
-    os.pathsep.join(sys.path) + os.pathsep + os.environ["PATH"]
-)
+os.environ["PATH"] = os.pathsep.join(sys.path + os.get_exec_path())
 cmdline = program + " " + " ".join(dependencies_to_check)
 for line in os.popen(cmdline):  # noqa: S605
     print(line, end="")

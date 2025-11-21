@@ -1061,6 +1061,8 @@ class bdist_msi(Command):
         self.license_file = None
         self.launch_on_finish = None
 
+        self._warnings = []
+
     def finalize_options(self) -> None:
         if not HAS_MSILIB:
             msg = (
@@ -1093,14 +1095,41 @@ class bdist_msi(Command):
                 raise OptionError(msg)
         self.install_script_key = None
 
-        # cx_Freeze specific
+        # default values for target_name and target_version
         if self.target_name is None:
-            self.target_name = self.distribution.get_name()
+            if self.distribution.metadata.name:
+                self.target_name = self.distribution.metadata.name
+            else:
+                executables = self.distribution.executables
+                executable = executables[0]
+                self.warn_delayed(
+                    "using the first executable as target_name: "
+                    f"{executable.target_name}"
+                )
+                self.target_name = executable.target_name
         if self.target_version is None and self.distribution.metadata.version:
             self.target_version = self.distribution.metadata.version
+
         name = self.target_name
-        version = self.target_version or self.distribution.get_version()
-        self.fullname = f"{name}-{version}"
+        version = self.target_version
+        name, ext = os.path.splitext(name)
+        if ext == ".msi":
+            self.msi_name = self.target_name
+            self.fullname = name
+        elif version:
+            self.msi_name = f"{name}-{version}-{MSI_PLATFORM}.msi"
+            self.fullname = f"{name}-{version}"
+        else:
+            self.msi_name = f"{name}-{MSI_PLATFORM}.msi"
+            self.fullname = name
+
+        # default metadata name and version if not set in setup/pyproject
+        if not self.distribution.metadata.name:
+            self.distribution.metadata.name = name.split("-")[0]
+        if not self.distribution.metadata.version:
+            self.distribution.metadata.version = version
+        name = self.distribution.get_name()
+
         if self.initial_target_dir is None:
             if IS_ARM_64 or IS_X86_64:
                 program_files_folder = "ProgramFiles64Folder"
@@ -1216,22 +1245,18 @@ class bdist_msi(Command):
 
         # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
-        msi_name: str
-        if os.path.splitext(self.target_name)[1].lower() == ".msi":
-            msi_name = self.target_name
-        elif self.target_version:
-            msi_name = f"{self.fullname}-{MSI_PLATFORM}.msi"
-        else:
-            msi_name = f"{self.target_name}-{MSI_PLATFORM}.msi"
-        installer_name = os.path.join(self.dist_dir, msi_name)
-        installer_name = os.path.abspath(installer_name)
+        installer_name = os.path.abspath(
+            os.path.join(self.dist_dir, self.msi_name)
+        )
         if os.path.exists(installer_name):
             os.unlink(installer_name)
 
         author = self.distribution.metadata.get_contact() or "UNKNOWN"
-        version = self.target_version or self.distribution.get_version()
+        distribution_name = self.distribution.get_name()
         # ProductVersion must be strictly numeric
-        base_version = Version(version).base_version
+        distribution_version = Version(
+            self.target_version or self.distribution.get_version()
+        ).base_version
 
         # msilib is reloaded in order to reset the "_directories" global member
         # in that module.  That member is used by msilib to prevent any two
@@ -1247,20 +1272,20 @@ class bdist_msi(Command):
         self.db = init_database(
             installer_name,
             schema,
-            self.target_name,
+            distribution_name,
             self.product_code,
-            base_version,
+            distribution_version,
             author,
         )
         add_tables(self.db, sequence)
         self.add_properties()
         self.add_config()
-        self.add_upgrade_config(base_version)
+        self.add_upgrade_config(distribution_version)
         self.add_ui()
         self.add_files()
         self.db.Commit()
         self.distribution.dist_files.append(
-            ("bdist_msi", base_version or "any", self.target_name)
+            ("bdist_msi", distribution_version or "any", distribution_name)
         )
 
         if not self.keep_temp:
@@ -1275,6 +1300,15 @@ class bdist_msi(Command):
         # is run programmatically from within a larger script, subsequent
         # editing of the MSI is blocked.
         self.db = None
+
+        self.warnings()
+
+    def warn_delayed(self, msg) -> None:
+        self._warnings.append(msg)
+
+    def warnings(self) -> None:
+        for msg in self._warnings:
+            self.announce(f"WARNING: {msg}", logging.WARNING)
 
 
 def _is_valid_guid(code) -> bool:
