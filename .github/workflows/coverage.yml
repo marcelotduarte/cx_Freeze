@@ -6,9 +6,6 @@ on:
     types:
       - completed
 
-permissions:
-  contents: read
-
 jobs:
   test:
     name: Run tests & display coverage
@@ -34,9 +31,9 @@ jobs:
           egress-policy: audit
 
       - name: Post comment
-        uses: py-cov-action/python-coverage-comment-action@39ffc771120970de615612f01a030260bcb45443 # v3
+        uses: py-cov-action/python-coverage-comment-action@e623398c19eb3853a5572d4a516e10b15b5cefbc # v3.39
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
