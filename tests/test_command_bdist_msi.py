@@ -22,6 +22,22 @@ else:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
+def test_bdist_msi_target_dir() -> None:
+    """Test the bdist_msi initial_target_dir option."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_msi(dist)
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+    if IS_ARM_64 or IS_X86_64:
+        expected = r"[ProgramFiles64Folder]\foo"
+    else:
+        expected = r"[ProgramFilesFolder]\foo"
+    assert cmd.initial_target_dir == expected
+    assert cmd.fullname == "foo"
+    assert cmd.target_name == "foo"
+
+
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_target_name() -> None:
     """Test the bdist_msi with extra target_name option."""
     dist = Distribution(DIST_ATTRS)
@@ -29,7 +45,7 @@ def test_bdist_msi_target_name() -> None:
     cmd.target_name = "mytest"
     cmd.finalize_options()
     cmd.ensure_finalized()
-    assert cmd.fullname == "mytest-0.0.0"
+    assert cmd.fullname == "mytest"
     assert cmd.target_name == "mytest"
 
 
@@ -135,6 +151,7 @@ pyproject.toml
     name = "hello"
     version = "0.1.2.3"
     description = "Sample cx_Freeze script"
+    authors = [{name = "cx_Freeze"}]
 
     [[tool.cxfreeze.executables]]
     script = "hello.py"

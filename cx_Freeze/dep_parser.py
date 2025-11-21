@@ -54,7 +54,7 @@ class Parser(ABC):
         """The default search path."""
         # This cannot be cached because os.environ["PATH"] can be changed in
         # freeze module before the call to get_dependent_files.
-        env_path = os.environ["PATH"].split(os.pathsep)
+        env_path = os.get_exec_path()
         new_path = []
         for path in self._path + self._bin_path_includes + env_path:
             with suppress(PermissionError):
