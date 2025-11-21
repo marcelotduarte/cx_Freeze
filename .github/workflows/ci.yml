@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
