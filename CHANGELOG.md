@@ -3,6 +3,22 @@ performance as the original script.
 
 It is cross-platform and should work on any platform that Python runs on.
 
+# Version 8.5 (2025-11-24)
+
+- Separation into two distinct packages: cx_Freeze and freeze-core
+- Support for Python 3.14 and 3.14t (cx_Freeze and freeze-core)
+- Add support for Python 3.13t on Windows (freeze-core)
+- Add support for bdist_msi on Python 3.13 and 3.14 (python-msilib)
+- bdist_msi - fix for initial_target_dir and target_name
+- bdist_appimage - add runtime_file, sign, sign_key and updateinformation
+  options.
+- bdist_appimage - add support for 'gui' app in desktop file
+- Apply security best practices
+- Fix a performance bug (optimized implementation of '\_find_editable_spec')
+- Refactor finder scan code
+- Drop Python 3.9 support
+- Bug fixes, hooks, and tests.
+
 # Version 8.4 (2025-08-11)
 
 - Refactor dynamic libraries finder.

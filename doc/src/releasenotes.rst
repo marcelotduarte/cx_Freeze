@@ -12,6 +12,105 @@ Release notes
 8.x releases
 ############
 
+
+Version 8.5 (Nov 24)
+--------------------
+
+#)  Bump version: 8.5.0-dev.0 → 8.5.0 [ci skip] (:pr:`3180`) :user:`marcelotduarte`
+#)  chore: prepare changelog and release notes (:pr:`3179`) :user:`marcelotduarte`
+#)  ci: revert actions/checkout - breaks coverage comment (:pr:`3178`) :user:`marcelotduarte`
+#)  build(deps): bump astral-sh/setup-uv from 7.1.3 to 7.1.4 (:pr:`3177`) :user:`dependabot`
+#)  ci: add permission and ignore bot branches (:pr:`3176`) :user:`marcelotduarte`
+#)  ci: fix content permissions (:pr:`3175`) :user:`marcelotduarte`
+#)  ci: revert security change that block coverage comment (:pr:`3174`) :user:`marcelotduarte`
+#)  bdist_msi: fix target_name usage and revert some old patches (:pr:`3173`) :user:`marcelotduarte`
+#)  build(deps): bump actions/checkout from 5.0.1 to 6.0.0 (:pr:`3172`) :user:`dependabot`
+#)  bdist_appimage: add `updateinformation` option (:pr:`3166`) :user:`marcelotduarte`
+#)  build(deps): bump github/codeql-action from 3.31.3 to 4.31.4 (:pr:`3171`) :user:`dependabot`
+#)  build(deps): bump py-cov-action/python-coverage-comment-action from 6494290850a5098c2836298dad8f11082b4ceaa9 to 39ffc771120970de615612f01a030260bcb45443 (:pr:`3169`) :user:`dependabot`
+#)  build(deps): bump actions/checkout from 5.0.0 to 5.0.1 (:pr:`3168`) :user:`dependabot`
+#)  build(deps): bump coverage from 7.11.3 to 7.12.0 (:pr:`3170`) :user:`dependabot`
+#)  Documentation tweaks in preparation for version release [ci skip] (:pr:`3167`) :user:`marcelotduarte`
+#)  [StepSecurity] Apply security best practices (:pr:`3165`) :user:`bot`
+#)  [StepSecurity] ci: Harden GitHub Actions (:pr:`3164`) :user:`bot`
+#)  tests: make tests pass on mingw and conda [ci skip] (:pr:`3162`) :user:`marcelotduarte`
+#)  chore: minor revision of project configuration (:pr:`3161`) :user:`marcelotduarte`
+#)  build(deps): bump pytest from 9.0.0 to 9.0.1 (:pr:`3160`) :user:`dependabot`
+#)  bdist_msi: fix initial_target_dir on Windows ARM64-based machines (:pr:`3140`) :user:`marcelotduarte`
+#)  feat(hooks): add winrt module hook for automatic package inclusion (:pr:`3151`) :user:`amnweb`
+#)  hooks: update set of excludes/ignores names (:pr:`3158`) :user:`marcelotduarte`
+#)  bdist_appimage: make entrypoint script POSIX-compliant (:pr:`3157`) :user:`marcelotduarte`
+#)  hooks: add backports.zstd (:pr:`3156`) :user:`marcelotduarte`
+#)  build(deps-dev): bump pre-commit from 4.3.0 to 4.4.0 (:pr:`3155`) :user:`dependabot`
+#)  build(deps): bump pytest from 8.4.2 to 9.0.0 (:pr:`3154`) :user:`dependabot`
+#)  build(deps): bump coverage from 7.11.1 to 7.11.3 (:pr:`3153`) :user:`dependabot`
+#)  chore: change warning about conda usage [ci skip] (:pr:`3152`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.11.0 to 7.11.1 (:pr:`3150`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3149`) :user:`pre-commit-ci`
+#)  tests: simplify build_exe tests (:pr:`3148`) :user:`marcelotduarte`
+#)  finder: optimized implementation of '_find_editable_spec' (:pr:`3147`) :user:`egor.martiniuc`
+#)  build(deps): bump actions/upload-artifact from 4 to 5 (:pr:`3145`) :user:`dependabot`
+#)  build(deps): bump actions/download-artifact from 5 to 6 (:pr:`3144`) :user:`dependabot`
+#)  build(deps): update lief requirement from <=0.16.6,>=0.15.1 to >=0.15.1,<=0.17.1 (:pr:`3141`) :user:`marcelotduarte`
+#)  tests: fix tests on arm64 (:pr:`3142`) :user:`marcelotduarte`
+#)  bdist_appimage: add `sign` and `sign-key` options (:pr:`3138`) :user:`marcelotduarte`
+#)  chore: small review of the documentation [ci skip] (:pr:`3137`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.10.7 to 7.11.0 (:pr:`3136`) :user:`dependabot`
+#)  chore: drop Python 3.9 support (:pr:`3135`) :user:`marcelotduarte`
+#)  bdist_appimage: minor revision and fixes (:pr:`3134`) :user:`marcelotduarte`
+#)  bdist_appimage: add support for 'gui' app in desktop file (:pr:`3133`) :user:`marcelotduarte`
+#)  chore: refactor more code related to bytecode and executable (:pr:`3132`) :user:`marcelotduarte`
+#)  bdist_appimage: replace appimagekit option with appimagetool option (:pr:`3131`) :user:`marcelotduarte`
+#)  bdist_appimage: add "runtime-file" argument to bdist_appimage command (:pr:`3063`) :user:`mail`
+#)  chore: add support for Python 3.14 (:pr:`3130`) :user:`marcelotduarte`
+#)  chore: bump ruff from 0.13.3 to 0.14.0 and tweak some options (:pr:`3129`) :user:`marcelotduarte`
+#)  tests: update supported versions of packages used in tests (:pr:`3128`) :user:`marcelotduarte`
+#)  chore: refactor finder scan code (:pr:`3126`) :user:`marcelotduarte`
+#)  build(deps): bump astral-sh/setup-uv from 6 to 7 (:pr:`3123`) :user:`dependabot`
+#)  chore: minor tweaks in internal imports (:pr:`3122`) :user:`marcelotduarte`
+#)  build(deps): bump github/codeql-action from 3 to 4 (:pr:`3121`) :user:`dependabot`
+#)  build(deps-dev): bump bump-my-version from 1.2.3 to 1.2.4 (:pr:`3120`) :user:`dependabot`
+#)  build(deps): bump python-msilib to 0.2.0 (:pr:`3118`) :user:`marcelotduarte`
+#)  build(deps): bump setuptools to 78.1.1 to fix path traversal vulnerability in PackageIndex.download (:pr:`3117`) :user:`marcelotduarte`
+#)  chore: python-msilib as dependency for python 3.13 [windows] (:pr:`3115`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3114`) :user:`pre-commit-ci`
+#)  doc: add freeze-core to the docs and cleanup [ci skip] (:pr:`3113`) :user:`marcelotduarte`
+#)  chore: bump freeze-core to 0.2.0 (:pr:`3112`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.10.6 to 7.10.7 (:pr:`3111`) :user:`dependabot`
+#)  chore: freeze-core as dependency (:pr:`3109`) :user:`marcelotduarte`
+#)  Bump version: 8.4.1 → 8.5.0-dev.0 [ci skip] (:pr:`3108`) :user:`marcelotduarte`
+#)  Bump version: 8.4.0 → 8.4.1 [ci skip] (:pr:`3107`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 1.2.2 to 1.2.3 (:pr:`3106`) :user:`dependabot`
+#)  tests: avoid duplicate qt libs (:pr:`3068`) :user:`frmdstryr`
+#)  tests: use include_msvcr in tests to pass in a clean system (:pr:`3105`) :user:`marcelotduarte`
+#)  tests: fix tests on msys2 [ci skip] (:pr:`3104`) :user:`marcelotduarte`
+#)  build(deps-dev): workaround for bump-my-version (:pr:`3103`) :user:`marcelotduarte`
+#)  build(deps): bump pytest-mock from 3.15.0 to 3.15.1 (:pr:`3101`) :user:`dependabot`
+#)   build(deps): update lief requirement from <=0.16.6,>=0.15.1 to >=0.15.1,<=0.17.0 (:pr:`3100`) :user:`marcelotduarte`
+#)  build(deps-dev): bump bump-my-version from 1.2.1 to 1.2.2 (:pr:`3099`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3097`) :user:`marcelotduarte`
+#)  Fix Windows permission error (:pr:`3095`) :user:`timlassiter11`
+#)  build(deps): bump pytest-mock from 3.14.1 to 3.15.0 (:pr:`3094`) :user:`dependabot`
+#)  build(deps): bump pytest from 8.4.1 to 8.4.2 (:pr:`3093`) :user:`dependabot`
+#)  build(deps): bump actions/setup-python from 5 to 6 (:pr:`3092`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3091`) :user:`pre-commit-ci`
+#)  build(deps): bump coverage from 7.10.5 to 7.10.6 (:pr:`3089`) :user:`dependabot`
+#)  hooks: improve lazy loader support for skimage (:pr:`3087`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.10.4 to 7.10.5 (:pr:`3088`) :user:`dependabot`
+#)  [pre-commit.ci] pre-commit autoupdate (:pr:`3086`) :user:`pre-commit-ci`
+#)  freezer: ignore .pyi, .pxd, .pyx, etc while copy package data (:pr:`3084`) :user:`marcelotduarte`
+#)  hooks: pytz - ignore warning at runtime (:pr:`3083`) :user:`marcelotduarte`
+#)  build(deps): bump coverage from 7.10.3 to 7.10.4 (:pr:`3080`) :user:`dependabot`
+#)  tests: fix venv tests in mingw and conda [ci skip] (:pr:`3081`) :user:`marcelotduarte`
+#)  fix: regression in qt hooks (introduced in #2788) - since 7.2.9 (:pr:`3079`) :user:`marcelotduarte`
+#)  tests: run frozen executables outside of a venv (:pr:`3076`) :user:`marcelotduarte`
+#)  fix: --include-path should consider existing .pth files (:pr:`3077`) :user:`marcelotduarte`
+#)  tests: pyproj 3.7.2 supports py3.13t and windows arm64 (:pr:`3075`) :user:`marcelotduarte`
+#)  tests: improve zoneinfo/tzdata tests (:pr:`3073`) :user:`marcelotduarte`
+#)  build(deps): bump actions/checkout from 4 to 5 (:pr:`3072`) :user:`dependabot`
+#)  build(deps-dev): bump pre-commit from 4.2.0 to 4.3.0 (:pr:`3070`) :user:`dependabot`
+#)  build(deps): bump coverage from 7.10.2 to 7.10.3 (:pr:`3069`) :user:`marcelotduarte`
+
 Version 8.4 (Aug 11)
 --------------------
 #)  Bump version: 8.4.0-dev.0 → 8.4.0 [ci skip] (:pr:`3066`) :user:`marcelotduarte`
@@ -48,7 +147,7 @@ Version 8.4 (Aug 11)
 #)  fix: build sdist and wheel issues (:pr:`3027`) :user:`marcelotduarte`
 #)  hooks: convert a bunch of hooks to use ModuleHook - part 2 (:pr:`3026`) :user:`marcelotduarte`
 #)  tests: add test for PR 2998 (:pr:`3025`) :user:`marcelotduarte`
-#)  startup: Fixed crash when sys.path contains non-str type (:pr:`2998`) :user:`68433151+1ZUMIKun`
+#)  startup: Fixed crash when sys.path contains non-str type (:pr:`2998`) :user:`1ZUMIKun`
 #)  hooks: convert a bunch of hooks to use ModuleHook (:pr:`3024`) :user:`marcelotduarte`
 #)  bases: update base executables and util module [ci skip] (:pr:`3023`) :user:`marcelotduarte`
 #)  hooks: optimize pandas (partially) (:pr:`3022`) :user:`marcelotduarte`
@@ -93,7 +192,7 @@ Version 8.4 (Aug 11)
 #)  build(deps): bump pytest-xdist from 3.6.1 to 3.7.0 (:pr:`2979`) :user:`dependabot`
 #)  build(deps): update setuptools requirement from <=80.8.0,>=65.6.3 to >=65.6.3,<=80.9.0 (:pr:`2978`) :user:`dependabot`
 #)  hooks: fix pymupdf - add tests (:pr:`2977`) :user:`marcelotduarte`
-#)  freeser: Fix errors with invalid file dates in zipfile (:pr:`2975`) :user:`108782125+DamitusThyYeetus123`
+#)  freezer: Fix errors with invalid file dates in zipfile (:pr:`2975`) :user:`DamitusThyYeetus123`
 #)  hooks: after #2962, adjust pyside2 and pyside6 (:pr:`2976`) :user:`marcelotduarte`
 #)  build(deps): bump pytest-mock from 3.14.0 to 3.14.1 (:pr:`2974`) :user:`dependabot`
 #)  bases: update base executables and util module [ci skip] (:pr:`2973`) :user:`marcelotduarte`
