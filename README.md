@@ -40,9 +40,13 @@ command:
 conda install conda-forge::cx_freeze
 ```
 
-Please check the
-[installation](https://cx-freeze.readthedocs.io/en/latest/installation.html)
-for more information.
+> [!NOTE]
+> For more information, please check the
+> [installation](https://cx-freeze.readthedocs.io/en/latest/installation.html).
+
+> [!IMPORTANT]
+> If you are creating "service" standalone executables, see this
+> [readme](https://github.com/marcelotduarte/cx_Freeze/tree/main/samples/service#readme).
 
 # Changelog
 
