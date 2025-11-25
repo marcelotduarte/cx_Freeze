@@ -35,7 +35,7 @@ class Hook(ModuleHook):
     def scipy(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy package.
 
-        Supported pypi and conda-forge versions (tested until 1.16.0).
+        Supported pypi and conda-forge versions (tested until 1.16.3).
         """
         # Exclude unnecessary modules
         distribution = module.distribution
@@ -142,6 +142,14 @@ class Hook(ModuleHook):
         self, finder: ModuleFinder, module: Module
     ) -> None:
         self._fix_suppress_warnings(finder, module)
+
+    def scipy_signal(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        """The scipy.signal must be loaded as a package."""
+        finder.include_package("scipy.signal")
 
     def scipy_sparse(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.sparse must be loaded as a package."""

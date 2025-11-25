@@ -29,11 +29,17 @@ test_scipy.py
     import numpy as np
     import scipy
     from scipy.spatial.transform import Rotation
+    from scipy import signal
 
     print("Hello from cx_Freeze")
     print("numpy version", np.__version__)
     print("scipy version", scipy.__version__)
     print(Rotation.from_euler("XYZ", [10, 10, 10], degrees=True).as_matrix())
+
+    # Example usage of scipy.signal to create a Butterworth filter
+    b, a = signal.butter(4, 0.2)
+    print("Numerator coefficients:", b)
+    print("Denominator coefficients:", a)
 pyproject.toml
     [project]
     name = "test_scipy"
@@ -79,6 +85,8 @@ def test_scipy(tmp_package, zip_packages: bool) -> None:
             "[[*",
             " [*",
             " [*",
+            "Numerator coefficients: *",
+            "Denominator coefficients: *",
         ]
     )
 
