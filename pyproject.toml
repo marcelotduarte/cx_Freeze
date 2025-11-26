@@ -65,7 +65,7 @@ email = "anthony.tuininga@gmail.com"
 [project.optional-dependencies]
 dev = [
     "bump-my-version==1.2.4",
-    "pre-commit==4.4.0",
+    "pre-commit==4.5.0",
 ]
 doc = [
     "sphinx==8.2.3 ;python_version >= '3.11'",
