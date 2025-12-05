@@ -369,6 +369,8 @@ def test_freezer_copy_package_data(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     ignore_patterns = [
+        "*.c",
+        "*.cpp",
         "*.pxd",
         "*.py",
         # "*.pyc", # this pattern is not copied by _copy_package_data itself.
