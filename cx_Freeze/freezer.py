@@ -274,6 +274,8 @@ class Freezer:
     def _copy_package_data(self, module: Module, target_dir: Path) -> None:
         """Copy any non-Python files to the target directory."""
         ignore_patterns = [
+            "*.c",
+            "*.cpp",
             "*.pxd",
             "*.py",
             "*.pyc",
