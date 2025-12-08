@@ -1,5 +1,9 @@
 ci:
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate [ci skip]"
   skip: [blacken-docs, build-docs, shellcheck]
+
+default_language_version:
+  python: python3.12
 
 exclude: |
   (?x)^(
@@ -40,7 +44,7 @@ repos:
           - validate-pyproject-schema-store[all]>=2025.11.14
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.7
+    rev: v0.14.8
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -64,7 +68,7 @@ repos:
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.7.3
+    rev: v3.7.4
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
