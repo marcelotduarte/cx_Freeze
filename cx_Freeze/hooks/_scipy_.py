@@ -8,18 +8,7 @@ from contextlib import suppress
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
-from cx_Freeze.hooks.global_names import (
-    SCIPY__LIB_ARRAY_API_COMPAT_GLOBAL_NAMES,
-    SCIPY_INTEGRATE_GLOBAL_NAMES,
-    SCIPY_INTERPOLATE_GLOBAL_NAMES,
-    SCIPY_LINALG_GLOBAL_NAMES,
-    SCIPY_OPTIMIZE_GLOBAL_NAMES,
-    SCIPY_SPARSE_GLOBAL_NAMES,
-    SCIPY_SPARSE_LINALG_GLOBAL_NAMES,
-    SCIPY_SPATIAL_GLOBAL_NAMES,
-    SCIPY_SPECIAL_GLOBAL_NAMES,
-    SCIPY_STATS_GLOBAL_NAMES,
-)
+from cx_Freeze.hooks import global_names
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -27,6 +16,28 @@ if TYPE_CHECKING:
 
 
 __all__ = ["Hook"]
+
+# scipy/__init__.py Line 96 (scipy 1.16.3)
+submodules = (
+    "cluster",
+    "constants",
+    "datasets",
+    "differentiate",
+    "fft",
+    "fftpack",
+    "integrate",
+    "interpolate",
+    "io",
+    "linalg",
+    "ndimage",
+    "odr",
+    "optimize",
+    "signal",
+    "sparse",
+    "spatial",
+    "special",
+    "stats",
+)
 
 
 class Hook(ModuleHook):
@@ -76,23 +87,15 @@ class Hook(ModuleHook):
                 optimize=finder.optimize,
             )
 
-    def scipy_integrate(self, finder: ModuleFinder, module: Module) -> None:
-        """Set the module global names."""
-        module.global_names.update(SCIPY_INTEGRATE_GLOBAL_NAMES)
-        finder.include_package("scipy.integrate")
-
-    def scipy_interpolate(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy.interpolate must be loaded as a package."""
-        module.global_names.update(SCIPY_INTERPOLATE_GLOBAL_NAMES)
-        finder.include_package("scipy.interpolate")
-
     def scipy__lib_array_api_compat(
         self,
         finder: ModuleFinder,  # noqa: ARG002
         module: Module,
     ) -> None:
         """Set the module global names."""
-        module.global_names.update(SCIPY__LIB_ARRAY_API_COMPAT_GLOBAL_NAMES)
+        module.global_names.update(
+            global_names.SCIPY__LIB_ARRAY_API_COMPAT_GLOBAL_NAMES
+        )
 
     def scipy__lib__docscrape(
         self,
@@ -110,13 +113,6 @@ class Hook(ModuleHook):
             ["Cython.Compiler.Version", "cython", "psutil", "pytest"]
         )
 
-    def scipy_linalg(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy.linalg module loads items within itself in a way that
-        causes problems without the entire package being present.
-        """
-        module.global_names.update(SCIPY_LINALG_GLOBAL_NAMES)
-        finder.include_package("scipy.linalg")
-
     def scipy_linalg_interface_gen(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
@@ -125,36 +121,10 @@ class Hook(ModuleHook):
         """
         module.ignore_names.add("pre")
 
-    def scipy_ndimage(
-        self,
-        finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
-    ) -> None:
-        """The scipy.ndimage must be loaded as a package."""
-        finder.include_package("scipy.ndimage")
-
-    def scipy_optimize(self, finder: ModuleFinder, module: Module) -> None:
-        """Set the module global names."""
-        module.global_names.update(SCIPY_OPTIMIZE_GLOBAL_NAMES)
-        finder.include_package("scipy.optimize")
-
     def scipy_optimize__constraints(
         self, finder: ModuleFinder, module: Module
     ) -> None:
         self._fix_suppress_warnings(finder, module)
-
-    def scipy_signal(
-        self,
-        finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
-    ) -> None:
-        """The scipy.signal must be loaded as a package."""
-        finder.include_package("scipy.signal")
-
-    def scipy_sparse(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy.sparse must be loaded as a package."""
-        module.global_names.update(SCIPY_SPARSE_GLOBAL_NAMES)
-        finder.include_package("scipy.sparse")
 
     def scipy_sparse_csgraph(
         self,
@@ -168,7 +138,9 @@ class Hook(ModuleHook):
         self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Set the module global names."""
-        module.global_names.update(SCIPY_SPARSE_LINALG_GLOBAL_NAMES)
+        module.global_names.update(
+            global_names.SCIPY_SPARSE_LINALG_GLOBAL_NAMES
+        )
 
     def scipy_sparse_linalg__dsolve_linsolve(
         self,
@@ -182,7 +154,7 @@ class Hook(ModuleHook):
 
     def scipy_spatial(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.spatial must be loaded as a package."""
-        module.global_names.update(SCIPY_SPATIAL_GLOBAL_NAMES)
+        module.global_names.update(global_names.SCIPY_SPATIAL_GLOBAL_NAMES)
         finder.include_package("scipy.spatial")
         if IS_WINDOWS or IS_MINGW:
             finder.exclude_module("scipy.spatial.cKDTree")
@@ -197,7 +169,7 @@ class Hook(ModuleHook):
 
     def scipy_special(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy.special must be loaded as a package."""
-        module.global_names.update(SCIPY_SPECIAL_GLOBAL_NAMES)
+        module.global_names.update(global_names.SCIPY_SPECIAL_GLOBAL_NAMES)
         finder.include_package("scipy.special")
         finder.include_package("scipy.special._precompute")
 
@@ -225,11 +197,6 @@ class Hook(ModuleHook):
         module: Module,
     ) -> None:
         module.exclude_names.add("pytest")
-
-    def scipy_stats(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy.stats must be loaded as a package."""
-        module.global_names.update(SCIPY_STATS_GLOBAL_NAMES)
-        finder.include_package("scipy.stats")
 
     def scipy_stats__binned_statistic(
         self, finder: ModuleFinder, module: Module
@@ -264,3 +231,21 @@ class Hook(ModuleHook):
                 dont_inherit=True,
                 optimize=finder.optimize,
             )
+
+    def __getattr__(self, name: str) -> object:
+        if name.startswith("scipy_") and name.endswith(submodules):
+
+            def _include_subpackage(
+                finder: ModuleFinder, module: Module
+            ) -> None:
+                module_global_names = getattr(
+                    global_names,
+                    f"{module.name.replace('.', '_').upper()}_GLOBAL_NAMES",
+                    None,
+                )
+                if module_global_names:
+                    module.global_names.update(module_global_names)
+                finder.include_package(module.name)
+
+            return _include_subpackage
+        return super().__getattribute__(name)
