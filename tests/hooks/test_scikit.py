@@ -209,18 +209,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="scikit-learn does not support Windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Python 3.14t",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_sklearn(tmp_package, zip_packages: bool) -> None:

@@ -112,3 +112,11 @@ Further customization can be done using the following options:
 
 .. versionadded:: 8.0
     :option:`--debug` and :option:`--verbose` options.
+
+.. versionchanged:: 7.0
+    :option:`--base` option has new pre-defined values: "gui" and "service".
+    "console" remains the default value.
+
+.. versionchanged:: 8.0
+    :option:`--base` option does not accept the old values
+    "Win32GUI" and "Win32Service" in Python 3.13+.

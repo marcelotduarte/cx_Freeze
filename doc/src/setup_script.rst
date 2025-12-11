@@ -487,14 +487,22 @@ constructor are as follows:
      - the trademarks value to include in the version resource associated with
        the executable (Windows only)
 
+.. versionchanged:: 6.5
+    Arguments are all snake_case (camelCase removed in 6.15).
+
 .. versionadded:: 6.10
     :option:`manifest` and :option:`uac_admin` options.
 
 .. versionadded:: 7.0
     :option:`uac_uiaccess` option.
 
-.. versionchanged:: 6.5
-    Arguments are all snake_case (camelCase removed in 6.15).
+.. versionchanged:: 7.0
+    :option:`base` option has new pre-defined values: "gui" and "service".
+    "console" remains the default value.
+
+.. versionchanged:: 8.0
+    :option:`base` option does not accept the old values
+    "Win32GUI" and "Win32Service" in Python 3.13+.
 
 .. seealso::
 
