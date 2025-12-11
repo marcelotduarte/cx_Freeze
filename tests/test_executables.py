@@ -280,19 +280,10 @@ if IS_WINDOWS or IS_MINGW:
         ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}"),
         ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}"),
     ]
-else:
-    TEST_VALID_PARAMETERS += [
-        ("base", "gui", f"bases/console-{SOABI}{EXE_SUFFIX}"),
-        ("base", "service", f"bases/console-{SOABI}{EXE_SUFFIX}"),
-    ]
-
-# In Python < 3.13 legacy bases are available, except on arm64
-if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
-    TEST_VALID_PARAMETERS += [
-        ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
-    ]
-    if IS_WINDOWS or IS_MINGW:
+    # In Python < 3.13 legacy bases are available, except on arm64
+    if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
         TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
             ("base", "Win32GUI", f"legacy/win32gui-{SOABI}{EXE_SUFFIX}"),
             (
                 "base",
@@ -300,14 +291,25 @@ if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
                 f"legacy/win32service-{SOABI}{EXE_SUFFIX}",
             ),
         ]
-else:
-    TEST_VALID_PARAMETERS += [
-        ("base", "legacy/console", OptionError),
-    ]
-    if IS_WINDOWS or IS_MINGW:
+    else:
         TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", OptionError),
             ("base", "Win32GUI", OptionError),
             ("base", "Win32Service", OptionError),
+        ]
+else:
+    TEST_VALID_PARAMETERS += [
+        ("base", "gui", f"bases/console-{SOABI}{EXE_SUFFIX}"),
+        ("base", "service", f"bases/console-{SOABI}{EXE_SUFFIX}"),
+    ]
+    # In Python < 3.13 legacy console is available
+    if sys.version_info[:2] < (3, 13):
+        TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
+        ]
+    else:
+        TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", OptionError),
         ]
 
 
@@ -326,10 +328,12 @@ def test_valid(tmp_package, option, value, result) -> None:
             value = tmp_package.path / "console_test.py"
             shutil.copyfile(resource_path("initscripts/console.py"), value)
 
-    if issubclass(result, Exception):
-        with pytest.raises(result):
-            executable = Executable("test.py", **{option: value})
-    else:
+    try:
+        if issubclass(result, OptionError):
+            with pytest.raises(result):
+                executable = Executable("test.py", **{option: value})
+            return
+    except TypeError:
         executable = Executable("test.py", **{option: value})
 
     if expected_app_type is None:
