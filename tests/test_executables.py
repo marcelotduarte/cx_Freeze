@@ -11,7 +11,6 @@ from setuptools import Distribution
 
 from cx_Freeze import Executable
 from cx_Freeze._compat import (
-    ABI_THREAD,
     EXE_SUFFIX,
     IS_ARM_64,
     IS_CONDA,
@@ -239,13 +238,6 @@ def test_executables(
 
 
 TEST_VALID_PARAMETERS = [
-    ("base", "console", f"bases/console-{SOABI}{EXE_SUFFIX}"),
-    pytest.param(
-        "base",
-        "absolutepath",
-        f"console_test{EXE_SUFFIX}",
-        id="base-absolutepath-console_test",
-    ),
     pytest.param(
         "init_script", None, "console.py", id="init_script-none-console.py"
     ),
@@ -269,16 +261,29 @@ TEST_VALID_PARAMETERS = [
         ("icon.ico", "icon.icns", "icon.png", "icon.svg"),
         id="icon-icon-multiple",
     ),
-    ("base", None, f"bases/console-{SOABI}{EXE_SUFFIX}"),
 ]
 
-# In Python < 3.13 legacy bases are available, except on arm64
-if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
+# base valid parameters
+TEST_VALID_PARAMETERS += [
+    ("base", None, f"bases/console-{SOABI}{EXE_SUFFIX}"),
+    ("base", "console", f"bases/console-{SOABI}{EXE_SUFFIX}"),
+    pytest.param(
+        "base",
+        "absolutepath",
+        f"console_test{EXE_SUFFIX}",
+        id="base-absolutepath-console_test",
+    ),
+]
+# gui and service are available on Windows
+if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
-        ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
+        ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}"),
+        ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}"),
     ]
-    if IS_WINDOWS or IS_MINGW:
+    # In Python < 3.13 legacy bases are available, except on arm64
+    if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
         TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
             ("base", "Win32GUI", f"legacy/win32gui-{SOABI}{EXE_SUFFIX}"),
             (
                 "base",
@@ -286,23 +291,26 @@ if sys.version_info[:2] < (3, 13) and not IS_ARM_64:
                 f"legacy/win32service-{SOABI}{EXE_SUFFIX}",
             ),
         ]
-
-# gui and service are available on Windows
-if IS_WINDOWS or IS_MINGW:
-    TEST_VALID_PARAMETERS += [
-        ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}")
-    ]
-    # In Python 3.13t and 3.14t service is not available
-    # nor in arm64
-    if ABI_THREAD == "" and not IS_ARM_64:
+    else:
         TEST_VALID_PARAMETERS += [
-            ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}")
+            ("base", "legacy/console", OptionError),
+            ("base", "Win32GUI", OptionError),
+            ("base", "Win32Service", OptionError),
         ]
 else:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/console-{SOABI}{EXE_SUFFIX}"),
         ("base", "service", f"bases/console-{SOABI}{EXE_SUFFIX}"),
     ]
+    # In Python < 3.13 legacy console is available
+    if sys.version_info[:2] < (3, 13):
+        TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", f"legacy/console-{SOABI}{EXE_SUFFIX}"),
+        ]
+    else:
+        TEST_VALID_PARAMETERS += [
+            ("base", "legacy/console", OptionError),
+        ]
 
 
 @pytest.mark.parametrize(("option", "value", "result"), TEST_VALID_PARAMETERS)
@@ -320,7 +328,13 @@ def test_valid(tmp_package, option, value, result) -> None:
             value = tmp_package.path / "console_test.py"
             shutil.copyfile(resource_path("initscripts/console.py"), value)
 
-    executable = Executable("test.py", **{option: value})
+    try:
+        if issubclass(result, OptionError):
+            with pytest.raises(result):
+                executable = Executable("test.py", **{option: value})
+            return
+    except TypeError:
+        executable = Executable("test.py", **{option: value})
 
     if expected_app_type is None:
         base = value or "console" if option == "base" else executable.base.stem

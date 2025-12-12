@@ -111,6 +111,12 @@ class Executable:
         self._base = resource_path(filename)
         if self._base is None:
             msg = f"no base named {name!r} ({filename!r})"
+            if "console" in name:
+                msg += " - Did you mean 'console'?"
+            elif "win32gui" in name:
+                msg += " - Did you mean 'gui'?"
+            elif "win32service" in name:
+                msg += " - Did you mean 'service'?"
             raise OptionError(msg)
 
     @property
