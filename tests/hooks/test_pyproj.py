@@ -30,7 +30,7 @@ pyproject.toml
     [tool.cxfreeze.build_exe]
     include_msvcr = true
     excludes = ["tkinter", "unittest"]
-    #silent = true
+    silent = true
 """
 
 
@@ -49,3 +49,6 @@ def test_pyproj(tmp_package, zip_packages: bool) -> None:
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
     result.stdout.fnmatch_lines(["Hello from cx_Freeze", "pyproj version *"])
+    result.stderr.no_fnmatch_line(
+        "*UserWarning: Valid PROJ data directory not found.*"
+    )

@@ -494,12 +494,20 @@ class TempPackageVenv(TempPackage):
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:
-        # PYTHONPATH is the key here
-        if env is None:
-            env = os.environ.copy()
-        venv_site = os.path.normpath(self.venv_prefix / self.relative_site)
-        env["PYTHONPATH"] = venv_site
-        return super().freeze(command, cwd, env, timeout)
+        if IS_CONDA:
+            self.prefix = self.venv_prefix
+            self.python = self.venv_python
+        else:
+            # PYTHONPATH is the key here
+            if env is None:
+                env = os.environ.copy()
+            venv_site = os.path.normpath(self.venv_prefix / self.relative_site)
+            env["PYTHONPATH"] = venv_site
+        try:
+            return super().freeze(command, cwd, env, timeout)
+        finally:
+            self.prefix = self._prefix
+            self.python = self._python
 
     def install(
         self,
