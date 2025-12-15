@@ -111,7 +111,7 @@ jobs:
         run: uv run --no-project coverage run
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: cov-${{ matrix.python-version }}.${{ matrix.os }}-${{ strategy.job-index }}
           path: .coverage.*
@@ -141,7 +141,7 @@ jobs:
           MERGE_COVERAGE_FILES: true
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
