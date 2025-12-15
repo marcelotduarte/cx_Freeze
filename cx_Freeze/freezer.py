@@ -276,12 +276,13 @@ class Freezer:
         ignore_patterns = [
             "*.c",
             "*.cpp",
-            "*.pxd",
+            "*.pxd",  # cython declaration file
+            "*.pxi",  # cython include file
             "*.py",
             "*.pyc",
-            "*.pyi",
+            "*.pyi",  # python stub files
             "*.pyo",
-            "*.pyx",
+            "*.pyx",  # cython source
             "__pycache__",
             "py.typed",
         ]
