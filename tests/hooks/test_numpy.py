@@ -162,27 +162,9 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="rasterio not supported in windows/linux arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="rasterio not supported in mingw",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="rasterio does not support Python 3.13t",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="rasterio does not support Python 3.14+",
     strict=True,
 )
 @pytest.mark.venv
@@ -200,6 +182,15 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+    if (
+        result.ret != 0
+        and zip_packages
+        and IS_MACOS
+        and sys.version_info[:2] == (3, 14)
+    ):
+        result.stderr.fnmatch_lines("*Symbol not found: _SSL_get0_group_name*")
+        pytest.xfail("rasterio fails in macOS Python 3.14 using zipfile")
+
     result.stdout.fnmatch_lines(
         ["Hello from cx_Freeze", "numpy version *", "rasterio version *"]
     )
@@ -332,7 +323,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support mingw",
+    reason="vtkmodules (vtk) not supported in mingw",
     strict=True,
 )
 @pytest.mark.xfail(
