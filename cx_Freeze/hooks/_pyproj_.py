@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -22,12 +23,20 @@ class Hook(ModuleHook):
 
     def pyproj_datadir(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for pyproj.datadir."""
+        distribution = module.root.distribution
+        if distribution and distribution.installer == "conda":
+            if IS_WINDOWS:
+                source_path = Path(sys.prefix, "Library", "share", "proj")
+            else:
+                source_path = Path(sys.prefix, "share", "proj")
+            if source_path.is_dir():
+                finder.include_files(
+                    source_path, "share/proj", copy_dependent_files=False
+                )
+            return
         if module.in_file_system == 0:
             # in zip file
             source_path = module.file.parent / "proj_dir" / "share" / "proj"
-            if not source_path.is_dir():
-                # try conda dir
-                source_path = Path(sys.prefix, "Library", "share", "proj")
             if source_path.is_dir():
                 finder.include_files(
                     source_path, "share/proj", copy_dependent_files=False
