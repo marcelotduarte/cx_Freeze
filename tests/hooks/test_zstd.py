@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_CONDA, IS_MINGW
+from cx_Freeze._compat import IS_MINGW
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -73,12 +73,6 @@ pyproject.toml
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="backports.zstd not supported in mingw",
-    strict=True,
-)
-@pytest.mark.xfail(
-    IS_CONDA and sys.version_info[:2] < (3, 14),
-    raises=ModuleNotFoundError,
-    reason="backports.zstd not supported in conda",
     strict=True,
 )
 @pytest.mark.venv

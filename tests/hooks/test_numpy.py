@@ -162,27 +162,9 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    (IS_LINUX or IS_WINDOWS) and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="rasterio not supported in windows/linux arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="rasterio not supported in mingw",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="rasterio does not support Python 3.13t",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="rasterio does not support Python 3.14+",
     strict=True,
 )
 @pytest.mark.venv
@@ -190,6 +172,8 @@ pyproject.toml
 def test_rasterio(tmp_package, zip_packages: bool) -> None:
     """Test if rasterio hook is working correctly."""
     tmp_package.create(SOURCE_TEST_RASTERIO)
+    if IS_MACOS and zip_packages:
+        pytest.xfail("rasterio 1.4.4 fails in macOS using zipfile")
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()
@@ -200,6 +184,7 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
+
     result.stdout.fnmatch_lines(
         ["Hello from cx_Freeze", "numpy version *", "rasterio version *"]
     )
@@ -332,7 +317,7 @@ pyproject.toml
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support mingw",
+    reason="vtkmodules (vtk) not supported in mingw",
     strict=True,
 )
 @pytest.mark.xfail(
