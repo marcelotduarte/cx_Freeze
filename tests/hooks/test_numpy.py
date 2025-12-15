@@ -172,6 +172,8 @@ pyproject.toml
 def test_rasterio(tmp_package, zip_packages: bool) -> None:
     """Test if rasterio hook is working correctly."""
     tmp_package.create(SOURCE_TEST_RASTERIO)
+    if IS_MACOS and zip_packages:
+        pytest.xfail("rasterio 1.4.4 fails in macOS using zipfile")
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
         buf = pyproject.read_bytes().decode().splitlines()
@@ -182,14 +184,6 @@ def test_rasterio(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_rasterio")
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-    if (
-        result.ret != 0
-        and zip_packages
-        and IS_MACOS
-        and sys.version_info[:2] == (3, 14)
-    ):
-        result.stderr.fnmatch_lines("*Symbol not found: _SSL_get0_group_name*")
-        pytest.xfail("rasterio fails in macOS Python 3.14 using zipfile")
 
     result.stdout.fnmatch_lines(
         ["Hello from cx_Freeze", "numpy version *", "rasterio version *"]
