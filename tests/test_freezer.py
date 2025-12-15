@@ -372,6 +372,7 @@ def test_freezer_copy_package_data(tmp_package) -> None:
         "*.c",
         "*.cpp",
         "*.pxd",
+        "*.pxi",
         "*.py",
         # "*.pyc", # this pattern is not copied by _copy_package_data itself.
         "*.pyi",
