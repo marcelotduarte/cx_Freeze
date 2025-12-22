@@ -2,18 +2,9 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
-from cx_Freeze._compat import (
-    ABI_THREAD,
-    IS_ARM_64,
-    IS_CONDA,
-    IS_LINUX,
-    IS_MACOS,
-    IS_WINDOWS,
-)
+from cx_Freeze._compat import IS_CONDA
 
 TIMEOUT = 15
 TIMEOUT_SLOW = 60 if IS_CONDA else 30
@@ -130,39 +121,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t" and IS_MACOS,
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Python 3.13t on macOS",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t" and IS_WINDOWS,
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Python 3.13t on Windows",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13)
-    and ABI_THREAD == "t"
-    and IS_LINUX
-    and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Python 3.13t on Linux arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Python 3.14+",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_skimage(tmp_package, zip_packages: bool) -> None:

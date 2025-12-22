@@ -49,7 +49,7 @@ class Hook(ModuleHook):
     def numpy(self, finder: ModuleFinder, module: Module) -> None:
         """The numpy package.
 
-        Supported pypi and conda-forge versions (tested from 1.21.2 to 2.3.1).
+        Supported pypi and conda-forge versions (tested from 1.21.2 to 2.4.0).
         """
         # Exclude unnecessary modules
         finder.exclude_module("numpy._configtool")
@@ -184,10 +184,13 @@ class Hook(ModuleHook):
         optimization that removes docstrings, which are required for this
         module.
         """
+        code_bytes = module.file.read_bytes()
+        search = b"add_docstring(implementation, dispatcher.__doc__)"
+        if search not in code_bytes:
+            return
+        replace = b"add_docstring(implementation, dispatcher.__doc__ or '')"
         module.code = compile(
-            module.file.read_bytes().replace(
-                b"dispatcher.__doc__", b"dispatcher.__doc__ or ''"
-            ),
+            code_bytes.replace(search, replace),
             module.file.as_posix(),
             "exec",
             dont_inherit=True,

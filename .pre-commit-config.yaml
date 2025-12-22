@@ -44,7 +44,7 @@ repos:
           - validate-pyproject-schema-store[all]>=2025.11.14
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.9
+    rev: v0.14.10
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
