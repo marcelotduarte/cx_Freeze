@@ -33,13 +33,13 @@ dependencies = [
     "setuptools>=78.1.1,<81",
     "tomli>=2.0.1 ;python_version == '3.10'",
     # Linux
-    "filelock>=3.12.3 ;sys_platform == 'linux'",
-    "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'i686'",
-    "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
-    "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
-    "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 'ppc64le'",
-    "patchelf>=0.14,<0.18 ;sys_platform == 'linux' and platform_machine == 's390x'",
+    "filelock>=3.20.1 ;sys_platform == 'linux'",
+    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'i686'",
+    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
+    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'ppc64le'",
+    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 's390x'",
     # macOS
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
@@ -77,7 +77,7 @@ doc = [
 ]
 tests = [
     "coverage==7.13.0",
-    "filelock>=3.15.3",
+    "filelock>=3.20.1",
     "pytest==9.0.2",
         "pluggy==1.6.0",
     "pytest-mock==3.15.1",
