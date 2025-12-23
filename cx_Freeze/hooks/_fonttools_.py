@@ -41,6 +41,12 @@ class Hook(ModuleHook):
         """Define the global names to avoid spurious missing modules."""
         module.global_names.update(FONTTOOLS_TTLIB_GLOBAL_NAMES)
 
+    def fonttools_ttlib_removeoverlaps(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional package."""
+        module.ignore_names.add("pathops")
+
     def fonttools_ttlib_woff2(
         self, _finder: ModuleFinder, module: Module
     ) -> None:

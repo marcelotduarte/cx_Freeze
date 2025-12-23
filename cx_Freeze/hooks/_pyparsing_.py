@@ -36,6 +36,10 @@ class Hook(ModuleHook):
             optimize=finder.optimize,
         )
 
+    def pyparsing_core(self, _finder: ModuleFinder, module: Module) -> None:
+        """Ignore optional (excluded) module."""
+        module.ignore_names.add("pyparsing.testing")
+
     def pyparsing_diagram(self, _finder: ModuleFinder, module: Module) -> None:
-        """Ignore optional package."""
+        """Ignore optional packages."""
         module.ignore_names.update(["jinja2", "railroad"])
