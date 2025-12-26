@@ -27,6 +27,7 @@ from cx_Freeze._compat import (
     IS_CONDA,
     IS_MACOS,
     IS_MINGW,
+    IS_UCRT,
     IS_WINDOWS,
     PYTHON_VERSION,
 )
@@ -140,8 +141,8 @@ class Freezer:
         self.compress: bool = True if compress is None else compress
         self.optimize: int = int(optimize or 0)
         self.path: list[str] | None = self._validate_path(path)
-        # include-msvcr is used on Windows, but not in MingW
-        self.include_msvcr: bool = IS_WINDOWS and bool(include_msvcr)
+        # include-msvcr is used on Windows and some MSYS2 environments
+        self.include_msvcr: bool = IS_UCRT and bool(include_msvcr)
         self.include_msvcr_version: str | None = include_msvcr_version
         self.target_dir = target_dir
         self.default_bin_includes: list[str] = self._default_bin_includes()

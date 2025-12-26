@@ -184,7 +184,7 @@ source = [
 ]
 
 [tool.coverage.run]
-command_line = "-m pytest --dist=loadfile --durations=20 -nauto"
+command_line = "-m pytest --dist=loadfile --durations=20 -nauto -rpfEsXx tests"
 source = ["cx_Freeze"]
 parallel = true
 patch = ["subprocess"]

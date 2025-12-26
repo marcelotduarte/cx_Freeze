@@ -73,7 +73,7 @@ tests: wheel
 	cp pyproject.toml $(COV_TMPDIR)/
 	cp -a samples $(COV_TMPDIR)/
 	cp -a tests $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest --dist=loadfile -nauto -v || true
+	cd $(COV_TMPDIR) && pytest --dist=loadfile -nauto -v -rpfEsXx tests|| true
 
 .PHONY: cov
 cov: wheel
