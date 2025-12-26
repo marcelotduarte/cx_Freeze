@@ -148,11 +148,11 @@ echo "::endgroup::"
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
     if [[ $PY_PLATFORM == mingw* ]]; then
-        pip install "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
-            --no-deps --no-index --force-reinstall
+        PIP_COMMAND="pip install --force-reinstall"
     else
-        uv pip install "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
-            --no-build --no-deps --no-index --prerelease=allow --reinstall
+        PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
     fi
+    $PIP_COMMAND "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
+        --no-deps --no-index
     echo "::endgroup::"
 fi

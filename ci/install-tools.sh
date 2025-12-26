@@ -42,6 +42,8 @@ done
 echo "::group::Install dependencies and build tools"
 # Install/update uv and dev tools
 if [ "$IS_CONDA" == "1" ]; then
+    # Conda Python 3.14: python-msilib is not available yet
+    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
     SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
     # Packages to install
     pkgs=("uv" "python-build")
@@ -54,6 +56,9 @@ if [ "$IS_CONDA" == "1" ]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 if [ "$name" == "cx-logging" ]; then name="cx_logging"; fi
                 if [ "$name" == "lief" ]; then name="py-lief"; fi
+                if [ "$name" == "python-msilib" ] && [ "$PY_VERSION" == "3.14" ]; then
+                    continue
+                fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$name")
                 fi
@@ -88,6 +93,7 @@ elif [ "$IS_MINGW" == "1" ]; then
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*win32* ]]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                if [ "$name" == "python-msilib" ]; then name="msilib"; continue; fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
                 fi
