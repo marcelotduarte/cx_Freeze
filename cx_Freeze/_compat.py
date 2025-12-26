@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import platform
 import sys
 from pathlib import Path
@@ -17,6 +18,7 @@ __all__ = [
     "IS_LINUX",
     "IS_MACOS",
     "IS_MINGW",
+    "IS_UCRT",
     "IS_WINDOWS",
     "IS_X86_32",
     "IS_X86_64",
@@ -43,6 +45,10 @@ IS_LINUX = PLATFORM.startswith("linux")
 IS_MACOS = PLATFORM.startswith("macos")
 IS_MINGW = PLATFORM.startswith("mingw")
 IS_WINDOWS = PLATFORM.startswith("win")
+
+IS_UCRT = IS_WINDOWS or (
+    IS_MINGW and os.environ.get("MSYSTEM", "").startswith(("UCRT", "CLANG"))
+)
 
 SOABI = get_config_var("SOABI")
 if SOABI is None or IS_MINGW:

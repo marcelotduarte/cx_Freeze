@@ -11,7 +11,7 @@ from typing import ClassVar
 
 from setuptools import Command
 
-from cx_Freeze._compat import BUILD_EXE_DIR, IS_WINDOWS
+from cx_Freeze._compat import BUILD_EXE_DIR, IS_UCRT
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.exception import OptionError, SetupError
 from cx_Freeze.freezer import Freezer
@@ -282,8 +282,8 @@ class build_exe(Command):
         elif self.no_compress is False:
             self.zip_filename = "library.zip"
 
-        # include-msvcr is used on Windows, but not in MingW
-        if IS_WINDOWS:
+        # include-msvcr is used on Windows and some MSYS2 environments
+        if IS_UCRT:
             if self.include_msvcr_version is not None:
                 self.include_msvcr = True
             self.include_msvcr = bool(self.include_msvcr)
