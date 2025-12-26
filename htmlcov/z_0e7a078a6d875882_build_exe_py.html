@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_0e7a078a6d875882_install_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-23 17:56 +0000
+            created at 2025-12-26 11:51 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -93,7 +93,7 @@
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t"><span class="key">from</span> <span class="nam">setuptools</span> <span class="key">import</span> <span class="nam">Command</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">_compat</span> <span class="key">import</span> <span class="nam">BUILD_EXE_DIR</span><span class="op">,</span> <span class="nam">IS_WINDOWS</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">_compat</span> <span class="key">import</span> <span class="nam">BUILD_EXE_DIR</span><span class="op">,</span> <span class="nam">IS_UCRT</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">common</span> <span class="key">import</span> <span class="nam">normalize_to_list</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">exception</span> <span class="key">import</span> <span class="nam">OptionError</span><span class="op">,</span> <span class="nam">SetupError</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">freezer</span> <span class="key">import</span> <span class="nam">Freezer</span>&nbsp;</span><span class="r"></span></p>
@@ -364,8 +364,8 @@
     <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t">        <span class="key">elif</span> <span class="nam">self</span><span class="op">.</span><span class="nam">no_compress</span> <span class="key">is</span> <span class="key">False</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">zip_filename</span> <span class="op">=</span> <span class="str">"library.zip"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t">        <span class="com"># include-msvcr is used on Windows, but not in MingW</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t">        <span class="key">if</span> <span class="nam">IS_WINDOWS</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t">        <span class="com"># include-msvcr is used on Windows and some MSYS2 environments</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t">        <span class="key">if</span> <span class="nam">IS_UCRT</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t">            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">include_msvcr_version</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t">                <span class="nam">self</span><span class="op">.</span><span class="nam">include_msvcr</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">include_msvcr</span> <span class="op">=</span> <span class="nam">bool</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">include_msvcr</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -438,7 +438,7 @@
             <a class="nav" href="z_0e7a078a6d875882_install_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-23 17:56 +0000
+            created at 2025-12-26 11:51 +0000
         </p>
     </div>
 </footer>
