@@ -9,6 +9,8 @@ from cx_Freeze._compat import (
     IS_CONDA,
     IS_LINUX,
     IS_MACOS,
+    IS_MINGW,
+    IS_UCRT,
     IS_WINDOWS,
 )
 
@@ -43,6 +45,12 @@ pyproject.toml
 @pytest.mark.skipif(
     IS_CONDA and (IS_LINUX or (IS_ARM_64 and IS_MACOS)),
     reason="av (pyAV) is too slow in conda-forge (Linux and OSX_ARM64)",
+)
+@pytest.mark.xfail(
+    IS_MINGW and not IS_UCRT,
+    raises=ModuleNotFoundError,
+    reason="av (pyAV) supported only in mingw linked to ucrt",
+    strict=True,
 )
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
