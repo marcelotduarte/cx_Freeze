@@ -113,7 +113,7 @@ NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
 VERSION=$(_bump_my_version show current_version)
 if [ -z "$VERSION" ]; then
     if [ -d src ]; then
-        FILENAME=src/$NAME/__init__.py
+        FILENAME=src/$NORMALIZED_NAME/__init__.py
     else
         FILENAME=$NAME/__init__.py
     fi
@@ -131,7 +131,7 @@ echo "::endgroup::"
 mkdir -p wheelhouse >/dev/null
 DIRTY=$(_bump_my_version show scm_info.dirty)
 FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION"
-FILEEXISTS=$(ls "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
+FILEEXISTS=$(find "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
 if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
     echo "::group::Build sdist"
     _build_sdist
@@ -139,7 +139,7 @@ if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
 fi
 echo "::group::Build wheel(s)"
 FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$BUILD_TAG"
-FILEEXISTS=$(ls "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
+FILEEXISTS=$(find "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
 if [ "$DIRTY" == "True" ] || [ -z "$FILEEXISTS" ]; then
     _build_wheel
 fi
