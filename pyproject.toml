@@ -64,7 +64,7 @@ email = "anthony.tuininga@gmail.com"
 
 [project.optional-dependencies]
 dev = [
-    "bump-my-version==1.2.5",
+    "bump-my-version==1.2.6",
     "pre-commit==4.5.1",
 ]
 doc = [
@@ -72,11 +72,11 @@ doc = [
     "sphinx-issues==5.0.1 ;python_version >= '3.11'",
     "sphinx-new-tab-link==0.8.1 ;python_version >= '3.11'",
     "sphinx-tabs==3.4.7 ;python_version >= '3.11'",
-    "furo==2025.9.25 ;python_version >= '3.11'",
+    "furo==2025.12.19 ;python_version >= '3.11'",
     "myst-parser==4.0.1 ;python_version >= '3.11'",
 ]
 tests = [
-    "coverage==7.13.0",
+    "coverage==7.13.1",
     "filelock>=3.20.1",
     "pytest==9.0.2",
         "pluggy==1.6.0",
