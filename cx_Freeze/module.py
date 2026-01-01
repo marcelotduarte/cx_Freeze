@@ -355,7 +355,7 @@ class Module:
         return "\n".join([*lines, ""]) if lines else None
 
     def libs(self) -> Iterator[tuple(Path, str)]:
-        """Dynamic libraries distributed along with the package/module."""
+        """Dynamic libraries distributed along with the package."""
         distribution = self.distribution
         if distribution:
             if self.in_file_system == 0:
@@ -375,11 +375,14 @@ class Module:
                     yield source.locate().resolve(), target
             return
 
-        module_dir = self.file.parent
-        for name in self.libs_dirs():
-            for source in module_dir.parent.joinpath(name).iterdir():
-                target = f"lib/{name}/{source.name}"
-                yield source, target
+        module_path = self.path
+        if module_path is None:
+            return
+        for module_dir in module_path:
+            for name in self.libs_dirs():
+                for source in module_dir.parent.joinpath(name).iterdir():
+                    target = f"lib/{name}/{source.name}"
+                    yield source, target
 
     def libs_dirs(self) -> list[str]:
         """Return the directories where binary files of the package are
@@ -391,7 +394,10 @@ class Module:
                 {file.parent.as_posix() for file in distribution.binary_files}
             )
 
-        module_dir = self.file.parent
+        module_path = self.path
+        if module_path is None:
+            return []
+
         names = {
             f"../{self.name}.libs",  # numpy >=1.26.0, scipy >=1.9.2
             f"{self.name}/.libs",  # old numpy, scipy <1.9.2
@@ -407,12 +413,13 @@ class Module:
                 ]
             )
         valid_dirs = []
-        for name in names:
-            source_dir = module_dir.joinpath(name).resolve()
-            if source_dir.exists():
-                valid_dirs.append(
-                    source_dir.relative_to(module_dir.parent).as_posix()
-                )
+        for module_dir in module_path:
+            for name in names:
+                source_dir = module_dir.joinpath(name).resolve()
+                if source_dir.exists():
+                    valid_dirs.append(
+                        source_dir.relative_to(module_dir.parent).as_posix()
+                    )
         return valid_dirs
 
     def load_hook(self) -> None:

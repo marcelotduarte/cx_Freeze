@@ -99,7 +99,7 @@ class ModuleFinder:
         self,
         name: str,
         path: Sequence[Path | str] | None = None,
-        filename: Path | None = None,
+        filename: Path | str | None = None,
         parent: Module | None = None,
     ) -> Module:
         """Add a module to the list of modules but if one is already found,
@@ -439,10 +439,10 @@ class ModuleFinder:
                     module.in_import = False
                     return module
                 logger.debug("Adding module [%s] [PACKAGE]", name)
-                module.file = Path(spec.origin)  # path of __init__.py
+                module.file = spec.origin  # path of __init__.py
             else:
                 module = self._add_module(
-                    name, filename=Path(spec.origin), parent=parent
+                    name, filename=spec.origin, parent=parent
                 )
 
         if module is not None:
@@ -456,7 +456,7 @@ class ModuleFinder:
         deferred_imports: DeferredList,
     ) -> Module | None:
         name = module.name
-        path = os.fspath(module.file)
+        path = os.path.normpath(module.file)
 
         if isinstance(loader, importlib.machinery.SourceFileLoader):
             logger.debug("Adding module [%s] [SOURCE]", name)
