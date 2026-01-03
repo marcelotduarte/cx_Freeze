@@ -49,7 +49,7 @@ else:
     __all__ += ["bdist_appimage", "bdist_deb", "bdist_rpm"]
 
 
-__version__ = "8.5.2"
+__version__ = "8.5.3"
 
 
 def setup(**attrs) -> setuptools.Distribution:  # noqa: D103

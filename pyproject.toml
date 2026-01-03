@@ -120,7 +120,7 @@ target-version = ["py310"]
 
 [tool.bumpversion]
 commit = true
-current_version = "8.5.2"
+current_version = "8.5.3"
 message = "Bump version: {current_version} → {new_version} [ci skip]"
 parse = """(?x)
     (?P<major>0|[1-9]\\d*)\\.
