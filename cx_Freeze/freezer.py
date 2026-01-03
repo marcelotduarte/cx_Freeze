@@ -551,6 +551,12 @@ class Freezer:
                         index = path.index(dest_shared)
                         path.pop(index)
                 path.insert(index, os.path.normpath(core_lib))
+        # remove setuptools._vendor path
+        path_vendor = os.path.join("setuptools", "_vendor")
+        for index, p in enumerate(path):
+            if p.endswith(path_vendor):
+                path.pop(index)
+                break
         return path
 
     @staticmethod

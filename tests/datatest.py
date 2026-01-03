@@ -189,7 +189,23 @@ namespace/package/__init__.py
 """,
 ]
 
-NESTED_NAMESPACE_TEST = [
+NAMESPACE_TEST_1 = [
+    "main",
+    ["main", "namespace.package"],
+    [],
+    [],
+    """\
+main.py
+    from namespace import package
+
+    package.echo()
+namespace/package/__init__.py
+    def echo():
+        print("This is namespace.package")
+""",
+]
+
+NAMESPACE_TEST_2 = [
     "main",
     ["main", "namespace.package.one", "namespace.package.two"],
     [],
