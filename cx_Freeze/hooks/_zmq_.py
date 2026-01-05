@@ -70,7 +70,3 @@ class Hook(ModuleHook):
         """Filter imports."""
         if not (IS_MINGW or IS_WINDOWS):
             module.exclude_names.update(["ctypes", "ctypes.wintypes"])
-
-    def zmq__typing(self, _finder: ModuleFinder, module: Module) -> None:
-        """Filter imports."""
-        module.exclude_names.add("typing_extensions")

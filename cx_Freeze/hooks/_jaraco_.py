@@ -18,17 +18,12 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for jaraco."""
 
-    def jaraco_context(self, _finder: ModuleFinder, module: Module) -> None:
-        """Ignore optional modules."""
-        module.ignore_names.add("backports")
-
     def jaraco_functools(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional modules."""
         module.ignore_names.add("more_itertools")
 
     def jaraco_text(self, finder: ModuleFinder, module: Module) -> None:
         """jaraco.text requires a text file."""
-        module.ignore_names.add("importlib_resources")
         if module.in_file_system == 0:
             target_dir = module.name.replace(".", "/")
             for textfile in module.file.parent.glob("*.txt"):

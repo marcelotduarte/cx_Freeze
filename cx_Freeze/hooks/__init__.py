@@ -214,13 +214,6 @@ def load_difflib(finder: ModuleFinder, module: Module) -> None:
     module.exclude_names.add("doctest")
 
 
-def load_docutils_frontend(finder: ModuleFinder, module: Module) -> None:
-    """The optik module is the old name for the optparse module; ignore the
-    module if it cannot be found.
-    """
-    module.ignore_names.add("optik")
-
-
 def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
     """flask-compress requires its metadata."""
     module.update_distribution("Flask_Compress")
@@ -634,13 +627,6 @@ def load_zlib(finder: ModuleFinder, module: Module) -> None:
             finder.include_files(source, target)
 
 
-def load_zope_component(finder: ModuleFinder, module: Module) -> None:
-    """The zope.component package requires the presence of the pkg_resources
-    module but it uses a dynamic, not static import to do its work.
-    """
-    finder.include_module("pkg_resources")
-
-
 #
 # missing section
 #
@@ -663,3 +649,10 @@ def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
 def missing_six_moves(finder: ModuleFinder, caller: Module) -> None:
     """The six module creates fake modules."""
     caller.ignore_names.add("six.moves")
+
+
+def missing_typing_extensions(finder: ModuleFinder, caller: Module) -> None:
+    """The typing_extensions module is not required at runtime, so ignore it
+    when it cannot be found.
+    """
+    caller.ignore_names.add("typing_extensions")
