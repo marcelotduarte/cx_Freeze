@@ -595,6 +595,13 @@ def load_win32file(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("win32timezone")
 
 
+def load_win32print(finder: ModuleFinder, module: Module) -> None:
+    """The win32print module implicitly loads the pywintypes module;
+    make sure this happens.
+    """
+    finder.include_module("pywintypes")
+
+
 def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
     """The xml.etree.cElementTree module implicitly loads the
     xml.etree.ElementTree module; make sure this happens.
