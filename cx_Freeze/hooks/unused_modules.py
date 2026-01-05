@@ -275,6 +275,10 @@ DEFAULT_IGNORE_NAMES: set[str] = {
     "_frozen_importlib_external",  # internal
     "_manylinux",  # flag
     "_typeshed",
+    "_typeshed.dbapi",
+    "_typeshed.importlib",
+    "_typeshed.wsgi",
+    "_typeshed.xml",
     "typeshed",
 }
 
@@ -307,10 +311,13 @@ else:
     DEFAULT_IGNORE_NAMES.add("posix")
 
 # ignore backports
-if PY_VERSION >= (3, 9):
-    DEFAULT_IGNORE_NAMES.add("backports.zoneinfo")
+DEFAULT_IGNORE_NAMES.update(
+    ["backports.zoneinfo", "importlib_metadata", "importlib_resources"]
+)
 if PY_VERSION >= (3, 11):
     DEFAULT_IGNORE_NAMES.add("exceptiongroup")
+if PY_VERSION >= (3, 12):
+    DEFAULT_IGNORE_NAMES.add("backports.tarfile")
 if PY_VERSION >= (3, 14):
     DEFAULT_IGNORE_NAMES.add("backports.zstd")
 

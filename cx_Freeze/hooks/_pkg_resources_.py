@@ -24,9 +24,6 @@ class Hook(ModuleHook):
 
     def pkg_resources(self, finder: ModuleFinder, module: Module) -> None:
         """The pkg_resources must import modules from the setuptools."""
-        module.ignore_names.update(
-            ["_typeshed", "_typeshed.importlib", "typing_extensions"]
-        )
         finder.exclude_module("pkg_resources.tests")
 
         vendor = os.path.normpath(
