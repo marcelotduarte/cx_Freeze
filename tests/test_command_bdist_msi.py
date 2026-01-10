@@ -50,6 +50,30 @@ def test_bdist_msi_target_name() -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
+def test_bdist_msi_target_version() -> None:
+    """Test the bdist_msi with extra target_version [removed] option."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_msi(dist)
+    cmd.target_version = "0.1"
+    msg = "target_version option was removed,"
+    with pytest.raises(OptionError, match=msg):
+        cmd.finalize_options()
+
+
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
+def test_bdist_msi_no_name() -> None:
+    """Test the bdist_msi with no project name option."""
+    dist = Distribution(
+        {"executables": ["hello.py"], "script_name": "setup.py"}
+    )
+    cmd = bdist_msi(dist)
+    cmd.target_name = "mytest"
+    msg = "target_name option was removed, use output_name"
+    with pytest.raises(OptionError, match=msg):
+        cmd.finalize_options()
+
+
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_product_name() -> None:
     """Test the bdist_msi with extra product_name option."""
     dist = Distribution(DIST_ATTRS)

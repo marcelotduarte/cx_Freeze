@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import shutil
+from contextlib import suppress
 from typing import ClassVar
 
 from packaging.version import Version
@@ -1304,7 +1305,7 @@ class bdist_msi(Command):
         installer_name = os.path.abspath(
             os.path.join(self.dist_dir, self.output_name)
         )
-        if os.path.exists(installer_name):
+        with suppress(FileNotFoundError):
             os.unlink(installer_name)
 
         author = self.distribution.metadata.get_contact() or "UNKNOWN"
