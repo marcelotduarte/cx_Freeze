@@ -67,8 +67,7 @@ def test_bdist_msi_no_name() -> None:
         {"executables": ["hello.py"], "script_name": "setup.py"}
     )
     cmd = bdist_msi(dist)
-    cmd.target_name = "mytest"
-    msg = "target_name option was removed, use output_name"
+    msg = "name is required"
     with pytest.raises(OptionError, match=msg):
         cmd.finalize_options()
 
