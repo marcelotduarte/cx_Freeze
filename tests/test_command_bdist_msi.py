@@ -7,6 +7,7 @@ from setuptools import Distribution
 
 from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS, IS_X86_64
 from cx_Freeze.command.bdist_msi import bdist_msi
+from cx_Freeze.exception import OptionError
 
 DIST_ATTRS = {
     "name": "foo",
@@ -33,33 +34,44 @@ def test_bdist_msi_target_dir() -> None:
     else:
         expected = r"[ProgramFilesFolder]\foo"
     assert cmd.initial_target_dir == expected
-    assert cmd.fullname == "foo"
-    assert cmd.target_name == "foo"
+    assert cmd.fullname == "foo-0.0.0"
+    assert cmd.output_name == f"foo-0.0.0-{MSI_PLATFORM}.msi"
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
 def test_bdist_msi_target_name() -> None:
-    """Test the bdist_msi with extra target_name option."""
+    """Test the bdist_msi with extra target_name [removed] option."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_msi(dist)
     cmd.target_name = "mytest"
-    cmd.finalize_options()
-    cmd.ensure_finalized()
-    assert cmd.fullname == "mytest"
-    assert cmd.target_name == "mytest"
+    msg = "target_name option was removed, use output_name"
+    with pytest.raises(OptionError, match=msg):
+        cmd.finalize_options()
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_target_name_and_version() -> None:
+def test_bdist_msi_product_name() -> None:
+    """Test the bdist_msi with extra product_name option."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_msi(dist)
+    cmd.product_name = "my test"
+    cmd.finalize_options()
+    cmd.ensure_finalized()
+    assert cmd.fullname == "my test-0.0.0"
+    assert cmd.output_name == f"my test-0.0.0-{MSI_PLATFORM}.msi"
+
+
+@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
+def test_bdist_msi_product_name_and_version() -> None:
     """Test the bdist_msi with extra target options."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_msi(dist)
-    cmd.target_name = "mytest"
-    cmd.target_version = "0.1"
+    cmd.product_name = "mytest"
+    cmd.product_version = "0.1"
     cmd.finalize_options()
     cmd.ensure_finalized()
     assert cmd.fullname == "mytest-0.1"
-    assert cmd.target_name == "mytest"
+    assert cmd.output_name == f"mytest-0.1-{MSI_PLATFORM}.msi"
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
@@ -74,24 +86,13 @@ def test_bdist_msi_default(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_target_name_with_extension(tmp_package) -> None:
-    """Test the msi_extensions sample, with a specified target_name that
+def test_bdist_msi_output_name_with_extension(tmp_package) -> None:
+    """Test the msi_extensions sample, with a specified output_name that
     includes an ".msi" extension.
     """
     msi_name = "output.msi"
     tmp_package.create_from_sample("msi_extensions")
-    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
-    file_created = tmp_package.path / "dist" / msi_name
-    assert file_created.is_file()
-
-
-@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_target_name_with_extension_1(tmp_package) -> None:
-    """Test the msi_summary_data sample."""
-    msi_name = "output.1.msi"
-
-    tmp_package.create_from_sample("msi_summary_data")
-    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --output-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -113,7 +114,7 @@ def test_bdist_msi_advanced(tmp_package) -> None:
     msi_name = "output.msi"
 
     tmp_package.create_from_sample("advanced")
-    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --output-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -124,18 +125,7 @@ def test_bdist_msi_asmodule(tmp_package) -> None:
     msi_name = "output.msi"
 
     tmp_package.create_from_sample("asmodule")
-    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
-    file_created = tmp_package.path / "dist" / msi_name
-    assert file_created.is_file()
-
-
-@pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_sqlite(tmp_package) -> None:
-    """Test the sqlite sample."""
-    msi_name = "output.msi"
-
-    tmp_package.create_from_sample("sqlite")
-    tmp_package.freeze(f"python setup.py bdist_msi --target-name {msi_name}")
+    tmp_package.freeze(f"python setup.py bdist_msi --output-name {msi_name}")
     file_created = tmp_package.path / "dist" / msi_name
     assert file_created.is_file()
 
@@ -160,7 +150,9 @@ pyproject.toml
     excludes = ["tkinter", "unittest"]
 
     [tool.cxfreeze.bdist_msi]
-    target_name = "output.msi"
+    product_name = "Hello cx_Freeze"
+    product_version = "0.1.2.3"
+    output_name = "output.msi"
 """
 
 

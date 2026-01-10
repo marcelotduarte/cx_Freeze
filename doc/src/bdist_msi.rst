@@ -32,12 +32,10 @@ command:
    * - option name
      - description
    * - .. option:: add_to_path
-     - add the target directory to the PATH environment variable; the default
-       value is True if there are any console-based executables and False
-       otherwise.
+     - add the target directory to the PATH environment variable
+       [default: False]
    * - .. option:: all_users
-     - install for all users; the default value is False and results in an
-       installation for just the installing user.
+     - install for all users or just for the installing user [default: False]
    * - .. option:: data
      - dictionary of arbitrary MSI data indexed by table name; for each table,
        a list of tuples should be provided, representing the rows that should
@@ -65,21 +63,25 @@ command:
        during installation.
    * - .. option:: launch_on_finish
      - boolean flag that includes a "Launch the installed app on finish?"
-       checkbox to the final step of the installer. [default: False]
+       checkbox to the final step of the installer [default: False]
    * - .. option:: license_file
-     - path to an rtf formmated file to be used as the license agreement.
-       Refer to `Windows Installer Scrollable Text
+     - path to a rtf formmated file to be used as the license agreement;
+       refer to `Windows Installer Scrollable Text
        <https://learn.microsoft.com/en-us/windows/win32/msi/scrollabletext-control#control-attributes>`_.
+   * - .. option:: output_name
+     - specifies the name of the file that is to be created
+       [default: metadata name-version-platform.msi]
    * - .. option:: product_code
-     - define the product code for the package that is created.
+     - define the product code for the package that is created
+   * - .. option:: product_name
+     - define the product name for the package that is created
+       [default: metadata name]
+   * - .. option:: product_version
+     - define the product version for the package that is created
+       [default: metadata version if available]
    * - .. option:: summary_data
      - dictionary of data to include in MSI summary information stream
        (allowable keys are "author", "comments", and "keywords").
-   * - .. option:: target_name
-     - specifies the name of the file that is to be created; if the name
-       ends with ".msi" then it is used verbatim, otherwise, information
-       about the program version and platform will be added to the installer
-       name.
    * - .. option:: upgrade_code
      - define the GUID of the upgrade code for the package that is created;
        this is used to force the removal of any packages created with the same
@@ -94,6 +96,11 @@ command:
     :option:`license_file` option.
 .. versionadded:: 8.2
     :option:`launch_on_finish` option.
+.. versionadded:: 8.6
+    :option:`output_name`, :option:`product_name`, and
+    :option:`product_version` options.
+.. versionremoved:: 8.6
+    :option:`target_name` option.
 
 For example:
 
@@ -125,6 +132,7 @@ For example:
         environment_variables = [
             ["E_MYAPP_VAR", "=-*MYAPP_VAR", "1", "TARGETDIR"]
         ]
+        product_name = "Hello cx_Freeze"
         # use a different upgrade_code for your project
         upgrade_code = "{6B29FC40-CA47-1067-B31D-00DD010662DA}"
 
