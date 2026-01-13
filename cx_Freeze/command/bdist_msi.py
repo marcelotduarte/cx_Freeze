@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import shutil
+from contextlib import suppress
 from typing import ClassVar
 
 from packaging.version import Version
@@ -100,39 +101,90 @@ class bdist_msi(Command):
             "skip rebuilding everything (for testing/debugging)",
         ),
         # cx_Freeze specific
-        ("add-to-path=", None, "add target dir to PATH environment variable"),
-        ("all-users=", None, "installation for all users (or just me)"),
+        (
+            "add-to-path=",
+            None,
+            "add target directory to the PATH environment variable "
+            "[default: False]",
+        ),
+        (
+            "all-users=",
+            None,
+            "install for all users or just for the installing user "
+            "[default: False]",
+        ),
         (
             "data=",
             None,
             "dictionary of data indexed by table name, and each value is a "
             "tuple to include in table",
         ),
-        ("directories=", None, "list of 3-tuples of directories to create"),
-        ("environment-variables=", None, "list of environment variables"),
+        (
+            "directories=",
+            None,
+            "list of 3-tuples of directories that should be created during "
+            "installation",
+        ),
+        (
+            "environment-variables=",
+            None,
+            "list of environment variables that should be added to the "
+            "system during installation",
+        ),
         ("extensions=", None, "Extensions for which to register Verbs"),
         ("initial-target-dir=", None, "initial target directory"),
-        ("install-icon=", None, "icon path to add/remove programs "),
-        ("product-code=", None, "product code to use"),
         (
-            "summary-data=",
+            "install-icon=",
             None,
-            "Dictionary of data to include in msi summary data stream. "
-            'Allowed keys are "author", "comments", "keywords".',
-        ),
-        ("target-name=", None, "name of the file to create"),
-        ("target-version=", None, "version of the file to create"),
-        ("upgrade-code=", None, "upgrade code to use"),
-        (
-            "license-file=",
-            None,
-            "rft formatted license file to include in the installer",
+            "path of icon to use for the add/remove programs",
         ),
         (
             "launch-on-finish",
             None,
-            "Include a Launch on Finish checkbox in the installer.",
+            "include a 'Launch on Finish' checkbox in the installer"
+            "[default: False]",
         ),
+        (
+            "license-file=",
+            None,
+            "path to a rtf formmated file to be used as the license agreement",
+        ),
+        (
+            "output-name=",
+            None,
+            "specifies the name of the file that is to be created",
+        ),
+        (
+            "product-code=",
+            None,
+            "define the product code for the package that is created",
+        ),
+        (
+            "product-name=",
+            None,
+            "define the product name for the package that is created "
+            "[default: metadata name]",
+        ),
+        (
+            "product-version=",
+            None,
+            "define the product version for the package that is created "
+            "[default: metadata version if available]",
+        ),
+        (
+            "summary-data=",
+            None,
+            "dictionary of data to include in MSI summary data stream "
+            '(allowed keys are "author", "comments" and "keywords")',
+        ),
+        (
+            "upgrade-code=",
+            None,
+            "define the GUID of the upgrade code for the package that is "
+            "created",
+        ),
+        ("target-name=", None, "[removed]"),
+        ("target-version=", None, "[removed]"),
     ]
 
     boolean_options: ClassVar[list[str]] = [
@@ -398,7 +450,8 @@ class bdist_msi(Command):
                         "VSDCA_Launch",
                         226,
                         "TARGETDIR",
-                        f"[TARGETDIR]\\{self.distribution.executables[0].target_name}",
+                        "[TARGETDIR]\\"
+                        f"{self.distribution.executables[0].target_name}",
                     )
                 ],
             )
@@ -1043,23 +1096,27 @@ class bdist_msi(Command):
         self.skip_build = None
         self.install_script = None
         self.pre_install_script = None
-        # cx_Freeze specific
-        self.upgrade_code = None
-        self.product_code = None
-        self.add_to_path = None
-        self.initial_target_dir = None
-        self.target_name = None
-        self.target_version = None
         self.fullname = None
+        # cx_Freeze specific
+        self.add_to_path = None
+        self.all_users = False
+        self.data = None
         self.directories = None
         self.environment_variables = None
-        self.data = None
-        self.summary_data = None
-        self.install_icon = None
-        self.all_users = False
         self.extensions = None
-        self.license_file = None
+        self.initial_target_dir = None
+        self.install_icon = None
         self.launch_on_finish = None
+        self.license_file = None
+        self.output_name = None
+        self.product_code = None
+        self.product_name = None
+        self.product_version = None
+        self.summary_data = None
+        self.upgrade_code = None
+        # removed
+        self.target_name = None
+        self.target_version = None
 
         self._warnings = []
 
@@ -1095,47 +1152,44 @@ class bdist_msi(Command):
                 raise OptionError(msg)
         self.install_script_key = None
 
-        # default values for target_name and target_version
-        if self.target_name is None:
-            if self.distribution.metadata.name:
-                self.target_name = self.distribution.metadata.name
-            else:
-                executables = self.distribution.executables
-                executable = executables[0]
-                self.warn_delayed(
-                    "using the first executable as target_name: "
-                    f"{executable.target_name}"
-                )
-                self.target_name = executable.target_name
-        if self.target_version is None and self.distribution.metadata.version:
-            self.target_version = self.distribution.metadata.version
+        # removed
+        if self.target_name is not None:
+            msg = (
+                "target_name option was removed, use output_name"
+                " (or in some cases, use project.name or product_name instead)"
+            )
+            raise OptionError(msg)
+        if self.target_version is not None:
+            msg = (
+                "target_version option was removed, "
+                "use project.version or product_version instead"
+            )
+            raise OptionError(msg)
 
-        name = self.target_name
-        version = self.target_version
-        name, ext = os.path.splitext(name)
-        if ext == ".msi":
-            self.msi_name = self.target_name
-            self.fullname = name
-        elif version:
-            self.msi_name = f"{name}-{version}-{MSI_PLATFORM}.msi"
-            self.fullname = f"{name}-{version}"
-        else:
-            self.msi_name = f"{name}-{MSI_PLATFORM}.msi"
-            self.fullname = name
-
-        # default metadata name and version if not set in setup/pyproject
+        # name is required
         if not self.distribution.metadata.name:
-            self.distribution.metadata.name = name.split("-")[0]
-        if not self.distribution.metadata.version:
-            self.distribution.metadata.version = version
-        name = self.distribution.get_name()
+            msg = "name is required"
+            raise OptionError(msg)
+
+        # default values for product_name and product_version
+        self.ensure_string("product_name", self.distribution.get_name())
+        self.ensure_string("product_version", self.distribution.get_version())
+        # ProductVersion must be strictly numeric
+        self.product_version = Version(self.product_version).base_version
+        self.fullname = f"{self.product_name}-{self.product_version}"
+        self.ensure_string(
+            "output_name", f"{self.fullname}-{MSI_PLATFORM}.msi"
+        )
 
         if self.initial_target_dir is None:
             if IS_ARM_64 or IS_X86_64:
                 program_files_folder = "ProgramFiles64Folder"
             else:
                 program_files_folder = "ProgramFilesFolder"
-            self.initial_target_dir = rf"[{program_files_folder}]\{name}"
+            self.initial_target_dir = (
+                rf"[{program_files_folder}]\{self.product_name}"
+            )
+        self.ensure_filename("install_icon")
         if self.add_to_path is None:
             self.add_to_path = False
         if self.directories is None:
@@ -1144,6 +1198,7 @@ class bdist_msi(Command):
             self.environment_variables = []
         if self.license_file is not None:
             self.license_file = os.path.abspath(self.license_file)
+        self.ensure_filename("license_file")
         if self.data is None:
             self.data = {}
         if not isinstance(self.summary_data, dict):
@@ -1179,7 +1234,9 @@ class bdist_msi(Command):
                 )
                 raise ValueError(msg) from None
             stem = os.path.splitext(executable)[0]
-            progid = make_id(f"{name}.{stem}.{version}")
+            progid = make_id(
+                f"{self.product_name}.{stem}.{self.product_version}"
+            )
             mime = extension.get("mime", None)
             # "%1" a better default for argument?
             argument = extension.get("argument", None)
@@ -1207,7 +1264,7 @@ class bdist_msi(Command):
                 -1,
                 rf"Software\Classes\{progid}",
                 "FriendlyAppName",
-                name,
+                self.product_name,
                 component,
             )
             self._append_to_data(
@@ -1216,7 +1273,7 @@ class bdist_msi(Command):
                 -1,
                 rf"Software\Classes\{progid}\shell\{verb}",
                 "FriendlyAppName",
-                name,
+                self.product_name,
                 component,
             )
             self._append_to_data(
@@ -1246,17 +1303,12 @@ class bdist_msi(Command):
         # make msi (by default in dist directory)
         self.mkpath(self.dist_dir)
         installer_name = os.path.abspath(
-            os.path.join(self.dist_dir, self.msi_name)
+            os.path.join(self.dist_dir, self.output_name)
         )
-        if os.path.exists(installer_name):
+        with suppress(FileNotFoundError):
             os.unlink(installer_name)
 
         author = self.distribution.metadata.get_contact() or "UNKNOWN"
-        distribution_name = self.distribution.get_name()
-        # ProductVersion must be strictly numeric
-        distribution_version = Version(
-            self.target_version or self.distribution.get_version()
-        ).base_version
 
         # msilib is reloaded in order to reset the "_directories" global member
         # in that module.  That member is used by msilib to prevent any two
@@ -1272,20 +1324,20 @@ class bdist_msi(Command):
         self.db = init_database(
             installer_name,
             schema,
-            distribution_name,
+            self.product_name,
             self.product_code,
-            distribution_version,
+            self.product_version,
             author,
         )
         add_tables(self.db, sequence)
         self.add_properties()
         self.add_config()
-        self.add_upgrade_config(distribution_version)
+        self.add_upgrade_config(self.product_version)
         self.add_ui()
         self.add_files()
         self.db.Commit()
         self.distribution.dist_files.append(
-            ("bdist_msi", distribution_version or "any", distribution_name)
+            ("bdist_msi", self.product_version or "any", self.product_name)
         )
 
         if not self.keep_temp:
