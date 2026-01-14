@@ -12,7 +12,7 @@ dependencies = [
 executables = ["test_pandas.py"]
 
 [tool.cxfreeze.build_exe]
-excludes = ["tkinter", "unittest", "email", "http", "xml", "pydoc"]
+excludes = ["tkinter", "unittest", "email", "http", "xml", "pyarrow", "pydoc"]
 include_msvcr = true
 optimize = 2
 silent = true
