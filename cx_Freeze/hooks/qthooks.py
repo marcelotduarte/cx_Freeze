@@ -284,7 +284,10 @@ class QtHook(ModuleHook):
         name = _qt_implementation(module)
         copy_qt_files(finder, name, "PluginsPath", "qmllint")  # pyqt6
         copy_qt_files(finder, name, "PluginsPath", "qmltooling")
-        copy_qt_files(finder, name, "QmlImportsPath", "*")
+        try:
+            copy_qt_files(finder, name, "QmlImportsPath", "*")
+        except KeyError:
+            copy_qt_files(finder, name, "Qml2ImportsPath", "*")
         finder.include_module(f"{name}.QtQuick")
 
     def qt_qtquick(self, finder: ModuleFinder, module: Module) -> None:
