@@ -22,15 +22,21 @@ class Hook(ModuleHook):
     """
 
     def pyarrow(self, finder: ModuleFinder, module: Module) -> None:
-        """The pyarrow must include vendored modules."""
+        """Ignore optional modules."""
         module.ignore_names.update(["setuptools_scm", "setuptools_scm.git"])
         finder.exclude_module("pyarrow.include")
         finder.exclude_module("pyarrow.includes")
         finder.exclude_module("pyarrow.src")
         finder.exclude_module("pyarrow.tests")
-        finder.include_module("pyarrow.vendored.docscrape")
-        finder.include_module("pyarrow.vendored.version")
         finder.include_module("queue")
+
+    def pyarrow_compute(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
+        """The pyarrow must include vendored modules."""
+        finder.include_module("pyarrow.vendored.docscrape")
 
     def pyarrow_fs(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional modules."""
@@ -41,7 +47,8 @@ class Hook(ModuleHook):
         module.ignore_names.add("requests")
 
     def pyarrow_vendored_docscrape(
-        self, _finder: ModuleFinder, module: Module
+        self, finder: ModuleFinder, module: Module
     ) -> None:
         """Ignore optional modules."""
         module.ignore_names.add("sphinx.ext.autodoc")
+        finder.include_module("pydoc")
