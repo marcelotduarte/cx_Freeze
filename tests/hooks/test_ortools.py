@@ -123,12 +123,6 @@ pyproject.toml
     reason="ortools supports Python 3.13t on Linux only",
     strict=True,
 )
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14),
-    raises=ModuleNotFoundError,
-    reason="rasterio does not support Python 3.14+",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_ortools(tmp_package, zip_packages: bool) -> None:
