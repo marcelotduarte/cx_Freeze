@@ -10,3 +10,4 @@ executables = [
 
 [tool.cxfreeze.build_exe]
 excludes = ["tkinter", "unittest"]
+silent = true
