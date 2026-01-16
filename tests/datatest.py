@@ -11,6 +11,7 @@ from __future__ import annotations
 # 4. a list of module names that ModuleFinder should complain
 #    about because they MAY be not found
 # 5. a string specifying packages to create; the format is obvious imo.
+# 6. a dictionary of extra kwargs
 
 ABSOLUTE_IMPORT_TEST = [
     "a.module",
@@ -42,6 +43,7 @@ b/x.py
 b/y.py
 b/z.py
 """,
+    {},
 ]
 
 BYTECODE_TEST = ["a", ["a"], [], [], ""]
@@ -60,6 +62,7 @@ b_utf8.py
     # use the default of utf8
     print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
 """,
+    {},
 ]
 
 CODING_EXPLICIT_CP1252_TEST = [
@@ -77,6 +80,7 @@ b_utf8.py
     # use the default of utf8
     print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
 """,
+    {},
 ]
 
 CODING_EXPLICIT_UTF8_TEST = [
@@ -93,6 +97,46 @@ b_utf8.py
     # use the default of utf8
     print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
 """,
+    {},
+]
+
+EDITABLE_PACKAGE_TEST = [
+    "main",
+    ["foobar", "foobar.baz", "main"],
+    [],
+    [],
+    """\
+main.py
+    import foobar.baz
+foo-bar/setup.py
+    from setuptools import setup
+    setup(name="foo-bar", version="0.0.2", packages=["foobar"])
+foo-bar/foobar/__init__.py
+    print('This is foobar')
+foo-bar/foobar/baz.py
+    print('This is foobar.baz')
+""",
+    {},
+]
+
+EDITABLE_PACKAGE_TEST_1 = [
+    "main",
+    ["foobar", "foobar.baz", "main"],
+    [],
+    [],
+    """\
+main.py
+    import foobar.baz
+foo-bar/pyproject.toml
+    [project]
+    name = "foo-bar"
+    version = "0.0.1"
+foo-bar/foobar/__init__.py
+    print('This is foobar')
+foo-bar/foobar/baz.py
+    print('This is foobar.baz')
+""",
+    {},
 ]
 
 EXTENDED_OPARGS_TEST = [
@@ -106,6 +150,7 @@ a.py
     import b
 b.py
 """,
+    {},
 ]  # 2**16 constants
 
 FIND_SPEC_TEST = [
@@ -126,6 +171,7 @@ find_spec/hello.py
     print("Hi, I'm a program.")
     raise Exception("This exception is fine.")
 """,
+    {},
 ]
 
 INVALID_MODULE_NAME_TEST = [
@@ -143,6 +189,7 @@ testpkg1/not.importable.py
 testpkg1/submod.py
     a = 2
 """,
+    {},
 ]
 
 MAYBE_TEST = [
@@ -158,6 +205,7 @@ a/module.py
 b/__init__.py
     from sys import *
 """,
+    {},
 ]
 
 MAYBE_TEST_NEW = [
@@ -174,6 +222,7 @@ b/__init__.py
     from __future__ import absolute_import
     from sys import *
 """,
+    {},
 ]
 
 NAMESPACE_TEST = [
@@ -187,6 +236,7 @@ main.py
 namespace/package/__init__.py
     print('This is namespace.package')
 """,
+    {},
 ]
 
 NAMESPACE_TEST_1 = [
@@ -203,6 +253,7 @@ namespace/package/__init__.py
     def echo():
         print("This is namespace.package")
 """,
+    {},
 ]
 
 NAMESPACE_TEST_2 = [
@@ -219,6 +270,7 @@ namespace/package/one.py
 namespace/package/two.py
     print('This is namespace.package module two')
 """,
+    {},
 ]
 
 PACKAGE_TEST = [
@@ -242,6 +294,7 @@ a/c.py
     import mymodule as sillyname
     from sys import version_info
 """,
+    {},
 ]
 
 RELATIVE_IMPORT_TEST = [
@@ -287,6 +340,7 @@ a/b/c/d.py
 a/b/c/e.py
 a/b/c/x.py
 """,
+    {},
 ]
 
 RELATIVE_IMPORT_TEST_2 = [
@@ -334,6 +388,7 @@ a/b/c/d.py
 a/b/c/e.py
 a/b/c/f.py
 """,
+    {},
 ]
 
 RELATIVE_IMPORT_TEST_3 = [
@@ -348,6 +403,7 @@ a/module.py
     from . import foo
     from . import bar
 """,
+    {},
 ]
 
 RELATIVE_IMPORT_TEST_4 = [
@@ -361,6 +417,7 @@ a/__init__.py
 a/module.py
     from . import *
 """,
+    {},
 ]
 
 SAME_NAME_AS_BAD_TEST = [
@@ -376,6 +433,7 @@ a/module.py
 b/__init__.py
 b/c.py
 """,
+    {},
 ]
 
 SCAN_CODE_TEST = [
@@ -395,6 +453,7 @@ imports_sample.py
     try: pass
     finally: import modh
 """,
+    {"path": []},
 ]
 
 SCAN_CODE_IMPORT_CALL_TEST = [
@@ -407,6 +466,7 @@ testpkg1/__init__.py
     __path__ = __import__('fake_pkgutil').extend_path(__path__, __name__)
 fake_pkgutil.py
 """,
+    {"path": []},
 ]
 
 SCAN_CODE_IMPORT_MODULE_TEST = [
@@ -423,6 +483,7 @@ module2.py
     def ok():
         print("ok")
 """,
+    {"path": []},
 ]
 
 SYNTAX_ERROR_TEST = [
@@ -434,6 +495,7 @@ SYNTAX_ERROR_TEST = [
 invalid_syntax.py
     raise = 2
 """,
+    {},
 ]
 
 SYNTAX_ERROR_TEST_2 = [
@@ -449,6 +511,7 @@ b/__init__.py
 b/module.py
     ?  # SyntaxError: invalid syntax
 """,
+    {},
 ]
 
 SUB_PACKAGE_TEST = [
@@ -475,22 +538,23 @@ setup.py
         executables=["main.py"],
     )
 """,
+    {},
 ]
 
-EDITABLE_PACKAGE_TEST = [
-    "main",
-    ["foobar", "foobar.baz", "main"],
-    [],
-    [],
-    """\
-main.py
-    import foobar.baz
-foo-bar/setup.py
-    from distutils.core import setup
-    setup(name="foo-bar", version="0.0.1", packages=["foobar"])
-foo-bar/foobar/__init__.py
-    print('This is foobar')
-foo-bar/foobar/baz.py
-    print('This is foobar.baz')
-""",
+ZIP_EXCLUDE_TEST = [
+    *SUB_PACKAGE_TEST[:-1],
+    {
+        "zip_exclude_packages": ["p"],
+        "zip_include_packages": ["*"],
+        "zip_include_all_packages": True,
+    },
+]
+
+ZIP_INCLUDE_TEST = [
+    *SUB_PACKAGE_TEST[:-1],
+    {
+        "zip_exclude_packages": ["*"],
+        "zip_include_packages": ["p"],
+        "zip_include_all_packages": False,
+    },
 ]

@@ -352,9 +352,7 @@ def test_build_exe_finalize_options_raises(
             ["--silent-level=3"], {"silent": 3}, id="--silent-level=3->3"
         ),
         pytest.param(
-            [],
-            {"include_msvcr": False},
-            id="--include-msvcr(notused)",
+            [], {"include_msvcr": False}, id="--include-msvcr(notused)"
         ),
         pytest.param(
             ["--include-msvcr"],

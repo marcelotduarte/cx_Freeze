@@ -18,6 +18,7 @@ from .datatest import (
     CODING_EXPLICIT_CP1252_TEST,
     CODING_EXPLICIT_UTF8_TEST,
     EDITABLE_PACKAGE_TEST,
+    EDITABLE_PACKAGE_TEST_1,
     EXTENDED_OPARGS_TEST,
     MAYBE_TEST,
     MAYBE_TEST_NEW,
@@ -34,6 +35,8 @@ from .datatest import (
     SCAN_CODE_IMPORT_MODULE_TEST,
     SCAN_CODE_TEST,
     SUB_PACKAGE_TEST,
+    ZIP_EXCLUDE_TEST,
+    ZIP_INCLUDE_TEST,
 )
 
 # Each test description is a list of 5 items:
@@ -79,7 +82,7 @@ def _do_test(
 
 
 @pytest.mark.parametrize(
-    ("import_this", "modules", "missing", "maybe_missing", "source"),
+    ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
     [
         ABSOLUTE_IMPORT_TEST,
         CODING_DEFAULT_UTF8_TEST,
@@ -97,7 +100,12 @@ def _do_test(
         RELATIVE_IMPORT_TEST_3,
         RELATIVE_IMPORT_TEST_4,
         SAME_NAME_AS_BAD_TEST,
+        SCAN_CODE_TEST,
+        SCAN_CODE_IMPORT_CALL_TEST,
+        SCAN_CODE_IMPORT_MODULE_TEST,
         SUB_PACKAGE_TEST,
+        ZIP_EXCLUDE_TEST,
+        ZIP_INCLUDE_TEST,
     ],
     ids=[
         "absolute_import_test",
@@ -116,19 +124,27 @@ def _do_test(
         "relative_import_test_3",
         "relative_import_test_4",
         "same_name_as_bad_test",
+        "scan_code_test",
+        "scan_code_import_call_test",
+        "scan_code_import_module_test",
         "sub_package_test",
+        "zip_exclude_test",
+        "zip_include_test",
     ],
 )
 def test_finder(
-    tmp_package,
-    import_this,
-    modules,
-    missing,
-    maybe_missing,
-    source,
+    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
 ) -> None:
     """Provides test cases for ModuleFinder class."""
-    _do_test(tmp_package, import_this, modules, missing, maybe_missing, source)
+    _do_test(
+        tmp_package,
+        import_this,
+        modules,
+        missing,
+        maybe_missing,
+        source,
+        **kwargs,
+    )
 
 
 def test_bytecode(tmp_package) -> None:
@@ -143,61 +159,6 @@ def test_bytecode(tmp_package) -> None:
     _do_test(tmp_package, *BYTECODE_TEST)
 
 
-@pytest.mark.parametrize(
-    ("import_this", "modules", "missing", "maybe_missing", "source"),
-    [
-        SCAN_CODE_TEST,
-        SCAN_CODE_IMPORT_CALL_TEST,
-        SCAN_CODE_IMPORT_MODULE_TEST,
-    ],
-    ids=[
-        "scan_code_test",
-        "scan_code_import_call_test",
-        "scan_code_import_module_test",
-    ],
-)
-def test_scancode(
-    tmp_package,
-    import_this,
-    modules,
-    missing,
-    maybe_missing,
-    source,
-) -> None:
-    """Provides test cases for ModuleFinder class."""
-    _do_test(
-        tmp_package,
-        import_this,
-        modules,
-        missing,
-        maybe_missing,
-        source,
-        path=[],
-    )
-
-
-def test_zip_include_packages(tmp_package) -> None:
-    """Provides test cases for ModuleFinder class."""
-    _do_test(
-        tmp_package,
-        *SUB_PACKAGE_TEST,
-        zip_exclude_packages=["*"],
-        zip_include_packages=["p"],
-        zip_include_all_packages=False,
-    )
-
-
-def test_zip_exclude_packages(tmp_package) -> None:
-    """Provides test cases for ModuleFinder class."""
-    _do_test(
-        tmp_package,
-        *SUB_PACKAGE_TEST,
-        zip_exclude_packages=["p"],
-        zip_include_packages=["*"],
-        zip_include_all_packages=True,
-    )
-
-
 def test_editable_packages(tmp_package) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(EDITABLE_PACKAGE_TEST[4])
@@ -205,4 +166,14 @@ def test_editable_packages(tmp_package) -> None:
     _do_test(
         tmp_package,
         *EDITABLE_PACKAGE_TEST,
+    )
+
+
+def test_editable_packages_1(tmp_package) -> None:
+    """Provides test cases for ModuleFinder class."""
+    tmp_package.create(EDITABLE_PACKAGE_TEST_1[4])
+    tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
+    _do_test(
+        tmp_package,
+        *EDITABLE_PACKAGE_TEST_1,
     )
