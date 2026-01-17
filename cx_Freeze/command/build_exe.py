@@ -294,6 +294,9 @@ class build_exe(Command):
         self.optimize = int(self.optimize or 0)
 
     def run(self) -> None:
+        # Update the package metadata
+        self.run_command("egg_info")
+
         executables = self.distribution.executables
         metadata = self.distribution.metadata
         constants_module = ConstantsModule(
