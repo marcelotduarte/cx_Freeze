@@ -12,6 +12,7 @@ import os
 import platform
 import shutil
 import stat
+from contextlib import suppress
 from ctypes.util import find_library
 from pathlib import Path
 from textwrap import dedent
@@ -206,13 +207,12 @@ class bdist_appimage(Command):
         # Set the full path of appimage to be built
         self.mkpath(self.dist_dir)
         output = os.path.abspath(os.path.join(self.dist_dir, self.app_name))
-        if os.path.exists(output):
+        with suppress(FileNotFoundError):
             os.unlink(output)
 
         # Create AppDir format
         appdir = os.path.abspath(os.path.join(self.bdist_base, "AppDir"))
-        if os.path.exists(appdir):
-            self.execute(shutil.rmtree, (appdir,), msg=f"removing {appdir}")
+        self.execute(shutil.rmtree, (appdir, True), msg=f"removing {appdir}")
         self.mkpath(appdir)
 
         # Copy from build_exe

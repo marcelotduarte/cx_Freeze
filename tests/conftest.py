@@ -429,14 +429,12 @@ class TempPackage:
         # remove build directory (to reduce disk usage)
         if not self.request.config.option.venv_keep_build:
             build_dir: Path = self.path / "build"
-            if build_dir.is_dir():
-                rmtree(build_dir, ignore_errors=True)
+            rmtree(build_dir, ignore_errors=True)
 
         # remove temporary prefix (to reduce disk usage)
         if not self.request.config.option.venv_keep_prefix:
             tmp_prefix = self.path / ".tmp_prefix"
-            if tmp_prefix.is_dir():
-                rmtree(tmp_prefix, ignore_errors=True)
+            rmtree(tmp_prefix, ignore_errors=True)
 
 
 class TempPackageVenv(TempPackage):
