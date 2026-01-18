@@ -315,12 +315,11 @@ class bdist_mac(Command):
 
         # Remove App if it already exists
         # ( avoids confusing issues where prior builds persist! )
-        if os.path.exists(self.bundle_dir):
-            self.execute(
-                shutil.rmtree,
-                (self.bundle_dir,),
-                msg=f"staging - removed existing '{self.bundle_dir}'",
-            )
+        self.execute(
+            shutil.rmtree,
+            (self.bundle_dir, True),
+            msg=f"staging - removed existing '{self.bundle_dir}'",
+        )
 
         # Find the executable name
         executable = self.distribution.executables[0].target_name

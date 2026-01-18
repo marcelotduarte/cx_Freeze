@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import platform
+from contextlib import suppress
 from pathlib import Path
 
 import pytest
@@ -41,9 +42,8 @@ def test_bdist_appimage_download_appimagetool() -> None:
     cmd.finalize_options()
     appimagetool = cmd.appimagetool
     # remove
-    if os.path.exists(appimagetool):
-        with FileLock(appimagetool + ".lock"):
-            os.unlink(appimagetool)
+    with FileLock(appimagetool + ".lock"), suppress(FileNotFoundError):
+        os.unlink(appimagetool)
     # force the download
     cmd2 = bdist_appimage(dist)
     cmd2.finalize_options()

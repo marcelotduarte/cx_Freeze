@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shutil
+from contextlib import suppress
 from typing import TYPE_CHECKING, ClassVar
 
 from dmgbuild.core import DMGError, build_dmg
@@ -215,13 +216,12 @@ class bdist_dmg(Command):
 
     def build_dmg(self) -> None:
         # Remove DMG if it already exists
-        if os.path.exists(self.dmg_name):
+        with suppress(FileNotFoundError):
             os.unlink(self.dmg_name)
 
         # Make dist folder
         self.dist_dir = os.path.join(self.build_dir, "dist")
-        if os.path.exists(self.dist_dir):
-            shutil.rmtree(self.dist_dir)
+        shutil.rmtree(self.dist_dir, ignore_errors=True)
         self.mkpath(self.dist_dir)
 
         # Copy App Bundle
