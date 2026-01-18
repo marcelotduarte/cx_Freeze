@@ -91,9 +91,6 @@ def plugin_install(dist: setuptools.Distribution) -> None:
 
     # Add build_exe as subcommand of setuptools build (plugin)
     build = dist.get_command_obj("build")
-    build.user_options.insert(
-        1,
-        ("build-exe=", None, "[REMOVED]"),
-    )
-    build.sub_commands = [*build.sub_commands, ("build_exe", None)]
+    build.user_options.insert(1, ("build-exe=", None, "[REMOVED]"))
     build.build_exe = None
+    build.sub_commands = [*build.sub_commands, ("build_exe", None)]
