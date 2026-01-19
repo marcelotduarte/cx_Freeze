@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import io
 import json
 import os
@@ -218,22 +219,32 @@ class TempPackage:
         if command[0] == "python":
             command[0] = self.python
         cwd = os.fspath(self.path if cwd is None else cwd)
-        process = subprocess.run(
-            command,
-            capture_output=True,
-            check=False,
-            cwd=cwd,
-            env=env,
-            text=True,
-            timeout=timeout,
-        )
-        print(process.stdout)
-        print(process.stderr)
+        try:
+            process = subprocess.run(
+                command,
+                capture_output=True,
+                check=False,
+                cwd=cwd,
+                env=env,
+                text=True,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired as exc:
+            returncode = errno.ETIMEDOUT
+            stdout = exc.output
+            stderr = exc.stderr or ""
+        else:
+            returncode = process.returncode
+            stdout = process.stdout
+            stderr = process.stderr or ""
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode()
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode()
+        print(stdout)
+        print(stderr)
         return pytest.RunResult(
-            process.returncode,
-            process.stdout.splitlines(),
-            process.stderr.splitlines(),
-            0,
+            returncode, stdout.splitlines(), stderr.splitlines(), 0
         )
 
     def install(

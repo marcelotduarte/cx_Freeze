@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import subprocess
 import sys
 
 import pytest
@@ -62,22 +61,14 @@ def test_streamlit(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_streamlit")
     assert executable.is_file()
-    try:
-        result = tmp_package.run(
-            [
-                executable,
-                "--server.showEmailPrompt=false",
-                "--browser.gatherUsageStats=false",
-            ],
-            timeout=TIMEOUT,
-        )
-    except subprocess.TimeoutExpired as exc:
-        result = pytest.RunResult(
-            -9,
-            exc.output.decode().splitlines(),
-            exc.stderr and exc.stderr.decode().splitlines(),
-            0,
-        )
+    result = tmp_package.run(
+        [
+            executable,
+            "--server.showEmailPrompt=false",
+            "--browser.gatherUsageStats=false",
+        ],
+        timeout=TIMEOUT,
+    )
     result.stdout.fnmatch_lines(
         ["*You can now view your Streamlit app in your browser."]
     )
