@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 
 import pytest
+
+from cx_Freeze._compat import ABI_THREAD
 
 TIMEOUT = 15
 
@@ -35,6 +38,10 @@ pyproject.toml
 """
 
 
+@pytest.mark.skipif(
+    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    reason="streamlit does not support Python 3.13t/3.14t",
+)
 @pytest.mark.venv
 @zip_packages
 def test_streamlit(tmp_package, zip_packages: bool) -> None:
