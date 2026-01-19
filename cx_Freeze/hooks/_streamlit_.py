@@ -18,12 +18,9 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for 'streamlit' package."""
 
-    def streamlit(
-        self,
-        finder: ModuleFinder,
-        module: Module,  # noqa: ARG002
-    ) -> None:
-        """The streamlit must be loaded as a package."""
+    def streamlit(self, finder: ModuleFinder, module: Module) -> None:
+        """The streamlit must be loaded as a package in the file system."""
+        module.in_file_system = 1
         finder.exclude_module("streamlit.testing")
         finder.include_package("streamlit")
 
