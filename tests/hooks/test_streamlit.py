@@ -7,7 +7,7 @@ import sys
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD
+from cx_Freeze._compat import ABI_THREAD, IS_MINGW
 
 TIMEOUT = 15
 
@@ -38,6 +38,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    IS_MINGW,
+    raises=ModuleNotFoundError,
+    reason="streamlit not supported in mingw",
+    strict=True,
+)
 @pytest.mark.skipif(
     sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
     reason="streamlit does not support Python 3.13t/3.14t",
@@ -57,7 +63,14 @@ def test_streamlit(tmp_package, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_streamlit")
     assert executable.is_file()
     try:
-        result = tmp_package.run(executable, timeout=TIMEOUT)
+        result = tmp_package.run(
+            [
+                executable,
+                "--server.showEmailPrompt=false",
+                "--browser.gatherUsageStats=false",
+            ],
+            timeout=TIMEOUT,
+        )
     except subprocess.TimeoutExpired as exc:
         result = pytest.RunResult(
             -9,
