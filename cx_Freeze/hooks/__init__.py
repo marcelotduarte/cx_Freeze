@@ -415,14 +415,6 @@ def load_pycountry(finder: ModuleFinder, module: Module) -> None:
     module.in_file_system = 1
 
 
-def load_pycparser(finder: ModuleFinder, module: Module) -> None:
-    """These files are missing which causes
-    permission denied issues on windows when they are regenerated.
-    """
-    finder.include_module("pycparser.lextab")
-    finder.include_module("pycparser.yacctab")
-
-
 def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
     """The pyodbc module implicitly imports others modules;
     make sure this happens.

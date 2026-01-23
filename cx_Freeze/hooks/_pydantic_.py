@@ -31,7 +31,8 @@ class Hook(ModuleHook):
                 "PydanticUserError",
             ]
         )
-        if module.distribution.version < (2,):
+        distribution = module.distribution
+        if distribution and distribution.version < (2,):
             finder.include_module("colorsys")
             finder.include_module("datetime")
             finder.include_module("decimal")
