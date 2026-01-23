@@ -34,13 +34,13 @@ test.py
 if IS_WINDOWS:
     PACKAGE_VERSION = [("imagehlp", "bind")]
     if IS_CONDA:
-        PACKAGE_VERSION += [("py-lief", "0.16.6")]
+        PACKAGE_VERSION += [("py-lief", "0.17.1")]
     elif IS_ARM_64 and sys.version_info[:2] <= (3, 13) and ABI_THREAD == "":
-        PACKAGE_VERSION += [("lief", "0.16.6"), ("lief", "0.17.0")]
+        PACKAGE_VERSION += [("lief", "0.16.6"), ("lief", "0.17.2")]
     elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
         if sys.version_info[:2] <= (3, 13):
             PACKAGE_VERSION += [("lief", "0.15.1"), ("lief", "0.16.6")]
-        PACKAGE_VERSION += [("lief", "0.17.0")]
+        PACKAGE_VERSION += [("lief", "0.17.2")]
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
 elif IS_LINUX:
