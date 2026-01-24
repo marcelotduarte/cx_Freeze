@@ -231,11 +231,11 @@ class TempPackage:
             )
         except subprocess.TimeoutExpired as exc:
             returncode = errno.ETIMEDOUT
-            stdout = exc.output
+            stdout = exc.output or ""
             stderr = exc.stderr or ""
         else:
             returncode = process.returncode
-            stdout = process.stdout
+            stdout = process.stdout or ""
             stderr = process.stderr or ""
         if isinstance(stdout, bytes):
             stdout = stdout.decode()
