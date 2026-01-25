@@ -234,8 +234,8 @@ class build_exe(Command):
         self.zip_filename = None
 
     def finalize_options(self) -> None:
-        build = self.get_finalized_command("build")
         # check use of deprecated option
+        build = self.get_finalized_command("build")
         options = build.distribution.get_option_dict("build")
         if options.get("build_exe", (None, None)) != (None, None):
             msg = (
@@ -244,6 +244,7 @@ class build_exe(Command):
                 "Use build_exe command with 'build-exe' option instead."
             )
             raise OptionError(msg)
+
         # check values of build_base and build_exe
         self.build_base = build.build_base
         if self.build_exe == self.build_base:
@@ -256,18 +257,25 @@ class build_exe(Command):
         for option in self.list_options:
             setattr(self, option, normalize_to_list(getattr(self, option)))
 
-        # path - accepts os.pathsep to be backwards compatible with CLI
+        # path options
         if self.path and isinstance(self.path, str):
+            # accepts os.pathsep to be backwards compatible with CLI
             self.path = self.path.replace(os.pathsep, ",")
         include_path = self.include_path
         if include_path:
-            sys_path = sys.path.copy()
-            cur_path = normalize_to_list(self.path or sys_path)
+            cur_path = normalize_to_list(self.path or sys.path)
             known_paths = set(cur_path)
             for sitedir in include_path:
                 site.addsitedir(sitedir, known_paths)
             self.path = list(known_paths - set(cur_path)) + cur_path
-            sys.path = sys.path
+        # package discovery for src-layout
+        dist = self.distribution
+        package_dir = dist.package_dir and dist.package_dir.get("")
+        if package_dir:
+            cur_path = normalize_to_list(self.path or sys.path)
+            known_paths = set(cur_path)
+            site.addsitedir(package_dir, known_paths)
+            self.path = list(known_paths - set(cur_path)) + cur_path
 
         # the degree of silencing, set from either the silent or silent-level
         # option, as appropriate
