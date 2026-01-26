@@ -49,7 +49,7 @@ def test_install(tmp_package) -> None:
     file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -90,5 +90,5 @@ def test_install_pyproject(tmp_package) -> None:
     file_created = install_dir / f"test{EXE_SUFFIX}"
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")

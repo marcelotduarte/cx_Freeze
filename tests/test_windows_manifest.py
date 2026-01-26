@@ -77,7 +77,7 @@ def test_manifest(tmp_package) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_manifest")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     winver = sys.getwindowsversion()
     expected = f"Windows version: {winver.major}.{winver.minor}"
     result.stdout.fnmatch_lines(expected)
@@ -116,7 +116,7 @@ def test_simple_manifest(tmp_package, lief_version) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_simple_manifest")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     if lief_version == "disabled":
         expected = "Windows version: 10.0"
     else:
@@ -145,7 +145,7 @@ def test_uac_admin(tmp_package, lief_version) -> None:
     executable = tmp_package.executable("test_uac_admin")
     assert executable.is_file()
     with pytest.raises(OSError, match=r"[WinError 740]"):
-        tmp_package.run(executable, timeout=10)
+        tmp_package.run(executable)
 
 
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
@@ -161,4 +161,4 @@ def test_uac_uiaccess(tmp_package, lief_version) -> None:
     executable = tmp_package.executable("test_uac_uiaccess")
     assert executable.is_file()
     with pytest.raises(OSError, match=r"[WinError 740]"):
-        tmp_package.run(executable, timeout=10)
+        tmp_package.run(executable)

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-TIMEOUT = 15
-
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -25,7 +23,7 @@ def test_pytz(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_pytz")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         ["UTC time: *", "Brazil time: *", "US Eastern time: *"]
     )

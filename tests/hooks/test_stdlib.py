@@ -47,7 +47,7 @@ def test_ctypes(tmp_package, zip_packages: bool) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_ctypes")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(["Hello from cx_Freeze", "Hello ctypes*"])
 
 
@@ -64,7 +64,7 @@ def test_sqlite(tmp_package, zip_packages: bool) -> None:
         tmp_package.freeze()
     executable = tmp_package.executable("test_sqlite3")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines("dump.sql created")
 
 
@@ -117,7 +117,7 @@ def test_sqlite_ext(tmp_package, zip_packages: bool) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_sqlite")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     print(result.stdout)
     result.stdout.fnmatch_lines(
         [
@@ -165,7 +165,7 @@ def test_ssl(tmp_package, zip_packages: bool) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_ssl")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(["Hello from cx_Freeze", "ssl*", "*"])
 
 
@@ -250,9 +250,9 @@ def test_zoneinfo(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_tz")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     if result.stderr.lines:
-        python_result = tmp_package.run("python test_tz.py", timeout=TIMEOUT)
+        python_result = tmp_package.run("python test_tz.py")
         if python_result.stderr.lines:
             pytest.xfail("system timezone is broken")
     result.stdout.fnmatch_lines(
@@ -280,7 +280,7 @@ def test_zoneinfo_and_tzdata(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("test_tz")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         [
             "TZPATH: *",

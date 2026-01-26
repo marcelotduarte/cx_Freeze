@@ -391,7 +391,7 @@ def test_build_exe_asmodule(tmp_package) -> None:
 
     executable = tmp_package.executable("asmodule")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -494,14 +494,14 @@ def test_build_exe_advanced(
 
     executable = tmp_package.executable("test1")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         ["This is foobar", "This is foobar.baz", "version 0.0.1"]
     )
 
     executable = tmp_package.executable("test2")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(["This is second"])
 
 
@@ -523,7 +523,7 @@ def test_egg_info(tmp_package, source: str) -> None:
 
     executable = tmp_package.executable("test1")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         ["This is foobar", "This is foobar.baz", "version 0.0.2"]
     )
@@ -534,7 +534,7 @@ def test_egg_info(tmp_package, source: str) -> None:
 
     executable = tmp_package.executable("test1")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         ["This is foobar", "This is foobar.baz", "version 0.0.3"]
     )

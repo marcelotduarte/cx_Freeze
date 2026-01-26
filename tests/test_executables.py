@@ -232,7 +232,7 @@ def test_executables(
         file_created = tmp_package.executable(f"test_{i}")
         assert file_created.is_file(), f"file not found: {file_created}"
 
-        result = tmp_package.run(file_created, timeout=10)
+        result = tmp_package.run(file_created)
         result.stdout.fnmatch_lines("Hello from cx_Freeze*")
 
 
@@ -442,7 +442,7 @@ def test_valid_icon(tmp_package) -> None:
     file_created = tmp_package.executable("test_icon")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -515,11 +515,11 @@ def test_executable_rename(tmp_package) -> None:
     file_created = tmp_package.executable("test_0")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     file_renamed = file_created.rename(file_created.parent / "test_zero")
-    result = tmp_package.run(file_renamed, timeout=10)
+    result = tmp_package.run(file_renamed)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -604,7 +604,7 @@ def test_executable_namespace(
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     start = 0
     stop = hello
     expected = ["Hello from cx_Freeze*" for _i in range(start, stop)]
@@ -667,5 +667,5 @@ def test_valid_sys_path(tmp_package) -> None:
     file_created = tmp_package.executable("test_sys_path")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines(["Hello from cx_Freeze", "numpy loaded!"])
