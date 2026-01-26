@@ -395,7 +395,7 @@ def test_build_exe_asmodule(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-SOURCE_ADV = """\
+SOURCE_FLAT_LAYOUT = """\
 test1.py
     import importlib.metadata
     import foobar.baz
@@ -418,7 +418,7 @@ pyproject.toml
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
     include_msvcr = true
-    include_path = "extra"
+    include_path = ["extra"]
     silent = true
 foobar/__init__.py
     print("This is foobar")
@@ -428,15 +428,60 @@ extra/second.py
     print("This is second")
 """
 
+SOURCE_SRC_LAYOUT = """\
+pyproject.toml
+    [project]
+    name = "foobar"
+    version = "0.0.1"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "src/test1.py"
+
+    [[tool.cxfreeze.executables]]
+    script = "src/test2.py"
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+    include_msvcr = true
+    include_path = ["src/extra"]
+    silent = true
+src/test1.py
+    import importlib.metadata
+    import foobar.baz
+
+    print("version", importlib.metadata.version("foobar"))
+src/test2.py
+    __import__("second")
+src/foobar/__init__.py
+    print("This is foobar")
+src/foobar/baz.py
+    print("This is foobar.baz")
+src/extra/second.py
+    print("This is second")
+"""
+
 
 @pytest.mark.parametrize(
-    "zip_packages",
-    [None, False, True],
-    ids=["", "zip_exclude_packages", "zip_include_packages"],
+    ("source", "zip_packages"),
+    [
+        pytest.param(SOURCE_FLAT_LAYOUT, None, id="flat[]"),
+        pytest.param(
+            SOURCE_FLAT_LAYOUT, False, id="flat[zip_exclude_packages]"
+        ),
+        pytest.param(
+            SOURCE_FLAT_LAYOUT, True, id="flat[zip_include_packages]"
+        ),
+        pytest.param(SOURCE_SRC_LAYOUT, None, id="src[]"),
+        pytest.param(SOURCE_SRC_LAYOUT, False, id="src[zip_exclude_packages]"),
+        pytest.param(SOURCE_SRC_LAYOUT, True, id="src[zip_include_packages]"),
+    ],
 )
-def test_build_exe_advanced(tmp_package, zip_packages: bool | None) -> None:
+def test_build_exe_advanced(
+    tmp_package, source: str, zip_packages: bool | None
+) -> None:
     """Test an advanced sample."""
-    tmp_package.create(SOURCE_ADV)
+    tmp_package.create(source)
     pyproject = tmp_package.path / "pyproject.toml"
     buf = pyproject.read_bytes().decode().splitlines()
     if zip_packages is False:
@@ -460,9 +505,16 @@ def test_build_exe_advanced(tmp_package, zip_packages: bool | None) -> None:
     result.stdout.fnmatch_lines(["This is second"])
 
 
-def test_egg_info(tmp_package) -> None:
+@pytest.mark.parametrize(
+    "source",
+    [
+        pytest.param(SOURCE_FLAT_LAYOUT, id="flat"),
+        pytest.param(SOURCE_SRC_LAYOUT, id="src"),
+    ],
+)
+def test_egg_info(tmp_package, source: str) -> None:
     """Test version update."""
-    tmp_package.create(SOURCE_ADV)
+    tmp_package.create(source)
     # update the version in the pyproject
     pyproject = tmp_package.path / "pyproject.toml"
     buf = pyproject.read_bytes().replace(b"0.0.1", b"0.0.2")

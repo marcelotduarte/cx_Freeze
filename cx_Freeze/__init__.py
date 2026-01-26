@@ -8,6 +8,7 @@ that Python runs on.
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import setuptools
 
@@ -79,9 +80,15 @@ def plugin_install(dist: setuptools.Distribution) -> None:
         return
     validate_executables(dist, "executables", dist.executables)
 
-    # Disable package discovery (setuptools >= 61) and/or misuse of packages
+    # Enable package discovery for src-layout
+    if Path("src").is_dir() and dist.packages is None:
+        if dist.package_dir is None:
+            dist.package_dir = {}
+        dist.package_dir.setdefault("", "src")
+    # Disable package discovery for modules
     dist.py_modules = []
-    dist.packages = []
+    # Disable subcommand build_py
+    dist.has_pure_modules = lambda: False
 
     # Add/update commands (provisional)
     cmdclass = dist.cmdclass
