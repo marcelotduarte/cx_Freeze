@@ -330,7 +330,7 @@ def test_freezer_zip_filename(
     executable = target_dir / tmp_package.executable("hello").name
     assert executable.is_file()
 
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -366,7 +366,7 @@ def test_freezer_copy_package_data(tmp_package) -> None:
 
     executable = tmp_package.executable("hello")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
     ignore_patterns = [

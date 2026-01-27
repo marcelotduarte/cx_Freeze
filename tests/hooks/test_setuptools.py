@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import pytest
 
-TIMEOUT = 15
-
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -50,5 +48,5 @@ def test_setuptools(tmp_package, zip_packages: bool) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_setuptools")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(["Hello from cx_Freeze", "Hello setuptools*"])

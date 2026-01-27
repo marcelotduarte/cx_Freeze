@@ -152,7 +152,7 @@ class TestVersionInfo:
         executable = tmp_package.executable("test")
         assert executable.is_file(), f"file not found: {executable}"
 
-        result = tmp_package.run(executable, timeout=10)
+        result = tmp_package.run(executable)
         result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
         main_test(args=["--version=0.2", option, f"{executable}"])

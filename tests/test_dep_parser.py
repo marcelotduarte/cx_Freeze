@@ -67,7 +67,7 @@ def test_parser(tmp_package, package, version) -> None:
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 

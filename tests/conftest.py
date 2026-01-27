@@ -190,6 +190,8 @@ class TempPackage:
         cwd: str | Path | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
+        *,
+        raise_on_timeout: bool = True,
     ) -> pytest.RunResult:
         """Execute a command, specified in 'command'."""
         __tracebackhide__ = True
@@ -230,6 +232,8 @@ class TempPackage:
                 timeout=timeout,
             )
         except subprocess.TimeoutExpired as exc:
+            if raise_on_timeout:
+                raise
             returncode = errno.ETIMEDOUT
             stdout = exc.output or ""
             stderr = exc.stderr or ""
@@ -242,7 +246,7 @@ class TempPackage:
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
         print(stdout)
-        print(stderr)
+        print(stderr, file=sys.stderr)
         return pytest.RunResult(
             returncode, stdout.splitlines(), stderr.splitlines(), 0
         )

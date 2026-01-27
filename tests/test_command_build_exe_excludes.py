@@ -106,7 +106,7 @@ def test_build_exe_excludes(tmp_package) -> None:
         executable = tmp_package.executable(name)
         assert executable.is_file()
 
-        result = tmp_package.run(executable, timeout=10)
+        result = tmp_package.run(executable)
         result.stdout.fnmatch_lines(f"Hello, {name}!")
 
         pkg_dir = executable.parent / "lib" / fullname.replace(".", "/")

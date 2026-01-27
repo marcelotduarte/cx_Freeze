@@ -68,6 +68,7 @@ def test_streamlit(tmp_package, zip_packages: bool) -> None:
             "--browser.gatherUsageStats=false",
         ],
         timeout=TIMEOUT,
+        raise_on_timeout=False,
     )
     result.stdout.fnmatch_lines(
         ["*You can now view your Streamlit app in your browser."]

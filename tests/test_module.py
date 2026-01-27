@@ -67,7 +67,7 @@ def test_build_constants(tmp_package, zip_packages: bool) -> None:
 
     executable = tmp_package.executable("hello")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         [
             "Hello from cx_Freeze",
@@ -160,7 +160,7 @@ def test_egg_info(tmp_package) -> None:
     tmp_package.freeze()
     executable = tmp_package.executable("test_egg_info")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines(
         ["Hello from cx_Freeze", "Hello module1", "Hello module2"]
     )

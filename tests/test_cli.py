@@ -21,7 +21,7 @@ def test_cxfreeze(tmp_package) -> None:
     executable = tmp_package.executable_in_dist("test")
     assert executable.is_file(), f"file not found: {executable}"
 
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -49,7 +49,7 @@ def test_cxfreeze_debug_verbose(tmp_package) -> None:
     file_created = tmp_package.executable("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -63,7 +63,7 @@ def test_cxfreeze_target_name_not_isidentifier(tmp_package) -> None:
     file_created = tmp_package.executable("12345")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -78,7 +78,7 @@ def test_cxfreeze_deprecated_behavior(tmp_package) -> None:
     file_created = tmp_package.executable_in_dist("test2")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -93,7 +93,7 @@ def test_cxfreeze_deprecated_option(tmp_package) -> None:
     file_created = tmp_package.executable_in_dist("test")
     assert file_created.is_file(), f"file not found: {file_created}"
 
-    result = tmp_package.run(file_created, timeout=10)
+    result = tmp_package.run(file_created)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
@@ -148,10 +148,10 @@ def test_cxfreeze_include_path(tmp_package) -> None:
 
     executable = tmp_package.executable_in_dist("advanced_1")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines([OUTPUT0.format(1), OUTPUT1.format(1)])
 
     executable = tmp_package.executable_in_dist("advanced_2")
     assert executable.is_file()
-    result = tmp_package.run(executable, timeout=10)
+    result = tmp_package.run(executable)
     result.stdout.fnmatch_lines([OUTPUT0.format(2), OUTPUT1.format(2)])
