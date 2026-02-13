@@ -1,8 +1,6 @@
 [build-system]
 requires = [
-    # setuptools 77.0.3+ supports PEP 639
-    # setuptools 78.1.1 fix path traversal vulnerability
-    "setuptools>=78.1.1,<81",
+    "setuptools~=82.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -29,11 +27,11 @@ classifiers = [
 ]
 dependencies = [
     "freeze-core>=0.5.0",
-    "packaging>=24",
-    "setuptools>=78.1.1,<81",
+    "packaging>=25.0",
+    "setuptools>=78.1.1,<=82.0",
     "tomli>=2.0.1 ;python_version == '3.10'",
     # Linux
-    "filelock>=3.20.1 ;sys_platform == 'linux'",
+    "filelock>=3.20.3 ;sys_platform == 'linux'",
     "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
     "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'i686'",
     "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
@@ -76,8 +74,8 @@ doc = [
     "myst-parser==4.0.1 ;python_version >= '3.11'",
 ]
 tests = [
-    "coverage==7.13.2",
-    "filelock>=3.20.1",
+    "coverage==7.13.4",
+    "filelock>=3.20.3",
     "pytest==9.0.2",
         "pluggy==1.6.0",
     "pytest-mock==3.15.1",

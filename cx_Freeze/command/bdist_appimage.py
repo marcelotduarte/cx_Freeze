@@ -353,9 +353,6 @@ class bdist_appimage(Command):
         if self.verbose >= 1:
             self.announce(f"creating {outfile}", logging.INFO)
 
-        if self.dry_run:
-            return (outfile, 1)
-
         if isinstance(data, str):
             data = data.encode()
         with open(outfile, "wb") as out:
