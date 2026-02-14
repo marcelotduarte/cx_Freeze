@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/command/bdist_msi.py: 88.59%</title>
+    <title>Coverage for cx_Freeze/command/bdist_msi.py: 88.57%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze&#8201;/&#8201;command&#8201;/&#8201;bdist_msi.py</b>:
-            <span class="pc_cov">88.59%</span>
+            <span class="pc_cov">88.57%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -54,8 +54,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">447 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">396<span class="text"> run</span></button>
+            <span class="text">446 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">395<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">51<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_0e7a078a6d875882_bdist_rpm_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-09 15:58 +0000
+            created at 2026-02-14 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1424,32 +1424,31 @@
     <p class="pln"><span class="n"><a id="t1342" href="#t1342">1342</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1343" href="#t1343">1343</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">self</span><span class="op">.</span><span class="nam">keep_temp</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1344" href="#t1344">1344</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="str">"removing '%s' (and everything under it)"</span><span class="op">,</span> <span class="nam">install_dir</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1345" href="#t1345">1345</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">self</span><span class="op">.</span><span class="nam">dry_run</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1346" href="#t1346">1346</a></span><span class="t">                <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1347" href="#t1347">1347</a></span><span class="t">                    <span class="nam">shutil</span><span class="op">.</span><span class="nam">rmtree</span><span class="op">(</span><span class="nam">install_dir</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1348" href="#t1348">1348</a></span><span class="t">                <span class="key">except</span> <span class="nam">OSError</span> <span class="key">as</span> <span class="nam">exc</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1349" href="#t1349">1349</a></span><span class="t">                    <span class="nam">logger</span><span class="op">.</span><span class="nam">warning</span><span class="op">(</span><span class="str">"error removing %s: %s"</span><span class="op">,</span> <span class="nam">install_dir</span><span class="op">,</span> <span class="nam">exc</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1350" href="#t1350">1350</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1351" href="#t1351">1351</a></span><span class="t">        <span class="com"># Cause the MSI file to be released. Without this, then if bdist_msi</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1352" href="#t1352">1352</a></span><span class="t">        <span class="com"># is run programmatically from within a larger script, subsequent</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1353" href="#t1353">1353</a></span><span class="t">        <span class="com"># editing of the MSI is blocked.</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1354" href="#t1354">1354</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">db</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1355" href="#t1355">1355</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1356" href="#t1356">1356</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">warnings</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1357" href="#t1357">1357</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1358" href="#t1358">1358</a></span><span class="t">    <span class="key">def</span> <span class="nam">warn_delayed</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">msg</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1359" href="#t1359">1359</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1360" href="#t1360">1360</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1361" href="#t1361">1361</a></span><span class="t">    <span class="key">def</span> <span class="nam">warnings</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1362" href="#t1362">1362</a></span><span class="t">        <span class="key">for</span> <span class="nam">msg</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1363" href="#t1363">1363</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">announce</span><span class="op">(</span><span class="fst">f"</span><span class="fst">WARNING: </span><span class="op">{</span><span class="nam">msg</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">WARNING</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1345" href="#t1345">1345</a></span><span class="t">            <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1346" href="#t1346">1346</a></span><span class="t">                <span class="nam">shutil</span><span class="op">.</span><span class="nam">rmtree</span><span class="op">(</span><span class="nam">install_dir</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1347" href="#t1347">1347</a></span><span class="t">            <span class="key">except</span> <span class="nam">OSError</span> <span class="key">as</span> <span class="nam">exc</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1348" href="#t1348">1348</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">warning</span><span class="op">(</span><span class="str">"error removing %s: %s"</span><span class="op">,</span> <span class="nam">install_dir</span><span class="op">,</span> <span class="nam">exc</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1349" href="#t1349">1349</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1350" href="#t1350">1350</a></span><span class="t">        <span class="com"># Cause the MSI file to be released. Without this, then if bdist_msi</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1351" href="#t1351">1351</a></span><span class="t">        <span class="com"># is run programmatically from within a larger script, subsequent</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1352" href="#t1352">1352</a></span><span class="t">        <span class="com"># editing of the MSI is blocked.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1353" href="#t1353">1353</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">db</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1354" href="#t1354">1354</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1355" href="#t1355">1355</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">warnings</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1356" href="#t1356">1356</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1357" href="#t1357">1357</a></span><span class="t">    <span class="key">def</span> <span class="nam">warn_delayed</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">msg</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1358" href="#t1358">1358</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1359" href="#t1359">1359</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1360" href="#t1360">1360</a></span><span class="t">    <span class="key">def</span> <span class="nam">warnings</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1361" href="#t1361">1361</a></span><span class="t">        <span class="key">for</span> <span class="nam">msg</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1362" href="#t1362">1362</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">announce</span><span class="op">(</span><span class="fst">f"</span><span class="fst">WARNING: </span><span class="op">{</span><span class="nam">msg</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">WARNING</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1363" href="#t1363">1363</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1364" href="#t1364">1364</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1365" href="#t1365">1365</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1366" href="#t1366">1366</a></span><span class="t"><span class="key">def</span> <span class="nam">_is_valid_guid</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1367" href="#t1367">1367</a></span><span class="t">    <span class="nam">pattern</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t1368" href="#t1368">1368</a></span><span class="t">        <span class="str">r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$"</span><span class="op">,</span> <span class="nam">re</span><span class="op">.</span><span class="nam">IGNORECASE</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t1369" href="#t1369">1369</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1370" href="#t1370">1370</a></span><span class="t">    <span class="key">return</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">code</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span> <span class="key">and</span> <span class="nam">pattern</span><span class="op">.</span><span class="nam">match</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1365" href="#t1365">1365</a></span><span class="t"><span class="key">def</span> <span class="nam">_is_valid_guid</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1366" href="#t1366">1366</a></span><span class="t">    <span class="nam">pattern</span> <span class="op">=</span> <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t1367" href="#t1367">1367</a></span><span class="t">        <span class="str">r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$"</span><span class="op">,</span> <span class="nam">re</span><span class="op">.</span><span class="nam">IGNORECASE</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t1368" href="#t1368">1368</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1369" href="#t1369">1369</a></span><span class="t">    <span class="key">return</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">code</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span> <span class="key">and</span> <span class="nam">pattern</span><span class="op">.</span><span class="nam">match</span><span class="op">(</span><span class="nam">code</span><span class="op">)</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -1459,7 +1458,7 @@
             <a class="nav" href="z_0e7a078a6d875882_bdist_rpm_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-09 15:58 +0000
+            created at 2026-02-14 01:11 +0000
         </p>
     </div>
 </footer>

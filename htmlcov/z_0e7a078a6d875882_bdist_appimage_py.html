@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/command/bdist_appimage.py: 94.76%</title>
+    <title>Coverage for cx_Freeze/command/bdist_appimage.py: 95.24%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze&#8201;/&#8201;command&#8201;/&#8201;bdist_appimage.py</b>:
-            <span class="pc_cov">94.76%</span>
+            <span class="pc_cov">95.24%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">191 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">181<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">10<span class="text"> missing</span></button>
+            <span class="text">189 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">180<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">9<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_0e7a078a6d875882_bdist_deb_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-09 15:58 +0000
+            created at 2026-02-14 01:11 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -435,27 +435,24 @@
     <p class="run"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">verbose</span> <span class="op">>=</span> <span class="num">1</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">announce</span><span class="op">(</span><span class="fst">f"</span><span class="fst">creating </span><span class="op">{</span><span class="nam">outfile</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">INFO</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">dry_run</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">            <span class="key">return</span> <span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">data</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">            <span class="nam">data</span> <span class="op">=</span> <span class="nam">data</span><span class="op">.</span><span class="nam">encode</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">        <span class="key">with</span> <span class="nam">open</span><span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="str">"wb"</span><span class="op">)</span> <span class="key">as</span> <span class="nam">out</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">            <span class="nam">out</span><span class="op">.</span><span class="nam">write</span><span class="op">(</span><span class="nam">data</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">        <span class="nam">st_mode</span> <span class="op">=</span> <span class="nam">stat</span><span class="op">.</span><span class="nam">S_IRUSR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">        <span class="key">if</span> <span class="str">"w"</span> <span class="key">in</span> <span class="nam">mode</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t">            <span class="nam">st_mode</span> <span class="op">=</span> <span class="nam">st_mode</span> <span class="op">|</span> <span class="nam">stat</span><span class="op">.</span><span class="nam">S_IWUSR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">        <span class="key">if</span> <span class="str">"x"</span> <span class="key">in</span> <span class="nam">mode</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t">            <span class="nam">st_mode</span> <span class="op">=</span> <span class="nam">st_mode</span> <span class="op">|</span> <span class="nam">stat</span><span class="op">.</span><span class="nam">S_IXUSR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">        <span class="nam">os</span><span class="op">.</span><span class="nam">chmod</span><span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="nam">st_mode</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">        <span class="key">return</span> <span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">data</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">            <span class="nam">data</span> <span class="op">=</span> <span class="nam">data</span><span class="op">.</span><span class="nam">encode</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">        <span class="key">with</span> <span class="nam">open</span><span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="str">"wb"</span><span class="op">)</span> <span class="key">as</span> <span class="nam">out</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">            <span class="nam">out</span><span class="op">.</span><span class="nam">write</span><span class="op">(</span><span class="nam">data</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">        <span class="nam">st_mode</span> <span class="op">=</span> <span class="nam">stat</span><span class="op">.</span><span class="nam">S_IRUSR</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">        <span class="key">if</span> <span class="str">"w"</span> <span class="key">in</span> <span class="nam">mode</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">            <span class="nam">st_mode</span> <span class="op">=</span> <span class="nam">st_mode</span> <span class="op">|</span> <span class="nam">stat</span><span class="op">.</span><span class="nam">S_IWUSR</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">        <span class="key">if</span> <span class="str">"x"</span> <span class="key">in</span> <span class="nam">mode</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">            <span class="nam">st_mode</span> <span class="op">=</span> <span class="nam">st_mode</span> <span class="op">|</span> <span class="nam">stat</span><span class="op">.</span><span class="nam">S_IXUSR</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t">        <span class="nam">os</span><span class="op">.</span><span class="nam">chmod</span><span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="nam">st_mode</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">        <span class="key">return</span> <span class="op">(</span><span class="nam">outfile</span><span class="op">,</span> <span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">    <span class="key">def</span> <span class="nam">warn_delayed</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">msg</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">    <span class="key">def</span> <span class="nam">warn_delayed</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">msg</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">msg</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t">    <span class="key">def</span> <span class="nam">warnings</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t375" href="#t375">375</a></span><span class="t">        <span class="key">for</span> <span class="nam">msg</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">announce</span><span class="op">(</span><span class="fst">f"</span><span class="fst">WARNING: </span><span class="op">{</span><span class="nam">msg</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">WARNING</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">    <span class="key">def</span> <span class="nam">warnings</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t">        <span class="key">for</span> <span class="nam">msg</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">announce</span><span class="op">(</span><span class="fst">f"</span><span class="fst">WARNING: </span><span class="op">{</span><span class="nam">msg</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">logging</span><span class="op">.</span><span class="nam">WARNING</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -465,7 +462,7 @@
             <a class="nav" href="z_0e7a078a6d875882_bdist_deb_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-02-09 15:58 +0000
+            created at 2026-02-14 01:11 +0000
         </p>
     </div>
 </footer>
