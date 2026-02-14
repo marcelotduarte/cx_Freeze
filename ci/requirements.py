@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import sys
 from pathlib import Path
 
@@ -34,9 +35,13 @@ def main() -> None:
     else:
         print(requirements, "ok")
 
-    try:
-        optional_dependencies = config["project"]["optional-dependencies"]
-        for extra, dependencies in optional_dependencies.items():
+    dependency_groups = []
+    with contextlib.suppress(KeyError):
+        dependency_groups.append(config["project"]["optional-dependencies"])
+    with contextlib.suppress(KeyError):
+        dependency_groups.append(config["dependency-groups"])
+    for groups in dependency_groups:
+        for extra, dependencies in groups.items():
             if root_dir.joinpath(extra).is_dir():
                 requirements = root_dir / extra / "requirements.txt"
             else:
@@ -48,8 +53,6 @@ def main() -> None:
             ) as file:
                 file.write("\n".join(contents))
             print(requirements, "ok")
-    except KeyError:
-        pass
 
 
 if __name__ == "__main__":

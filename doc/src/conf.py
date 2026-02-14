@@ -46,14 +46,29 @@ master_doc = "index"
 # General information about the project.
 project = "cx_Freeze"
 copyright = "2025, Marcelo Duarte"  # noqa: A001
-__version__ = "8.5.3"
+
+
+# Get version from pyproject
+def _get_version() -> str:
+    import sys
+    import tomllib
+    from pathlib import Path
+
+    pyproject_toml = Path("../../pyproject.toml")
+    if not pyproject_toml.exists():
+        print("pyproject.toml not found", file=sys.stderr)
+        sys.exit(1)
+    with pyproject_toml.open("rb") as file:
+        config = tomllib.load(file)
+    return config["project"]["version"]
+
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = __version__
+release = _get_version()
 # The short X.Y version.
 version = ".".join(release.split(".")[:2])
 

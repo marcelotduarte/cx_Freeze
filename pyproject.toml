@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cx_Freeze"
+version = "8.6.0.dev0"
 description = "Create standalone executables from Python scripts"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -45,7 +46,6 @@ dependencies = [
     "lief>=0.15.1,<=0.17.3 ;sys_platform == 'win32' and platform_machine == 'ARM64' and python_version <= '3.13'",
     "python-msilib>=0.4.1 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
-dynamic = ["version"]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
 license = "PSF-2.0"
 license-files = ["LICENSE.md"]
@@ -60,9 +60,26 @@ email = "marcelotduarte@users.noreply.github.com"
 name = "Anthony Tuininga"
 email = "anthony.tuininga@gmail.com"
 
-[project.optional-dependencies]
+[project.entry-points."distutils.setup_keywords"]
+executables = "cx_Freeze.executable:validate_executables"
+
+[project.entry-points."setuptools.finalize_distribution_options"]
+cxfreeze-plugin = "cx_Freeze:plugin_install"
+
+[project.scripts]
+cxfreeze = "cx_Freeze.cli:main"
+cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
+
+[project.urls]
+Home = "https://marcelotduarte.github.io/cx_Freeze"
+Changelog = "https://github.com/marcelotduarte/cx_Freeze/blob/main/CHANGELOG.md"
+Documentation = "https://cx-freeze.readthedocs.io"
+Source = "https://github.com/marcelotduarte/cx_Freeze"
+Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
+Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
+
+[dependency-groups]
 dev = [
-    "bump-my-version==1.2.6",
     "pre-commit==4.5.1",
 ]
 doc = [
@@ -83,30 +100,9 @@ tests = [
     "pytest-xdist==3.8.0",
 ]
 
-[project.entry-points."distutils.setup_keywords"]
-executables = "cx_Freeze.executable:validate_executables"
-
-[project.entry-points."setuptools.finalize_distribution_options"]
-cxfreeze-plugin = "cx_Freeze:plugin_install"
-
-[project.scripts]
-cxfreeze = "cx_Freeze.cli:main"
-cxfreeze-quickstart = "cx_Freeze.setupwriter:main"
-
-[project.urls]
-Home = "https://marcelotduarte.github.io/cx_Freeze"
-Changelog = "https://github.com/marcelotduarte/cx_Freeze/blob/main/CHANGELOG.md"
-Documentation = "https://cx-freeze.readthedocs.io"
-Source = "https://github.com/marcelotduarte/cx_Freeze"
-Tracker = "https://github.com/marcelotduarte/cx_Freeze/issues"
-Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main"
-
 [tool.setuptools]
 include-package-data = true
-zip-safe = false
-
-[tool.setuptools.dynamic]
-version = {attr = "cx_Freeze.__version__"}
+zip-safe = true
 
 [tool.setuptools.packages.find]
 exclude = ["samples", "tests*"]
@@ -115,43 +111,6 @@ namespaces = false
 [tool.black]
 line-length = 79
 target-version = ["py310"]
-
-[tool.bumpversion]
-commit = true
-current_version = "8.5.3"
-message = "Bump version: {current_version} → {new_version} [ci skip]"
-parse = """(?x)
-    (?P<major>0|[1-9]\\d*)\\.
-    (?P<minor>0|[1-9]\\d*)\\.
-    (?P<patch>0|[1-9]\\d*)
-    (?:
-        \\.(?P<optional>0|[1-9]\\d*)  # pull request number (optional)
-    )?
-    (?:
-        -                             # dash separator for pre-release section
-        (?P<pre>[a-zA-Z-]+)\\.        # pre-release label
-        (?P<build>0|[1-9]\\d*)        # pre-release version number
-    )?                                # pre-release section is optional
-"""
-serialize = [
-	"{major}.{minor}.{patch}.{optional}-{pre}.{build}",
-	"{major}.{minor}.{patch}-{pre}.{build}",
-	"{major}.{minor}.{patch}"
-]
-sign_tags = true
-tag = true
-tag_name = "{new_version}"
-verbose = true
-
-[[tool.bumpversion.files]]
-filename = "cx_Freeze/__init__.py"
-
-[[tool.bumpversion.files]]
-filename = "doc/src/conf.py"
-
-[tool.bumpversion.parts.pre]
-values = ["dev", "alpha", "rc", "final"]
-optional_value = "final"
 
 [tool.coverage.html]
 directory = "build/coverage_html_report"

@@ -9,12 +9,9 @@ else
     PY_PLATFORM=""
 fi
 
-IS_CONDA=$([ -n "$CONDA_EXE" ] && echo 1)
-IS_LINUX=$([[ $PY_PLATFORM == linux* ]] && echo 1)
-IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo 1)
-
-# For Linux
-PYTHON_FOR_DEV="3.12"
+IS_CONDA=$([ -n "$CONDA_EXE" ] && echo "1")
+IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
+IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
 
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
@@ -112,7 +109,10 @@ elif [ "$IS_MINGW" == "1" ]; then
     echo "Install packages"
     pacman --needed --noconfirm --quiet -S "${pkgs[@]}"
 else
-    if [ "$CI" == "1" ]; then
+    if [ "$CI" == "true" ]; then
+        if [ "$IS_WINDOWS" == "1" ]; then
+            export UV_LINK_MODE=copy
+        fi
         if ! which uv &>/dev/null; then
             echo "error: Please install uv"
             exit 1
@@ -130,7 +130,6 @@ else
     PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
     PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
     PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
-    IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo 1)
     if [ "$IS_WINDOWS" == "1" ] && \
        { [ "$PY_VER_ABI" == "3.13t" ] || [ "$PY_VER_ABI" == "3.14t" ]; }; then
         # Packages to install
@@ -166,7 +165,7 @@ else
         echo "Install packages"
         if [ "$INSTALL_TESTS" == "1" ]; then
             # including pytest and dependencies
-            uv pip install --upgrade -r pyproject.toml --extra tests
+            uv pip install --upgrade -r pyproject.toml --group tests
         else
             uv pip install --upgrade -r pyproject.toml
         fi
@@ -175,22 +174,18 @@ fi
 
 # Install dev tools
 if [ "$INSTALL_DEV" == "1" ]; then
-    if [ "$IS_LINUX" == "1" ] || [ "$IS_MINGW" == "1" ] || \
-       [ "$IS_CONDA" == "1" ]; then
-        if [ -f requirements-dev.txt ]; then
-            while read -r line; do
-                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-                filename=$INSTALL_DIR/$name
-                echo "Create $filename"
-                echo "#!/bin/bash"> "$filename"
-                echo "uvx -p $PYTHON_FOR_DEV \"$line\" \$@">> "$filename"
-                chmod +x "$filename"
-            done < requirements-dev.txt
-        fi
-    else
-        # macOS and Windows
-        uv pip install --extra dev --upgrade -r pyproject.toml
-        uv pip install --upgrade build
+    if [ -f requirements-dev.txt ]; then
+        PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+        PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
+        PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
+        while read -r line; do
+            name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+            filename=$INSTALL_DIR/$name
+            echo "Create $filename"
+            echo "#!/bin/bash"> "$filename"
+            echo "uvx -p $PY_VER_ABI \"$line\" \$@">> "$filename"
+            chmod +x "$filename"
+        done < requirements-dev.txt
     fi
 fi
 echo "::endgroup::"
