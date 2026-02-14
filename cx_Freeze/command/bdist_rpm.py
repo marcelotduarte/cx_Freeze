@@ -360,17 +360,14 @@ class bdist_rpm(Command):
 
         self.spawn(rpm_cmd)
 
-        if not self.dry_run:
-            for binary_rpm in binary_rpms:
-                rpm = os.path.join(rpm_dir["RPMS"], binary_rpm)
-                if os.path.exists(rpm):
-                    self.move_file(rpm, self.dist_dir)
-                    filename = os.path.join(
-                        self.dist_dir, os.path.basename(rpm)
-                    )
-                    self.distribution.dist_files.append(
-                        ("bdist_rpm", PYTHON_VERSION, filename)
-                    )
+        for binary_rpm in binary_rpms:
+            rpm = os.path.join(rpm_dir["RPMS"], binary_rpm)
+            if os.path.exists(rpm):
+                self.move_file(rpm, self.dist_dir)
+                filename = os.path.join(self.dist_dir, os.path.basename(rpm))
+                self.distribution.dist_files.append(
+                    ("bdist_rpm", PYTHON_VERSION, filename)
+                )
 
     def _make_spec_file(self) -> list[str]:
         """Generate the text of an RPM spec file and return it as a

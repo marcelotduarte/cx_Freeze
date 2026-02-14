@@ -1,8 +1,11 @@
 [project]
 name = "test_pytz"
-version = "0.4"
+version = "0.4.1"
 description = "cx_Freeze script to test pytz"
-dependencies = ["pytz"]
+dependencies = [
+    "pytz",
+    "setuptools<82.0",
+]
 
 [tool.cxfreeze]
 executables = ["test_pytz.py"]

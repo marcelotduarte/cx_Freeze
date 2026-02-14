@@ -1,8 +1,8 @@
 freeze-core>=0.5.0
-packaging>=24
-setuptools>=78.1.1,<81
+packaging>=25.0
+setuptools>=78.1.1,<=82.0
 tomli>=2.0.1 ;python_version == '3.10'
-filelock>=3.20.1 ;sys_platform == 'linux'
+filelock>=3.20.3 ;sys_platform == 'linux'
 patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'
 patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'i686'
 patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'aarch64'

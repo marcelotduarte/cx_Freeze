@@ -1342,11 +1342,10 @@ class bdist_msi(Command):
 
         if not self.keep_temp:
             logger.info("removing '%s' (and everything under it)", install_dir)
-            if not self.dry_run:
-                try:
-                    shutil.rmtree(install_dir)
-                except OSError as exc:
-                    logger.warning("error removing %s: %s", install_dir, exc)
+            try:
+                shutil.rmtree(install_dir)
+            except OSError as exc:
+                logger.warning("error removing %s: %s", install_dir, exc)
 
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent

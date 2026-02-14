@@ -2,17 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import pytest
 from setuptools import Distribution
 
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_deb import bdist_deb
 from cx_Freeze.exception import PlatformError
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 DIST_ATTRS = {
     "name": "foo",
@@ -55,22 +50,6 @@ def test_bdist_deb_not_fakeroot(monkeypatch) -> None:
     monkeypatch.setattr("shutil.which", lambda cmd: cmd != "fakeroot")
     with pytest.raises(PlatformError, match="failed to find 'fakeroot'"):
         cmd.finalize_options()
-
-
-@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_deb_dry_run(monkeypatch, tmp_path: Path) -> None:
-    """Test the bdist_deb dry_run."""
-    monkeypatch.chdir(tmp_path)
-    attrs = DIST_ATTRS.copy()
-    attrs["dry_run"] = True
-    dist = Distribution(attrs)
-    cmd = bdist_deb(dist)
-    monkeypatch.setattr("os.getuid", lambda: 1000)
-    monkeypatch.setattr(
-        "shutil.which", lambda cmd: cmd != "alien" or cmd != "fakeroot"
-    )
-    cmd.finalize_options()
-    cmd.run()
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
