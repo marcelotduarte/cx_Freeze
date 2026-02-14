@@ -37,16 +37,16 @@ jobs:
           git config user.name "Marcelo Duarte"
           git config user.email marcelotduarte@users.noreply.github.com
           SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
-          VERSION=$(uvx bump-my-version show current_version 2>/dev/null)
-          VERSION_BASE=$(python -c "print('$VERSION'.rsplit('-',1)[0])")
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            OPTIONAL=".${{ github.event.number }}"
+          VERSION=$(uv version --short)
+          if (echo "$VERSION" | grep -q "\.dev"); then
+            uv version --no-sync --bump dev=$SOURCE_DATE_EPOCH
           else
-            OPTIONAL=""
+            uv version --no-sync --bump patch --bump dev=$SOURCE_DATE_EPOCH
           fi
-          VERSION_NEW=$VERSION_BASE$OPTIONAL-dev.$SOURCE_DATE_EPOCH
-          uvx bump-my-version bump --no-tag build --new-version=$VERSION_NEW 2>/dev/null
-          git log -1
+          NEW_VERSION=$(uv version --short)
+          git checkout -b build-$NEW_VERSION
+          git commit -m "Bump version: ${VERSION} → ${NEW_VERSION} [ci skip]" -a
+          git log -2
 
       - name: Build sdist and wheels
         run: ./ci/build-wheel.sh
