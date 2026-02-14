@@ -5,6 +5,7 @@ pytz package is included.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -38,14 +39,49 @@ class Hook(ModuleHook):
         code_bytes = module.file.read_bytes()
         if module.in_file_system == 0:
             finder.zip_include_files(source_path, "pytz/zoneinfo")
-            # patch source code
-            source = """
-                # cx_Freeze patch start
-                import warnings
-                warnings.filterwarnings("ignore", "pkg_resources")
-                # cx_Freeze patch end
-            """
-            code_bytes = dedent(source).encode() + code_bytes
+            if sys.version_info[:2] < (3, 13):
+                # include directories as submodules
+                finder.include_module("pytz.zoneinfo")
+                for source_fn in source_path.rglob("*"):
+                    if source_fn.is_dir():
+                        target_fn = source_fn.relative_to(source_path)
+                        submodule = target_fn.as_posix().replace("/", ".")
+                        finder.include_module(f"pytz.zoneinfo.{submodule}")
+                # patch source code
+                source = """
+                    # cx_Freeze patch start
+                    import warnings
+                    import os as _os
+                    from importlib.resources import open_binary as _open_binary
+                    from pathlib import Path as _Path
+
+                    def _resource_stream(pkg, name):
+                        path = _Path(name)
+                        submodule = path.parent.as_posix().replace("/", ".")
+                        anchor = f"{pkg}.{submodule}"
+                        return _open_binary(anchor, path.name)
+
+                    _os.environ["PYTZ_SKIPEXISTSCHECK"] = "1"  # import-speed
+                    warnings.filterwarnings("ignore", "pkg_resources")
+                    # cx_Freeze patch end
+                """
+                code_bytes = dedent(source).encode() + code_bytes.replace(
+                    b"resource_stream = None",
+                    b"resource_stream = _resource_stream",
+                )
+            else:
+                # patch source code
+                source = """
+                    # cx_Freeze patch start
+                    import os as _os
+                    _os.environ["PYTZ_SKIPEXISTSCHECK"] = "1"  # import-speed
+                    # cx_Freeze patch end
+                """
+                code_bytes = dedent(source).encode() + code_bytes.replace(
+                    b"from pkg_resources import resource_stream",
+                    b"from importlib.resources import open_binary"
+                    b" as resource_stream",
+                )
         else:
             target_path = "share/zoneinfo"
             finder.include_files(
@@ -66,6 +102,7 @@ class Hook(ModuleHook):
                 _os.environ["PYTZ_TZDATADIR"] = _os.path.join(
                     _prefix, _os.path.normpath("{target_path}")
                 )
+                _os.environ["PYTZ_SKIPEXISTSCHECK"] = "1"  # import-speed
                 # cx_Freeze patch end
             """
             code_bytes += dedent(source).encode()
