@@ -80,7 +80,7 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "pre-commit==4.5.1",
+    "prek==0.3.2",
 ]
 doc = [
     "sphinx==8.2.3 ;python_version >= '3.11'",

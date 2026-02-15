@@ -3,17 +3,17 @@ SHELL=/bin/bash
 PATH := $(shell python -c "import sysconfig; print(sysconfig.get_path('scripts'))"):$(PATH)
 
 PY_PLATFORM := $(shell python -c "import sysconfig; print(sysconfig.get_platform())")
-PRE_COMMIT_OPTIONS := --show-diff-on-failure --color=always --all-files --hook-stage=manual
+PRE_COMMIT_OPTIONS := --show-diff-on-failure --color=always --all-files --hook-stage=manual --no-progress
 
 COV_TMPDIR := $(shell mktemp -d)
 
 .PHONY: all
 all: install
 
-.PHONY: pre-commit
-pre-commit: install
-	@(pre-commit run $(PRE_COMMIT_OPTIONS) || true) | more
-	@pre-commit gc
+.PHONY: prek
+prek: install
+	@(prek run $(PRE_COMMIT_OPTIONS) || true) | more
+	@prek cache gc -q
 
 .PHONY: pylint
 pylint:
@@ -23,32 +23,31 @@ pylint:
 clean: uninstall
 	@$(MAKE) -C doc clean
 	@rm -f .coverage* || true
+	@rm -rf build dist wheelhouse
+	@prek cache clean -q
 
 .PHONY: install
 install:
 	./ci/install-tools.sh --dev
 	if ! [ -f .git/hooks/pre-commit ]; then\
-		pre-commit install --install-hooks --overwrite -t pre-commit;\
+		prek install --install-hooks --overwrite -t pre-commit;\
 	fi
 
 .PHONY: uninstall
 uninstall:
-	@if [ -f .git/hooks/pre-commit ]; then\
-		pre-commit clean;\
-		pre-commit uninstall;\
-		rm -f .git/hooks/pre-commit;\
-	fi
+	@prek uninstall -q
+	@rm -f .git/hooks/pre-commit
 
 .PHONY: upgrade
-upgrade: clean install
-	pre-commit autoupdate
-	$(MAKE) pre-commit
+upgrade: install
+	prek auto-update
+	$(MAKE) prek
 
 .PHONY: html
 html:
 	@if [ -f .git/hooks/pre-commit ]; then\
-		pre-commit run blacken-docs $(PRE_COMMIT_OPTIONS);\
-		pre-commit run build-docs $(PRE_COMMIT_OPTIONS);\
+		prek run blacken-docs $(PRE_COMMIT_OPTIONS);\
+		prek run build-docs $(PRE_COMMIT_OPTIONS);\
 	else\
 		$(MAKE) -C doc html;\
 	fi
@@ -65,7 +64,7 @@ doc:
 
 .PHONY: wheel
 wheel:
-	./ci/build-wheel.sh
+	./ci/build-wheel.sh --install
 
 .PHONY: tests
 tests: wheel

@@ -190,7 +190,7 @@ echo "::endgroup::"
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
     if [[ $PY_PLATFORM == mingw* ]]; then
-        PIP_COMMAND="pip install --force-reinstall"
+        PIP_COMMAND="pip install --break-system-packages --force-reinstall"
     else
         PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
     fi

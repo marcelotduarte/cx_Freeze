@@ -39,7 +39,7 @@ If you don't have make installed, run:
 
     python -m pip install --upgrade pip
     pip install -e .[dev,doc]
-    pre-commit install --install-hooks --overwrite -t pre-commit
+    prek install --install-hooks --overwrite -t pre-commit
 
 To build wheel locally, run:
 
@@ -88,7 +88,7 @@ An example for Linux:
     conda activate cx313conda
     conda install -c conda-forge patchelf -y
     conda install -c conda-forge --file=requirements-dev.txt
-    pre-commit install --install-hooks --overwrite -t pre-commit
+    prek install --install-hooks --overwrite -t pre-commit
     pip install -e. --no-deps --no-build-isolation
 
 .. note::
