@@ -5,6 +5,8 @@ mkdir -p "$INSTALL_DIR"
 
 if which python &>/dev/null; then
     PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
+elif ! [ -n "$MINGW_PACKAGE_PREFIX" ]; then
+    PY_PLATFORM="mingw"
 else
     PY_PLATFORM=""
 fi
@@ -44,6 +46,9 @@ if [ "$IS_CONDA" == "1" ]; then
     SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
     # Packages to install
     pkgs=("uv" "python-build")
+    if which python &>/dev/null; then
+        pkgs+=("python=3.13")
+    fi
 
     # Dependencies of the project
     if [ -f requirements.txt ]; then
@@ -71,7 +76,7 @@ if [ "$IS_CONDA" == "1" ]; then
         done < tests/requirements.txt
     fi
 
-    # Install libmamba-solver and use it to speed up packages install
+    # Install libmamba-solver and use it to speed up packages installation
     echo "Update conda to use libmamba-solver"
     $CONDA_EXE clean --index-cache --logfiles --quiet --yes
     $CONDA_EXE update -n base conda --quiet --yes
@@ -83,6 +88,9 @@ if [ "$IS_CONDA" == "1" ]; then
 elif [ "$IS_MINGW" == "1" ]; then
     # Packages to install
     pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
+    if which python &>/dev/null; then
+        pkgs+=("$MINGW_PACKAGE_PREFIX-python")
+    fi
 
     # Dependencies of the project
     if [ -f requirements.txt ]; then
@@ -113,17 +121,12 @@ else
         if [ "$IS_WINDOWS" == "1" ]; then
             export UV_LINK_MODE=copy
         fi
-        if ! which uv &>/dev/null; then
-            echo "error: Please install uv"
-            exit 1
-        fi
-    else
-        if which uv &>/dev/null; then
-            uv self -q update
-        else
-            curl -LsSf https://astral.sh/uv/install.sh | \
+    elif which uv &>/dev/null; then
+        uv self -q update
+    fi
+    if ! which uv &>/dev/null; then
+        curl -LsSf https://astral.sh/uv/install.sh | \
             env UV_INSTALL_DIR="$INSTALL_DIR" sh
-        fi
     fi
 
     # Lief is not available for Python 3.13t and 3.14t
@@ -182,7 +185,7 @@ if [ "$INSTALL_DEV" == "1" ]; then
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
             filename=$INSTALL_DIR/$name
             echo "Create $filename"
-            echo "#!/bin/bash"> "$filename"
+            echo "#!/bin/sh"> "$filename"
             echo "uvx -p $PY_VER_ABI \"$line\" \$@">> "$filename"
             chmod +x "$filename"
         done < requirements-dev.txt
