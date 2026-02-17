@@ -273,10 +273,11 @@ TEST_VALID_PARAMETERS += [
         id="base-absolutepath-console_test",
     ),
 ]
-# base=gui and base=service are available on Windows
+# base=gui* and base=service are available on Windows
 if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/gui-{SOABI}{EXE_SUFFIX}"),
+        ("base", "gui_dgpu", f"bases/gui_dgpu-{SOABI}{EXE_SUFFIX}"),
         ("base", "service", f"bases/service-{SOABI}{EXE_SUFFIX}"),
     ]
     # In Python < 3.13 legacy bases are available
@@ -299,6 +300,7 @@ if IS_WINDOWS or IS_MINGW:
 else:
     TEST_VALID_PARAMETERS += [
         ("base", "gui", f"bases/console-{SOABI}{EXE_SUFFIX}"),
+        ("base", "gui_dgpu", f"bases/console-{SOABI}{EXE_SUFFIX}"),
         ("base", "service", f"bases/console-{SOABI}{EXE_SUFFIX}"),
     ]
     # In Python < 3.13 legacy console is available
@@ -338,7 +340,10 @@ def test_valid(tmp_package, option, value, result) -> None:
     if expected_app_type is None:
         base = value or "console" if option == "base" else executable.base.stem
         expected_app_type = (
-            base.lower().removeprefix("win32").removesuffix(f"-{SOABI}")
+            base.lower()
+            .removeprefix("win32")
+            .removesuffix(f"-{SOABI}")
+            .removesuffix("_dgpu")
         )
     assert executable.app_type == expected_app_type
 

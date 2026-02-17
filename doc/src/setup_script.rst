@@ -451,8 +451,9 @@ constructor are as follows:
        is searched
    * - .. option:: base
      - the name of the base executable; the pre-defined values are:
-       "console", "gui" and "service"; a user-defined base is accepted
-       if it is given with an absolute path name [default: "console"]
+       "console", "gui", "gui_dgpu" and "service";
+       an user-defined base is accepted if it is given with an absolute
+       path name [default: "console"]
    * - .. option:: target_name
      - the name of the target executable; the default value is the
        name of the script; it is recommended NOT to use an extension
@@ -497,12 +498,18 @@ constructor are as follows:
     :option:`uac_uiaccess` option.
 
 .. versionchanged:: 7.0
-    :option:`base` option has new pre-defined values: "gui" and "service".
-    "console" remains the default value.
+    :option:`base` option has new pre-defined values: "gui" and "service"
+    ("console" remains the default value).
 
 .. versionchanged:: 8.0
     :option:`base` option does not accept the old values
     "Win32GUI" and "Win32Service" in Python 3.13+.
+
+.. versionchanged:: 8.6
+    :option:`base` option has a new pre-defined value: "gui_dgpu"
+    - this ensures that frozen applications automatically prefer the
+    high-performance discrete GPU on Windows systems with hybrid graphics
+    (NVIDIA Optimus / AMD PowerXpress)
 
 .. seealso::
 

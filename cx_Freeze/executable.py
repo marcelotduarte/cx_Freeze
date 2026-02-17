@@ -97,11 +97,17 @@ class Executable:
         # The default base is console
         name = name or "console"
 
-        # Get the app type (console, gui or service)
-        self.app_type = name.lower().removeprefix("win32")
+        # Get the app type: console, service or gui (including gui_dgpu)
+        self.app_type = (
+            name.lower().removeprefix("win32").removesuffix("_dgpu")
+        )
 
         # On non-windows systems the base console is used for any type of app
-        if not (IS_WINDOWS or IS_MINGW) and name in ("gui", "service"):
+        if not (IS_WINDOWS or IS_MINGW) and name in (
+            "gui",
+            "gui_dgpu",
+            "service",
+        ):
             name = "console"
         if name.lower().startswith("win32"):
             name = f"legacy/{name.lower()}"
