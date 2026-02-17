@@ -5,7 +5,7 @@ mkdir -p "$INSTALL_DIR"
 
 if which python &>/dev/null; then
     PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
-elif ! [ -n "$MINGW_PACKAGE_PREFIX" ]; then
+elif [ -z "$MINGW_PACKAGE_PREFIX" ]; then
     PY_PLATFORM="mingw"
 else
     PY_PLATFORM=""
@@ -46,7 +46,7 @@ if [ "$IS_CONDA" == "1" ]; then
     SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
     # Packages to install
     pkgs=("uv" "python-build")
-    if which python &>/dev/null; then
+    if ! which python &>/dev/null; then
         pkgs+=("python=3.13")
     fi
 
@@ -88,7 +88,7 @@ if [ "$IS_CONDA" == "1" ]; then
 elif [ "$IS_MINGW" == "1" ]; then
     # Packages to install
     pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
-    if which python &>/dev/null; then
+    if ! which python &>/dev/null; then
         pkgs+=("$MINGW_PACKAGE_PREFIX-python")
     fi
 
