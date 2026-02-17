@@ -33,20 +33,7 @@ jobs:
 
       - name: Bump new dev version
         if: github.event_name != 'release'
-        run: |
-          git config user.name "Marcelo Duarte"
-          git config user.email marcelotduarte@users.noreply.github.com
-          SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
-          VERSION=$(uv version --short)
-          if (echo "$VERSION" | grep -q "\.dev"); then
-            uv version --no-sync --bump dev=$SOURCE_DATE_EPOCH
-          else
-            uv version --no-sync --bump patch --bump dev=$SOURCE_DATE_EPOCH
-          fi
-          NEW_VERSION=$(uv version --short)
-          git checkout -b build-$NEW_VERSION
-          git commit -m "Bump version: ${VERSION} → ${NEW_VERSION} [ci skip]" -a
-          git log -2
+        run: ./ci/bump-version.sh build-dev
 
       - name: Build sdist and wheels
         run: ./ci/build-wheel.sh

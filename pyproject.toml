@@ -80,15 +80,15 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek==0.3.2",
+    "prek==0.3.3",
 ]
 doc = [
-    "sphinx==8.2.3 ;python_version >= '3.11'",
-    "sphinx-issues==5.0.1 ;python_version >= '3.11'",
-    "sphinx-new-tab-link==0.8.1 ;python_version >= '3.11'",
-    "sphinx-tabs==3.4.7 ;python_version >= '3.11'",
-    "furo==2025.12.19 ;python_version >= '3.11'",
-    "myst-parser==4.0.1 ;python_version >= '3.11'",
+    "sphinx==8.2.3",
+    "sphinx-issues==5.0.1",
+    "sphinx-new-tab-link==0.8.1",
+    "sphinx-tabs==3.4.7",
+    "furo==2025.12.19",
+    "myst-parser==4.0.1",
 ]
 tests = [
     "coverage==7.13.4",
@@ -99,6 +99,9 @@ tests = [
     "pytest-timeout==2.4.0",
     "pytest-xdist==3.8.0",
 ]
+
+[tool.uv.dependency-groups]
+doc = {requires-python = ">=3.11"}
 
 [tool.setuptools]
 include-package-data = true

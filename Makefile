@@ -85,27 +85,3 @@ cov: wheel
 	coverage combine --keep --quiet -a $(COV_TMPDIR)/
 	coverage report
 	coverage html
-
-.PHONY: release
-release:
-	uv version
-	@echo "Run:"
-	@echo "  uv version <new-version>"
-	@echo "--or--"
-	@echo "  uv version --bump <major|minor|patch>"
-	@echo "--then--"
-	@echo "  git push origin `git branch --show-current`"
-	@echo "  git push origin `git branch --show-current` --tags"
-
-.PHONY: release-dev
-release-dev:
-	git checkout -B release main
-	if (uv version --short | grep -q "\.dev"); then\
-		uv version --bump dev;\
-	else\
-		uv version --bump patch --bump dev=0;\
-	fi
-	git commit -m "Bump dev version: `uv version --short` [ci skip]" -a
-	git push origin `git branch --show-current`
-	git push origin `git branch --show-current` --tags
-	git log -1
