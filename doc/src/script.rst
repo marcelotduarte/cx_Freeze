@@ -30,8 +30,9 @@ Further customization can be done using the following options:
 .. option:: --base=NAME, --base-name=NAME
 
     the name of the base executable; the pre-defined values are:
-    "console", "gui" and "service"; a user-defined base is accepted
-    if it is given with an absolute path name [default: "console"]
+    "console", "gui", "gui_dgpu", and "service";
+    an user-defined base is accepted if it is given with an absolute
+    path name [default: "console"]
 
 .. option:: --target-name=NAME
 
@@ -110,13 +111,16 @@ Further customization can be done using the following options:
 .. versionadded:: 7.0
     :option:`--uac-uiaccess` option.
 
-.. versionadded:: 8.0
-    :option:`--debug` and :option:`--verbose` options.
-
 .. versionchanged:: 7.0
     :option:`--base` option has new pre-defined values: "gui" and "service".
     "console" remains the default value.
 
+.. versionadded:: 8.0
+    :option:`--debug` and :option:`--verbose` options.
+
 .. versionchanged:: 8.0
     :option:`--base` option does not accept the old values
     "Win32GUI" and "Win32Service" in Python 3.13+.
+
+.. versionchanged:: 8.6
+    :option:`--base` option has a new pre-defined value: "gui_dgpu"
