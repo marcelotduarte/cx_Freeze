@@ -1,20 +1,5 @@
 #!/bin/bash
 
-INSTALL_DIR="$HOME/bin"
-mkdir -p "$INSTALL_DIR"
-
-if which python &>/dev/null; then
-    PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
-elif [ -z "$MINGW_PACKAGE_PREFIX" ]; then
-    PY_PLATFORM="mingw"
-else
-    PY_PLATFORM=""
-fi
-
-IS_CONDA=$([ -n "$CONDA_EXE" ] && echo "1")
-IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
-IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
-
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
@@ -24,6 +9,26 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "  --tests Install additional packages to run 'pytest'."
     exit 1
 fi
+
+# Detect environment
+IS_CONDA="0"
+IS_MINGW="0"
+IS_WINDOWS="0"
+if [ -n "$CONDA_EXE" ]; then
+    IS_CONDA="1"
+elif [ -n "$MINGW_PACKAGE_PREFIX" ]; then
+    IS_MINGW="1"
+elif which python &>/dev/null; then
+    PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
+    IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
+else
+    echo "error: Python is required."
+    exit 1
+fi
+
+# Install/update dev tools (including uv if required)
+INSTALL_DIR="$HOME/bin"
+mkdir -p "$INSTALL_DIR"
 
 INSTALL_DEV=""
 INSTALL_TESTS=""
@@ -39,28 +44,28 @@ while [ -n "$1" ]; do
 done
 
 echo "::group::Install dependencies and build tools"
-# Install/update uv and dev tools
 if [ "$IS_CONDA" == "1" ]; then
-    # Conda Python 3.14: python-msilib is not available yet
-    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
-    SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
-    # Packages to install
-    pkgs=("uv" "python-build")
+    # Install libmamba-solver and use it to speed up packages installation
+    echo "Update conda to use libmamba-solver"
+    $CONDA_EXE clean --index-cache --logfiles --quiet --yes
+    $CONDA_EXE update -n base conda --quiet --yes
+    $CONDA_EXE install -n base conda-libmamba-solver --quiet --yes
+    $CONDA_EXE config --set solver libmamba
     if ! which python &>/dev/null; then
-        pkgs+=("python=3.13")
+        $CONDA_EXE install -c conda-forge python -S -q -y
     fi
+    # Packages to install
+    pkgs=("python-build")
 
     # Dependencies of the project
     if [ -f requirements.txt ]; then
+        SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
         while read -r line; do
             if [[ $line != *sys_platform* ]] || \
                [[ $line == *sys_platform*==*${SYS_PLATFORM}* ]]; then
                 name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
                 if [ "$name" == "cx-logging" ]; then name="cx_logging"; fi
                 if [ "$name" == "lief" ]; then name="py-lief"; fi
-                if [ "$name" == "python-msilib" ] && [ "$PY_VERSION" == "3.14" ]; then
-                    continue
-                fi
                 if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
                     pkgs+=("$name")
                 fi
@@ -76,18 +81,12 @@ if [ "$IS_CONDA" == "1" ]; then
         done < tests/requirements.txt
     fi
 
-    # Install libmamba-solver and use it to speed up packages installation
-    echo "Update conda to use libmamba-solver"
-    $CONDA_EXE clean --index-cache --logfiles --quiet --yes
-    $CONDA_EXE update -n base conda --quiet --yes
-    $CONDA_EXE install -n base conda-libmamba-solver --quiet --yes
-    $CONDA_EXE config --set solver libmamba
     echo "Install packages"
     echo "${pkgs[@]}"
     $CONDA_EXE install -c conda-forge "${pkgs[@]}" -S -q -y
 elif [ "$IS_MINGW" == "1" ]; then
     # Packages to install
-    pkgs=("$MINGW_PACKAGE_PREFIX-uv" "$MINGW_PACKAGE_PREFIX-python-build")
+    pkgs=("$MINGW_PACKAGE_PREFIX-python-build")
     if ! which python &>/dev/null; then
         pkgs+=("$MINGW_PACKAGE_PREFIX-python")
     fi

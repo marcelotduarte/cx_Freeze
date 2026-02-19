@@ -91,6 +91,8 @@ def test_qt(tmp_package, qt_impl) -> None:
         if qt_impl == "PySide2":
             if IS_MACOS:
                 pytest.skip("PySide2 does not support macOS")
+            if IS_MINGW:
+                pytest.skip("PySide2 failing in MSYS2")
             if not IS_MINGW and sys.version_info[:2] >= (3, 11):
                 pytest.skip("PySide2 does not support Python 3.11+")
         if (
