@@ -34,15 +34,13 @@ file as executable.
 The following options were added to the standard set of options for the
 command:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_appimage
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 
@@ -121,9 +119,7 @@ GitHub or GitLab environment variables.
 
 Here is an example of usage:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: toml
 
@@ -131,7 +127,7 @@ Here is an example of usage:
         updateinformation = "zsync|https://example.com/path/simple/simple.AppImage.zsync"
 
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: python
 

@@ -13,9 +13,7 @@ Example
 
 It looks something like this:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: toml
 
@@ -33,7 +31,7 @@ It looks something like this:
         excludes = ["tkinter", "unittest"]
         zip_include_packages = ["encodings", "PySide6", "shiboken6"]
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: python
 
@@ -53,7 +51,7 @@ It looks something like this:
             executables=[{"script": "guifoo.py", "base": "gui"}],
         )
 
-   .. group-tab:: setup.cfg
+   .. tab:: setup.cfg
 
       Is required to pass one executable at the command line or a minimal
       ``setup.py`` for more than one executable.
@@ -71,7 +69,7 @@ It looks something like this:
         excludes = tkinter,unittest
         zip_include_packages = encodings,PySide6,shiboken6
 
-   .. group-tab:: command line
+   .. tab:: command line
 
       A basic ``setup.py`` is required and the command line options overwrite
       them.
@@ -94,27 +92,25 @@ It looks something like this:
 
 The script is invoked as follows:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze build
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 
         python setup.py build
 
-   .. group-tab:: setup.cfg
+   .. tab:: setup.cfg
 
       .. code-block:: console
 
         cxfreeze --script=guifoo.py --base=gui
 
-   .. group-tab:: command line
+   .. tab:: command line
 
       .. code-block:: console
 

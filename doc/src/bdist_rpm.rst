@@ -14,15 +14,13 @@ be able to create RPMs that work on different RPM-based distributions.
 The usual way to create an RPM of your module distribution is to run the
 :command:`bdist_rpm` command:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_rpm
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 
@@ -30,15 +28,13 @@ The usual way to create an RPM of your module distribution is to run the
 
 The command allows you to specify RPM-specific options:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_rpm --packager="John Doe <jdoe@example.org>"
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 

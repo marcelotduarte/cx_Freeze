@@ -10,15 +10,13 @@ support for Windows x64 and also for Windows ARM64.
 The following options were added to the standard set of options for the
 command:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_msi
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 
@@ -104,9 +102,7 @@ command:
 
 For example:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: toml
 
@@ -148,7 +144,7 @@ For example:
             ["IconId", "icon.ico"]
         ]
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: python
 

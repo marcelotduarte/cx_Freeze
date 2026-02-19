@@ -25,9 +25,9 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinx_inline_tabs",
     "sphinx_issues",
     "sphinx_new_tab_link",
-    "sphinx_tabs.tabs",
     "myst_parser",
 ]
 
@@ -264,9 +264,6 @@ extlinks = {
 
 # sphinx_issues
 issues_github_path = "marcelotduarte/cx_Freeze"
-
-# sphinx_tabs.tabs
-sphinx_tabs_disable_tab_closing = True
 
 # sphinx-new-tab-link
 new_tab_link_show_external_link_icon = True
