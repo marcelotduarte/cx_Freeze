@@ -4,15 +4,13 @@ bdist_mac
 This command is available on macOS systems, to create a macOS application
 bundle (a :file:`.app` directory).
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_mac
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 

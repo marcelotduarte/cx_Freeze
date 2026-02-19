@@ -8,15 +8,13 @@ This command is available on Linux systems; It is a simple wrapper around
 
 Please check the options on the command line:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_deb --help
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 

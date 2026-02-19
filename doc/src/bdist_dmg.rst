@@ -92,15 +92,13 @@ installation.
 
 This is the equivalent help to specify the same options on the command line:
 
-.. tabs::
-
-   .. group-tab:: pyproject.toml
+   .. tab:: pyproject.toml
 
       .. code-block:: console
 
         cxfreeze bdist_dmg --help
 
-   .. group-tab:: setup.py
+   .. tab:: setup.py
 
       .. code-block:: console
 
