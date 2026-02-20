@@ -16,7 +16,7 @@ description = "Sample cx_Freeze script to test MSI arbitrary data stream"
 [[tool.cxfreeze.executables]]
 script = "hello.py"
 base = "gui"
-copyright = "Copyright (C) 2025 cx_Freeze"
+copyright = "Copyright (C) 2026 cx_Freeze"
 icon = "icon.ico"
 shortcut_name = "My Program Name"
 shortcut_dir = "MyProgramMenu"

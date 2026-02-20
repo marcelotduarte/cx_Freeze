@@ -1,6 +1,6 @@
 # Licensing
 
-- Copyright © 2020-2025, Marcelo Duarte.
+- Copyright © 2020-2026, Marcelo Duarte.
 - Copyright © 2007-2019, Anthony Tuininga.
 - Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta,
   Canada.

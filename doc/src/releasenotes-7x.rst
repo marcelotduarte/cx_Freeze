@@ -1,8 +1,8 @@
 7.x releases
 ############
 
-Version 7.2 (Jul 16)
-----------------------
+Version 7.2 (2024-07-16)
+------------------------
 
 #)  hooks: the optimized mode is the default for pip installations (:pr:`2500`) :user:`marcelotduarte`
 #)  bdist_rpm: drop rpm2_mode and refactor spec_file (:pr:`2488`) :user:`marcelotduarte`
@@ -50,8 +50,8 @@ Version 7.2 (Jul 16)
 #)  build(deps): bump coverage from 7.5.2 to 7.5.3 (:pr:`2428`) :user:`dependabot`
 #)  hooks: fix pygobject hook for Linux (:pr:`2425`) :user:`marcelotduarte`
 
-Version 7.1 (May 26)
-----------------------
+Version 7.1 (2024-05-26)
+------------------------
 
 #)  hooks: add mkl (:pr:`2420`) :user:`marcelotduarte`
 #)  hooks: resolve dependencies to avoid symlink in numpy/mkl/blas conda linux (:pr:`2419`) :user:`marcelotduarte`
@@ -108,8 +108,8 @@ Version 7.1 (May 26)
 #)  build(deps): bump pluggy from 1.4.0 to 1.5.0 (:pr:`2348`) :user:`dependabot`
 #)  Bump version: 7.0.0 → 7.1.0-dev0 [ci skip] (:pr:`2349`) :user:`marcelotduarte`
 
-Version 7.0 (April 21)
-----------------------
+Version 7.0 (2024-04-21)
+------------------------
 
 #)  hooks: support numpy in python 3.12 (:pr:`2345`) :user:`marcelotduarte`
 #)  test: add simple test for bdist_mac (:pr:`2343`) :user:`marcelotduarte`
