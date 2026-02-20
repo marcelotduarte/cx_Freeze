@@ -4,7 +4,8 @@
 Version 8.6 (2026-02-20)
 ------------------------
 
-#)  Bump version: 8.6.0-dev.0 → 8.6.0 [ci skip] (:pr:`3264`) :user:`marcelotduarte`
+#)  Bump version: 8.6.0-dev.0 → 8.6.0 [ci skip] (:pr:`3265`) :user:`marcelotduarte`
+#)  chore: prepare to release [ci skip] (:pr:`3264`) :user:`marcelotduarte`
 #)  build(docs): bump sphinx 9.1.0 and switch to sphinx-inline-tabs [ci skip] (:pr:`3263`) :user:`marcelotduarte`
 #)  conda: enable msilib on conda python 3.14 on windows (:pr:`3262`) :user:`marcelotduarte`
 #)  docs: support for base='gui_dgpu' (:pr:`3261`) :user:`marcelotduarte`
