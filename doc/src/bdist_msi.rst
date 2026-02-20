@@ -114,7 +114,7 @@ For example:
         [[tool.cxfreeze.executables]]
         script = "hello.py"
         base = "gui"
-        copyright = "Copyright (C) 2025 cx_Freeze"
+        copyright = "Copyright (C) 2026 cx_Freeze"
         icon = "icon.ico"
         shortcut_name = "My Program Name"
         shortcut_dir = "MyProgramMenu"
@@ -180,7 +180,7 @@ For example:
             Executable(
                 "hello.py",
                 base="gui",
-                copyright="Copyright (C) 2025 cx_Freeze",
+                copyright="Copyright (C) 2026 cx_Freeze",
                 icon="icon.ico",
                 shortcut_name="My Program Name",
                 shortcut_dir="MyProgramMenu",

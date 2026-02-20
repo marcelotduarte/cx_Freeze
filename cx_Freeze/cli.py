@@ -20,7 +20,7 @@ installation.
 
 VERSION = f"""
 %(prog)s {__version__}
-Copyright (c) 2020-2025 Marcelo Duarte. All rights reserved.
+Copyright (c) 2020-2026 Marcelo Duarte. All rights reserved.
 Copyright (c) 2007-2019 Anthony Tuininga. All rights reserved.
 Copyright (c) 2001-2006 Computronix Corporation. All rights reserved.
 """

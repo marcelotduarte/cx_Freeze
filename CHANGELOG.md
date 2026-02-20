@@ -3,6 +3,8 @@ performance as the original script.
 
 It is cross-platform and should work on any platform that Python runs on.
 
+# Version 8.6 (2026-02-20)
+
 # Version 8.5 (2025-11-24)
 
 - Separation into two distinct packages: cx_Freeze and freeze-core
@@ -39,7 +41,7 @@ It is cross-platform and should work on any platform that Python runs on.
 - Add "launch on finish" checkbox to the MSI installer.
 - Bug fixes and improvements (including hook additions and enhancements).
 
-# Version 8.0 (2025-05-21)
+# Version 8.0 (2025-03-21)
 
 - Python 3.13 support.
 - Experimental support for Python 3.13 free-threaded on Linux and macOS.

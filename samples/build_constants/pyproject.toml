@@ -5,7 +5,7 @@ description = "Sample cx_Freeze script"
 
 [[tool.cxfreeze.executables]]
 script = "hello.py"
-copyright = "Copyright (C) 2025 cx_Freeze"
+copyright = "Copyright (C) 2026 cx_Freeze"
 
 [tool.cxfreeze.build_exe]
 constants = [

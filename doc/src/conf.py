@@ -45,7 +45,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "cx_Freeze"
-copyright = "2025, Marcelo Duarte"  # noqa: A001
+copyright = "2026, Marcelo Duarte"  # noqa: A001
 
 
 # Get version from pyproject
