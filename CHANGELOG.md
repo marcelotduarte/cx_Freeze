@@ -5,6 +5,13 @@ It is cross-platform and should work on any platform that Python runs on.
 
 # Version 8.6 (2026-02-20)
 
+- Refactor bdist_msi to work better with pyproject:
+  - Added `output_name`, `product_name`, and `product_version` options
+  - Removed `target_name` option (breaking change)
+- Enable package discovery for src-layout
+- Updated hooks
+- Bug fixes.
+
 # Version 8.5 (2025-11-24)
 
 - Separation into two distinct packages: cx_Freeze and freeze-core
