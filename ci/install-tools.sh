@@ -128,12 +128,9 @@ else
             env UV_INSTALL_DIR="$INSTALL_DIR" sh
     fi
 
-    # Lief is not available for Python 3.13t and 3.14t
-    PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+    # Lief is not available for Python free-threaded
     PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
-    PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
-    if [ "$IS_WINDOWS" == "1" ] && \
-       { [ "$PY_VER_ABI" == "3.13t" ] || [ "$PY_VER_ABI" == "3.14t" ]; }; then
+    if [ "$IS_WINDOWS" == "1" ] && [ "$PY_ABI_THREAD" == "t" ]; then
         # Packages to install
         pkgs=()
 

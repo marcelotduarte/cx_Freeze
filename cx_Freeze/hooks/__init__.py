@@ -612,7 +612,8 @@ def load_zlib(finder: ModuleFinder, module: Module) -> None:
             target = source.name
             finder.lib_files[source] = target
     else:
-        # ensure zlib1.dll is copied if lief is not used in Python 3.12+
+        # ensure zlib1.dll is copied in Python 3.12+
+        # (when Life is installed, the DLL is detected)
         for source in Path(sys.base_prefix, "DLLs").glob("zlib*.dll"):
             target = f"lib/{source.name}"
             finder.lib_files[source] = target
