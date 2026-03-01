@@ -1,0 +1,10 @@
+[project]
+name="test_requests"
+version="0.1"
+description="cx_Freeze script to test requests"
+#executables=["test_requests.py"]
+
+[tool.distutils.build_exe]
+excludes = ["tkinter"]
+zip_include_packages = ["*"]
+zip_exclude_packages = []
