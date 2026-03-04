@@ -278,7 +278,6 @@ typing-modules = ["cx_Freeze._typing"]
 [tool.ruff.lint.per-file-ignores]
 "cx_Freeze/command/_pydialog.py" = ["ERA001"]
 "cx_Freeze/command/bdist_msi.py" = ["ERA001"]
-"samples/pydantic/test_pydantic.py" = ["E501"]
 "samples/*" = ["D1"]
 "tests/*" = ["S101"]
 
