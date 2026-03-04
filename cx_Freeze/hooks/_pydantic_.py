@@ -50,7 +50,7 @@ class Hook(ModuleHook):
         self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Exclude optional modules."""
-        module.exclude_names.add("rich")
+        module.exclude_names.update(["rich", "rich.console", "rich.pretty"])
 
     def pydantic__internal__typing_extra(
         self, _finder: ModuleFinder, module: Module

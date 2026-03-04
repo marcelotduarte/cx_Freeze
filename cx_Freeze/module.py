@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import re
 import socket
 from contextlib import suppress
 from datetime import datetime, timezone
@@ -178,12 +179,14 @@ class DistributionCache(metadata.PathDistribution):
         return package_names
 
     @property
-    def version(self) -> tuple[int, ...] | str | None:
+    def version(self) -> tuple[int, ...]:
         """Return the 'Version' metadata for the distribution package."""
-        value = super().version
-        with suppress(ValueError):
-            value = tuple(map(int, value.split(".")))
-        return value
+        version_separators = re.compile(r"[\._-]")
+        version_value = super().version or ""
+        return tuple(
+            part.lower() if not part.isdigit() else int(part)
+            for part in version_separators.split(version_value)
+        )
 
 
 class Module:
