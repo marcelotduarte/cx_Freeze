@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import sys
+
 import pytest
+
+from cx_Freeze._compat import ABI_THREAD
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -52,6 +56,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pydantic_core does not support Python 3.13t",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_pydantic(tmp_package, zip_packages: bool) -> None:
