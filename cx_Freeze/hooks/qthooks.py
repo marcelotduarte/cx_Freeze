@@ -197,7 +197,7 @@ class QtHook(ModuleHook):
         if IS_MINGW or IS_WINDOWS:
             patterns = ["*.dll"]
         else:
-            patterns = ["*.so*"]
+            patterns = ["libQt*.so*"]
             if IS_MACOS:
                 patterns.append("*.dylib")
         for pattern in patterns:
