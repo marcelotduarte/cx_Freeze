@@ -10,6 +10,14 @@ from cx_Freeze._compat import IS_MACOS, IS_WINDOWS
 
 TIMEOUT = 15
 
+if IS_MACOS:
+    mac_extra_test = pytest.mark.parametrize(
+        "mac_extra_test", [False, True], ids=["", "mac_extra_test"]
+    )
+else:
+    mac_extra_test = pytest.mark.parametrize(
+        "mac_extra_test", [False], ids=[""]
+    )
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
 )
@@ -190,8 +198,11 @@ pyproject.toml
 """
 
 
+@mac_extra_test
 @zip_packages
-def test_tkinter(tmp_package, zip_packages: bool) -> None:
+def test_tkinter(
+    tmp_package, zip_packages: bool, mac_extra_test: bool
+) -> None:
     """Test if tkinter hook is working correctly."""
     pytest.importorskip("tkinter", reason="Depends on extra package: tkinter")
 
@@ -201,37 +212,25 @@ def test_tkinter(tmp_package, zip_packages: bool) -> None:
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.freeze()
-    executable = tmp_package.executable("test_tk")
+    if mac_extra_test:
+        tmp_package.freeze("cxfreeze bdist_mac")
+        name = "test_tk"
+        version = "0.1.2.3"
+        bundle_name = f"{name}-{version}"
+        build_app_dir = tmp_package.path / "build" / f"{bundle_name}.app"
+        executable = build_app_dir / "Contents/MacOS/test_tk"
+        expected = os.path.normpath(
+            build_app_dir / "Contents/Resources/share/tcl"
+        )
+    else:
+        tmp_package.freeze()
+        executable = tmp_package.executable("test_tk")
+        expected = os.path.normpath(executable.parent / "share/tcl")
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT)
     # Compare the start of the returned path, version independent.
     # This is necessary when the OS has an older tcl/tk version than the
     # version contained in the cx_Freeze wheels.
-    expected = os.path.normpath(executable.parent / "share/tcl")
-    result.stdout.fnmatch_lines(f"{expected}*")
-
-
-@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
-def test_tkinter_bdist_mac(tmp_package) -> None:
-    """Test if tkinter hook is working correctly using bdist_mac."""
-    pytest.importorskip("tkinter", reason="Depends on extra package: tkinter")
-
-    tmp_package.create(SOURCE_TEST_TK)
-    tmp_package.freeze("cxfreeze bdist_mac")
-    executable = tmp_package.executable("test_tk")
-
-    name = "test_tk"
-    version = "0.1.2.3"
-    bundle_name = f"{name}-{version}"
-    build_app_dir = tmp_package.path / "build" / f"{bundle_name}.app"
-    executable = build_app_dir / "Contents/MacOS/test_tk"
-    assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT)
-    # Compare the start of the returned path, version independent.
-    # This is necessary when the OS has an older tcl/tk version than the
-    # version contained in the cx_Freeze wheels.
-    expected = os.path.normpath(build_app_dir / "Contents/Resources/share/tcl")
     result.stdout.fnmatch_lines(f"{expected}*")
 
 

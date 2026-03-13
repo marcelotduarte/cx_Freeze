@@ -55,10 +55,14 @@ pyproject.toml
     reason="pymupdf does not support Windows arm64",
     strict=True,
 )
+@pytest.mark.skipif(
+    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
+    reason="pymupdf does not support Python 3.13t",
+)
 @pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
+    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t" and not IS_LINUX,
     raises=ModuleNotFoundError,
-    reason="pymupdf does not support Python 3.13t/3.14t",
+    reason="pymupdf support Python 3.14t only in Linux",
     strict=True,
 )
 @pytest.mark.venv
