@@ -38,11 +38,11 @@ if IS_WINDOWS:
     elif IS_ARM_64 and ABI_THREAD == "":
         if sys.version_info[:2] <= (3, 13):
             PACKAGE_VERSION += [("lief", "0.16.6")]
-        PACKAGE_VERSION += [("lief", "0.17.4")]
+        PACKAGE_VERSION += [("lief", "0.17.5")]
     elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
         if sys.version_info[:2] <= (3, 13):
             PACKAGE_VERSION += [("lief", "0.15.1"), ("lief", "0.16.6")]
-        PACKAGE_VERSION += [("lief", "0.17.4")]
+        PACKAGE_VERSION += [("lief", "0.17.5")]
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
 elif IS_LINUX:

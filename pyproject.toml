@@ -29,7 +29,7 @@ classifiers = [
 dependencies = [
     "freeze-core>=0.6.0",
     "packaging>=25.0",
-    "setuptools>=78.1.1,<=82.0",
+    "setuptools>=78.1.1,<83.0",
     "tomli>=2.0.1 ;python_version == '3.10'",
     # Linux
     "filelock>=3.20.3 ;sys_platform == 'linux'",
@@ -42,7 +42,7 @@ dependencies = [
     # macOS
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
-    "lief>=0.15.1,<=0.17.4 ;sys_platform == 'win32'",
+    "lief>=0.15.1,<=0.17.5 ;sys_platform == 'win32'",
     "python-msilib>=0.4.1 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
@@ -79,7 +79,7 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek==0.3.4",
+    "prek==0.3.5",
 ]
 doc = [
     "sphinx==9.1.0",
