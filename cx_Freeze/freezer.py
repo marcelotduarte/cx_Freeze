@@ -17,7 +17,7 @@ from importlib.util import MAGIC_NUMBER
 from pathlib import Path
 from pkgutil import resolve_name
 from typing import TYPE_CHECKING, Any
-from zipfile import ZIP_DEFLATED, ZIP_STORED, PyZipFile, ZipFile, ZipInfo
+from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile, ZipInfo
 
 from setuptools import Distribution
 
@@ -653,7 +653,9 @@ class Freezer:
 
         # Prepare zip file
         compress_type = ZIP_DEFLATED if self.compress else ZIP_STORED
-        with PyZipFile(filename, "w", compress_type) as outfile:
+        with ZipFile(
+            filename, "w", compress_type, strict_timestamps=False
+        ) as outfile:
             files_to_copy: list[tuple[Module, Path]] = []
 
             for module in modules:
