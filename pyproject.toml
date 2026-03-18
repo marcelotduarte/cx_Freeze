@@ -42,7 +42,7 @@ dependencies = [
     # macOS
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
-    "lief>=0.15.1,<=0.17.5 ;sys_platform == 'win32'",
+    "lief>=0.15.1,<0.18 ;sys_platform == 'win32'",
     "python-msilib>=0.4.1 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
@@ -79,18 +79,18 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek==0.3.5",
+    "prek==0.3.6",
 ]
 doc = [
     "sphinx==9.1.0",
     "sphinx-inline-tabs==2025.12.21.14",
-    "sphinx-issues==5.0.1",
+    "sphinx-issues==6.0.0",
     "sphinx-new-tab-link==0.8.1",
     "furo==2025.12.19",
     "myst-parser==5.0.0",
 ]
 tests = [
-    "coverage==7.13.4",
+    "coverage==7.13.5",
     "filelock>=3.20.3",
     "pytest==9.0.2",
         "pluggy==1.6.0",
