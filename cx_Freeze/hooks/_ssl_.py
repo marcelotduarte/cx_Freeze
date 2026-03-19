@@ -60,7 +60,7 @@ class Hook(ModuleHook):
                 import os as _os
                 import sys as _sys
                 _cert_file = _os.environ.get("SSL_CERT_FILE")
-                if _cert_file is None or not _os.path.exists(cert_file):
+                if _cert_file is None or not _os.path.exists(_cert_file):
                     _prefix = _sys.prefix
                     if _sys.platform == "darwin":
                         _mac_prefix = _os.path.join(

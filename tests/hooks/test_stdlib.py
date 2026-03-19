@@ -169,9 +169,17 @@ pyproject.toml
 """
 
 
+@pytest.mark.parametrize(
+    "use_os_cert_file", [False, True], ids=["", "SSL_CERT_FILE"]
+)
 @mac_extra_test
 @zip_packages
-def test_ssl(tmp_package, zip_packages: bool, mac_extra_test: bool) -> None:
+def test_ssl(
+    tmp_package,
+    zip_packages: bool,
+    mac_extra_test: bool,
+    use_os_cert_file: bool,
+) -> None:
     """Test that the ssl is working correctly."""
     tmp_package.create(SOURCE_TEST_SSL)
     if zip_packages:
@@ -190,7 +198,14 @@ def test_ssl(tmp_package, zip_packages: bool, mac_extra_test: bool) -> None:
         tmp_package.freeze()
         executable = tmp_package.executable("test_ssl")
     assert executable.is_file()
-    result = tmp_package.run(executable)
+    env = os.environ.copy()
+    if use_os_cert_file:
+        ssl_paths = __import__("ssl").get_default_verify_paths()
+        cert_file = ssl_paths.cafile
+        if cert_file and not os.path.exists(cert_file):
+            cert_file = ssl_paths.openssl_cafile
+        env["SSL_CERT_FILE"] = cert_file
+    result = tmp_package.run(executable, env=env)
     result.stdout.fnmatch_lines(
         [
             "Hello from cx_Freeze",
