@@ -5,43 +5,70 @@
 
 from __future__ import annotations
 
+import glob
 import os
 import sys
 
 try:
     import cx_Freeze
 except ImportError:
-    print("Please install a cx-freeze package to test", file=sys.stderr)
-    sys.exit(-1)
+    cx_Freeze = None
 
-program = f"{sys.executable} getdependentfiles.py"
-dlls = os.path.join(sys.base_prefix, "DLLs")
-scripts = os.path.join(sys.base_prefix, "Scripts")
-cx_Freeze_dir = os.path.dirname(cx_Freeze.__file__)
 
-dependencies_to_check = [
-    os.path.join(sys.base_prefix, "python.exe"),
-    os.path.join(
-        sys.base_prefix,
-        f"python{sys.version_info[0]}{sys.version_info[1]}.dll",
-    ),
-    sys.executable,
-    os.path.join(dlls, "_ctypes.pyd"),
-    os.path.join(dlls, "_sqlite3.pyd"),
-    os.path.join(dlls, "_ssl.pyd"),
-    os.path.join(scripts, "pip.exe"),
-    os.path.join(cx_Freeze_dir, "bases", "Console.exe"),
-]
+def main() -> int | None:
+    if sys.platform != "win32":
+        print(sys.argv[0] + " is only for windows", file=sys.stderr)
+        return -1
+    if cx_Freeze is None:
+        print("Please install a cx-freeze package to test", file=sys.stderr)
+        return -1
 
-print("testing with default PATH environ")
-cmdline = program + " " + " ".join(dependencies_to_check)
-for line in os.popen(cmdline):  # noqa: S605
-    print(line, end="")
-print()
+    fname = os.path.join(os.path.dirname(sys.argv[0]), "getdependentfiles.py")
+    command = [sys.executable, fname]
+    dlls = os.path.join(sys.base_prefix, "DLLs")
+    scripts = os.path.join(sys.base_prefix, "Scripts")
+    module_dir = os.path.dirname(cx_Freeze.__file__)
 
-print("testing with sys.path into PATH environ")
-os.environ["PATH"] = os.pathsep.join(sys.path + os.get_exec_path())
-cmdline = program + " " + " ".join(dependencies_to_check)
-for line in os.popen(cmdline):  # noqa: S605
-    print(line, end="")
-print()
+    dependencies_to_check = [
+        os.path.join(sys.base_prefix, os.path.basename(sys.executable)),
+        os.path.join(
+            sys.base_prefix,
+            f"python{sys.version_info[0]}{sys.version_info[1]}.dll",
+        ),
+        sys.executable,
+        os.path.join(dlls, "_ctypes.pyd"),
+        os.path.join(dlls, "_sqlite3.pyd"),
+        os.path.join(dlls, "_ssl.pyd"),
+        os.path.join(scripts, "pip.exe"),
+    ]
+    dependencies_to_check.extend(
+        list(glob.glob(os.path.join(module_dir, "bases", "console*.exe")))
+    )
+
+    print("testing with default PATH environ")
+    cmdline = " ".join(command + dependencies_to_check)
+    print(cmdline)
+    for line in os.popen(cmdline):  # noqa: S605
+        print(line, end="")
+    print()
+
+    print("testing with sys.path into PATH environ")
+    syspath = ["--path", os.pathsep.join(sys.path)]
+    cmdline = " ".join(command + syspath + dependencies_to_check)
+    print(cmdline)
+    for line in os.popen(cmdline):  # noqa: S605
+        print(line, end="")
+    print()
+
+    print("testing with os.add_dll_directory")
+    dllpath = ["--dllpath", dlls]
+    cmdline = " ".join(command + dllpath + dependencies_to_check)
+    print(cmdline)
+    for line in os.popen(cmdline):  # noqa: S605
+        print(line, end="")
+    print()
+    return None
+
+
+if __name__ == "__main__":
+    sys.exit(main())
