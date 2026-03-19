@@ -20,6 +20,7 @@ from .datatest import (
     EDITABLE_PACKAGE_TEST,
     EDITABLE_PACKAGE_TEST_1,
     EXTENDED_OPARGS_TEST,
+    FIND_SPEC_TEST,
     MAYBE_TEST,
     MAYBE_TEST_NEW,
     NAMESPACE_TEST,
@@ -159,21 +160,44 @@ def test_bytecode(tmp_package) -> None:
     _do_test(tmp_package, *BYTECODE_TEST)
 
 
-def test_editable_packages(tmp_package) -> None:
+@pytest.mark.parametrize(
+    ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
+    [EDITABLE_PACKAGE_TEST, EDITABLE_PACKAGE_TEST_1],
+    ids=["editable_package_test", "editable_package_test_1"],
+)
+def test_editable_packages(
+    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
+) -> None:
     """Provides test cases for ModuleFinder class."""
-    tmp_package.create(EDITABLE_PACKAGE_TEST[4])
+    tmp_package.create(source)
     tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
     _do_test(
         tmp_package,
-        *EDITABLE_PACKAGE_TEST,
+        import_this,
+        modules,
+        missing,
+        maybe_missing,
+        source,
+        **kwargs,
     )
 
 
-def test_editable_packages_1(tmp_package) -> None:
+@pytest.mark.parametrize(
+    ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
+    [FIND_SPEC_TEST],
+    ids=["FIND_SPEC_TEST"],
+)
+def test_find_spec(
+    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
+) -> None:
     """Provides test cases for ModuleFinder class."""
-    tmp_package.create(EDITABLE_PACKAGE_TEST_1[4])
-    tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
+    tmp_package.create(source)
     _do_test(
         tmp_package,
-        *EDITABLE_PACKAGE_TEST_1,
+        import_this,
+        modules,
+        missing,
+        maybe_missing,
+        source,
+        **kwargs,
     )

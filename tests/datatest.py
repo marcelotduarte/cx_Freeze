@@ -154,19 +154,19 @@ b.py
 ]  # 2**16 constants
 
 FIND_SPEC_TEST = [
-    "find_spec",
-    [],
+    "hello",
+    ["dummypackage", "dummypackage.dummymodule", "hello"],
     [],
     [],
     """\
-find_spec/dummypackage/__init__.py
+dummypackage/__init__.py
     print("Hi, I'm a package!")
     raise Exception("package-level exception should not occur during freeze")
     from . import dummymodule
-find_spec/dummypackage/dummymodule.py
+dummypackage/dummymodule.py
     print("Hi, I'm a module!")
     raise Exception("module-level exception should not occur during freeze")
-find_spec/hello.py
+hello.py
     import dummypackage.dummymodule
     print("Hi, I'm a program.")
     raise Exception("This exception is fine.")
