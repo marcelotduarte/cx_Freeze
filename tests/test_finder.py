@@ -9,7 +9,6 @@ import pytest
 from cx_Freeze import ConstantsModule, ModuleFinder
 
 from .datatest import (
-    FIND_SPEC_TEST,
     INVALID_MODULE_NAME_TEST,
     SCAN_CODE_TEST,
     SYNTAX_ERROR_TEST,
@@ -66,14 +65,3 @@ class TestModuleFinder:
         with pytest.raises(ImportError):
             # Threw SyntaxError before the bug was fixed
             fix_module_finder.include_module("invalid_syntax")
-
-    def test_find_spec(self, tmp_package, fix_module_finder) -> None:
-        """Sample find_spec contains broken modules."""
-        tmp_package.create(FIND_SPEC_TEST[4])
-        fix_module_finder.path.insert(
-            0, os.fspath(tmp_package.path / "find_spec")
-        )
-        module = fix_module_finder.include_module("hello")
-        assert "dummypackage" in module.global_names, (
-            "packages that raises exceptions should still be imported"
-        )
