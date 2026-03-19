@@ -204,7 +204,8 @@ def test_ssl(
         cert_file = ssl_paths.cafile
         if cert_file and not os.path.exists(cert_file):
             cert_file = ssl_paths.openssl_cafile
-        env["SSL_CERT_FILE"] = cert_file
+        if cert_file and os.path.exists(cert_file):
+            env["SSL_CERT_FILE"] = cert_file
     result = tmp_package.run(executable, env=env)
     result.stdout.fnmatch_lines(
         [
