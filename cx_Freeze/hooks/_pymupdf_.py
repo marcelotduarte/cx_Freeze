@@ -26,14 +26,21 @@ class Hook(ModuleHook):
         if module.in_file_system == 0:
             module.in_file_system = 1
         module.ignore_names.update(
-            ["mupdf_cppyy", "mupdf", "pymupdf_fonts", "PIL"]
+            [
+                "fontTools.subset",
+                "mupdf_cppyy",
+                "mupdf",
+                "pymupdf_fonts",
+                "PIL",
+            ]
         )
-        with suppress(ImportError):
-            finder.include_package("mupdf")  # conda
+        finder.exclude_module("pymupdf.mupdf-devel")
         with suppress(ImportError):
             finder.include_module("pymupdf.mupdf")
         with suppress(ImportError):
-            finder.include_module("pymupdf.utils")
+            finder.include_package("mupdf")  # conda
+        finder.include_module("pymupdf.table")
+        finder.include_module("pymupdf.utils")
         with suppress(ImportError):
             finder.include_module("pymupdf._wxcolors")  # 1.25.4
 
@@ -51,4 +58,4 @@ class Hook(ModuleHook):
 
     def pymupdf_utils(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore development import and optional package."""
-        module.ignore_names.update(["mupdf", "fontTools.subset"])
+        module.ignore_names.update(["fontTools.subset", "mupdf"])
