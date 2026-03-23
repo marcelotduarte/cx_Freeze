@@ -102,18 +102,6 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
         module.ignore_names.add("cffi._pycparser")
 
 
-def load_charset_normalizer(finder: ModuleFinder, module: Module) -> None:
-    """The charset_normalizer package."""
-    finder.exclude_module("charset_normalizer.cli")
-
-
-def load_charset_normalizer_md(finder: ModuleFinder, module: Module) -> None:
-    """The charset_normalizer package implicitly imports a extension module."""
-    mypyc = module.file.parent / ("md__mypyc" + "".join(module.file.suffixes))
-    if mypyc.exists():
-        finder.include_module("charset_normalizer.md__mypyc")
-
-
 def load_collections(finder: ModuleFinder, module: Module) -> None:
     """Sets the alias for collections.abc."""
     try:
