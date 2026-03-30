@@ -8,11 +8,7 @@ import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
 
-from .datatest import (
-    INVALID_MODULE_NAME_TEST,
-    SCAN_CODE_TEST,
-    SYNTAX_ERROR_TEST,
-)
+from .datatest import SCAN_CODE_TEST, SYNTAX_ERROR_TEST
 
 
 class TestModuleFinder:
@@ -43,19 +39,6 @@ class TestModuleFinder:
                 mocker.call("modg.submod", *any3),
                 mocker.call("modh", *any3),
             ]
-        )
-
-    def test_not_import_invalid_module_name(
-        self, tmp_package, fix_module_finder
-    ) -> None:
-        """testpkg1 contains not.importable.py, which shouldn't be included."""
-        tmp_package.create(INVALID_MODULE_NAME_TEST[4])
-        fix_module_finder.path.insert(0, os.fspath(tmp_package.path))
-        # Threw ImportError before the bug was fixed
-        module = fix_module_finder.include_package("testpkg1")
-        assert "invalid-identifier" in module.global_names, (
-            "submodules whose names contain invalid identifiers should still "
-            "be imported"
         )
 
     def test_invalid_syntax(self, tmp_package, fix_module_finder) -> None:

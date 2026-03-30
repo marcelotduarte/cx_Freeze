@@ -5,13 +5,14 @@ from __future__ import annotations
 # Each test description is a list of 5 items:
 #
 # 1. a module name that will be imported by ModuleFinder
+# 1.1. to import a package, use 'package:' prefix, e.g, "package:foo"
 # 2. a list of module names that ModuleFinder is required to find
 # 3. a list of module names that ModuleFinder should complain
 #    about because they are not found
 # 4. a list of module names that ModuleFinder should complain
 #    about because they MAY be not found
 # 5. a string specifying packages to create; the format is obvious imo.
-# 6. a dictionary of extra kwargs
+# 6. a dictionary of ModuleFinder kwargs.
 
 ABSOLUTE_IMPORT_TEST = [
     "a.module",
@@ -175,8 +176,8 @@ hello.py
 ]
 
 INVALID_MODULE_NAME_TEST = [
-    "testpkg1",
-    [],
+    "package:testpkg1",
+    ["testpkg1", "testpkg1.invalid-identifier", "testpkg1.submod"],
     [],
     [],
     """\
@@ -488,7 +489,7 @@ module2.py
 
 SYNTAX_ERROR_TEST = [
     "invalid_syntax",
-    [],
+    ["invalid_syntax"],
     [],
     [],
     """\
@@ -500,8 +501,8 @@ invalid_syntax.py
 
 SYNTAX_ERROR_TEST_2 = [
     "a.module",
-    ["a", "a.module", "b"],
-    ["b.module"],
+    ["a", "a.module", "b", "b.module"],
+    [],
     [],
     """\
 a/__init__.py
