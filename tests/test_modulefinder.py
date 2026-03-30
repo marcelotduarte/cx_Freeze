@@ -21,6 +21,7 @@ from .datatest import (
     EDITABLE_PACKAGE_TEST_1,
     EXTENDED_OPARGS_TEST,
     FIND_SPEC_TEST,
+    INVALID_MODULE_NAME_TEST,
     MAYBE_TEST,
     MAYBE_TEST_NEW,
     NAMESPACE_TEST,
@@ -36,6 +37,7 @@ from .datatest import (
     SCAN_CODE_IMPORT_MODULE_TEST,
     SCAN_CODE_TEST,
     SUB_PACKAGE_TEST,
+    SYNTAX_ERROR_TEST_2,
     ZIP_EXCLUDE_TEST,
     ZIP_INCLUDE_TEST,
 )
@@ -73,7 +75,10 @@ def _do_test(
     finder = modulefinder_class(
         ConstantsModule(), path=[test_dir.path, *path], **kwargs
     )
-    finder.include_module(import_this)
+    if import_this.startswith("package:"):
+        finder.include_package(import_this.removeprefix("package:"))
+    else:
+        finder.include_module(import_this)
     if report:
         finder.report_missing_modules()
     modules = sorted(set(modules))
@@ -90,6 +95,8 @@ def _do_test(
         CODING_EXPLICIT_CP1252_TEST,
         CODING_EXPLICIT_UTF8_TEST,
         EXTENDED_OPARGS_TEST,
+        FIND_SPEC_TEST,
+        INVALID_MODULE_NAME_TEST,
         MAYBE_TEST,
         MAYBE_TEST_NEW,
         NAMESPACE_TEST,
@@ -105,6 +112,7 @@ def _do_test(
         SCAN_CODE_IMPORT_CALL_TEST,
         SCAN_CODE_IMPORT_MODULE_TEST,
         SUB_PACKAGE_TEST,
+        SYNTAX_ERROR_TEST_2,
         ZIP_EXCLUDE_TEST,
         ZIP_INCLUDE_TEST,
     ],
@@ -114,6 +122,8 @@ def _do_test(
         "coding_explicit_cp1252_test",
         "coding_explicit_utf8_test",
         "extended_opargs_test",
+        "find_spec_test",
+        "invalid_module_name_test",
         "maybe_test",
         "maybe_test_new",
         "namespace_test",
@@ -129,6 +139,7 @@ def _do_test(
         "scan_code_import_call_test",
         "scan_code_import_module_test",
         "sub_package_test",
+        "syntax_error_test_2",
         "zip_exclude_test",
         "zip_include_test",
     ],
@@ -171,27 +182,6 @@ def test_editable_packages(
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(source)
     tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
-    _do_test(
-        tmp_package,
-        import_this,
-        modules,
-        missing,
-        maybe_missing,
-        source,
-        **kwargs,
-    )
-
-
-@pytest.mark.parametrize(
-    ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
-    [FIND_SPEC_TEST],
-    ids=["FIND_SPEC_TEST"],
-)
-def test_find_spec(
-    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
-) -> None:
-    """Provides test cases for ModuleFinder class."""
-    tmp_package.create(source)
     _do_test(
         tmp_package,
         import_this,
