@@ -23,36 +23,32 @@ class Hook(ModuleHook):
     """The Hook class for zoneinfo."""
 
     def zoneinfo(self, finder: ModuleFinder, module: Module) -> None:
-        """The zoneinfo package requires timezone data,
-        that can be the in tzdata package, if installed.
+        """The zoneinfo package requires timezone data.
+        The timezone data can be retrieved from tzdata package or from the OS.
         """
         module.global_names.update(ZONEINFO_GLOBAL_NAMES)
-        try:
-            finder.include_package("tzdata")
-        except ImportError:
-            target_path = None
-        else:
-            target_path = "lib/tzdata/zoneinfo"  # valid if not using zip file
+        # check if zoneinfo directory is available
+        source_path = None
+        tzpath = resolve_name("zoneinfo.TZPATH")
+        if tzpath:
+            for path in tzpath:
+                if path.endswith("zoneinfo"):
+                    source_path = Path(path).resolve()
+                    break
+        if source_path and source_path.is_dir():
+            # remove tzdata from the missing modules
+            module.ignore_names.add("tzdata")
 
-        if target_path is None:
-            # without tzdata, copy zoneinfo directory if available
-            source_path = None
-            tzpath = resolve_name("zoneinfo.TZPATH")
-            if tzpath:
-                for path in tzpath:
-                    if path.endswith("zoneinfo"):
-                        source_path = Path(path).resolve()
-                        break
-            if source_path is None or not source_path.is_dir():
-                # add tzdata to missing modules
-                bad_modules = finder._bad_modules  # noqa: SLF001
-                callers = bad_modules.setdefault("tzdata", {})
-                callers[f"{module.name}_hook"] = None
+        # check if tzdata package is available
+        if finder.include_package("tzdata", module) is None:
+            if source_path is None:
                 return
             target_path = "share/zoneinfo"
             finder.include_files(
                 source_path, target_path, copy_dependent_files=False
             )
+        else:
+            target_path = "lib/tzdata/zoneinfo"  # valid if not using zip file
 
         # patch source code
         if module.file.suffix == ".pyc":  # source unavailable

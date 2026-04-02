@@ -21,7 +21,8 @@ pyproject.toml
     dependencies = [
         "setuptools==78.1.1;python_version == '3.10'",
         "setuptools==80.9.0;python_version == '3.11'",
-        "setuptools;python_version >= '3.12'",
+        "setuptools==80.9.10;python_version == '3.12'",
+        "setuptools>=81.0;python_version > '3.12'",
     ]
 
 
