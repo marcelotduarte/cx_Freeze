@@ -227,9 +227,8 @@ class bdist_mac(Command):
             if filepath[-1:] in ("txt", "zip") or os.path.isdir(filepath):
                 continue
 
-            out = subprocess.check_output(
-                ("otool", "-L", filepath), encoding="utf_8"
-            )
+            shell_command = ("otool", "-L", filepath)
+            out = subprocess.check_output(shell_command, encoding="utf_8")
             for line in out.splitlines()[1:]:
                 lib = line.lstrip("\t").split(" (compat")[0]
 
