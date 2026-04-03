@@ -742,7 +742,9 @@ class ModuleFinder:
         if not copy_dependent_files:
             self.exclude_dependent_files(source_path)
 
-    def include_module(self, name: str) -> Module:
+    def include_module(
+        self, name: str, caller: Module | None = None
+    ) -> Module:
         """Include the named module in the frozen executable."""
         # Includes has priority over excludes.
         self.excludes.discard(name)
@@ -751,11 +753,13 @@ class ModuleFinder:
             self._modules.pop(name, None)
         # Include the module.
         deferred_imports: DeferredList = []
-        module = self._import_module(name, deferred_imports)
+        module = self._import_module(name, deferred_imports, caller)
         self._import_deferred_imports(deferred_imports, skip_in_import=True)
         return module
 
-    def include_package(self, name: str) -> Module:
+    def include_package(
+        self, name: str, caller: Module | None = None
+    ) -> Module:
         """Include the named package and any submodules in the frozen
         executable.
         """
@@ -766,8 +770,8 @@ class ModuleFinder:
             self._modules.pop(name, None)
         # Include the package.
         deferred_imports: DeferredList = []
-        module = self._import_module(name, deferred_imports)
-        if module.path:
+        module = self._import_module(name, deferred_imports, caller)
+        if module and module.path:
             self._import_all_sub_modules(module, deferred_imports)
         self._import_deferred_imports(deferred_imports, skip_in_import=True)
         return module

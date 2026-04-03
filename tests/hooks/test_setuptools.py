@@ -21,7 +21,8 @@ pyproject.toml
     dependencies = [
         "setuptools==78.1.1;python_version == '3.10'",
         "setuptools==80.9.0;python_version == '3.11'",
-        "setuptools;python_version >= '3.12'",
+        "setuptools==80.10.2;python_version == '3.12'",
+        "setuptools>=81.0;python_version > '3.12'",
     ]
 
 
@@ -35,6 +36,7 @@ pyproject.toml
 """
 
 
+@pytest.mark.venv
 @zip_packages
 def test_setuptools(tmp_package, zip_packages: bool) -> None:
     """Test if setuptools hook is working correctly."""

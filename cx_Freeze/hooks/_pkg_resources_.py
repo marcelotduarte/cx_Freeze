@@ -29,13 +29,12 @@ class Hook(ModuleHook):
         vendor = os.path.normpath(
             module.file.parent.parent / "setuptools" / "_vendor"
         )
-        failed = []
-        for name in ("jaraco.text", "packaging", "platformdirs"):
-            try:
-                finder.include_module(name)
-            except ImportError:  # noqa: PERF203
-                failed.append(name)
+        failed = [
+            name
+            for name in ("jaraco.text", "packaging", "platformdirs")
+            if finder.include_module(name, module) is None
+        ]
         finder.path.append(vendor)
         for name in failed:
-            finder.include_module(name)
+            finder.include_module(name, module)
         finder.path.pop()

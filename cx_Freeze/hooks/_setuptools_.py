@@ -55,20 +55,16 @@ class Hook(ModuleHook):
                 "platformdirs",
                 "wheel",
             )
-        failed = []
-        for name in sorted(core_names):
-            try:
-                finder.include_module(name)
-            except ImportError:  # noqa: PERF203
-                failed.append(name)
+        failed = [
+            name
+            for name in core_names
+            if finder.include_module(name, module) is None
+        ]
         vendor = module.file.parent / "_vendor"
         if vendor.is_dir():
             finder.path.append(os.path.normpath(vendor))
             for name in failed:
-                try:  # noqa: SIM105
-                    finder.include_module(name)
-                except ImportError:  # noqa: PERF203
-                    pass
+                finder.include_module(name, module)
             finder.path.pop()
 
     def setuptools_command_build_ext(
@@ -87,9 +83,7 @@ class Hook(ModuleHook):
             module.ignore_names.add("tomli")
         else:
             module.ignore_names.add("tomllib")
-            try:
-                finder.include_module("tomli")
-            except ImportError:
+            if finder.include_module("tomli", module) is None:
                 vendor = os.path.normpath(module.root.file.parent / "_vendor")
                 finder.path.append(vendor)
                 finder.include_module("tomli")
