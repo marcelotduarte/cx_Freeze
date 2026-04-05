@@ -118,9 +118,9 @@ pyproject.toml
     strict=True,
 )
 @pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t" and not IS_LINUX,
+    ABI_THREAD == "t" and not IS_LINUX,
     raises=ModuleNotFoundError,
-    reason="ortools supports Python 3.13t on Linux only",
+    reason="ortools supports Python free-threaded on Linux only",
     strict=True,
 )
 @pytest.mark.venv

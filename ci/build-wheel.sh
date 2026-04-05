@@ -122,9 +122,6 @@ _build_wheel () {
     elif [[ $PY_PLATFORM == macos* ]] && [[ $args == *--only* ]]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
     else
-        # Do not export UV_SYSTEM_PYTHON to avoid conflict with uv in
-        # cibuildwheel on macOS and Windows
-        unset UV_SYSTEM_PYTHON
         if [ "$CI" == "true" ] && [ "$IS_WINDOWS" == "1" ]; then
             export UV_LINK_MODE=copy
         fi

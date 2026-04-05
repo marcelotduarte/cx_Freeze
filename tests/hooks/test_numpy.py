@@ -4,8 +4,6 @@ numpy, matplotlib, pandas, raterio, scipy, shapely, and vtk.
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
 from cx_Freeze._compat import (
@@ -62,12 +60,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_WINDOWS and sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="matplotlib depends on kiwisolver that does not support "
-    "Python 3.13t on Windows",
-)
 @pytest.mark.venv
 @zip_packages
 def test_matplotlib(tmp_package, zip_packages: bool) -> None:
@@ -90,15 +82,6 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
     assert tmp_package.path.joinpath("test.png").is_file()
 
 
-@pytest.mark.xfail(
-    IS_WINDOWS
-    and IS_ARM_64
-    and sys.version_info[:2] == (3, 13)
-    and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="pandas does not support Python 3.13t on Windows arm64",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_pandas(tmp_package, zip_packages: bool) -> None:
@@ -318,21 +301,9 @@ pyproject.toml
     strict=True,
 )
 @pytest.mark.xfail(
-    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
+    ABI_THREAD == "t" and not IS_LINUX,
     raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support Python 3.13t",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t" and IS_WINDOWS,
-    raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support Python 3.14t in Windows",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t" and IS_MACOS,
-    raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support Python 3.14t in macOS",
+    reason="vtkmodules (vtk) support Python 3.14t only in Linux",
     strict=True,
 )
 @pytest.mark.venv

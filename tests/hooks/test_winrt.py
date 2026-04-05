@@ -63,7 +63,7 @@ pyproject.toml
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="pywinrt does not support Python 3.13t/3.14t",
+    reason="pywinrt does not support Python 3.14t",
     strict=True,
 )
 @pytest.mark.venv(scope="module")

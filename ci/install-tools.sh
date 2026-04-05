@@ -179,6 +179,9 @@ if [ "$INSTALL_DEV" == "1" ]; then
         PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
         PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
         PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
+        if [ "$PY_VERSION" == "3.10" ] || [ "$PY_VERSION" == "3.11" ]; then
+            PY_VER_ABI="3.12"
+        fi
         while read -r line; do
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
             # prek has no dependencies (doesn't bloat the installed packages)
