@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
 
 from cx_Freeze._compat import ABI_THREAD, IS_MINGW
@@ -44,8 +42,8 @@ pyproject.toml
     strict=True,
 )
 @pytest.mark.skipif(
-    sys.version_info[:2] >= (3, 13) and ABI_THREAD == "t",
-    reason="streamlit does not support Python 3.13t/3.14t",
+    ABI_THREAD == "t",
+    reason="streamlit does not support Python 3.14t",
 )
 @pytest.mark.venv
 @zip_packages

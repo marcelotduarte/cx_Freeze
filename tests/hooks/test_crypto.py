@@ -39,12 +39,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="argon2-cffi does not support Python 3.13t",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_argon2(tmp_package, zip_packages) -> None:
@@ -186,12 +180,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] == (3, 13) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="cryptography does not support Python 3.13t",
-    strict=True,
-)
 @pytest.mark.venv
 @zip_packages
 def test_cryptography(tmp_package, zip_packages) -> None:
