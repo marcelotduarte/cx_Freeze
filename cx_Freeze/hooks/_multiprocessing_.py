@@ -114,7 +114,7 @@ class Hook(ModuleHook):
             return
         if IS_MINGW or IS_WINDOWS:
             PY_313_BUGGED = (3, 13, 4) <= sys.version_info[:3] <= (3, 13, 12)
-            PY_314_BUGGED = (3, 14, 0) <= sys.version_info[:3] <= (3, 14, 4)
+            PY_314_BUGGED = (3, 14, 0) <= sys.version_info[:3] <= (3, 14, 3)
             if PY_313_BUGGED or PY_314_BUGGED:
                 source = rf"""
                 # cx_Freeze patch start
