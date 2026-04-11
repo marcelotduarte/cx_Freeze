@@ -63,7 +63,7 @@ repos:
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: c2bc67fe8f8f549cc489e00ba8b45aa18ee713b1 # frozen: v3.8.1
+    rev: b25652612a4a3c1da8caccfca9af661db56b2c07 # frozen: v3.8.2
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
