@@ -105,13 +105,17 @@ class Hook(ModuleHook):
     def multiprocessing_context(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        """Monkeypath context to do automatic freeze_support on Linux and
-        MacOS. Also, fix Python 3.13.4+ bug introduced by gh-80334 on Windows.
+        """Monkeypath context to do automatic freeze_support on Unix-like.
+
+        For Windows, add a workaround for a bug introduced by gh-80334 in
+        Python 3.13.4, which was fixed by gh-135726 in Python 3.14.4.
         """
         if module.file.suffix == ".pyc":  # source unavailable
             return
         if IS_MINGW or IS_WINDOWS:
-            if sys.version_info[:3] >= (3, 13, 4):
+            PY_313_BUGGED = (3, 13, 4) <= sys.version_info[:3] <= (3, 13, 12)
+            PY_314_BUGGED = (3, 14, 0) <= sys.version_info[:3] <= (3, 14, 4)
+            if PY_313_BUGGED or PY_314_BUGGED:
                 source = rf"""
                 # cx_Freeze patch start
                 def _freeze_support(self):
