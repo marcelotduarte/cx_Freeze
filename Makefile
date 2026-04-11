@@ -40,7 +40,7 @@ uninstall:
 
 .PHONY: upgrade
 upgrade: install
-	prek auto-update
+	prek auto-update --freeze
 	$(MAKE) prek
 
 .PHONY: html
