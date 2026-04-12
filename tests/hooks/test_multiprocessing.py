@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -95,11 +94,6 @@ def _parameters_data() -> Iterator:
         for i, expected in enumerate(EXPECTED_OUTPUT):
             if method == "forkserver" and i != 3:
                 continue  # only sample3 works with forkserver method
-            if method == "forkserver":
-                PY_313_BUGGED = sys.version_info[:3] >= (3, 13, 13)
-                PY_314_BUGGED = sys.version_info[:3] >= (3, 14, 4)
-                if PY_313_BUGGED or PY_314_BUGGED:
-                    continue
             sample = f"sample{i}"
             test_id = f"{sample}-{method}"
             yield pytest.param(source, sample, expected, False, id=test_id)
