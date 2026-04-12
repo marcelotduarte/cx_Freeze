@@ -21,9 +21,29 @@ __all__ = ["Hook"]
 # Notes:
 # - fork in Unix (including macOS) is native
 # - spawn in Windows is native since 4.3.4, but was improved in v6.2
-# - spawn and forkserver in Unix is implemented in v6.15.4 #1956
-# - monkeypatch context to do automatic freeze_support in v7.1 #2382
-# - monkeypatch context to fix bug introduced in Python 3.13.4 in v8.4 #3009
+# - spawn and forkserver in Unix is implemented (v6.15.4 #1956)
+# - monkeypatch context to do automatic freeze_support (v7.1 #2382)
+# - monkeypatch context to fix bug introduced in Python 3.13.4 (v8.4 #3009)
+#   and solved in Python 3.14.4 (v8.6 #3298)
+# - gh-144503 "Pass sys.argv to forkserver as real argv elements" changed the
+#   command line passed to spawned process, in Python 3.14.4 (v8.6 #3299)
+
+FREEZE_SUPPORT_MESSAGE = """
+    An attempt has been made to start a new process before the
+    current process has finished its bootstrapping phase.
+
+    This probably means that you are not using fork to start your
+    child processes and you have forgotten to use the proper idiom
+    in the main module:
+
+        if __name__ == "__main__":
+            freeze_support()
+            ...
+
+    To fix this issue (hide this message), refer to the documentation:
+        \
+https://cx-freeze.readthedocs.io/en/stable/faq.html#multiprocessing-support
+"""
 
 
 class Hook(ModuleHook):
@@ -49,10 +69,11 @@ class Hook(ModuleHook):
         # cx_Freeze patch start
         import re as _re
         import sys as _sys
-        if len(_sys.argv) >= 2 and _sys.argv[-2] == "-c":
-            cmd = _sys.argv[-1]
-            if _re.search(r"^from {module.name}.* import main.*", cmd):
-                exec(cmd)
+        if len(_sys.argv) >= 2 and "-c" in _sys.argv:
+            _idx = _sys.argv.index("-c")
+            _cmd = _sys.argv[_idx + 1]
+            if _re.search(r"from {module.name}.* import main.*", _cmd):
+                exec(_cmd)
                 _sys.exit()
         # workaround: inject freeze_support call to avoid an infinite loop
         from {module.name}.spawn import is_forking as _spawn_is_forking
@@ -68,23 +89,7 @@ class Hook(ModuleHook):
                     _constants, "ignore_freeze_support_message", 0
                 )
                 if not _ignore:
-                    print(
-        '''
-            An attempt has been made to start a new process before the
-            current process has finished its bootstrapping phase.
-
-            This probably means that you are not using fork to start your
-            child processes and you have forgotten to use the proper idiom
-            in the main module:
-
-                if __name__ == "__main__":
-                    freeze_support()
-                    ...
-
-            To fix this issue (hide this message), refer to the documentation:
-                \
-        https://cx-freeze.readthedocs.io/en/stable/faq.html#multiprocessing-support
-        ''', file=_sys.stderr)
+                    print({FREEZE_SUPPORT_MESSAGE!r}, file=_sys.stderr)
                 #import os, signal
                 #os.kill(os.getppid(), signal.SIGHUP)
                 #_sys.exit(os.EX_SOFTWARE)
