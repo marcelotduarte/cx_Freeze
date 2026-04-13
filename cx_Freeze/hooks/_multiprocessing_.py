@@ -24,9 +24,9 @@ __all__ = ["Hook"]
 # - spawn and forkserver in Unix is implemented (v6.15.4 #1956)
 # - monkeypatch context to do automatic freeze_support (v7.1 #2382)
 # - monkeypatch context to fix bug introduced in Python 3.13.4 (v8.4 #3009)
-#   and solved in Python 3.14.4 (v8.6 #3298)
+#   and solved in Python 3.14.4 (v8.6.4 #3298)
 # - gh-144503 "Pass sys.argv to forkserver as real argv elements" changed the
-#   command line passed to spawned process, in Python 3.14.4 (v8.6 #3299)
+#   command line passed to spawned process, in Python 3.14.4 (v8.6.4 #3299)
 
 FREEZE_SUPPORT_MESSAGE = """
     An attempt has been made to start a new process before the
