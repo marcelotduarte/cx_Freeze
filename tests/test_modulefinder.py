@@ -37,20 +37,24 @@ from .datatest import (
     SCAN_CODE_IMPORT_MODULE_TEST,
     SCAN_CODE_TEST,
     SUB_PACKAGE_TEST,
+    SYNTAX_ERROR_TEST,
+    SYNTAX_ERROR_TEST_1,
     SYNTAX_ERROR_TEST_2,
     ZIP_EXCLUDE_TEST,
     ZIP_INCLUDE_TEST,
 )
 
-# Each test description is a list of 5 items:
+# Each test description is a list of 6 items:
 #
 # 1. a module name that will be imported by ModuleFinder
+# 1.1. to import a package, use 'package:' prefix, e.g, "package:foo"
 # 2. a list of module names that ModuleFinder is required to find
 # 3. a list of module names that ModuleFinder should complain
 #    about because they are not found
 # 4. a list of module names that ModuleFinder should complain
 #    about because they MAY be not found
 # 5. a string specifying packages to create; the format is obvious imo.
+# 6. a dictionary of ModuleFinder kwargs.
 #
 # Each package will be created in test_dir, and test_dir will be
 # removed after the tests again.
@@ -60,11 +64,11 @@ from .datatest import (
 
 def _do_test(
     test_dir,
-    import_this,
-    modules,
-    missing,  # noqa: ARG001
-    maybe_missing,  # noqa: ARG001
-    source,
+    import_this: str,
+    modules: list[str],
+    missing: list[str],
+    maybe_missing: list[str],  # noqa: ARG001
+    source: str,
     report=False,
     debug=0,  # noqa: ARG001
     modulefinder_class=ModuleFinder,
@@ -76,15 +80,17 @@ def _do_test(
         ConstantsModule(), path=[test_dir.path, *path], **kwargs
     )
     if import_this.startswith("package:"):
-        finder.include_package(import_this.removeprefix("package:"))
+        module = finder.include_package(import_this.removeprefix("package:"))
     else:
-        finder.include_module(import_this)
+        module = finder.include_module(import_this)
     if report:
         finder.report_missing_modules()
     modules = sorted(set(modules))
-    found = sorted([module.name for module in finder.modules])
+    found = sorted([m.name for m in finder.modules])
     # check if we found what we expected, not more, not less
     assert found == modules
+    if module.error_msg:
+        assert module.name in missing
 
 
 @pytest.mark.parametrize(
@@ -112,6 +118,8 @@ def _do_test(
         SCAN_CODE_IMPORT_CALL_TEST,
         SCAN_CODE_IMPORT_MODULE_TEST,
         SUB_PACKAGE_TEST,
+        SYNTAX_ERROR_TEST,
+        SYNTAX_ERROR_TEST_1,
         SYNTAX_ERROR_TEST_2,
         ZIP_EXCLUDE_TEST,
         ZIP_INCLUDE_TEST,
@@ -139,6 +147,8 @@ def _do_test(
         "scan_code_import_call_test",
         "scan_code_import_module_test",
         "sub_package_test",
+        "SYNTAX_ERROR_TEST",
+        "SYNTAX_ERROR_TEST_1",
         "syntax_error_test_2",
         "zip_exclude_test",
         "zip_include_test",

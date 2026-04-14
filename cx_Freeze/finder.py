@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import importlib.machinery
+import inspect
+import linecache
 import logging
 import os
 import sys
+import traceback
 from contextlib import suppress
 from functools import cached_property
 from pathlib import Path, PurePath
 from pkgutil import resolve_name
 from sysconfig import get_config_var
 from tempfile import TemporaryDirectory
+from types import FrameType, TracebackType
 from typing import TYPE_CHECKING
 
 from cx_Freeze._bytecode import (
@@ -219,7 +223,7 @@ class ModuleFinder:
                 if sub_module is None:
                     if sub_module_name not in self.excludes:
                         msg = f"No module named {sub_module_name!r}"
-                        raise ImportError(msg)
+                        raise ImportError(msg, name=sub_module_name)
                 else:
                     module.global_names.add(name)
                     if sub_module.path and recursive:
@@ -298,7 +302,7 @@ class ModuleFinder:
         if module is None:
             if caller is None:
                 msg = f"No module named {name!r}"
-                raise ImportError(msg)
+                raise ImportError(msg, name=name)
             self._missing_hook(caller, name)
 
         return module
@@ -467,22 +471,28 @@ class ModuleFinder:
                 module.code = loader.source_to_code(
                     source_bytes, path, _optimize=self.optimize
                 )
-            except SyntaxError:
-                logger.debug("Invalid syntax in [%s]", name)
-                msg = f"Invalid syntax in {path}"
-                raise ImportError(msg, name=name) from None
+            except SyntaxError as exc:
+                module.error_exc = exc
+                msg = f"{exc.__class__.__name__}: {exc.msg}"
+                module.error_msg = msg
+                logger.debug("%s in '%s' [%s]", msg, path, name)
+                return None
         elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
             logger.debug("Adding module [%s] [BYTECODE]", name)
             # Load Python bytecode
             module.code = loader.get_code(name)
             if module.code is None:
                 msg = f"Bad magic number in {path}"
-                raise ImportError(msg, name=name)
+                module.error_msg = msg
+                logger.debug("%s in '%s' [%s]", msg, path, name)
+                return None
         elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
             logger.debug("Adding module [%s] [EXTENSION]", name)
         else:
             msg = f"Unknown module loader in {path}"
-            raise ImportError(msg, name=name)  # noqa: TRY004
+            module.error_msg = msg
+            logger.debug("%s in '%s' [%s]", msg, path, name)
+            return None
 
         # Run custom hook for the module
         if module.hook:
@@ -531,7 +541,7 @@ class ModuleFinder:
         loader: ExecutionLoader | None = None
 
         ext = filename.suffix
-        path = os.fspath(filename)
+        path = os.path.abspath(filename)
         if not ext or ext in importlib.machinery.SOURCE_SUFFIXES:
             loader = importlib.machinery.SourceFileLoader(name, path)
         elif ext in importlib.machinery.BYTECODE_SUFFIXES:
@@ -540,7 +550,19 @@ class ModuleFinder:
             loader = importlib.machinery.ExtensionFileLoader(name, path)
 
         module = self._add_module(name, filename=filename)
-        self._load_module_code(module, loader, deferred_imports)
+        if self._load_module_code(module, loader, deferred_imports) is None:
+            exc: Exception = module.error_exc
+            msg = f"ImportError: Cannot import {path!r}"
+            msg += " due to the previous error."
+            if exc is not None:
+                frame = fake_frame(path, exc.lineno)
+                fake_tb = TracebackType(None, frame, exc.lineno, exc.offset)
+                traceback.print_exception(
+                    exc, value=exc, tb=fake_tb, chain=False
+                )
+            elif module.error_msg is not None:
+                msg = f"Error: {module.error_msg}\n{msg}"
+            sys.exit(msg)
         return module
 
     def _missing_hook(self, caller: Module, module_name: str) -> None:
@@ -810,3 +832,12 @@ class ModuleFinder:
         self.zip_includes.extend(
             process_path_specs([(source_path, target_path)])
         )
+
+
+def fake_frame(filename: str, lineno: int) -> FrameType:
+    linecache.updatecache(filename)
+    res = {}
+    source = ("\n" * max(0, lineno - 1)) + "f=inspect.currentframe()"
+    code = compile(source, filename, "exec")
+    exec(code, {"inspect": inspect}, res)  # noqa:S102
+    return res["f"]

@@ -799,7 +799,7 @@ class Freezer:
             finally:
                 os.environ["PATH"] = orig_path
 
-        # put all files in file system or keep in zip file
+        # put all files in the file system or keep them in a zip file
         if self.zip_filename is None:
             with ZipFile(filename) as outfile:
                 outfile.extractall(target_lib_dir)
@@ -861,7 +861,7 @@ class Freezer:
     def print_report(self) -> None:
         """Display report:
         - list of modules and packages;
-        - list of modules  that weren't found;
+        - list of modules that weren't found;
         - list of dependencies that weren't found.
         """
         if self.silent < 1:
