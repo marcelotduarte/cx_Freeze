@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-# Each test description is a list of 5 items:
+# Each test description is a list of 6 items:
 #
 # 1. a module name that will be imported by ModuleFinder
 # 1.1. to import a package, use 'package:' prefix, e.g, "package:foo"
@@ -490,11 +490,24 @@ module2.py
 SYNTAX_ERROR_TEST = [
     "invalid_syntax",
     ["invalid_syntax"],
-    [],
+    ["invalid_syntax"],
     [],
     """\
 invalid_syntax.py
     raise = 2
+""",
+    {},
+]
+
+SYNTAX_ERROR_TEST_1 = [
+    "invalid_syntax_1",
+    ["invalid_syntax_1"],
+    ["invalid_syntax_1"],
+    [],
+    r"""
+invalid_syntax_1.py
+    folder = "C:\Temp\New"  # Correct is r"C:\Temp\New" or "C:\\Temp\\New"
+    print("folder:", folder)
 """,
     {},
 ]

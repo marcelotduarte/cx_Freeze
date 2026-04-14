@@ -494,6 +494,34 @@ def test_invalid_icon(tmp_package) -> None:
     )
 
 
+SOURCE_INVALID_SYNTAX = r"""
+test_invalid_syntax.py
+    folder = "C:\Temp\New"
+    print("folder:", folder)
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_invalid_syntax.py"
+
+    [tool.cxfreeze.build_exe]
+    include_msvcr = true
+    excludes = ["tkinter", "unittest"]
+    silent_level = 1
+"""
+
+
+def test_invalid_syntax(tmp_package) -> None:
+    """Test with invalid syntax."""
+    tmp_package.create(SOURCE_INVALID_SYNTAX)
+    result = tmp_package.freeze()
+    # it is expected the following error
+    result.stderr.fnmatch_lines("SyntaxError: *")
+
+
 SOURCE_RENAME = """
 test_0.py
     print("Hello from cx_Freeze")

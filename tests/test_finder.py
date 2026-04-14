@@ -45,6 +45,6 @@ class TestModuleFinder:
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         tmp_package.create(SYNTAX_ERROR_TEST[4])
         fix_module_finder.path.insert(0, os.fspath(tmp_package.path))
-        with pytest.raises(ImportError):
-            # Threw SyntaxError before the bug was fixed
-            fix_module_finder.include_module("invalid_syntax")
+        # Threw SyntaxError before the bug was fixed
+        module = fix_module_finder.include_module("invalid_syntax")
+        assert module.error_msg == "SyntaxError: invalid syntax"

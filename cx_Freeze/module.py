@@ -208,6 +208,8 @@ class Module:
         self.code: CodeType | None = None
         self.cache_path: Path | None = None
         self.distribution: DistributionCache | None = None
+        self.error_exc: Exception | None = None
+        self.error_msg: str | None = None
         self.hook: ModuleHook | Callable | None = None
         self.lazy: bool = False
 
