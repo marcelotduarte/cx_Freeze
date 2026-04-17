@@ -21,5 +21,3 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 14
-    commit-message:
-      prefix: "[ci skip] "
