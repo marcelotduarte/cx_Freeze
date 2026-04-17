@@ -1,5 +1,4 @@
 ci:
-  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate [ci skip]"
   skip: [blacken-docs, build-docs, shellcheck]
 
 default_language_version:
