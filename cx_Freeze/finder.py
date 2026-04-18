@@ -480,9 +480,11 @@ class ModuleFinder:
         elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
             logger.debug("Adding module [%s] [BYTECODE]", name)
             # Load Python bytecode
-            module.code = loader.get_code(name)
-            if module.code is None:
-                msg = f"Bad magic number in {path}"
+            try:
+                module.code = loader.get_code(name)
+            except ImportError as exc:
+                module.error_exc = exc
+                msg = f"{exc.__class__.__name__}: {exc.msg}"
                 module.error_msg = msg
                 logger.debug("%s in '%s' [%s]", msg, path, name)
                 return None

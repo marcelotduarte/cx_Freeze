@@ -47,7 +47,28 @@ b/z.py
     {},
 ]
 
-BYTECODE_TEST = ["a", ["a"], [], [], ""]
+BYTECODE_INVALID_TEST = [
+    "b",
+    ["b"],
+    ["b"],
+    [],
+    """\
+b.pyc
+    b
+""",
+    {},
+]
+
+BYTECODE_TEST = [
+    "a",
+    ["a"],
+    [],
+    [],
+    """\
+a.py
+    testing_modulefinder = True
+""",
+]
 
 CODING_DEFAULT_UTF8_TEST = [
     "a_utf8",
