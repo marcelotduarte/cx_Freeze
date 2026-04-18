@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 import py_compile
 import sys
-from importlib.machinery import BYTECODE_SUFFIXES, SOURCE_SUFFIXES
 
 import pytest
 
@@ -13,6 +12,7 @@ from cx_Freeze import ConstantsModule, ModuleFinder
 
 from .datatest import (
     ABSOLUTE_IMPORT_TEST,
+    BYTECODE_INVALID_TEST,
     BYTECODE_TEST,
     CODING_DEFAULT_UTF8_TEST,
     CODING_EXPLICIT_CP1252_TEST,
@@ -97,6 +97,7 @@ def _do_test(
     ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
     [
         ABSOLUTE_IMPORT_TEST,
+        BYTECODE_INVALID_TEST,
         CODING_DEFAULT_UTF8_TEST,
         CODING_EXPLICIT_CP1252_TEST,
         CODING_EXPLICIT_UTF8_TEST,
@@ -126,6 +127,7 @@ def _do_test(
     ],
     ids=[
         "absolute_import_test",
+        "bytecode_invalid_test",
         "coding_default_utf8_test",
         "coding_explicit_cp1252_test",
         "coding_explicit_utf8_test",
@@ -147,8 +149,8 @@ def _do_test(
         "scan_code_import_call_test",
         "scan_code_import_module_test",
         "sub_package_test",
-        "SYNTAX_ERROR_TEST",
-        "SYNTAX_ERROR_TEST_1",
+        "syntax_error_test",
+        "syntax_error_test_1",
         "syntax_error_test_2",
         "zip_exclude_test",
         "zip_include_test",
@@ -171,11 +173,9 @@ def test_finder(
 
 def test_bytecode(tmp_package) -> None:
     """Provides bytecode test case for ModuleFinder class."""
-    base_path = tmp_package.path / "a"
-    source_path = base_path.with_suffix(SOURCE_SUFFIXES[0])
-    bytecode_path = base_path.with_suffix(BYTECODE_SUFFIXES[0])
-    with source_path.open("wb") as file:
-        file.write(b"testing_modulefinder = True\n")
+    tmp_package.create(BYTECODE_TEST[4])
+    source_path = tmp_package.path / "a.py"
+    bytecode_path = source_path.with_suffix(".pyc")
     py_compile.compile(os.fspath(source_path), cfile=os.fspath(bytecode_path))
     os.remove(source_path)
     _do_test(tmp_package, *BYTECODE_TEST)
