@@ -58,6 +58,7 @@ class ModuleFinder:
         constants_module: ConstantsModule,
         excludes: list[str] | None = None,
         include_files: IncludesList | None = None,
+        optimize: int = 0,
         path: list[str | Path] | None = None,
         replace_paths: list[tuple[str, str]] | None = None,
         zip_exclude_packages: Sequence[str] | None = None,
@@ -69,7 +70,7 @@ class ModuleFinder:
             include_files
         )
         self.excludes: set[str] = set(excludes or [])
-        self.optimize = 0
+        self.optimize = optimize
         self.path: list[str] = list(map(os.fspath, path or sys.path))
         self.replace_paths = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
@@ -395,7 +396,6 @@ class ModuleFinder:
     ) -> Module | None:
         """Load the module, searching the module spec."""
         spec: importlib.machinery.ModuleSpec | None = None
-        loader: ExecutionLoader | None = None
         module: Module | None = None
 
         # Find modules to load
@@ -423,11 +423,10 @@ class ModuleFinder:
             spec = self._find_editable_spec(name, path)
 
         if spec:
-            loader = spec.loader
             # Ignore built-in importers
-            if loader is importlib.machinery.BuiltinImporter:
+            if spec.loader is importlib.machinery.BuiltinImporter:
                 return None
-            if loader is importlib.machinery.FrozenImporter:
+            if spec.loader is importlib.machinery.FrozenImporter:
                 return None
             # Load package or namespace package
             if spec.submodule_search_locations:
@@ -449,52 +448,64 @@ class ModuleFinder:
                 module = self._add_module(
                     name, filename=spec.origin, parent=parent
                 )
+            module.loader = spec.loader
 
         if module is not None:
-            self._load_module_code(module, loader, deferred_imports)
+            self._load_module_code(module, deferred_imports)
         return module
 
     def _load_module_code(
-        self,
-        module: Module,
-        loader: ExecutionLoader | None,
-        deferred_imports: DeferredList,
+        self, module: Module, deferred_imports: DeferredList
     ) -> Module | None:
-        name = module.name
-        path = os.path.normpath(module.file)
+        loader: ExecutionLoader | None = module.loader
+        name: str = module.name
+        if not isinstance(
+            loader,
+            (
+                importlib.machinery.ExtensionFileLoader,
+                importlib.machinery.SourceFileLoader,
+                importlib.machinery.SourcelessFileLoader,
+            ),
+        ):
+            path = os.path.normpath(module.file)
+            msg = f"Unknown module loader in {path}"
+            module.error_msg = msg
+            logger.debug("%s in '%s' [%s]", msg, path, name)
+            return None
 
-        if isinstance(loader, importlib.machinery.SourceFileLoader):
-            logger.debug("Adding module [%s] [SOURCE]", name)
-            # Load & compile Python source code
-            source_bytes = loader.get_data(path)
+        if isinstance(loader, importlib.machinery.ExtensionFileLoader):
+            logger.debug("Adding module [%s] [EXTENSION]", name)
+        else:
+            path = loader.get_filename(name)
             try:
-                module.code = loader.source_to_code(
-                    source_bytes, path, _optimize=self.optimize
-                )
-            except SyntaxError as exc:
-                module.error_exc = exc
-                msg = f"{exc.__class__.__name__}: {exc.msg}"
-                module.error_msg = msg
-                logger.debug("%s in '%s' [%s]", msg, path, name)
-                return None
-        elif isinstance(loader, importlib.machinery.SourcelessFileLoader):
-            logger.debug("Adding module [%s] [BYTECODE]", name)
-            # Load Python bytecode
-            try:
-                module.code = loader.get_code(name)
+                if (
+                    isinstance(
+                        loader, importlib.machinery.SourcelessFileLoader
+                    )
+                    or self.optimize == sys.flags.optimize
+                ):
+                    # Load Python bytecode
+                    logger.debug("Adding module [%s] [BYTECODE]", name)
+                    module.code = loader.get_code(name)
+                else:
+                    # Load & compile Python source code
+                    logger.debug("Adding module [%s] [SOURCE]", name)
+                    source = loader.get_source(name)
+                    module.code = loader.source_to_code(
+                        source, path, _optimize=self.optimize
+                    )
             except ImportError as exc:
                 module.error_exc = exc
                 msg = f"{exc.__class__.__name__}: {exc.msg}"
                 module.error_msg = msg
                 logger.debug("%s in '%s' [%s]", msg, path, name)
                 return None
-        elif isinstance(loader, importlib.machinery.ExtensionFileLoader):
-            logger.debug("Adding module [%s] [EXTENSION]", name)
-        else:
-            msg = f"Unknown module loader in {path}"
-            module.error_msg = msg
-            logger.debug("%s in '%s' [%s]", msg, path, name)
-            return None
+            except SyntaxError as exc:
+                module.error_exc = exc
+                msg = f"{exc.__class__.__name__}: {exc.msg}"
+                module.error_msg = msg
+                logger.debug("%s in '%s' [%s]", msg, path, name)
+                return None
 
         # Run custom hook for the module
         if module.hook:
@@ -552,7 +563,8 @@ class ModuleFinder:
             loader = importlib.machinery.ExtensionFileLoader(name, path)
 
         module = self._add_module(name, filename=filename)
-        if self._load_module_code(module, loader, deferred_imports) is None:
+        module.loader = loader
+        if self._load_module_code(module, deferred_imports) is None:
             exc: Exception = module.error_exc
             msg = f"ImportError: Cannot import {path!r}"
             msg += " due to the previous error."
@@ -820,10 +832,7 @@ class ModuleFinder:
     @optimize.setter
     def optimize(self, value: int) -> None:
         # The value of optimize is checked in '.command.build_exe' or '.cli'.
-        # This value is unlikely to be wrong, yet we check and ignore any
-        # divergent value.
-        if -1 <= value <= 2:
-            self._optimize_flag = value
+        self._optimize_flag = value if 0 <= value <= 2 else sys.flags.optimize
 
     def zip_include_files(
         self,

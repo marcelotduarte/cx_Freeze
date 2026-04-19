@@ -433,6 +433,7 @@ class Freezer:
             self.constants_module,
             self.excludes,
             self.include_files,
+            self.optimize,
             self.path,
             self.replace_paths,
             self.zip_exclude_packages,
@@ -440,7 +441,6 @@ class Freezer:
             self.zip_include_all_packages,
             self.zip_includes,
         )
-        finder.optimize = self.optimize
         for name in self.includes:
             finder.include_module(name)
         for name in self.packages:

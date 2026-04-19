@@ -121,7 +121,8 @@ class build_exe(Command):
             "optimize=",
             "O",
             'optimization level: -O1 for "python -O", '
-            '-O2 for "python -OO" and -O0 to disable [default: -O0]',
+            '-O2 for "python -OO" and -O0 to disable '
+            f"[default: -O{sys.flags.optimize}]",
         ),
         (
             "silent",
@@ -227,7 +228,7 @@ class build_exe(Command):
         self.include_msvcr = None
         self.include_msvcr_version = None
         self.no_compress = False
-        self.optimize = 0
+        self.optimize = sys.flags.optimize
         self.path = None
         self.silent = None
         self.silent_level = None
@@ -299,7 +300,7 @@ class build_exe(Command):
             self.include_msvcr = False
 
         # optimization level: 0,1,2
-        self.optimize = int(self.optimize or 0)
+        self.optimize = int(self.optimize or sys.flags.optimize)
 
     def run(self) -> None:
         # Update the package metadata

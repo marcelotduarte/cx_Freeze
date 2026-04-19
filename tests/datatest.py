@@ -295,6 +295,28 @@ namespace/package/two.py
     {},
 ]
 
+OPTIMIZE_0_TEST = [
+    "a",
+    ["a"],
+    [],
+    [],
+    """\
+a.py
+    testing_modulefinder = True
+""",
+    {"optimize": 0},
+]
+
+OPTIMIZE_1_TEST = [
+    *OPTIMIZE_0_TEST[:-1],
+    {"optimize": 1},
+]
+
+OPTIMIZE_2_TEST = [
+    *OPTIMIZE_0_TEST[:-1],
+    {"optimize": 2},
+]
+
 PACKAGE_TEST = [
     "a.module",
     ["a", "a.b", "a.c", "a.module", "mymodule", "sys"],
