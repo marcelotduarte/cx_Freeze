@@ -22,6 +22,7 @@ from cx_Freeze.exception import ModuleError, OptionError
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
+    from importlib.abc import ExecutionLoader
     from types import CodeType
 
 __all__ = ["ConstantsModule", "DistributionCache", "Module", "ModuleHook"]
@@ -212,6 +213,7 @@ class Module:
         self.error_msg: str | None = None
         self.hook: ModuleHook | Callable | None = None
         self.lazy: bool = False
+        self.loader: ExecutionLoader | None = None
 
         self.exclude_names: set[str] = set()
         self.global_names: set[str] = set()
