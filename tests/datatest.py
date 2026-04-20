@@ -14,6 +14,18 @@ from __future__ import annotations
 # 5. a string specifying packages to create; the format is obvious imo.
 # 6. a dictionary of ModuleFinder kwargs.
 
+A_MODULE = [
+    "a",
+    ["a"],
+    [],
+    [],
+    """\
+a.py
+    print("Hello from cx_Freeze")
+""",
+    {},
+]
+
 ABSOLUTE_IMPORT_TEST = [
     "a.module",
     ["a", "a.module", "b", "b.x", "b.y", "b.z", "__future__", "sys", "gc"],
@@ -59,16 +71,7 @@ b.pyc
     {},
 ]
 
-BYTECODE_TEST = [
-    "a",
-    ["a"],
-    [],
-    [],
-    """\
-a.py
-    testing_modulefinder = True
-""",
-]
+BYTECODE_TEST = A_MODULE
 
 CODING_DEFAULT_UTF8_TEST = [
     "a_utf8",
@@ -296,24 +299,17 @@ namespace/package/two.py
 ]
 
 OPTIMIZE_0_TEST = [
-    "a",
-    ["a"],
-    [],
-    [],
-    """\
-a.py
-    testing_modulefinder = True
-""",
+    *A_MODULE[:-1],
     {"optimize": 0},
 ]
 
 OPTIMIZE_1_TEST = [
-    *OPTIMIZE_0_TEST[:-1],
+    *A_MODULE[:-1],
     {"optimize": 1},
 ]
 
 OPTIMIZE_2_TEST = [
-    *OPTIMIZE_0_TEST[:-1],
+    *A_MODULE[:-1],
     {"optimize": 2},
 ]
 
