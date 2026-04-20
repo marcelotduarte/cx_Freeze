@@ -77,14 +77,15 @@ class Hook(ModuleHook):
 
         # patch the code when necessary
         if module.in_file_system == 0:
-            module.code = compile(
-                module.file.read_bytes().replace(
-                    b"__file__", b"__file__.replace('library.zip', '.')"
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source_code = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                source_code.replace(
+                    "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                path,
+                _optimize=finder.optimize,
             )
 
     def scipy__lib_array_api_compat(
@@ -218,18 +219,17 @@ class Hook(ModuleHook):
     def _fix_suppress_warnings(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        code_bytes = module.file.read_bytes()
-        if b"suppress_warnings" in code_bytes:
-            code_bytes = code_bytes.replace(
-                b"from numpy.testing import suppress_warnings",
-                b"from warnings import catch_warnings as suppress_warnings",
-            )
-            module.code = compile(
-                code_bytes,
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        if "suppress_warnings" in source_code:
+            module.code = loader.source_to_code(
+                source_code.replace(
+                    "from numpy.testing import suppress_warnings",
+                    "from warnings import catch_warnings as suppress_warnings",
+                ),
+                path,
+                _optimize=finder.optimize,
             )
 
     def __getattr__(self, name: str) -> object:

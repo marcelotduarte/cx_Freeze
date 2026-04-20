@@ -54,12 +54,7 @@ class Hook(QtHook):
         copy_qt_files(finder, "PyQt5", "LibraryExecutablesPath", "qt.conf")
 
         # Inject code to the end of init
-        if environment == "conda":
-            code_string = ""
-        else:
-            code_string = module.file.read_text(encoding="utf_8")
-        code_string += dedent(
-            f"""
+        patch = f"""
             # cx_Freeze patch start
             import os, sys
 
@@ -102,14 +97,15 @@ class Hook(QtHook):
                 )
             import PyQt5._cx_freeze_debug
             # cx_Freeze patch end
-            """
-        )
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        """
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        if environment == "conda":
+            source_code = ""
+        else:
+            source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )
 
     def qt_qtwebenginecore(self, finder: ModuleFinder, module: Module) -> None:

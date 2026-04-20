@@ -30,28 +30,30 @@ class Hook(ModuleHook):
         if module.in_file_system == 0:
             # shapely < 2.0 supports Python <= 3.11
             # The directory must be found when uing delvewheel < 1.7.0
-            module.code = compile(
-                module.file.read_bytes().replace(
-                    b"__file__", b"__file__.replace('library.zip', '.')"
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source_code = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                source_code.replace(
+                    "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                path,
+                _optimize=finder.optimize,
             )
 
     def shapely_geos(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for shapely.geos for shapely < 2.0."""
         # The directory must be found
         if module.in_file_system == 0:
-            module.code = compile(
-                module.file.read_bytes().replace(
-                    b"__file__", b"__file__.replace('library.zip', '.')"
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source_code = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                source_code.replace(
+                    "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                path,
+                _optimize=finder.optimize,
             )
 
     def shapely__geometry_helpers(

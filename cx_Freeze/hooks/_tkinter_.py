@@ -73,7 +73,7 @@ class Hook(ModuleHook):
                 if dll_path.exists():
                     finder.include_files(dll_path, f"lib/{dll_name}")
         # patch source code
-        source = rf"""
+        patch = rf"""
             # cx_Freeze patch start
             import os as _os
             import sys as _sys
@@ -93,11 +93,9 @@ class Hook(ModuleHook):
 
             # cx_Freeze patch end
         """
-        code_string = module.file.read_text(encoding="utf_8") + dedent(source)
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )

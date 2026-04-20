@@ -50,17 +50,13 @@ class Hook(ModuleHook):
         self, finder: ModuleFinder, module: Module
     ) -> None:
         """Fix the location of dependent files in Windows."""
-        code_bytes = module.file.read_bytes()
-        if b"msvcp140.dll" in code_bytes:
+        loader = module.loader
+        source_code = loader.get_source(module.name)
+        if "msvcp140.dll" in source_code:
             # msvcp140 and vcomp140 dlls should be copied
             # but in cx_Freeze, include_msvcr do the work
-            code_bytes = b""
-            module.code = compile(
-                code_bytes,
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+            module.code = loader.source_to_code(
+                "", loader.get_filename(module.name), _optimize=finder.optimize
             )
 
     def sklearn_externals_array_api_compat_numpy(
@@ -89,14 +85,15 @@ class Hook(ModuleHook):
             if source.is_file():
                 target_dir = module.parent.name.replace(".", "/")
                 finder.include_files(source, f"lib/{target_dir}/{source.name}")
-                module.code = compile(
-                    module.file.read_bytes().replace(
-                        b"__file__", b"__file__.replace('library.zip', '.')"
+                loader = module.loader
+                path = loader.get_filename(module.name)
+                source_code = loader.get_source(module.name)
+                module.code = loader.source_to_code(
+                    source_code.replace(
+                        "__file__", "__file__.replace('library.zip', '.')"
                     ),
-                    module.file.as_posix(),
-                    "exec",
-                    dont_inherit=True,
-                    optimize=finder.optimize,
+                    path,
+                    _optimize=finder.optimize,
                 )
 
     def sklearn_utils__mask(
@@ -133,14 +130,15 @@ class Hook(ModuleHook):
     ) -> None:
         # patch the code to locate css/js files # v 1.7.0
         if module.in_file_system == 0:
-            module.code = compile(
-                module.file.read_bytes().replace(
-                    b"__file__", b"__file__.replace('library.zip', '.')"
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source_code = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                source_code.replace(
+                    "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                path,
+                _optimize=finder.optimize,
             )
 
     def sklearn_utils_validation(

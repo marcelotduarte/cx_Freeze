@@ -46,17 +46,15 @@ class Hook(ModuleHook):
 
     def _fix_init(self, finder: ModuleFinder, module: Module) -> None:
         """Patch the __init__ of the modules."""
-        code_string = module.file.read_text(encoding="utf_8")
-        code_string = code_string.replace('"/*.py"', '"/*.pyc"')
-        code_string = code_string.replace("'__init__.py'", '"__init__.pyc"')
-        code_string = code_string.replace('"__init__.py"', '"__init__.pyc"')
-        code_string = code_string.replace(
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        source_code = source_code.replace('"/*.py"', '"/*.pyc"')
+        source_code = source_code.replace("'__init__.py'", '"__init__.pyc"')
+        source_code = source_code.replace('"__init__.py"', '"__init__.pyc"')
+        source_code = source_code.replace(
             "basename(f)[:-3]", "basename(f)[:-4]"
         )
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        module.code = loader.source_to_code(
+            source_code, path, _optimize=finder.optimize
         )

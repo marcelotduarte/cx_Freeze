@@ -5,6 +5,7 @@ multiprocessing package is included.
 from __future__ import annotations
 
 import sys
+from importlib.machinery import SourceFileLoader
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -61,11 +62,11 @@ class Hook(ModuleHook):
         # Ignore names that should not be confused with modules to be imported
         module.global_names.update(MULTIPROCESSING_GLOBAL_NAMES)
 
-        if module.file.suffix == ".pyc":  # source unavailable
-            return
         if IS_MINGW or IS_WINDOWS:
             return
-        source = rf"""
+        if not isinstance(module.loader, SourceFileLoader):
+            return
+        patch = rf"""
         # cx_Freeze patch start
         import re as _re
         import sys as _sys
@@ -98,13 +99,11 @@ class Hook(ModuleHook):
                 _freeze_support()
         # cx_Freeze patch end
         """
-        code_string = module.file.read_text(encoding="utf_8") + dedent(source)
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )
 
     def multiprocessing_context(
@@ -115,13 +114,13 @@ class Hook(ModuleHook):
         For Windows, add a workaround for a bug introduced by gh-80334 in
         Python 3.13.4, which was fixed by gh-135726 in Python 3.14.4.
         """
-        if module.file.suffix == ".pyc":  # source unavailable
+        if not isinstance(module.loader, SourceFileLoader):
             return
         if IS_MINGW or IS_WINDOWS:
             PY_313_BUGGED = (3, 13, 4) <= sys.version_info[:3] <= (3, 13, 12)
             PY_314_BUGGED = (3, 14, 0) <= sys.version_info[:3] <= (3, 14, 3)
             if PY_313_BUGGED or PY_314_BUGGED:
-                source = rf"""
+                patch = rf"""
                 # cx_Freeze patch start
                 def _freeze_support(self):
                     from {module.root.name}.spawn import freeze_support
@@ -132,7 +131,7 @@ class Hook(ModuleHook):
             else:
                 return
         else:
-            source = rf"""
+            patch = rf"""
             # cx_Freeze patch start
             def _freeze_support(self):
                 from {module.root.name}.spawn import freeze_support
@@ -152,13 +151,11 @@ class Hook(ModuleHook):
             DefaultContext.get_context = _get_default_context
             # cx_Freeze patch end
             """
-        code_string = module.file.read_text(encoding="utf_8") + dedent(source)
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )
 
     def multiprocessing_synchronize(

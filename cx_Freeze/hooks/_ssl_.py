@@ -55,7 +55,7 @@ class Hook(ModuleHook):
                 return
             finder.include_files(source, "share/certs.pem")
             # patch source code
-            source = r"""
+            patch = r"""
                 # cx_Freeze patch start
                 import os as _os
                 import sys as _sys
@@ -72,10 +72,9 @@ class Hook(ModuleHook):
                     _os.environ["SSL_CERT_FILE"] = _cert_file
                 # cx_Freeze patch end
             """
-            module.code = compile(
-                dedent(source).encode() + module.file.read_bytes(),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source_code = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                dedent(patch) + source_code, path, _optimize=finder.optimize
             )

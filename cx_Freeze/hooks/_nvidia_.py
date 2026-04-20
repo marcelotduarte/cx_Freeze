@@ -37,10 +37,8 @@ class Hook(ModuleHook):
                 library = source.relative_to(source_lib).as_posix()
                 finder.lib_files[source] = f"{target_lib}/{library}"
 
-        code_string = module.file.read_text(encoding="utf_8")
         # fix for issue #2682
-        patch = dedent(
-            f"""
+        patch = f"""
             def _cxfreeze_patch():
                 import ctypes
                 import sys
@@ -50,12 +48,10 @@ class Hook(ModuleHook):
                 for source in source_lib.glob("*/lib/{extension}"):
                     ctypes.CDLL(source)
             _cxfreeze_patch()
-            """
-        )
-        module.code = compile(
-            code_string + patch,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        """
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )

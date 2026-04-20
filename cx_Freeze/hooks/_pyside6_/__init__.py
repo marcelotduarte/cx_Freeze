@@ -57,9 +57,7 @@ class Hook(QtHook):
             finder.include_files(qt_conf, qt_conf.name)
 
         # Inject code to init
-        code_string = module.file.read_text(encoding="utf_8")
-        code_string += dedent(
-            f"""
+        patch = f"""
             # cx_Freeze patch start
             if {environment == "conda"}:
                 import PySide6._cx_freeze_resource
@@ -83,14 +81,12 @@ class Hook(QtHook):
                     )
             import PySide6._cx_freeze_qt_debug
             # cx_Freeze patch end
-            """
-        )
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        """
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )
 
         # small tweaks for shiboken6

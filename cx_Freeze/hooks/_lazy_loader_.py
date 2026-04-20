@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 __all__ = ["Hook"]
 
-ATTACH_STUB = b"""
+ATTACH_STUB = """
 def attach_stub(package_name: str, filename: str):
     exc_reraise = None
     try:
@@ -48,15 +48,12 @@ class Hook(ModuleHook):
             raise SystemExit(msg)
 
         # add support to work with zip files
-        code_bytes = module.file.read_bytes()
-        code_bytes = code_bytes.replace(
-            b"def attach_stub(", b"def _attach_stub("
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        source_code = source_code.replace(
+            "def attach_stub(", "def _attach_stub("
         )
-        code_bytes += ATTACH_STUB
-        module.code = compile(
-            code_bytes,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        module.code = loader.source_to_code(
+            source_code + ATTACH_STUB, path, _optimize=finder.optimize
         )
