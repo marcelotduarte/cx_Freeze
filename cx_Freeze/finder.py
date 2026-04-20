@@ -423,11 +423,6 @@ class ModuleFinder:
             spec = self._find_editable_spec(name, path)
 
         if spec:
-            # Ignore built-in importers
-            if spec.loader is importlib.machinery.BuiltinImporter:
-                return None
-            if spec.loader is importlib.machinery.FrozenImporter:
-                return None
             # Load package or namespace package
             if spec.submodule_search_locations:
                 module = self._add_module(

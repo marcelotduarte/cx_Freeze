@@ -11,6 +11,7 @@ import pytest
 from cx_Freeze import ConstantsModule, ModuleFinder
 
 from .datatest import (
+    A_MODULE,
     ABSOLUTE_IMPORT_TEST,
     BYTECODE_INVALID_TEST,
     BYTECODE_TEST,
@@ -210,3 +211,20 @@ def test_editable_packages(
         source,
         **kwargs,
     )
+
+
+def test_load_module_code(tmp_package) -> None:
+    """Test case for _load_module_code method of ModuleFinder class."""
+    tmp_package.create(A_MODULE[4])
+
+    finder = ModuleFinder(
+        ConstantsModule(), path=[tmp_package.path, *sys.path]
+    )
+    module = finder.include_module("a")
+    module.loader = None  # to coverage the error handler in _load_module_code
+    deferred_imports = []
+    finder._load_module_code(module, deferred_imports)  # noqa: SLF001
+
+    path = tmp_package.path / "a.py"
+    msg = f"Unknown module loader in {path}"
+    assert module.error_msg == msg
