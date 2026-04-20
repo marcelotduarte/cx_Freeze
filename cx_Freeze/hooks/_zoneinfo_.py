@@ -4,6 +4,7 @@ zoneinfo package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from pkgutil import resolve_name
 from textwrap import dedent
@@ -51,10 +52,10 @@ class Hook(ModuleHook):
             target_path = "lib/tzdata/zoneinfo"  # valid if not using zip file
 
         # patch source code
-        if module.file.suffix == ".pyc":  # source unavailable
+        if not isinstance(module.loader, SourceFileLoader):
             return
 
-        source = f"""
+        patch = f"""
             # cx_Freeze patch start
             def _cx_freeze_patch():
                 import os as _os
@@ -79,11 +80,9 @@ class Hook(ModuleHook):
             _cx_freeze_patch()
             # cx_Freeze patch end
         """
-        code_string = module.file.read_text(encoding="utf_8")
-        module.code = compile(
-            dedent(source) + code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            dedent(patch) + source_code, path, _optimize=finder.optimize
         )

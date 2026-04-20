@@ -34,16 +34,14 @@ class Hook(ModuleHook):
         finder.include_package("pandas._config")
         finder.include_package("pandas._libs")
 
-        code_bytes = module.file.read_bytes()
-        code_bytes = code_bytes.replace(
-            b"from pandas import testing", b"testing = None"
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        source_code = source_code.replace(
+            "from pandas import testing", "testing = None"
         )
-        module.code = compile(
-            code_bytes,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        module.code = loader.source_to_code(
+            source_code, path, _optimize=finder.optimize
         )
 
     def pandas_core__numba_executor(

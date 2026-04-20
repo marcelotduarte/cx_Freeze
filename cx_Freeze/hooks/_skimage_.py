@@ -78,15 +78,16 @@ class Hook(ModuleHook):
     ) -> None:
         # using zip file, copy data to share folder - fix _LEGACY_DATA_DIR
         if module.in_file_system == 0:
-            module.code = compile(
-                module.file.read_bytes().replace(
-                    b"__file__",
-                    b"__import__('sys').prefix + '/share/skimage/data/file'",
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                source.replace(
+                    "__file__",
+                    "__import__('sys').prefix + '/share/skimage/data/file'",
                 ),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                path,
+                _optimize=finder.optimize,
             )
 
         module.exclude_names.add("pytest")
@@ -97,15 +98,16 @@ class Hook(ModuleHook):
     ) -> None:
         # using zip file, fix directory to copy data to share folder
         if module.in_file_system == 0:
-            module.code = compile(
-                module.file.read_bytes().replace(
-                    b"__file__",
-                    b"__import__('sys').prefix + '/share/skimage/_'",
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source = loader.get_source(module.name)
+            module.code = loader.source_to_code(
+                source.replace(
+                    "__file__",
+                    "__import__('sys').prefix + '/share/skimage/_'",
                 ),
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                path,
+                _optimize=finder.optimize,
             )
 
     def skimage_io__plugins(

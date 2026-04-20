@@ -59,9 +59,7 @@ class Hook(QtHook):
         copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
 
         # Inject code to init
-        code_string = module.file.read_text(encoding="utf_8")
-        code_string += dedent(
-            f"""
+        patch = f"""
             # cx_Freeze patch start
             import os, sys
             if {environment == "conda"}:  # conda-forge linux, macos, windows
@@ -81,14 +79,12 @@ class Hook(QtHook):
                 os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
             import PySide2._cx_freeze_debug
             # cx_Freeze patch end
-            """
-        )
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        """
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code + dedent(patch), path, _optimize=finder.optimize
         )
 
         # small tweaks for shiboken2

@@ -100,23 +100,21 @@ class Hook(ModuleHook):
         finder.include_module("numpy.polynomial")
         finder.include_module("secrets")
 
-        code_bytes = module.file.read_bytes()
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
         if module.in_file_system == 0:
-            code_bytes = code_bytes.replace(
-                b"__file__", b"__file__.replace('library.zip', '.')"
+            source_code = source_code.replace(
+                "__file__", "__file__.replace('library.zip', '.')"
             )
-        code_bytes = code_bytes.replace(
-            b"import numpy.f2py as f2py", b"f2py = None"
+        source_code = source_code.replace(
+            "import numpy.f2py as f2py", "f2py = None"
         )
-        code_bytes = code_bytes.replace(
-            b"import numpy.testing as testing", b"testing = None"
+        source_code = source_code.replace(
+            "import numpy.testing as testing", "testing = None"
         )
-        module.code = compile(
-            code_bytes,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        module.code = loader.source_to_code(
+            source_code, path, _optimize=finder.optimize
         )
 
     def numpy_compat(self, _finder: ModuleFinder, module: Module) -> None:
@@ -184,17 +182,17 @@ class Hook(ModuleHook):
         optimization that removes docstrings, which are required for this
         module.
         """
-        code_bytes = module.file.read_bytes()
-        search = b"add_docstring(implementation, dispatcher.__doc__)"
-        if search not in code_bytes:
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        search = "add_docstring(implementation, dispatcher.__doc__)"
+        if search not in source_code:
             return
-        replace = b"add_docstring(implementation, dispatcher.__doc__ or '')"
-        module.code = compile(
-            code_bytes.replace(search, replace),
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        replace = "add_docstring(implementation, dispatcher.__doc__ or '')"
+        module.code = loader.source_to_code(
+            source_code.replace(search, replace),
+            path,
+            _optimize=finder.optimize,
         )
 
     numpy_core_overrides = numpy__core_overrides  # numpy < 2.0
@@ -213,8 +211,10 @@ class Hook(ModuleHook):
         ):
             return
 
-        # patch the code when necessary
-        code_bytes = module.file.read_bytes()
+        # patch the source code when necessary
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
 
         module_dir = module.file.parent
         exclude_dependent_files = False
@@ -229,9 +229,9 @@ class Hook(ModuleHook):
                 exclude_dependent_files = True
 
             # cgohlke/numpy-mkl-wheels, numpy 1.26.3 and mkl
-            if b"def init_numpy_mkl():" in code_bytes:
-                code_bytes = code_bytes.replace(
-                    b"path = ", b"path = f'{sys.prefix}\\lib\\mkl'  # "
+            if "def init_numpy_mkl():" in source_code:
+                source_code = source_code.replace(
+                    "path = ", "path = f'{sys.prefix}\\lib\\mkl'  # "
                 )
                 # create a fake module to activate mkl hook
                 mkl_path = finder.cache_path.joinpath("mkl")
@@ -292,15 +292,11 @@ class Hook(ModuleHook):
                 finder.exclude_dependent_files(file)
 
         if module.in_file_system == 0:
-            code_bytes = code_bytes.replace(
-                b"__file__", b"__file__.replace('library.zip', '.')"
+            source_code = source_code.replace(
+                "__file__", "__file__.replace('library.zip', '.')"
             )
-        module.code = compile(
-            code_bytes,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        module.code = loader.source_to_code(
+            source_code, path, _optimize=finder.optimize
         )
 
     def numpy_lib_utils(

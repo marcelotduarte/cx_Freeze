@@ -50,25 +50,23 @@ class Hook(ModuleHook):
         except ImportError:
             pass
         else:
-            code_string = module.file.read_text(encoding="utf_8")
             # patch the code to ignore CUDA_PATH_Vxx_x installation directory
-            code_string = code_string.replace("CUDA_PATH", "NO_CUDA_PATH")
+            loader = module.loader
+            path = loader.get_filename(module.name)
+            source_code = loader.get_source(module.name)
+            source_code = source_code.replace("CUDA_PATH", "NO_CUDA_PATH")
             if IS_LINUX:
                 # fix for issue #2682
-                lines = code_string.splitlines()
+                lines = source_code.splitlines()
                 for i, line in enumerate(lines[:]):
                     if line.strip() == "_load_global_deps()":
                         lines[i] = line.replace(
                             "_load_global_deps()",
                             "import nvidia; _load_global_deps()",
                         )
-                code_string = "\n".join(lines)
-            module.code = compile(
-                code_string,
-                module.file.as_posix(),
-                "exec",
-                dont_inherit=True,
-                optimize=finder.optimize,
+                source_code = "\n".join(lines)
+            module.code = loader.source_to_code(
+                source_code, path, _optimize=finder.optimize
             )
 
         # include the shared libraries in 'lib' as fixed libraries
@@ -119,17 +117,16 @@ class Hook(ModuleHook):
         self, finder: ModuleFinder, module: Module
     ) -> None:
         """Patch to work with Python 3.11+."""
-        code_string = module.file.read_text(encoding="utf_8")
-        code_string = code_string.replace(
-            "return _strip_init_py(m.__file__)",
-            'return _strip_init_py(getattr(m, "__file__", ""))',
-        )
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code.replace(
+                "return _strip_init_py(m.__file__)",
+                'return _strip_init_py(getattr(m, "__file__", ""))',
+            ),
+            path,
+            _optimize=finder.optimize,
         )
 
     def torch__numpy(self, finder: ModuleFinder, module: Module) -> None:

@@ -25,15 +25,17 @@ class Hook(ModuleHook):
 
         # remove testing module
         finder.exclude_module("pyparsing.testing")
-        code_bytes = module.file.read_bytes()
-        search = b"from .testing import pyparsing_test as testing"
-        replace = b"testing = None"
-        module.code = compile(
-            code_bytes.replace(search, replace),
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        # also, patch code to remove testing module
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        module.code = loader.source_to_code(
+            source_code.replace(
+                "from .testing import pyparsing_test as testing",
+                "testing = None",
+            ),
+            path,
+            _optimize=finder.optimize,
         )
 
     def pyparsing_core(self, _finder: ModuleFinder, module: Module) -> None:

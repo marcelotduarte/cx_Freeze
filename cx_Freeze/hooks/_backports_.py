@@ -20,12 +20,10 @@ class Hook(ModuleHook):
 
     def backports(self, finder: ModuleFinder, module: Module) -> None:
         """The backports namespace cleanup."""
-        module.code = compile(
-            b"",
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        module.code = loader.source_to_code(
+            "", path, _optimize=finder.optimize
         )
 
     def backports_zstd(

@@ -37,22 +37,20 @@ class Hook(ModuleHook):
                 target = "lib" / source.relative_to(site_packages_path)
                 finder.include_files(source, target)
 
-        # patch the code to search the correct directory
-        code_string = module.file.read_text(encoding="utf_8")
-        code_string = code_string.replace(
+        # patch the source code to search the correct directory
+        loader = module.loader
+        path = loader.get_filename(module.name)
+        source_code = loader.get_source(module.name)
+        source_code = source_code.replace(
             "_site_packages_dirs = []",
             "_site_packages_dirs = [_os.path.join(_sys.prefix, 'lib')]",
         )
-        code_string = code_string.replace(
+        source_code = source_code.replace(
             "_current_file_location = ",
             "_current_file_location = __file__.replace('library.zip', '.')  #",
         )
-        module.code = compile(
-            code_string,
-            module.file.as_posix(),
-            "exec",
-            dont_inherit=True,
-            optimize=finder.optimize,
+        module.code = loader.source_to_code(
+            source_code, path, _optimize=finder.optimize
         )
 
         # installed version of tensorflow is a variant?
