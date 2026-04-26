@@ -171,7 +171,7 @@ DIST_ATTRS = {
         ),
     ],
 )
-def test_build_exe_finalize_options(
+def test_build_exe_call(
     kwargs: dict[str, ...], expected: dict[str, ...]
 ) -> None:
     """Test the build_exe finalize_options."""
@@ -193,7 +193,7 @@ def test_build_exe_finalize_options(
         ),
     ],
 )
-def test_build_exe_finalize_options_raises(
+def test_build_exe_call_invalid(
     kwargs: dict[str, ...], expected_exception, expected_match: str
 ) -> None:
     """Test the build_exe finalize_options that raises an exception."""
@@ -366,7 +366,7 @@ def test_build_exe_finalize_options_raises(
         ),
     ],
 )
-def test_build_exe_script_args(
+def test_build_exe_command_line(
     build_args: list[str], expected: dict[str, ...]
 ) -> None:
     """Test the build_exe with command line parameters."""

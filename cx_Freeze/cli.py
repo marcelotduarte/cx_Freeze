@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 from cx_Freeze import __version__, setup
-from cx_Freeze._pyproject import get_pyproject_tool_data
 
 __all__ = ["main"]
 
@@ -265,12 +264,7 @@ def main() -> None:
                     sys.path.pop(i)
         sys.path.insert(0, os.getcwd())
 
-    # get options from pyproject.toml
-    options = get_pyproject_tool_data()
-    executables.extend(options.pop("executables", []))
-
     setup(
-        command_options=options,
         executables=executables,
         script_args=script_args,
         script_name=parser.prog,

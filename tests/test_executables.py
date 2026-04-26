@@ -34,10 +34,10 @@ pyproject.toml
 
     [[tool.cxfreeze.executables]]
     script = "test_1.py"
-    target_name = "test_2"
+    target-name = "test_2"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 command
@@ -101,10 +101,10 @@ pyproject.toml
 
     [[tool.cxfreeze.executables]]
     script = "test_1.py"
-    target_name = "test_2"
+    target-name = "test_2"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 setup.py
@@ -151,7 +151,7 @@ pyproject.toml
     script = "test_3.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 command
@@ -426,7 +426,7 @@ pyproject.toml
     icon = "icon"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
@@ -473,7 +473,7 @@ pyproject.toml
     icon = "icon.png"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
@@ -508,7 +508,7 @@ pyproject.toml
     script = "test_invalid_syntax.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent_level = 1
 """
@@ -535,7 +535,7 @@ pyproject.toml
     script = "test_0.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -683,7 +683,7 @@ pyproject.toml
     script = "test_sys_path.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
