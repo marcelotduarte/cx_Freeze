@@ -59,7 +59,7 @@ pyproject.toml
     executables = ["test_matplotlib.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
@@ -140,7 +140,7 @@ pyproject.toml
     executables = ["test_rasterio.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
@@ -206,7 +206,7 @@ pyproject.toml
     executables = ["test_shapely.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """
@@ -283,7 +283,7 @@ pyproject.toml
     executables = ["test_vtk.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
     silent = true
 """

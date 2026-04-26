@@ -18,11 +18,25 @@ def get_pyproject_tool_data() -> dict:
     with pyproject_toml.open("rb") as file:
         config = tomllib.load(file)
     tool_data = config.get("tool", {}).get("cxfreeze", {})
-    executables = tool_data.pop("executables", [])
+    executables = []
+    for executable in tool_data.pop("executables", []):
+        if isinstance(executable, dict):
+            executables.append(
+                {json_compatible_key(k): v for k, v in executable.items()}
+            )
+        else:
+            executables.append(executable)
+
     options = {}
     for cmd, data in tool_data.items():
+        options.setdefault(cmd, {})
         for option, value in data.items():
-            options.setdefault(cmd, {})
-            options[cmd].setdefault(option, ("tool.cxfreeze", value))
+            norm_key = json_compatible_key(option)
+            options[cmd].setdefault(norm_key, ("tool.cxfreeze", value))
     options["executables"] = executables
     return options
+
+
+def json_compatible_key(key: str) -> str:
+    """As defined in :pep:`566#json-compatible-metadata`."""
+    return key.lower().replace("-", "_")

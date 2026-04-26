@@ -34,7 +34,7 @@ pyproject.toml
     init_script = "streamlit"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """

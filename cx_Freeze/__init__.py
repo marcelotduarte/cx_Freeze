@@ -13,6 +13,7 @@ from pathlib import Path
 
 import setuptools
 
+from cx_Freeze._pyproject import get_pyproject_tool_data
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.command.install import Install as install
 from cx_Freeze.command.install_exe import install_exe
@@ -68,7 +69,14 @@ def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     cmdclass.setdefault("build_exe", build_exe)
     cmdclass.setdefault("install", install)
     cmdclass.setdefault("install_exe", install_exe)
-    attrs.setdefault("executables", [])
+
+    # get options from pyproject.toml
+    options = get_pyproject_tool_data()
+    executables = attrs.setdefault("executables", [])
+    if executables is not None:
+        executables.extend(options.pop("executables", []))
+    command_options: dict = attrs.setdefault("command_options", {})
+    command_options.update(options)
     return setuptools.setup(**attrs)
 
 
