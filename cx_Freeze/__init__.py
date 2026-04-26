@@ -71,12 +71,12 @@ def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     cmdclass.setdefault("install_exe", install_exe)
 
     # get options from pyproject.toml
-    options = get_pyproject_tool_data()
+    cmd_options = get_pyproject_tool_data()
     executables = attrs.setdefault("executables", [])
     if executables is not None:
-        executables.extend(options.pop("executables", []))
-    command_options: dict = attrs.setdefault("command_options", {})
-    command_options.update(options)
+        executables.extend(cmd_options.pop("executables", []))
+    options: dict = attrs.setdefault("options", {})
+    options.update(cmd_options)
     return setuptools.setup(**attrs)
 
 
