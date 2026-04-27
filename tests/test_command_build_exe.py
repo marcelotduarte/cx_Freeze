@@ -8,7 +8,7 @@ import pytest
 from setuptools import Distribution
 
 from cx_Freeze._compat import BUILD_EXE_DIR, IS_UCRT
-from cx_Freeze._pyproject import get_pyproject_tool_data
+from cx_Freeze._pyproject import get_pyproject_options, update_command_options
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 
@@ -417,13 +417,13 @@ pyproject.toml
     """
     tmp_package.create(source)
     # get options from pyproject.toml
-    options = get_pyproject_tool_data()
+    options = get_pyproject_options()
     executables = options.pop("executables", [])
     attrs = {
         "executables": executables,
         "script_name": "pyproject.toml",
         "script_args": ["build_exe"],
-        "command_options": options,
+        "command_options": update_command_options({}, options),
     }
     dist = Distribution(attrs)
     dist.parse_config_files()
