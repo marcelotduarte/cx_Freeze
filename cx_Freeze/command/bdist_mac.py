@@ -13,13 +13,14 @@ from typing import ClassVar
 
 from setuptools import Command
 
+from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
     apply_adhoc_signature,
     change_load_reference,
     isMachOFile,
 )
-from cx_Freeze.exception import OptionError
+from cx_Freeze.exception import OptionError, PlatformError
 
 __all__ = ["bdist_mac"]
 
@@ -156,6 +157,9 @@ class bdist_mac(Command):
         self.build_dir = None
 
     def finalize_options(self) -> None:
+        if not IS_MACOS:
+            msg = "bdist_mac is only supported on macOS"
+            raise PlatformError(msg)
         # Make sure all options of multiple values are lists
         for option in self.list_options:
             setattr(self, option, normalize_to_list(getattr(self, option)))

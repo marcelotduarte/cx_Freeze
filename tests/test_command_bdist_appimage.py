@@ -24,9 +24,9 @@ DIST_ATTRS = {
 }
 
 
-@pytest.mark.skipif(IS_LINUX, reason="Test not on Linux platform")
-def test_bdist_appimage_not_posix() -> None:
-    """Test the bdist_appimage fail if not on Linux."""
+@pytest.mark.skipif(IS_LINUX, reason="Test for non-Linux platform")
+def test_bdist_appimage_in_non_linux() -> None:
+    """Test the bdist_appimage fail in non-Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
     msg = "bdist_appimage is only supported on Linux"

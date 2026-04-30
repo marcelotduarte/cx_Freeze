@@ -205,7 +205,7 @@ class bdist_rpm(Command):
 
     def finalize_options(self) -> None:
         if not IS_LINUX:
-            msg = "bdist_rpm is supported only on Linux"
+            msg = "bdist_rpm is only supported on Linux"
             raise PlatformError(msg)
 
         self._rpm = shutil.which("rpm")

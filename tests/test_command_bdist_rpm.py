@@ -23,12 +23,12 @@ DIST_ATTRS = {
 }
 
 
-@pytest.mark.skipif(IS_LINUX, reason="Test not on Linux platform")
-def test_bdist_rpm_not_posix() -> None:
-    """Test the bdist_rpm fail if not on Linux."""
+@pytest.mark.skipif(IS_LINUX, reason="Test for non-Linux platform")
+def test_bdist_rpm_in_non_linux() -> None:
+    """Test the bdist_rpm fail in non-Linux."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist)
-    msg = "bdist_rpm is supported only on Linux"
+    msg = "bdist_rpm is only supported on Linux"
     with pytest.raises(PlatformError, match=msg):
         cmd.finalize_options()
 
