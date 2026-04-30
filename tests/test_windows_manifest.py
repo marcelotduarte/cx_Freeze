@@ -40,21 +40,21 @@ pyproject.toml
     [[tool.cxfreeze.executables]]
     script = "test_manifest.py"
     manifest = "simple.manifest"
-    target_name = "test_simple_manifest"
+    target-name = "test_simple_manifest"
 
     [[tool.cxfreeze.executables]]
     script = "test_manifest.py"
-    uac_admin = true
-    target_name = "test_uac_admin"
+    uac-admin = true
+    target-name = "test_uac_admin"
 
     [[tool.cxfreeze.executables]]
     script = "test_manifest.py"
-    uac_admin = true
-    uac_uiaccess = true
-    target_name = "test_uac_uiaccess"
+    uac-admin = true
+    uac-uiaccess = true
+    target-name = "test_uac_uiaccess"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 simple.manifest

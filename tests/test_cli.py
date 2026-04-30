@@ -131,7 +131,7 @@ pyproject.toml
     build_exe = "dist"
     excludes = ["tkinter", "unittest"]
     includes = ["testfreeze_1", "testfreeze_2"]
-    include_msvcr = true
+    include-msvcr = true
     silent = true
 """
 OUTPUT0 = "Hello from cx_Freeze Advanced #{}"

@@ -37,7 +37,7 @@ pyproject.toml
     executables = ["test_ctypes.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -107,7 +107,7 @@ pyproject.toml
     executables = ["test_sqlite.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -163,7 +163,7 @@ pyproject.toml
     executables = ["test_ssl.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -235,7 +235,7 @@ pyproject.toml
     executables = ["test_tk.py"]
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["unittest"]
     silent = true
 """

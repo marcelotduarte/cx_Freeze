@@ -62,18 +62,18 @@ pyproject.toml
 
     [[tool.cxfreeze.executables]]
     script = "regularpack/main.py"
-    target_name = "regularpack"
+    target-name = "regularpack"
 
     [[tool.cxfreeze.executables]]
     script = "namespacepack/firstchildpack/main.py"
-    target_name = "firstchildpack"
+    target-name = "firstchildpack"
 
     [[tool.cxfreeze.executables]]
     script = "namespacepack/secondchildpack/main.py"
-    target_name = "secondchildpack"
+    target-name = "secondchildpack"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = [
         "regularpack.configs",
         "regularpack.models",

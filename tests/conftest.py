@@ -22,10 +22,10 @@ import pytest
 from filelock import BaseFileLock, FileLock
 from packaging.requirements import InvalidRequirement, Requirement
 
-if sys.version_info < (3, 11):
-    import tomli as tomllib
-else:
+try:
     import tomllib
+except ImportError:
+    import tomli as tomllib
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

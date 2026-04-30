@@ -8,6 +8,7 @@ import pytest
 from setuptools import Distribution
 
 from cx_Freeze._compat import BUILD_EXE_DIR, IS_UCRT
+from cx_Freeze._pyproject import get_pyproject_options, update_command_options
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
 
@@ -171,7 +172,7 @@ DIST_ATTRS = {
         ),
     ],
 )
-def test_build_exe_finalize_options(
+def test_build_exe_call(
     kwargs: dict[str, ...], expected: dict[str, ...]
 ) -> None:
     """Test the build_exe finalize_options."""
@@ -193,7 +194,7 @@ def test_build_exe_finalize_options(
         ),
     ],
 )
-def test_build_exe_finalize_options_raises(
+def test_build_exe_call_invalid(
     kwargs: dict[str, ...], expected_exception, expected_match: str
 ) -> None:
     """Test the build_exe finalize_options that raises an exception."""
@@ -366,7 +367,7 @@ def test_build_exe_finalize_options_raises(
         ),
     ],
 )
-def test_build_exe_script_args(
+def test_build_exe_command_line(
     build_args: list[str], expected: dict[str, ...]
 ) -> None:
     """Test the build_exe with command line parameters."""
@@ -374,6 +375,58 @@ def test_build_exe_script_args(
     attrs["script_args"] = ["build_exe", *build_args]
     dist = Distribution(attrs)
     dist.parse_command_line()
+    dist.dump_option_dicts()
+    cmd_obj = dist.get_command_obj("build_exe")
+    cmd_obj.ensure_finalized()
+    for option, value in expected.items():
+        assert getattr(cmd_obj, option) == value
+
+
+@pytest.mark.parametrize(
+    ("build_args", "expected"),
+    [
+        pytest.param(
+            [],
+            {"build_exe": os.path.normpath(BUILD_EXE_DIR)},
+            id="--build-exe(notused)",
+        ),
+        pytest.param(
+            ['build-exe = "dist"'],
+            {"build_exe": "dist"},
+            id="--build-exe=dist",
+        ),
+    ],
+)
+def test_build_exe_pyproject(
+    tmp_package, build_args: list[str], expected: dict[str, ...]
+) -> None:
+    """Test the build_exe using pyproject."""
+    extra_args = "\n".join(build_args)
+    source = f"""
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.0.1"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "hello.py"
+
+    [tool.cxfreeze.build_exe]
+    {extra_args}
+    """
+    tmp_package.create(source)
+    # get options from pyproject.toml
+    options = get_pyproject_options()
+    executables = options.pop("executables", [])
+    attrs = {
+        "executables": executables,
+        "script_name": "pyproject.toml",
+        "script_args": ["build_exe"],
+        "command_options": update_command_options({}, options),
+    }
+    dist = Distribution(attrs)
+    dist.parse_config_files()
     dist.dump_option_dicts()
     cmd_obj = dist.get_command_obj("build_exe")
     cmd_obj.ensure_finalized()
