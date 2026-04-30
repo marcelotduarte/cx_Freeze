@@ -65,7 +65,7 @@ def test_bdist_dmg(tmp_package) -> None:
     dist_created = tmp_package.path / "build"
 
     tmp_package.create_from_sample("dmg")
-    result = tmp_package.freeze("python -v setup.py bdist_dmg")
+    result = tmp_package.freeze("python setup.py bdist_dmg")
     if result.ret != 0:
         msg = str(result.stderr)
         expected_err = "bdist_dmg: Unable to "
@@ -85,7 +85,7 @@ def test_bdist_dmg_custom_layout(tmp_package) -> None:
     dist_created = tmp_package.path / "build"
 
     tmp_package.create_from_sample("dmg_layout")
-    result = tmp_package.freeze("python -v setup.py bdist_dmg")
+    result = tmp_package.freeze("python setup.py bdist_dmg")
     if result.ret != 0:
         msg = str(result.stderr)
         expected_err = "bdist_dmg: Unable to "
