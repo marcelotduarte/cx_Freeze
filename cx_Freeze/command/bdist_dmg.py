@@ -7,12 +7,14 @@ import shutil
 from contextlib import suppress
 from typing import TYPE_CHECKING, ClassVar
 
-from dmgbuild.core import DMGError, build_dmg
 from setuptools import Command
 
+from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, PlatformError
 
+if IS_MACOS:
+    from dmgbuild.core import DMGError, build_dmg
 if TYPE_CHECKING:
     from cx_Freeze import Executable
 
@@ -178,6 +180,9 @@ class bdist_dmg(Command):
         self.list_column_sort_directions = None
 
     def finalize_options(self) -> None:
+        if not IS_MACOS:
+            msg = "bdist_dmg is only supported on macOS"
+            raise PlatformError(msg)
         if not self.volume_label:
             msg = "volume-label must be set"
             raise OptionError(msg)

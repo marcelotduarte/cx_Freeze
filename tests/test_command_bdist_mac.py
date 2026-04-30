@@ -2,16 +2,12 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
+from setuptools import Distribution
 
-bdist_mac = pytest.importorskip(
-    "cx_Freeze.command.bdist_mac", reason="macOS tests"
-).bdist_mac
-
-if sys.platform != "darwin":
-    pytest.skip(reason="macOS tests", allow_module_level=True)
+from cx_Freeze._compat import IS_MACOS
+from cx_Freeze.command.bdist_mac import bdist_mac
+from cx_Freeze.exception import PlatformError
 
 DIST_ATTRS = {
     "name": "foo",
@@ -25,6 +21,44 @@ DIST_ATTRS = {
 }
 
 
+@pytest.mark.skipif(IS_MACOS, reason="Test for non-macOS platform")
+def test_bdist_mac_in_non_macos() -> None:
+    """Test the bdist_mac fail in non-macOS."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_mac(dist)
+    msg = "bdist_mac is only supported on macOS"
+    with pytest.raises(PlatformError, match=msg):
+        cmd.finalize_options()
+
+
+@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
+@pytest.mark.parametrize(
+    ("kwargs", "expected"),
+    [
+        pytest.param(
+            {},
+            {"bundle_name": "foo-0.0"},
+            id="bundle_name=none",
+        ),
+        pytest.param(
+            {"bundle_name": "simple test"},
+            {"bundle_name": "simple test"},
+            id='bundle_name="simple test"',
+        ),
+    ],
+)
+def test_bdist_mac_call(
+    kwargs: dict[str, ...], expected: dict[str, ...]
+) -> None:
+    """Test the bdist_mac with options."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_mac(dist, **kwargs)
+    cmd.finalize_options()
+    for option, value in expected.items():
+        assert getattr(cmd, option) == value
+
+
+@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
 def test_bdist_mac(tmp_package) -> None:
     """Test the simple sample with bdist_mac."""
     name = "hello"

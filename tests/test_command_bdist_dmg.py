@@ -2,18 +2,63 @@
 
 from __future__ import annotations
 
-import sys
-
 import pytest
+from setuptools import Distribution
 
-bdist_dmg = pytest.importorskip(
-    "cx_Freeze.command.bdist_dmg", reason="macOS tests"
-).bdist_dmg
+from cx_Freeze._compat import IS_MACOS
+from cx_Freeze.command.bdist_dmg import bdist_dmg
+from cx_Freeze.exception import PlatformError
 
-if sys.platform != "darwin":
-    pytest.skip(reason="macOS tests", allow_module_level=True)
+DIST_ATTRS = {
+    "name": "foo",
+    "version": "0.0",
+    "description": "cx_Freeze script to test bdist_dmg",
+    "executables": ["hello.py"],
+    "script_name": "setup.py",
+    "author": "Marcelo Duarte",
+    "author_email": "marcelotduarte@users.noreply.github.com",
+    "url": "https://github.com/marcelotduarte/cx_Freeze/",
+}
 
 
+@pytest.mark.skipif(IS_MACOS, reason="Test for non-macOS platform")
+def test_bdist_dmg_in_non_macos() -> None:
+    """Test the bdist_dmg fail in non-macOS."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_dmg(dist)
+    msg = "bdist_dmg is only supported on macOS"
+    with pytest.raises(PlatformError, match=msg):
+        cmd.finalize_options()
+
+
+@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
+@pytest.mark.parametrize(
+    ("kwargs", "expected"),
+    [
+        pytest.param(
+            {},
+            {"volume_label": "foo-0.0"},
+            id="volume_label=none",
+        ),
+        pytest.param(
+            {"volume_label": "simple test"},
+            {"volume_label": "simple test"},
+            id='volume_label="simple test"',
+        ),
+    ],
+)
+def test_bdist_dmg_call(
+    kwargs: dict[str, ...], expected: dict[str, ...]
+) -> None:
+    """Test the bdist_dmg with options."""
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_dmg(dist, **kwargs)
+    cmd.finalize_options()
+    for option, value in expected.items():
+        assert getattr(cmd, option) == value
+
+
+@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
 def test_bdist_dmg(tmp_package) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "Howdy Yall"
@@ -33,6 +78,7 @@ def test_bdist_dmg(tmp_package) -> None:
     assert file_created.is_file(), f"{name}.dmg"
 
 
+@pytest.mark.skipif(not IS_MACOS, reason="macOS test")
 def test_bdist_dmg_custom_layout(tmp_package) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "Howdy Yall"
