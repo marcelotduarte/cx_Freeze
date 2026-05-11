@@ -18,7 +18,9 @@ if TYPE_CHECKING:
 if sys.version_info[:2] >= (3, 13):
     from dis import _unpack_opargs
 else:
-    from dis import _unpack_opargs as dis_unpack_opargs
+    from dis import (
+        _unpack_opargs as dis_unpack_opargs,  # ty: ignore[unresolved-import]
+    )
 
     def _unpack_opargs(co_code) -> Generator:
         for i, op, arg in dis_unpack_opargs(co_code):
@@ -92,7 +94,7 @@ def code_object_replace_function(
     return code_object_replace(code, co_consts=consts)
 
 
-def code_object_replace_package(module: Module) -> CodeType:
+def code_object_replace_package(module: Module) -> CodeType | None:
     """Replace the value of __package__ directly in the code, when the
     module is in a package and will be stored in shared zip file.
     """
@@ -108,8 +110,8 @@ def code_object_replace_package(module: Module) -> CodeType:
         return code
     # Only if the code references it.
     if "__package__" in code.co_names:
-        consts = list(code.co_consts)
-        pkg_const_index = len(consts)
+        co_consts = list(code.co_consts)
+        pkg_const_index = len(co_consts)
         pkg_name_index = code.co_names.index("__package__")
         if pkg_const_index > 255 or pkg_name_index > 255:
             # Don't touch modules with many constants or names;
@@ -117,12 +119,13 @@ def code_object_replace_package(module: Module) -> CodeType:
             return code
         # Insert a bytecode to set __package__ as module.parent.name
         codes = [LOAD_CONST, pkg_const_index, STORE_NAME, pkg_name_index]
-        codestring = bytes(codes) + code.co_code
-        if module.file.stem == "__init__":
-            consts.append(module.name)
-        else:
-            consts.append(module.parent.name)
-        code = code_object_replace(code, co_code=codestring, co_consts=consts)
+        co_code = bytes(codes) + code.co_code
+        if module.file:
+            if module.file.stem == "__init__":
+                co_consts.append(module.name)
+            else:
+                co_consts.append(module.parent.name)
+        code = code_object_replace(code, co_code=co_code, co_consts=co_consts)
     return code
 
 

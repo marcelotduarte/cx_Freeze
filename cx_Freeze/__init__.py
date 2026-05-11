@@ -79,7 +79,8 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     """Use a setuptools extension to customize Distribution options."""
     if getattr(dist, "executables", None) is None:
         return
-    validate_executables(dist, "executables", dist.executables)
+    executables = dist.executables  # ty:ignore[unresolved-attribute]
+    validate_executables(dist, "executables", executables)
 
     # Enable package discovery for src-layout
     if Path("src").is_dir() and dist.packages is None:
@@ -89,7 +90,7 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     # Disable package discovery for modules
     dist.py_modules = []
     # Disable subcommand build_py
-    dist.has_pure_modules = lambda: False
+    dist.has_pure_modules = lambda: False  # ty: ignore[invalid-assignment]
 
     # Add/update commands (provisional)
     cmdclass = dist.cmdclass
@@ -100,5 +101,8 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     # Add build_exe as subcommand of setuptools build (plugin)
     build = dist.get_command_obj("build")
     build.user_options.insert(1, ("build-exe=", None, "[REMOVED]"))
-    build.build_exe = None
-    build.sub_commands = [*build.sub_commands, ("build_exe", None)]
+    build.build_exe = None  # ty: ignore[unresolved-attribute]
+    build.sub_commands = [  # ty: ignore[invalid-attribute-access]
+        *build.sub_commands,
+        ("build_exe", None),
+    ]

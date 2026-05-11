@@ -30,7 +30,6 @@ dependencies = [
     "freeze-core>=0.6.1",
     "packaging>=25.0",
     "setuptools>=78.1.1,<83.0",
-    "tomli>=2.0.1 ;python_version == '3.10'",
     # Linux
     "filelock>=3.20.3 ;sys_platform == 'linux'",
     "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
@@ -290,3 +289,20 @@ ignore-variadic-names = true
 [tool.ruff.format]
 docstring-code-format = true
 docstring-code-line-length = 50
+
+[tool.ty.src]
+exclude = [
+    "cx_Freeze/command",
+    "cx_Freeze/hooks",
+    "cx_Freeze/importshed",
+    "cx_Freeze/darwintools.py",
+    "cx_Freeze/finder.py",
+    "cx_Freeze/freezer.py",
+    "cx_Freeze/module.py",
+    "cx_Freeze/winversioninfo.py",
+    "doc",
+    "new",
+    "old",
+    "samples*/*/*.py",
+    "tests*/test_*.py",
+]

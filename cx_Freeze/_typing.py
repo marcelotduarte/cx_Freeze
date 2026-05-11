@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from os import PathLike
 from pathlib import Path, PurePath
 from typing import TypeAlias
 
@@ -17,4 +18,12 @@ InternalIncludesList: TypeAlias = list[tuple[Path, PurePath]]
 
 HANDLE: TypeAlias = int | None
 
-__all__ = ["HANDLE", "DeferredList", "IncludesList", "InternalIncludesList"]
+StrPath: TypeAlias = str | PathLike[str]
+
+__all__ = [
+    "HANDLE",
+    "DeferredList",
+    "IncludesList",
+    "InternalIncludesList",
+    "StrPath",
+]

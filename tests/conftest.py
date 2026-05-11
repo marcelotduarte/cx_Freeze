@@ -22,13 +22,14 @@ import pytest
 from filelock import BaseFileLock, FileLock
 from packaging.requirements import InvalidRequirement, Requirement
 
-if sys.version_info < (3, 11):
-    import tomli as tomllib
-else:
+if sys.version_info[:2] >= (3, 11):
     import tomllib
+else:
+    from setuptools.compat.py310 import tomllib
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from types import GeneratorType
 
 # copied from cx_Freeze._compat
 PLATFORM = sysconfig.get_platform()
@@ -148,7 +149,7 @@ class TempPackage:
 
     def freeze(
         self,
-        command: Sequence | None = None,
+        command: Sequence[str] | Path | None = None,
         cwd: str | Path | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
@@ -166,6 +167,8 @@ class TempPackage:
                 command = "cxfreeze build"
             else:
                 command = "python setup.py build"
+        elif isinstance(command, Path):
+            command = os.fspath(command)
         command = (
             command.split() if isinstance(command, str) else list(command)
         )
@@ -219,7 +222,7 @@ class TempPackage:
                 command = ["python", "-m", "pip", *command[1:]]
 
         if command[0] == "python":
-            command[0] = self.python
+            command[0] = os.fspath(self.python)
         cwd = os.fspath(self.path if cwd is None else cwd)
         try:
             process = subprocess.run(
@@ -241,8 +244,7 @@ class TempPackage:
             returncode = process.returncode
             stdout = process.stdout or ""
             stderr = process.stderr or ""
-        if isinstance(stdout, bytes):
-            stdout = stdout.decode()
+        stdout = stdout.decode() if isinstance(stdout, bytes) else str(stdout)
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
         print(stdout)
@@ -259,7 +261,7 @@ class TempPackage:
         binary: bool = True,
         index: bool | str | None = None,
         isolated: bool = True,
-    ) -> pytest.RunResult:
+    ) -> pytest.RunResult | None:
         """Install required packages for the test."""
         if isinstance(packages, str):
             packages = [packages]
@@ -345,7 +347,7 @@ class TempPackage:
         for i, package in enumerate(packages):
             with suppress(KeyError):
                 packages[i] = self.map_package_to_conda[package]
-        packages = " ".join(packages)
+        packages: str = " ".join(packages)
         cmd = f"conda install -S -q -y -p {self.prefix}"
         if not any(
             opc for opc in ("-c", "--channel", "::") if opc in packages
@@ -365,7 +367,7 @@ class TempPackage:
             except KeyError:
                 package = f"python-{pkg}"
             packages[i] = f"{MINGW_PACKAGE_PREFIX}-{package}"
-        packages = " ".join(packages)
+        packages: str = " ".join(packages)
         cmd = f"pacman -S --needed --noconfirm --quiet {packages}"
         result = self.run(cmd, cwd=self.system_path)
         if result.ret > 0:
@@ -400,7 +402,7 @@ class TempPackage:
                 saved.extend(
                     [pkg["spec"] for pkg in installed if pkg["name"] in names]
                 )
-        packages = " ".join(packages)
+        packages: str = " ".join(packages)
         if backend is None:
             backend = self.backend
         if backend == "uv":
@@ -502,14 +504,16 @@ class TempPackageVenv(TempPackage):
 
     def freeze(
         self,
-        command: Sequence | Path | None = None,
+        command: Sequence[str] | Path | None = None,
         cwd: str | Path | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:
         if IS_CONDA:
-            self.prefix = self.venv_prefix
-            self.python = self.venv_python
+            if self.venv_prefix:
+                self.prefix = self.venv_prefix
+            if self.venv_python:
+                self.python = self.venv_python
             try:
                 return super().freeze(command, cwd, env, timeout)
             finally:
@@ -518,7 +522,8 @@ class TempPackageVenv(TempPackage):
         # PYTHONPATH is the key here
         if env is None:
             env = os.environ.copy()
-        venv_site = os.path.normpath(self.venv_prefix / self.relative_site)
+        prefix = self.venv_prefix or self.prefix
+        venv_site = os.path.normpath(prefix / self.relative_site)
         env["PYTHONPATH"] = venv_site
         return super().freeze(command, cwd, env, timeout)
 
@@ -530,10 +535,12 @@ class TempPackageVenv(TempPackage):
         binary: bool = True,
         index: bool | str | None = None,
         isolated: bool = False,  # noqa: ARG002
-    ) -> pytest.RunResult:
+    ) -> pytest.RunResult | None:
         # install in the venv prefix
-        self.prefix = self.venv_prefix
-        self.python = self.venv_python
+        if self.venv_prefix:
+            self.prefix = self.venv_prefix
+        if self.venv_python:
+            self.python = self.venv_python
         try:
             return super().install(
                 packages,
@@ -586,7 +593,7 @@ class TempPackageVenv(TempPackage):
 
     def _venv_pip(self) -> None:
         # create venv
-        prefix = os.path.normpath(self.venv_prefix)
+        prefix = self.venv_prefix
         if self.backend == "uv":
             python = f"{PYTHON_VERSION}{ABI_THREAD}"
             cmd = f"uv venv --clear --python={python} {prefix}"
@@ -615,7 +622,7 @@ class TempPackageVenv(TempPackage):
             elif self.backend == "mingw":
                 # venv is not used in mingw
                 pass
-            elif prefix.is_dir():
+            elif isinstance(prefix, Path) and prefix.is_dir():
                 rmtree(prefix, ignore_errors=True)
 
 
@@ -629,7 +636,7 @@ def _tmp_package(
     request: pytest.FixtureRequest,
     tmp_path_factory: pytest.TempPathFactory,
     monkeypatch: pytest.MonkeyPatch,
-) -> TempPackage:
+) -> GeneratorType[TempPackage]:
     """Create package in temporary path, based on source (or sample)."""
     tmp_pkg = TempPackage(request, tmp_path_factory, monkeypatch)
     yield tmp_pkg
@@ -641,7 +648,7 @@ def _tmp_package_venv(
     request: pytest.FixtureRequest,
     tmp_path_factory: pytest.TempPathFactory,
     monkeypatch: pytest.MonkeyPatch,
-) -> TempPackage:
+) -> GeneratorType[TempPackage]:
     """Create package in temporary path, based on source (or sample),
     using a virtual environment.
     """
@@ -651,7 +658,7 @@ def _tmp_package_venv(
 
 
 @pytest.fixture
-def tmp_package(request: pytest.FixtureRequest) -> TempPackage:
+def tmp_package(request: pytest.FixtureRequest) -> GeneratorType[TempPackage]:
     """Create package in temporary path, based on source (or sample)."""
     # activate venv if has a venv mark using fixture dispatch
     venv_marker = request.node.get_closest_marker(name="venv")

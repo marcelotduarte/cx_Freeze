@@ -235,7 +235,7 @@ def main() -> None:
         import setuptools.dist  # noqa: PLC0415
 
         os.environ["DISTUTILS_DEBUG"] = "1"
-        setuptools.dist.DEBUG = 1
+        setuptools.dist.DEBUG = "1"
 
     # finalize command line options
     executables = []
