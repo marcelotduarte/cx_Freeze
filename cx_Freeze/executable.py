@@ -22,6 +22,9 @@ from cx_Freeze.exception import OptionError, SetupError
 if TYPE_CHECKING:
     from setuptools import Distribution
 
+    from cx_Freeze._typing import StrPath
+
+
 STRINGREPLACE = list(
     string.whitespace + string.punctuation.replace(".", "").replace("_", "")
 )
@@ -34,16 +37,16 @@ class Executable:
 
     def __init__(
         self,
-        script: str | Path,
-        init_script: str | Path | None = None,
-        base: str | Path | None = None,
+        script: StrPath,
+        init_script: StrPath | None = None,
+        base: StrPath | None = None,
         target_name: str | None = None,
-        icon: str | Path | None = None,
+        icon: StrPath | None = None,
         shortcut_name: str | None = None,
-        shortcut_dir: str | Path | None = None,
+        shortcut_dir: StrPath | None = None,
         copyright: str | None = None,  # noqa: A002
         trademarks: str | None = None,
-        manifest: str | Path | None = None,
+        manifest: StrPath | None = None,
         uac_admin: bool = False,
         uac_uiaccess: bool = False,
     ) -> None:
@@ -86,16 +89,17 @@ class Executable:
         return self._base
 
     @base.setter
-    def base(self, name: str | Path | None) -> None:
+    def base(self, name: StrPath | None) -> None:
         if name:
             filename = Path(name)
             if filename.is_absolute():
                 self._base = filename
                 self._ext = filename.suffix
                 return
-
-        # The default base is console
-        name = name or "console"
+            name = str(filename)
+        else:
+            # The default base is console
+            name = "console"
 
         # Get the app type: console, service or gui (including gui_dgpu)
         self.app_type = (
@@ -114,8 +118,8 @@ class Executable:
         if not name.startswith("legacy"):
             name = f"bases/{name}"
         filename = f"{name}-{SOABI}{EXE_SUFFIX}"
-        self._base = resource_path(filename)
-        if self._base is None:
+        resource = resource_path(filename)
+        if resource is None:
             msg = f"no base named {name!r} ({filename!r})"
             if "console" in name:
                 msg += " - Did you mean 'console'?"
@@ -124,6 +128,7 @@ class Executable:
             elif "win32service" in name:
                 msg += " - Did you mean 'service'?"
             raise OptionError(msg)
+        self._base = resource
 
     @property
     def icon(self) -> Path | None:
@@ -134,7 +139,7 @@ class Executable:
         return self._icon
 
     @icon.setter
-    def icon(self, name: str | Path | None) -> None:
+    def icon(self, name: StrPath | None) -> None:
         if name is None:
             return
         iconfile = Path(name)
@@ -169,17 +174,18 @@ class Executable:
         return self._init_script
 
     @init_script.setter
-    def init_script(self, name: str | Path | None) -> None:
+    def init_script(self, name: StrPath | None) -> None:
         name = name or "console"
         filename = Path(name)
         if filename.is_absolute():
             self._init_script = filename
-        else:
-            filename = filename.with_suffix(".py")
-            self._init_script = resource_path(f"initscripts/{filename}")
-        if self._init_script is None:
+            return
+        filename = filename.with_suffix(".py")
+        resource = resource_path(f"initscripts/{filename}")
+        if resource is None:
             msg = f"no init_script named {name!r} ({filename!r})"
             raise OptionError(msg)
+        self._init_script = resource
 
     @property
     def main_module_name(self) -> str:
@@ -199,7 +205,7 @@ class Executable:
         return self._main_script
 
     @main_script.setter
-    def main_script(self, name: str | Path) -> None:
+    def main_script(self, name: StrPath) -> None:
         self._main_script = Path(name)
 
     @property
@@ -212,15 +218,13 @@ class Executable:
         return self._manifest
 
     @manifest.setter
-    def manifest(self, name: str | Path | None) -> None:
+    def manifest(self, name: StrPath | None) -> None:
         if name is None:
             return
-        if isinstance(name, str):
-            name = Path(name)
-        self._manifest = name.read_text(encoding="utf-8")
+        self._manifest = Path(name).read_text(encoding="utf-8")
 
     @property
-    def shortcut_name(self) -> str:
+    def shortcut_name(self) -> str | None:
         """:return: the name to give a shortcut for the executable when
         included in an MSI package (Windows only).
         :rtype: str
@@ -233,7 +237,7 @@ class Executable:
         self._shortcut_name = name
 
     @property
-    def shortcut_dir(self) -> Path:
+    def shortcut_dir(self) -> Path | None:
         """:return: the directory in which to place the shortcut when being
         installed by an MSI package; see the MSI Shortcut table documentation
         for more information on what values can be placed here (Windows only).
@@ -243,7 +247,7 @@ class Executable:
         return self._shortcut_dir
 
     @shortcut_dir.setter
-    def shortcut_dir(self, name: str | Path | None) -> None:
+    def shortcut_dir(self, name: StrPath | None) -> None:
         if name is None:
             return
         self._shortcut_dir = Path(name)
@@ -298,12 +302,12 @@ def validate_executables(dist: Distribution, attr: str, value) -> None:
         raise SetupError(msg) from exc
 
     # Returns valid Executable list
-    if dist.executables == value:
-        dist.executables = []
+    if dist.executables == value:  # ty: ignore[unresolved-attribute]
+        dist.executables = []  # ty: ignore[unresolved-attribute]
     executables = list(value)
     for i, executable in enumerate(executables):
         if isinstance(executable, str):
             executables[i] = Executable(executable)
         elif isinstance(executable, Mapping):
             executables[i] = Executable(**executable)
-    dist.executables.extend(executables)
+    dist.executables.extend(executables)  # ty: ignore[unresolved-attribute]

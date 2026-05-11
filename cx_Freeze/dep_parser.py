@@ -14,9 +14,15 @@ from contextlib import suppress
 from ctypes.util import find_library
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import PLATFORM
 from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from cx_Freeze._typing import StrPath
 
 # In Windows, to get dependencies, the default is to use lief package,
 # but LIEF can be disabled with:
@@ -64,7 +70,7 @@ class Parser(ABC):
         return new_path
 
     def find_library(
-        self, name: str, search_path: list[str | Path] | None = None
+        self, name: str, search_path: list[str] | list[Path] | None = None
     ) -> Path | None:
         """Returns the pathname of a library, or None."""
         if search_path is None:
@@ -75,7 +81,7 @@ class Parser(ABC):
                 return library.resolve()
         return None
 
-    def get_dependent_files(self, filename: str | Path) -> set[Path]:
+    def get_dependent_files(self, filename: StrPath) -> set[Path]:
         """Return the file's dependencies using platform-specific tools."""
         filename = Path(filename).resolve()
 
@@ -118,7 +124,7 @@ class PEParser(Parser):
             lief = None
         else:
             try:
-                import lief  # noqa: PLC0415
+                import lief  # noqa: PLC0415 # ty: ignore[unresolved-import]
             except ImportError:
                 lief = None
             else:
@@ -152,11 +158,10 @@ class PEParser(Parser):
 
             self.GetDependentFiles = GetDependentFiles
             self.BindError = BindError
-            self._get_dependent_files = self._get_dependent_files_imagehlp
             self._pe = None
 
     @staticmethod
-    def _is_binary(filename: str | Path) -> bool:
+    def _is_binary(filename: StrPath) -> bool:
         """Determines whether the file is a PE file."""
         filename = Path(filename)
         return filename.suffix.lower().endswith(PE_EXT) and filename.is_file()
@@ -164,6 +169,8 @@ class PEParser(Parser):
     is_pe = _is_binary
 
     def _get_dependent_files(self, filename: Path) -> set[Path]:
+        if self._pe is None:
+            return self._get_dependent_files_imagehlp(filename)
         with filename.open("rb", buffering=0) as raw:
             binary = self._pe.parse(raw, self.imports_only or filename.name)
         if not binary:
@@ -204,7 +211,7 @@ class PEParser(Parser):
             os.environ["PATH"] = env_path
         return set()
 
-    def read_manifest(self, filename: str | Path) -> str:
+    def read_manifest(self, filename: StrPath) -> str | None:
         """:return: the XML schema of the manifest included in the executable
         :rtype: str
 
@@ -223,7 +230,7 @@ class PEParser(Parser):
             else None
         )
 
-    def write_manifest(self, filename: str | Path, manifest: str) -> None:
+    def write_manifest(self, filename: StrPath, manifest: str) -> None:
         """:return: write the XML schema of the manifest into the executable
         :rtype: str
 
@@ -256,17 +263,17 @@ class ELFParser(Parser):
         self._verify_patchelf()
 
     def find_library(
-        self, name: str, search_path: list[str | Path] | None = None
+        self, name: str, search_path: list[str] | list[Path] | None = None
     ) -> Path | None:
         library = super().find_library(name, search_path)
         if library is None:
-            name = find_library(name)
-            if name:
-                library = super().find_library(name, search_path)
+            filename = find_library(name)
+            if filename:
+                library = super().find_library(filename, search_path)
         return library
 
     @staticmethod
-    def _is_binary(filename: str | Path) -> bool:
+    def _is_binary(filename: StrPath) -> bool:
         """Check if the executable is an ELF."""
         filename = Path(filename)
         if filename.suffix in NON_ELF_EXT or not filename.is_file():
@@ -323,8 +330,8 @@ class ELFParser(Parser):
         return dependent_files
 
     def _get_dependent_files_patchelf(self, filename: Path) -> set[Path]:
-        libraries: set[Path] = self.get_needed(filename)
-        rpath: set[Path] = self.get_resolved_rpath(filename) or []
+        libraries: list[str] = self.get_needed(filename)
+        rpath: list[Path] = self.get_resolved_rpath(filename) or []
 
         dependent_files: set[Path] = set()
         search_path = rpath + self.search_path + [filename.parent]
@@ -341,7 +348,7 @@ class ELFParser(Parser):
     else:
         _get_dependent_files = _get_dependent_files_ldd
 
-    def get_needed(self, filename: Path) -> list[str]:
+    def get_needed(self, filename: StrPath) -> list[str]:
         """Gets the DT_NEEDED entry of the dynamic table."""
         libraries: list[str] = []
         with suppress(subprocess.CalledProcessError):
@@ -350,30 +357,29 @@ class ELFParser(Parser):
             )
         return libraries
 
-    def get_resolved_rpath(self, filename: str | Path) -> list[Path] | None:
+    def get_resolved_rpath(self, filename: StrPath) -> list[Path] | None:
         """Gets the resolved rpath of the executable."""
-        filename = Path(filename)
         rpath = self.get_rpath(filename)
         if rpath:
-            origin = filename.parent.as_posix()
+            origin = Path(filename).parent.as_posix()
             rpath_list = rpath.replace("$ORIGIN", origin).split(":")
             return [Path(p).resolve() for p in rpath_list]
         return None
 
-    def get_rpath(self, filename: str | Path) -> str:
+    def get_rpath(self, filename: StrPath) -> str:
         """Gets the rpath of the executable."""
         with suppress(subprocess.CalledProcessError):
             return self.run_patchelf(["--print-rpath", filename]).strip()
         return ""
 
     def replace_needed(
-        self, filename: str | Path, so_name: str, new_so_name: str
+        self, filename: StrPath, so_name: str, new_so_name: str
     ) -> None:
         """Replace DT_NEEDED entry in the dynamic table."""
         self._set_write_mode(filename)
         self.run_patchelf(["--replace-needed", so_name, new_so_name, filename])
 
-    def set_rpath(self, filename: str | Path, rpath: str) -> None:
+    def set_rpath(self, filename: StrPath, rpath: str) -> None:
         """Sets the rpath of the executable."""
         self._set_write_mode(filename)
         rpath_list = rpath.split(":")
@@ -389,14 +395,15 @@ class ELFParser(Parser):
             self.run_patchelf(["--remove-rpath", filename])
             self.run_patchelf(["--add-rpath", rpath, filename])
 
-    def set_soname(self, filename: str | Path, new_so_name: str) -> None:
+    def set_soname(self, filename: StrPath, new_so_name: str) -> None:
         """Sets DT_SONAME entry in the dynamic table."""
         self._set_write_mode(filename)
         self.run_patchelf(["--set-soname", new_so_name, filename])
 
-    def run_patchelf(self, args: list[str]) -> str:
+    def run_patchelf(self, args: Sequence[StrPath]) -> str:
+        cmd = list(map(str, [self._patchelf, *args]))
         process = subprocess.run(
-            [self._patchelf, *args], check=True, capture_output=True, text=True
+            cmd, check=True, capture_output=True, text=True
         )
         if self._silent < 1:
             print("patchelf", *args, "returns:", repr(process.stdout))
@@ -405,7 +412,7 @@ class ELFParser(Parser):
         return process.stdout
 
     @staticmethod
-    def _set_write_mode(filename: str | Path) -> None:
+    def _set_write_mode(filename: StrPath) -> None:
         filename = Path(filename)
         mode = filename.stat().st_mode
         if mode & stat.S_IWUSR == 0:
@@ -426,8 +433,9 @@ class ELFParser(Parser):
             raise PlatformError(msg) from None
 
         mobj = re.match(r"patchelf\s+(\d+(.\d+)?)", version)
-        if mobj and tuple(map(int, mobj.group(1).split("."))) >= (0, 14):
-            return
-        version = mobj.group(1)
+        if mobj:
+            version = mobj.group(1)
+            if tuple(map(int, version.split("."))) >= (0, 14):
+                return
         msg = f"patchelf {version} found. cx_Freeze requires patchelf >= 0.14."
         raise ValueError(msg)

@@ -2,20 +2,22 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
-try:
-    from tomllib import loads as toml_loads
-except ImportError:
-    from tomli import loads as toml_loads
+if sys.version_info[:2] >= (3, 11):
+    import tomllib
+else:
+    from setuptools.compat.py310 import tomllib
 
 
 def get_pyproject_tool_data() -> dict:
     pyproject_toml = Path("pyproject.toml")
     if not pyproject_toml.exists():
         return {}
-    data = toml_loads(pyproject_toml.read_bytes().decode())
-    tool_data = data.get("tool", {}).get("cxfreeze", {})
+    with pyproject_toml.open("rb") as file:
+        config = tomllib.load(file)
+    tool_data = config.get("tool", {}).get("cxfreeze", {})
     executables = tool_data.pop("executables", [])
     options = {}
     for cmd, data in tool_data.items():

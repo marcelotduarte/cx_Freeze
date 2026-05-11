@@ -4,21 +4,21 @@ from __future__ import annotations
 
 import importlib.resources as importlib_resources
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze.exception import OptionError
 
 if TYPE_CHECKING:
-    from cx_Freeze._typing import IncludesList, InternalIncludesList
+    from cx_Freeze._typing import IncludesList, InternalIncludesList, StrPath
 
 
-def resource_path(name: str | Path) -> Path | None:
+def resource_path(name: StrPath) -> Path | None:
     """Return the path to a resource file shipped with freeze-core.
 
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
-    resource = importlib_resources.files("freeze_core") / name
+    resource = cast("Path", importlib_resources.files("freeze_core")) / name
     if resource.exists():
         return resource
     return None
