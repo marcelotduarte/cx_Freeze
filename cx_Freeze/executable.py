@@ -96,7 +96,7 @@ class Executable:
                 self._base = filename
                 self._ext = filename.suffix
                 return
-            name = str(filename)
+            name = filename.as_posix()
         else:
             # The default base is console
             name = "console"
