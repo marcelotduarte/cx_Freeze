@@ -36,16 +36,14 @@ class Hook(ModuleHook):
         distribution = module.distribution
         if distribution and distribution.installer == "pip":
             target_dir = f"lib/{module.name}.libs"
-            for file in distribution.binary_files:
-                source = file.locate().resolve()
+            for source in distribution.binary_files:
                 target = f"{target_dir}/{source.name}"
                 finder.lib_files[source] = target
                 finder.include_files(source, target)
             for req_name in distribution.requires:
                 with suppress(ModuleError):
                     req_dist = DistributionCache(finder.cache_path, req_name)
-                    for file in req_dist.binary_files:
-                        source = file.locate().resolve()
+                    for source in req_dist.binary_files:
                         target = f"{target_dir}/{source.name}"
                         finder.lib_files[source] = target
                         finder.include_files(source, target)

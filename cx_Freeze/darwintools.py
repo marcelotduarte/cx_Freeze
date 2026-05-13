@@ -15,6 +15,8 @@ from cx_Freeze.exception import PlatformError
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from cx_Freeze._typing import StrPath
+
 # In a MachO file, need to deal specially with links that use @executable_path,
 # @loader_path, @rpath
 #
@@ -79,7 +81,7 @@ class DarwinFile:
 
     def __init__(
         self,
-        path: str | Path,
+        path: StrPath,
         referencing_file: DarwinFile | None = None,
         strict: bool = False,
     ) -> None:

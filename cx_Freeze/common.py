@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import importlib.resources as importlib_resources
+from collections.abc import Sequence
+from importlib import resources
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, cast
 
@@ -18,7 +19,7 @@ def resource_path(name: StrPath) -> Path | None:
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
-    resource = cast("Path", importlib_resources.files("freeze_core")) / name
+    resource = cast("Path", resources.files("freeze_core")) / name
     if resource.exists():
         return resource
     return None
@@ -47,23 +48,22 @@ def process_path_specs(specs: IncludesList | None) -> InternalIncludesList:
     Returns a list of 2-tuples, or throws OptionError if something is wrong
     in the input.
     """
-    if specs is None:
-        specs = []
     processed_specs: InternalIncludesList = []
+    if specs is None:
+        return processed_specs
     for spec in specs:
-        if not isinstance(spec, (list, tuple)):
-            source = spec
-            target = None
-        elif len(spec) != 2:
+        if isinstance(spec, str) or not isinstance(spec, Sequence):
+            source = Path(spec)
+            target = PurePath(source.name)
+        elif isinstance(spec, Sequence) and len(spec) == 2:
+            source = Path(str(spec[0]))
+            target = PurePath(str(spec[1]))
+        else:
             msg = "path spec must be a list or tuple of length two"
             raise OptionError(msg)
-        else:
-            source, target = spec
-        source = Path(source)
         if not source.exists():
             msg = f"cannot find file/directory named {source!s}"
             raise OptionError(msg)
-        target = PurePath(target or source.name)
         if target.is_absolute():
             msg = f"target path named {target!s} cannot be absolute"
             raise OptionError(msg)

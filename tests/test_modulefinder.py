@@ -226,5 +226,5 @@ def test_load_module_code(tmp_package) -> None:
     finder._load_module_code(module, deferred_imports)  # noqa: SLF001
 
     path = tmp_package.path / "a.py"
-    msg = f"Unknown module loader in {path}"
+    msg = f"Unknown module loader in {path.as_posix()!r}"
     assert module.error_msg == msg
