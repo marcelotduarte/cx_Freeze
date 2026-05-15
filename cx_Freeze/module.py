@@ -13,7 +13,7 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from keyword import iskeyword
 from pathlib import Path
 from pkgutil import resolve_name
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from packaging.requirements import Requirement
 
@@ -53,7 +53,7 @@ class DistributionCache(metadata.PathDistribution):
         normalized_name = self.normalized_name
         source_path = getattr(distribution, "_path", None)
         if source_path is None:
-            dist_path = cast("Path", distribution.locate_file("."))
+            dist_path = Path(str(distribution.locate_file(".")))
             for expected_name in (normalized_name, name, distribution.name):
                 mask = f"{expected_name}-{distribution.version}.*-info"
                 source_path = next(dist_path.glob(mask), None)
@@ -145,14 +145,14 @@ class DistributionCache(metadata.PathDistribution):
             file.write("\n".join(record))
 
     @property
-    def binary_files(self) -> list[Path]:
-        """Return the binary files included in the package."""
+    def binary_files(self) -> list[str]:
+        """Return the relative path of binary files included in the package."""
         files = self.original.files or []
 
         if IS_MINGW or IS_WINDOWS:
             # all .dll's
             return [
-                Path(file.locate()).resolve()
+                file.as_posix()
                 for file in files
                 if file.suffix.lower() == ".dll"
             ]
@@ -161,7 +161,7 @@ class DistributionCache(metadata.PathDistribution):
         extensions = tuple([ext for ext in EXTENSION_SUFFIXES if ext != ".so"])
         # all .so* or .dylib as long as it is not a python extension
         return [
-            Path(file.locate()).resolve()
+            file.as_posix()
             for file in files
             if (file.match("*.so*") or file.match("*.dylib"))
             and not file.name.endswith(extensions)
@@ -176,7 +176,11 @@ class DistributionCache(metadata.PathDistribution):
 
     def locate_file(self, path: StrPath) -> Path:
         """Given a path to a file in this distribution, return a path to it."""
-        return cast("Path", super().locate_file(path))
+        if Path(path).parents[0].as_posix() == self.distinfo_name:
+            full_path = super().locate_file(path)
+        else:
+            full_path = self.original.locate_file(path)
+        return Path(str(full_path)).resolve()
 
     @property
     def requires(self) -> list[str]:
@@ -384,29 +388,32 @@ class Module:
         if distribution:
             if self.in_file_system == 0:
                 # the module is in zip file and binary files are
-                for source in distribution.binary_files:
+                for file in distribution.binary_files:
+                    source = distribution.locate_file(file)
                     # .. not in library directories
                     if not source.parent.name.endswith((".libs", ".dylibs")):
                         target = f"lib/{source.name}"
                     else:
-                        target = f"lib/{source.as_posix()}"
+                        target = f"lib/{file}"
                     yield source, target
             else:
                 # the module is in file system, so consider
                 # mirroring the binary files to the lib directory
-                for source in distribution.binary_files:
-                    target = f"lib/{source.as_posix()}"
+                for file in distribution.binary_files:
+                    source = distribution.locate_file(file)
+                    target = f"lib/{file}"
                     yield source, target
-            return
-
-        module_path = self.path
-        if module_path is None:
-            return
-        for module_dir in module_path:
+        else:
+            module_path = self.path
+            if module_path is None:
+                if self.file is None:
+                    return
+                module_path = [self.file.parent]
             for name in self.libs_dirs():
-                for source in module_dir.parent.joinpath(name).iterdir():
-                    target = f"lib/{name}/{source.name}"
-                    yield source, target
+                for module_dir in module_path:
+                    for source in module_dir.parent.joinpath(name).iterdir():
+                        target = f"lib/{name}/{source.name}"
+                        yield source, target
 
     def libs_dirs(self) -> list[str]:
         """Return the directories where binary files of the package are
@@ -415,12 +422,17 @@ class Module:
         distribution = self.distribution
         if distribution:
             return list(
-                {file.parent.as_posix() for file in distribution.binary_files}
+                {
+                    distribution.locate_file(file).parent.as_posix()
+                    for file in distribution.binary_files
+                }
             )
 
         module_path = self.path
         if module_path is None:
-            return []
+            if self.file is None:
+                return []
+            module_path = [self.file.parent]
 
         names = {
             f"../{self.name}.libs",  # numpy >=1.26.0, scipy >=1.9.2
