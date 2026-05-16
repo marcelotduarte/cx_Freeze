@@ -296,7 +296,6 @@ exclude = [
     "cx_Freeze/hooks",
     "cx_Freeze/importshed",
     "cx_Freeze/darwintools.py",
-    "cx_Freeze/freezer.py",
     "cx_Freeze/winversioninfo.py",
     "doc",
     "new",

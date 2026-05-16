@@ -123,10 +123,10 @@ def test_simple_manifest(tmp_package, lief_version) -> None:
         expected = "Windows version: 6.2"
     result.stdout.fnmatch_lines(expected)
 
-    parser = PEParser([], [])
+    parser = PEParser([], [], 0, {})
     manifest = parser.read_manifest(executable)
     if lief_version == "disabled":
-        assert manifest == ""
+        assert manifest is None
     else:
         simple = tmp_package.path / "simple.manifest"
         assert manifest == simple.read_bytes().decode()

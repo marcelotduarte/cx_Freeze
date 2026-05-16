@@ -211,8 +211,8 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
         pytest.param(
             {"zip_include_packages": None, "zip_exclude_packages": None},
             {
-                "zip_include_packages": set(),
-                "zip_exclude_packages": set("*"),
+                "zip_include_packages": [],
+                "zip_exclude_packages": ["*"],
                 "zip_include_all_packages": False,
             },
             id="zip_include_packages/zip_exclude_packages=none/none",
@@ -220,8 +220,8 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
         pytest.param(
             {"zip_include_packages": ["*"], "zip_exclude_packages": None},
             {
-                "zip_include_packages": set("*"),
-                "zip_exclude_packages": set(),
+                "zip_include_packages": ["*"],
+                "zip_exclude_packages": [],
                 "zip_include_all_packages": True,
             },
             id="zip_include_package=*",
@@ -229,8 +229,8 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
         pytest.param(
             {"zip_include_packages": None, "zip_exclude_packages": ["*"]},
             {
-                "zip_include_packages": set(),
-                "zip_exclude_packages": set("*"),
+                "zip_include_packages": [],
+                "zip_exclude_packages": ["*"],
                 "zip_include_all_packages": False,
             },
             id="zip_exclude_packages=*",
@@ -241,8 +241,8 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
                 "zip_exclude_packages": ["zope.event", "zope.interface"],
             },
             {
-                "zip_include_packages": {"namespace"},
-                "zip_exclude_packages": {"zope"},
+                "zip_include_packages": ["namespace"],
+                "zip_exclude_packages": ["zope"],
                 "zip_include_all_packages": False,
             },
             id="zip_include_packages/zip_exclude_packages=namespace/namespace",
