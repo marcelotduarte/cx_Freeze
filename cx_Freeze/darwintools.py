@@ -1,5 +1,6 @@
 # ruff: noqa
 from __future__ import annotations
+from cx_Freeze._typing import StrPath
 
 import os
 import shutil
@@ -686,7 +687,7 @@ class DarwinFileTracker:
                         reference.setTargetFile(potential_target)
 
     def set_relative_reference_paths(
-        self, build_dir: str, bin_dir: str
+        self, build_dir: StrPath, bin_dir: StrPath
     ) -> None:
         """Make all the references from included Mach-O files to other included
         Mach-O files relative.

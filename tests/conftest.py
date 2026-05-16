@@ -13,10 +13,11 @@ import subprocess
 import sys
 import sysconfig
 from contextlib import redirect_stdout, suppress
+from os import PathLike
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import pytest
 from filelock import BaseFileLock, FileLock
@@ -30,6 +31,8 @@ else:
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from types import GeneratorType
+
+    StrPath: TypeAlias = str | PathLike[str]
 
 # copied from cx_Freeze._compat
 PLATFORM = sysconfig.get_platform()
@@ -150,7 +153,7 @@ class TempPackage:
     def freeze(
         self,
         command: Sequence[str] | Path | None = None,
-        cwd: str | Path | None = None,
+        cwd: StrPath | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:
@@ -190,7 +193,7 @@ class TempPackage:
     def run(
         self,
         command: Sequence | Path,
-        cwd: str | Path | None = None,
+        cwd: StrPath | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
         *,
@@ -323,7 +326,7 @@ class TempPackage:
         return []
 
     def _get_installed_packages(
-        self, python: str | Path | None = None
+        self, python: StrPath | None = None
     ) -> list[dict[str, str]]:
         """Get installed packages."""
         if python is None:
@@ -380,7 +383,7 @@ class TempPackage:
         *,
         backend: str | None = None,
         binary: bool = True,
-        index: bool | str | Path | None = None,
+        index: bool | StrPath | None = None,
         isolated: bool = False,
     ) -> pytest.RunResult:
         # "uv pip install --prefix" install the package in the new prefix as a
@@ -505,7 +508,7 @@ class TempPackageVenv(TempPackage):
     def freeze(
         self,
         command: Sequence[str] | Path | None = None,
-        cwd: str | Path | None = None,
+        cwd: StrPath | None = None,
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:

@@ -73,9 +73,7 @@ class ModuleFinder:
         )
         self.excludes: set[str] = set(excludes or [])
         self.optimize: int = optimize
-        self.path: list[str] = (
-            [os.path.normpath(p) for p in path] if path else sys.path
-        )
+        self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
         self.zip_exclude_packages: set[str] = set(zip_exclude_packages or [])

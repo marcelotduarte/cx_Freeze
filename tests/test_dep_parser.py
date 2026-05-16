@@ -77,7 +77,7 @@ def test_parser(tmp_package, package, version) -> None:
 def test_elf_parser(tmp_package) -> None:
     """Test the search_path and find_library."""
     tmp_package.create(SOURCE)
-    parser = ELFParser(sys.path, [sysconfig.get_config_var("LIBDIR")])
+    parser = ELFParser(sys.path, [sysconfig.get_config_var("LIBDIR")], 0, {})
     names = ("python", "sqlite3")
     found = None
     for name in names:
@@ -107,7 +107,7 @@ def test_verify_patchelf(monkeypatch) -> None:
     monkeypatch.setattr("shutil.which", lambda cmd: cmd != "patchelf")
     msg = "Cannot find required utility `patchelf` in PATH"
     with pytest.raises(PlatformError, match=msg):
-        ELFParser([], [])
+        ELFParser([], [], 0, {})
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
@@ -122,4 +122,4 @@ def test_verify_patchelf_older(tmp_package) -> None:
     tmp_package.monkeypatch.setattr("shutil.which", lambda cmd: tmp_bin / cmd)
     msg = r"patchelf\s+(\d+(.\d+)?)\s+found."
     with pytest.raises(ValueError, match=msg):
-        ELFParser([], [])
+        ELFParser([], [], 0, {})

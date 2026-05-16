@@ -17,6 +17,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import PLATFORM
+from cx_Freeze._typing import StrPath
 from cx_Freeze.exception import PlatformError
 
 if TYPE_CHECKING:
@@ -46,11 +47,16 @@ class Parser(ABC):
     """`Parser` interface."""
 
     def __init__(
-        self, path: list[str], bin_path_includes: list[str], silent: int = 0
+        self,
+        path: list[str],
+        bin_path_includes: list[str],
+        silent: int,
+        warnings: dict[str, bool],
     ) -> None:
         self._path: list[str] = path
         self._bin_path_includes: list[str] = bin_path_includes
         self._silent: int = silent
+        self._warnings: dict[str, bool] = warnings
 
         self.dependent_files: dict[Path, set[Path]] = {}
         self.linker_warnings: dict = {}
@@ -70,11 +76,11 @@ class Parser(ABC):
         return new_path
 
     def find_library(
-        self, name: str, search_path: list[str] | list[Path] | None = None
+        self, name: str, search_path: list[StrPath] | None = None
     ) -> Path | None:
         """Returns the pathname of a library, or None."""
         if search_path is None:
-            search_path = self.search_path
+            search_path: list[Path] = self.search_path
         for directory in map(Path, search_path):
             library = directory / name
             if self._is_binary(library):
@@ -118,7 +124,11 @@ class PEParser(Parser):
     """
 
     def __init__(
-        self, path: list[str], bin_path_includes: list[str], silent: int = 0
+        self,
+        path: list[str],
+        bin_path_includes: list[str],
+        silent: int,
+        warnings: dict[str, bool],
     ) -> None:
         if os.environ.get("CX_FREEZE_BIND", "") == "imagehlp":
             lief = None
@@ -129,7 +139,7 @@ class PEParser(Parser):
                 lief = None
             else:
                 lief.logging.set_level(lief.logging.LEVEL.ERROR)
-        super().__init__(path, bin_path_includes, silent)
+        super().__init__(path, bin_path_includes, silent, warnings)
         if lief:
             imports_only = lief.PE.ParserConfig()
             imports_only.parse_exports = False
@@ -183,7 +193,7 @@ class PEParser(Parser):
             libraries.append(delay_import.name)
 
         dependent_files: set[Path] = set()
-        search_path = [filename.parent, *self.search_path]
+        search_path: list[StrPath] = [filename.parent, *self.search_path]
         for name in libraries:
             library = self.find_library(name, search_path)
             if library:
@@ -219,7 +229,7 @@ class PEParser(Parser):
         if self._pe is None:
             if self._silent < 3:
                 print(f"WARNING: ignoring read manifest for {filename}")
-            return ""
+            return None
         filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
             binary = self._pe.parse(raw, self.resource_only or filename.name)
@@ -256,14 +266,18 @@ class ELFParser(Parser):
     """
 
     def __init__(
-        self, path: list[str], bin_path_includes: list[str], silent: int = 0
+        self,
+        path: list[str],
+        bin_path_includes: list[str],
+        silent: int,
+        warnings: dict[str, bool],
     ) -> None:
-        super().__init__(path, bin_path_includes, silent)
+        super().__init__(path, bin_path_includes, silent, warnings)
         self._patchelf = shutil.which("patchelf")
         self._verify_patchelf()
 
     def find_library(
-        self, name: str, search_path: list[str] | list[Path] | None = None
+        self, name: str, search_path: list[StrPath] | None = None
     ) -> Path | None:
         library = super().find_library(name, search_path)
         if library is None:
@@ -334,7 +348,9 @@ class ELFParser(Parser):
         rpath: list[Path] = self.get_resolved_rpath(filename) or []
 
         dependent_files: set[Path] = set()
-        search_path = rpath + self.search_path + [filename.parent]
+        search_path: list[StrPath] = (
+            rpath + self.search_path + [filename.parent]
+        )
         for name in libraries:
             library = self.find_library(name, search_path)
             if library:

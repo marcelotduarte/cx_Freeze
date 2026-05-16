@@ -8,9 +8,12 @@ import os
 from importlib import import_module
 from pathlib import Path
 from struct import calcsize, pack
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from packaging.version import Version
+
+if TYPE_CHECKING:
+    from cx_Freeze._typing import StrPath
 
 __all__ = ["VersionInfo"]
 
@@ -211,7 +214,7 @@ class VersionInfo:
         self.debug: bool | None = debug
         self.verbose: bool = verbose
 
-    def stamp(self, path: str | Path) -> None:
+    def stamp(self, path: StrPath) -> None:
         """Stamp a Win32 binary with version information."""
         path = Path(path)
         if not path.is_file():

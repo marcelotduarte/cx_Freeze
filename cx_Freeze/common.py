@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from importlib import resources
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from cx_Freeze.exception import OptionError
 
@@ -19,7 +19,7 @@ def resource_path(name: StrPath) -> Path | None:
     This is used to find our base executables and initscripts when they are
     just specified by name.
     """
-    resource = cast("Path", resources.files("freeze_core")) / name
+    resource = Path(str(resources.files("freeze_core"))) / name
     if resource.exists():
         return resource
     return None
