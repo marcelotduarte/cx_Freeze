@@ -42,12 +42,12 @@ class TestVersionInfo:
         assert default_version.valid_version == valid_version
         assert default_version.internal_name is None
         assert default_version.original_filename is None
-        assert default_version.comments is None
-        assert default_version.company is None
-        assert default_version.description is None
-        assert default_version.copyright is None
-        assert default_version.trademarks is None
-        assert default_version.product is None
+        assert default_version.comments == ""
+        assert default_version.company == ""
+        assert default_version.description == ""
+        assert default_version.copyright == ""
+        assert default_version.trademarks == ""
+        assert default_version.product == ""
         assert default_version.dll is None
         assert default_version.debug is None
         assert default_version.verbose is True
@@ -91,7 +91,7 @@ class TestVersionInfo:
         assert version_instance.description == input_description
         assert version_instance.copyright == input_copyright
         assert version_instance.trademarks == input_trademarks
-        assert version_instance.product == input_product
+        assert version_instance.product == ""
         assert version_instance.dll is input_dll
         assert version_instance.debug is input_debug
         assert version_instance.verbose is input_verbose
