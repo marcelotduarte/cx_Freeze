@@ -264,8 +264,8 @@ TEST_VALID_PARAMETERS = [
 
 # base=console valid parameters
 TEST_VALID_PARAMETERS += [
-    ("base", None, f"bases/console-{SOABI}{EXE_SUFFIX}"),
-    ("base", "console", f"bases/console-{SOABI}{EXE_SUFFIX}"),
+    pytest.param("base", None, f"bases/console-{SOABI}{EXE_SUFFIX}"),
+    pytest.param("base", "console", f"bases/console-{SOABI}{EXE_SUFFIX}"),
     pytest.param(
         "base",
         "absolutepath",
@@ -273,6 +273,7 @@ TEST_VALID_PARAMETERS += [
         id="base-absolutepath-console_test",
     ),
 ]
+
 # base=gui* and base=service are available on Windows
 if IS_WINDOWS or IS_MINGW:
     TEST_VALID_PARAMETERS += [
@@ -322,12 +323,14 @@ def test_valid(tmp_package, option, value, result) -> None:
         if option == "base":
             expected_app_type = "console"
             value = tmp_package.path / f"console_test{EXE_SUFFIX}"
-            shutil.copyfile(
-                resource_path(f"bases/console-{SOABI}{EXE_SUFFIX}"), value
-            )
+            resource = resource_path(f"bases/console-{SOABI}{EXE_SUFFIX}")
+            assert resource is not None
+            shutil.copyfile(resource, value)
         elif option == "init_script":
             value = tmp_package.path / "console_test.py"
-            shutil.copyfile(resource_path("initscripts/console.py"), value)
+            resource = resource_path("initscripts/console.py")
+            assert resource is not None
+            shutil.copyfile(resource, value)
 
     try:
         if issubclass(result, OptionError):
@@ -437,6 +440,7 @@ def test_valid_icon(tmp_package) -> None:
     tmp_package.create(SOURCE_VALID_ICON)
     # copy valid icons: cp $SRC/freeze_core/icons/py.* $DST/icon.*
     src_dir = resource_path("icons")
+    assert src_dir is not None
     for src in src_dir.glob("py.*"):
         shutil.copyfile(
             src, tmp_package.path.joinpath("icon").with_suffix(src.suffix)
@@ -485,6 +489,7 @@ def test_invalid_icon(tmp_package) -> None:
     tmp_package.create(SOURCE_INVALID_ICON)
     # use an invalid icon: cp $SRC/freeze_core/icons/py.png $DST/icon.png
     src_dir = resource_path("icons")
+    assert src_dir is not None
     shutil.copyfile(src_dir / "py.png", tmp_package.path / "icon.png")
     result = tmp_package.freeze()
     result.stdout.no_fnmatch_line("WARNING: Icon file not found")

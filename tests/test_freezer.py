@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 import sysconfig
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import pytest
 
@@ -250,7 +250,7 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
     ],
 )
 def test_freezer_options(
-    tmp_package, kwargs: dict[str, ...], expected: dict[str, ...]
+    tmp_package, kwargs: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     """Test freezer options."""
     tmp_package.create(SOURCE)
@@ -306,7 +306,7 @@ def test_freezer_options(
     ],
 )
 def test_freezer_zip_filename(
-    tmp_package, kwargs: dict[str, ...], expected: dict[str, ...]
+    tmp_package, kwargs: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     """Test freezer zip_filename option."""
     tmp_package.create(SOURCE)
@@ -320,6 +320,7 @@ def test_freezer_zip_filename(
     for option, value in expected.items():
         if option == "zip_filename":
             if value:
+                assert freezer.zip_filename is not None
                 assert freezer.zip_filename == target_dir / "lib" / value
                 assert freezer.zip_filename.is_file()
             else:

@@ -62,7 +62,7 @@ class TestVersionInfo:
         input_description = "TestDescription"
         input_copyright = "TestCopyright"
         input_trademarks = "TestMark"
-        input_product = object()
+        input_product = None
         input_dll = True
         input_debug = True
         input_verbose = False
