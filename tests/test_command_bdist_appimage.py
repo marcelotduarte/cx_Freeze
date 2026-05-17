@@ -6,6 +6,7 @@ import os
 import platform
 from contextlib import suppress
 from pathlib import Path
+from typing import cast
 
 import pytest
 from filelock import FileLock
@@ -41,6 +42,7 @@ def test_bdist_appimage_download_appimagetool() -> None:
     cmd = bdist_appimage(dist)
     cmd.finalize_options()
     appimagetool = cmd.appimagetool
+    assert appimagetool is not None
     # remove
     with FileLock(appimagetool + ".lock"), suppress(FileNotFoundError):
         os.unlink(appimagetool)
@@ -48,7 +50,9 @@ def test_bdist_appimage_download_appimagetool() -> None:
     cmd2 = bdist_appimage(dist)
     cmd2.finalize_options()
     cmd2.ensure_finalized()
-    assert os.path.exists(cmd2.appimagetool)
+    appimagetool = cmd2.appimagetool
+    assert appimagetool is not None
+    assert os.path.exists(appimagetool)
     assert cmd2.fullname == "foo-0.0"
 
 
@@ -95,7 +99,8 @@ def test_bdist_appimage_target_name_and_name_none() -> None:
     """Test the bdist_appimage with target options."""
     attrs = DIST_ATTRS.copy()
     del attrs["name"]
-    attrs["executables"].append("other.py")
+    executables = cast("list[str]", attrs["executables"])
+    executables.append("other.py")
     dist = Distribution(attrs)
     cmd = bdist_appimage(dist)
     cmd.finalize_options()  # name = None, target_name = first script name
@@ -129,9 +134,13 @@ def test_bdist_appimage_target_name_with_extension(tmp_package) -> None:
     cmd = bdist_appimage(dist)
     cmd.finalize_options()
     cmd.ensure_finalized()
-    cmd.mkpath(os.path.join(cmd.bdist_base, "AppDir"))
-    cmd.mkpath(cmd.dist_dir)
-    outfile = os.path.join(cmd.dist_dir, name)
+    bdist_base = cmd.bdist_base
+    assert bdist_base is not None
+    cmd.mkpath(os.path.join(bdist_base, "AppDir"))
+    dist_dir = cmd.dist_dir
+    assert dist_dir is not None
+    cmd.mkpath(dist_dir)
+    outfile = os.path.join(dist_dir, name)
     cmd.save_as_file("data", outfile, mode="rwx")
 
     tmp_package.freeze(f"python setup.py bdist_appimage --target-name {name}")

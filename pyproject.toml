@@ -78,7 +78,7 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek>=0.3.8,<0.4.0",
+    "prek>=0.4.0,<0.5.0",
 ]
 doc = [
     "sphinx>=9.1.0,<9.2",
@@ -86,7 +86,7 @@ doc = [
     "sphinx-issues==6.0.0",
     "sphinx-new-tab-link==0.8.1",
     "furo==2025.12.19",
-    "myst-parser==5.0.0",
+    "myst-parser==5.1.0",
 ]
 tests = [
     "coverage>=7.13.0",
@@ -292,8 +292,6 @@ docstring-code-line-length = 50
 
 [tool.ty.src]
 exclude = [
-    "cx_Freeze/command/bdist_dmg.py",
-    "cx_Freeze/command/bdist_mac.py",
     "cx_Freeze/command/bdist_msi.py",
     "cx_Freeze/hooks",
     "cx_Freeze/importshed",
@@ -302,7 +300,6 @@ exclude = [
     "new",
     "old",
     "samples*/*/*.py",
-    "tests*/test_command_b*.py",
 ]
 
 [tool.ty.terminal]
