@@ -16,7 +16,7 @@ from contextlib import suppress
 from ctypes.util import find_library
 from pathlib import Path
 from textwrap import dedent
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -26,6 +26,10 @@ from setuptools import Command
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.common import resource_path
 from cx_Freeze.exception import ExecError, PlatformError
+
+if TYPE_CHECKING:
+    from cx_Freeze.executable import Executable
+
 
 __all__ = ["bdist_appimage"]
 
@@ -145,7 +149,9 @@ class bdist_appimage(Command):
             if self.distribution.metadata.name:
                 self.target_name = self.distribution.metadata.name
             else:
-                executables = self.distribution.executables
+                executables: list[Executable] = getattr(
+                    self.distribution, "executables", []
+                )
                 executable = executables[0]
                 self.warn_delayed(
                     "using the first executable as target_name: "
@@ -205,18 +211,21 @@ class bdist_appimage(Command):
 
         # Make appimage (by default in dist directory)
         # Set the full path of appimage to be built
-        self.mkpath(self.dist_dir)
-        output = os.path.abspath(os.path.join(self.dist_dir, self.app_name))
+        dist_dir: str = cast("str", self.dist_dir)
+        self.mkpath(dist_dir)
+        output = os.path.abspath(os.path.join(dist_dir, self.app_name))
         with suppress(FileNotFoundError):
             os.unlink(output)
 
         # Create AppDir format
-        appdir = os.path.abspath(os.path.join(self.bdist_base, "AppDir"))
+        bdist_base: str = cast("str", self.bdist_base)
+        appdir = os.path.abspath(os.path.join(bdist_base, "AppDir"))
         self.execute(shutil.rmtree, (appdir, True), msg=f"removing {appdir}")
         self.mkpath(appdir)
 
         # Copy from build_exe
-        self.copy_tree(self.build_dir, appdir, preserve_symlinks=True)
+        build_dir: str = cast("str", self.build_dir)
+        self.copy_tree(build_dir, appdir, preserve_symlinks=True)
 
         # Remove zip file after putting all files in the file system
         # (appimage is a compressed file, no need of internal zip file)
@@ -234,7 +243,9 @@ class bdist_appimage(Command):
         icons_dir = os.path.join(appdir, share_icons)
         self.mkpath(icons_dir)
 
-        executables = self.distribution.executables
+        executables: list[Executable] = getattr(
+            self.distribution, "executables", []
+        )
         executable = executables[0]
         if len(executables) > 1:
             self.warn_delayed(
@@ -243,8 +254,9 @@ class bdist_appimage(Command):
             )
         if executable.icon is None:
             icon_name = "logox128.png"
-            icon_filename = os.fspath(resource_path(f"icons/{icon_name}"))
-            self.copy_file(icon_filename, icons_dir)
+            icon_resource = resource_path(f"icons/{icon_name}")
+            if icon_resource:
+                self.copy_file(os.fspath(icon_resource), icons_dir)
         else:
             icon_name = executable.icon.name
             self.move_file(os.path.join(appdir, icon_name), icons_dir)
@@ -302,40 +314,41 @@ class bdist_appimage(Command):
         os.environ["ARCH"] = ARCH
         if self.target_version:
             os.environ["VERSION"] = self.target_version
-        cmd = [self.appimagetool]
-        if find_library("fuse") is None:  # libfuse.so.2 is not found
-            cmd.append("--appimage-extract-and-run")
-        if self.runtime_file is not None:
-            cmd += ["--runtime-file", self.runtime_file]
-        if self.sign is not None:
-            cmd.append("--sign")
-        if self.sign_key is not None:
-            cmd += ["--sign-key", self.sign_key]
-        if self.updateinformation is not None:
-            if self.updateinformation == "guess":
-                # check for github, travis or gitlab
-                if (
-                    os.environ.get("GITHUB_REPOSITORY")
-                    or os.environ.get("TRAVIS_REPO_SLUG")
-                    or os.environ.get("CI_COMMIT_REF_NAME")
-                ):
-                    if os.environ.get("GITHUB_REPOSITORY"):
-                        # appimagetool requires a GitHub token, but doesn't
-                        # actually use it.
-                        os.environ.setdefault("GITHUB_TOKEN", "fake-token")
-                    cmd.append("--guess")
-            else:
-                cmd += ["--updateinformation", self.updateinformation]
-        if self.verbose >= 1:
-            cmd.append("--verbose")
-        cmd += ["--no-appstream", appdir, output]
-        with FileLock(self.appimagetool + ".lock"):
-            cwd = os.getcwd()
-            os.chdir(self.dist_dir)
-            try:
-                self.spawn(cmd, search_path=0)
-            finally:
-                os.chdir(cwd)
+        if self.appimagetool is not None:
+            cmd = [self.appimagetool]
+            if find_library("fuse") is None:  # libfuse.so.2 is not found
+                cmd.append("--appimage-extract-and-run")
+            if self.runtime_file is not None:
+                cmd += ["--runtime-file", self.runtime_file]
+            if self.sign is not None:
+                cmd.append("--sign")
+            if self.sign_key is not None:
+                cmd += ["--sign-key", self.sign_key]
+            if self.updateinformation is not None:
+                if self.updateinformation == "guess":
+                    # check for github, travis or gitlab
+                    if (
+                        os.environ.get("GITHUB_REPOSITORY")
+                        or os.environ.get("TRAVIS_REPO_SLUG")
+                        or os.environ.get("CI_COMMIT_REF_NAME")
+                    ):
+                        if os.environ.get("GITHUB_REPOSITORY"):
+                            # appimagetool requires a GitHub token, but doesn't
+                            # actually use it.
+                            os.environ.setdefault("GITHUB_TOKEN", "fake-token")
+                        cmd.append("--guess")
+                else:
+                    cmd += ["--updateinformation", self.updateinformation]
+            if self.verbose >= 1:
+                cmd.append("--verbose")
+            cmd += ["--no-appstream", appdir, output]
+            with FileLock(self.appimagetool + ".lock"):
+                cwd = os.getcwd()
+                os.chdir(dist_dir)
+                try:
+                    self.spawn(cmd, search_path=0)
+                finally:
+                    os.chdir(cwd)
 
         self.warnings()
         if not os.path.exists(output):
@@ -346,7 +359,7 @@ class bdist_appimage(Command):
         """Save an input data to a file respecting verbose, dry-run and force
         flags.
         """
-        if not self.force and os.path.exists(outfile):
+        if not getattr(self, "force", True) and os.path.exists(outfile):
             if self.verbose >= 1:
                 self.warn_delayed(f"not creating {outfile} (output exists)")
             return (outfile, 0)

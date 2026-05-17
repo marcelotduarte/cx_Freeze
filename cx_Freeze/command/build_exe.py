@@ -7,7 +7,7 @@ import os
 import site
 import sys
 from pkgutil import resolve_name
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from setuptools import Command
 
@@ -16,6 +16,10 @@ from cx_Freeze.common import normalize_to_list
 from cx_Freeze.exception import OptionError, SetupError
 from cx_Freeze.freezer import Freezer
 from cx_Freeze.module import ConstantsModule
+
+if TYPE_CHECKING:
+    from cx_Freeze._typing import StrPath
+    from cx_Freeze.executable import Executable
 
 __all__ = ["build_exe"]
 
@@ -220,16 +224,27 @@ class build_exe(Command):
             "zip_exclude_packages",
             "zip_include_packages",
         ]
-        for option in self.list_options:
-            setattr(self, option, [])
+        self.excludes = []
+        self.includes = []
+        self.packages = []
+        self.replace_paths = []
+        self.constants = []
+        self.include_files = []
+        self.include_path = []
+        self.bin_excludes = []
+        self.bin_includes = []
+        self.bin_path_excludes = []
+        self.bin_path_includes = []
+        self.zip_includes = []
         self.zip_exclude_packages = ["*"]
+        self.zip_include_packages = []
 
         self.build_exe = None
         self.include_msvcr = None
         self.include_msvcr_version = None
         self.no_compress = False
         self.optimize = sys.flags.optimize
-        self.path = None
+        self.path: list[str] = []
         self.silent = None
         self.silent_level = None
         self.zip_filename = None
@@ -261,7 +276,7 @@ class build_exe(Command):
         # path options
         if self.path and isinstance(self.path, str):
             # accepts os.pathsep to be backwards compatible with CLI
-            self.path = self.path.replace(os.pathsep, ",")
+            self.path = normalize_to_list(self.path.replace(os.pathsep, ","))
         include_path = self.include_path
         if include_path:
             cur_path = normalize_to_list(self.path or sys.path)
@@ -306,7 +321,9 @@ class build_exe(Command):
         # Update the package metadata
         self.run_command("egg_info")
 
-        executables = self.distribution.executables
+        executables: list[Executable] = getattr(
+            self.distribution, "executables", []
+        )
         metadata = self.distribution.metadata
         constants_module = ConstantsModule(
             metadata.version,
@@ -323,7 +340,7 @@ class build_exe(Command):
             self.replace_paths,
             (not self.no_compress),
             self.optimize,
-            self.path,
+            cast("list[StrPath]", self.path),
             self.build_exe,
             bin_includes=self.bin_includes,
             bin_excludes=self.bin_excludes,
@@ -333,9 +350,9 @@ class build_exe(Command):
             zip_includes=self.zip_includes,
             zip_include_packages=self.zip_include_packages,
             zip_exclude_packages=self.zip_exclude_packages,
-            silent=self.silent,
+            silent=self.silent or 0,
             metadata=metadata,
-            include_msvcr=self.include_msvcr,
+            include_msvcr=self.include_msvcr or False,
             include_msvcr_version=self.include_msvcr_version,
             zip_filename=self.zip_filename,
         )

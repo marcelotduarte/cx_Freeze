@@ -9,7 +9,7 @@ import logging
 import os
 import shutil
 import subprocess
-from typing import ClassVar
+from typing import ClassVar, cast
 
 from setuptools import Command
 
@@ -66,10 +66,11 @@ class bdist_deb(Command):
 
     def run(self) -> None:
         # make a binary RPM to convert
+        dist_dir = cast("str", self.dist_dir)
         cmd_rpm = bdist_rpm(
             self.distribution,
             bdist_base=self.bdist_base,
-            dist_dir=self.dist_dir,
+            dist_dir=dist_dir,
         )
         cmd_rpm.ensure_finalized()
         cmd_rpm.run()
@@ -93,7 +94,7 @@ class bdist_deb(Command):
             text=True,
             capture_output=True,
             check=False,
-            cwd=self.dist_dir,
+            cwd=dist_dir,
         )
         if process.returncode != 0:
             msg = process.stderr.splitlines()[0]
@@ -109,7 +110,7 @@ class bdist_deb(Command):
         output = process.stdout
         logger.info(output)
         filename = output.splitlines()[0].split()[0]
-        filename = os.path.join(self.dist_dir, filename)
+        filename = os.path.join(dist_dir, filename)
         if not os.path.exists(filename):
             msg = "could not build deb"
             raise ExecError(msg)
