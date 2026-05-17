@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
-import contextlib
 import os
 import sys
 import warnings
-from typing import ClassVar
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, ClassVar
 
 from setuptools.command.install import install as _install
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 __all__ = ["Install"]
 
 
-@contextlib.contextmanager
-def suppress_known_deprecation() -> contextlib.AbstractContextManager:
+@contextmanager
+def suppress_known_deprecation() -> Generator:
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", "setup.py install is deprecated")
         yield
@@ -31,11 +34,11 @@ class Install(_install):
 
     def expand_dirs(self) -> None:
         super().expand_dirs()
-        self._expand_attrs(["install_exe"])
+        self._expand_attrs(["install_exe"])  # ty: ignore[unresolved-attribute]
 
     def get_sub_commands(self) -> list[str]:
         sub_commands = super().get_sub_commands()[:]
-        if self.distribution.executables:
+        if getattr(self.distribution, "executables", None):
             sub_commands.remove("install_egg_info")
             sub_commands.remove("install_scripts")
             sub_commands.append("install_exe")
@@ -44,7 +47,7 @@ class Install(_install):
     def initialize_options(self) -> None:
         with suppress_known_deprecation():
             super().initialize_options()
-        self.install_exe = None
+        self.install_exe: str | None = None
 
     def finalize_options(self) -> None:
         if self.prefix is None and sys.platform == "win32":

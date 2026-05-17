@@ -292,7 +292,9 @@ docstring-code-line-length = 50
 
 [tool.ty.src]
 exclude = [
-    "cx_Freeze/command",
+    "cx_Freeze/command/bdist_dmg.py",
+    "cx_Freeze/command/bdist_mac.py",
+    "cx_Freeze/command/bdist_msi.py",
     "cx_Freeze/hooks",
     "cx_Freeze/importshed",
     "cx_Freeze/darwintools.py",

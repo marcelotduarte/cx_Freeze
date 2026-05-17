@@ -5,9 +5,12 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from setuptools import Command
+
+if TYPE_CHECKING:
+    from cx_Freeze.executable import Executable
 
 __all__ = ["install_exe"]
 
@@ -27,9 +30,9 @@ class install_exe(Command):
     def initialize_options(self) -> None:
         self.install_dir: str | None = None
         self.force = 0
-        self.build_dir = None
-        self.skip_build = None
-        self.outfiles = None
+        self.build_dir: str | None = None
+        self.skip_build: bool | None = None
+        self.outfiles: list[str] = []
 
     def finalize_options(self) -> None:
         self.set_undefined_options("build_exe", ("build_exe", "build_dir"))
@@ -44,14 +47,15 @@ class install_exe(Command):
         if not self.skip_build:
             self.run_command("build_exe")
 
-        self.mkpath(self.install_dir)
-        self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
+        install_dir: str = cast("str", self.install_dir)
+        build_dir: str = cast("str", self.build_dir)
+        self.mkpath(install_dir)
+        self.outfiles = self.copy_tree(build_dir, install_dir)
 
         if sys.platform == "win32":
             return
 
         # in posix, make symlinks to the executables
-        install_dir = self.install_dir
         bin_dir = os.path.join(
             os.path.dirname(os.path.dirname(install_dir)), "bin"
         )
@@ -69,8 +73,8 @@ class install_exe(Command):
             )
             self.outfiles.append(origin)
 
-    def get_inputs(self) -> list[str]:
-        return self.distribution.executables or []
+    def get_inputs(self) -> list[Executable]:
+        return getattr(self.distribution, "executables", [])
 
     def get_outputs(self) -> list[str]:
         return self.outfiles or []

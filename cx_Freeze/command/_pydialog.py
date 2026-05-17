@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from msilib import Control, Dialog
+from msilib import Control, Dialog  # ty: ignore
 
 
 class PyDialog(Dialog):
