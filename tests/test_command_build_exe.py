@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import pytest
 from setuptools import Distribution
@@ -172,7 +173,7 @@ DIST_ATTRS = {
     ],
 )
 def test_build_exe_finalize_options(
-    kwargs: dict[str, ...], expected: dict[str, ...]
+    kwargs: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     """Test the build_exe finalize_options."""
     dist = Distribution(DIST_ATTRS)
@@ -194,7 +195,7 @@ def test_build_exe_finalize_options(
     ],
 )
 def test_build_exe_finalize_options_raises(
-    kwargs: dict[str, ...], expected_exception, expected_match: str
+    kwargs: dict[str, Any], expected_exception, expected_match: str
 ) -> None:
     """Test the build_exe finalize_options that raises an exception."""
     dist = Distribution(DIST_ATTRS)
@@ -367,7 +368,7 @@ def test_build_exe_finalize_options_raises(
     ],
 )
 def test_build_exe_script_args(
-    build_args: list[str], expected: dict[str, ...]
+    build_args: list[str], expected: dict[str, Any]
 ) -> None:
     """Test the build_exe with command line parameters."""
     attrs = DIST_ATTRS.copy()

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 from setuptools import Distribution
 
@@ -48,7 +50,7 @@ def test_bdist_mac_in_non_macos() -> None:
     ],
 )
 def test_bdist_mac_call(
-    kwargs: dict[str, ...], expected: dict[str, ...]
+    kwargs: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     """Test the bdist_mac with options."""
     dist = Distribution(DIST_ATTRS)

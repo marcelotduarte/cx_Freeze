@@ -1,6 +1,4 @@
-"""Implements the 'bdist_mac' commands (create macOS
-app blundle).
-"""
+"""Implements the 'bdist_mac' command (create macOS app blundle)."""
 
 from __future__ import annotations
 
@@ -9,7 +7,7 @@ import plistlib
 import shutil
 import subprocess
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from setuptools import Command
 
@@ -21,6 +19,9 @@ from cx_Freeze.darwintools import (
     isMachOFile,
 )
 from cx_Freeze.exception import OptionError, PlatformError
+
+if TYPE_CHECKING:
+    from cx_Freeze.executable import Executable
 
 __all__ = ["bdist_mac"]
 
@@ -138,20 +139,20 @@ class bdist_mac(Command):
         for option in self.list_options:
             setattr(self, option, [])
 
-        self.absolute_reference_path = None
+        self.absolute_reference_path: str | None = None
         self.bundle_name = self.distribution.get_fullname()
         self.codesign_deep = None
-        self.codesign_entitlements = None
-        self.codesign_identity = None
+        self.codesign_entitlements: str | None = None
+        self.codesign_identity: str | None = None
         self.codesign_timestamp = None
-        self.codesign_strict = None
-        self.codesign_options = None
+        self.codesign_strict: str | None = None
+        self.codesign_options: str | None = None
         self.codesign_resource_rules = None
         self.codesign_verify = None
         self.spctl_assess = None
         self.custom_info_plist = None
-        self.iconfile = None
-        self.qt_menu_nib = False
+        self.iconfile: str | None = None
+        self.qt_menu_nib: str | None = None
 
         self.build_base = None
         self.build_dir = None
@@ -177,9 +178,8 @@ class bdist_mac(Command):
             ("build_base", "build_base"),
             ("build_exe", "build_dir"),
         )
-        self.bundle_dir = os.path.join(
-            self.build_base, f"{self.bundle_name}.app"
-        )
+        build_base = cast("str", self.build_base)
+        self.bundle_dir = os.path.join(build_base, f"{self.bundle_name}.app")
         self.contents_dir = os.path.join(self.bundle_dir, "Contents")
         self.bin_dir = os.path.join(self.contents_dir, "MacOS")
         self.frameworks_dir = os.path.join(self.contents_dir, "Frameworks")
@@ -220,7 +220,7 @@ class bdist_mac(Command):
         be absolute paths using the given path instead of @executable_path.
         """
         if not path:
-            path = self.absolute_reference_path
+            path = cast("str", self.absolute_reference_path)
 
         files = os.listdir(self.bin_dir)
 
@@ -325,7 +325,10 @@ class bdist_mac(Command):
         )
 
         # Find the executable name
-        executable = self.distribution.executables[0].target_name
+        executables: list[Executable] = getattr(
+            self.distribution, "executables", []
+        )
+        executable = executables[0].target_name
         _, self.bundle_executable = os.path.split(executable)
         print(f"Executable name: {self.build_dir}/{executable}")
 
@@ -335,10 +338,11 @@ class bdist_mac(Command):
         self.mkpath(self.resources_dir)  # /Resources
 
         # Copy the full build_exe to Contents/Resources
-        self.copy_tree(self.build_dir, self.resources_dir)
+        build_dir = cast("str", self.build_dir)
+        self.copy_tree(build_dir, self.resources_dir)
 
         # Move only executables in Contents/Resources to Contents/MacOS
-        for executable in self.distribution.executables:
+        for executable in executables:
             source = os.path.join(self.resources_dir, executable.target_name)
             target = os.path.join(self.bin_dir, executable.target_name)
             self.move_file(source, target)
@@ -463,7 +467,11 @@ class bdist_mac(Command):
         print("Finished .app signing")
 
     def _get_sign_args(self) -> list[str]:
-        signargs = ["codesign", "--sign", self.codesign_identity, "--force"]
+        signargs = ["codesign", "--force"]
+
+        if self.codesign_identity:
+            signargs.append("--sign")
+            signargs.append(self.codesign_identity)
 
         if self.codesign_timestamp:
             signargs.append("--timestamp")

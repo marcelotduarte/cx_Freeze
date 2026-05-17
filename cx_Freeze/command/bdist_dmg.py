@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 from contextlib import suppress
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from setuptools import Command
 
@@ -14,7 +14,8 @@ from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, PlatformError
 
 if IS_MACOS:
-    from dmgbuild.core import DMGError, build_dmg
+    from dmgbuild.core import DMGError, build_dmg  # ty: ignore
+
 if TYPE_CHECKING:
     from cx_Freeze import Executable
 
@@ -255,7 +256,9 @@ class bdist_dmg(Command):
             }
             self.window_rect = ((100, 100), (640, 380))
 
-        executables = self.distribution.executables  # type: list[Executable]
+        executables: list[Executable] = getattr(
+            self.distribution, "executables", []
+        )
         executable: Executable = executables[0]
         if len(executables) > 1:
             self.warn(
@@ -264,18 +267,14 @@ class bdist_dmg(Command):
             )
         if executable.icon is None:
             icon_name = "setup.icns"
-            self.icon = os.fspath(resource_path(f"icons/{icon_name}"))
+            self.icon = resource_path(f"icons/{icon_name}")
         else:
-            self.icon = os.path.abspath(executable.icon)
+            self.icon = executable.icon
 
         with open("settings.py", "w") as f:
 
             def add_param(name, value) -> None:
-                # if value is a string, add quotes
-                if isinstance(value, (str)):
-                    f.write(f"{name} = '{value}'\n")
-                else:
-                    f.write(f"{name} = {value}\n")
+                f.write(f"{name} = {value!r}\n")
 
             # Some fields expect and allow None, others don't
             # so we need to check for None and not add them for
@@ -299,7 +298,7 @@ class bdist_dmg(Command):
             if self.icon_locations:
                 add_param("icon_locations", self.icon_locations)
             if self.icon:
-                add_param("icon", self.icon)
+                add_param("icon", os.path.abspath(self.icon))
             # We don't need to set this, as we only support icns
             # add param ( "badge_icon", self.badge_icon)
 
@@ -323,7 +322,7 @@ class bdist_dmg(Command):
                 "include_list_view_settings", self.include_list_view_settings
             )
 
-            # Icon View Settings\
+            # Icon View Settings
             add_param("arrange_by", self.arrange_by)
             add_param("grid_offset", self.grid_offset)
             add_param("grid_spacing", self.grid_spacing)
@@ -391,8 +390,12 @@ class bdist_dmg(Command):
         self.run_command("bdist_mac")
 
         # Find the location of the application bundle and the build dir
-        self.bundle_dir = self.get_finalized_command("bdist_mac").bundle_dir
-        self.build_dir = self.get_finalized_command("build_exe").build_base
+        bdist_mac = self.get_finalized_command("bdist_mac")
+        bundle_dir = cast("str", bdist_mac.bundle_dir)  # ty:ignore[unresolved-attribute]
+        build_exe = self.get_finalized_command("build_exe")
+        build_base = cast("str", build_exe.build_base)  # ty:ignore[unresolved-attribute]
+        self.bundle_dir = bundle_dir
+        self.build_dir = build_base
 
         # Set the file name of the DMG to be built
         self.dmg_name = os.path.join(
