@@ -93,6 +93,7 @@ def _do_test(
     found = sorted([m.name for m in finder.modules])
     # check if we found what we expected, not more, not less
     assert found == modules
+    assert module is not None
     if module.error_msg:
         assert module.name in missing
 
@@ -181,14 +182,29 @@ def test_finder(
     )
 
 
-def test_bytecode(tmp_package) -> None:
+@pytest.mark.parametrize(
+    ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
+    [BYTECODE_TEST],
+    ids=["bytecode_test"],
+)
+def test_bytecode(
+    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
+) -> None:
     """Provides bytecode test case for ModuleFinder class."""
     tmp_package.create(BYTECODE_TEST[4])
     source_path = tmp_package.path / "a.py"
     bytecode_path = source_path.with_suffix(".pyc")
     py_compile.compile(os.fspath(source_path), cfile=os.fspath(bytecode_path))
     os.remove(source_path)
-    _do_test(tmp_package, *BYTECODE_TEST)
+    _do_test(
+        tmp_package,
+        import_this,
+        modules,
+        missing,
+        maybe_missing,
+        source,
+        **kwargs,
+    )
 
 
 @pytest.mark.parametrize(
@@ -221,6 +237,7 @@ def test_load_module_code(tmp_package) -> None:
         ConstantsModule(), path=[tmp_package.path, *sys.path]
     )
     module = finder.include_module("a")
+    assert module is not None
     module.loader = None  # to coverage the error handler in _load_module_code
     deferred_imports = []
     finder._load_module_code(module, deferred_imports)  # noqa: SLF001

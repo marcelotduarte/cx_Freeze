@@ -35,10 +35,10 @@ repos:
     hooks:
       - id: validate-pyproject
         additional_dependencies:
-          - validate-pyproject-schema-store[all]>=2026.4.16
+          - validate-pyproject-schema-store[all]>=2026.5.15
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 6fec9b7edb08fd9989088709d864a7826dc74e80 # frozen: v0.15.12
+    rev: 5e2fb545eba1ea9dc051f6f962d52fe8f76a9794 # frozen: v0.15.13
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -77,7 +77,7 @@ repos:
       - id: ty-check
         name: typecheck
         description: Type check python files with ty
-        entry: uvx ty check --output-format=concise
+        entry: uvx ty check
         language: system
         types: [python]
         pass_filenames: false

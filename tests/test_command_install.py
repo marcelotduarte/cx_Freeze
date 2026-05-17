@@ -39,8 +39,10 @@ def test_install(tmp_package) -> None:
 
     if IS_MINGW or IS_WINDOWS:
         tmp_package.freeze("python setup.py install --root=root")
-        program_files = Path(os.getenv("PROGRAMFILES"))
-        prefix = program_files.relative_to(program_files.anchor) / "hello"
+        program_files = os.getenv("PROGRAMFILES")
+        assert program_files is not None
+        prg_files = Path(program_files)
+        prefix = prg_files.relative_to(prg_files.anchor) / "hello"
     else:
         tmp_package.freeze()
         prefix = "base/lib/hello-0.1.2.3"
@@ -80,8 +82,10 @@ def test_install_pyproject(tmp_package) -> None:
 
     if IS_MINGW or IS_WINDOWS:
         tmp_package.freeze("cxfreeze install --root=root")
-        program_files = Path(os.getenv("PROGRAMFILES"))
-        prefix = program_files.relative_to(program_files.anchor) / "hello"
+        program_files = os.getenv("PROGRAMFILES")
+        assert program_files is not None
+        prg_files = Path(program_files)
+        prefix = prg_files.relative_to(prg_files.anchor) / "hello"
     else:
         tmp_package.freeze()
         prefix = "base/lib/hello-0.1.2.3"

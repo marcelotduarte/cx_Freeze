@@ -19,9 +19,6 @@ from cx_Freeze._compat import (
 )
 from cx_Freeze.dep_parser import PEParser
 
-if sys.platform != "win32":
-    pytest.skip(reason="Windows tests", allow_module_level=True)
-
 SOURCE = """
 test_manifest.py
     import sys
@@ -71,6 +68,7 @@ simple.manifest
 """
 
 
+@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 def test_manifest(tmp_package) -> None:
     """With the correct manifest, windows version return 10.0 in Windows 10."""
     tmp_package.create(SOURCE)
@@ -78,7 +76,7 @@ def test_manifest(tmp_package) -> None:
     executable = tmp_package.executable("test_manifest")
     assert executable.is_file()
     result = tmp_package.run(executable)
-    winver = sys.getwindowsversion()
+    winver = sys.getwindowsversion()  # type: ignore[ty:unresolved-attribute]
     expected = f"Windows version: {winver.major}.{winver.minor}"
     result.stdout.fnmatch_lines(expected)
 
@@ -97,6 +95,7 @@ elif IS_MINGW:
     LIEF_VERSIONS += ["installed"]
 
 
+@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", [*LIEF_VERSIONS, "disabled"])
 def test_simple_manifest(tmp_package, lief_version) -> None:
     """With simple manifest, without "supportedOS Id", windows version returned
@@ -132,10 +131,11 @@ def test_simple_manifest(tmp_package, lief_version) -> None:
         assert manifest == simple.read_bytes().decode()
 
 
+@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
 def test_uac_admin(tmp_package, lief_version) -> None:
     """With the uac_admin, should return WinError 740 - requires elevation."""
-    if ctypes.windll.shell32.IsUserAnAdmin():
+    if ctypes.windll.shell32.IsUserAnAdmin():  # type: ignore[ty:unresolved-attribute]
         pytest.xfail(reason="User is admin")
 
     tmp_package.create(SOURCE)
@@ -148,10 +148,11 @@ def test_uac_admin(tmp_package, lief_version) -> None:
         tmp_package.run(executable)
 
 
+@pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
 def test_uac_uiaccess(tmp_package, lief_version) -> None:
     """With the uac_uiaccess, should return WinError 740."""
-    if ctypes.windll.shell32.IsUserAnAdmin():
+    if ctypes.windll.shell32.IsUserAnAdmin():  # type: ignore[ty:unresolved-attribute]
         pytest.xfail(reason="User is admin")
 
     tmp_package.create(SOURCE)
