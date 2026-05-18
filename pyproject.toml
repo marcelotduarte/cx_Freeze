@@ -208,7 +208,6 @@ filterwarnings = [
 [tool.ruff]
 extend-exclude = [
     "cx_Freeze/importshed/*.pyi",
-    "cx_Freeze/darwintools.py",
 ]
 line-length = 79
 
@@ -293,7 +292,6 @@ docstring-code-line-length = 50
 [tool.ty.src]
 exclude = [
     "cx_Freeze/command/bdist_msi.py",
-    "cx_Freeze/darwintools.py",
     "cx_Freeze/hooks/_pyqt5_/_resource.py",
     "cx_Freeze/hooks/_pyside2_/_resource.py",
     "cx_Freeze/hooks/_pyside6_/_resource.py",

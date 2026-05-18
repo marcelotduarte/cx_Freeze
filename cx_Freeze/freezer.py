@@ -1255,9 +1255,9 @@ class DarwinFreezer(Freezer, Parser):
         else:
             referencing_file = None
         darwin_file = DarwinFile(source, referencing_file)
-        darwin_file.setBuildPath(target)
+        darwin_file.build_path = target
         if reference is not None:
-            reference.setTargetFile(darwin_file)
+            reference.target_file = darwin_file
 
         self.darwin_tracker.recordCopiedFile(target, darwin_file)
         if (
@@ -1300,8 +1300,8 @@ class DarwinFreezer(Freezer, Parser):
                 # If file was already copied, and we are following a reference
                 # from a DarwinFile, then we need to tell the reference where
                 # the file was copied to (the reference can later be updated).
-                reference.setTargetFile(
-                    self.darwin_tracker.getDarwinFile(source, target)
+                reference.target_file = self.darwin_tracker.getDarwinFile(
+                    source, target
                 )
             return
         if source == target:
@@ -1344,7 +1344,7 @@ class DarwinFreezer(Freezer, Parser):
         # called up later in _copy_file if copying a dependency without
         # an explicit reference provided (to assist in resolving @rpaths)
         for reference in darwinFile.getMachOReferenceList():
-            if reference.isResolved():
+            if reference.resolved_path is not None:
                 self.darwin_tracker.cacheReferenceTo(
                     reference.resolved_path, reference
                 )
