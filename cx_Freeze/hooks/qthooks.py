@@ -73,7 +73,7 @@ def _qt_libraryinfo_paths(name: str) -> dict[str, tuple[Path, Path]]:
     prefix_path = source_paths["PrefixPath"]
     source_paths.setdefault("DataPath", prefix_path)
     source_paths.setdefault("LibrariesPath", prefix_path / "lib")
-    source_paths.setdefault("SettingsPath", ".")
+    source_paths.setdefault("SettingsPath", Path("."))
     if name in ("PySide2", "PySide6") and IS_WINDOWS and not IS_CONDA:
         source_paths["BinariesPath"] = prefix_path
         source_paths["LibraryExecutablesPath"] = prefix_path
@@ -346,7 +346,8 @@ class QtHook(ModuleHook):
     def qt_qtwebenginecore(self, finder: ModuleFinder, module: Module) -> None:
         """Include module dependency and QtWebEngineProcess files."""
         name = _qt_implementation(module)
-        distribution = module.parent.distribution
+        parent = module.parent if module.parent else module.root
+        distribution = parent.distribution
         environment = (distribution and distribution.installer) or "pip"
 
         if IS_WINDOWS:
@@ -435,6 +436,8 @@ class QtHook(ModuleHook):
         are also implicitly loaded.
         """
         name = _qt_implementation(module)
-        source_dir = module.path[0] / "widget-plugins"
-        if source_dir.exists():
-            finder.include_files(source_dir, f"{name}.uic.widget-plugins")
+        path = module.path
+        if path:
+            source_dir = path[0] / "widget-plugins"
+            if source_dir.exists():
+                finder.include_files(source_dir, f"{name}.uic.widget-plugins")

@@ -4,12 +4,15 @@ tensorflow package is included.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from importlib.machinery import SourceFileLoader
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -21,7 +24,7 @@ class Hook(ModuleHook):
 
     def tensorflow(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for tensorflow. Tested in Windows and Linux."""
-        module_path = module.file.parent
+        module_path = cast("Path", module.file).parent
         site_packages_path = module_path.parent
 
         # implicitly loaded packages
@@ -39,8 +42,11 @@ class Hook(ModuleHook):
 
         # patch the source code to search the correct directory
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         source_code = source_code.replace(
             "_site_packages_dirs = []",
             "_site_packages_dirs = [_os.path.join(_sys.prefix, 'lib')]",
@@ -50,7 +56,9 @@ class Hook(ModuleHook):
             "_current_file_location = __file__.replace('library.zip', '.')  #",
         )
         module.code = loader.source_to_code(
-            source_code, path, _optimize=finder.optimize
+            source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
         # installed version of tensorflow is a variant?

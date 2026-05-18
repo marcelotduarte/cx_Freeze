@@ -81,8 +81,13 @@ class Hook(ModuleHook):
             # cx_Freeze patch end
         """
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         module.code = loader.source_to_code(
-            dedent(patch) + source_code, path, _optimize=finder.optimize
+            dedent(patch) + source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )

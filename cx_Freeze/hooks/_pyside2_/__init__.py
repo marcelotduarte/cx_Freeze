@@ -4,7 +4,8 @@ PySide2 package is included.
 
 from __future__ import annotations
 
-import importlib.resources as importlib_resources
+from importlib import resources
+from importlib.machinery import SourceFileLoader
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -40,20 +41,20 @@ class Hook(QtHook):
             module.in_file_system = 2
 
         # Include a module that inject an optional debug code
-        qt_debug = importlib_resources.files(__package__) / "_debug.py"
-        finder.include_file_as_module(qt_debug, "PySide2._cx_freeze_debug")
+        package = resources.files(__package__ or "cx_Freeze.hooks._pyside2_")
+        finder.include_file_as_module(
+            str(package / "_debug.py"), "PySide2._cx_freeze_debug"
+        )
 
         # Include a resource with qt.conf (Prefix = lib/PySide2) - conda-forge
         if environment == "conda":
-            resource = importlib_resources.files(__package__) / "_resource.py"
             finder.include_file_as_module(
-                resource, "PySide2._cx_freeze_resource"
+                str(package / "_resource.py"), "PySide2._cx_freeze_resource"
             )
 
         # Include a qt.conf in the module path (Prefix = lib/PySide2) - msys2
         if IS_MINGW:
-            qt_conf = importlib_resources.files(__package__) / "qt.conf"
-            finder.include_files(qt_conf, qt_conf.name)
+            finder.include_files(str(package / "qt.conf"), "qt.conf")
 
         # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)
         copy_qt_files(finder, "PySide2", "LibraryExecutablesPath", "qt.conf")
@@ -81,23 +82,30 @@ class Hook(QtHook):
             # cx_Freeze patch end
         """
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         module.code = loader.source_to_code(
-            source_code + dedent(patch), path, _optimize=finder.optimize
+            source_code + dedent(patch),
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
         # small tweaks for shiboken2
         if module.in_file_system == 2:
             shiboken2 = finder.include_package("shiboken2")
-            shiboken2.in_file_system = 2
-            shiboken2.global_names.add("VoidPtr")
+            if shiboken2:
+                shiboken2.in_file_system = 2
+                shiboken2.global_names.add("VoidPtr")
         finder.include_module("inspect")
 
     def qt_qtwebenginecore(self, finder: ModuleFinder, module: Module) -> None:
         """Include module dependency and QtWebEngineProcess files."""
         super().qt_qtwebenginecore(finder, module)
-        distribution = module.parent.distribution
+        parent = module.parent or module.root
+        distribution = parent.distribution
         environment = (distribution and distribution.installer) or "pip"
         if IS_MACOS and environment == "pip":
             # duplicate resource files

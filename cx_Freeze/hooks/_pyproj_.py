@@ -34,7 +34,7 @@ class Hook(ModuleHook):
                     source_path, "share/proj", copy_dependent_files=False
                 )
             return
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             # in zip file
             source_path = module.file.parent / "proj_dir" / "share" / "proj"
             if source_path.is_dir():

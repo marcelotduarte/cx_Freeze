@@ -4,11 +4,13 @@ triton package is included.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -23,13 +25,14 @@ class Hook(ModuleHook):
         # exclude _C module that causes RecursionError
         finder.exclude_module("triton._C")
         # but, include the module libtriton as library
-        source_lib = module.file.parent / "_C"
+        parent_path = cast("Path", module.file).parent
+        source_lib = parent_path / "_C"
         if source_lib.exists():
             finder.include_files(source_lib, f"lib/{module.name}/_C")
 
         # exclude backends module, but include its source modules
         finder.exclude_module("triton.backends")
-        backends_path = module.file.parent / "backends"
+        backends_path = parent_path / "backends"
         for source in backends_path.rglob("*.py"):  # type: Path
             target = f"lib/{module.name}" / source.relative_to(backends_path)
             finder.include_files(source, target)

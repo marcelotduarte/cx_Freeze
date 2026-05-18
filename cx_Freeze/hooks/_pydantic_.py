@@ -32,7 +32,7 @@ class Hook(ModuleHook):
             ]
         )
         distribution = module.distribution
-        if distribution and distribution.version < (2,):
+        if distribution and int(distribution.version[0]) < 2:
             finder.include_module("colorsys")
             finder.include_module("datetime")
             finder.include_module("decimal")

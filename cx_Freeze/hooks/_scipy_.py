@@ -5,6 +5,7 @@ scipy package is included.
 from __future__ import annotations
 
 from contextlib import suppress
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
@@ -78,13 +79,16 @@ class Hook(ModuleHook):
         # patch the code when necessary
         if module.in_file_system == 0:
             loader = module.loader
-            path = loader.get_filename(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
             source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             module.code = loader.source_to_code(
                 source_code.replace(
                     "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 
@@ -220,15 +224,18 @@ class Hook(ModuleHook):
         self, finder: ModuleFinder, module: Module
     ) -> None:
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         if "suppress_warnings" in source_code:
             module.code = loader.source_to_code(
                 source_code.replace(
                     "from numpy.testing import suppress_warnings",
                     "from warnings import catch_warnings as suppress_warnings",
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 

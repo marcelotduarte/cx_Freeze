@@ -55,7 +55,7 @@ def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
     (loaded implicitly).
     """
     # bcrypt < 4 supports Python <= 3.10
-    if module.distribution is None or module.distribution.version[0] < 4:
+    if module.distribution is None or int(module.distribution.version[0]) < 4:
         finder.include_module("_cffi_backend")
 
 
@@ -69,7 +69,9 @@ def load_boto3(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("boto3.dynamodb")
     finder.include_package("boto3.ec2")
     finder.include_package("boto3.s3")
-    finder.include_files(module.file.parent / "data", "lib/boto3/data")
+    dist = module.distribution
+    if dist:
+        finder.include_files(dist.locate_file("boto3/data"), "lib/boto3/data")
 
 
 def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
@@ -229,7 +231,8 @@ def load_googleapiclient_discovery(
     in file system.
     """
     discovery_cache = finder.include_package("googleapiclient.discovery_cache")
-    discovery_cache.in_file_system = 1
+    if discovery_cache:
+        discovery_cache.in_file_system = 1
 
 
 def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
@@ -296,11 +299,13 @@ def load_imagej(finder: ModuleFinder, module: Module) -> None:
 
 def load_jpype(finder: ModuleFinder, module: Module) -> None:
     """The JPype1 package requires its binary."""
-    source = module.file.parent.parent / "org.jpype.jar"
-    if source.exists():
-        finder.include_files(
-            source, f"lib/{source.name}", copy_dependent_files=False
-        )
+    dist = module.distribution
+    if dist:
+        source = dist.locate_file("org.jpype.jar")
+        if source.exists():
+            finder.include_files(
+                source, f"lib/{source.name}", copy_dependent_files=False
+            )
 
 
 def load_librosa(finder: ModuleFinder, module: Module) -> None:
@@ -382,9 +387,11 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
     """The postgresql.lib module requires the libsys.sql file to be included
     so make sure that file is included.
     """
-    libsys = module.path[0] / "libsys.sql"
-    if libsys.exists():
-        finder.include_files(libsys, libsys.name)
+    path = module.path
+    if path:
+        libsys = path[0] / "libsys.sql"
+        if libsys.exists():
+            finder.include_files(libsys, libsys.name)
 
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
@@ -439,10 +446,12 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
     the target directory.
     """
     pythoncom = __import__("pythoncom")
-    filename = Path(pythoncom.__file__)
-    finder.include_files(
-        filename, f"lib/{filename.name}", copy_dependent_files=IS_MINGW
-    )
+    filename = pythoncom.__file__
+    if filename:
+        file = Path(filename)
+        finder.include_files(
+            file, f"lib/{file.name}", copy_dependent_files=IS_MINGW
+        )
 
 
 def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
@@ -453,10 +462,12 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
     target directory.
     """
     pywintypes = __import__("pywintypes")
-    filename = Path(pywintypes.__file__)
-    finder.include_files(
-        filename, f"lib/{filename.name}", copy_dependent_files=IS_MINGW
-    )
+    filename = pywintypes.__file__
+    if filename:
+        file = Path(filename)
+        finder.include_files(
+            file, f"lib/{file.name}", copy_dependent_files=IS_MINGW
+        )
 
 
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:
@@ -548,7 +559,8 @@ def load_win32api(finder: ModuleFinder, module: Module) -> None:
     """The win32api module implicitly loads the pywintypes module; make sure
     this happens.
     """
-    finder.exclude_dependent_files(module.file)
+    if module.file:
+        finder.exclude_dependent_files(module.file)
     finder.include_module("pywintypes")
 
 
@@ -557,7 +569,8 @@ def load_win32com(finder: ModuleFinder, module: Module) -> None:
     the sibling directory called win32comext; simulate that by changing the
     search path in a similar fashion here.
     """
-    module.path.append(module.file.parent.parent / "win32comext")
+    if module.file and module.path:
+        module.path.append(module.file.parent.parent / "win32comext")
 
 
 def load_win32file(finder: ModuleFinder, module: Module) -> None:

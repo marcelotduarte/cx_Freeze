@@ -22,6 +22,8 @@ class Hook(ModuleHook):
         """The pythonnet package (imported as 'clr') needs Python.Runtime.dll
         in runtime.
         """
+        if module.file is None:
+            return
         dll_name = "Python.Runtime.dll"
         dll_path = module.file.parent / dll_name
         if not dll_path.exists():

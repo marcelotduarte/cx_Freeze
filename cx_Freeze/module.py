@@ -13,7 +13,7 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from keyword import iskeyword
 from pathlib import Path
 from pkgutil import resolve_name
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from packaging.requirements import Requirement
 
@@ -235,7 +235,7 @@ class Module:
         self.ignore_names: set[str] = set()
         self.in_import: bool = True
         self.source_is_zip_file: bool = False
-        self._in_file_system: int = 1
+        self._in_file_system: Literal[0, 1, 2] = 1
         # add the load hook
         self.load_hook()
 
@@ -269,10 +269,12 @@ class Module:
         return Path(filename)
 
     @property
-    def in_file_system(self) -> int:
-        """Returns a value indicating where the module/package will be stored:
-        0. in a zip file (not directly in the file system)
-        1. in the file system, package with modules and data
+    def in_file_system(self) -> Literal[0, 1, 2]:
+        """Returns a value indicating where the module/package will be stored.
+
+        Possible values:
+        0. in a zip file (not directly in the file system);
+        1. in the file system, package with modules and data;
         2. in the file system, only detected modules.
         """
         if self.parent is not None:
@@ -282,8 +284,8 @@ class Module:
         return self._in_file_system
 
     @in_file_system.setter
-    def in_file_system(self, value: int) -> None:
-        self._in_file_system: int = value
+    def in_file_system(self, value: Literal[0, 1, 2]) -> None:
+        self._in_file_system = value
 
     @cached_property
     def root_dir(self) -> Path | None:

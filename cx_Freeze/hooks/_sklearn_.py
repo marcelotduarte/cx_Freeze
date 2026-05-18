@@ -5,6 +5,7 @@ scikit-learn package is included.
 from __future__ import annotations
 
 from contextlib import suppress
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -51,8 +52,10 @@ class Hook(ModuleHook):
     ) -> None:
         """Fix the location of dependent files in Windows."""
         loader = module.loader
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
-        if "msvcp140.dll" in source_code:
+        if source_code is not None and "msvcp140.dll" in source_code:
             # msvcp140 and vcomp140 dlls should be copied
             # but in cx_Freeze, include_msvcr do the work
             module.code = loader.source_to_code(
@@ -80,19 +83,25 @@ class Hook(ModuleHook):
         module: Module,
     ) -> None:
         # copy css file and patch the code to locate css file # v1.4.x to 1.6.x
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             source = module.file.with_suffix(".css")
             if source.is_file():
-                target_dir = module.parent.name.replace(".", "/")
-                finder.include_files(source, f"lib/{target_dir}/{source.name}")
+                if module.parent:
+                    target_dir = module.parent.name.replace(".", "/")
+                    finder.include_files(
+                        source, f"lib/{target_dir}/{source.name}"
+                    )
                 loader = module.loader
-                path = loader.get_filename(module.name)
+                if not isinstance(loader, SourceFileLoader):
+                    return
                 source_code = loader.get_source(module.name)
+                if source_code is None:
+                    return
                 module.code = loader.source_to_code(
                     source_code.replace(
                         "__file__", "__file__.replace('library.zip', '.')"
                     ),
-                    path,
+                    loader.get_filename(module.name),
                     _optimize=finder.optimize,
                 )
 
@@ -116,7 +125,7 @@ class Hook(ModuleHook):
         module: Module,
     ) -> None:
         # copy js/css files # v 1.7.0
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             target_dir = module.name.replace(".", "/")
             for source in module.file.parent.glob("*.css"):
                 finder.include_files(source, f"lib/{target_dir}/{source.name}")
@@ -131,13 +140,16 @@ class Hook(ModuleHook):
         # patch the code to locate css/js files # v 1.7.0
         if module.in_file_system == 0:
             loader = module.loader
-            path = loader.get_filename(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
             source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             module.code = loader.source_to_code(
                 source_code.replace(
                     "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 

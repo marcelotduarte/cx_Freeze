@@ -33,7 +33,8 @@ class Hook(ModuleHook):
         that this only works if the import of wx.lib.pubsub.setupkwargs
         occurs first.
         """
-        module.path.insert(0, module.file.parent / "kwargs")
+        if module.file and module.path:
+            module.path.insert(0, module.file.parent / "kwargs")
 
     def wx_lib_wxcairo(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional package."""
