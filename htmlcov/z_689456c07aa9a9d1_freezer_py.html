@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-18 06:16 +0000
+            created at 2026-05-18 09:49 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1337,9 +1337,9 @@
     <p class="pln"><span class="n"><a id="t1255" href="#t1255">1255</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1256" href="#t1256">1256</a></span><span class="t">            <span class="nam">referencing_file</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1257" href="#t1257">1257</a></span><span class="t">        <span class="nam">darwin_file</span> <span class="op">=</span> <span class="nam">DarwinFile</span><span class="op">(</span><span class="nam">source</span><span class="op">,</span> <span class="nam">referencing_file</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1258" href="#t1258">1258</a></span><span class="t">        <span class="nam">darwin_file</span><span class="op">.</span><span class="nam">setBuildPath</span><span class="op">(</span><span class="nam">target</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1258" href="#t1258">1258</a></span><span class="t">        <span class="nam">darwin_file</span><span class="op">.</span><span class="nam">build_path</span> <span class="op">=</span> <span class="nam">target</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1259" href="#t1259">1259</a></span><span class="t">        <span class="key">if</span> <span class="nam">reference</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1260" href="#t1260">1260</a></span><span class="t">            <span class="nam">reference</span><span class="op">.</span><span class="nam">setTargetFile</span><span class="op">(</span><span class="nam">darwin_file</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1260" href="#t1260">1260</a></span><span class="t">            <span class="nam">reference</span><span class="op">.</span><span class="nam">target_file</span> <span class="op">=</span> <span class="nam">darwin_file</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1261" href="#t1261">1261</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1262" href="#t1262">1262</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">darwin_tracker</span><span class="op">.</span><span class="nam">recordCopiedFile</span><span class="op">(</span><span class="nam">target</span><span class="op">,</span> <span class="nam">darwin_file</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1263" href="#t1263">1263</a></span><span class="t">        <span class="key">if</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -1382,8 +1382,8 @@
     <p class="pln"><span class="n"><a id="t1300" href="#t1300">1300</a></span><span class="t">                <span class="com"># If file was already copied, and we are following a reference</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1301" href="#t1301">1301</a></span><span class="t">                <span class="com"># from a DarwinFile, then we need to tell the reference where</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1302" href="#t1302">1302</a></span><span class="t">                <span class="com"># the file was copied to (the reference can later be updated).</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1303" href="#t1303">1303</a></span><span class="t">                <span class="nam">reference</span><span class="op">.</span><span class="nam">setTargetFile</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t1304" href="#t1304">1304</a></span><span class="t">                    <span class="nam">self</span><span class="op">.</span><span class="nam">darwin_tracker</span><span class="op">.</span><span class="nam">getDarwinFile</span><span class="op">(</span><span class="nam">source</span><span class="op">,</span> <span class="nam">target</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1303" href="#t1303">1303</a></span><span class="t">                <span class="nam">reference</span><span class="op">.</span><span class="nam">target_file</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">darwin_tracker</span><span class="op">.</span><span class="nam">getDarwinFile</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t1304" href="#t1304">1304</a></span><span class="t">                    <span class="nam">source</span><span class="op">,</span> <span class="nam">target</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t1305" href="#t1305">1305</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1306" href="#t1306">1306</a></span><span class="t">            <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1307" href="#t1307">1307</a></span><span class="t">        <span class="key">if</span> <span class="nam">source</span> <span class="op">==</span> <span class="nam">target</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -1426,7 +1426,7 @@
     <p class="pln"><span class="n"><a id="t1344" href="#t1344">1344</a></span><span class="t">        <span class="com"># called up later in _copy_file if copying a dependency without</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1345" href="#t1345">1345</a></span><span class="t">        <span class="com"># an explicit reference provided (to assist in resolving @rpaths)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1346" href="#t1346">1346</a></span><span class="t">        <span class="key">for</span> <span class="nam">reference</span> <span class="key">in</span> <span class="nam">darwinFile</span><span class="op">.</span><span class="nam">getMachOReferenceList</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1347" href="#t1347">1347</a></span><span class="t">            <span class="key">if</span> <span class="nam">reference</span><span class="op">.</span><span class="nam">isResolved</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1347" href="#t1347">1347</a></span><span class="t">            <span class="key">if</span> <span class="nam">reference</span><span class="op">.</span><span class="nam">resolved_path</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1348" href="#t1348">1348</a></span><span class="t">                <span class="nam">self</span><span class="op">.</span><span class="nam">darwin_tracker</span><span class="op">.</span><span class="nam">cacheReferenceTo</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t1349" href="#t1349">1349</a></span><span class="t">                    <span class="nam">reference</span><span class="op">.</span><span class="nam">resolved_path</span><span class="op">,</span> <span class="nam">reference</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t1350" href="#t1350">1350</a></span><span class="t">                <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1553,7 +1553,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-18 06:16 +0000
+            created at 2026-05-18 09:49 +0000
         </p>
     </div>
 </footer>
