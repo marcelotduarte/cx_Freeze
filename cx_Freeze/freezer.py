@@ -1344,7 +1344,7 @@ class DarwinFreezer(Freezer, Parser):
         # called up later in _copy_file if copying a dependency without
         # an explicit reference provided (to assist in resolving @rpaths)
         for reference in darwinFile.getMachOReferenceList():
-            if reference.isResolved():
+            if reference.resolved_path is not None:
                 self.darwin_tracker.cacheReferenceTo(
                     reference.resolved_path, reference
                 )
