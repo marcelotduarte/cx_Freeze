@@ -24,7 +24,7 @@ class Hook(ModuleHook):
 
     def jaraco_text(self, finder: ModuleFinder, module: Module) -> None:
         """jaraco.text requires a text file."""
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             target_dir = module.name.replace(".", "/")
             for textfile in module.file.parent.glob("*.txt"):
                 finder.zip_include_files(

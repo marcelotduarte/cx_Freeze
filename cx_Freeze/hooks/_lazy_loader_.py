@@ -4,6 +4,7 @@ lazy-loader package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -43,17 +44,21 @@ class Hook(ModuleHook):
 
     def lazy_loader(self, finder: ModuleFinder, module: Module) -> None:
         """Use lazy-loader package 0.2+ to work with .pyc files."""
-        if module.distribution.version < (0, 2):
+        dist = module.distribution
+        if dist and (int(dist.version[0]), int(dist.version[1])) < (0, 2):
             msg = "To support cx_Freeze, upgrade 'lazy-loader>=0.2'."
             raise SystemExit(msg)
 
         # add support to work with zip files
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
-        source_code = source_code.replace(
-            "def attach_stub(", "def _attach_stub("
-        )
-        module.code = loader.source_to_code(
-            source_code + ATTACH_STUB, path, _optimize=finder.optimize
-        )
+        if source_code:
+            source_code = source_code.replace(
+                "def attach_stub(", "def _attach_stub("
+            )
+            path = loader.get_filename(module.name)
+            module.code = loader.source_to_code(
+                source_code + ATTACH_STUB, path, _optimize=finder.optimize
+            )

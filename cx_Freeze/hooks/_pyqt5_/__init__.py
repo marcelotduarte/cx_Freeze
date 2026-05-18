@@ -4,7 +4,8 @@ PyQt5 package is included.
 
 from __future__ import annotations
 
-import importlib.resources as importlib_resources
+from importlib import resources
+from importlib.machinery import SourceFileLoader
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
@@ -40,14 +41,15 @@ class Hook(QtHook):
             module.in_file_system = 2
 
         # Include a module that inject an optional debug code
-        qt_debug = importlib_resources.files(__package__) / "_debug.py"
-        finder.include_file_as_module(qt_debug, "PyQt5._cx_freeze_debug")
+        package = resources.files(__package__ or "cx_Freeze.hooks._pyqt5_")
+        finder.include_file_as_module(
+            str(package / "_debug.py"), "PyQt5._cx_freeze_debug"
+        )
 
         # Include a resource with qt.conf (Prefix = lib/PyQt5) for conda-forge
         if environment == "conda":
-            resource = importlib_resources.files(__package__) / "_resource.py"
             finder.include_file_as_module(
-                resource, "PyQt5._cx_freeze_resource"
+                str(package / "_resource.py"), "PyQt5._cx_freeze_resource"
             )
 
         # Include an optional qt.conf to be used by QtWebEngine (Prefix = ..)
@@ -99,19 +101,26 @@ class Hook(QtHook):
             # cx_Freeze patch end
         """
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
+        source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         if environment == "conda":
             source_code = ""
         else:
-            source_code = loader.get_source(module.name)
+            source_code = loader.get_source(module.name) or ""
         module.code = loader.source_to_code(
-            source_code + dedent(patch), path, _optimize=finder.optimize
+            source_code + dedent(patch),
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def qt_qtwebenginecore(self, finder: ModuleFinder, module: Module) -> None:
         """Include module dependency and QtWebEngineProcess files."""
         super().qt_qtwebenginecore(finder, module)
-        distribution = module.parent.distribution
+        parent = module.parent or module.root
+        distribution = parent.distribution
         environment = (distribution and distribution.installer) or "pip"
         if IS_MACOS and environment == "pip":
             # duplicate resource files

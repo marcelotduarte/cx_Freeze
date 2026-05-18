@@ -27,6 +27,6 @@ class Hook(ModuleHook):
         When lextab and yacctab modules are regenerated.
         """
         distribution = module.distribution
-        if distribution and distribution.version < (3,):
+        if distribution and int(distribution.version[0]) < 3:
             finder.include_module("pycparser.lextab")
             finder.include_module("pycparser.yacctab")

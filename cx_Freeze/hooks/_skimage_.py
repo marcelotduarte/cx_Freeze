@@ -4,6 +4,7 @@ scikit-image package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -67,7 +68,7 @@ class Hook(ModuleHook):
 
     def skimage_data(self, finder: ModuleFinder, module: Module) -> None:
         # using zip file, copy data to share folder
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             for file in module.file.parent.iterdir():
                 if file.match("*.py*") or file.name == "tests":
                     continue
@@ -79,14 +80,17 @@ class Hook(ModuleHook):
         # using zip file, copy data to share folder - fix _LEGACY_DATA_DIR
         if module.in_file_system == 0:
             loader = module.loader
-            path = loader.get_filename(module.name)
-            source = loader.get_source(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
+            source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             module.code = loader.source_to_code(
-                source.replace(
+                source_code.replace(
                     "__file__",
                     "__import__('sys').prefix + '/share/skimage/data/file'",
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 
@@ -99,14 +103,17 @@ class Hook(ModuleHook):
         # using zip file, fix directory to copy data to share folder
         if module.in_file_system == 0:
             loader = module.loader
-            path = loader.get_filename(module.name)
-            source = loader.get_source(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
+            source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             module.code = loader.source_to_code(
-                source.replace(
+                source_code.replace(
                     "__file__",
                     "__import__('sys').prefix + '/share/skimage/_'",
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 
@@ -114,7 +121,7 @@ class Hook(ModuleHook):
         self, finder: ModuleFinder, module: Module
     ) -> None:
         # using zip file, copy data to share folder
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             for file in module.file.parent.iterdir():
                 if file.match("*.ini"):
                     finder.include_files(

@@ -4,6 +4,7 @@ pyparsing package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze.hooks.global_names import PYPARSING_GLOBAL_NAMES
@@ -27,14 +28,17 @@ class Hook(ModuleHook):
         finder.exclude_module("pyparsing.testing")
         # also, patch code to remove testing module
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         module.code = loader.source_to_code(
             source_code.replace(
                 "from .testing import pyparsing_test as testing",
                 "testing = None",
             ),
-            path,
+            loader.get_filename(module.name),
             _optimize=finder.optimize,
         )
 

@@ -26,6 +26,8 @@ class Hook(ModuleHook):
         """The pkg_resources must import modules from the setuptools."""
         finder.exclude_module("pkg_resources.tests")
 
+        if module.file is None:
+            return
         vendor = os.path.normpath(
             module.file.parent.parent / "setuptools" / "_vendor"
         )

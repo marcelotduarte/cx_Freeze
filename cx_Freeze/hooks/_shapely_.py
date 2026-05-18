@@ -4,6 +4,7 @@ shapely package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -31,13 +32,16 @@ class Hook(ModuleHook):
             # shapely < 2.0 supports Python <= 3.11
             # The directory must be found when uing delvewheel < 1.7.0
             loader = module.loader
-            path = loader.get_filename(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
             source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             module.code = loader.source_to_code(
                 source_code.replace(
                     "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 
@@ -46,13 +50,16 @@ class Hook(ModuleHook):
         # The directory must be found
         if module.in_file_system == 0:
             loader = module.loader
-            path = loader.get_filename(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
             source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             module.code = loader.source_to_code(
                 source_code.replace(
                     "__file__", "__file__.replace('library.zip', '.')"
                 ),
-                path,
+                loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
 

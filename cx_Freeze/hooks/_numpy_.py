@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import json
 import sys
-from importlib.machinery import EXTENSION_SUFFIXES
+from importlib.machinery import EXTENSION_SUFFIXES, SourceFileLoader
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.hooks.global_names import (
@@ -63,11 +63,11 @@ class Hook(ModuleHook):
         module.ignore_names.add("numpy.distutils")
 
         # Exclude/Include modules based on distribution and/or version
-        distribution = module.distribution
-        if distribution:
+        dist = module.distribution
+        if dist:
             # Exclude tests
             excludes = set()
-            files = distribution.original.files or []
+            files = dist.original.files or []
             for file in files:
                 if file.parent.match("**/tests"):
                     excludes.add(file.parent.as_posix().replace("/", "."))
@@ -76,7 +76,7 @@ class Hook(ModuleHook):
                 finder.exclude_module(exclude)
 
             # Include dynamically loaded module / exclude unnecessary modules
-            if distribution.version >= (2, 0):
+            if (int(dist.version[0]), int(dist.version[1])) >= (2, 0):
                 finder.exclude_module("numpy._core.include")
                 finder.exclude_module("numpy._core.lib")
                 finder.exclude_module("numpy.compat")
@@ -101,8 +101,12 @@ class Hook(ModuleHook):
         finder.include_module("secrets")
 
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
+        path = loader.get_filename(module.name)
         if module.in_file_system == 0:
             source_code = source_code.replace(
                 "__file__", "__file__.replace('library.zip', '.')"
@@ -183,8 +187,12 @@ class Hook(ModuleHook):
         module.
         """
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
+        path = loader.get_filename(module.name)
         search = "add_docstring(implementation, dispatcher.__doc__)"
         if search not in source_code:
             return
@@ -205,20 +213,23 @@ class Hook(ModuleHook):
         # check versions that are handled correctly
         if IS_MINGW:
             return
-        distribution = module.parent.distribution
-        if distribution is None or (
-            IS_LINUX and distribution.installer == "pip"
-        ):
+        parent = module.parent or module.root
+        dist = parent.distribution
+        if dist is None or (IS_LINUX and dist.installer == "pip"):
             return
 
         # patch the source code when necessary
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
+        path = loader.get_filename(module.name)
 
-        module_dir = module.file.parent
+        module_dir = cast("Path", module.file).parent
         exclude_dependent_files = False
-        if distribution.installer == "pip":
+        if dist.installer == "pip":
             # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl (Windows)
             libs_dir = module_dir / "DLLs"
             if libs_dir.is_dir():
@@ -239,7 +250,7 @@ class Hook(ModuleHook):
                 finder.include_file_as_module(mkl_path)
                 exclude_dependent_files = True
 
-        elif distribution.installer == "conda":
+        elif dist.installer == "conda":
             prefix = Path(sys.prefix)
             conda_meta = prefix / "conda-meta"
             packages = [

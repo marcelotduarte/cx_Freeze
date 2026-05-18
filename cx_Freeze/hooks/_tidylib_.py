@@ -30,7 +30,9 @@ class Hook(ModuleHook):
         if not IS_LINUX:
             return
 
-        parser = ELFParser(finder.path, [sysconfig.get_config_var("LIBDIR")])
+        parser = ELFParser(
+            finder.path, [sysconfig.get_config_var("LIBDIR")], 0, {}
+        )
         library_path = parser.find_library("tidy")
         if library_path:
             finder.include_files(library_path, f"lib/{library_path.name}")

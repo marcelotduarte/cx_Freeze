@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -27,18 +28,22 @@ class Hook(ModuleHook):
         directory or in the zip file where the package is written.
         """
         module.exclude_names.add("doctest")
-        source_path = module.file.parent / "zoneinfo"
-        if not source_path.is_dir():
-            # Fedora (and possibly other systems) use a separate location to
-            # store timezone data so look for that here as well
-            source_path = Path(
-                os.getenv("PYTZ_TZDATADIR", "/usr/share/zoneinfo")
-            )
+        if module.file:
+            source_path = module.file.parent / "zoneinfo"
             if not source_path.is_dir():
-                return
+                # Fedora (and possibly other systems) use a separate location
+                # to store timezone data so look for that here as well
+                source_path = Path(
+                    os.getenv("PYTZ_TZDATADIR", "/usr/share/zoneinfo")
+                )
+                if not source_path.is_dir():
+                    return
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         if module.in_file_system == 0:
             finder.zip_include_files(source_path, "pytz/zoneinfo")
             if sys.version_info[:2] < (3, 13):
@@ -109,5 +114,7 @@ class Hook(ModuleHook):
             """
             source_code += dedent(patch)
         module.code = loader.source_to_code(
-            source_code, path, _optimize=finder.optimize
+            source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )

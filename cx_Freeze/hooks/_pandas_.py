@@ -4,6 +4,7 @@ pandas package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
@@ -35,11 +36,15 @@ class Hook(ModuleHook):
         finder.include_package("pandas._libs")
 
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         source_code = source_code.replace(
             "from pandas import testing", "testing = None"
         )
+        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
             source_code, path, _optimize=finder.optimize
         )

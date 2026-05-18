@@ -31,7 +31,8 @@ class Hook(ModuleHook):
             # charset_normalizer 3.0 to 3.4.4
             finder.include_module("charset_normalizer.md__mypyc")
         # charset_normalizer 3.4.5+
-        suffix = "".join(module.file.suffixes)
-        for mypyc in module.file.parent.parent.glob(f"*__mypyc{suffix}"):
-            if mypyc.exists():
-                finder.include_module(f"{mypyc.name.split('.')[0]}")
+        if module.file:
+            suffix = "".join(module.file.suffixes)
+            for mypyc in module.file.parent.parent.glob(f"*__mypyc{suffix}"):
+                if mypyc.exists():
+                    finder.include_module(f"{mypyc.name.split('.')[0]}")

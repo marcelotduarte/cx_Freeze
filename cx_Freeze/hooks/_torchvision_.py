@@ -4,11 +4,13 @@ torchvision package is included.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -20,7 +22,7 @@ class Hook(ModuleHook):
 
     def torchvision(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for torchvision."""
-        module_path = module.file.parent
+        module_path = cast("Path", module.file).parent
         site_packages_path = module_path.parent
 
         source_dir = site_packages_path / f"{module.name}.libs"

@@ -20,5 +20,5 @@ class Hook(ModuleHook):
 
     def tzdata(self, finder: ModuleFinder, module: Module) -> None:
         """The tzdata package requires its zone and timezone data."""
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             finder.zip_include_files(module.file.parent, "tzdata")

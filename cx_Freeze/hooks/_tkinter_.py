@@ -5,6 +5,7 @@ TKinter package is included.
 from __future__ import annotations
 
 import sys
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
@@ -65,6 +66,8 @@ class Hook(ModuleHook):
             tcl_library.with_suffix(""),
             tk_library,
         ]:
+            if source_path is None:
+                continue
             if source_path.is_dir():
                 finder.include_files(source_path, f"share/{source_path.name}")
             if IS_WINDOWS:  # include dlls like tcl86t.dll and tk86t.dll
@@ -73,6 +76,11 @@ class Hook(ModuleHook):
                 if dll_path.exists():
                     finder.include_files(dll_path, f"lib/{dll_name}")
         # patch source code
+        tcl_library_name = tcl_library.name
+        if tk_library:
+            tk_library_name = tk_library.name
+        else:
+            tk_library_name = tcl_library_name.replace("tcl", "tk")
         patch = rf"""
             # cx_Freeze patch start
             import os as _os
@@ -85,17 +93,22 @@ class Hook(ModuleHook):
                 if _os.path.exists(_mac_prefix):
                     _prefix = _mac_prefix  # using bdist_mac
             _tcl_library = _os.path.join(
-                _prefix, "share", "{tcl_library.name}"
+                _prefix, "share", "{tcl_library_name}"
             )
-            _tk_library = _os.path.join(_prefix, "share", "{tk_library.name}")
+            _tk_library = _os.path.join(_prefix, "share", "{tk_library_name}")
             _os.environ["TCL_LIBRARY"] = _os.path.normpath(_tcl_library)
             _os.environ["TK_LIBRARY"] = _os.path.normpath(_tk_library)
 
             # cx_Freeze patch end
         """
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         module.code = loader.source_to_code(
-            source_code + dedent(patch), path, _optimize=finder.optimize
+            source_code + dedent(patch),
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )

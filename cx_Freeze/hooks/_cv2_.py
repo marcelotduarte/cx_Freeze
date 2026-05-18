@@ -7,7 +7,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, PYTHON_VERSION
 from cx_Freeze.module import Module, ModuleHook
@@ -37,7 +37,7 @@ class Hook(ModuleHook):
         Additionally, on Linux the opencv_python.libs directory is not
         copied across for versions above 4.5.3.
         """
-        source_dir = module.file.parent
+        source_dir = cast("Path", module.file).parent
         target_dir = Path("lib", "cv2")
 
         if module.distribution is None:
@@ -51,8 +51,9 @@ class Hook(ModuleHook):
             if version[:2] < (4, 10):
                 m_numpy = finder.include_package("numpy")
                 if (
-                    m_numpy.distribution
-                    and m_numpy.distribution.version[0] >= 2
+                    m_numpy
+                    and m_numpy.distribution
+                    and int(m_numpy.distribution.version[0]) >= 2
                 ):
                     msg = WARNING_NUMPY_VERSION.format(
                         cv2_name=module.distribution.name,

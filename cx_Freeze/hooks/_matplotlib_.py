@@ -34,7 +34,7 @@ class Hook(ModuleHook):
         finder.include_package("matplotlib")
 
         # mpl-data is always in a subdirectory in matplotlib >= 3.4
-        if module.in_file_system == 0:
+        if module.in_file_system == 0 and module.file:
             # zip_include_packages
             source_data = module.file.parent / "mpl-data"
             target_data = "lib/mpl-data"

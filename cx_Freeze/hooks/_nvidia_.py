@@ -4,13 +4,16 @@ nvidia package is included.
 
 from __future__ import annotations
 
+from importlib.machinery import SourceFileLoader
 from textwrap import dedent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -30,7 +33,7 @@ class Hook(ModuleHook):
         else:
             extension = "*.so*"
 
-        source_lib = module.file.parent
+        source_lib = cast("Path", module.file).parent
         if source_lib.exists():
             target_lib = f"lib/{source_lib.name}"
             for source in source_lib.glob(f"*/lib/{extension}"):
@@ -50,8 +53,12 @@ class Hook(ModuleHook):
             _cxfreeze_patch()
         """
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
+        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
             source_code + dedent(patch), path, _optimize=finder.optimize
         )

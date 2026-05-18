@@ -7,7 +7,7 @@ from __future__ import annotations
 import importlib.metadata
 import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from packaging.requirements import Requirement
 
@@ -15,6 +15,8 @@ from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -60,9 +62,11 @@ class Hook(ModuleHook):
             for name in core_names
             if finder.include_module(name, module) is None
         ]
-        vendor = module.file.parent / "_vendor"
-        if vendor.is_dir():
-            finder.path.append(os.path.normpath(vendor))
+        if module.file is None:
+            return
+        vendor_dir = module.file.parent / "_vendor"
+        if vendor_dir.is_dir():
+            finder.path.append(os.path.normpath(vendor_dir))
             for name in failed:
                 finder.include_module(name, module)
             finder.path.pop()
@@ -84,10 +88,12 @@ class Hook(ModuleHook):
         else:
             module.ignore_names.add("tomllib")
             if finder.include_module("tomli", module) is None:
-                vendor = os.path.normpath(module.root.file.parent / "_vendor")
-                finder.path.append(vendor)
-                finder.include_module("tomli")
-                finder.path.pop()
+                root_dir = cast("Path", module.root.file).parent
+                vendor_dir = root_dir / "_vendor"
+                if vendor_dir.is_dir():
+                    finder.path.append(os.path.normpath(vendor_dir))
+                    finder.include_module("tomli")
+                    finder.path.pop()
 
     def setuptools_config__validate_pyproject_formats(
         self, _finder: ModuleFinder, module: Module

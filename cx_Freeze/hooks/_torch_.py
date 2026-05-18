@@ -4,12 +4,15 @@ PyTorch package is included.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from importlib.machinery import SourceFileLoader
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -31,7 +34,7 @@ class Hook(ModuleHook):
 
     def torch(self, finder: ModuleFinder, module: Module) -> None:
         """Hook for PyTorch. Tested in Windows and Linux."""
-        module_path = module.file.parent
+        module_path = cast("Path", module.file).parent
         site_packages_path = module_path.parent
 
         # Activate the optimized mode by default
@@ -52,8 +55,11 @@ class Hook(ModuleHook):
         else:
             # patch the code to ignore CUDA_PATH_Vxx_x installation directory
             loader = module.loader
-            path = loader.get_filename(module.name)
+            if not isinstance(loader, SourceFileLoader):
+                return
             source_code = loader.get_source(module.name)
+            if source_code is None:
+                return
             source_code = source_code.replace("CUDA_PATH", "NO_CUDA_PATH")
             if IS_LINUX:
                 # fix for issue #2682
@@ -66,7 +72,9 @@ class Hook(ModuleHook):
                         )
                 source_code = "\n".join(lines)
             module.code = loader.source_to_code(
-                source_code, path, _optimize=finder.optimize
+                source_code,
+                loader.get_filename(module.name),
+                _optimize=finder.optimize,
             )
 
         # include the shared libraries in 'lib' as fixed libraries
@@ -118,14 +126,17 @@ class Hook(ModuleHook):
     ) -> None:
         """Patch to work with Python 3.11+."""
         loader = module.loader
-        path = loader.get_filename(module.name)
+        if not isinstance(loader, SourceFileLoader):
+            return
         source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
         module.code = loader.source_to_code(
             source_code.replace(
                 "return _strip_init_py(m.__file__)",
                 'return _strip_init_py(getattr(m, "__file__", ""))',
             ),
-            path,
+            loader.get_filename(module.name),
             _optimize=finder.optimize,
         )
 
