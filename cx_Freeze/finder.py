@@ -10,7 +10,6 @@ import logging
 import os
 import sys
 import traceback
-from collections.abc import Sequence
 from contextlib import suppress
 from functools import cached_property
 from pathlib import Path

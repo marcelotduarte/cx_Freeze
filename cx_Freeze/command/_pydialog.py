@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+# pylint: disable-next=deprecated-module
 from msilib import Control, Dialog  # ty: ignore
 
 

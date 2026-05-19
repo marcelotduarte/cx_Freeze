@@ -7,7 +7,7 @@ import os
 import re
 import shutil
 from contextlib import suppress
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from packaging.version import Version
 from setuptools import Command
@@ -15,25 +15,30 @@ from setuptools import Command
 from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS, IS_X86_64
 from cx_Freeze.exception import OptionError, PlatformError
 
+if TYPE_CHECKING:
+    from cx_Freeze.executable import Executable
+
+
 if IS_MINGW or IS_WINDOWS:
     import warnings
 
     warnings.filterwarnings("ignore", "'msilib' is deprecated")
     try:
-        from msilib import (  # pylint: disable=deprecated-module
-            CAB,
-            PID_AUTHOR,
-            PID_COMMENTS,
-            PID_KEYWORDS,
-            Binary,
-            Dialog,
-            Directory,
-            Feature,
-            add_data,
-            add_tables,
-            gen_uuid,
-            init_database,
-            make_id,
+        # pylint: disable-next=deprecated-module
+        from msilib import (
+            CAB,  # ty: ignore
+            PID_AUTHOR,  # ty: ignore
+            PID_COMMENTS,  # ty: ignore
+            PID_KEYWORDS,  # ty: ignore
+            Binary,  # ty: ignore
+            Dialog,  # ty: ignore
+            Directory,  # ty: ignore
+            Feature,  # ty: ignore
+            add_data,  # ty: ignore
+            add_tables,  # ty: ignore
+            gen_uuid,  # ty: ignore
+            init_database,  # ty: ignore
+            make_id,  # ty: ignore
             schema,
             sequence,
         )
@@ -43,7 +48,7 @@ if IS_MINGW or IS_WINDOWS:
         # force the remove existing products action to happen first since
         # Windows installer appears to be braindead and doesn't handle files
         # shared between different "products" very well
-        install_execute_sequence = sequence.InstallExecuteSequence
+        install_execute_sequence = sequence.InstallExecuteSequence  # ty: ignore
         for index, info in enumerate(install_execute_sequence):
             if info[0] == "RemoveExistingProducts":
                 install_execute_sequence[index] = (info[0], info[1], 1450)
@@ -272,7 +277,10 @@ class bdist_msi(Command):
                 ("ProgressDlg", None, 1280),
             ],
         )
-        for idx, executable in enumerate(self.distribution.executables):
+        executables: list[Executable] = getattr(
+            self.distribution, "executables", []
+        )
+        for idx, executable in enumerate(executables):
             if (
                 executable.shortcut_name is not None
                 and executable.shortcut_dir is not None
@@ -316,7 +324,7 @@ class bdist_msi(Command):
                     msg = f"Unknown key provided in summary-data: {k!r}"
                     raise OptionError(msg)
 
-            summary_info = self.db.GetSummaryInformation(5)
+            summary_info = self.db.GetSummaryInformation(5)  # ty: ignore
             if "author" in self.summary_data:
                 summary_info.SetProperty(
                     PID_AUTHOR, self.summary_data["author"]
@@ -441,6 +449,9 @@ class bdist_msi(Command):
                     )
                 ],
             )
+            executables: list[Executable] = getattr(
+                self.distribution, "executables", []
+            )
             add_data(
                 self.db,
                 "CustomAction",
@@ -450,8 +461,7 @@ class bdist_msi(Command):
                         "VSDCA_Launch",
                         226,
                         "TARGETDIR",
-                        "[TARGETDIR]\\"
-                        f"{self.distribution.executables[0].target_name}",
+                        f"[TARGETDIR]\\{executables[0].target_name}",
                     )
                 ],
             )
@@ -537,19 +547,19 @@ class bdist_msi(Command):
             directory="TARGETDIR",
         )
         feature.set_current()
-        rootdir = os.path.abspath(self.bdist_dir)
+        bdist_dir = cast("str", self.bdist_dir)
+        rootdir = os.path.abspath(bdist_dir)
         root = Directory(
             database, cab, None, rootdir, "TARGETDIR", "SourceDir"
         )
-        database.Commit()
+        database.Commit()  # ty: ignore
         todo = [root]
         while todo:
             directory = todo.pop()
             for file in os.listdir(directory.absolute):
                 sep_comp = self.separate_components.get(
                     os.path.relpath(
-                        os.path.join(directory.absolute, file),
-                        self.bdist_dir,
+                        os.path.join(directory.absolute, file), bdist_dir
                     )
                 )
                 if sep_comp is not None:
@@ -1083,37 +1093,38 @@ class bdist_msi(Command):
         )
         button.event("EndDialog", "Exit")
 
-    def _append_to_data(self, table, *line) -> None:
+    def _append_to_data(self, table: str, *line: str | int | None) -> None:
         rows = self.data.setdefault(table, [])
         line = tuple(line)
         if line not in rows:
             rows.append(line)
 
     def initialize_options(self) -> None:
-        self.bdist_dir = None
+        self.bdist_dir: str | None = None
         self.keep_temp = 0
-        self.dist_dir = None
+        self.dist_dir: str | None = None
         self.skip_build = None
         self.install_script = None
         self.pre_install_script = None
-        self.fullname = None
+        self.fullname: str | None = None
         # cx_Freeze specific
         self.add_to_path = None
         self.all_users = False
-        self.data = None
-        self.directories = None
+        self.data: dict[str, list[tuple]] = {}
+        self.directories: list[tuple[str, str, str]] = []
         self.environment_variables = None
-        self.extensions = None
+        self.extensions: list[dict[str, str]] = []
         self.initial_target_dir = None
         self.install_icon = None
         self.launch_on_finish = None
         self.license_file = None
-        self.output_name = None
-        self.product_code = None
-        self.product_name = None
-        self.product_version = None
-        self.summary_data = None
-        self.upgrade_code = None
+        self.output_name: str | None = None
+        self.product_code: str | None = None
+        self.product_name: str | None = None
+        self.product_version: str | None = None
+        self.separate_components: dict[str, str] = {}
+        self.summary_data: dict[str, str] = {}
+        self.upgrade_code: str | None = None
         # removed
         self.target_name = None
         self.target_version = None
@@ -1175,7 +1186,9 @@ class bdist_msi(Command):
         self.ensure_string("product_name", self.distribution.get_name())
         self.ensure_string("product_version", self.distribution.get_version())
         # ProductVersion must be strictly numeric
-        self.product_version = Version(self.product_version).base_version
+        self.product_version = Version(
+            cast("str", self.product_version)
+        ).base_version
         self.fullname = f"{self.product_name}-{self.product_version}"
         self.ensure_string(
             "output_name", f"{self.fullname}-{MSI_PLATFORM}.msi"
@@ -1203,10 +1216,12 @@ class bdist_msi(Command):
             self.data = {}
         if not isinstance(self.summary_data, dict):
             self.summary_data = {}
-        self.separate_components = {}
         if self.launch_on_finish is None:
             self.launch_on_finish = False
-        for idx, executable in enumerate(self.distribution.executables):
+        executables: list[Executable] = getattr(
+            self.distribution, "executables", []
+        )
+        for idx, executable in enumerate(executables):
             base_name = os.path.basename(executable.target_name)
             # Trying to make these names unique from any directory name
             self.separate_components[base_name] = make_id(
@@ -1291,20 +1306,20 @@ class bdist_msi(Command):
             self.run_command("build")
 
         # install everything from build directory in a new prefix
-        install_dir = self.bdist_dir
-        install = self.reinitialize_command("install", reinit_subcommands=1)
-        install.prefix = install_dir
-        install.skip_build = self.skip_build
-        install.warn_dir = 0
+        install_dir = cast("str", self.bdist_dir)
+        install = self.reinitialize_command("install", reinit_subcommands=True)
+        install.prefix = install_dir  # ty: ignore
+        install.skip_build = self.skip_build  # ty: ignore
+        install.warn_dir = 0  # ty: ignore
         logger.info("installing to %s", install_dir)
         install.ensure_finalized()
         install.run()
 
         # make msi (by default in dist directory)
-        self.mkpath(self.dist_dir)
-        installer_name = os.path.abspath(
-            os.path.join(self.dist_dir, self.output_name)
-        )
+        dist_dir = cast("str", self.dist_dir)
+        self.mkpath(dist_dir)
+        output_name = cast("str", self.output_name)
+        installer_name = os.path.abspath(os.path.join(dist_dir, output_name))
         with suppress(FileNotFoundError):
             os.unlink(installer_name)
 
@@ -1337,7 +1352,11 @@ class bdist_msi(Command):
         self.add_files()
         self.db.Commit()
         self.distribution.dist_files.append(
-            ("bdist_msi", self.product_version or "any", self.product_name)
+            (
+                "bdist_msi",
+                self.product_version or "any",
+                cast("str", self.product_name),
+            )
         )
 
         if not self.keep_temp:

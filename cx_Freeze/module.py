@@ -113,7 +113,8 @@ class DistributionCache(metadata.PathDistribution):
     def normalized_name(self) -> str:
         normalized_name = getattr(self.original, "_normalized_name", None)
         if normalized_name is None:
-            normalized_name = metadata.Prepared.normalize(self.name)  # ty:ignore
+            normalize = metadata.Prepared.normalize  # ty: ignore
+            normalized_name = normalize(self.name)
         return normalized_name
 
     def _write_wheel_distinfo(self, purelib: bool) -> None:
