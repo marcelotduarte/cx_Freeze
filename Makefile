@@ -17,7 +17,7 @@ prek: install
 
 .PHONY: pylint
 pylint:
-	uvx pylint cx_Freeze
+	uvx pylint -j 0 cx_Freeze
 
 .PHONY: clean
 clean: uninstall

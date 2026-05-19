@@ -168,14 +168,16 @@ disable = [
     "protected-access",              # checked by ruff SLF001
     "redefined-builtin",             # checked by ruff A
     "too-few-public-methods",
-    "too-many-arguments",            # also ignored in ruff
-    "too-many-branches",             # also ignored in ruff
+    "too-many-arguments",            # also ignored by ruff PLR0913
+    "too-many-branches",             # also ignored by ruff PLR0912
     "too-many-instance-attributes",
     "too-many-lines",
     "too-many-locals",
     "too-many-nested-blocks",
+    "too-many-positional-arguments", # not handled by ruff yet PLR0917
+    "too-many-public-methods",       # R0904
     "too-many-return-statements",    # checked by ruff PLR0911
-    "too-many-statements",           # also ignored in ruff
+    "too-many-statements",           # also ignored by ruff PLR0915
     "unbalanced-tuple-unpacking",    # not handled by ruff yet W0632
     "ungrouped-imports",             # checked by ruff C0412 (I001)
     "unused-argument",               # checked by ruff ARG
@@ -291,7 +293,6 @@ docstring-code-line-length = 50
 
 [tool.ty.src]
 exclude = [
-    "cx_Freeze/command/bdist_msi.py",
     "cx_Freeze/hooks/_pyqt5_/_resource.py",
     "cx_Freeze/hooks/_pyside2_/_resource.py",
     "cx_Freeze/hooks/_pyside6_/_resource.py",

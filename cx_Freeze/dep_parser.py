@@ -17,7 +17,6 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import PLATFORM
-from cx_Freeze._typing import StrPath
 from cx_Freeze.exception import PlatformError
 
 if TYPE_CHECKING:
@@ -134,6 +133,7 @@ class PEParser(Parser):
             lief = None
         else:
             try:
+                # pylint: disable-next=C0415
                 import lief  # noqa: PLC0415 # ty: ignore[unresolved-import]
             except ImportError:
                 lief = None
@@ -161,6 +161,7 @@ class PEParser(Parser):
         if lief:
             self._pe = lief.PE
         else:
+            # pylint: disable-next=C0415
             from freeze_core.util import (  # noqa: PLC0415
                 BindError,
                 GetDependentFiles,
