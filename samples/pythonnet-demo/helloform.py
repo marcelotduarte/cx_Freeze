@@ -1,3 +1,4 @@
+# ruff: noqa: ANN001
 import clr
 
 clr.AddReference("System.Windows.Forms")

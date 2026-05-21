@@ -7,7 +7,7 @@ sys.OpenCV_LOADER_DEBUG = True
 import cv2  # noqa: E402
 
 
-def find_data_file(filename) -> str:
+def find_data_file(filename: str) -> str:
     if getattr(sys, "frozen", False):
         # The application is frozen
         datadir = os.path.join(sys.prefix, "share")

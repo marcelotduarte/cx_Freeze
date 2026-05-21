@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 from contextlib import suppress
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from setuptools import Command
 
@@ -273,7 +273,7 @@ class bdist_dmg(Command):
 
         with open("settings.py", "w") as f:
 
-            def add_param(name, value) -> None:
+            def add_param(name: str, value: Any) -> None:
                 f.write(f"{name} = {value!r}\n")
 
             # Some fields expect and allow None, others don't

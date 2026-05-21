@@ -1,3 +1,4 @@
+# ruff: noqa: ANN001
 """Implements _both_ a connectable client, and a connectable server.
 https://brian3johnson.github.io/pywin32/com/samples/connect.html.
 

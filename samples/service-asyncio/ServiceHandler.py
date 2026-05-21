@@ -21,7 +21,7 @@ class Handler:
         self.stopRequestedEvent = asyncio.Event()
 
     # called when the service is starting
-    def initialize(self, configFileName) -> None:
+    def initialize(self, configFileName: str) -> None:
         pass
 
     # called when the service is starting immediately after initialize()

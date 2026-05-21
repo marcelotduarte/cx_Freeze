@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import EXE_SUFFIX, IS_MINGW, IS_WINDOWS
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 SOURCE_SETUP = """
 test.py
@@ -33,7 +37,7 @@ command
 """
 
 
-def test_install(tmp_package) -> None:
+def test_install(tmp_package: TempPackage) -> None:
     """Test a simple install."""
     tmp_package.create(SOURCE_SETUP)
 
@@ -76,7 +80,7 @@ command
 """
 
 
-def test_install_pyproject(tmp_package) -> None:
+def test_install_pyproject(tmp_package: TempPackage) -> None:
     """Test a simple install."""
     tmp_package.create(SOURCE_PYPROJECT)
 

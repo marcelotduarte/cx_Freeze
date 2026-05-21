@@ -17,12 +17,15 @@ import shutil
 import sys
 import tarfile
 from subprocess import CalledProcessError, check_output
-from typing import ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from setuptools import Command
 
 from cx_Freeze._compat import IS_CONDA, IS_LINUX, PYTHON_VERSION
 from cx_Freeze.exception import ExecError, FileError, PlatformError
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = ["bdist_rpm"]
 
@@ -245,7 +248,9 @@ class bdist_rpm(Command):
 
         self.ensure_string("changelog")
         # Format changelog correctly
-        self.changelog = self._format_changelog(self.changelog)
+        self.changelog = self._format_changelog(
+            cast("str|None", self.changelog)
+        )
 
         self.ensure_filename("icon")
 
@@ -534,10 +539,10 @@ class bdist_rpm(Command):
         return spec_file
 
     @staticmethod
-    def _format_changelog(changelog) -> list[str]:
+    def _format_changelog(changelog: str | None) -> list[str]:
         """Format the changelog correctly and convert it to a string list."""
         if not changelog:
-            return changelog
+            return []
         new_changelog = []
         for raw_line in changelog.strip().split("\n"):
             line = raw_line.strip()
@@ -555,10 +560,10 @@ class bdist_rpm(Command):
         return new_changelog
 
 
-def write_file(filename, contents) -> None:
+def write_file(filename: str, contents: Sequence[str]) -> None:
     """Create a file with the specified name and write 'contents'
     (a sequence of strings without line terminators) to it.
     """
     with open(filename, "w", encoding="utf_8") as file:
         for line in contents:
-            file.write(line + "\n")
+            file.write(f"{line}\n")

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable  # noqa: TC003
+
 from gevent.pywsgi import WSGIServer
 
 
-def application(env, start_response) -> list[bytes]:
+def application(env: list[str], start_response: Callable) -> list[bytes]:
     if env["PATH_INFO"] == "/":
         start_response("200 OK", [("Content-Type", "text/html")])
         return [b"<b>hello world</b>"]

@@ -459,7 +459,7 @@ def _printFile(
     darwinFile: DarwinFile,
     seenFiles: set[DarwinFile],
     level: int,
-    noRecurse=False,
+    noRecurse: bool = False,
 ) -> None:
     """Utility function to prints details about a DarwinFile and (optionally)
     recursively any other DarwinFiles that it references.

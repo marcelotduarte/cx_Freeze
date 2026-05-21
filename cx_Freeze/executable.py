@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import string
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -283,7 +283,11 @@ class Executable:
         self._internal_name = name
 
 
-def validate_executables(dist: Distribution, attr: str, value) -> None:
+def validate_executables(
+    dist: Distribution,
+    attr: str,
+    value: Sequence[str | Mapping[str, str] | Executable] | None,
+) -> None:
     """Verify that value is a valid executables attribute, which could be an
     Executable list, a mapping list or a string list.
     """
@@ -292,22 +296,22 @@ def validate_executables(dist: Distribution, attr: str, value) -> None:
         # or single-use iterables
         assert isinstance(value, (list, tuple))  # noqa: S101
         assert value  # noqa: S101
-        # verify that elements of value are Executable, Dict or string
+        # verify that elements of value are string, dict or Executable
         for executable in value:
             assert isinstance(  # noqa: S101
-                executable, (Executable, Mapping, str)
+                executable, (str, Mapping, Executable)
             )
     except (TypeError, ValueError, AttributeError, AssertionError) as exc:
         msg = f"{attr!r} must be a list of Executable (got {value!r})"
         raise SetupError(msg) from exc
 
     # Returns valid Executable list
-    if dist.executables == value:  # ty: ignore[unresolved-attribute]
+    if getattr(dist, "executables", None) == value:
         dist.executables = []  # ty: ignore[unresolved-attribute]
     executables = list(value)
     for i, executable in enumerate(executables):
         if isinstance(executable, str):
             executables[i] = Executable(executable)
         elif isinstance(executable, Mapping):
-            executables[i] = Executable(**executable)
+            executables[i] = Executable(**executable)  # ty: ignore
     dist.executables.extend(executables)  # ty: ignore[unresolved-attribute]

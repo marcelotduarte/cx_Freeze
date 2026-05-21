@@ -32,7 +32,7 @@ class SetupWriter:
         self.version = "1.0"
         self.base_code = "C"
 
-    def get_boolean_value(self, label, default=False) -> bool:
+    def get_boolean_value(self, label: str, default: bool = False) -> bool:
         default_response = "y" if default else "n"
         while True:
             response = self.get_value(
@@ -42,7 +42,9 @@ class SetupWriter:
                 break
         return response in ("y", "yes")
 
-    def get_value(self, label, default="", separator=": ") -> str:
+    def get_value(
+        self, label: str, default: str = "", separator: str = ": "
+    ) -> str:
         if default:
             label += f" [{default}]"
         return input(label + separator).strip() or default
@@ -76,8 +78,8 @@ class SetupWriter:
     def write(self) -> None:
         with open(self.setup_file_name, "w", encoding="utf_8") as output:
 
-            def w(s) -> int:
-                return output.write(s + "\n")
+            def w(s: str) -> int:
+                return output.write(f"{s}\n")
 
             w("from cx_Freeze import setup, Executable")
             w("")
@@ -87,11 +89,7 @@ class SetupWriter:
             w("build_options = {'packages': [], 'excludes': []}")
             w("")
 
-            if self.base.startswith("Win32"):
-                w("import sys")
-                w(f"base = {self.base!r} if sys.platform=='win32' else None")
-            else:
-                w(f"base = {self.base!r}")
+            w(f"base = {self.base!r}")
             w("")
 
             w("executables = [")

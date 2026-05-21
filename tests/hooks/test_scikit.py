@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from cx_Freeze._compat import IS_CONDA
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 TIMEOUT_SLOW = 60 if IS_CONDA else 30
@@ -55,7 +60,7 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_scipy(tmp_package, zip_packages: bool) -> None:
+def test_scipy(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the scipy/numpy is working correctly."""
     tmp_package.create(SOURCE_TEST_SCIPY)
     if zip_packages:
@@ -123,7 +128,7 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_skimage(tmp_package, zip_packages: bool) -> None:
+def test_skimage(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the scikit-image is working correctly."""
     tmp_package.create(SOURCE_TEST_SCIKIT_IMAGE)
     if zip_packages:
@@ -169,7 +174,7 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_sklearn(tmp_package, zip_packages: bool) -> None:
+def test_sklearn(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the scikit-learn is working correctly."""
     tmp_package.create(SOURCE_TEST_SCIKIT_LEARN)
     if zip_packages:

@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -13,7 +18,7 @@ zip_packages = pytest.mark.parametrize(
 
 @pytest.mark.venv
 @zip_packages
-def test_pillow(tmp_package, zip_packages: bool) -> None:
+def test_pillow(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if pillow hook is working correctly."""
     tmp_package.create_from_sample("pillow")
     if zip_packages:

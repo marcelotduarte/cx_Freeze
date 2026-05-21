@@ -5,6 +5,7 @@ from __future__ import annotations
 import ctypes
 import importlib.metadata
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -18,6 +19,9 @@ from cx_Freeze._compat import (
     IS_X86_64,
 )
 from cx_Freeze.dep_parser import PEParser
+
+if TYPE_CHECKING:
+    from .conftest import TempPackage
 
 SOURCE = """
 test_manifest.py
@@ -69,7 +73,7 @@ simple.manifest
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-def test_manifest(tmp_package) -> None:
+def test_manifest(tmp_package: TempPackage) -> None:
     """With the correct manifest, windows version return 10.0 in Windows 10."""
     tmp_package.create(SOURCE)
     tmp_package.freeze()
@@ -97,7 +101,7 @@ elif IS_MINGW:
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", [*LIEF_VERSIONS, "disabled"])
-def test_simple_manifest(tmp_package, lief_version) -> None:
+def test_simple_manifest(tmp_package: TempPackage, lief_version: str) -> None:
     """With simple manifest, without "supportedOS Id", windows version returned
     is the compatible version for Windows 8.1, ie, 6.2.
     """
@@ -133,7 +137,7 @@ def test_simple_manifest(tmp_package, lief_version) -> None:
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
-def test_uac_admin(tmp_package, lief_version) -> None:
+def test_uac_admin(tmp_package: TempPackage, lief_version: str) -> None:
     """With the uac_admin, should return WinError 740 - requires elevation."""
     if ctypes.windll.shell32.IsUserAnAdmin():  # type: ignore[ty:unresolved-attribute]
         pytest.xfail(reason="User is admin")
@@ -150,7 +154,7 @@ def test_uac_admin(tmp_package, lief_version) -> None:
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
-def test_uac_uiaccess(tmp_package, lief_version) -> None:
+def test_uac_uiaccess(tmp_package: TempPackage, lief_version: str) -> None:
     """With the uac_uiaccess, should return WinError 740."""
     if ctypes.windll.shell32.IsUserAnAdmin():  # type: ignore[ty:unresolved-attribute]
         pytest.xfail(reason="User is admin")

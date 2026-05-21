@@ -4,6 +4,8 @@ numpy, matplotlib, pandas, raterio, scipy, shapely, and vtk.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from cx_Freeze._compat import (
@@ -15,6 +17,9 @@ from cx_Freeze._compat import (
     IS_MINGW,
     IS_WINDOWS,
 )
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 TIMEOUT_SLOW = 60 if IS_CONDA else 30
@@ -62,7 +67,7 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_matplotlib(tmp_package, zip_packages: bool) -> None:
+def test_matplotlib(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if matplotlib hook is working correctly."""
     tmp_package.map_package_to_conda["matplotlib"] = "matplotlib-base"
     tmp_package.create(SOURCE_TEST_MATPLOTLIB)
@@ -84,7 +89,7 @@ def test_matplotlib(tmp_package, zip_packages: bool) -> None:
 
 @pytest.mark.venv
 @zip_packages
-def test_pandas(tmp_package, zip_packages: bool) -> None:
+def test_pandas(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
     tmp_package.create_from_sample("pandas")
     if zip_packages:
@@ -149,7 +154,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_rasterio(tmp_package, zip_packages: bool) -> None:
+def test_rasterio(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if rasterio hook is working correctly."""
     tmp_package.create(SOURCE_TEST_RASTERIO)
     if IS_MACOS and zip_packages:
@@ -215,7 +220,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_shapely(tmp_package, zip_packages: bool) -> None:
+def test_shapely(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if shapely hook is working correctly."""
     # shapely 1.8.5 supports Python <= 3.11
     tmp_package.create(SOURCE_TEST_SHAPELY)
@@ -308,7 +313,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_vtk(tmp_package, zip_packages: bool) -> None:
+def test_vtk(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if vtkmodules hook is working correctly."""
     tmp_package.create(SOURCE_TEST_VTK)
     if zip_packages:

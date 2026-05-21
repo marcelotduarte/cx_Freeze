@@ -8,11 +8,13 @@ import os
 from importlib import import_module
 from pathlib import Path
 from struct import calcsize, pack
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from packaging.version import Version
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from cx_Freeze._typing import StrPath
 
 __all__ = ["VersionInfo"]
@@ -54,7 +56,7 @@ class Structure:
     types, and at least define a _fields class variable.
     """
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: Any) -> None:
         if not hasattr(self, "_fields"):
             self._fields: list[tuple[str, str]] = []
         for i, (field, _) in enumerate(self._fields):
@@ -324,7 +326,7 @@ class VersionInfo:
         return string_version_info
 
 
-def main_test(args=None) -> None:
+def main_test(args: Sequence[str] | None = None) -> None:
     """Command line test."""
     parser = argparse.ArgumentParser()
     parser.add_argument(

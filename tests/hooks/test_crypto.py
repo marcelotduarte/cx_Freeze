@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import ABI_THREAD, IS_MINGW
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -41,7 +45,9 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_argon2(tmp_package, zip_packages) -> None:
+def test_argon2(
+    tmp_package: TempPackage, zip_packages: pytest.MarkDecorator
+) -> None:
     """Test if argon2-cffi is working correctly."""
     tmp_package.map_package_to_mingw["argon2-cffi"] = "python-argon2_cffi"
     tmp_package.create(SOURCE_ARGON2)
@@ -84,7 +90,9 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_bcrypt(tmp_package, zip_packages) -> None:
+def test_bcrypt(
+    tmp_package: TempPackage, zip_packages: pytest.MarkDecorator
+) -> None:
     """Test if bcrypt is working correctly."""
     tmp_package.create(SOURCE_BCRYPT)
     if zip_packages:
@@ -137,7 +145,9 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_crypto(tmp_package, zip_packages) -> None:
+def test_crypto(
+    tmp_package: TempPackage, zip_packages: pytest.MarkDecorator
+) -> None:
     """Test if pycryptodome is working correctly."""
     tmp_package.create(SOURCE_CRYPTO)
     if zip_packages:
@@ -182,7 +192,9 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_cryptography(tmp_package, zip_packages) -> None:
+def test_cryptography(
+    tmp_package: TempPackage, zip_packages: pytest.MarkDecorator
+) -> None:
     """Test if cryptography is working correctly."""
     tmp_package.create(SOURCE_CRYPTOGRAPHY)
     if zip_packages:

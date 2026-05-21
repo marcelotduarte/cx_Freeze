@@ -13,7 +13,6 @@ import subprocess
 import sys
 import sysconfig
 from contextlib import redirect_stdout, suppress
-from os import PathLike
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
@@ -30,6 +29,7 @@ else:
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from os import PathLike
     from types import GeneratorType
 
     StrPath: TypeAlias = str | PathLike[str]
@@ -157,9 +157,10 @@ class TempPackage:
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:
-        """Execute the command to freeze the current test sample, which can be
-        specified in 'command', or read the command contained in the file named
-        'command', or detect the default command to use.
+        """Execute the command to freeze the current test sample.
+
+        The command can be specified in 'command' argument, or read from the
+        file named 'command', or a default command is used.
         """
         __tracebackhide__ = True
         if command is None:
@@ -310,8 +311,9 @@ class TempPackage:
             )
 
     def install_dependencies(self, pyproject: Path | None = None) -> None:
-        """Install dependencies for the test, as specified in the
-        pyproject.toml.
+        """Install dependencies for the test.
+
+        The default is to read from pyproject.toml.
         """
         self.install(self._get_dependencies(pyproject))
 
@@ -652,8 +654,9 @@ def _tmp_package_venv(
     tmp_path_factory: pytest.TempPathFactory,
     monkeypatch: pytest.MonkeyPatch,
 ) -> GeneratorType[TempPackage]:
-    """Create package in temporary path, based on source (or sample),
-    using a virtual environment.
+    """Create package in temporary path, based on source (or sample).
+
+    Using a virtual environment.
     """
     tmp_pkg = TempPackageVenv(request, tmp_path_factory, monkeypatch)
     yield tmp_pkg

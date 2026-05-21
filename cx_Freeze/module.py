@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from types import CodeType
 
     from cx_Freeze._typing import StrPath
+    from cx_Freeze.finder import ModuleFinder
 
 __all__ = ["ConstantsModule", "DistributionCache", "Module", "ModuleHook"]
 
@@ -111,11 +112,11 @@ class DistributionCache(metadata.PathDistribution):
 
     @property
     def normalized_name(self) -> str:
-        normalized_name = getattr(self.original, "_normalized_name", None)
-        if normalized_name is None:
-            normalize = metadata.Prepared.normalize  # ty: ignore
-            normalized_name = normalize(self.name)
-        return normalized_name
+        return getattr(
+            self.original,
+            "_normalized_name",
+            self.name.lower().replace("-", "_"),
+        )
 
     def _write_wheel_distinfo(self, purelib: bool) -> None:
         """Create a WHEEL file if it doesn't exist."""
@@ -528,7 +529,7 @@ class ModuleHook:
         self.module = module  # the root module
         self.name = module.name.replace(".", "_").lower()
 
-    def __call__(self, finder) -> None:
+    def __call__(self, finder: ModuleFinder) -> None:
         # redirect to the top level hook
         method = getattr(self, self.name, None)
         if method:

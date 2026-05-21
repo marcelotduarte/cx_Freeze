@@ -22,7 +22,7 @@ else:
         _unpack_opargs as dis_unpack_opargs,  # ty: ignore[unresolved-import]
     )
 
-    def _unpack_opargs(co_code) -> Generator:
+    def _unpack_opargs(co_code: bytes) -> Generator:
         for i, op, arg in dis_unpack_opargs(co_code):
             yield (i, i, op, arg)
 

@@ -6,6 +6,11 @@ following situations:
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
+
 SOURCE = """
 namespacepack/firstchildpack/__init__.py
 namespacepack/firstchildpack/main.py
@@ -93,7 +98,7 @@ command
 """
 
 
-def test_build_exe_excludes(tmp_package) -> None:
+def test_build_exe_excludes(tmp_package: TempPackage) -> None:
     """Test the build_exe excludes option."""
     tmp_package.create(SOURCE)
     tmp_package.freeze()

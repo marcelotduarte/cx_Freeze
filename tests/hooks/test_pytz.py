@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -11,7 +16,7 @@ zip_packages = pytest.mark.parametrize(
 
 @pytest.mark.venv
 @zip_packages
-def test_pytz(tmp_package, zip_packages: bool) -> None:
+def test_pytz(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if pytz hook is working correctly."""
     tmp_package.create_from_sample("pytz")
     if zip_packages:
@@ -30,7 +35,7 @@ def test_pytz(tmp_package, zip_packages: bool) -> None:
 
 
 @pytest.mark.venv(install_dependencies=False)
-def test_pytz_setuptools_82plus(tmp_package) -> None:
+def test_pytz_setuptools_82plus(tmp_package: TempPackage) -> None:
     """Test if pytz hook is working with setuptools 82+."""
     tmp_package.create_from_sample("pytz")
     pyproject = tmp_package.path / "pyproject.toml"

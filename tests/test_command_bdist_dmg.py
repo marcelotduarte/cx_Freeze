@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from setuptools import Distribution
@@ -10,6 +10,9 @@ from setuptools import Distribution
 from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.command.bdist_dmg import bdist_dmg
 from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 DIST_ATTRS = {
     "name": "foo",
@@ -61,7 +64,7 @@ def test_bdist_dmg_call(
 
 
 @pytest.mark.skipif(not IS_MACOS, reason="macOS test")
-def test_bdist_dmg(tmp_package) -> None:
+def test_bdist_dmg(tmp_package: TempPackage) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "Howdy Yall"
     dist_created = tmp_package.path / "build"
@@ -81,7 +84,7 @@ def test_bdist_dmg(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_MACOS, reason="macOS test")
-def test_bdist_dmg_custom_layout(tmp_package) -> None:
+def test_bdist_dmg_custom_layout(tmp_package: TempPackage) -> None:
     """Test the simple sample with bdist_dmg."""
     name = "Howdy Yall"
     dist_created = tmp_package.path / "build"

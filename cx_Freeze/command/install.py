@@ -68,7 +68,7 @@ class Install(_install):
         if self.root is not None:
             self.change_roots("exe")
 
-    def select_scheme(self, name) -> None:
+    def select_scheme(self, name: str) -> None:
         super().select_scheme(name)
         if self.install_exe is None:
             if sys.platform == "win32":

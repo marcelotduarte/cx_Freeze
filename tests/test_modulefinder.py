@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import py_compile
 import sys
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -48,6 +49,11 @@ from .datatest import (
     ZIP_INCLUDE_TEST,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from .conftest import TempPackage
+
 # Each test description is a list of 6 items:
 #
 # 1. a module name that will be imported by ModuleFinder
@@ -67,15 +73,15 @@ from .datatest import (
 
 
 def _do_test(
-    test_dir,
+    test_dir: TempPackage,
     import_this: str,
     modules: list[str],
     missing: list[str],
     maybe_missing: list[str],  # noqa: ARG001
     source: str,
-    report=False,
-    debug=0,  # noqa: ARG001
-    modulefinder_class=ModuleFinder,
+    report: bool = False,
+    debug: bool = False,  # noqa: ARG001
+    modulefinder_class: Callable = ModuleFinder,
     **kwargs,
 ) -> None:
     test_dir.create(source)
@@ -168,7 +174,13 @@ def _do_test(
     ],
 )
 def test_finder(
-    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
+    tmp_package: TempPackage,
+    import_this: str,
+    modules: list[str],
+    missing: list[str],
+    maybe_missing: list[str],
+    source: str,
+    kwargs: dict[str, Any],
 ) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(
@@ -188,7 +200,13 @@ def test_finder(
     ids=["bytecode_test"],
 )
 def test_bytecode(
-    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
+    tmp_package: TempPackage,
+    import_this: str,
+    modules: list[str],
+    missing: list[str],
+    maybe_missing: list[str],
+    source: str,
+    kwargs: dict[str, Any],
 ) -> None:
     """Provides bytecode test case for ModuleFinder class."""
     tmp_package.create(BYTECODE_TEST[4])
@@ -213,7 +231,13 @@ def test_bytecode(
     ids=["editable_package_test", "editable_package_test_1"],
 )
 def test_editable_packages(
-    tmp_package, import_this, modules, missing, maybe_missing, source, kwargs
+    tmp_package: TempPackage,
+    import_this: str,
+    modules: list[str],
+    missing: list[str],
+    maybe_missing: list[str],
+    source: str,
+    kwargs: dict[str, Any],
 ) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(source)
@@ -229,7 +253,7 @@ def test_editable_packages(
     )
 
 
-def test_load_module_code(tmp_package) -> None:
+def test_load_module_code(tmp_package: TempPackage) -> None:
     """Test case for _load_module_code method of ModuleFinder class."""
     tmp_package.create(A_MODULE[4])
 

@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from packaging.version import Version
 
 from cx_Freeze._compat import ABI_THREAD, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
+
+if TYPE_CHECKING:
+    from .conftest import TempPackage
 
 SOURCE_SIMPLE_TEST = """
 test.py
@@ -118,7 +122,7 @@ class TestVersionInfo:
             ("1.0.post1", "1.0.0.0"),
         ],
     )
-    def test_windows_versions(self, input_version, version) -> None:
+    def test_windows_versions(self, input_version: str, version: str) -> None:
         """Tests that short versions get padded to the expected x4 digit
         windows versions.
         """
@@ -141,7 +145,12 @@ class TestVersionInfo:
             pytest.param("--pywin32", marks=pytest.mark.xfail),
         ],
     )
-    def test_main(self, tmp_package, option, capsys) -> None:
+    def test_main(
+        self,
+        tmp_package: TempPackage,
+        option: str,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
         """Test the cx_Freeze.winversioninfo __main_ entry point."""
         tmp_package.create(SOURCE_SIMPLE_TEST)
         if option == "--pywin32":
@@ -171,7 +180,7 @@ class TestVersionInfo:
         strict=True,
     )
     @pytest.mark.venv
-    def test_main_with_environ(self, tmp_package) -> None:
+    def test_main_with_environ(self, tmp_package: TempPackage) -> None:
         """Test argparse error exception."""
         tmp_package.install("pywin32")
         tmp_package.monkeypatch.setenv("CX_FREEZE_STAMP", "pywin32")

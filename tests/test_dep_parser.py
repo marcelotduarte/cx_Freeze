@@ -6,7 +6,7 @@ import shutil
 import stat
 import sys
 import sysconfig
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -25,6 +25,9 @@ from cx_Freeze.exception import PlatformError
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from tests.conftest import TempPackage, TempPackageVenv
+
 
 SOURCE = """
 test.py
@@ -52,7 +55,7 @@ else:
 
 
 @pytest.mark.parametrize(("package", "version"), PACKAGE_VERSION)
-def test_parser(tmp_package, package, version) -> None:
+def test_parser(tmp_package: TempPackage, package: str, version: str) -> None:
     """Test a simple build."""
     tmp_package.create(SOURCE)
 
@@ -74,7 +77,7 @@ def test_parser(tmp_package, package, version) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_elf_parser(tmp_package) -> None:
+def test_elf_parser(tmp_package: TempPackage) -> None:
     """Test the search_path and find_library."""
     tmp_package.create(SOURCE)
     parser = ELFParser(sys.path, [sysconfig.get_config_var("LIBDIR")], 0, {})
@@ -102,7 +105,7 @@ def test_elf_parser(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_verify_patchelf(monkeypatch) -> None:
+def test_verify_patchelf(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test the _verify_patchelf."""
     monkeypatch.setattr("shutil.which", lambda cmd: cmd != "patchelf")
     msg = "Cannot find required utility `patchelf` in PATH"
@@ -113,12 +116,12 @@ def test_verify_patchelf(monkeypatch) -> None:
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 @pytest.mark.skipif(IS_LINUX and IS_CONDA, reason="Disabled on conda-forge")
 @pytest.mark.venv
-def test_verify_patchelf_older(tmp_package) -> None:
+def test_verify_patchelf_older(tmp_package: TempPackageVenv) -> None:
     """Test the _verify_patchelf with older version."""
     tmp_package.create(SOURCE)
     tmp_package.install("patchelf<0.14")
 
-    tmp_bin = tmp_package.venv_prefix / "bin"
+    tmp_bin = cast("Path", tmp_package.venv_prefix) / "bin"
     tmp_package.monkeypatch.setattr("shutil.which", lambda cmd: tmp_bin / cmd)
     msg = r"patchelf\s+(\d+(.\d+)?)\s+found."
     with pytest.raises(ValueError, match=msg):

@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from setuptools import Distribution
 
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_deb import bdist_deb
 from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 DIST_ATTRS = {
     "name": "foo",
@@ -32,7 +37,7 @@ def test_bdist_deb_in_non_linux() -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_deb_not_alien(monkeypatch) -> None:
+def test_bdist_deb_not_alien(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test the bdist_deb uses alien."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
@@ -42,7 +47,7 @@ def test_bdist_deb_not_alien(monkeypatch) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_deb_not_fakeroot(monkeypatch) -> None:
+def test_bdist_deb_not_fakeroot(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test the bdist_deb uses fakeroot."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
@@ -53,7 +58,7 @@ def test_bdist_deb_not_fakeroot(monkeypatch) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_deb_simple(tmp_package) -> None:
+def test_bdist_deb_simple(tmp_package: TempPackage) -> None:
     """Test the simple sample with bdist_deb."""
     name = "hello"
     version = "0.1.2.3"
@@ -77,7 +82,7 @@ def test_bdist_deb_simple(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_deb_simple_pyproject(tmp_package) -> None:
+def test_bdist_deb_simple_pyproject(tmp_package: TempPackage) -> None:
     """Test the simple_pyproject sample with bdist_deb."""
     name = "hello"
     version = "0.1.2.3"
@@ -101,7 +106,7 @@ def test_bdist_deb_simple_pyproject(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_deb(tmp_package) -> None:
+def test_bdist_deb(tmp_package: TempPackage) -> None:
     """Test the sqlite sample with bdist_deb."""
     name = "test_sqlite3"
     version = "0.5"

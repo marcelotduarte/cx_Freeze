@@ -14,18 +14,18 @@ class PyDialog(Dialog):
 
     def __init__(
         self,
-        db,
-        name,
-        x,
-        y,
-        w,
-        h,
-        attr,
-        title,
-        first,
-        default,
-        cancel,
-        bitmap=True,  # noqa: ARG002
+        db: object,
+        name: str,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        attr: int,
+        title: str,
+        first: str,
+        default: str,
+        cancel: str,
+        bitmap: bool = True,  # noqa: ARG002
     ) -> None:
         Dialog.__init__(
             self, db, name, x, y, w, h, attr, title, first, default, cancel
@@ -36,14 +36,20 @@ class PyDialog(Dialog):
         #    self.bitmap("Bitmap", 0, 0, bmwidth, ruler, "PythonWin")
         self.line("BottomLine", 0, ruler, self.w, 0)
 
-    def title(self, title) -> None:
+    def title(self, title: str) -> None:
         """Set the title text of the dialog at the top."""
         # flags=0x30003=Visible|Enabled|Transparent|NoPrefix
         # text, in VerdanaBold10
         font = r"{\VerdanaBold10}"
         self.text("Title", 15, 10, 320, 60, 0x30003, f"{font}{title}")
 
-    def backbutton(self, title, tabnext, name="Back", active=1) -> Control:
+    def backbutton(
+        self,
+        title: str,
+        tabnext: str | None,
+        name: str = "Back",
+        active: bool = True,
+    ) -> Control:
         """Add a back button with a given title, the tab-next button,
         its name in the Control table, possibly initially disabled.
 
@@ -54,7 +60,13 @@ class PyDialog(Dialog):
             name, 180, self.h - 27, 56, 17, flags, title, tabnext
         )
 
-    def cancelbutton(self, title, tabnext, name="Cancel", active=1) -> Control:
+    def cancelbutton(
+        self,
+        title: str,
+        tabnext: str | None,
+        name: str = "Cancel",
+        active: bool = True,
+    ) -> Control:
         """Add a cancel button with a given title, the tab-next button,
         its name in the Control table, possibly initially disabled.
 
@@ -65,7 +77,13 @@ class PyDialog(Dialog):
             name, 304, self.h - 27, 56, 17, flags, title, tabnext
         )
 
-    def nextbutton(self, title, tabnext, name="Next", active=1) -> Control:
+    def nextbutton(
+        self,
+        title: str,
+        tabnext: str | None,
+        name: str = "Next",
+        active: bool = True,
+    ) -> Control:
         """Add a Next button with a given title, the tab-next button,
         its name in the Control table, possibly initially disabled.
 
@@ -76,7 +94,9 @@ class PyDialog(Dialog):
             name, 236, self.h - 27, 56, 17, flags, title, tabnext
         )
 
-    def xbutton(self, name, title, tabnext, xpos) -> Control:
+    def xbutton(
+        self, name: str, title: str, tabnext: str | None, xpos: int
+    ) -> Control:
         """Add a button with a given title, the tab-next button,
         its name in the Control table, giving its x position; the
         y-position is aligned with the other buttons.

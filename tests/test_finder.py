@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
 
 from .datatest import SCAN_CODE_TEST, SYNTAX_ERROR_TEST
+
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
+
+    from .conftest import TempPackage
 
 
 class TestModuleFinder:
@@ -19,7 +25,12 @@ class TestModuleFinder:
         constants = ConstantsModule()
         return ModuleFinder(constants_module=constants)
 
-    def test_scan_code(self, tmp_package, fix_module_finder, mocker) -> None:
+    def test_scan_code(
+        self,
+        tmp_package: TempPackage,
+        fix_module_finder: ModuleFinder,
+        mocker: MockerFixture,
+    ) -> None:
         tmp_package.create(SCAN_CODE_TEST[4])
         any3 = (mocker.ANY,) * 3
         import_mock = mocker.patch.object(
@@ -41,10 +52,13 @@ class TestModuleFinder:
             ]
         )
 
-    def test_invalid_syntax(self, tmp_package, fix_module_finder) -> None:
+    def test_invalid_syntax(
+        self, tmp_package: TempPackage, fix_module_finder: ModuleFinder
+    ) -> None:
         """Invalid syntax (e.g. Py2 only code) should not break freezing."""
         tmp_package.create(SYNTAX_ERROR_TEST[4])
         fix_module_finder.path.insert(0, os.fspath(tmp_package.path))
         # Threw SyntaxError before the bug was fixed
         module = fix_module_finder.include_module("invalid_syntax")
+        assert module is not None
         assert module.error_msg == "SyntaxError: invalid syntax"

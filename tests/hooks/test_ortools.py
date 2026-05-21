@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -14,6 +15,9 @@ from cx_Freeze._compat import (
     IS_MINGW,
     IS_WINDOWS,
 )
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -125,7 +129,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_ortools(tmp_package, zip_packages: bool) -> None:
+def test_ortools(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if ortools is working correctly."""
     tmp_package.map_package_to_conda["ortools"] = "ortools-python"
     tmp_package.create(SOURCE_TEST)
@@ -154,7 +158,9 @@ def test_ortools(tmp_package, zip_packages: bool) -> None:
 @pytest.mark.skipif(not IS_CONDA, reason="conda-forge test only")
 @pytest.mark.venv(install_dependencies=False)
 @zip_packages
-def test_ortools_pip_on_conda(tmp_package, zip_packages: bool) -> None:
+def test_ortools_pip_on_conda(
+    tmp_package: TempPackage, zip_packages: bool
+) -> None:
     """Test if ortools is working in conda-forge using pip."""
     tmp_package.create(SOURCE_TEST)
     if zip_packages:

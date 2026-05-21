@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import IS_CONDA, IS_LINUX, IS_X86_64
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 TIMEOUT_SLOW = 60 if IS_CONDA else 30
@@ -23,7 +27,7 @@ zip_packages = pytest.mark.parametrize(
 )
 @pytest.mark.venv(install_dependencies=False)
 @zip_packages
-def test_mkl(tmp_package, zip_packages: bool) -> None:
+def test_mkl(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the pandas/numpy is working correctly."""
     tmp_package.create_from_sample("pandas")
     if zip_packages:

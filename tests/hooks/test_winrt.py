@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import ABI_THREAD, IS_CONDA, IS_MINGW
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -68,7 +72,7 @@ pyproject.toml
 )
 @pytest.mark.venv(scope="module")
 @zip_packages
-def test_winrt(tmp_package, zip_packages: bool) -> None:
+def test_winrt(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if winrt hook is working correctly."""
     tmp_package.create(SOURCE_WINRT)
     if zip_packages:

@@ -5,10 +5,14 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import ABI_THREAD
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -56,7 +60,9 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_anyio(tmp_package, zip_packages) -> None:
+def test_anyio(
+    tmp_package: TempPackage, zip_packages: pytest.MarkDecorator
+) -> None:
     """Test if anyio is working correctly."""
     tmp_package.create(SOURCE_ANYIO)
     if zip_packages:
