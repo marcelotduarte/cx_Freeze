@@ -37,7 +37,7 @@ canvas.mpl_connect("key_press_event", key_press_handler)
 button_quit = tk.Button(master=root, text="Quit", command=root.destroy)
 
 
-def update_frequency(new_val) -> None:
+def update_frequency(new_val: str) -> None:
     # retrieve frequency
     f = float(new_val)
 

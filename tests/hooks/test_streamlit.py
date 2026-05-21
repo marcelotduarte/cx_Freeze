@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from cx_Freeze._compat import ABI_THREAD, IS_MINGW
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -47,7 +52,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_streamlit(tmp_package, zip_packages: bool) -> None:
+def test_streamlit(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if streamlit hook is working correctly."""
     tmp_package.create(SOURCE_TEST)
     if zip_packages:

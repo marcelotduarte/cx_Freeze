@@ -9,6 +9,8 @@ import pytest
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from tests.conftest import TempPackage
+
 TIMEOUT = 15
 
 SOURCE = """\
@@ -105,7 +107,11 @@ def _parameters_data() -> Iterator:
     ("source", "sample", "expected", "zip_packages"), _parameters_data()
 )
 def test_multiprocessing(
-    tmp_package, source: str, sample: str, expected: str, zip_packages
+    tmp_package: TempPackage,
+    source: str,
+    sample: str,
+    expected: str,
+    zip_packages: pytest.MarkDecorator,
 ) -> None:
     """Provides test cases for multiprocessing."""
     tmp_package.create(source)

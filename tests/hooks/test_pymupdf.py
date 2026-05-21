@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -15,6 +16,9 @@ from cx_Freeze._compat import (
     IS_MINGW,
     IS_WINDOWS,
 )
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT_SLOW = 60 if IS_CONDA else 30
 
@@ -63,7 +67,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_pymupdf(tmp_package, zip_packages: bool) -> None:
+def test_pymupdf(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if pymupdf hook is working correctly."""
     tmp_package.create(SOURCE_TEST_PYMUPDF)
     if zip_packages:

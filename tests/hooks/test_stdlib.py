@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import IS_MACOS, IS_WINDOWS
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -44,7 +48,7 @@ pyproject.toml
 
 
 @zip_packages
-def test_ctypes(tmp_package, zip_packages: bool) -> None:
+def test_ctypes(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if ctypes hook is working correctly."""
     tmp_package.create(SOURCE_TEST_CTYPES)
     if zip_packages:
@@ -60,7 +64,7 @@ def test_ctypes(tmp_package, zip_packages: bool) -> None:
 
 
 @zip_packages
-def test_sqlite(tmp_package, zip_packages: bool) -> None:
+def test_sqlite(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the sqlite3 is working correctly."""
     tmp_package.create_from_sample("sqlite")
     if zip_packages:
@@ -114,7 +118,7 @@ pyproject.toml
 
 
 @zip_packages
-def test_sqlite_ext(tmp_package, zip_packages: bool) -> None:
+def test_sqlite_ext(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test that the sqlite3 is working correctly."""
     tmp_package.create(SOURCE_TEST_SQLITE)
     if zip_packages:
@@ -175,7 +179,7 @@ pyproject.toml
 @mac_extra_test
 @zip_packages
 def test_ssl(
-    tmp_package,
+    tmp_package: TempPackage,
     zip_packages: bool,
     mac_extra_test: bool,
     use_os_cert_file: bool,
@@ -244,7 +248,7 @@ pyproject.toml
 @mac_extra_test
 @zip_packages
 def test_tkinter(
-    tmp_package, zip_packages: bool, mac_extra_test: bool
+    tmp_package: TempPackage, zip_packages: bool, mac_extra_test: bool
 ) -> None:
     """Test if tkinter hook is working correctly."""
     pytest.importorskip("tkinter", reason="Depends on extra package: tkinter")
@@ -280,7 +284,7 @@ def test_tkinter(
 @pytest.mark.venv(install_dependencies=False)
 @pytest.mark.skipif(IS_WINDOWS, reason="Windows doesn't have system timezone")
 @zip_packages
-def test_zoneinfo(tmp_package, zip_packages: bool) -> None:
+def test_zoneinfo(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if zoneinfo hook with system timezone is working correctly."""
     tmp_package.create_from_sample("tz")
     if zip_packages:
@@ -310,7 +314,9 @@ def test_zoneinfo(tmp_package, zip_packages: bool) -> None:
 
 @pytest.mark.venv
 @zip_packages
-def test_zoneinfo_and_tzdata(tmp_package, zip_packages: bool) -> None:
+def test_zoneinfo_and_tzdata(
+    tmp_package: TempPackage, zip_packages: bool
+) -> None:
     """Test if zoneinfo and tzdata hook is working correctly."""
     tmp_package.create_from_sample("tz")
     if zip_packages:

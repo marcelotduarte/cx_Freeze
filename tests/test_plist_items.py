@@ -6,10 +6,14 @@ import os
 import plistlib
 import sys
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import IS_MACOS
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 PLIST_TEST = """\
 plist_data.py
@@ -55,7 +59,7 @@ command
 
 
 @pytest.mark.skipif(not IS_MACOS, reason="macOS test")
-def test_plist_items(tmp_package) -> None:
+def test_plist_items(tmp_package: TempPackage) -> None:
     """Test that the plist_items option is working correctly."""
     tmp_package.create(PLIST_TEST)
     tmp_package.freeze()

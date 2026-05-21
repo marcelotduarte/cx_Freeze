@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-# Each test description is a list of 6 items:
+from typing import Any, TypeAlias
+
+# Each test description is a tuple of 6 items:
 #
 # 1. a module name that will be imported by ModuleFinder
 # 1.1. to import a package, use 'package:' prefix, e.g, "package:foo"
@@ -14,7 +16,11 @@ from __future__ import annotations
 # 5. a string specifying packages to create; the format is obvious imo.
 # 6. a dictionary of ModuleFinder kwargs.
 
-A_MODULE = [
+SourceList: TypeAlias = tuple[
+    str, list[str], list[str], list[str], str, dict[str, Any]
+]
+
+A_MODULE: SourceList = (
     "a",
     ["a"],
     [],
@@ -24,9 +30,9 @@ a.py
     print("Hello from cx_Freeze")
 """,
     {},
-]
+)
 
-ABSOLUTE_IMPORT_TEST = [
+ABSOLUTE_IMPORT_TEST: SourceList = (
     "a.module",
     ["a", "a.module", "b", "b.x", "b.y", "b.z", "__future__", "sys", "gc"],
     ["blahblah", "z"],
@@ -57,9 +63,9 @@ b/y.py
 b/z.py
 """,
     {},
-]
+)
 
-BYTECODE_INVALID_TEST = [
+BYTECODE_INVALID_TEST: SourceList = (
     "b",
     ["b"],
     ["b"],
@@ -69,11 +75,11 @@ b.pyc
     b
 """,
     {},
-]
+)
 
 BYTECODE_TEST = A_MODULE
 
-CODING_DEFAULT_UTF8_TEST = [
+CODING_DEFAULT_UTF8_TEST: SourceList = (
     "a_utf8",
     ["a_utf8", "b_utf8"],
     [],
@@ -88,9 +94,9 @@ b_utf8.py
     print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
 """,
     {},
-]
+)
 
-CODING_EXPLICIT_CP1252_TEST = [
+CODING_EXPLICIT_CP1252_TEST: SourceList = (
     "a_cp1252",
     ["a_cp1252", "b_utf8"],
     [],
@@ -106,9 +112,9 @@ b_utf8.py
     print('Unicode test A code point 2090 \u2090 that is not valid in cp1252')
 """,
     {},
-]
+)
 
-CODING_EXPLICIT_UTF8_TEST = [
+CODING_EXPLICIT_UTF8_TEST: SourceList = (
     "a_utf8",
     ["a_utf8", "b_utf8"],
     [],
@@ -123,9 +129,9 @@ b_utf8.py
     print('Unicode test B code point 2090 \u2090 that is not valid in cp1252')
 """,
     {},
-]
+)
 
-EDITABLE_PACKAGE_TEST = [
+EDITABLE_PACKAGE_TEST: SourceList = (
     "main",
     ["foobar", "foobar.baz", "main"],
     [],
@@ -142,9 +148,9 @@ foo-bar/foobar/baz.py
     print('This is foobar.baz')
 """,
     {},
-]
+)
 
-EDITABLE_PACKAGE_TEST_1 = [
+EDITABLE_PACKAGE_TEST_1: SourceList = (
     "main",
     ["foobar", "foobar.baz", "main"],
     [],
@@ -162,9 +168,9 @@ foo-bar/foobar/baz.py
     print('This is foobar.baz')
 """,
     {},
-]
+)
 
-EXTENDED_OPARGS_TEST = [
+EXTENDED_OPARGS_TEST: SourceList = (
     "a",
     ["a", "b"],
     [],
@@ -176,9 +182,9 @@ a.py
 b.py
 """,
     {},
-]  # 2**16 constants
+)  # 2**16 constants
 
-FIND_SPEC_TEST = [
+FIND_SPEC_TEST: SourceList = (
     "hello",
     ["dummypackage", "dummypackage.dummymodule", "hello"],
     [],
@@ -197,9 +203,9 @@ hello.py
     raise Exception("This exception is fine.")
 """,
     {},
-]
+)
 
-INVALID_MODULE_NAME_TEST = [
+INVALID_MODULE_NAME_TEST: SourceList = (
     "package:testpkg1",
     ["testpkg1", "testpkg1.invalid-identifier", "testpkg1.submod"],
     [],
@@ -215,9 +221,9 @@ testpkg1/submod.py
     a = 2
 """,
     {},
-]
+)
 
-MAYBE_TEST = [
+MAYBE_TEST: SourceList = (
     "a.module",
     ["a", "a.module", "sys", "b"],
     ["c"],
@@ -231,9 +237,9 @@ b/__init__.py
     from sys import *
 """,
     {},
-]
+)
 
-MAYBE_TEST_NEW = [
+MAYBE_TEST_NEW: SourceList = (
     "a.module",
     ["a", "a.module", "sys", "b", "__future__"],
     ["c"],
@@ -248,9 +254,9 @@ b/__init__.py
     from sys import *
 """,
     {},
-]
+)
 
-NAMESPACE_TEST = [
+NAMESPACE_TEST: SourceList = (
     "main",
     ["main", "namespace.package"],
     [],
@@ -262,9 +268,9 @@ namespace/package/__init__.py
     print('This is namespace.package')
 """,
     {},
-]
+)
 
-NAMESPACE_TEST_1 = [
+NAMESPACE_TEST_1: SourceList = (
     "main",
     ["main", "namespace.package"],
     [],
@@ -279,9 +285,9 @@ namespace/package/__init__.py
         print("This is namespace.package")
 """,
     {},
-]
+)
 
-NAMESPACE_TEST_2 = [
+NAMESPACE_TEST_2: SourceList = (
     "main",
     ["main", "namespace.package.one", "namespace.package.two"],
     [],
@@ -296,24 +302,24 @@ namespace/package/two.py
     print('This is namespace.package module two')
 """,
     {},
-]
+)
 
-OPTIMIZE_0_TEST = [
+OPTIMIZE_0_TEST: SourceList = (
     *A_MODULE[:-1],
     {"optimize": 0},
-]
+)
 
-OPTIMIZE_1_TEST = [
+OPTIMIZE_1_TEST: SourceList = (
     *A_MODULE[:-1],
     {"optimize": 1},
-]
+)
 
-OPTIMIZE_2_TEST = [
+OPTIMIZE_2_TEST: SourceList = (
     *A_MODULE[:-1],
     {"optimize": 2},
-]
+)
 
-PACKAGE_TEST = [
+PACKAGE_TEST: SourceList = (
     "a.module",
     ["a", "a.b", "a.c", "a.module", "mymodule", "sys"],
     ["blahblah", "c"],
@@ -335,9 +341,9 @@ a/c.py
     from sys import version_info
 """,
     {},
-]
+)
 
-RELATIVE_IMPORT_TEST = [
+RELATIVE_IMPORT_TEST: SourceList = (
     "a.module",
     [
         "__future__",
@@ -381,9 +387,9 @@ a/b/c/e.py
 a/b/c/x.py
 """,
     {},
-]
+)
 
-RELATIVE_IMPORT_TEST_2 = [
+RELATIVE_IMPORT_TEST_2: SourceList = (
     "a.module",
     [
         "a",
@@ -429,9 +435,9 @@ a/b/c/e.py
 a/b/c/f.py
 """,
     {},
-]
+)
 
-RELATIVE_IMPORT_TEST_3 = [
+RELATIVE_IMPORT_TEST_3: SourceList = (
     "a.module",
     ["a", "a.module"],
     ["a.bar"],
@@ -444,9 +450,9 @@ a/module.py
     from . import bar
 """,
     {},
-]
+)
 
-RELATIVE_IMPORT_TEST_4 = [
+RELATIVE_IMPORT_TEST_4: SourceList = (
     "a.module",
     ["a", "a.module"],
     [],
@@ -458,9 +464,9 @@ a/module.py
     from . import *
 """,
     {},
-]
+)
 
-SAME_NAME_AS_BAD_TEST = [
+SAME_NAME_AS_BAD_TEST: SourceList = (
     "a.module",
     ["a", "a.module", "b", "b.c"],
     ["c"],
@@ -474,9 +480,9 @@ b/__init__.py
 b/c.py
 """,
     {},
-]
+)
 
-SCAN_CODE_TEST = [
+SCAN_CODE_TEST: SourceList = (
     "imports_sample",
     ["imports_sample"],
     [],
@@ -494,9 +500,9 @@ imports_sample.py
     finally: import modh
 """,
     {"path": []},
-]
+)
 
-SCAN_CODE_IMPORT_CALL_TEST = [
+SCAN_CODE_IMPORT_CALL_TEST: SourceList = (
     "testpkg1",
     ["testpkg1", "fake_pkgutil"],
     [],
@@ -507,9 +513,9 @@ testpkg1/__init__.py
 fake_pkgutil.py
 """,
     {"path": []},
-]
+)
 
-SCAN_CODE_IMPORT_MODULE_TEST = [
+SCAN_CODE_IMPORT_MODULE_TEST: SourceList = (
     "module1",
     ["module1", "module2"],
     [],
@@ -524,9 +530,9 @@ module2.py
         print("ok")
 """,
     {"path": []},
-]
+)
 
-SYNTAX_ERROR_TEST = [
+SYNTAX_ERROR_TEST: SourceList = (
     "invalid_syntax",
     ["invalid_syntax"],
     ["invalid_syntax"],
@@ -536,9 +542,9 @@ invalid_syntax.py
     raise = 2
 """,
     {},
-]
+)
 
-SYNTAX_ERROR_TEST_1 = [
+SYNTAX_ERROR_TEST_1: SourceList = (
     "invalid_syntax_1",
     ["invalid_syntax_1"],
     ["invalid_syntax_1"],
@@ -549,9 +555,9 @@ invalid_syntax_1.py
     print("folder:", folder)
 """,
     {},
-]
+)
 
-SYNTAX_ERROR_TEST_2 = [
+SYNTAX_ERROR_TEST_2: SourceList = (
     "a.module",
     ["a", "a.module", "b", "b.module"],
     [],
@@ -565,9 +571,9 @@ b/module.py
     ?  # SyntaxError: invalid syntax
 """,
     {},
-]
+)
 
-SUB_PACKAGE_TEST = [
+SUB_PACKAGE_TEST: SourceList = (
     "main",
     ["p", "p.p1", "p.q", "p.q.q1", "main"],
     [],
@@ -592,22 +598,22 @@ setup.py
     )
 """,
     {},
-]
+)
 
-ZIP_EXCLUDE_TEST = [
+ZIP_EXCLUDE_TEST: SourceList = (
     *SUB_PACKAGE_TEST[:-1],
     {
         "zip_exclude_packages": ["p"],
         "zip_include_packages": ["*"],
         "zip_include_all_packages": True,
     },
-]
+)
 
-ZIP_INCLUDE_TEST = [
+ZIP_INCLUDE_TEST: SourceList = (
     *SUB_PACKAGE_TEST[:-1],
     {
         "zip_exclude_packages": ["*"],
         "zip_include_packages": ["p"],
         "zip_include_all_packages": False,
     },
-]
+)

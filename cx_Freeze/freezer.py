@@ -90,7 +90,7 @@ class Freezer:
     """Freezer base class."""
 
     def __new__(
-        cls, *args, **kwargs
+        cls, *args: Any, **kwargs
     ) -> WinFreezer | DarwinFreezer | LinuxFreezer:
         # create instance of appropriate sub-class, depending on the platform.
         if IS_WINDOWS or IS_MINGW:
@@ -898,7 +898,7 @@ class Freezer:
 class WinFreezer(Freezer, PEParser):
     """Freezer base class for Windows OS."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         PEParser.__init__(
             self,
@@ -1161,7 +1161,7 @@ class WinFreezer(Freezer, PEParser):
 class DarwinFreezer(Freezer, Parser):
     """Freezer base class for macOS."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         Parser.__init__(
             self,
@@ -1357,7 +1357,7 @@ class DarwinFreezer(Freezer, Parser):
 class LinuxFreezer(Freezer, ELFParser):
     """Freezer base class for Linux and Posix OSes."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs) -> None:
         Freezer.__init__(self, *args, **kwargs)
         ELFParser.__init__(
             self,

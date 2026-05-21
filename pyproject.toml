@@ -216,7 +216,10 @@ line-length = 79
 [tool.ruff.lint]
 select = [
     "A",    # flake8-builtins
-    "ANN2", # flake8-annotations - missing return type
+    "ANN001",  # flake8-annotations - missing-type-function-argument
+    "ANN002",  # flake8-annotations - missing-type-args
+    "ANN201",  # flake8-annotations - missing-return-type-undocumented-public-function
+    "ANN202",  # flake8-annotations - missing-return-type-private-function
     "ARG",  # flake8-unused-arguments
     "B",    # flake8-bugbear
     "BLE",  # flake8-blind-except

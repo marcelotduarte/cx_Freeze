@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import ABI_THREAD
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -26,7 +30,7 @@ zip_packages = pytest.mark.parametrize(
 )
 @pytest.mark.venv(scope="module")
 @zip_packages
-def test_win32com(tmp_package, zip_packages: bool) -> None:
+def test_win32com(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""
     tmp_package.create_from_sample("win32com")
     command = "cxfreeze --script test_win32com.py --excludes=tkinter,unittest"
@@ -84,7 +88,7 @@ pyproject.toml
 )
 @pytest.mark.venv(scope="module")
 @zip_packages
-def test_win32com_shell(tmp_package, zip_packages: bool) -> None:
+def test_win32com_shell(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""
     tmp_package.create(SOURCE_WIN32COM_SHELL)
     if zip_packages:

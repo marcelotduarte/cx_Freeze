@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_WINDOWS
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT_SLOW = 60 if IS_CONDA else 30
 
@@ -45,7 +50,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_zeroconf(tmp_package, zip_packages: bool) -> None:
+def test_zeroconf(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if zeroconf hook is working correctly."""
     tmp_package.create(SOURCE_TEST)
     if zip_packages:

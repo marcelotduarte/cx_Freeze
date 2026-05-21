@@ -825,9 +825,7 @@ class bdist_msi(Command):
         add_data(self.db, "Property", props)
         if self.install_icon:
             add_data(
-                self.db,
-                "Icon",
-                [("InstallIcon", Binary(self.install_icon))],
+                self.db, "Icon", [("InstallIcon", Binary(self.install_icon))]
             )
 
     def add_select_directory_dialog(self) -> None:
@@ -923,7 +921,7 @@ class bdist_msi(Command):
         self.add_progress_dialog()
         self.add_maintenance_type_dialog()
 
-    def add_upgrade_config(self, sversion) -> None:
+    def add_upgrade_config(self, sversion: str) -> None:
         if self.upgrade_code is not None:
             add_data(
                 self.db,
@@ -1025,10 +1023,7 @@ class bdist_msi(Command):
             )
 
             button = dialog.nextbutton(
-                name="Next",
-                title="Accept",
-                tabnext="Cancel",
-                active=0,
+                name="Next", title="Accept", tabnext="Cancel", active=False
             )
             button.event("SpawnWaitDialog", "SelectDirectoryDlg", ordering=1)
             button.event("EndDialog", "Return", ordering=2)
@@ -1347,7 +1342,7 @@ class bdist_msi(Command):
         add_tables(self.db, sequence)
         self.add_properties()
         self.add_config()
-        self.add_upgrade_config(self.product_version)
+        self.add_upgrade_config(cast("str", self.product_version))
         self.add_ui()
         self.add_files()
         self.db.Commit()
@@ -1373,7 +1368,7 @@ class bdist_msi(Command):
 
         self.warnings()
 
-    def warn_delayed(self, msg) -> None:
+    def warn_delayed(self, msg: str) -> None:
         self._warnings.append(msg)
 
     def warnings(self) -> None:
@@ -1381,7 +1376,7 @@ class bdist_msi(Command):
             self.announce(f"WARNING: {msg}", logging.WARNING)
 
 
-def _is_valid_guid(code) -> bool:
+def _is_valid_guid(code: str) -> bool:
     pattern = re.compile(
         r"^\{[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}\}$", re.IGNORECASE
     )

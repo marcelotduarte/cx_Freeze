@@ -165,16 +165,18 @@ class build_exe(Command):
         "silent",
     ]
 
-    def add_to_path(self, name) -> None:
+    def add_to_path(self, name: str) -> None:
         source_dir = getattr(self, name.lower())
         if source_dir is not None:
             sys.path.insert(0, source_dir)
 
-    def build_extension(self, name, module_name=None) -> str | None:
+    def build_extension(
+        self, name: str, module_name: str | None = None
+    ) -> str | None:
         # XXX: This method, add_to_path and set_source_location can be deleted?
         if module_name is None:
             module_name = name
-        source_dir = getattr(self, name.lower())
+        source_dir = getattr(self, name.lower(), None)
         if source_dir is None:
             return None
         orig_dir = os.getcwd()
@@ -360,15 +362,15 @@ class build_exe(Command):
         freezer.freeze()
         freezer.print_report()
 
-    def set_source_location(self, name, *pathParts) -> None:
+    def set_source_location(self, name: str, *path_parts: str) -> None:
         env_name = f"{name.upper()}_BASE"
         attr_name = name.lower()
-        source_dir = getattr(self, attr_name)
+        source_dir = getattr(self, attr_name, None)
         if source_dir is None:
             base_dir = os.environ.get(env_name)
             if base_dir is None:
                 return
-            source_dir = os.path.join(base_dir, *pathParts)
+            source_dir = os.path.join(base_dir, *path_parts)
             if os.path.isdir(source_dir):
                 setattr(self, attr_name, source_dir)
 

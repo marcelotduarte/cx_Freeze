@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from setuptools import Distribution
 
 from cx_Freeze.exception import OptionError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
+
 
 SOURCE = """
 test.py
@@ -32,7 +38,7 @@ command
 """
 
 
-def test_build(tmp_package) -> None:
+def test_build(tmp_package: TempPackage) -> None:
     """Test a simple build."""
     tmp_package.create(SOURCE)
 
@@ -71,7 +77,10 @@ def test_build(tmp_package) -> None:
     ],
 )
 def test_build_raises(
-    tmp_package, build_args: list[str], expected_exception, expected_match: str
+    tmp_package: TempPackage,
+    build_args: list[str],
+    expected_exception: type[BaseException],
+    expected_match: str,
 ) -> None:
     """Test the build with an option that raises an exception."""
     tmp_package.create(SOURCE)

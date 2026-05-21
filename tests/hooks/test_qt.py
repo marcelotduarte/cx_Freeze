@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -16,6 +17,11 @@ from cx_Freeze._compat import (
     IS_MINGW,
     IS_WINDOWS,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from tests.conftest import TempPackage
 
 TIMEOUT = 15
 
@@ -56,7 +62,7 @@ pyproject.toml
 """
 
 
-def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
+def find_duplicates_libs(build_lib_dir: Path) -> dict[str, list[str]]:
     """Look for any duplicate libs files in the build lib dir."""
     if IS_MINGW or IS_WINDOWS:
         extension = "*.dll"
@@ -80,7 +86,7 @@ def find_duplicates_libs(build_lib_dir) -> dict[str, list[str]]:
 )
 @pytest.mark.venv
 @pytest.mark.parametrize("qt_impl", ["PyQt6", "PySide6", "PyQt5", "PySide2"])
-def test_qt(tmp_package, qt_impl) -> None:
+def test_qt(tmp_package: TempPackage, qt_impl: str) -> None:
     """Test if qt is working correctly."""
     if IS_CONDA:
         if qt_impl == "PyQt6":

@@ -52,7 +52,9 @@ class Hook(ModuleHook):
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
-    def cryptodome_util__file_system(self, _, module: Module) -> None:
+    def cryptodome_util__file_system(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
         """The patch for pycryptodome package."""
         code = module.code
         if module.in_file_system == 0 and code is not None:

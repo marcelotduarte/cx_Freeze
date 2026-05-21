@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
+
 SOURCE = """
 test.py
     print("Hello from cx_Freeze")
@@ -23,7 +28,7 @@ command
 """
 
 
-def test___main__(tmp_package) -> None:
+def test___main__(tmp_package: TempPackage) -> None:
     """Test __main__."""
     tmp_package.create(SOURCE)
     tmp_package.freeze()

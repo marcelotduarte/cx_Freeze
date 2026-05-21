@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from cx_Freeze._compat import (
@@ -13,6 +15,9 @@ from cx_Freeze._compat import (
     IS_UCRT,
     IS_WINDOWS,
 )
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 TIMEOUT_ULTRA_VERY_SLOW = 240 if IS_CONDA else 120
 
@@ -60,7 +65,7 @@ pyproject.toml
 )
 @pytest.mark.venv
 @zip_packages
-def test_av(tmp_package, zip_packages: bool) -> None:
+def test_av(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if av hook is working correctly."""
     tmp_package.create(SOURCE_TEST_AV)
     if zip_packages:

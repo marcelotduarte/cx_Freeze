@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import platform
+from typing import TYPE_CHECKING
 
 import pytest
 from setuptools import Distribution
@@ -10,6 +11,10 @@ from setuptools import Distribution
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_rpm import bdist_rpm
 from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
+
 
 DIST_ATTRS = {
     "name": "foo",
@@ -34,7 +39,7 @@ def test_bdist_rpm_in_non_linux() -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_rpm_not_rpmbuild(monkeypatch) -> None:
+def test_bdist_rpm_not_rpmbuild(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test the bdist_rpm uses rpmbuild."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist)
@@ -45,7 +50,7 @@ def test_bdist_rpm_not_rpmbuild(monkeypatch) -> None:
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 @pytest.mark.parametrize("options", [{"spec_only": True}], ids=["spec_only"])
-def test_bdist_rpm_options(options) -> None:
+def test_bdist_rpm_options(options: dict[str, bool]) -> None:
     """Test the bdist_rpm with options."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_rpm(dist, **options)
@@ -60,7 +65,9 @@ def test_bdist_rpm_options(options) -> None:
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 @pytest.mark.parametrize("options", [{"spec_only": True}], ids=["spec_only"])
-def test_bdist_rpm_options_run(tmp_package, options) -> None:
+def test_bdist_rpm_options_run(
+    tmp_package: TempPackage, options: dict[str, bool]
+) -> None:
     """Test the bdist_rpm with options."""
     tmp_package.create_from_sample("simple")
     dist = Distribution(DIST_ATTRS)
@@ -76,7 +83,7 @@ def test_bdist_rpm_options_run(tmp_package, options) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_rpm_simple(tmp_package) -> None:
+def test_bdist_rpm_simple(tmp_package: TempPackage) -> None:
     """Test the simple sample with bdist_rpm."""
     name = "hello"
     version = "0.1.2.3"
@@ -98,7 +105,7 @@ def test_bdist_rpm_simple(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_rpm_simple_pyproject(tmp_package) -> None:
+def test_bdist_rpm_simple_pyproject(tmp_package: TempPackage) -> None:
     """Test the simple_pyproject sample with bdist_rpm."""
     name = "hello"
     version = "0.1.2.3"
@@ -120,7 +127,7 @@ def test_bdist_rpm_simple_pyproject(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_rpm(tmp_package) -> None:
+def test_bdist_rpm(tmp_package: TempPackage) -> None:
     """Test the sqlite sample with bdist_rpm."""
     name = "test_sqlite3"
     version = "0.5"

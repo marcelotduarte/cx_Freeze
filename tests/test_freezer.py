@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 import sysconfig
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 import pytest
 
@@ -21,6 +21,11 @@ from cx_Freeze._compat import (
 )
 from cx_Freeze.exception import OptionError
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from .conftest import TempPackage
+
 ENABLE_SHARED = bool(sysconfig.get_config_var("Py_ENABLE_SHARED"))
 
 SOURCE = """
@@ -29,7 +34,7 @@ hello.py
 """
 
 
-def test_freezer_target_dir_empty(tmp_package) -> None:
+def test_freezer_target_dir_empty(tmp_package: TempPackage) -> None:
     """Test freezer target_dir empty."""
     tmp_package.create(SOURCE)
     freezer = Freezer(executables=["hello.py"])
@@ -40,7 +45,7 @@ def test_freezer_target_dir_empty(tmp_package) -> None:
     )
 
 
-def test_freezer_target_dir_dist(tmp_package) -> None:
+def test_freezer_target_dir_dist(tmp_package: TempPackage) -> None:
     """Test freezer target_dir='dist'."""
     tmp_package.create(SOURCE)
     freezer = Freezer(executables=["hello.py"], target_dir="dist")
@@ -51,7 +56,7 @@ def test_freezer_target_dir_dist(tmp_package) -> None:
     )
 
 
-def test_freezer_target_dir_utf8(tmp_package) -> None:
+def test_freezer_target_dir_utf8(tmp_package: TempPackage) -> None:
     """Test freezer target_dir with a name in utf_8."""
     tmp_package.create(SOURCE)
     expected_target_dir = tmp_package.path / "ação"
@@ -62,7 +67,7 @@ def test_freezer_target_dir_utf8(tmp_package) -> None:
     )
 
 
-def test_freezer_target_dir_in_path(tmp_package) -> None:
+def test_freezer_target_dir_in_path(tmp_package: TempPackage) -> None:
     """Test freezer target_dir in path."""
     tmp_package.create(SOURCE)
     target_dir = tmp_package.executable("hello").parent
@@ -72,10 +77,14 @@ def test_freezer_target_dir_in_path(tmp_package) -> None:
         Freezer(executables=["hello.py"], path=[*sys.path, target_dir])
 
 
-def test_freezer_target_dir_locked(tmp_package) -> None:
+def test_freezer_target_dir_locked(tmp_package: TempPackage) -> None:
     """Test freezer target_dir locked."""
 
-    def t_rmtree(path, _ignore_errors=False, _onerror=None) -> NoReturn:
+    def t_rmtree(
+        path: str,
+        _ignore_errors: bool = False,
+        _onerror: Callable | None = None,
+    ) -> NoReturn:
         msg = f"cannot clean {path}"
         raise OSError(msg)
 
@@ -89,7 +98,7 @@ def test_freezer_target_dir_locked(tmp_package) -> None:
         Freezer(executables=["hello.py"], target_dir=target_dir)
 
 
-def test_freezer_default_bin_includes(tmp_package) -> None:
+def test_freezer_default_bin_includes(tmp_package: TempPackage) -> None:
     """Test freezer.default_bin_includes."""
     tmp_package.create(SOURCE)
 
@@ -121,7 +130,9 @@ def test_freezer_default_bin_includes(tmp_package) -> None:
     assert names != []
 
 
-def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
+def test_freezer_populate_zip_options_invalid_values(
+    tmp_package: TempPackage,
+) -> None:
     """Test freezer _populate_zip_options invalid values."""
     tmp_package.create(SOURCE)
 
@@ -250,7 +261,7 @@ def test_freezer_populate_zip_options_invalid_values(tmp_package) -> None:
     ],
 )
 def test_freezer_options(
-    tmp_package, kwargs: dict[str, Any], expected: dict[str, Any]
+    tmp_package: TempPackage, kwargs: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     """Test freezer options."""
     tmp_package.create(SOURCE)
@@ -306,7 +317,7 @@ def test_freezer_options(
     ],
 )
 def test_freezer_zip_filename(
-    tmp_package, kwargs: dict[str, Any], expected: dict[str, Any]
+    tmp_package: TempPackage, kwargs: dict[str, Any], expected: dict[str, Any]
 ) -> None:
     """Test freezer zip_filename option."""
     tmp_package.create(SOURCE)
@@ -354,7 +365,7 @@ module/py.typed
 """
 
 
-def test_freezer_copy_package_data(tmp_package) -> None:
+def test_freezer_copy_package_data(tmp_package: TempPackage) -> None:
     """Test freezer._copy_package_data."""
     tmp_package.create(SOURCE_WITH_EXTRA_FILES)
 

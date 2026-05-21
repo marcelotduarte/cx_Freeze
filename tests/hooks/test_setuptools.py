@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]
@@ -38,7 +43,7 @@ pyproject.toml
 
 @pytest.mark.venv
 @zip_packages
-def test_setuptools(tmp_package, zip_packages: bool) -> None:
+def test_setuptools(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if setuptools hook is working correctly."""
     tmp_package.create(SOURCE_TEST_SETUPTOOLS)
     if zip_packages:

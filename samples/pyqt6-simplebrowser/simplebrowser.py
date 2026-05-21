@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
     def forward(self) -> None:
         self.webEngineView.page().triggerAction(QWebEnginePage.Forward)
 
-    def urlChanged(self, url) -> None:
+    def urlChanged(self, url: QUrl) -> None:
         self.addressLineEdit.setText(url.toString())
 
 

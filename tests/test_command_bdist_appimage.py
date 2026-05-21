@@ -6,7 +6,7 @@ import os
 import platform
 from contextlib import suppress
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from filelock import FileLock
@@ -15,6 +15,9 @@ from setuptools import Distribution
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_appimage import bdist_appimage
 from cx_Freeze.exception import PlatformError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 DIST_ATTRS = {
     "name": "foo",
@@ -57,7 +60,7 @@ def test_bdist_appimage_download_appimagetool() -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_appimage_download_runtime(tmp_path) -> None:
+def test_bdist_appimage_download_runtime(tmp_path: Path) -> None:
     """Test bdist_appimage for "offline" builds."""
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_appimage(dist)
@@ -122,7 +125,9 @@ def test_bdist_appimage_target_name_and_version_none() -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_appimage_target_name_with_extension(tmp_package) -> None:
+def test_bdist_appimage_target_name_with_extension(
+    tmp_package: TempPackage,
+) -> None:
     """Test the tkinter sample, with a specified target_name that includes an
     ".AppImage" extension.
     """
@@ -149,7 +154,7 @@ def test_bdist_appimage_target_name_with_extension(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_appimage_skip_build(tmp_package) -> None:
+def test_bdist_appimage_skip_build(tmp_package: TempPackage) -> None:
     """Test the tkinter sample with bdist_appimage."""
     name = "test_tkinter"
     version = "0.3.2"
@@ -164,7 +169,7 @@ def test_bdist_appimage_skip_build(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_appimage_implicit_skip_build(tmp_package) -> None:
+def test_bdist_appimage_implicit_skip_build(tmp_package: TempPackage) -> None:
     """Test the simple sample with build_exe then a bdist_appimage.
 
     This forces a implicit skip_build.
@@ -194,7 +199,7 @@ def test_bdist_appimage_implicit_skip_build(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
-def test_bdist_appimage_simple(tmp_package) -> None:
+def test_bdist_appimage_simple(tmp_package: TempPackage) -> None:
     """Test the simple sample with bdist_appimage."""
     name = "simple"
     version = "0.1.2.3"

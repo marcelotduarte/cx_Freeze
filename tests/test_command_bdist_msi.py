@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 from setuptools import Distribution
 
 from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS, IS_X86_64
 from cx_Freeze.command.bdist_msi import bdist_msi
 from cx_Freeze.exception import OptionError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 DIST_ATTRS = {
     "name": "foo",
@@ -98,7 +103,7 @@ def test_bdist_msi_product_name_and_version() -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_default(tmp_package) -> None:
+def test_bdist_msi_default(tmp_package: TempPackage) -> None:
     """Test the msi_binary_data sample."""
     tmp_package.create_from_sample("msi_binary_data")
     tmp_package.freeze("cxfreeze bdist_msi")
@@ -109,7 +114,9 @@ def test_bdist_msi_default(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_output_name_with_extension(tmp_package) -> None:
+def test_bdist_msi_output_name_with_extension(
+    tmp_package: TempPackage,
+) -> None:
     """Test the msi_extensions sample, with a specified output_name that
     includes an ".msi" extension.
     """
@@ -121,7 +128,7 @@ def test_bdist_msi_output_name_with_extension(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_with_license(tmp_package) -> None:
+def test_bdist_msi_with_license(tmp_package: TempPackage) -> None:
     """Test the msi_license sample."""
     msi_name = f"hello-0.1-{MSI_PLATFORM}.msi"
 
@@ -132,7 +139,7 @@ def test_bdist_msi_with_license(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_advanced(tmp_package) -> None:
+def test_bdist_msi_advanced(tmp_package: TempPackage) -> None:
     """Test the advanced sample."""
     msi_name = "output.msi"
 
@@ -143,7 +150,7 @@ def test_bdist_msi_advanced(tmp_package) -> None:
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_asmodule(tmp_package) -> None:
+def test_bdist_msi_asmodule(tmp_package: TempPackage) -> None:
     """Test the asmodule sample."""
     msi_name = "output.msi"
 
@@ -180,7 +187,7 @@ pyproject.toml
 
 
 @pytest.mark.skipif(not (IS_WINDOWS or IS_MINGW), reason="Windows test")
-def test_bdist_msi_advanced2(tmp_package) -> None:
+def test_bdist_msi_advanced2(tmp_package: TempPackage) -> None:
     """Test the executables option."""
     tmp_package.create(SOURCE_HELLO)
     tmp_package.freeze("cxfreeze bdist_msi")

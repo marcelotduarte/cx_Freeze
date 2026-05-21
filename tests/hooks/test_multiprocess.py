@@ -12,6 +12,8 @@ from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_LINUX, IS_WINDOWS
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from tests.conftest import TempPackage
+
 TIMEOUT_ULTRA_VERY_SLOW = 240 if IS_CONDA else 120
 
 SOURCE = """\
@@ -120,7 +122,11 @@ def _parameters_data() -> Iterator:
     ("source", "sample", "expected", "zip_packages"), _parameters_data()
 )
 def test_multiprocess(
-    tmp_package, source: str, sample: str, expected: str, zip_packages
+    tmp_package: TempPackage,
+    source: str,
+    sample: str,
+    expected: str,
+    zip_packages: pytest.MarkDecorator,
 ) -> None:
     """Provides test cases for multiprocess."""
     tmp_package.create(source)

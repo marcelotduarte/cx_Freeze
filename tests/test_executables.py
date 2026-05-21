@@ -5,6 +5,7 @@ from __future__ import annotations
 import shutil
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from setuptools import Distribution
@@ -19,6 +20,13 @@ from cx_Freeze._compat import (
 )
 from cx_Freeze.common import resource_path
 from cx_Freeze.exception import OptionError, SetupError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from cx_Freeze._typing import StrPath
+
+    from .conftest import TempPackage, TempPackageVenv
 
 SOURCE_SETUP_TOML = """
 test_1.py
@@ -222,7 +230,7 @@ command
     ],
 )
 def test_executables(
-    tmp_package, source: str, number_of_executables: int
+    tmp_package: TempPackage, source: str, number_of_executables: int
 ) -> None:
     """Test the executables option."""
     tmp_package.create(source)
@@ -316,50 +324,63 @@ else:
 
 
 @pytest.mark.parametrize(("option", "value", "result"), TEST_VALID_PARAMETERS)
-def test_valid(tmp_package, option, value, result) -> None:
+def test_valid(
+    tmp_package: TempPackage,
+    option: str,
+    value: str,
+    result: str | tuple[str, ...] | type[BaseException],
+) -> None:
     """Test valid values to use in Executable class."""
     expected_app_type = None
+    options = {}
     if value == "absolutepath":
         if option == "base":
             expected_app_type = "console"
-            value = tmp_package.path / f"console_test{EXE_SUFFIX}"
             resource = resource_path(f"bases/console-{SOABI}{EXE_SUFFIX}")
             assert resource is not None
-            shutil.copyfile(resource, value)
+            absolutepath = tmp_package.path / f"console_test{EXE_SUFFIX}"
+            shutil.copyfile(resource, absolutepath)
         elif option == "init_script":
-            value = tmp_package.path / "console_test.py"
             resource = resource_path("initscripts/console.py")
             assert resource is not None
-            shutil.copyfile(resource, value)
-
-    try:
-        if issubclass(result, OptionError):
-            with pytest.raises(result):
-                executable = Executable("test.py", **{option: value})
-            return
-    except TypeError:
-        executable = Executable("test.py", **{option: value})
+            absolutepath = tmp_package.path / "console_test.py"
+            shutil.copyfile(resource, absolutepath)
+        else:
+            absolutepath = None
+        assert absolutepath is not None
+        options[option] = absolutepath
+    elif isinstance(result, type(BaseException)):
+        options[option] = value
+        with pytest.raises(result):
+            executable = Executable("test.py", **options)
+        return
+    else:
+        absolutepath = None
+        options[option] = value
+    executable = Executable("test.py", **options)
 
     if expected_app_type is None:
         base = value or "console" if option == "base" else executable.base.stem
         expected_app_type = (
-            base.lower()
+            str(base)
+            .lower()
             .removeprefix("win32")
             .removesuffix(f"-{SOABI}")
             .removesuffix("_dgpu")
         )
     assert executable.app_type == expected_app_type
 
-    returned = getattr(executable, option)
-    if isinstance(value, Path) and value.is_absolute():
-        assert returned == value
+    returned: StrPath = getattr(executable, option)
+    if absolutepath is not None:
+        assert returned == absolutepath
         return
     if isinstance(returned, Path):
         if option == "base":
             returned = returned.relative_to(returned.parent.parent).as_posix()
         else:
             returned = returned.name
-    if isinstance(result, tuple):  # valid icon names
+    if isinstance(result, tuple) and isinstance(returned, str):
+        # valid icon names
         assert returned.startswith(result), returned
         return
     assert returned == result, returned
@@ -408,7 +429,10 @@ def test_valid(tmp_package, option, value, result) -> None:
     ],
 )
 def test_invalid(
-    class_to_test, kwargs, expected_exception, expected_match
+    class_to_test: Callable,
+    kwargs: dict[str, Any],
+    expected_exception: type[BaseException],
+    expected_match: str,
 ) -> None:
     """Test invalid values to use in Distribution and Executable classes."""
     with pytest.raises(expected_exception, match=expected_match):
@@ -435,7 +459,7 @@ pyproject.toml
 """
 
 
-def test_valid_icon(tmp_package) -> None:
+def test_valid_icon(tmp_package: TempPackage) -> None:
     """Test with valid icon in any OS."""
     tmp_package.create(SOURCE_VALID_ICON)
     # copy valid icons: cp $SRC/freeze_core/icons/py.* $DST/icon.*
@@ -455,7 +479,7 @@ def test_valid_icon(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_not_found_icon(tmp_package) -> None:
+def test_not_found_icon(tmp_package: TempPackage) -> None:
     """Test with not found icon in any OS."""
     # same test as before, without icons
     tmp_package.create(SOURCE_VALID_ICON)
@@ -484,7 +508,7 @@ pyproject.toml
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
-def test_invalid_icon(tmp_package) -> None:
+def test_invalid_icon(tmp_package: TempPackage) -> None:
     """Test with invalid icon in Windows."""
     tmp_package.create(SOURCE_INVALID_ICON)
     # use an invalid icon: cp $SRC/freeze_core/icons/py.png $DST/icon.png
@@ -519,7 +543,7 @@ pyproject.toml
 """
 
 
-def test_invalid_syntax(tmp_package) -> None:
+def test_invalid_syntax(tmp_package: TempPackage) -> None:
     """Test with invalid syntax."""
     tmp_package.create(SOURCE_INVALID_SYNTAX)
     result = tmp_package.freeze()
@@ -546,7 +570,7 @@ pyproject.toml
 """
 
 
-def test_executable_rename(tmp_package) -> None:
+def test_executable_rename(tmp_package: TempPackage) -> None:
     """Test if the executable can be renamed."""
     tmp_package.create(SOURCE_RENAME)
     tmp_package.freeze()
@@ -625,7 +649,7 @@ command
     ],
 )
 def test_executable_namespace(
-    tmp_package,
+    tmp_package: TempPackage,
     source: str,
     hello: int,
     namespace: int,
@@ -697,7 +721,7 @@ pyproject.toml
 @pytest.mark.skipif(IS_CONDA, reason="Disabled on conda-forge")
 @pytest.mark.skipif(IS_MINGW, reason="Disabled on msys2")
 @pytest.mark.venv
-def test_valid_sys_path(tmp_package) -> None:
+def test_valid_sys_path(tmp_package: TempPackageVenv) -> None:
     """Test if sys.path has valid values."""
     tmp_package.create(SOURCE_VALID_SYS_PATH)
     tmp_package.freeze()

@@ -21,6 +21,7 @@ from cx_Freeze.darwintools import (
 from cx_Freeze.exception import OptionError, PlatformError
 
 if TYPE_CHECKING:
+    from cx_Freeze._typing import StrPath
     from cx_Freeze.executable import Executable
 
 __all__ = ["bdist_mac"]
@@ -215,7 +216,7 @@ class bdist_mac(Command):
         with open(os.path.join(self.contents_dir, "Info.plist"), "wb") as file:
             plistlib.dump(contents, file)
 
-    def set_absolute_reference_paths(self, path=None) -> None:
+    def set_absolute_reference_paths(self, path: str | None = None) -> None:
         """For all files in Contents/MacOS, set their linked library paths to
         be absolute paths using the given path instead of @executable_path.
         """
@@ -440,7 +441,7 @@ class bdist_mac(Command):
             msg=f"sign: '{self.bundle_dir}'",
         )
 
-    def _codesign(self, root_path) -> None:
+    def _codesign(self, root_path: StrPath) -> None:
         """Run codesign on all .so, .dylib and binary files in reverse order.
         Signing from inside-out.
         """
@@ -491,7 +492,7 @@ class bdist_mac(Command):
             signargs.append(self.codesign_entitlements)
         return signargs
 
-    def _codesign_file(self, file_path, sign_args) -> None:
+    def _codesign_file(self, file_path: str, sign_args: list[str]) -> None:
         print(f"Signing file: {file_path}")
         sign_args.append(file_path)
         subprocess.run(sign_args, check=False)

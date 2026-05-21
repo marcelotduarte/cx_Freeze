@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from setuptools import Distribution
@@ -11,6 +11,10 @@ from setuptools import Distribution
 from cx_Freeze._compat import BUILD_EXE_DIR, IS_UCRT
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.exception import SetupError
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
+
 
 DIST_ATTRS = {
     "name": "foo",
@@ -195,7 +199,9 @@ def test_build_exe_finalize_options(
     ],
 )
 def test_build_exe_finalize_options_raises(
-    kwargs: dict[str, Any], expected_exception, expected_match: str
+    kwargs: dict[str, Any],
+    expected_exception: type[BaseException],
+    expected_match: str,
 ) -> None:
     """Test the build_exe finalize_options that raises an exception."""
     dist = Distribution(DIST_ATTRS)
@@ -382,7 +388,7 @@ def test_build_exe_script_args(
         assert getattr(cmd_obj, option) == value
 
 
-def test_build_exe_asmodule(tmp_package) -> None:
+def test_build_exe_asmodule(tmp_package: TempPackage) -> None:
     """Test the asmodule sample."""
     tmp_package.create_from_sample("asmodule")
     tmp_package.freeze(
@@ -479,7 +485,7 @@ src/extra/second.py
     ],
 )
 def test_build_exe_advanced(
-    tmp_package, source: str, zip_packages: bool | None
+    tmp_package: TempPackage, source: str, zip_packages: bool | None
 ) -> None:
     """Test an advanced sample."""
     tmp_package.create(source)
@@ -513,7 +519,7 @@ def test_build_exe_advanced(
         pytest.param(SOURCE_SRC_LAYOUT, id="src"),
     ],
 )
-def test_egg_info(tmp_package, source: str) -> None:
+def test_egg_info(tmp_package: TempPackage, source: str) -> None:
     """Test version update."""
     tmp_package.create(source)
     # update the version in the pyproject

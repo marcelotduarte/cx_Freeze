@@ -355,7 +355,9 @@ class bdist_appimage(Command):
             msg = "Could not build AppImage"
             raise ExecError(msg)
 
-    def save_as_file(self, data, outfile, mode="r") -> tuple[str, int]:
+    def save_as_file(
+        self, data: bytes | str, outfile: str, mode: str = "r"
+    ) -> tuple[str, int]:
         """Save an input data to a file respecting verbose, dry-run and force
         flags.
         """
@@ -378,7 +380,7 @@ class bdist_appimage(Command):
         os.chmod(outfile, st_mode)
         return (outfile, 1)
 
-    def warn_delayed(self, msg) -> None:
+    def warn_delayed(self, msg: str) -> None:
         self._warnings.append(msg)
 
     def warnings(self) -> None:

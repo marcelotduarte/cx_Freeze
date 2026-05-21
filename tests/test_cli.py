@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import os
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tests.conftest import TempPackage
 
 SOURCE = """
 test.py
@@ -11,7 +15,7 @@ test.py
 """
 
 
-def test_cxfreeze(tmp_package) -> None:
+def test_cxfreeze(tmp_package: TempPackage) -> None:
     """Test cxfreeze."""
     tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --target-dir=dist"
@@ -25,21 +29,21 @@ def test_cxfreeze(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_cxfreeze_help(tmp_package) -> None:
+def test_cxfreeze_help(tmp_package: TempPackage) -> None:
     """Test cxfreeze help."""
     tmp_package.create(SOURCE)
     result = tmp_package.freeze("cxfreeze --help")
     result.stdout.fnmatch_lines("usage: *")
 
 
-def test_cxfreeze_additional_help(tmp_package) -> None:
+def test_cxfreeze_additional_help(tmp_package: TempPackage) -> None:
     """Test cxfreeze additional help."""
     tmp_package.create(SOURCE)
     result = tmp_package.freeze("cxfreeze build_exe --help")
     result.stdout.fnmatch_lines("*--help-commands*")
 
 
-def test_cxfreeze_debug_verbose(tmp_package) -> None:
+def test_cxfreeze_debug_verbose(tmp_package: TempPackage) -> None:
     """Test cxfreeze --debug --verbose."""
     tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --debug --verbose"
@@ -53,7 +57,9 @@ def test_cxfreeze_debug_verbose(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_cxfreeze_target_name_not_isidentifier(tmp_package) -> None:
+def test_cxfreeze_target_name_not_isidentifier(
+    tmp_package: TempPackage,
+) -> None:
     """Test cxfreeze --target-name not isidentifier, but valid filename."""
     tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --target-name=12345"
@@ -67,7 +73,7 @@ def test_cxfreeze_target_name_not_isidentifier(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_cxfreeze_deprecated_behavior(tmp_package) -> None:
+def test_cxfreeze_deprecated_behavior(tmp_package: TempPackage) -> None:
     """Test cxfreeze deprecated behavior."""
     tmp_package.create(SOURCE)
     tmp_package.path.joinpath("test.py").rename(tmp_package.path / "test2")
@@ -82,7 +88,7 @@ def test_cxfreeze_deprecated_behavior(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_cxfreeze_deprecated_option(tmp_package) -> None:
+def test_cxfreeze_deprecated_option(tmp_package: TempPackage) -> None:
     """Test cxfreeze deprecated option."""
     tmp_package.create(SOURCE)
     command = "cxfreeze -c -O -OO test.py --target-dir=dist"
@@ -97,7 +103,7 @@ def test_cxfreeze_deprecated_option(tmp_package) -> None:
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_cxfreeze_without_options(tmp_package) -> None:
+def test_cxfreeze_without_options(tmp_package: TempPackage) -> None:
     """Test cxfreeze without options."""
     tmp_package.create(SOURCE)
     result = tmp_package.freeze("cxfreeze")
@@ -138,7 +144,7 @@ OUTPUT0 = "Hello from cx_Freeze Advanced #{}"
 OUTPUT1 = "Test freeze module #{}"
 
 
-def test_cxfreeze_include_path(tmp_package) -> None:
+def test_cxfreeze_include_path(tmp_package: TempPackage) -> None:
     """Test cxfreeze."""
     tmp_package.create(SOURCE_TEST_PATH)
     tmp_package.freeze(
