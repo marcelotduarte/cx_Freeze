@@ -65,7 +65,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     excludes = ["tkinter", "unittest"]
-    include_msvcr = true
+    include-msvcr = true
     silent = true
 """
 

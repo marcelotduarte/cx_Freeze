@@ -42,10 +42,11 @@ pyproject.toml
 
     [[tool.cxfreeze.executables]]
     script = "test_1.py"
-    target_name = "test_2"
+    target-name = "test_2"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    build-exe = "build/test"
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 command
@@ -65,6 +66,7 @@ setup.py
     ]
     options = {
         "build_exe": {
+            "build_exe": "build/test",
             "include_msvcr": True,
             "excludes": ["tkinter", "unittest"],
             "silent": True
@@ -91,6 +93,7 @@ setup.cfg
     description = Sample cx_Freeze script
 
     [build_exe]
+    build_exe = "build/test"
     include_msvcr = true
     excludes = tkinter,unittest
     silent = true
@@ -109,16 +112,25 @@ pyproject.toml
 
     [[tool.cxfreeze.executables]]
     script = "test_1.py"
-    target_name = "test_2"
+    target-name = "test_2"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 setup.py
     from cx_Freeze import setup
 
-    setup(executables=["test_1.py"])
+    options = {
+        "build_exe": {
+            "build_exe": "build/test",
+            "include_msvcr": True,
+        }
+    }
+    setup(
+        executables=["test_1.py"],
+        options=options,
+    )
 command
     python setup.py build
 """
@@ -159,7 +171,7 @@ pyproject.toml
     script = "test_3.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 command
@@ -211,14 +223,14 @@ command
 
 
 @pytest.mark.parametrize(
-    ("source", "number_of_executables"),
+    ("source", "target_dir", "number_of_executables"),
     [
-        (SOURCE_SETUP_TOML, 2),
-        (SOURCE_SETUP_PY, 3),
-        (SOURCE_SETUP_CFG, 1),
-        (SOURCE_SETUP_MIX, 2),
-        (SOURCE_ADV_SETUP_TOML, 3),
-        (SOURCE_ADV_SETUP_PY, 3),
+        (SOURCE_SETUP_TOML, "build/test", 2),
+        (SOURCE_SETUP_PY, "build/test", 3),
+        (SOURCE_SETUP_CFG, "build/test", 1),
+        (SOURCE_SETUP_MIX, "build/test", 2),
+        (SOURCE_ADV_SETUP_TOML, None, 3),
+        (SOURCE_ADV_SETUP_PY, None, 3),
     ],
     ids=[
         "setup_toml",
@@ -230,17 +242,22 @@ command
     ],
 )
 def test_executables(
-    tmp_package: TempPackage, source: str, number_of_executables: int
+    tmp_package: TempPackage,
+    source: str,
+    target_dir: str | None,
+    number_of_executables: int,
 ) -> None:
     """Test the executables option."""
     tmp_package.create(source)
     tmp_package.freeze()
 
     for i in range(1, number_of_executables):
-        file_created = tmp_package.executable(f"test_{i}")
-        assert file_created.is_file(), f"file not found: {file_created}"
+        executable = tmp_package.executable(f"test_{i}")
+        if target_dir is not None:
+            executable = tmp_package.path / target_dir / executable.name
+        assert executable.is_file(), f"file not found: {executable}"
 
-        result = tmp_package.run(file_created)
+        result = tmp_package.run(executable)
         result.stdout.fnmatch_lines("Hello from cx_Freeze*")
 
 
@@ -453,7 +470,7 @@ pyproject.toml
     icon = "icon"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
@@ -501,7 +518,7 @@ pyproject.toml
     icon = "icon.png"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
@@ -537,7 +554,7 @@ pyproject.toml
     script = "test_invalid_syntax.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent_level = 1
 """
@@ -564,7 +581,7 @@ pyproject.toml
     script = "test_0.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = true
 """
@@ -712,7 +729,7 @@ pyproject.toml
     script = "test_sys_path.py"
 
     [tool.cxfreeze.build_exe]
-    include_msvcr = true
+    include-msvcr = true
     excludes = ["tkinter", "unittest"]
     silent = false
 """
