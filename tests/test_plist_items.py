@@ -59,7 +59,7 @@ setup.py
         executables=executables,
     )
 command
-    python setup.py build_mac
+    python setup.py bdist_mac
 """
 
 
