@@ -6,7 +6,7 @@ import os
 import plistlib
 import sys
 from importlib import import_module
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -71,10 +71,10 @@ def test_plist_items(tmp_package: TempPackage) -> None:
     # Test that the additional keys were correctly added to the plist.
     sys.path.insert(0, os.fspath(tmp_package.path))
     data = import_module("plist_data")
-    build_dir = tmp_package.path / cast("str", data.BUILD_DIR)
-    assert build_dir.is_dir()
-    path = build_dir / f"{data.BUNDLE_NAME}.app/Contents/Info.plist"
-    assert path.is_file()
+    path = tmp_package.path.joinpath(
+        f"{data.BUILD_DIR}/{data.BUNDLE_NAME}.app/Contents/Info.plist"
+    )
+    assert path.exists()
     with path.open("rb") as fp:
         contents = plistlib.load(fp)
     assert contents[data.TEST_KEY] == data.TEST_VALUE
