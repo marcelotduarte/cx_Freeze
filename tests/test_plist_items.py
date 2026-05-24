@@ -6,7 +6,7 @@ import os
 import plistlib
 import sys
 from importlib import import_module
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -45,7 +45,12 @@ setup.py
         version="0.1",
         description="Sample cx_Freeze script",
         options={
-            "build": {"build_base": BUILD_DIR},
+            "build": {
+                "build_base": BUILD_DIR,
+            },
+            "build_exe": {
+                "silent": True,
+            },
             "bdist_mac": {
                 "bundle_name": BUNDLE_NAME,
                 "plist_items": [(TEST_KEY, TEST_VALUE)],
@@ -54,7 +59,7 @@ setup.py
         executables=executables,
     )
 command
-    python setup.py bdist_mac
+    python setup.py build_mac
 """
 
 
@@ -66,6 +71,10 @@ def test_plist_items(tmp_package: TempPackage) -> None:
     # Test that the additional keys were correctly added to the plist.
     sys.path.insert(0, os.fspath(tmp_package.path))
     data = import_module("plist_data")
-    path = f"{data.BUILD_DIR}/{data.BUNDLE_NAME}.app/Contents/Info.plist"
-    contents = plistlib.loads(tmp_package.path.joinpath(path).read_bytes())
+    build_dir = tmp_package.path / cast("str", data.BUILD_DIR)
+    assert build_dir.is_dir()
+    path = build_dir / f"{data.BUNDLE_NAME}.app/Contents/Info.plist"
+    assert path.is_file()
+    with path.open("rb") as fp:
+        contents = plistlib.load(fp)
     assert contents[data.TEST_KEY] == data.TEST_VALUE

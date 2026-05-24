@@ -78,7 +78,10 @@ class Executable:
         self.uac_uiaccess = uac_uiaccess
 
     def __repr__(self) -> str:
-        return f"<Executable script={self.main_script}>"
+        return (
+            f"<Executable script={str(self.main_script)!r}"
+            f" target_name={self.target_name!r}>"
+        )
 
     @property
     def base(self) -> Path:

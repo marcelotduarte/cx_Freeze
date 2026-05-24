@@ -13,7 +13,7 @@ from pathlib import Path
 
 import setuptools
 
-from cx_Freeze._pyproject import get_pyproject_tool_data
+from cx_Freeze._pyproject import get_pyproject_options, update_command_options
 from cx_Freeze.command.build_exe import build_exe
 from cx_Freeze.command.install import Install as install
 from cx_Freeze.command.install_exe import install_exe
@@ -71,12 +71,13 @@ def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     cmdclass.setdefault("install_exe", install_exe)
 
     # get options from pyproject.toml
-    options = get_pyproject_tool_data()
+    pyproject_options, pyproject_executables = get_pyproject_options()
+    command_options = attrs.setdefault("command_options", {})
+    options = attrs.pop("options", {})
+    update_command_options(command_options, pyproject_options, options)
     executables = attrs.setdefault("executables", [])
-    if executables is not None:
-        executables.extend(options.pop("executables", []))
-    command_options: dict = attrs.setdefault("command_options", {})
-    command_options.update(options)
+    if pyproject_executables:
+        executables.extend(pyproject_executables)
     return setuptools.setup(**attrs)
 
 
@@ -87,7 +88,7 @@ def plugin_install(dist: setuptools.Distribution) -> None:
     """Use a setuptools extension to customize Distribution options."""
     if getattr(dist, "executables", None) is None:
         return
-    executables = dist.executables  # ty:ignore[unresolved-attribute]
+    executables = dist.executables  # ty: ignore[unresolved-attribute]
     validate_executables(dist, "executables", executables)
 
     # Enable package discovery for src-layout
