@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/freezer.py: 89.71%</title>
+    <title>Coverage for cx_Freeze/freezer.py: 90.34%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze&#8201;/&#8201;freezer.py</b>:
-            <span class="pc_cov">89.71%</span>
+            <span class="pc_cov">90.34%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">787 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">706<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">81<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">711<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">76<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">28<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-25 03:31 +0000
+            created at 2026-05-26 22:33 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -970,11 +970,11 @@
     <p class="run"><span class="n"><a id="t888" href="#t888">888</a></span><span class="t">            <span class="nam">copied</span> <span class="op">=</span> <span class="op">{</span><span class="nam">file</span><span class="op">.</span><span class="nam">name</span> <span class="key">for</span> <span class="nam">file</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">files_copied</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t889" href="#t889">889</a></span><span class="t">            <span class="nam">missing</span> <span class="op">=</span> <span class="nam">names</span><span class="op">.</span><span class="nam">difference</span><span class="op">(</span><span class="nam">copied</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t890" href="#t890">890</a></span><span class="t">            <span class="key">if</span> <span class="nam">missing</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t891" href="#t891">891</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="str">"Missing dependencies:"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t892" href="#t892">892</a></span><span class="t">                <span class="key">for</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">missing</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t893" href="#t893">893</a></span><span class="t">                    <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">? </span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t894" href="#t894">894</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="str">"This is not necessarily a problem - the "</span><span class="op">,</span> <span class="nam">end</span><span class="op">=</span><span class="str">""</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t895" href="#t895">895</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="str">"dependencies may not be needed on this platform.\n"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t891" href="#t891">891</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="str">"Missing dependencies:"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t892" href="#t892">892</a></span><span class="t">                <span class="key">for</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">missing</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t893" href="#t893">893</a></span><span class="t">                    <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">? </span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t894" href="#t894">894</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="str">"This is not necessarily a problem - the "</span><span class="op">,</span> <span class="nam">end</span><span class="op">=</span><span class="str">""</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t895" href="#t895">895</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="str">"dependencies may not be needed on this platform.\n"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t896" href="#t896">896</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t897" href="#t897">897</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t898" href="#t898">898</a></span><span class="t"><span class="key">class</span> <span class="nam">WinFreezer</span><span class="op">(</span><span class="nam">Freezer</span><span class="op">,</span> <span class="nam">PEParser</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -1553,7 +1553,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-25 03:31 +0000
+            created at 2026-05-26 22:33 +0000
         </p>
     </div>
 </footer>
