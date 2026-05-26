@@ -59,7 +59,7 @@ Python requirements are installed automatically by pip or conda.
    filelock >=3.20.3           #  Linux
    patchelf >=0.14,<0.18       #  Linux
    dmgbuild >=1.6.1            #  macOS
-   lief >=0.15.1               #  Windows
+   lief >=0.16,<0.18           #  Windows
    python-msilib >=0.4.1       #  Python 3.13+ on Windows
 
 .. note::

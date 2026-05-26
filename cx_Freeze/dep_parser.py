@@ -58,7 +58,6 @@ class Parser(ABC):
         self._warnings: dict[str, bool] = warnings
 
         self.dependent_files: dict[Path, set[Path]] = {}
-        self.linker_warnings: dict = {}
 
     @property
     def search_path(self) -> list[Path]:
@@ -136,7 +135,7 @@ class PEParser(Parser):
                 # pylint: disable-next=C0415
                 import lief  # noqa: PLC0415 # ty: ignore[unresolved-import]
             except ImportError:
-                lief = None
+                lief = None  # ty: ignore[invalid-assignment]
             else:
                 lief.logging.set_level(lief.logging.LEVEL.ERROR)
         super().__init__(path, bin_path_includes, silent, warnings)
@@ -155,10 +154,7 @@ class PEParser(Parser):
             resource_only.parse_rsrc = True
             resource_only.parse_signature = False
             self.resource_only = resource_only
-        else:
-            self.imports_only = None
-            self.resource_only = None
-        if lief:
+            self.lief_errors = lief.lief_errors
             self._pe = lief.PE
         else:
             # pylint: disable-next=C0415
@@ -183,15 +179,23 @@ class PEParser(Parser):
         if self._pe is None:
             return self._get_dependent_files_imagehlp(filename)
         with filename.open("rb", buffering=0) as raw:
-            binary = self._pe.parse(raw, self.imports_only or filename.name)
+            binary = self._pe.parse(raw, self.imports_only)
         if not binary:
             return set()
 
         libraries: list[str] = []
         if binary.has_imports:
-            libraries += binary.libraries
-        for delay_import in binary.delay_imports:
-            libraries.append(delay_import.name)
+            for library in binary.libraries:
+                if not isinstance(library, str):
+                    libraries.append(library.decode())
+                else:
+                    libraries.append(library)
+        if binary.has_delay_imports:
+            for library in binary.delay_imports:
+                if not isinstance(library.name, str):
+                    libraries.append(library.name.decode())
+                else:
+                    libraries.append(library.name)
 
         dependent_files: set[Path] = set()
         search_path: list[StrPath] = [filename.parent, *self.search_path]
@@ -199,10 +203,10 @@ class PEParser(Parser):
             library = self.find_library(name, search_path)
             if library:
                 dependent_files.add(library)
-                if name in self.linker_warnings:
-                    self.linker_warnings[name] = False
-            elif name not in self.linker_warnings:
-                self.linker_warnings[name] = True
+                if name in self._warnings:
+                    self._warnings[name] = False
+            elif name not in self._warnings:
+                self._warnings[name] = True
         return dependent_files
 
     def _get_dependent_files_imagehlp(self, filename: Path) -> set[Path]:
@@ -233,32 +237,38 @@ class PEParser(Parser):
             return None
         filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
-            binary = self._pe.parse(raw, self.resource_only or filename.name)
-        resources_manager = binary.resources_manager
-        return (
-            resources_manager.manifest
-            if resources_manager.has_manifest
-            else None
-        )
+            binary = self._pe.parse(raw, self.resource_only)
+        if binary and binary.has_resources:
+            resources_manager = binary.resources_manager
+            if (
+                not isinstance(resources_manager, self.lief_errors)
+                and resources_manager.has_manifest
+            ):
+                manifest = resources_manager.manifest
+                if not isinstance(manifest, str):
+                    manifest = manifest.decode()
+                return manifest
+        if self._silent < 3:
+            print(f"WARNING: ignoring read manifest for {filename}")
+        return None
 
     def write_manifest(self, filename: StrPath, manifest: str) -> None:
-        """:return: write the XML schema of the manifest into the executable
-        :rtype: str
-
-        """
+        """Write the XML schema of the manifest into the executable."""
         if self._pe is None:
             if self._silent < 3:
                 print(f"WARNING: ignoring write manifest for {filename}")
             return
         filename = Path(filename)
         with filename.open("rb", buffering=0) as raw:
-            binary = self._pe.parse(raw, self.resource_only or filename.name)
-        resources_manager = binary.resources_manager
-        resources_manager.manifest = manifest
-        with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
-            tmp_path = Path(tmp_dir, filename.name)
-            binary.write(os.fspath(tmp_path))
-            shutil.move(tmp_path, filename)
+            binary = self._pe.parse(raw, self.resource_only)
+        if binary:
+            resources_manager = binary.resources_manager
+            if not isinstance(resources_manager, self.lief_errors):
+                resources_manager.manifest = manifest
+                with TemporaryDirectory(prefix="cxfreeze-") as tmp_dir:
+                    tmp_path = os.path.join(tmp_dir, filename.name)
+                    binary.write(tmp_path)
+                    shutil.move(tmp_path, filename)
 
 
 class ELFParser(Parser):
@@ -324,13 +334,13 @@ class ELFParser(Parser):
                     partname = Path(bin_path, name)
                     if partname.is_file():
                         dependent_files.add(partname)
-                        if name in self.linker_warnings:
-                            self.linker_warnings[name] = False
+                        if name in self._warnings:
+                            self._warnings[name] = False
                         break
                 if not partname.is_file():
                     name = partname.name
-                    if name not in self.linker_warnings:
-                        self.linker_warnings[name] = True
+                    if name not in self._warnings:
+                        self._warnings[name] = True
                 continue
             if partname.startswith("("):
                 continue
@@ -356,8 +366,8 @@ class ELFParser(Parser):
             library = self.find_library(name, search_path)
             if library:
                 dependent_files.add(library)
-            elif name not in self.linker_warnings:
-                self.linker_warnings[name] = True
+            elif name not in self._warnings:
+                self._warnings[name] = True
         return dependent_files
 
     if LDD_DISABLED:

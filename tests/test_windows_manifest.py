@@ -11,12 +11,9 @@ import pytest
 
 from cx_Freeze._compat import (
     ABI_THREAD,
-    IS_ARM_64,
     IS_CONDA,
     IS_MINGW,
     IS_WINDOWS,
-    IS_X86_32,
-    IS_X86_64,
 )
 from cx_Freeze.dep_parser import PEParser
 
@@ -88,15 +85,15 @@ def test_manifest(tmp_package: TempPackage) -> None:
 LIEF_VERSIONS = []
 if IS_WINDOWS:
     if IS_CONDA:
-        LIEF_VERSIONS += ["installed"]
-    elif IS_ARM_64 and sys.version_info[:2] <= (3, 13) and ABI_THREAD == "":
-        LIEF_VERSIONS += ["0.16.6", "0.17.6"]
-    elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
+        LIEF_VERSIONS.append("installed")
+    elif ABI_THREAD == "":  # lief doesn't support free-threaded yet
         if sys.version_info[:2] <= (3, 13):
-            LIEF_VERSIONS += ["0.15.1", "0.16.6"]
-        LIEF_VERSIONS += ["0.17.6"]
+            LIEF_VERSIONS.append("0.16.0")
+            LIEF_VERSIONS.append("0.16.6")
+        LIEF_VERSIONS.append("0.17.0")
+        LIEF_VERSIONS.append("0.17.6")
 elif IS_MINGW:
-    LIEF_VERSIONS += ["installed"]
+    LIEF_VERSIONS.append("installed")
 
 
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")

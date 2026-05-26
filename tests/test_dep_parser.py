@@ -12,13 +12,10 @@ import pytest
 
 from cx_Freeze._compat import (
     ABI_THREAD,
-    IS_ARM_64,
     IS_CONDA,
     IS_LINUX,
     IS_MINGW,
     IS_WINDOWS,
-    IS_X86_32,
-    IS_X86_64,
 )
 from cx_Freeze.dep_parser import ELFParser
 from cx_Freeze.exception import PlatformError
@@ -37,15 +34,13 @@ test.py
 if IS_WINDOWS:
     PACKAGE_VERSION = [("imagehlp", "bind")]
     if IS_CONDA:
-        PACKAGE_VERSION += [("py-lief", "0.17.6")]
-    elif IS_ARM_64 and ABI_THREAD == "":
+        PACKAGE_VERSION.append(("py-lief", "0.17.6"))
+    elif ABI_THREAD == "":  # lief doesn't support free-threaded yet
         if sys.version_info[:2] <= (3, 13):
-            PACKAGE_VERSION += [("lief", "0.16.6")]
-        PACKAGE_VERSION += [("lief", "0.17.6")]
-    elif (IS_X86_32 or IS_X86_64) and ABI_THREAD == "":
-        if sys.version_info[:2] <= (3, 13):
-            PACKAGE_VERSION += [("lief", "0.15.1"), ("lief", "0.16.6")]
-        PACKAGE_VERSION += [("lief", "0.17.6")]
+            PACKAGE_VERSION.append(("lief", "0.16.0"))
+            PACKAGE_VERSION.append(("lief", "0.16.6"))
+        PACKAGE_VERSION.append(("lief", "0.17.0"))
+        PACKAGE_VERSION.append(("lief", "0.17.6"))
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
 elif IS_LINUX:
