@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 from setuptools import Command
 
 from cx_Freeze._compat import IS_MACOS
+from cx_Freeze._typing import StrPath
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
     apply_adhoc_signature,
@@ -462,12 +463,14 @@ class bdist_mac(Command):
         binaries_to_sign.sort(key=lambda x: str(x).count(os.sep), reverse=True)
 
         for binary_path in binaries_to_sign:
-            self._codesign_file(binary_path, self._get_sign_args())
+            self._codesign_file(binary_path.as_posix())
 
         self._verify_signature()
         print("Finished .app signing")
 
-    def _get_sign_args(self) -> list[str]:
+    def _codesign_file(self, file_path: str) -> None:
+        print(f"Signing file: {file_path}")
+
         signargs = ["codesign", "--force"]
 
         if self.codesign_identity:
@@ -490,12 +493,9 @@ class bdist_mac(Command):
         if self.codesign_entitlements:
             signargs.append("--entitlements")
             signargs.append(self.codesign_entitlements)
-        return signargs
 
-    def _codesign_file(self, file_path: str, sign_args: list[str]) -> None:
-        print(f"Signing file: {file_path}")
-        sign_args.append(file_path)
-        subprocess.run(sign_args, check=False)
+        signargs.append(file_path)
+        subprocess.run(signargs, check=False)
 
     def _verify_signature(self) -> None:
         if self.codesign_verify:

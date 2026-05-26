@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     from .conftest import TempPackage, TempPackageVenv
 
+
 SOURCE_SETUP_TOML = """
 test_1.py
     print("Hello from cx_Freeze")
@@ -349,7 +350,20 @@ def test_valid(
 ) -> None:
     """Test valid values to use in Executable class."""
     expected_app_type = None
-    options = {}
+    options = {
+        "script": "test.py",
+        "init_script": None,
+        "base": None,
+        "target_name": None,
+        "icon": None,
+        "shortcut_name": None,
+        "shortcut_dir": None,
+        "copyright": None,
+        "trademarks": None,
+        "manifest": None,
+        "uac_admin": False,
+        "uac_uiaccess": False,
+    }
     if value == "absolutepath":
         if option == "base":
             expected_app_type = "console"
@@ -365,7 +379,7 @@ def test_valid(
         else:
             absolutepath = None
         assert absolutepath is not None
-        options[option] = absolutepath
+        options[option] = str(absolutepath)
     elif isinstance(result, type(BaseException)):
         options[option] = value
         with pytest.raises(result):
@@ -374,7 +388,7 @@ def test_valid(
     else:
         absolutepath = None
         options[option] = value
-    executable = Executable("test.py", **options)
+    executable = Executable(**options)
 
     if expected_app_type is None:
         base = value or "console" if option == "base" else executable.base.stem

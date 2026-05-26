@@ -23,6 +23,7 @@ elif which python &>/dev/null; then
     PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
     IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
     IS_UV="1"
+    python ci/requirements.py
 else
     echo "error: Python is required."
     exit 1
@@ -187,7 +188,7 @@ if [ "$INSTALL_DEV" == "1" ]; then
             # prek has no dependencies (doesn't bloat the installed packages)
             if [ "$name" == "prek" ] && [ "$IS_CONDA" == "1" ]; then
                 $CONDA_EXE install -c conda-forge "$name" -S -q -y
-            elif [ "$name" == "prek" ] && [ "$IS_UV" == "1" ]; then
+            elif [ "$name" != "cibuildwheel" ] && [ "$IS_UV" == "1" ]; then
                 uv pip install --upgrade "$name"
             else
                 filename=$INSTALL_DIR/$name

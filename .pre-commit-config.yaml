@@ -77,7 +77,7 @@ repos:
       - id: ty-check
         name: typecheck
         description: Type check python files with ty
-        entry: uvx ty@0.0.38 check
+        entry: ty check
         language: system
         types: [python]
         pass_filenames: false
