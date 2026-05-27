@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_0e7a078a6d875882_bdist_mac_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-26 22:33 +0000
+            created at 2026-05-27 04:22 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -473,18 +473,24 @@
     <p class="pln"><span class="n"><a id="t391" href="#t391">391</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t392" href="#t392">392</a></span><span class="t">        <span class="com"># Find the location of the application bundle and the build dir</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t393" href="#t393">393</a></span><span class="t">        <span class="nam">bdist_mac</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_finalized_command</span><span class="op">(</span><span class="str">"bdist_mac"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t394" href="#t394">394</a></span><span class="t">        <span class="nam">bundle_dir</span> <span class="op">=</span> <span class="nam">cast</span><span class="op">(</span><span class="str">"str"</span><span class="op">,</span> <span class="nam">bdist_mac</span><span class="op">.</span><span class="nam">bundle_dir</span><span class="op">)</span>  <span class="com"># ty:ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t395" href="#t395">395</a></span><span class="t">        <span class="nam">build_exe</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_finalized_command</span><span class="op">(</span><span class="str">"build_exe"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t396" href="#t396">396</a></span><span class="t">        <span class="nam">build_base</span> <span class="op">=</span> <span class="nam">cast</span><span class="op">(</span><span class="str">"str"</span><span class="op">,</span> <span class="nam">build_exe</span><span class="op">.</span><span class="nam">build_base</span><span class="op">)</span>  <span class="com"># ty:ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t397" href="#t397">397</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">bundle_dir</span> <span class="op">=</span> <span class="nam">bundle_dir</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t398" href="#t398">398</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">build_dir</span> <span class="op">=</span> <span class="nam">build_base</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t399" href="#t399">399</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t400" href="#t400">400</a></span><span class="t">        <span class="com"># Set the file name of the DMG to be built</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t401" href="#t401">401</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">dmg_name</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t402" href="#t402">402</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">build_dir</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">volume_label</span> <span class="op">+</span> <span class="str">".dmg"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t403" href="#t403">403</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t404" href="#t404">404</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t405" href="#t405">405</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">execute</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">build_dmg</span><span class="op">,</span> <span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t394" href="#t394">394</a></span><span class="t">        <span class="nam">bundle_dir</span> <span class="op">=</span> <span class="nam">cast</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t395" href="#t395">395</a></span><span class="t">            <span class="str">"str"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t396" href="#t396">396</a></span><span class="t">            <span class="nam">bdist_mac</span><span class="op">.</span><span class="nam">bundle_dir</span><span class="op">,</span>  <span class="com"># ty:ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t397" href="#t397">397</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t398" href="#t398">398</a></span><span class="t">        <span class="nam">build_exe</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_finalized_command</span><span class="op">(</span><span class="str">"build_exe"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t399" href="#t399">399</a></span><span class="t">        <span class="nam">build_base</span> <span class="op">=</span> <span class="nam">cast</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t400" href="#t400">400</a></span><span class="t">            <span class="str">"str"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t401" href="#t401">401</a></span><span class="t">            <span class="nam">build_exe</span><span class="op">.</span><span class="nam">build_base</span><span class="op">,</span>  <span class="com"># ty:ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t402" href="#t402">402</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t403" href="#t403">403</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">bundle_dir</span> <span class="op">=</span> <span class="nam">bundle_dir</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t404" href="#t404">404</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">build_dir</span> <span class="op">=</span> <span class="nam">build_base</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t405" href="#t405">405</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t406" href="#t406">406</a></span><span class="t">        <span class="com"># Set the file name of the DMG to be built</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t407" href="#t407">407</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">dmg_name</span> <span class="op">=</span> <span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t408" href="#t408">408</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">build_dir</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">volume_label</span> <span class="op">+</span> <span class="str">".dmg"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t409" href="#t409">409</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t410" href="#t410">410</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t411" href="#t411">411</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">execute</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">build_dmg</span><span class="op">,</span> <span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -494,7 +500,7 @@
             <a class="nav" href="z_0e7a078a6d875882_bdist_mac_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-26 22:33 +0000
+            created at 2026-05-27 04:22 +0000
         </p>
     </div>
 </footer>
