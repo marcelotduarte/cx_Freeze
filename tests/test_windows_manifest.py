@@ -77,7 +77,7 @@ def test_manifest(tmp_package: TempPackage) -> None:
     executable = tmp_package.executable("test_manifest")
     assert executable.is_file()
     result = tmp_package.run(executable)
-    winver = sys.getwindowsversion()  # type: ignore[ty:unresolved-attribute]
+    winver = sys.getwindowsversion()  # ty: ignore[unresolved-attribute]
     expected = f"Windows version: {winver.major}.{winver.minor}"
     result.stdout.fnmatch_lines(expected)
 
@@ -136,7 +136,7 @@ def test_simple_manifest(tmp_package: TempPackage, lief_version: str) -> None:
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
 def test_uac_admin(tmp_package: TempPackage, lief_version: str) -> None:
     """With the uac_admin, should return WinError 740 - requires elevation."""
-    if ctypes.windll.shell32.IsUserAnAdmin():  # type: ignore[ty:unresolved-attribute]
+    if ctypes.windll.shell32.IsUserAnAdmin():  # ty: ignore[unresolved-attribute]
         pytest.xfail(reason="User is admin")
 
     tmp_package.create(SOURCE)
@@ -153,7 +153,7 @@ def test_uac_admin(tmp_package: TempPackage, lief_version: str) -> None:
 @pytest.mark.parametrize("lief_version", LIEF_VERSIONS)
 def test_uac_uiaccess(tmp_package: TempPackage, lief_version: str) -> None:
     """With the uac_uiaccess, should return WinError 740."""
-    if ctypes.windll.shell32.IsUserAnAdmin():  # type: ignore[ty:unresolved-attribute]
+    if ctypes.windll.shell32.IsUserAnAdmin():  # ty: ignore[unresolved-attribute]
         pytest.xfail(reason="User is admin")
 
     tmp_package.create(SOURCE)

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-# pylint: disable-next=deprecated-module
-from msilib import Control, Dialog  # ty: ignore
+from msilib import Control, Dialog  # ty: ignore[unresolved-import]
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from msilib._msi import _Database  # ty: ignore[unresolved-import]
 
 
 class PyDialog(Dialog):
@@ -14,7 +17,7 @@ class PyDialog(Dialog):
 
     def __init__(
         self,
-        db: object,
+        db: _Database,
         name: str,
         x: int,
         y: int,

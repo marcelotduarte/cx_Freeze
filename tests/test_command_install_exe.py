@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-from pathlib import Path
 from sysconfig import get_config_var
 
 import pytest
@@ -19,19 +18,16 @@ DIST_ATTRS = {
     "script_name": "setup.py",
 }
 
+if sys.platform == "win32":
+    BASE_DIR = os.path.join(os.environ["PROGRAMFILES"], "foo")
+else:
+    BASE_DIR = os.path.join(get_config_var("base"), "lib/foo-0.0")
+
 
 @pytest.mark.parametrize(
     ("install_dir", "expected"),
     [
-        pytest.param(
-            None,
-            os.path.normpath(
-                Path(os.getenv("PROGRAMFILES"), "foo")
-                if sys.platform == "win32"
-                else Path(get_config_var("base"), "lib/foo-0.0")
-            ),
-            id="install-dir=none",
-        ),
+        pytest.param(None, BASE_DIR, id="install-dir=none"),
         pytest.param("dist", "dist", id="install-dir=dist"),
     ],
 )

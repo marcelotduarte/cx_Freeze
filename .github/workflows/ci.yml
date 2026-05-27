@@ -26,6 +26,34 @@ jobs:
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - uses: j178/prek-action@6ad80277337ad479fe43bd70701c3f7f8aa74db3 # v2.0.3
+        with:
+          extra-args: "--all-files --skip=build-docs --skip=ty-check"
+
+      - uses: pre-commit-ci/lite-action@5d6cc0eb514c891a40562a58a8e71576c5c7fb43 # v1.1.0
+        if: always()
+
+  type_check:
+    runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, windows, macos]
+        os_version: [latest]
+        python-version: ["3.10"]
+    defaults:
+      run:
+        shell: bash
+    env:
+      UV_NO_PROGRESS: true
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           activate-environment: true
@@ -33,20 +61,17 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv pip install -r pyproject.toml --upgrade --group tests
+        run: ci/install-tools.sh --dev --tests
 
-      - uses: j178/prek-action@6ad80277337ad479fe43bd70701c3f7f8aa74db3 # v2.0.3
-        with:
-          extra-args: "--all-files --skip=build-docs"
-
-      - uses: pre-commit-ci/lite-action@5d6cc0eb514c891a40562a58a8e71576c5c7fb43 # v1.1.0
-        if: always()
+      - name: Type check
+        run: ty check
 
   build_wheel:
     name: Build wheels
     uses: ./.github/workflows/build-wheel.yml
     needs:
       - pre_commit
+      - type_check
 
   testpypi:
     name: Publish package to TestPyPI

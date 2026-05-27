@@ -51,7 +51,6 @@ class Install(_install):
 
     def finalize_options(self) -> None:
         if self.prefix is None and sys.platform == "win32":
-            # pylint: disable-next=C0415
             import winreg  # noqa: PLC0415
 
             key = winreg.OpenKey(

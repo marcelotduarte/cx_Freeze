@@ -64,7 +64,11 @@ class Hook(ModuleHook):
 
         if IS_MINGW or IS_WINDOWS:
             return
-        if not isinstance(module.loader, SourceFileLoader):
+        loader = module.loader
+        if not isinstance(loader, SourceFileLoader):
+            return
+        source_code = loader.get_source(module.name)
+        if source_code is None:
             return
         patch = rf"""
         # cx_Freeze patch start
@@ -99,15 +103,10 @@ class Hook(ModuleHook):
                 _freeze_support()
         # cx_Freeze patch end
         """
-        loader = module.loader
-        if not isinstance(loader, SourceFileLoader):
-            return
-        source_code = loader.get_source(module.name)
-        if source_code is None:
-            return
-        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
-            source_code + dedent(patch), path, _optimize=finder.optimize
+            source_code + dedent(patch),
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def multiprocessing_context(
@@ -118,12 +117,16 @@ class Hook(ModuleHook):
         For Windows, add a workaround for a bug introduced by gh-80334 in
         Python 3.13.4, which was fixed by gh-135726 in Python 3.14.4.
         """
-        if not isinstance(module.loader, SourceFileLoader):
+        loader = module.loader
+        if not isinstance(loader, SourceFileLoader):
+            return
+        source_code = loader.get_source(module.name)
+        if source_code is None:
             return
         if IS_MINGW or IS_WINDOWS:
-            PY_313_BUGGED = (3, 13, 4) <= sys.version_info[:3] <= (3, 13, 12)
-            PY_314_BUGGED = (3, 14, 0) <= sys.version_info[:3] <= (3, 14, 3)
-            if PY_313_BUGGED or PY_314_BUGGED:
+            py_313_bugged = (3, 13, 4) <= sys.version_info[:3] <= (3, 13, 12)
+            py_314_bugged = (3, 14, 0) <= sys.version_info[:3] <= (3, 14, 3)
+            if py_313_bugged or py_314_bugged:
                 patch = rf"""
                 # cx_Freeze patch start
                 def _freeze_support(self):
@@ -155,15 +158,10 @@ class Hook(ModuleHook):
             DefaultContext.get_context = _get_default_context
             # cx_Freeze patch end
             """
-        loader = module.loader
-        if not isinstance(loader, SourceFileLoader):
-            return
-        source_code = loader.get_source(module.name)
-        if source_code is None:
-            return
-        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
-            source_code + dedent(patch), path, _optimize=finder.optimize
+            source_code + dedent(patch),
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def multiprocessing_synchronize(
