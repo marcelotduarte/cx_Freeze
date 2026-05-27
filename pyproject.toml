@@ -156,12 +156,14 @@ max-line-length = 79
 disable = [
     "attribute-defined-outside-init",
     "c-extension-no-member",
-    "broad-exception-caught",       # checked by ruff BLE001
+    "broad-exception-caught",        # checked by ruff BLE001
+    "deprecated-module",             # not handled by ruff yet?
     "duplicate-code",
     "exec-used",
     "fixme",                         # also ignored in ruff
     "global-statement",              # checked by ruff PLW0603
     "import-error",
+    "import-outside-toplevel",       # checked by ruff PLC0415
     "missing-class-docstring",       # checked by ruff D101
     "missing-function-docstring",    # checked by ruff D103
     "missing-module-docstring",      # checked by ruff D100

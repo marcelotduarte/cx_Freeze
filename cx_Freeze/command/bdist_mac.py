@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, ClassVar, cast
 from setuptools import Command
 
 from cx_Freeze._compat import IS_MACOS
-from cx_Freeze._typing import StrPath
 from cx_Freeze.common import normalize_to_list
 from cx_Freeze.darwintools import (
     apply_adhoc_signature,

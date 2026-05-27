@@ -132,7 +132,6 @@ class PEParser(Parser):
             lief = None
         else:
             try:
-                # pylint: disable-next=C0415
                 import lief  # noqa: PLC0415 # ty: ignore[unresolved-import]
             except ImportError:
                 lief = None  # ty: ignore[invalid-assignment]
@@ -157,7 +156,6 @@ class PEParser(Parser):
             self.lief_errors = lief.lief_errors
             self._pe = lief.PE
         else:
-            # pylint: disable-next=C0415
             from freeze_core.util import (  # noqa: PLC0415
                 BindError,
                 GetDependentFiles,

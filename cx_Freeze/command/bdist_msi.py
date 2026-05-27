@@ -24,7 +24,6 @@ if IS_MINGW or IS_WINDOWS:
 
     warnings.filterwarnings("ignore", "'msilib' is deprecated")
     try:
-        # pylint: disable-next=deprecated-module
         from msilib import (
             CAB,  # ty: ignore
             PID_AUTHOR,  # ty: ignore
@@ -48,7 +47,7 @@ if IS_MINGW or IS_WINDOWS:
         # force the remove existing products action to happen first since
         # Windows installer appears to be braindead and doesn't handle files
         # shared between different "products" very well
-        install_execute_sequence = sequence.InstallExecuteSequence  # ty: ignore
+        install_execute_sequence = sequence.InstallExecuteSequence  # ty:ignore
         for index, info in enumerate(install_execute_sequence):
             if info[0] == "RemoveExistingProducts":
                 install_execute_sequence[index] = (info[0], info[1], 1450)

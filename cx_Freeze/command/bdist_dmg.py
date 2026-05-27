@@ -391,9 +391,15 @@ class bdist_dmg(Command):
 
         # Find the location of the application bundle and the build dir
         bdist_mac = self.get_finalized_command("bdist_mac")
-        bundle_dir = cast("str", bdist_mac.bundle_dir)  # ty:ignore[unresolved-attribute]
+        bundle_dir = cast(
+            "str",
+            bdist_mac.bundle_dir,  # ty:ignore[unresolved-attribute]
+        )
         build_exe = self.get_finalized_command("build_exe")
-        build_base = cast("str", build_exe.build_base)  # ty:ignore[unresolved-attribute]
+        build_base = cast(
+            "str",
+            build_exe.build_base,  # ty:ignore[unresolved-attribute]
+        )
         self.bundle_dir = bundle_dir
         self.build_dir = build_base
 

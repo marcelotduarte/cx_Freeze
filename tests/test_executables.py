@@ -383,7 +383,7 @@ def test_valid(
     elif isinstance(result, type(BaseException)):
         options[option] = value
         with pytest.raises(result):
-            executable = Executable("test.py", **options)
+            executable = Executable(**options)
         return
     else:
         absolutepath = None

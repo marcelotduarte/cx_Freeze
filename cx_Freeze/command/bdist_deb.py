@@ -45,6 +45,10 @@ class bdist_deb(Command):
         self.bdist_base = None
         self.build_dir = None
         self.dist_dir = None
+        if hasattr(os, "getuid"):
+            self._uid = os.getuid()
+        else:
+            self._uid = 0
 
     def finalize_options(self) -> None:
         if not IS_LINUX:
@@ -53,7 +57,7 @@ class bdist_deb(Command):
         if not shutil.which("alien"):
             msg = "failed to find 'alien' for this platform."
             raise PlatformError(msg)
-        if os.getuid() != 0 and not shutil.which("fakeroot"):
+        if self._uid != 0 and not shutil.which("fakeroot"):
             msg = "failed to find 'fakeroot' for this platform."
             raise PlatformError(msg)
 
@@ -86,7 +90,7 @@ class bdist_deb(Command):
         # convert rpm to deb (by default in dist directory)
         logger.info("building DEB")
         cmd = ["alien", "--to-deb", rpm_filename]
-        if os.getuid() != 0:
+        if self._uid != 0:
             cmd.insert(0, "fakeroot")
         logger.info(subprocess.list2cmdline(cmd))
         process = subprocess.run(
