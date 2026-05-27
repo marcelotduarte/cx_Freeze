@@ -323,7 +323,7 @@ class bdist_msi(Command):
                     msg = f"Unknown key provided in summary-data: {k!r}"
                     raise OptionError(msg)
 
-            summary_info = self.db.GetSummaryInformation(5)  # ty: ignore
+            summary_info = self.db.GetSummaryInformation(5)
             if "author" in self.summary_data:
                 summary_info.SetProperty(
                     PID_AUTHOR, self.summary_data["author"]
@@ -377,8 +377,8 @@ class bdist_msi(Command):
             65543,
             self.title,
             "ErrorText",
-            None,
-            None,
+            None,  # ty: ignore # typeshed is incorrect
+            None,  # ty: ignore # typeshed is incorrect
         )
         dialog.text("ErrorText", 50, 9, 280, 48, 3, "")
         for text, pos in [
@@ -549,9 +549,14 @@ class bdist_msi(Command):
         bdist_dir = cast("str", self.bdist_dir)
         rootdir = os.path.abspath(bdist_dir)
         root = Directory(
-            database, cab, None, rootdir, "TARGETDIR", "SourceDir"
+            database,
+            cab,
+            None,  # ty: ignore # typeshed is incorrect
+            rootdir,
+            "TARGETDIR",
+            "SourceDir",
         )
-        database.Commit()  # ty: ignore
+        database.Commit()
         todo = [root]
         while todo:
             directory = todo.pop()
@@ -574,7 +579,12 @@ class bdist_msi(Command):
                 elif os.path.isdir(os.path.join(directory.absolute, file)):
                     sfile = directory.make_short(file)
                     new_dir = Directory(
-                        database, cab, directory, file, file, f"{sfile}|{file}"
+                        database,
+                        cab,
+                        directory,  # ty: ignore # typeshed is incorrect
+                        file,
+                        file,
+                        f"{sfile}|{file}",
                     )
                     todo.append(new_dir)
                 else:
@@ -1176,7 +1186,8 @@ class bdist_msi(Command):
             msg = "name is required"
             raise OptionError(msg)
 
-        # default values for product_name and product_version
+        # default values for product_code, product_name and product_version
+        self.ensure_string("product_code", gen_uuid())
         self.ensure_string("product_name", self.distribution.get_name())
         self.ensure_string("product_version", self.distribution.get_version())
         # ProductVersion must be strictly numeric
@@ -1328,29 +1339,26 @@ class bdist_msi(Command):
         # the MSI.
         # importlib.reload(msilib)
 
-        if self.product_code is None:
-            self.product_code = gen_uuid()
+        product_code = cast("str", self.product_code)
+        product_name = cast("str", self.product_name)
+        product_version = cast("str", self.product_version)
         self.db = init_database(
             installer_name,
             schema,
-            self.product_name,
-            self.product_code,
-            self.product_version,
+            product_name,
+            product_code,
+            product_version,
             author,
         )
         add_tables(self.db, sequence)
         self.add_properties()
         self.add_config()
-        self.add_upgrade_config(cast("str", self.product_version))
+        self.add_upgrade_config(product_version)
         self.add_ui()
         self.add_files()
         self.db.Commit()
         self.distribution.dist_files.append(
-            (
-                "bdist_msi",
-                self.product_version or "any",
-                cast("str", self.product_name),
-            )
+            ("bdist_msi", product_version or "any", product_name)
         )
 
         if not self.keep_temp:
@@ -1363,7 +1371,7 @@ class bdist_msi(Command):
         # Cause the MSI file to be released. Without this, then if bdist_msi
         # is run programmatically from within a larger script, subsequent
         # editing of the MSI is blocked.
-        self.db = None
+        del self.db
 
         self.warnings()
 
