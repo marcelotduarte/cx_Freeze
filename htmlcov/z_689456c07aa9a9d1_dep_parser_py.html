@@ -4,14 +4,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for cx_Freeze/dep_parser.py: 91.88%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
-    <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
 </head>
 <body class="pyfile">
 <header>
     <div class="content">
         <h1>
-            <span class="text">Coverage for </span><b>cx_Freeze&#8201;/&#8201;dep_parser.py</b>:
+            <span class="text">Coverage for </span><b>cx_Freeze<span class="sep">/</span>dep_parser.py</b>:
             <span class="pc_cov">91.88%</span>
         </h1>
         <aside id="help_panel_wrapper">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_exception_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-27 04:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
+            created at 2026-05-30 10:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -96,7 +96,7 @@
     <p class="run"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t"><span class="key">from</span> <span class="nam">ctypes</span><span class="op">.</span><span class="nam">util</span> <span class="key">import</span> <span class="nam">find_library</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t"><span class="key">from</span> <span class="nam">pathlib</span> <span class="key">import</span> <span class="nam">Path</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t"><span class="key">from</span> <span class="nam">tempfile</span> <span class="key">import</span> <span class="nam">TemporaryDirectory</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">TYPE_CHECKING</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t"><span class="key">from</span> <span class="nam">typing</span> <span class="key">import</span> <span class="nam">TYPE_CHECKING</span><span class="op">,</span> <span class="nam">cast</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">_compat</span> <span class="key">import</span> <span class="nam">PLATFORM</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t"><span class="key">from</span> <span class="nam">cx_Freeze</span><span class="op">.</span><span class="nam">exception</span> <span class="key">import</span> <span class="nam">PlatformError</span>&nbsp;</span><span class="r"></span></p>
@@ -160,7 +160,7 @@
     <p class="run run2"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">    <span class="op">)</span> <span class="op">-></span> <span class="nam">Path</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">        <span class="str">"""Returns the pathname of a library, or None."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t80" href="#t80">80</a></span><span class="t">        <span class="key">if</span> <span class="nam">search_path</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">            <span class="nam">search_path</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">Path</span><span class="op">]</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t81" href="#t81">81</a></span><span class="t">            <span class="nam">search_path</span> <span class="op">=</span> <span class="nam">cast</span><span class="op">(</span><span class="str">"list[StrPath]"</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t82" href="#t82">82</a></span><span class="t">        <span class="key">for</span> <span class="nam">directory</span> <span class="key">in</span> <span class="nam">map</span><span class="op">(</span><span class="nam">Path</span><span class="op">,</span> <span class="nam">search_path</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t83" href="#t83">83</a></span><span class="t">            <span class="nam">library</span> <span class="op">=</span> <span class="nam">directory</span> <span class="op">/</span> <span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t84" href="#t84">84</a></span><span class="t">            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_is_binary</span><span class="op">(</span><span class="nam">library</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -439,8 +439,8 @@
     <p class="run"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">        <span class="nam">rpath</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">Path</span><span class="op">]</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_resolved_rpath</span><span class="op">(</span><span class="nam">filename</span><span class="op">)</span> <span class="key">or</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">        <span class="nam">dependent_files</span><span class="op">:</span> <span class="nam">set</span><span class="op">[</span><span class="nam">Path</span><span class="op">]</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">        <span class="nam">search_path</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">StrPath</span><span class="op">]</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">            <span class="nam">rpath</span> <span class="op">+</span> <span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span> <span class="op">+</span> <span class="op">[</span><span class="nam">filename</span><span class="op">.</span><span class="nam">parent</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">        <span class="nam">search_path</span> <span class="op">=</span> <span class="nam">cast</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">            <span class="str">"list[StrPath]"</span><span class="op">,</span> <span class="nam">rpath</span> <span class="op">+</span> <span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span> <span class="op">+</span> <span class="op">[</span><span class="nam">filename</span><span class="op">.</span><span class="nam">parent</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">        <span class="key">for</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">libraries</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">            <span class="nam">library</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">find_library</span><span class="op">(</span><span class="nam">name</span><span class="op">,</span> <span class="nam">search_path</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -554,8 +554,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_689456c07aa9a9d1_exception_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-27 04:22 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
+            created at 2026-05-30 10:27 +0000
         </p>
     </div>
 </footer>
