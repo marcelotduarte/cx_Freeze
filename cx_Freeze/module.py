@@ -74,7 +74,7 @@ class DistributionCache(metadata.PathDistribution):
         target_path.mkdir(parents=True)
         purelib = False
         if source_path.name.endswith(".dist-info"):
-            for source in source_path.rglob("*"):  # type: Path
+            for source in source_path.rglob("*"):
                 target = target_path / source.relative_to(source_path)
                 if source.is_dir():
                     target.mkdir(exist_ok=True)

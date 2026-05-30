@@ -46,14 +46,14 @@ class bdist_rpm(Command):
         (
             "rpm-base=",
             None,
-            "base directory for creating RPMs "
-            '[defaults to "rpm" under "--bdist-base"]',
+            "base directory for creating RPM "
+            '[default: "rpm" under "--bdist-base"]',
         ),
         (
             "dist-dir=",
             "d",
-            "directory to put final RPM files in "
-            "(and .spec files if --spec-only)",
+            "directory to put final RPM files in (and .spec file if "
+            '"--spec-only" is used) [default: "dist"]',
         ),
         ("spec-only", None, "only regenerate spec file"),
         # More meta-data: too RPM-specific to put in the setup script,
@@ -281,11 +281,11 @@ class bdist_rpm(Command):
 
         # make directories
         dist_dir = cast("str", self.dist_dir)
+        rpm_dir = {}
         if self.spec_only:
             spec_dir = dist_dir
         else:
             rpm_base = cast("str", self.rpm_base)
-            rpm_dir = {}
             for data in ("SOURCES", "SPECS", "BUILD", "RPMS", "SRPMS"):
                 rpm_dir[data] = os.path.join(rpm_base, data)
                 self.mkpath(rpm_dir[data])
@@ -331,7 +331,7 @@ class bdist_rpm(Command):
 
         # build package, binary only (-bb)
         logger.info("building RPMs")
-        if self._rpmbuild:
+        if self._rpmbuild and self._rpm:
             rpm_cmd = [self._rpmbuild, "-bb"]
             if not self.keep_temp:
                 rpm_cmd.append("--clean")
@@ -347,20 +347,19 @@ class bdist_rpm(Command):
             nvr_string = "%{name}-%{version}-%{release}"
             src_rpm = nvr_string + ".src.rpm"
             non_src_rpm = "%{arch}/" + nvr_string + ".%{arch}.rpm"
-            if self._rpm:
-                q_cmd = [
-                    self._rpm,
-                    "-q",
-                    "--qf",
-                    rf"{src_rpm} {non_src_rpm}\n",
-                    "--specfile",
-                    spec_path,
-                ]
-                try:
-                    out = check_output(q_cmd, text=True)
-                except CalledProcessError as exc:
-                    msg = f"Failed to execute: {' '.join(q_cmd)!r}"
-                    raise ExecError(msg) from exc
+            q_cmd = [
+                self._rpm,
+                "-q",
+                "--qf",
+                rf"{src_rpm} {non_src_rpm}\n",
+                "--specfile",
+                spec_path,
+            ]
+            try:
+                out = check_output(q_cmd, text=True)
+            except CalledProcessError as exc:
+                msg = f"Failed to execute: {' '.join(q_cmd)!r}"
+                raise ExecError(msg) from exc
 
             binary_rpms = []
             for line in out.splitlines():
