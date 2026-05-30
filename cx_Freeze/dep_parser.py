@@ -14,7 +14,7 @@ from contextlib import suppress
 from ctypes.util import find_library
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from cx_Freeze._compat import PLATFORM
 from cx_Freeze.exception import PlatformError
@@ -78,7 +78,7 @@ class Parser(ABC):
     ) -> Path | None:
         """Returns the pathname of a library, or None."""
         if search_path is None:
-            search_path: list[Path] = self.search_path
+            search_path = cast("list[StrPath]", self.search_path)
         for directory in map(Path, search_path):
             library = directory / name
             if self._is_binary(library):
@@ -357,8 +357,8 @@ class ELFParser(Parser):
         rpath: list[Path] = self.get_resolved_rpath(filename) or []
 
         dependent_files: set[Path] = set()
-        search_path: list[StrPath] = (
-            rpath + self.search_path + [filename.parent]
+        search_path = cast(
+            "list[StrPath]", rpath + self.search_path + [filename.parent]
         )
         for name in libraries:
             library = self.find_library(name, search_path)

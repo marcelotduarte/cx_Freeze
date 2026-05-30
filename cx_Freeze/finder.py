@@ -71,7 +71,7 @@ class ModuleFinder:
             include_files
         )
         self.excludes: set[str] = set(excludes or [])
-        self.optimize: int = optimize
+        self.optimize = optimize
         self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
         self.zip_include_all_packages = zip_include_all_packages
@@ -301,6 +301,9 @@ class ModuleFinder:
             else:
                 name = f"{parent.name}.{name}"
                 module = self._internal_import_module(name, deferred_imports)
+
+        else:
+            module = None
 
         # if module not found, track that fact
         if module is None:
