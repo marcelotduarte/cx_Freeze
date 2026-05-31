@@ -1,9 +1,9 @@
 cxfreeze script
 ===============
 
-The ``cxfreeze`` script is included with other Python scripts. On Windows and
-the macOS this is in the ``Scripts`` subdirectory of your Python installation
-whereas on Unix platforms this is in the bin directory of the prefix where
+The :program:`cxfreeze` script is included with other Python scripts.
+On Windows this is in the ``Scripts`` subdirectory of your Python installation
+whereas on Unix platforms this is in the ``bin`` directory of the prefix where
 Python is installed.
 
 Assuming you have a script called ``hello.py`` which you want to turn into an
@@ -14,6 +14,8 @@ executable, this can be accomplished by this command:
     cxfreeze --script hello.py --target-dir dist
 
 Further customization can be done using the following options:
+
+.. program:: cxfreeze
 
 .. option:: --script=NAME
 

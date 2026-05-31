@@ -31,9 +31,6 @@ icon from :option:`Executable.icon <icon>` option (or a default icon)
 and an optional update information, and finally marks the :file:`.AppImage`
 file as executable.
 
-The following options were added to the standard set of options for the
-command:
-
    .. tab:: pyproject.toml
 
       .. code-block:: console
@@ -46,54 +43,72 @@ command:
 
         python setup.py bdist_appimage
 
-.. list-table::
-   :header-rows: 1
-   :widths: 350 600
-   :width: 100%
+The following options are available for the command:
 
-   * - option name, command line equivalent
-     - description
-   * - .. option:: appimagetool, --appimagetool
-     - path to appimagetool [default: the latest version is downloaded]
-   * - .. option:: runtime_file, --runtime-file
-     - path to type2 runtime [default: the latest version is downloaded]
-   * - .. option:: sign, --sign
-     - Sign with gpg or gpg2
-   * - .. option:: sign_key, --sign-key
-     - Key ID to use for gpg/gpg2 signatures
-   * - .. option:: updateinformation, --updateinformation
-     - Embed update information STRING (or 'guess') and generate zsync file;
-   * - .. option:: target_name, --target-name
-     - name of the file to create; if the name ends with ".AppImage"
-       then it is used verbatim, otherwise, information about the
-       program version and platform will be added to the installer name
-       [default: metadata name or the name of the first executable]
-   * - .. option:: target_version, --target-version
-     - version of the file to create [default: metadata version if available]
-   * - .. option:: bdist_base, --bdist-base
-     - base directory for creating built distributions
-   * - .. option:: build_dir, --build-dir, -b
-     - directory of built executables and dependent files
-   * - .. option:: dist_dir, --dist-dir, -d
-     - directory to put final built distributions in [default: "dist"]
-   * - .. option:: skip_build, --skip-build
-     - skip rebuilding everything (for testing/debugging)
-   * - .. option:: silent, --silent, -s
-     - suppress all output except warnings
+.. option:: appimagetool
+
+   path to appimagetool [default: the latest version is downloaded]
+
+.. option:: runtime-file
+
+    path to type2 runtime [default: the latest version is downloaded]
+
+.. option:: sign
+
+    sign with gpg or gpg2
+
+.. option:: sign-key
+
+    key ID to use for gpg/gpg2 signatures
+
+.. option:: updateinformation
+
+    embed update information STRING (or ‘guess’) and generate zsync file
+
+.. option:: target-name
+
+    name of the file to create; if the name ends with ".AppImage"
+    then it is used verbatim, otherwise, information about the
+    program version and platform will be added to the installer name
+    [default: metadata name or the name of the first executable]
+
+.. option:: target-version
+
+    version of the file to create [default: metadata version if available]
+
+.. option:: bdist-base
+
+    base directory for creating built distributions
+
+.. option:: build-dir
+
+    directory of built executables and dependent files
+
+.. option:: dist-dir
+
+    directory to put final built distributions in [default: "dist"]
+
+.. option:: skip-build
+
+    skip rebuilding everything (for testing/debugging)
+
+.. option:: silent
+
+    suppress all output except warnings
 
 .. versionadded:: 7.0
    :doc:`bdist_appimage` command.
 .. versionchanged:: 8.5
    Renamed the ``appimagekit`` option to :option:`appimagetool` option.
 .. versionadded:: 8.5
-   :option:`runtime_file`, :option:`sign`, :option:`sign_key` and
+   :option:`runtime-file`, :option:`sign`, :option:`sign-key` and
    :option:`updateinformation` options.
 
 Signing AppImages
 -----------------
 
 AppImages can be digitally signed by the person that who produced the AppImage,
-who at creation time uses :option:`sign` or :option:`sign_key` options.
+who at creation time uses :option:`sign` or :option:`sign-key` options.
 
 .. seealso::
   `Signing AppImages <https://docs.appimage.org/packaging-guide/optional/signatures.html>`_

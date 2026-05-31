@@ -1,13 +1,28 @@
 Installation
 ============
 
+The recommended way to use cx_Freeze is in a virtual environment such as
+those provided by :pythondocs:`python -m venv <library/venv.html>`,
+`uv venv <https://docs.astral.sh/uv/pip/environments/>`_ or
+`conda <https://docs.conda.io/projects/conda/en/stable/>`_.
+If you're unfamiliar with Python virtual environments, check out the
+:packaging:`packaging user guide
+<guides/installing-using-pip-and-virtual-environments>`.
+
+The latest version of cx_Freeze is available on:
+
+PyPI: :pypi:`cx_Freeze`
+
+Conda-forge: `cx_freeze
+<https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_
+
+MSYS2: `python-cx-freeze
+<https://packages.msys2.org/base/mingw-w64-python-cx-freeze>`_
+
 Choose the Python package manager according to your system. See how the
 installation works with the most common ones.
 
    .. tab:: pip
-
-      To install the latest version of :pypi:`cx_Freeze` using :pypi:`pip` into
-      a virtual environment:
 
       .. code-block:: console
 
@@ -21,24 +36,15 @@ installation works with the most common ones.
 
    .. tab:: conda
 
-      Installing cx_freeze from the conda-forge channel can be achieved with
-      the command:
-
       .. code-block:: console
 
          conda install conda-forge:cx_freeze
 
-      .. seealso:: `cx_freeze-feedstock
-         <https://github.com/conda-forge/cx_freeze-feedstock#installing-cx_freeze>`_.
+   .. tab:: msys2
 
-.. note::
-  The recommended way to use cx_Freeze is in a virtual environment such as
-  those provided by :pythondocs:`python -m venv <library/venv.html>`,
-  `uv venv <https://docs.astral.sh/uv/pip/environments/>`_ or
-  `conda <https://docs.conda.io/projects/conda/en/stable/>`_.
-  If you're unfamiliar with Python virtual environments, check out the
-  :packaging:`packaging user guide
-  <guides/installing-using-pip-and-virtual-environments>`.
+      .. code-block:: console
+
+         pacman -S --needed --noconfirm $MINGW_PACKAGE_PREFIX-python-cx-freeze
 
 .. important::
   Please note that some operating systems might be equipped with the python3
@@ -49,7 +55,7 @@ installation works with the most common ones.
 Python requirements
 -------------------
 
-Python requirements are installed automatically by pip or conda.
+Python requirements are installed automatically by pip, uv, conda or pacman.
 
   .. code-block:: console
 

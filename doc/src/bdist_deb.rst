@@ -19,3 +19,23 @@ Please check the options on the command line:
       .. code-block:: console
 
         python setup.py bdist_deb --help
+
+The following options are available for the command:
+
+.. option:: bdist-base
+
+    base directory for creating built distributions
+
+.. option:: build-dir
+
+    directory of built executables and dependent files
+    [default: "rpm" under :option:`bdist-base`]
+
+.. option:: dist-dir
+
+    directory to put final built distributions in
+    (the DEB and the RPM files)
+    [default: "dist"]
+
+Since an RPM command is executed and then converted to DEB, additional options
+must be specified for the :doc:`bdist_rpm` command before conversion.
