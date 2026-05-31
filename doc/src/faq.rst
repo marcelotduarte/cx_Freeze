@@ -12,8 +12,8 @@ but if they're dynamically loaded - e.g. by a plugin system - you have to tell
 * For Python code, specify the module names in the :option:`includes` or
   :option:`packages` options.
 * List the module's compiled libraries (.dll or .so files) in the
-  :option:`include_files` option.
-* Use :option:`bin_includes` to include dependencies of binary files that would
+  :option:`include-files` option.
+* Use :option:`bin-includes` to include dependencies of binary files that would
   normally be excluded (common use is to include "libffi.so").
 * Data files are a bit more complex - see :ref:`data_files`.
 
@@ -50,7 +50,7 @@ error as soon as it starts.
 There are two ways to debug what's going on:
 
 1. Freeze your application with the :option:`Executable.base="gui" <base>`
-   (Or ``cxfreeze`` :option:`--base=gui`).
+   (Or :option:`cxfreeze --base=gui <cxfreeze --base>`).
    This doesn't use a console window and reports errors in a dialog box.
 2. Alternatively, start a command prompt yourself and launch the frozen
    executable from the command line.
@@ -66,7 +66,7 @@ on Macs, freeze it on a macOS.
 
 At a pinch, you can try to make a Windows executable using `Wine
 <https://www.winehq.org/>`_. Starting with version 8.0, where
-:option:`include_msvcr` began using redistributable files, creating executables
+:option:`include-msvcr` began using redistributable files, creating executables
 in Wine is possible with no difference compared to Windows, however using
 Python is a bit more laborious.
 
@@ -77,7 +77,7 @@ Using data files
 
 Applications often need data files besides the code, such as icons. Using a
 :doc:`setup script <setup_script>`, you can list data files or directories in
-the :ref:`cx_freeze_build_exe` :option:`include_files` option. They'll be
+the :ref:`cx_freeze_build_exe` :option:`include-files` option. They'll be
 copied to the build directory alongside the executable. Then to find them,
 use code like this:
 
@@ -106,7 +106,7 @@ but note that:
   DLLs you have installed.
 
 * If your license allows you to distribute these files, specify the
-  :option:`include_msvcr` option or :option:`include_msvcr_version` option to
+  :option:`include-msvcr` option or :option:`include-msvcr-version` option to
   :ref:`cx_freeze_build_exe` to have them distributed automatically.
 
 * If not, your users or installers must install the Microsoft Visual C++
@@ -129,7 +129,7 @@ but note that:
   system updates are not installed, `Universal C Runtime
   <https://support.microsoft.com/en-us/help/2999226/
   update-for-universal-c-runtime-in-windows>`_ might also be required.
-  You can set :option:`include_msvcr_version` option to 15
+  You can set :option:`include-msvcr-version` option to 15
   (version 15 includes UCRT for Windows 8.1 and below). See more note-worthy
   information at `Distributing Software that uses the Universal CRT
   <https://devblogs.microsoft.com/cppblog/introducing-the-universal-crt/

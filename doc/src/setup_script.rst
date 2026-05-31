@@ -11,25 +11,26 @@ They are described in detail below.
 Example
 -------
 
-It looks something like this:
+Assuming you have a script called ``hello.py`` which you want to turn into an
+executable, this can be done using one of the following methods:
 
    .. tab:: pyproject.toml
 
       .. code-block:: toml
 
         [project]
-        name = "guifoo"
+        name = "hello"
         version = "0.1"
         description = "My GUI application!"
 
         [tool.cxfreeze]
         executables = [
-            {script = "guifoo.py", base = "gui"}
+            {script = "hello.py", base = "gui"}
         ]
 
         [tool.cxfreeze.build_exe]
         excludes = ["tkinter", "unittest"]
-        zip_include_packages = ["encodings", "PySide6", "shiboken6"]
+        zip-include-packages = ["encodings", "PySide6", "shiboken6"]
 
    .. tab:: setup.py
 
@@ -44,24 +45,19 @@ It looks something like this:
         }
 
         setup(
-            name="guifoo",
+            name="hello",
             version="0.1",
             description="My GUI application!",
             options={"build_exe": build_exe_options},
-            executables=[{"script": "guifoo.py", "base": "gui"}],
+            executables=[{"script": "hello.py", "base": "gui"}],
         )
 
    .. tab:: setup.cfg
 
-      Is required to pass one executable at the command line or a minimal
-      ``setup.py`` for more than one executable.
-
-      ``setup.cfg``
-
       .. code-block:: ini
 
         [metadata]
-        name = guifoo
+        name = hello
         version = 0.1
         description = My GUI application!
 
@@ -69,26 +65,28 @@ It looks something like this:
         excludes = tkinter,unittest
         zip_include_packages = encodings,PySide6,shiboken6
 
-   .. tab:: command line
-
-      A basic ``setup.py`` is required and the command line options overwrite
-      them.
+      Minimum required file: ``setup.py``, to pass the `executables`.
 
       .. code-block:: python
 
         from cx_Freeze import setup
 
-        build_exe_options = {
-            "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
-        }
+        setup(executables=[{"script": "hello.py", "base": "gui"}])
 
-        setup(
-            name="guifoo",
-            version="0.1",
-            description="My GUI application!",
-            options={"build_exe": build_exe_options},
-            executables=[{"script": "guifoo.py", "base": "gui"}],
-        )
+   .. tab:: cxfreeze command line
+
+      See :doc:`cxfreeze script <script>`.
+
+   .. tab:: setup script command line
+
+      Minimum required file: ``setup.py``, in which the command-line options
+      either complement or override them.
+
+      .. code-block:: python
+
+        from cx_Freeze import setup
+
+        setup(executables=[{"script": "hello.py", "base": "gui"}])
 
 The script is invoked as follows:
 
@@ -108,13 +106,19 @@ The script is invoked as follows:
 
       .. code-block:: console
 
-        cxfreeze --script=guifoo.py --base=gui
+        python setup.py build
 
-   .. tab:: command line
+   .. tab:: cxfreeze command line
 
       .. code-block:: console
 
-        python setup.py build_exe --excludes=tkinter,unittest
+        cxfreeze --script=hello.py --base=gui --excludes=tkinter,unittest --zip-include-packages=encodings,PySide6,shiboken6
+
+   .. tab:: setup script command line
+
+      .. code-block:: console
+
+        python setup.py build_exe --excludes=tkinter,unittest --zip-include-packages=encodings,PySide6,shiboken6
 
 .. seealso::
 
@@ -132,18 +136,30 @@ subdirectory starting with the letters ``exe.`` and ending with the typical
 identifier for the platform and Python version. This allows for multiple
 platforms to be built without conflicts.
 
-To specify options in the script, use underscores in the name. For example:
+As can be seen in the previous examples, while using `pyproject.toml` the code
+snippet:
+
+  .. code-block:: toml
+
+    [tool.cxfreeze.build_exe]
+    excludes = ["tkinter", "unittest"]
+    zip-include-packages = ["encodings", "PySide6", "shiboken6"]
+
+To specify options in the script, underscores are used:
 
   .. code-block:: python
 
     # ...
-    zip_include_packages = ["encodings", "PySide6", "shiboken6"]
+    build_exe_options = {
+        "excludes": ["tkinter", "unittest"],
+        "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
+    }
 
-To specify the same options on the command line, use dashes, like this:
+While on the command line, to specify the same options, dashes are used:
 
   .. code-block:: console
 
-    python setup.py build_exe --zip-include-packages=encodings,PySide6,shiboken6
+    python setup.py build_exe --excludes=tkinter,unittest --zip-include-packages=encodings,PySide6,shiboken6
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
 includes for your application, by running the setup script as:
@@ -190,117 +206,155 @@ build_exe
 This command performs the work of building an executable or set of executables.
 It can be further customized:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 230 570
-   :width: 100%
+.. option:: build-exe
 
-   * - option name
-     - description
-   * - .. option:: build_exe
-     - directory for built executables and dependent files, defaults to a
-       directory of the form ``build/exe.[platform identifier].[python version]``
-   * - .. option:: includes
-     - comma-separated list of names of modules to include
-   * - .. option:: excludes
-     - comma-separated list of names of modules to exclude
-   * - .. option:: packages
-     - comma-separated list of packages to include, which includes all
-       submodules in the package
-   * - .. option:: replace_paths
-     - comma-separated list of paths to replace in the code object of
-       included modules, using the form <search>=<replace>; search can be *
-       which means all paths not already specified, leaving just the
-       relative path to the module; multiple values are separated by the
-       standard path separator
-   * - .. option:: path
-     - comma-separated list of paths to search for modules
-       (use only if you know what you are doing)
-       [default: `sys.path`]
-   * - .. option:: include_path
-     - comma-separated list of paths to modify the search for modules
-   * - .. option:: constants
-     - comma-separated list of constant values to include in the constants
-       module called BUILD_CONSTANTS in the form <name>=<value>
-   * - .. option:: bin_includes
-     - list of files to include when determining dependencies of binary files
-       that would normally be excluded, using first the full file name, then
-       just the base file name, then the file name without any version numbers
-       (the version numbers that normally follow the shared object extension
-       are stripped before performing the comparison)
-   * - .. option:: bin_excludes
-     - list of files to exclude when determining dependencies of binary files
-       that would normally be included, using first the full file name, then
-       just the base file name, then the file name without any version numbers
-       (the version numbers that normally follow the shared object extension
-       are stripped before performing the comparison)
-   * - .. option:: bin_path_includes
-     - list of paths from which to include files when determining dependencies
-       of binary files
-   * - .. option:: bin_path_excludes
-     - list of paths from which to exclude files when determining dependencies
-       of binary files
-   * - .. option:: include_files
-     - list containing files to be copied to the target directory; it is
-       expected that this list will contain strings or 2-tuples for the source
-       and destination; the source can be a file or a directory (in which case
-       the tree is copied except for .git, .svn and CVS directories);
-       the target must not be an absolute path
-   * - .. option:: zip_includes
-     - list containing files to be included in the zip file directory; it is
-       expected that this list will contain strings or 2-tuples for the source
-       and destination
-   * - .. option:: zip_include_packages
-     - list of packages which should be included in the zip file; the default
-       is for all packages to be placed in the file system, not the zip file;
-       those packages which are known to work well inside a zip file can be
-       included if desired; use * to specify that all packages should be
-       included in the zip file
-   * - .. option:: zip_exclude_packages
-     - list of packages to exclude from the zip file and place in the file
-       system instead; the default is for all packages to be placed in the
-       file system since several packages assume that is where they
-       are found and will fail when placed in a zip file; use * to specify that
-       all packages should be placed in the file system and excluded from the
-       zip file [default: \*]
-   * - .. option:: zip_filename
-     - filename for the shared zip file (.zip)
-       [default: "library.zip" or None if :option:`no_compress` is used]
-   * - .. option:: no_compress
-     - create a zip file with no compression (See also :option:`zip_filename`)
-   * - .. option:: optimize
-     - optimization level, one of 0 (disabled), 1 or 2
-   * - .. option:: silent
-     - suppress all output except warnings
-       (equivalent to :option:`silent_level` = 1)
-   * - .. option:: silent_level
-     - suppress output from the freeze process; can provide a value to specify
-       what messages should be suppressed, with the possible values being:
+    directory for built executables and dependent files, defaults to a
+    directory of the form ``build/exe.[platform identifier].[python version]``
 
-       0. do not suppress any output [default];
-       1. suppress information messages;
-       2. also suppress missing-module warning messages;
-       3. also suppress all other warning messages.
-   * - .. option:: include_msvcr
-     - include the Microsoft Visual C++ Redistributable
-       files without needing the redistributable package
-       installed (equivalent to :option:`include_msvcr_version` = 17)
-   * - .. option:: include_msvcr_version
-     - like :option:`include_msvcr` but the version can be set
-       with one of the following values: 15, 16 or 17
-       (version 15 includes UCRT for Windows 8.1 and below)
+.. option:: includes
+
+    comma-separated list of names of modules to include
+
+.. option:: excludes
+
+    comma-separated list of names of modules to exclude
+
+.. option:: packages
+
+    comma-separated list of packages to include, which includes all
+    submodules in the package
+
+.. option:: replace-paths
+
+    comma-separated list of paths to replace in the code object of
+    included modules, using the form <search>=<replace>; search can be *
+    which means all paths not already specified, leaving just the
+    relative path to the module; multiple values are separated by the
+    standard path separator
+
+.. option:: path
+
+    comma-separated list of paths to search for modules
+    (use only if you know what you are doing)
+    [default: `sys.path`]
+
+.. option:: include-path
+
+    comma-separated list of paths to modify the search for modules
+
+.. option:: constants
+
+    comma-separated list of constant values to include in the constants
+    module called BUILD_CONSTANTS in the form <name>=<value>
+
+.. option:: bin-includes
+
+    list of files to include when determining dependencies of binary files
+    that would normally be excluded, using first the full file name, then
+    just the base file name, then the file name without any version numbers
+    (the version numbers that normally follow the shared object extension
+    are stripped before performing the comparison)
+
+.. option:: bin-excludes
+
+    list of files to exclude when determining dependencies of binary files
+    that would normally be included, using first the full file name, then
+    just the base file name, then the file name without any version numbers
+    (the version numbers that normally follow the shared object extension
+    are stripped before performing the comparison)
+
+.. option:: bin-path-includes
+
+    list of paths from which to include files when determining dependencies
+    of binary files
+
+.. option:: bin-path-excludes
+
+    list of paths from which to exclude files when determining dependencies
+    of binary files
+
+.. option:: include-files
+
+    list containing files to be copied to the target directory; it is
+    expected that this list will contain strings or 2-tuples for the source
+    and destination; the source can be a file or a directory (in which case
+    the tree is copied except for .git, .svn and CVS directories);
+    the target must not be an absolute path
+
+.. option:: zip-includes
+
+    list containing files to be included in the zip file directory; it is
+    expected that this list will contain strings or 2-tuples for the source
+    and destination
+
+.. option:: zip-include-packages
+
+    list of packages which should be included in the zip file; the default
+    is for all packages to be placed in the file system, not the zip file;
+    those packages which are known to work well inside a zip file can be
+    included if desired; use * to specify that all packages should be
+    included in the zip file
+
+.. option:: zip-exclude-packages
+
+    list of packages to exclude from the zip file and place in the file
+    system instead; the default is for all packages to be placed in the
+    file system since several packages assume that is where they
+    are found and will fail when placed in a zip file; use * to specify that
+    all packages should be placed in the file system and excluded from the
+    zip file [default: \*]
+
+.. option:: zip-filename
+
+    filename for the shared zip file (.zip)
+    [default: "library.zip" or None if :option:`no-compress` is used]
+
+.. option:: no-compress
+
+    create a zip file with no compression (See also :option:`zip-filename`)
+
+.. option:: optimize
+
+    optimization level, one of 0 (disabled), 1 or 2
+
+.. option:: silent
+
+    suppress all output except warnings
+    (equivalent to :option:`silent-level` = 1)
+
+.. option:: silent-level
+
+    suppress output from the freeze process; can provide a value to specify
+    what messages should be suppressed, with the possible values being:
+
+    0. do not suppress any output [default];
+    1. suppress information messages;
+    2. also suppress missing-module warning messages;
+    3. also suppress all other warning messages.
+
+.. option:: include-msvcr
+
+    include the Microsoft Visual C++ Redistributable
+    files without needing the redistributable package
+    installed (equivalent to :option:`include-msvcr-version` = 17)
+
+.. option:: include-msvcr-version
+
+    like :option:`include-msvcr` but the version can be set
+    with one of the following values: 15, 16 or 17
+    (version 15 includes UCRT for Windows 8.1 and below)
 
 .. versionchanged:: 6.0
-   Replaced the ``compressed`` option with the :option:`no_compress` option.
+   Replaced the ``compressed`` option with the :option:`no-compress` option.
 
 .. versionadded:: 6.7
-    :option:`silent_level` option.
+    :option:`silent-level` option.
 
 .. versionadded:: 7.1
-    :option:`zip_filename` option used in conjunction with :option:`no_compress`.
+    :option:`zip-filename` option used in conjunction with :option:`no-compress`.
 
 .. versionadded:: 8.0
-    :option:`include_msvcr_version` option.
+    :option:`include-msvcr-version` option.
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -369,15 +423,9 @@ This command is a standard command which has been modified by cx_Freeze to
 install any executables that are defined. The following options were added to
 the standard set of options for the command:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 200 600
-   :width: 100%
+.. option:: install_exe
 
-   * - option name
-     - description
-   * - .. option:: install_exe
-     - directory for installed executables and dependent files
+    directory for installed executables and dependent files
 
 
 install_exe
@@ -387,25 +435,25 @@ This command performs the work installing an executable or set of executables.
 It can be used directly but most often is used when building Windows installers
 or RPM packages. It can be further customized:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 200 600
-   :width: 100%
+.. option:: install-dir
 
-   * - option name
-     - description
-   * - .. option:: install_dir
-     - directory to install executables to; this defaults to a subdirectory
-       called <name>-<version> in the "Program Files" directory on Windows and
-       <prefix>/lib on other platforms; on platforms other than Windows
-       symbolic links are also created in <prefix>/bin for each executable.
-   * - .. option:: build_dir
-     - build directory (where to install from); this defaults to the build_dir
-       from the build command
-   * - .. option:: force
-     - force installation, overwriting existing files
-   * - .. option:: skip_build
-     - skip the build steps
+    directory to install executables to; this defaults to a subdirectory
+    called <name>-<version> in the "Program Files" directory on Windows and
+    <prefix>/lib on other platforms; on platforms other than Windows
+    symbolic links are also created in <prefix>/bin for each executable.
+
+.. option:: build-dir
+
+    build directory (where to install from); this defaults to the build-dir
+    from the build command
+
+.. option:: force
+
+    force installation, overwriting existing files
+
+.. option:: skip-build
+
+    skip the build steps
 
 This is the equivalent help to specify the same options on the command line:
 
@@ -430,59 +478,75 @@ that are created. The options for the `Executable` class allow specification of
 the values specific to a particular executable. The arguments to the
 constructor are as follows:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 250 550
-   :width: 100%
+.. option:: script
 
-   * - argument name
-     - description
-   * - .. option:: script
-     - the name of the file containing the script which is to be frozen
-   * - .. option:: init_script
-     - the name of the initialization script that will be executed before the
-       actual script is executed; this script is used to set up the environment
-       for the executable; if a name is given without an absolute path the
-       names of files in the initscripts subdirectory of the cx_Freeze package
-       is searched
-   * - .. option:: base
-     - the name of the base executable; the pre-defined values are:
-       "console", "gui", "gui_dgpu" and "service";
-       an user-defined base is accepted if it is given with an absolute
-       path name [default: "console"]
-   * - .. option:: target_name
-     - the name of the target executable; the default value is the
-       name of the script; it is recommended NOT to use an extension
-       (automatically added on Windows); target-name with version is
-       supported; if specified a path, raise an error
-   * - .. option:: icon
-     - name of icon which should be included in the executable itself
-       on Windows (ignored by Python app from Microsoft Store) or placed
-       in the target directory for other platforms; it is recommended
-       NOT to use an extension (automatically added ".ico" on Windows,
-       ".icns" on macOS and ".png" or ".svg" on Linux and others)
-   * - .. option:: manifest
-     - name of manifest which should be included in the executable itself
-       (Windows only - ignored by Python app from Microsoft Store)
-   * - .. option:: uac_admin
-     - creates a manifest for an application that will request elevation
-       (Windows only - ignored by Python app from Microsoft Store)
-   * - .. option:: uac_uiaccess
-     - changes the application manifest to bypass user interface control
-       (Windows only - ignored by Python app from Microsoft Store)
-   * - .. option:: shortcut_name
-     - the name to give a shortcut for the executable when included in an MSI
-       package (Windows only)
-   * - .. option:: shortcut_dir
-     - the directory in which to place the shortcut when being installed by an
-       MSI package; see the MSI Shortcut table documentation for more
-       information on what values can be placed here (Windows only).
-   * - .. option:: copyright
-     - the copyright value to include in the version resource associated with
-       executable (Windows only)
-   * - .. option:: trademarks
-     - the trademarks value to include in the version resource associated with
-       the executable (Windows only)
+    the name of the file containing the script which is to be frozen
+
+.. option:: init_script
+
+    the name of the initialization script that will be executed before the
+    actual script is executed; this script is used to set up the environment
+    for the executable; if a name is given without an absolute path the
+    names of files in the initscripts subdirectory of the cx_Freeze package
+    is searched
+
+.. option:: base
+
+    the name of the base executable; the pre-defined values are:
+    "console", "gui", "gui_dgpu" and "service";
+    an user-defined base is accepted if it is given with an absolute
+    path name [default: "console"]
+
+.. option:: target_name
+
+    the name of the target executable; the default value is the
+    name of the script; it is recommended NOT to use an extension
+    (automatically added on Windows); target-name with version is
+    supported; if specified a path, raise an error
+
+.. option:: icon
+
+    name of icon which should be included in the executable itself
+    on Windows (ignored by Python app from Microsoft Store) or placed
+    in the target directory for other platforms; it is recommended
+    NOT to use an extension (automatically added ".ico" on Windows,
+    ".icns" on macOS and ".png" or ".svg" on Linux and others)
+
+.. option:: manifest
+
+    name of manifest which should be included in the executable itself
+    (Windows only - ignored by Python app from Microsoft Store)
+
+.. option:: uac_admin
+
+    creates a manifest for an application that will request elevation
+    (Windows only - ignored by Python app from Microsoft Store)
+
+.. option:: uac_uiaccess
+
+    changes the application manifest to bypass user interface control
+    (Windows only - ignored by Python app from Microsoft Store)
+
+.. option:: shortcut_name
+
+    the name to give a shortcut for the executable when included in an MSI
+    package (Windows only)
+
+.. option:: shortcut_dir
+
+    the directory in which to place the shortcut when being installed by an
+    MSI package; see the MSI Shortcut table documentation for more
+    information on what values can be placed here (Windows only).
+
+.. option:: copyright
+
+    the copyright value to include in the version resource associated with
+    executable (Windows only)
+
+.. option:: trademarks
+
+    the trademarks value to include in the version resource associated with
+    the executable (Windows only)
 
 .. versionchanged:: 6.5
     Arguments are all snake_case (camelCase removed in 6.15).
