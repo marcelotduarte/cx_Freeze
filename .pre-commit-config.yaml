@@ -38,7 +38,7 @@ repos:
           - validate-pyproject-schema-store[all]>=2026.05.28
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 0671d8ab202c4ac093b78433ae5baf74f3fc7246 # frozen: v0.15.15
+    rev: 22f0422809455ec89ffdcf5a00170ba816e42ddb # frozen: v0.15.16
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -82,8 +82,6 @@ repos:
         types: [python]
         pass_filenames: false
 
-  - repo: local
-    hooks:
       - id: build-docs
         name: build sphinx docs
         language: system
@@ -91,8 +89,6 @@ repos:
         always_run: true
         pass_filenames: false
 
-  - repo: local
-    hooks:
       - id: requirements
         name: requirements
         language: system
