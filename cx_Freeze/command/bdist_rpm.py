@@ -379,8 +379,9 @@ class bdist_rpm(Command):
                     )
 
     def _make_spec_file(self) -> list[str]:
-        """Generate the text of an RPM spec file and return it as a
-        list of strings (one per line).
+        """Generate the text of an RPM spec file.
+
+        Return as a list of strings (one per line).
         """
         # definitions and headers
         dist = self.distribution
@@ -560,8 +561,9 @@ class bdist_rpm(Command):
 
 
 def write_file(filename: str, contents: Sequence[str]) -> None:
-    """Create a file with the specified name and write 'contents'
-    (a sequence of strings without line terminators) to it.
+    """Create a file with the specified name and write 'contents' to it.
+
+    contents: a sequence of strings without line terminators.
     """
     with open(filename, "w", encoding="utf_8") as file:
         for line in contents:

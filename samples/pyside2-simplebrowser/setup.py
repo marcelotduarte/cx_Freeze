@@ -1,4 +1,5 @@
 """Creates an executable using PySide2 WebEngineWidgets.
+
 This also demonstrates how to use excludes to get minimal package size.
 
 simplebrowser.py is the "PySide2 WebEngineWidgets Example".

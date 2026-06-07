@@ -217,8 +217,10 @@ class bdist_mac(Command):
             plistlib.dump(contents, file)
 
     def set_absolute_reference_paths(self, path: str | None = None) -> None:
-        """For all files in Contents/MacOS, set their linked library paths to
-        be absolute paths using the given path instead of @executable_path.
+        """Set linked library paths to be absolute paths.
+
+        For all files in Contents/MacOS, using the given path instead of
+        @executable_path.
         """
         if not path:
             path = cast("str", self.absolute_reference_path)
@@ -249,8 +251,9 @@ class bdist_mac(Command):
             apply_adhoc_signature(filepath)
 
     def find_qt_menu_nib(self) -> str | None:
-        """Returns a location of a qt_menu.nib folder, or None if this is not
-        a Qt application.
+        """Returns the location of a qt_menu.nib folder for a Qt application.
+
+        Returns None for non-Qt app.
         """
         if self.qt_menu_nib:
             return self.qt_menu_nib
@@ -288,8 +291,9 @@ class bdist_mac(Command):
         raise OSError(msg)
 
     def prepare_qt_app(self) -> None:
-        """Add resource files for a Qt application. Should do nothing if the
-        application does not use QtCore.
+        """Add resource files for a Qt application.
+
+        Should do nothing if the application does not use QtCore.
         """
         qt_conf = os.path.join(self.resources_dir, "qt.conf")
         qt_conf_2 = os.path.join(self.resources_dir, "qt_bdist_mac.conf")
@@ -443,6 +447,7 @@ class bdist_mac(Command):
 
     def _codesign(self, root_path: StrPath) -> None:
         """Run codesign on all .so, .dylib and binary files in reverse order.
+
         Signing from inside-out.
         """
         if not self.codesign_identity:

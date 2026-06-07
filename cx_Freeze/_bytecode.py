@@ -58,8 +58,9 @@ __all__ = [
 
 
 def code_object_replace(code: CodeType, **kwargs) -> CodeType:
-    """Return a copy of the code object with new values for the specified
-    fields.
+    """Return a copy of the code object.
+
+    With new values for the specified fields.
     """
     with suppress(ValueError, KeyError):
         kwargs["co_consts"] = tuple(kwargs["co_consts"])
@@ -95,8 +96,9 @@ def code_object_replace_function(
 
 
 def code_object_replace_package(module: Module) -> CodeType | None:
-    """Replace the value of __package__ directly in the code, when the
-    module is in a package and will be stored in shared zip file.
+    """Replace the value of __package__ directly in the code.
+
+    When the module is in a package and will be stored in shared zip file.
     """
     code = module.code
     # Check if module is in a package and will be stored in zip file

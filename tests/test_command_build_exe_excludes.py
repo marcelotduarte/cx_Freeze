@@ -1,5 +1,6 @@
-"""Tests for cx_Freeze.command.build_exe using the --excludes option in the
-following situations:
+"""Tests for cx_Freeze.command.build_exe using the `excludes` option.
+
+In the following situations:
     - use of a regular package
     - use of a namespace package.
 """

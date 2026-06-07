@@ -128,8 +128,9 @@ def test_bdist_appimage_target_name_and_version_none() -> None:
 def test_bdist_appimage_target_name_with_extension(
     tmp_package: TempPackage,
 ) -> None:
-    """Test the tkinter sample, with a specified target_name that includes an
-    ".AppImage" extension.
+    """Test the tkinter sample.
+
+    With a specified target_name that includes an ".AppImage" extension.
     """
     name = "output.AppImage"
 

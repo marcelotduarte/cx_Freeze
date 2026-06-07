@@ -10,9 +10,11 @@ if TYPE_CHECKING:
 
 
 class PyDialog(Dialog):
-    """Dialog class with a fixed layout: controls at the top, then a ruler,
-    then a list of buttons: back, next, cancel. Optionally a bitmap at the
-    left.
+    """Dialog class with a fixed layout.
+
+    Controls at the top, then a ruler, then a list of buttons:
+       back, next, cancel.
+    Optionally a bitmap at the left.
     """
 
     def __init__(
@@ -53,8 +55,10 @@ class PyDialog(Dialog):
         name: str = "Back",
         active: bool = True,
     ) -> Control:
-        """Add a back button with a given title, the tab-next button,
-        its name in the Control table, possibly initially disabled.
+        """Add a back button.
+
+        With a given title, the tab-next button, its name in the Control table,
+        possibly initially disabled.
 
         Return the button, so that events can be associated
         """
@@ -70,8 +74,10 @@ class PyDialog(Dialog):
         name: str = "Cancel",
         active: bool = True,
     ) -> Control:
-        """Add a cancel button with a given title, the tab-next button,
-        its name in the Control table, possibly initially disabled.
+        """Add a cancel button.
+
+        With a given title, the tab-next button, its name in the Control table,
+        possibly initially disabled.
 
         Return the button, so that events can be associated
         """
@@ -87,8 +93,10 @@ class PyDialog(Dialog):
         name: str = "Next",
         active: bool = True,
     ) -> Control:
-        """Add a Next button with a given title, the tab-next button,
-        its name in the Control table, possibly initially disabled.
+        """Add a Next button.
+
+        With a given title, the tab-next button, its name in the Control table,
+        possibly initially disabled.
 
         Return the button, so that events can be associated
         """
@@ -100,9 +108,11 @@ class PyDialog(Dialog):
     def xbutton(
         self, name: str, title: str, tabnext: str | None, xpos: int
     ) -> Control:
-        """Add a button with a given title, the tab-next button,
-        its name in the Control table, giving its x position; the
-        y-position is aligned with the other buttons.
+        """Add a button.
+
+        With a given title, the tab-next button, its name in the Control table,
+        giving its x-position;
+        the y-position is aligned with the other buttons.
 
         Return the button, so that events can be associated
         """

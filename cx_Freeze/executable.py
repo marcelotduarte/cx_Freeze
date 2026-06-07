@@ -85,10 +85,7 @@ class Executable:
 
     @property
     def base(self) -> Path:
-        """:return: the name of the base executable
-        :rtype: Path
-
-        """
+        """The name of the base executable."""
         return self._base
 
     @base.setter
@@ -135,10 +132,7 @@ class Executable:
 
     @property
     def icon(self) -> Path | None:
-        """:return: the path of the icon
-        :rtype: Path
-
-        """
+        """The path of the icon."""
         return self._icon
 
     @icon.setter
@@ -161,18 +155,14 @@ class Executable:
 
     @property
     def init_module_name(self) -> str:
-        """:return: the name of the init module in zip file
-        :rtype: str
-
-        """
+        """The name of the init module in zip file."""
         return f"__init__{self._internal_name}"
 
     @property
     def init_script(self) -> Path:
-        """:return: the name of the initialization script that will be executed
-        before the main script is executed
-        :rtype: Path
+        """The name of the initialization script.
 
+        That will be executed before the main script is executed.
         """
         return self._init_script
 
@@ -192,18 +182,14 @@ class Executable:
 
     @property
     def main_module_name(self) -> str:
-        """:return: the name of the main module in zip file
-        :rtype: str
-
-        """
+        """The name of the main module in zip file."""
         return f"__main__{self._internal_name}"
 
     @property
     def main_script(self) -> Path:
-        """:return: the path of the file containing the script which is to be
-        frozen
-        :rtype: Path
+        """The path of the file containing the main script.
 
+        The main script which is to be frozen.
         """
         return self._main_script
 
@@ -213,10 +199,9 @@ class Executable:
 
     @property
     def manifest(self) -> str | None:
-        """:return: the XML schema of the manifest which is to be included in
-        the frozen executable
-        :rtype: str
+        """The XML schema of the manifest.
 
+        Which is to be included in the frozen executable.
         """
         return self._manifest
 
@@ -228,10 +213,9 @@ class Executable:
 
     @property
     def shortcut_name(self) -> str | None:
-        """:return: the name to give a shortcut for the executable when
-        included in an MSI package (Windows only).
-        :rtype: str
+        """The name to give a shortcut for the executable.
 
+        When included in an MSI package (Windows only).
         """
         return self._shortcut_name
 
@@ -241,11 +225,11 @@ class Executable:
 
     @property
     def shortcut_dir(self) -> Path | None:
-        """:return: the directory in which to place the shortcut when being
-        installed by an MSI package; see the MSI Shortcut table documentation
-        for more information on what values can be placed here (Windows only).
-        :rtype: Path
+        """The directory in which to place the shortcut.
 
+        When being installed by an MSI package; see the MSI Shortcut table
+        documentation for more information on what values can be placed here
+        (Windows only).
         """
         return self._shortcut_dir
 
@@ -257,10 +241,7 @@ class Executable:
 
     @property
     def target_name(self) -> str:
-        """:return: the name of the target executable
-        :rtype: str
-
-        """
+        """The name of the target executable."""
         return self._name + self._ext
 
     @target_name.setter
@@ -291,8 +272,9 @@ def validate_executables(
     attr: str,
     value: Sequence[str | Mapping[str, str] | Executable] | None,
 ) -> None:
-    """Verify that value is a valid executables attribute, which could be an
-    Executable list, a mapping list or a string list.
+    """Verify that value is a valid executables attribute.
+
+    Which could be an Executable list, a mapping list or a string list.
     """
     try:
         # verify that value is a list or tuple to exclude unordered

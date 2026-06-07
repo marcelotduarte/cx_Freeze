@@ -1,5 +1,6 @@
 # ruff: noqa: ANN001
 """Implements _both_ a connectable client, and a connectable server.
+
 https://brian3johnson.github.io/pywin32/com/samples/connect.html.
 
 Note that we cheat just a little - the Server in this demo is not created

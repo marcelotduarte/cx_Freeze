@@ -1,6 +1,7 @@
-"""A simple setup script to create an executable using PyQt5. This also
-demonstrates the method for creating a Windows executable that does not have
-an associated console.
+"""A simple setup script to create an executable using PyQt5.
+
+This also demonstrates the method for creating a Windows executable that
+does not have an associated console.
 
 test_pyqt5.py is a very simple type of PyQt5 application
 

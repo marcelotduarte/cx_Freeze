@@ -155,12 +155,10 @@ extra/module2.egg-info/top_level.txt
 @pytest.mark.skipif(IS_MINGW, reason="Disabled in MinGW")
 @pytest.mark.skipif(IS_CONDA, reason="Disabled in conda-forge")
 def test_egg_info(tmp_package: TempPackage) -> None:
-    """Use fake packages to test conversion of egg_info to dist_info in
-    DistributionCache.
-    """
+    """Test conversion of egg_info to dist_info in DistributionCache."""
     tmp_package.create(SOURCE_TEST_EGG_INFO)
 
-    # patch the fake packages
+    # patch using fake packages
     tmp_package.prefix = tmp_package.path / ".tmp_prefix"
     tmp_site = tmp_package.prefix / tmp_package.relative_site
     shutil.copytree(tmp_package.path / "extra", tmp_site, dirs_exist_ok=True)

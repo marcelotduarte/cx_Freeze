@@ -1,5 +1,6 @@
-"""Tests for hooks of anyio async package
-(implicitly test the asyncio and uvloop packages).
+"""Tests for hooks of anyio async package.
+
+Implicitly test the asyncio and uvloop packages.
 """
 
 from __future__ import annotations

@@ -1,5 +1,6 @@
-"""Implements `Parser` interface to create an abstraction to parse binary
-files.
+"""Implements `Parser` interface.
+
+Creates an abstraction to parse binary files.
 """
 
 from __future__ import annotations
@@ -101,24 +102,31 @@ class Parser(ABC):
 
     @abstractmethod
     def _get_dependent_files(self, filename: Path) -> set[Path]:
-        """Return the file's dependencies using platform-specific tools
-        (lief package or the imagehlp library on Windows, otool on macOS X or
-        ldd on Linux); limit this list by the exclusion lists as needed.
+        """Return the file's dependencies using platform-specific tools.
+
+        The tools used are `patchelf" and `ldd` on Linux, `otool` on macOS and
+        `lief` on Windows. The imagehlp library can be used, through
+        `freeze_core.util` extension module, on Windows when lief is disabled
+        or is not available.
+        Limit this list by the exclusion lists as needed.
         (Implemented separately for each platform).
         """
 
     @staticmethod  # pragma: no cover
     def _is_binary(filename: Path) -> bool:
-        """Determines whether the file is a binary file
-        (executable, shared library).
+        """Determines whether the file is a binary file.
+
+        Binary file can be an executable or a shared library.
         (Implemented separately for each platform).
         """
         return filename.is_file()
 
 
 class PEParser(Parser):
-    """`PEParser` is based on the `lief` package. If it is disabled,
-    use the old friend `freeze_core.util` extension module.
+    """`PEParser` is based on the `lief` package.
+
+    If it is disabled, or not available, use the old friend `freeze_core.util`
+    extension module.
     """
 
     def __init__(
@@ -225,10 +233,7 @@ class PEParser(Parser):
         return set()
 
     def read_manifest(self, filename: StrPath) -> str | None:
-        """:return: the XML schema of the manifest included in the executable
-        :rtype: str
-
-        """
+        """Read the XML schema of the manifest included in the executable."""
         if self._pe is None:
             if self._silent < 3:
                 print(f"WARNING: ignoring read manifest for {filename}")
@@ -270,9 +275,7 @@ class PEParser(Parser):
 
 
 class ELFParser(Parser):
-    """`ELFParser` is based on the logic around invoking `patchelf` and
-    `ldd`.
-    """
+    """`ELFParser` is based on the `patchelf` and `ldd` tools."""
 
     def __init__(
         self,
@@ -444,9 +447,10 @@ class ELFParser(Parser):
             filename.chmod(mode | stat.S_IWUSR)
 
     def _verify_patchelf(self) -> None:
-        """Looks for the ``patchelf`` external binary in the PATH, checks for
-        the required version, and throws an exception if a proper version
-        can't be found. Otherwise, silence is golden.
+        """Looks for the ``patchelf`` external binary in the PATH.
+
+        Checks for the required version, and throws an exception if a proper
+        version can't be found. Otherwise, silence is golden.
         """
         if not self._patchelf:
             msg = "Cannot find required utility `patchelf` in PATH"
