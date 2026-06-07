@@ -1,4 +1,5 @@
 """A simple setup script to create executable using matplotlib.
+
 This version requires the mpl-data in the zip file.
 """
 

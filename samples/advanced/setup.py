@@ -1,5 +1,6 @@
-"""An advanced setup script to create multiple executables and demonstrate a
-few of the features available to setup scripts.
+"""An advanced setup script to create multiple executables.
+
+Also, demonstrate a few of the features available to setup scripts.
 """
 
 #

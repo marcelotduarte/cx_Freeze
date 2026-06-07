@@ -328,9 +328,10 @@ class Freezer:
         copy_tree(source_dir, target_dir, excludes)
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
-        """Prepare the source and target paths. In addition, it ensures that
-        the source of a symbolic link is copied by deferring the creation of
-        the link.
+        """Prepare the source and target paths.
+
+        In addition, it ensures that the source of a symbolic link is copied by
+        deferring the creation of the link.
         """
         real_source = source.resolve()
         if source.is_symlink():
@@ -387,15 +388,17 @@ class Freezer:
 
     @abstractmethod
     def _default_bin_excludes(self) -> list[str]:
-        """Return the file names of libraries that need not be included because
-        they would normally be expected to be found on the target system or
-        because they are part of a package which requires independent
+        """Return the file names of libraries that need not be included.
+
+        Because they would normally be expected to be found on the target
+        system or because they are part of a package which requires independent
         installation anyway.
         """
 
     def _default_bin_includes(self) -> list[str]:
-        """Return the file names of libraries which must be included for the
-        frozen executable to work.
+        """Return the file names of libraries which must be included.
+
+        For the frozen executable to work.
         (Overridden on Windows and macOS).
         """
         python_shared_libs: list[Path] = []
@@ -414,14 +417,14 @@ class Freezer:
 
     @abstractmethod
     def _default_bin_path_excludes(self) -> list[str]:
-        """Return the paths of directories which contain files that should not
-        be included, generally because they contain standard system
-        libraries.
+        """Return the directories with files that should not included.
+
+        Generally because they contain standard system libraries.
         """
 
     def _default_bin_path_includes(self) -> list[str]:
-        """Return the paths of directories which contain files that should
-        be included.
+        """Return the directories with files that should be included.
+
         (Overridden on Windows, inherited in macOS).
         """
         bin_path = [
@@ -538,8 +541,10 @@ class Freezer:
 
     @staticmethod
     def _validate_path(path: list[StrPath] | None = None) -> list[str]:
-        """Returns valid search path for modules, and fix the path for built-in
-        modules when it differs from the running python built-in modules.
+        """Returns valid search path for modules.
+
+        Fix the path for built-in modules when it differs from the running
+        python built-in modules.
         """
         valid_path = [os.path.normpath(p) for p in path or sys.path]
         core_lib = resource_path("lib")
@@ -573,8 +578,9 @@ class Freezer:
 
     @staticmethod
     def _validate_bin_path(bin_path: Sequence[StrPath] | None) -> list[str]:
-        """Returns valid search path for bin_path_includes and
-        bin_path_excludes.
+        """Returns valid search path.
+
+        For bin_path_includes and bin_path_excludes.
         """
         if bin_path is None:
             return []
@@ -590,6 +596,7 @@ class Freezer:
         zip_exclude_packages: Sequence[str] | None,
     ) -> None:
         """Verify, normalize and populate zip_*_packages options.
+
         Raises OptionError on failure.
         """
         if zip_include_packages is None and zip_exclude_packages is None:
@@ -864,7 +871,8 @@ class Freezer:
         self.finder.cleanup()
 
     def print_report(self) -> None:
-        """Display report:
+        """Display report.
+
         - list of modules and packages;
         - list of modules that weren't found;
         - list of dependencies that weren't found.
@@ -1285,9 +1293,9 @@ class DarwinFreezer(Freezer, Parser):
         include_mode: bool = False,
         reference: MachOReference | None = None,
     ) -> None:
-        """Essentially the same as Freezer._copy_file, except that it also
-        takes a reference parameter. Used when recursing to dependencies
-        of a file on Darwin.
+        """Essentially the same as _copy_file plus a reference parameter.
+
+        Used when recursing to dependencies of a file on Darwin.
         """
         if not self._should_copy_file(source):
             return

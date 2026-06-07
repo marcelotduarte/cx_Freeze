@@ -99,8 +99,10 @@ elif IS_MINGW:
 @pytest.mark.skipif(not (IS_MINGW or IS_WINDOWS), reason="Windows tests")
 @pytest.mark.parametrize("lief_version", [*LIEF_VERSIONS, "disabled"])
 def test_simple_manifest(tmp_package: TempPackage, lief_version: str) -> None:
-    """With simple manifest, without "supportedOS Id", windows version returned
-    is the compatible version for Windows 8.1, ie, 6.2.
+    """Tests a simple manifest, without "supportedOS Id".
+
+    The returned windows version is the compatible version for Windows 8.1,
+    ie, 6.2.
     """
     tmp_package.create(SOURCE)
     if lief_version == "disabled":

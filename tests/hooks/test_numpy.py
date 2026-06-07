@@ -1,5 +1,6 @@
-"""Tests for hooks:
-numpy, matplotlib, pandas, raterio, scipy, shapely, and vtk.
+"""Tests for hooks of numpy and packages that depend on it.
+
+I.e. also tests matplotlib, pandas, raterio, scipy, shapely, and vtk.
 """
 
 from __future__ import annotations

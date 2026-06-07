@@ -7,8 +7,10 @@ from System.Drawing import Point, Size  # noqa: E402
 
 
 class HelloApp(WinForms.Form):
-    """A simple hello world app that demonstrates the essentials of
-    winforms programming and event-based programming in Python.
+    """A simple hello world app.
+
+    That demonstrates the essentials of winforms programming and event-based
+    programming in Python.
     """
 
     def __init__(self) -> None:

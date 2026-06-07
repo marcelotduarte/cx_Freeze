@@ -117,8 +117,9 @@ def test_bdist_msi_default(tmp_package: TempPackage) -> None:
 def test_bdist_msi_output_name_with_extension(
     tmp_package: TempPackage,
 ) -> None:
-    """Test the msi_extensions sample, with a specified output_name that
-    includes an ".msi" extension.
+    """Test the msi_extensions sample.
+
+    With a specified output_name that includes an ".msi" extension.
     """
     msi_name = "output.msi"
     tmp_package.create_from_sample("msi_extensions")

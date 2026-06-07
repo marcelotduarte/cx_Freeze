@@ -123,9 +123,7 @@ class TestVersionInfo:
         ],
     )
     def test_windows_versions(self, input_version: str, version: str) -> None:
-        """Tests that short versions get padded to the expected x4 digit
-        windows versions.
-        """
+        """Tests that short versions get padded to 4 digit windows versions."""
         default_version = VersionInfo(input_version)
         assert default_version.version == version
         assert default_version.version_info(Path(f"test{EXE_SUFFIX}"))

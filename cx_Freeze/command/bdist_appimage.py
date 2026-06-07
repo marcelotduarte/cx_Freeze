@@ -358,8 +358,9 @@ class bdist_appimage(Command):
     def save_as_file(
         self, data: bytes | str, outfile: str, mode: str = "r"
     ) -> tuple[str, int]:
-        """Save an input data to a file respecting verbose, dry-run and force
-        flags.
+        """Save an input data to a file.
+
+        Respecting verbose, dry-run and force flags.
         """
         if not getattr(self, "force", True) and os.path.exists(outfile):
             if self.verbose >= 1:

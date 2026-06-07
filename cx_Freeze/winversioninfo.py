@@ -51,9 +51,10 @@ else:
 
 
 class Structure:
-    """Abstract base class for structures in native byte order. Concrete
-    structure and union types must be created by subclassing one of these
-    types, and at least define a _fields class variable.
+    """Abstract base class for structures in native byte order.
+
+    Concrete structure and union types must be created by subclassing one of
+    these types, and at least define a _fields class variable.
     """
 
     def __init__(self, *args: Any) -> None:

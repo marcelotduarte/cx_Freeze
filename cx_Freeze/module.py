@@ -420,9 +420,7 @@ class Module:
                         yield source, target
 
     def libs_dirs(self) -> list[str]:
-        """Return the directories where binary files of the package are
-        stored.
-        """
+        """Return the directories where shared library files are stored."""
         distribution = self.distribution
         if distribution:
             return list(
@@ -502,6 +500,7 @@ class Module:
 
     def update_distribution(self, name: str | None = None) -> None:
         """Update the distribution cache based on its name.
+
         This method may be used to link an distribution's name to a module.
 
         Example: ModuleFinder cannot detects the distribution of _cffi_backend
@@ -570,8 +569,9 @@ class ConstantsModule:
                 self.values[name] = value
 
     def create(self, tmp_path: Path, modules: list[Module]) -> Path:
-        """Create the module which consists of declaration statements for each
-        of the values.
+        """Create the constants module.
+
+        It consists of declaration statements for each of the values.
         """
         today = datetime.now(tz=timezone.utc)
         source_timestamp = 0

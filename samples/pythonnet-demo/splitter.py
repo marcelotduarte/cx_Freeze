@@ -7,7 +7,9 @@ from System.Drawing import Color  # noqa: E402
 
 
 class Splitter(WinForms.Form):
-    """A WinForms example transcribed to Python from the MSDN article:
+    """A WinForms example transcribed to Python.
+
+    From the MSDN article:
     'Creating a Multipane User Interface with Windows Forms'.
     """
 
