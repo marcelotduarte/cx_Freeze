@@ -7,8 +7,8 @@ that Python runs on.
 
 from __future__ import annotations
 
-import importlib.metadata
 import sys
+from importlib.metadata import version
 from pathlib import Path
 
 import setuptools
@@ -52,7 +52,7 @@ else:
     __all__ += ["bdist_appimage", "bdist_deb", "bdist_rpm"]
 
 
-__version__ = importlib.metadata.version(__name__)
+__version__ = version(__name__)
 
 
 def setup(**attrs) -> setuptools.Distribution:  # noqa: D103

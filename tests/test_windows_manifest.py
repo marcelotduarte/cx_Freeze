@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import ctypes
-import importlib.metadata
 import sys
+from importlib.metadata import PackageNotFoundError, distribution
 from typing import TYPE_CHECKING
 
 import pytest
@@ -109,8 +109,8 @@ def test_simple_manifest(tmp_package: TempPackage, lief_version: str) -> None:
         tmp_package.monkeypatch.setenv("CX_FREEZE_BIND", "imagehlp")
     elif lief_version == "installed":
         try:
-            importlib.metadata.distribution("lief")
-        except importlib.metadata.PackageNotFoundError:
+            distribution("lief")
+        except PackageNotFoundError:
             print("WARNING: LIEF is not installed")
             lief_version = "disabled"
     else:

@@ -1,4 +1,5 @@
 """cx_Freeze documentation build configuration file."""
+# ruff: noqa: ERA001,PLC0415
 
 # Created by sphinx-quickstart on Wed Feb  1 22:01:33 2012.
 #
@@ -51,8 +52,9 @@ copyright = "2026, Marcelo Duarte"  # noqa: A001
 # Get version from pyproject
 def _get_version() -> str:
     import sys
-    import tomllib
     from pathlib import Path
+
+    import tomllib
 
     pyproject_toml = Path("../../pyproject.toml")
     if not pyproject_toml.exists():

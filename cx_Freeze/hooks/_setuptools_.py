@@ -4,9 +4,9 @@ setuptools package is included.
 
 from __future__ import annotations
 
-import importlib.metadata
 import os
 import sys
+from importlib import metadata
 from typing import TYPE_CHECKING, cast
 
 from packaging.requirements import Requirement
@@ -37,8 +37,8 @@ class Hook(ModuleHook):
         finder.include_package("setuptools._distutils")
 
         try:
-            requires = importlib.metadata.requires(module.name)
-        except importlib.metadata.PackageNotFoundError:
+            requires = metadata.requires(module.name)
+        except metadata.PackageNotFoundError:
             requires = None
         if requires:
             core_names = set()
