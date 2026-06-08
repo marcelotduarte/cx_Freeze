@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import importlib.metadata
+from importlib.metadata import distribution
 from pathlib import Path
 
 from cx_Freeze.exception import FileError
@@ -25,7 +25,7 @@ def frozen_license(path: Path) -> Path:
 
     path: must be a directory where the file will be generated.
     """
-    dist = importlib.metadata.distribution("freeze_core")
+    dist = distribution("freeze_core")
     srcpath = None
     if dist.files:
         for file in dist.files:

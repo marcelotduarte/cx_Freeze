@@ -7,8 +7,9 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
+from cx_Freeze._metadata import DistributionCache
 from cx_Freeze.exception import ModuleError
-from cx_Freeze.module import DistributionCache, Module, ModuleHook
+from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder

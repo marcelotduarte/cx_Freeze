@@ -32,11 +32,12 @@ from cx_Freeze._compat import (
     PYTHON_VERSION,
 )
 from cx_Freeze._license import frozen_license
+from cx_Freeze._metadata import DistributionCache
 from cx_Freeze.common import process_path_specs, resource_path
 from cx_Freeze.dep_parser import ELFParser, Parser, PEParser
 from cx_Freeze.exception import OptionError
 from cx_Freeze.finder import ModuleFinder
-from cx_Freeze.module import ConstantsModule, DistributionCache, Module
+from cx_Freeze.module import ConstantsModule, Module
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
