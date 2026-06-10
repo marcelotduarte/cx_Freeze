@@ -41,7 +41,7 @@ class Hook(ModuleHook):
         except metadata.PackageNotFoundError:
             requires = None
         if requires:
-            core_names = set()
+            core_names: set[str] = set()
             for requirement_string in requires:
                 require = Requirement(requirement_string)
                 if require.marker is None:
@@ -49,14 +49,14 @@ class Hook(ModuleHook):
                 if require.marker.evaluate({"extra": "core"}):
                     core_names.add(require.name)
         else:
-            core_names = (
+            core_names = {
                 "jaraco.functools",
                 "jaraco.text",
                 "more_itertools",
                 "packaging",
                 "platformdirs",
                 "wheel",
-            )
+            }
         failed = [
             name
             for name in core_names
