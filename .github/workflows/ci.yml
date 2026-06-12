@@ -28,7 +28,7 @@ jobs:
 
       - uses: j178/prek-action@bdca6f102f98e2b4c7029491a53dfd366469e33d # v2.0.4
         with:
-          extra-args: "--all-files --skip=build-docs --skip=ty-check"
+          extra-args: "--all-files --skip=build-docs --skip=ty"
 
       - uses: pre-commit-ci/lite-action@5d6cc0eb514c891a40562a58a8e71576c5c7fb43 # v1.1.0
         if: always()
@@ -60,11 +60,8 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
           enable-cache: true
 
-      - name: Install dependencies
-        run: ci/install-tools.sh --dev --tests
-
       - name: Type check
-        run: ty check
+        run: uv check --quiet --preview-features=check-command --no-sync --no-dev --group tests
 
   build_wheel:
     name: Build wheels

@@ -79,7 +79,7 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 [dependency-groups]
 dev = [
     "prek>=0.4.0,<0.5.0",
-    "ty>=0.0.39",
+    "ty>=0.0.48",
 ]
 doc = [
     "sphinx>=9.1.0,<9.2",
@@ -218,50 +218,50 @@ line-length = 79
 
 [tool.ruff.lint]
 select = [
-    "A",    # flake8-builtins
+    "A",       # flake8-builtins
     "ANN001",  # flake8-annotations - missing-type-function-argument
     "ANN002",  # flake8-annotations - missing-type-args
     "ANN201",  # flake8-annotations - missing-return-type-undocumented-public-function
     "ANN202",  # flake8-annotations - missing-return-type-private-function
-    "ARG",  # flake8-unused-arguments
-    "B",    # flake8-bugbear
-    "BLE",  # flake8-blind-except
-    "C4",   # flake8-comprehensions
-    "D",    # pydocstyle
-    "DTZ",  # flake8-datetimez
+    "ARG",     # flake8-unused-arguments
+    "B",       # flake8-bugbear
+    "BLE",     # flake8-blind-except
+    "C4",      # flake8-comprehensions
+    "D",       # pydocstyle
+    "DTZ",     # flake8-datetimez
     "E", "W",  # pycodestyle
-    "EXE",  # flake8-executable
-    "EM",   # flake8-errmsg
-    "ERA",  # eradicate
-    "F",    # flake8
-    "FA",   # flake8-future-annotations
-    "FLY",  # flynt
-    "G",    # flake8-logging-format
-    "I",    # isort
-    "ICN",  # flake8-import-conventions
-    "INT",  # flake8-gettext
+    "EXE",     # flake8-executable
+    "EM",      # flake8-errmsg
+    "ERA",     # eradicate
+    "F",       # flake8
+    "FA",      # flake8-future-annotations
+    "FLY",     # flynt
+    "G",       # flake8-logging-format
+    "I",       # isort
+    "ICN",     # flake8-import-conventions
+    "INT",     # flake8-gettext
     "ISC003",  # flake8-implicit-str-concat - explicit-string-concatenation
-    "LOG",  # flake8-logging
-    "PERF", # Perflint
-    "PGH",  # pygrep-hooks
-    "PIE",  # flake8-pie
+    "LOG",     # flake8-logging
+    "PERF",    # Perflint
+    "PGH",     # pygrep-hooks
+    "PIE",     # flake8-pie
     "PLC", "PLE", "PLR", "PLW",  # pylint
-    "PT",   # flake8-pytest-style
-    "PYI",  # flake8-pyi
-    "Q004", # flake8-quotes - unnecessary-escaped-quote
-    "RET",  # flake8-return
-    "RSE",  # flake8-raise
-    "RUF",  # Ruff-specific
-    "S",    # flake8-bandit
-    "SIM",  # flake8-simplify
-    "SLF",  # flake8-self
-    "SLOT", # flake8-slots
-    "T10",  # flake8-debugger
-    "TC",   # flake8-type-checking
-    "TID",  # flake8-tidy-imports
-    "TRY",  # tryceratops
-    "UP",   # pyupgrade
-    "YTT",  # flake8-2020
+    "PT",      # flake8-pytest-style
+    "PYI",     # flake8-pyi
+    "Q004",    # flake8-quotes - unnecessary-escaped-quote
+    "RET",     # flake8-return
+    "RSE",     # flake8-raise
+    "RUF",     # Ruff-specific
+    "S",       # flake8-bandit
+    "SIM",     # flake8-simplify
+    "SLF",     # flake8-self
+    "SLOT",    # flake8-slots
+    "T10",     # flake8-debugger
+    "TC",      # flake8-type-checking
+    "TID",     # flake8-tidy-imports
+    "TRY",     # tryceratops
+    "UP",      # pyupgrade
+    "YTT",     # flake8-2020
 ]
 ignore = [
     "D105",     # Missing docstring in magic method

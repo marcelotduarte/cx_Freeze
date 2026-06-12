@@ -38,7 +38,7 @@ repos:
           - validate-pyproject-schema-store[all]>=2026.05.28
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 22f0422809455ec89ffdcf5a00170ba816e42ddb # frozen: v0.15.16
+    rev: 3b3f7c3f57fe9925356faf5fe6230835138be230 # frozen: v0.15.17
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -72,16 +72,14 @@ repos:
     hooks:
       - id: shellcheck
 
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: a71646c845a122391e3ce3a43502fcf4003d1efa # frozen: v0.0.48
+    hooks:
+      - id: ty
+        args: [--no-sync]
+
   - repo: local
     hooks:
-      - id: ty-check
-        name: typecheck
-        description: Type check python files with ty
-        entry: ty check
-        language: system
-        types: [python]
-        pass_filenames: false
-
       - id: build-docs
         name: build sphinx docs
         language: system
