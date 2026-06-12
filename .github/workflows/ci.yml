@@ -60,8 +60,11 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
           enable-cache: true
 
+      - name: Install dependencies
+        run: ci/install-tools.sh --tests
+
       - name: Type check
-        run: uv check --quiet --preview-features=check-command --no-sync --no-dev --group tests
+        run: uv check --quiet --preview-features=check-command --no-sync
 
   build_wheel:
     name: Build wheels
