@@ -489,7 +489,7 @@ class TempPackageVenv(TempPackage):
         self._python = self.python
         self.venv_prefix = None
         self.venv_python = None
-        self.venv_lock = None
+        self._v_lock = None
         self._venv()
 
     def create(self, source: str) -> None:
@@ -500,8 +500,7 @@ class TempPackageVenv(TempPackage):
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
         if install_deps:
             self.install_dependencies()
-        if self.venv_lock and self.venv_lock.is_locked:
-            self.venv_lock.release()
+        self.unlock()
 
     def create_from_sample(self, sample: str) -> None:
         super().create_from_sample(sample)
@@ -511,8 +510,7 @@ class TempPackageVenv(TempPackage):
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
         if install_deps:
             self.install_dependencies()
-        if self.venv_lock and self.venv_lock.is_locked:
-            self.venv_lock.release()
+        self.unlock()
 
     def freeze(
         self,
@@ -613,6 +611,21 @@ class TempPackageVenv(TempPackage):
             )
         print(editables)
 
+    def lock(self) -> None:
+        prefix = self.venv_prefix
+        if prefix:
+            prefix_lock = prefix.with_name(f"{prefix.name}.lock")
+            self._v_lock = FileLock(prefix_lock)
+            self._v_lock.acquire()
+        else:
+            self._v_lock = None
+
+    def unlock(self) -> None:
+        # release lock
+        if self._v_lock and self._v_lock.is_locked:
+            self._v_lock.release()
+        self._v_lock = None
+
     def _venv(self) -> None:
         venv_marker = self.request.node.get_closest_marker(name="venv")
         scope = venv_marker.kwargs.get("scope", "function")
@@ -622,18 +635,17 @@ class TempPackageVenv(TempPackage):
             # do not use venv in mingw
             self.venv_prefix = self._prefix
             self.venv_python = self._python
-            self.venv_lock = self._lock
+            self._v_lock = self._lock
         else:
             # point to the new environment (or reuse an existing one)
-            if scope == "function":
-                prefix = self.path / ".venv"
+            if scope == "function":  # default scope
+                self.venv_prefix = self.path / ".venv"
             else:
-                prefix = self._root / f".{self.backend}-{self._name}"
-                prefix_lock = prefix.with_name(f"{prefix.name}.lock")
-                self.venv_lock = FileLock(prefix_lock)
-                self.venv_lock.acquire()
-            self.venv_prefix = prefix
-            self.venv_python = prefix / self.relative_bin / self.python.name
+                self.venv_prefix = self._root / f".{self.backend}-{self._name}"
+                self.lock()
+            self.venv_python = (
+                self.venv_prefix / self.relative_bin / self.python.name
+            )
 
             # if python file does not exists, create the new venv
             if not self.venv_python.is_file():
@@ -663,10 +675,7 @@ class TempPackageVenv(TempPackage):
 
     def cleanup(self) -> None:
         super().cleanup()
-
-        # release lock
-        if self.venv_lock and self.venv_lock.is_locked:
-            self.venv_lock.release()
+        self.unlock()
 
         # remove venv prefix (to reduce disk usage)
         if not self.request.config.option.venv_keep_prefix:
@@ -727,6 +736,7 @@ def tmp_package(request: pytest.FixtureRequest) -> GeneratorType[TempPackage]:
         if not isinstance(venv_marker.kwargs, dict):
             msg = "venv marker kwargs must be a dictionary"
             raise ValueError(msg)
+        # default scope: function
         scope = venv_marker.kwargs.get("scope", "function")
         if scope not in {"function", "module"}:
             msg = "venv marker scope must be 'function' or 'module'"
@@ -745,11 +755,12 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register an additional marker."""
     config.addinivalue_line(
         "markers",
-        """venv(scope="function"):
+        """venv(scope="function", install_dependencies=True):
         Mark test to run in a virtual environment.
 
         Args:
             scope: function [default] or module
+            install_dependencies: True [default] or False
         """,
     )
 
