@@ -16,7 +16,7 @@ from contextlib import redirect_stdout, suppress
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pytest
 from filelock import BaseFileLock, FileLock
@@ -140,7 +140,7 @@ class TempPackage:
             SAMPLES_DIR / sample,
             self.path,
             symlinks=True,
-            ignore=ignore_patterns("build", "dist"),
+            ignore=ignore_patterns("build", "dist", ".venv", "wheelhouse"),
             dirs_exist_ok=True,
         )
 
@@ -251,8 +251,6 @@ class TempPackage:
         stdout = stdout.decode() if isinstance(stdout, bytes) else str(stdout)
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
-        print(stdout)
-        print(stderr, file=sys.stderr)
         return pytest.RunResult(
             returncode, stdout.splitlines(), stderr.splitlines(), 0
         )
@@ -263,8 +261,10 @@ class TempPackage:
         *,
         backend: str | None = None,
         binary: bool = True,
-        index: bool | str | None = None,
+        deps: bool = True,
+        index: bool | StrPath | None = None,
         isolated: bool = True,
+        prerelease: bool = False,
     ) -> pytest.RunResult | None:
         """Install required packages for the test."""
         if isinstance(packages, str):
@@ -306,8 +306,10 @@ class TempPackage:
                 names_and_specs,
                 backend=backend,
                 binary=binary,
+                deps=deps,
                 index=index,
                 isolated=isolated,
+                prerelease=prerelease,
             )
 
     def install_dependencies(self, pyproject: Path | None = None) -> None:
@@ -315,17 +317,23 @@ class TempPackage:
 
         The default is to read from pyproject.toml.
         """
-        self.install(self._get_dependencies(pyproject))
+        project_data = self._get_project(pyproject)
+        prerelease = self.request.config.option.venv_prerelease
+        self.install(project_data["dependencies"], prerelease=prerelease)
 
-    def _get_dependencies(self, pyproject: Path | None = None) -> list[str]:
-        """Get dependencies for the test (specified in the pyproject.toml)."""
+    def _get_project(self, pyproject: Path | None = None) -> dict[str, Any]:
+        """Get project metadata (specified in the pyproject.toml)."""
         if pyproject is None:
             pyproject = self.path / "pyproject.toml"
         if pyproject.is_file():
             with pyproject.open("rb") as f:
                 data = tomllib.load(f)
-            return data.get("project", {}).get("dependencies", [])
-        return []
+        else:
+            data = {}
+        data.setdefault("project", {})
+        data["project"].setdefault("name", "undefined")
+        data["project"].setdefault("dependencies", [])
+        return data["project"]
 
     def _get_installed_packages(
         self, python: StrPath | None = None
@@ -385,8 +393,10 @@ class TempPackage:
         *,
         backend: str | None = None,
         binary: bool = True,
+        deps: bool = True,
         index: bool | StrPath | None = None,
         isolated: bool = False,
+        prerelease: bool = False,
     ) -> pytest.RunResult:
         # "uv pip install --prefix" install the package in the new prefix as a
         # fake venv, even if the package already exists in the real venv.
@@ -414,10 +424,16 @@ class TempPackage:
             cmd = f"uv pip install --python={self.python} {packages}"
             if binary:
                 cmd = f"{cmd} --no-build"
+            if prerelease:
+                cmd = f"{cmd} --prerelease=allow --reinstall"
         else:
             cmd = f"pip install {packages}"
             if binary:
                 cmd = f"{cmd} --prefer-binary"
+            if prerelease:
+                cmd = f"{cmd} --pre --force-reinstall"
+        if deps is False:
+            cmd = f"{cmd} --no-deps"
         if index is False:
             cmd = f"{cmd} --no-index"
         elif isinstance(index, str):
@@ -484,28 +500,28 @@ class TempPackageVenv(TempPackage):
         self._python = self.python
         self.venv_prefix = None
         self.venv_python = None
-        self.venv_lock = None
+        self._v_lock = None
         self._venv()
 
     def create(self, source: str) -> None:
         super().create(source)
+        self.install_system_dependencies()
         # install dependencies
         venv_marker = self.request.node.get_closest_marker(name="venv")
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
         if install_deps:
             self.install_dependencies()
-        if self.venv_lock and self.venv_lock.is_locked:
-            self.venv_lock.release()
+        self.unlock()
 
     def create_from_sample(self, sample: str) -> None:
         super().create_from_sample(sample)
+        self.install_system_dependencies()
         # install dependencies
         venv_marker = self.request.node.get_closest_marker(name="venv")
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
         if install_deps:
             self.install_dependencies()
-        if self.venv_lock and self.venv_lock.is_locked:
-            self.venv_lock.release()
+        self.unlock()
 
     def freeze(
         self,
@@ -514,7 +530,7 @@ class TempPackageVenv(TempPackage):
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:
-        if IS_CONDA:
+        if IS_CONDA or self.backend in ("uv", "pip"):
             if self.venv_prefix:
                 self.prefix = self.venv_prefix
             if self.venv_python:
@@ -538,8 +554,10 @@ class TempPackageVenv(TempPackage):
         *,
         backend: str | None = None,
         binary: bool = True,
-        index: bool | str | None = None,
+        deps: bool = True,
+        index: bool | StrPath | None = None,
         isolated: bool = False,  # noqa: ARG002
+        prerelease: bool = False,
     ) -> pytest.RunResult | None:
         # install in the venv prefix
         if self.venv_prefix:
@@ -551,12 +569,77 @@ class TempPackageVenv(TempPackage):
                 packages,
                 backend=backend,
                 binary=binary,
+                deps=deps,
                 index=index,
                 isolated=False,
+                prerelease=prerelease,
             )
         finally:
             self.prefix = self._prefix
             self.python = self._python
+
+    def install_system_dependencies(self) -> None:
+        """Install system dependencies for the project.
+
+        The default is to read from pyproject.toml.
+        """
+        if self.backend not in ("uv", "pip"):
+            return
+        pyproject = self.system_path / "pyproject.toml"
+        project_data = self._get_project(pyproject)
+        name = normalize(project_data["name"])
+        dependencies = project_data["dependencies"]
+        valid = [name]
+        for package in dependencies:
+            try:
+                req = Requirement(package)
+            except InvalidRequirement:
+                continue
+            if req.marker is not None and not req.marker.evaluate():
+                continue
+            valid.append(normalize(req.name))
+
+        # get installed packages in the host environment
+        # compare them with the declared dependencies in pyproject.toml
+        # check for editable packages in development environment
+        # use the wheels in wheelhouse
+        packages = []
+        editables = []
+        name_in_editables = False
+        for pkg in self._get_installed_packages():
+            if pkg["name"] in valid:
+                try:
+                    editables.append(pkg["editable_project_location"])
+                    if pkg["name"] == name:
+                        name_in_editables = True
+                except KeyError:
+                    if pkg["name"] != name:
+                        packages.append(pkg["spec"])
+        self.install(packages)
+        for package in editables:
+            self.install(f"-e{package}")
+        if not name_in_editables:
+            self.install(
+                name,
+                deps=False,
+                index=self.system_path / "wheelhouse",
+                prerelease=True,
+            )
+
+    def lock(self) -> None:
+        prefix = self.venv_prefix
+        if prefix:
+            prefix_lock = prefix.with_name(f"{prefix.name}.lock")
+            self._v_lock = FileLock(prefix_lock)
+            self._v_lock.acquire()
+        else:
+            self._v_lock = None
+
+    def unlock(self) -> None:
+        # release lock
+        if self._v_lock and self._v_lock.is_locked:
+            self._v_lock.release()
+        self._v_lock = None
 
     def _venv(self) -> None:
         venv_marker = self.request.node.get_closest_marker(name="venv")
@@ -567,26 +650,25 @@ class TempPackageVenv(TempPackage):
             # do not use venv in mingw
             self.venv_prefix = self._prefix
             self.venv_python = self._python
-            self.venv_lock = self._lock
+            self._v_lock = self._lock
         else:
             # point to the new environment (or reuse an existing one)
-            prefix = self._root / f".{self.backend}-{self._name}"
-            if scope == "function":
-                prefix = prefix.with_name(
-                    f"{prefix.name}-{self.request.function.__name__}"
-                )
-            self.venv_prefix = prefix
-            self.venv_python = prefix / self.relative_bin / self.python.name
-            self.venv_lock = FileLock(prefix.with_suffix(".lock"))
-            self.venv_lock.acquire()
+            if scope == "function":  # default scope
+                self.venv_prefix = self.path / ".venv"
+            else:
+                self.venv_prefix = self._root / f".{self.backend}-{self._name}"
+                self.lock()
+            self.venv_python = (
+                self.venv_prefix / self.relative_bin / self.python.name
+            )
 
+            # if python file does not exists, create the new venv
             if not self.venv_python.is_file():
-                # create venv
                 if self.backend == "conda":
                     self._venv_conda_clone()
                 else:
                     self._venv_pip()
-            # point to the existing lock file
+            # reuse the venv - point to the existing lock file
             elif self.backend == "pip":
                 self._lock = FileLock(self.venv_prefix / ".lock")
 
@@ -608,10 +690,7 @@ class TempPackageVenv(TempPackage):
 
     def cleanup(self) -> None:
         super().cleanup()
-
-        # release lock
-        if self.venv_lock and self.venv_lock.is_locked:
-            self.venv_lock.release()
+        self.unlock()
 
         # remove venv prefix (to reduce disk usage)
         if not self.request.config.option.venv_keep_prefix:
@@ -672,6 +751,7 @@ def tmp_package(request: pytest.FixtureRequest) -> GeneratorType[TempPackage]:
         if not isinstance(venv_marker.kwargs, dict):
             msg = "venv marker kwargs must be a dictionary"
             raise ValueError(msg)
+        # default scope: function
         scope = venv_marker.kwargs.get("scope", "function")
         if scope not in {"function", "module"}:
             msg = "venv marker scope must be 'function' or 'module'"
@@ -690,11 +770,12 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register an additional marker."""
     config.addinivalue_line(
         "markers",
-        """venv(scope="function"):
+        """venv(scope="function", install_dependencies=True):
         Mark test to run in a virtual environment.
 
         Args:
             scope: function [default] or module
+            install_dependencies: True [default] or False
         """,
     )
 
@@ -718,6 +799,11 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "--venv-keep-prefix",
         action="store_true",
         help="Keep venv directory (aka prefix).",
+    )
+    group.addoption(
+        "--venv-prerelease",
+        action="store_true",
+        help="Enable tests with prerelease versions.",
     )
 
 
