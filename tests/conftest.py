@@ -607,7 +607,10 @@ class TempPackageVenv(TempPackage):
         for package in editables:
             self.install(f"-e{package}")
         if not name_in_editables:
-            self.install(name, index=self.system_path / "wheelhouse")
+            self.install(
+                f"--no-deps --prerelease=allow {name}",
+                index=self.system_path / "wheelhouse",
+            )
         print(editables)
 
     def _venv(self) -> None:
