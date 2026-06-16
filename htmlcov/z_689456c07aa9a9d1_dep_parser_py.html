@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/dep_parser.py: 91.88%</title>
+    <title>Coverage for cx_Freeze/dep_parser.py: 89.61%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze<span class="sep">/</span>dep_parser.py</b>:
-            <span class="pc_cov">91.88%</span>
+            <span class="pc_cov">89.61%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">308 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">283<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">25<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">276<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">32<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">22<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_exception_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-16 16:24 +0000
+            created at 2026-06-16 21:10 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -279,11 +279,11 @@
     <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t">                <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t">                    <span class="nam">libraries</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">library</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">        <span class="key">if</span> <span class="nam">binary</span><span class="op">.</span><span class="nam">has_delay_imports</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">            <span class="key">for</span> <span class="nam">library</span> <span class="key">in</span> <span class="nam">binary</span><span class="op">.</span><span class="nam">delay_imports</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">library</span><span class="op">.</span><span class="nam">name</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">            <span class="key">for</span> <span class="nam">library</span> <span class="key">in</span> <span class="nam">binary</span><span class="op">.</span><span class="nam">delay_imports</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">library</span><span class="op">.</span><span class="nam">name</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">                    <span class="nam">libraries</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">library</span><span class="op">.</span><span class="nam">name</span><span class="op">.</span><span class="nam">decode</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">                <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">                    <span class="nam">libraries</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">library</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">                    <span class="nam">libraries</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">library</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t206" href="#t206">206</a></span><span class="t">        <span class="nam">dependent_files</span><span class="op">:</span> <span class="nam">set</span><span class="op">[</span><span class="nam">Path</span><span class="op">]</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t207" href="#t207">207</a></span><span class="t">        <span class="nam">search_path</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">StrPath</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="nam">filename</span><span class="op">.</span><span class="nam">parent</span><span class="op">,</span> <span class="op">*</span><span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
@@ -292,7 +292,7 @@
     <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t">            <span class="key">if</span> <span class="nam">library</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t">                <span class="nam">dependent_files</span><span class="op">.</span><span class="nam">add</span><span class="op">(</span><span class="nam">library</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t">                <span class="key">if</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t">                    <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t">                    <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t">            <span class="key">elif</span> <span class="nam">name</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t">                <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t">        <span class="key">return</span> <span class="nam">dependent_files</span>&nbsp;</span><span class="r"></span></p>
@@ -421,9 +421,9 @@
     <p class="mis show_mis"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">                            <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">                        <span class="key">break</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">                    <span class="nam">name</span> <span class="op">=</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">                    <span class="key">if</span> <span class="nam">name</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">                        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">                    <span class="nam">name</span> <span class="op">=</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">                    <span class="key">if</span> <span class="nam">name</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">                        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t">            <span class="key">if</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">"("</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
@@ -559,7 +559,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_exception_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.1">coverage.py v7.14.1</a>,
-            created at 2026-06-16 16:24 +0000
+            created at 2026-06-16 21:10 +0000
         </p>
     </div>
 </footer>
