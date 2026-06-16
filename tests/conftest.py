@@ -140,7 +140,7 @@ class TempPackage:
             SAMPLES_DIR / sample,
             self.path,
             symlinks=True,
-            ignore=ignore_patterns("build", "dist"),
+            ignore=ignore_patterns("build", "dist", ".venv", "wheelhouse"),
             dirs_exist_ok=True,
         )
 
@@ -251,8 +251,6 @@ class TempPackage:
         stdout = stdout.decode() if isinstance(stdout, bytes) else str(stdout)
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
-        print(stdout)
-        print(stderr, file=sys.stderr)
         return pytest.RunResult(
             returncode, stdout.splitlines(), stderr.splitlines(), 0
         )
@@ -263,8 +261,10 @@ class TempPackage:
         *,
         backend: str | None = None,
         binary: bool = True,
+        deps: bool = True,
         index: bool | StrPath | None = None,
         isolated: bool = True,
+        prerelease: bool = False,
     ) -> pytest.RunResult | None:
         """Install required packages for the test."""
         if isinstance(packages, str):
@@ -306,8 +306,10 @@ class TempPackage:
                 names_and_specs,
                 backend=backend,
                 binary=binary,
+                deps=deps,
                 index=index,
                 isolated=isolated,
+                prerelease=prerelease,
             )
 
     def install_dependencies(self, pyproject: Path | None = None) -> None:
@@ -316,7 +318,8 @@ class TempPackage:
         The default is to read from pyproject.toml.
         """
         project_data = self._get_project(pyproject)
-        self.install(project_data["dependencies"])
+        prerelease = self.request.config.option.venv_prerelease
+        self.install(project_data["dependencies"], prerelease=prerelease)
 
     def _get_project(self, pyproject: Path | None = None) -> dict[str, Any]:
         """Get project metadata (specified in the pyproject.toml)."""
@@ -390,8 +393,10 @@ class TempPackage:
         *,
         backend: str | None = None,
         binary: bool = True,
+        deps: bool = True,
         index: bool | StrPath | None = None,
         isolated: bool = False,
+        prerelease: bool = False,
     ) -> pytest.RunResult:
         # "uv pip install --prefix" install the package in the new prefix as a
         # fake venv, even if the package already exists in the real venv.
@@ -419,10 +424,16 @@ class TempPackage:
             cmd = f"uv pip install --python={self.python} {packages}"
             if binary:
                 cmd = f"{cmd} --no-build"
+            if prerelease:
+                cmd = f"{cmd} --prerelease=allow --reinstall"
         else:
             cmd = f"pip install {packages}"
             if binary:
                 cmd = f"{cmd} --prefer-binary"
+            if prerelease:
+                cmd = f"{cmd} --pre --force-reinstall"
+        if deps is False:
+            cmd = f"{cmd} --no-deps"
         if index is False:
             cmd = f"{cmd} --no-index"
         elif isinstance(index, str):
@@ -543,8 +554,10 @@ class TempPackageVenv(TempPackage):
         *,
         backend: str | None = None,
         binary: bool = True,
+        deps: bool = True,
         index: bool | StrPath | None = None,
         isolated: bool = False,  # noqa: ARG002
+        prerelease: bool = False,
     ) -> pytest.RunResult | None:
         # install in the venv prefix
         if self.venv_prefix:
@@ -556,8 +569,10 @@ class TempPackageVenv(TempPackage):
                 packages,
                 backend=backend,
                 binary=binary,
+                deps=deps,
                 index=index,
                 isolated=False,
+                prerelease=prerelease,
             )
         finally:
             self.prefix = self._prefix
@@ -600,16 +615,16 @@ class TempPackageVenv(TempPackage):
                 except KeyError:
                     if pkg["name"] != name:
                         packages.append(pkg["spec"])
-        print(packages)
         self.install(packages)
         for package in editables:
             self.install(f"-e{package}")
         if not name_in_editables:
             self.install(
-                f"--no-deps --prerelease=allow {name}",
+                name,
+                deps=False,
                 index=self.system_path / "wheelhouse",
+                prerelease=True,
             )
-        print(editables)
 
     def lock(self) -> None:
         prefix = self.venv_prefix
@@ -784,6 +799,11 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "--venv-keep-prefix",
         action="store_true",
         help="Keep venv directory (aka prefix).",
+    )
+    group.addoption(
+        "--venv-prerelease",
+        action="store_true",
+        help="Enable tests with prerelease versions.",
     )
 
 
