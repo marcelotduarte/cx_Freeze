@@ -16,7 +16,7 @@ from contextlib import redirect_stdout, suppress
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import pytest
 from filelock import BaseFileLock, FileLock
@@ -263,7 +263,7 @@ class TempPackage:
         *,
         backend: str | None = None,
         binary: bool = True,
-        index: bool | str | None = None,
+        index: bool | StrPath | None = None,
         isolated: bool = True,
     ) -> pytest.RunResult | None:
         """Install required packages for the test."""
@@ -315,17 +315,22 @@ class TempPackage:
 
         The default is to read from pyproject.toml.
         """
-        self.install(self._get_dependencies(pyproject))
+        project_data = self._get_project(pyproject)
+        self.install(project_data["dependencies"])
 
-    def _get_dependencies(self, pyproject: Path | None = None) -> list[str]:
-        """Get dependencies for the test (specified in the pyproject.toml)."""
+    def _get_project(self, pyproject: Path | None = None) -> dict[str, Any]:
+        """Get project metadata (specified in the pyproject.toml)."""
         if pyproject is None:
             pyproject = self.path / "pyproject.toml"
         if pyproject.is_file():
             with pyproject.open("rb") as f:
                 data = tomllib.load(f)
-            return data.get("project", {}).get("dependencies", [])
-        return []
+        else:
+            data = {}
+        data.setdefault("project", {})
+        data["project"].setdefault("name", "undefined")
+        data["project"].setdefault("dependencies", [])
+        return data["project"]
 
     def _get_installed_packages(
         self, python: StrPath | None = None
@@ -489,6 +494,7 @@ class TempPackageVenv(TempPackage):
 
     def create(self, source: str) -> None:
         super().create(source)
+        self.install_system_dependencies()
         # install dependencies
         venv_marker = self.request.node.get_closest_marker(name="venv")
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
@@ -499,6 +505,7 @@ class TempPackageVenv(TempPackage):
 
     def create_from_sample(self, sample: str) -> None:
         super().create_from_sample(sample)
+        self.install_system_dependencies()
         # install dependencies
         venv_marker = self.request.node.get_closest_marker(name="venv")
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
@@ -514,7 +521,7 @@ class TempPackageVenv(TempPackage):
         env: dict[str, str] | None = None,
         timeout: float | None = None,
     ) -> pytest.RunResult:
-        if IS_CONDA:
+        if IS_CONDA or self.backend in ("uv", "pip"):
             if self.venv_prefix:
                 self.prefix = self.venv_prefix
             if self.venv_python:
@@ -538,7 +545,7 @@ class TempPackageVenv(TempPackage):
         *,
         backend: str | None = None,
         binary: bool = True,
-        index: bool | str | None = None,
+        index: bool | StrPath | None = None,
         isolated: bool = False,  # noqa: ARG002
     ) -> pytest.RunResult | None:
         # install in the venv prefix
@@ -558,6 +565,51 @@ class TempPackageVenv(TempPackage):
             self.prefix = self._prefix
             self.python = self._python
 
+    def install_system_dependencies(self) -> None:
+        """Install system dependencies for the project.
+
+        The default is to read from pyproject.toml.
+        """
+        if self.backend not in ("uv", "pip"):
+            return
+        pyproject = self.system_path / "pyproject.toml"
+        project_data = self._get_project(pyproject)
+        name = normalize(project_data["name"])
+        dependencies = project_data["dependencies"]
+        valid = [name]
+        for package in dependencies:
+            try:
+                req = Requirement(package)
+            except InvalidRequirement:
+                continue
+            if req.marker is not None and not req.marker.evaluate():
+                continue
+            valid.append(normalize(req.name))
+
+        # get installed packages in the host environment
+        # compare them with the declared dependencies in pyproject.toml
+        # check for editable packages in development environment
+        # use the wheels in wheelhouse
+        packages = []
+        editables = []
+        name_in_editables = False
+        for pkg in self._get_installed_packages():
+            if pkg["name"] in valid:
+                try:
+                    editables.append(pkg["editable_project_location"])
+                    if pkg["name"] == name:
+                        name_in_editables = True
+                except KeyError:
+                    if pkg["name"] != name:
+                        packages.append(pkg["spec"])
+        print(packages)
+        self.install(packages)
+        for package in editables:
+            self.install(f"-e{package}")
+        if not name_in_editables:
+            self.install(name, index=self.system_path / "wheelhouse")
+        print(editables)
+
     def _venv(self) -> None:
         venv_marker = self.request.node.get_closest_marker(name="venv")
         scope = venv_marker.kwargs.get("scope", "function")
@@ -570,23 +622,23 @@ class TempPackageVenv(TempPackage):
             self.venv_lock = self._lock
         else:
             # point to the new environment (or reuse an existing one)
-            prefix = self._root / f".{self.backend}-{self._name}"
             if scope == "function":
-                prefix = prefix.with_name(
-                    f"{prefix.name}-{self.request.function.__name__}"
-                )
+                prefix = self.path / ".venv"
+            else:
+                prefix = self._root / f".{self.backend}-{self._name}"
+                prefix_lock = prefix.with_name(f"{prefix.name}.lock")
+                self.venv_lock = FileLock(prefix_lock)
+                self.venv_lock.acquire()
             self.venv_prefix = prefix
             self.venv_python = prefix / self.relative_bin / self.python.name
-            self.venv_lock = FileLock(prefix.with_suffix(".lock"))
-            self.venv_lock.acquire()
 
+            # if python file does not exists, create the new venv
             if not self.venv_python.is_file():
-                # create venv
                 if self.backend == "conda":
                     self._venv_conda_clone()
                 else:
                     self._venv_pip()
-            # point to the existing lock file
+            # reuse the venv - point to the existing lock file
             elif self.backend == "pip":
                 self._lock = FileLock(self.venv_prefix / ".lock")
 
