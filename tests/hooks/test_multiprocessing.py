@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-
     from tests.conftest import TempPackage
 
 TIMEOUT = 15
@@ -87,9 +85,10 @@ EXPECTED_OUTPUT = [
 ]
 
 
-def _parameters_data() -> Iterator:
+def _parameters_data() -> list:
     import multiprocessing as mp  # noqa: PLC0415
 
+    data = []
     methods = mp.get_all_start_methods()
     for method in methods:
         source = SOURCE.replace("('spawn')", f"('{method}')")
@@ -98,9 +97,14 @@ def _parameters_data() -> Iterator:
                 continue  # only sample3 works with forkserver method
             sample = f"sample{i}"
             test_id = f"{sample}-{method}"
-            yield pytest.param(source, sample, expected, False, id=test_id)
+            data.append(
+                pytest.param(source, sample, expected, False, id=test_id)
+            )
             test_id = f"{sample}-{method}-zip_packages"
-            yield pytest.param(source, sample, expected, True, id=test_id)
+            data.append(
+                pytest.param(source, sample, expected, True, id=test_id)
+            )
+    return data
 
 
 @pytest.mark.parametrize(
