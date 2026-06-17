@@ -4,6 +4,7 @@ import PySide6.QtGraphs
 import PySide6.QtCore
 import PySide6.QtGui
 import PySide6.QtQml
+import PySide6.QtQuick
 import os
 import enum
 import collections.abc

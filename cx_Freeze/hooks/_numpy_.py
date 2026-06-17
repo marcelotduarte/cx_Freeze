@@ -49,7 +49,8 @@ class Hook(ModuleHook):
     def numpy(self, finder: ModuleFinder, module: Module) -> None:
         """The numpy package.
 
-        Supported pypi and conda-forge versions (tested from 1.21.2 to 2.4.0).
+        Supported pypi and conda-forge versions.
+        Tested numpy versions of pypi from 1.21.2 to 2.5.0rc1.
         """
         # Exclude unnecessary modules
         finder.exclude_module("numpy._configtool")

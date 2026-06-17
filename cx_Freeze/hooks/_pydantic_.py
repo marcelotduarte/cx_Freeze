@@ -20,8 +20,9 @@ class Hook(ModuleHook):
     """The Hook class for pydantic."""
 
     def pydantic(self, finder: ModuleFinder, module: Module) -> None:
-        """The pydantic package is compiled by Cython
-        (the imports are hidden).
+        """The pydantic package is compiled by Cython.
+
+        The imports are hidden.
         """
         module.global_names.update(
             [
@@ -63,9 +64,7 @@ class Hook(ModuleHook):
         module.ignore_names.add("email_validator")
 
     def pydantic_v1(self, _finder: ModuleFinder, module: Module) -> None:
-        """The pydantic package is compiled by Cython
-        (the imports are hidden).
-        """
+        """Includes hidden module."""
         module.global_names.add("BaseModel")
 
     def pydantic_v1_env_settings(

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 __all__ = ["Hook"]
 
-# scipy/__init__.py Line 96 (scipy 1.16.3)
+# scipy/__init__.py Line 96 (scipy 1.18.0rc2)
 submodules = (
     "cluster",
     "constants",
@@ -47,7 +47,7 @@ class Hook(ModuleHook):
     def scipy(self, finder: ModuleFinder, module: Module) -> None:
         """The scipy package.
 
-        Supported pypi and conda-forge versions (tested until 1.16.3).
+        Supported pypi and conda-forge versions (tested until 1.18.0rc2).
         """
         # Exclude unnecessary modules
         distribution = module.distribution
@@ -67,6 +67,8 @@ class Hook(ModuleHook):
         finder.include_package("scipy.misc")
         with suppress(ImportError):
             finder.include_module("scipy._cyutility")  # v1.16.0
+        with suppress(ImportError):
+            finder.include_package("scipy._external")  # v.18.0rc2
 
     def scipy__distributor_init(
         self, finder: ModuleFinder, module: Module
