@@ -45,7 +45,7 @@ pyproject.toml
     [project]
     name = "test_pydantic"
     version = "0.1.2.3"
-    dependencies = ["pydantic==2.13.0b2"]
+    dependencies = ["pydantic>=2.13"]
 
     [tool.cxfreeze]
     executables = ["test_pydantic.py"]
