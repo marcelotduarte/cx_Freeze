@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import re
-from importlib import metadata
 from importlib.machinery import EXTENSION_SUFFIXES
+from importlib.metadata import PathDistribution
+from importlib.metadata import version as metadata_version
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -15,28 +16,29 @@ from cx_Freeze.exception import ModuleError
 
 if TYPE_CHECKING:
     from cx_Freeze._typing import StrPath
+    from cx_Freeze.finder import ModuleFinder
 
 __all__ = ["DistributionCache"]
 
 
-class DistributionCache(metadata.PathDistribution):
+class DistributionCache(PathDistribution):
     """Cache the distribution package."""
 
-    def __init__(self, cache_path: Path, name: str) -> None:
+    def __init__(self, name: str, finder: ModuleFinder) -> None:
         """Construct a distribution.
 
-        :param cache_path: Path indicating where to store the cache.
         :param name: The name of the distribution package to cache.
+        :param finder: The ModuleFinder object where the distribution
+        metadata are cached.
         :raises ModuleError: When the named package's distribution
             metadata cannot be found.
         """
         try:
-            distribution = metadata.PathDistribution.from_name(name)
-        except metadata.PackageNotFoundError:
-            distribution = None
-        if distribution is None:
-            raise ModuleError(name)
-        self.original = distribution
+            distribution = finder.import_distributions[name]
+        except KeyError:
+            raise ModuleError(name) from None
+        self._dist = distribution
+        self._name = name
 
         # Cache dist-info files in a temporary directory
         normalized_name = self.normalized_name
@@ -50,9 +52,8 @@ class DistributionCache(metadata.PathDistribution):
                     break
         if source_path is None or not source_path.exists():
             raise ModuleError(name)
-
         dist_name = f"{normalized_name}-{distribution.version}.dist-info"
-        target_path = cache_path / dist_name
+        target_path = finder.cache_path / dist_name
         super().__init__(target_path)
         self.distinfo_name = dist_name
         if target_path.exists():  # already cached
@@ -96,14 +97,12 @@ class DistributionCache(metadata.PathDistribution):
 
     @property
     def name(self) -> str:
-        return self.original.metadata["Name"]
+        return self._dist.metadata["Name"]
 
     @property
     def normalized_name(self) -> str:
         return getattr(
-            self.original,
-            "_normalized_name",
-            self.name.lower().replace("-", "_"),
+            self._dist, "_normalized_name", self.name.lower().replace("-", "_")
         )
 
     def _write_wheel_distinfo(self, purelib: bool) -> None:
@@ -111,7 +110,7 @@ class DistributionCache(metadata.PathDistribution):
         target = self.locate_file(f"{self.distinfo_name}/WHEEL")
         if not target.exists():
             project = Path(__file__).parent.name  # cx_Freeze
-            version = metadata.version(project)
+            version = metadata_version(project)
             root_is_purelib = "true" if purelib else "false"
             text = [
                 "Wheel-Version: 1.0",
@@ -137,7 +136,9 @@ class DistributionCache(metadata.PathDistribution):
     @property
     def binary_files(self) -> list[str]:
         """Return the relative path of binary files included in the package."""
-        files = self.original.files or []
+        files = self._dist.files
+        if not files:
+            return []
 
         if IS_MINGW or IS_WINDOWS:
             # all .dll's
@@ -169,7 +170,7 @@ class DistributionCache(metadata.PathDistribution):
         if Path(path).parents[0].as_posix() == self.distinfo_name:
             full_path = super().locate_file(path)
         else:
-            full_path = self.original.locate_file(path)
+            full_path = self._dist.locate_file(path)
         return Path(str(full_path)).resolve()
 
     @property

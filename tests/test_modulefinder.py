@@ -85,7 +85,16 @@ def _do_test(
     **kwargs,
 ) -> None:
     test_dir.create(source)
-    path = kwargs.pop("path", sys.path)
+    path = kwargs.pop("path", None)
+    if path is None:
+        # sys.path w/o setuptools._vendor path
+        path = [os.path.normpath(p) for p in sys.path]
+        path_vendor = os.path.join("setuptools", "_vendor")
+        for index, p in enumerate(path):
+            if p.endswith(path_vendor):
+                path.pop(index)
+                break
+
     finder = modulefinder_class(
         ConstantsModule(), path=[test_dir.path, *path], **kwargs
     )

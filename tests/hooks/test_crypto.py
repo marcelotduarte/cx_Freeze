@@ -74,8 +74,9 @@ pyproject.toml
     name = "test_bcrypt"
     version = "0.1.2.3"
     dependencies = [
-        "bcrypt<4;python_version < '3.11'",
-        "bcrypt>=4;python_version >= '3.11'",
+        "bcrypt<4;python_version <= '3.11'",
+        "bcrypt<5;python_version == '3.12'",
+        "bcrypt>=5;python_version >= '3.13'",
     ]
 
     [tool.cxfreeze]

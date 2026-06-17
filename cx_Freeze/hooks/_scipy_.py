@@ -49,18 +49,18 @@ class Hook(ModuleHook):
 
         Supported pypi and conda-forge versions (tested until 1.18.0rc2).
         """
-        # Exclude unnecessary modules
-        distribution = module.distribution
-        if distribution:
+        dist = finder.import_distributions.get(module.name)
+        if dist and dist.files:
             # Exclude tests
             excludes = set()
-            files = distribution.original.files or []
-            for file in files:
+            for file in dist.files:
                 if file.parent.match("**/tests"):
                     excludes.add(file.parent.as_posix().replace("/", "."))
             # >>> excludes.discard("scipy.special.tests")
             for exclude in excludes:
                 finder.exclude_module(exclude)
+
+        # Exclude unnecessary module
         finder.exclude_module("scipy.conftest")
 
         finder.include_package("scipy._lib")

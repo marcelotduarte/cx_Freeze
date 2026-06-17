@@ -44,7 +44,7 @@ class Hook(ModuleHook):
                 finder.include_files(source, target)
             for req_name in distribution.requires:
                 with suppress(ModuleError):
-                    req_dist = DistributionCache(finder.cache_path, req_name)
+                    req_dist = DistributionCache(req_name, finder)
                     for file in req_dist.binary_files:
                         source = distribution.locate_file(file)
                         target = f"{target_dir}/{source.name}"

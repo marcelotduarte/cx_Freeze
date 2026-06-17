@@ -45,7 +45,7 @@ class Module:
         self.root: Module = parent.root if parent else self
 
         self.code: CodeType | None = None
-        self.cache_path: Path | None = None
+        self.finder: ModuleFinder | None = None
         self.distribution: DistributionCache | None = None
         self.error_exc: BaseException | None = None
         self.error_msg: str | None = None
@@ -124,7 +124,6 @@ class Module:
 
     @cached_property
     def stub_code(self) -> CodeType | None:
-        cache_path: Path | None = self.cache_path
         filename = self._file
         if filename is None:
             return None
@@ -153,8 +152,8 @@ class Module:
             source_file = filename.parent / stub_name
             if source_file.exists():
                 imports_only = self.get_imports_from_file(source_file)
-            if not imports_only and cache_path:
-                target_file = cache_path / package / stub_name
+            if not imports_only and self.finder:
+                target_file = self.finder.cache_path / package / stub_name
                 if target_file.exists():
                     # a parsed stub exists in the cache
                     imports_only = target_file.read_text(encoding="utf_8")
@@ -327,18 +326,17 @@ class Module:
         Example: ModuleFinder cannot detects the distribution of _cffi_backend
         but in a hook we can link it to 'cffi'.
         """
-        cache_path: Path | None = self.cache_path
-        if cache_path is None:
+        if self.finder is None:
             return
         if name is None:
             name = self.name
         try:
-            distribution = DistributionCache(cache_path, name)
+            distribution = DistributionCache(name, self.finder)
         except ModuleError:
             return
         for req_name in distribution.requires:
             with suppress(ModuleError):
-                DistributionCache(cache_path, req_name)
+                DistributionCache(req_name, self.finder)
         self.distribution = distribution
 
 

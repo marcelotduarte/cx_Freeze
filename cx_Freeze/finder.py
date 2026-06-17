@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib.metadata
 import inspect
 import linecache
 import logging
@@ -11,6 +10,7 @@ import sys
 import traceback
 from contextlib import suppress
 from functools import cached_property
+from importlib import import_module
 from importlib.machinery import (
     BYTECODE_SUFFIXES,
     EXTENSION_SUFFIXES,
@@ -20,6 +20,11 @@ from importlib.machinery import (
     PathFinder,
     SourceFileLoader,
     SourcelessFileLoader,
+)
+from importlib.metadata import (
+    Distribution,
+    distributions,
+    packages_distributions,
 )
 from pathlib import Path
 from pkgutil import resolve_name
@@ -42,7 +47,7 @@ from cx_Freeze.hooks.unused_modules import (
 from cx_Freeze.module import ConstantsModule, Module
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from importlib.abc import Loader
 
     from cx_Freeze._typing import (
@@ -103,9 +108,6 @@ class ModuleFinder:
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
         self.lib_files: dict[Path, str] = {}
-        self.packages_distributions = (
-            importlib.metadata.packages_distributions()
-        )
 
     def cleanup(self) -> None:
         self._tmp_dir.cleanup()
@@ -141,13 +143,18 @@ class ModuleFinder:
             module.path = list(map(Path, path))
         if module.file is None and filename is not None:
             module.file = filename
-        if module.cache_path is None:
-            module.cache_path = self.cache_path
-            module.update_distribution()
+        if module.finder is None:
+            module.finder = self
+            root_name = name.split(".", maxsplit=1)[0]
+            if (
+                name not in self._builtin_modules
+                and root_name not in sys.stdlib_module_names
+            ):
+                module.update_distribution()
         return module
 
     @cached_property
-    def _builtin_modules(self) -> set[str]:
+    def _builtin_modules(self) -> frozenset[str]:
         """The built-in modules are determined based on the cx_Freeze build."""
         builtin_modules: set[str] = set(sys.builtin_module_names)
         core_lib = resource_path("lib")
@@ -156,7 +163,7 @@ class ModuleFinder:
             ext_suffix = get_config_var("EXT_SUFFIX")
             for file in core_lib.glob(f"*{ext_suffix}"):
                 builtin_modules.discard(file.name.removesuffix(ext_suffix))
-        return builtin_modules
+        return frozenset(builtin_modules)
 
     def _determine_parent(self, caller: Module | None) -> Module | None:
         """Determine the parent to use when searching packages."""
@@ -384,26 +391,21 @@ class ModuleFinder:
         """Find the spec for a module installed as an editable package."""
         # the distribution name may vary from the module name (eg may
         # include '-'). packages_distributions returns the mapping
-        for dist_name in self.packages_distributions.get(name, []):
-            dist = importlib.metadata.distribution(dist_name)
-            if not dist or not dist.files:
-                continue
-            for f in dist.files:
-                if f.name.startswith("__editable__") and f.name.endswith(
-                    "_finder.py"
-                ):
-                    try:
-                        mod = importlib.import_module(f.stem)
-                        spec = mod._EditableFinder.find_spec(  # noqa: SLF001
-                            name, path
-                        )
-                        if spec:
-                            return spec
-                    except (ImportError, AttributeError) as e:
-                        logger.warning(
-                            "Find editable spec failed for [%s]: %s", name, e
-                        )
-                        break
+        dist = self.import_distributions.get(name)
+        if not dist or not dist.files:
+            return None
+        for f in dist.files:
+            if f.match("__editable__*_finder.py"):
+                try:
+                    mod = import_module(f.stem)
+                    edt = mod._EditableFinder  # noqa: SLF001
+                    spec = edt.find_spec(name, path)
+                    if spec:
+                        return spec
+                except (ImportError, AttributeError) as exc:
+                    msg = "Find editable spec failed for [%s]: %s"
+                    logger.warning(msg, name, exc)
+                    break
         return None
 
     def _load_module(
@@ -781,6 +783,29 @@ class ModuleFinder:
         ]
         for mod in modules_to_discard:
             self.modules.remove(mod)
+
+    @cached_property
+    def import_distributions(self) -> Mapping[str, Distribution]:
+        """Return a mapping of imports to their distributions."""
+        imports = {}
+        dists = {d.name: d for d in distributions(path=self.path)}
+        found = set()
+        for import_name, packages in packages_distributions().items():
+            for dist_name in set(packages):
+                if dist_name not in dists:
+                    # normally setuptools _vendor packages are not found
+                    # because they are excluded from the self.path
+                    continue
+                if "." in dist_name:  # namespace package
+                    imports[dist_name] = dists[dist_name]
+                else:
+                    imports[import_name] = dists[dist_name]
+                found.add(dist_name)
+        for dist_name in found:
+            dists.pop(dist_name)
+        if dists:
+            imports.update(dists)
+        return imports
 
     def include_file_as_module(
         self, path: StrPath, name: str | None = None
