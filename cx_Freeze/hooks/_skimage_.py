@@ -24,6 +24,10 @@ class Hook(ModuleHook):
         module.lazy = True
 
         dist = finder.import_distributions.get(module.name)
+        if not dist:
+            # usually fails with importlib.metadata do python 3.10
+            module.update_distribution("scikit-image")
+            dist = getattr(module.distribution, "_dist", None)
         if dist and dist.files:
             # Exclude all tests
             excludes = set()

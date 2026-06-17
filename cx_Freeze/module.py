@@ -323,8 +323,8 @@ class Module:
 
         This method may be used to link an distribution's name to a module.
 
-        Example: ModuleFinder cannot detects the distribution of _cffi_backend
-        but in a hook we can link it to 'cffi'.
+        Example: ModuleFinder cannot detects the distribution of 'skimage'
+        but in a hook we can link it to 'scikit-image'.
         """
         if self.finder is None:
             return

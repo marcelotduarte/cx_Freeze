@@ -793,8 +793,8 @@ class ModuleFinder:
         for import_name, packages in packages_distributions().items():
             for dist_name in set(packages):
                 if dist_name not in dists:
-                    # normally setuptools _vendor packages are not found
-                    # because they are excluded from the self.path
+                    # Normally setuptools _vendor packages are not found
+                    # because they are excluded from the self.path.
                     continue
                 if "." in dist_name:  # namespace package
                     imports[dist_name] = dists[dist_name]
@@ -804,6 +804,8 @@ class ModuleFinder:
         for dist_name in found:
             dists.pop(dist_name)
         if dists:
+            # Even if the imports are not detected, include these distributions
+            # as they will be useful for manual updates.
             imports.update(dists)
         return imports
 
