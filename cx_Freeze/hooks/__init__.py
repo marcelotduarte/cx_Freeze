@@ -20,6 +20,18 @@ if TYPE_CHECKING:
     from cx_Freeze.module import Module
 
 
+def _include_cffi_backend(finder: ModuleFinder, module: Module) -> None:
+    """Helper function to include _cffi_backend module when required."""
+    include_cffi = False
+    if module.distribution and module.distribution.requires:
+        for req in module.distribution.requires:
+            if req.startswith("cffi"):
+                include_cffi = True
+                break
+    if include_cffi:
+        finder.include_module("_cffi_backend")
+
+
 def load_abc(finder: ModuleFinder, module: Module) -> None:
     """Optimize abc module."""
     try:
@@ -35,13 +47,12 @@ def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
     finder.include_package("aiofiles")
 
 
-def load_argon2(finder: ModuleFinder, module: Module) -> None:
-    """The argon2-cffi package requires the _cffi_backend module
-    (loaded implicitly).
+def load__argon2_cffi_bindings(finder: ModuleFinder, module: Module) -> None:
+    """The _argon2_cffi_bindings package requires the _cffi_backend module.
+
+    This package is distributed with argon2-cffi package.
     """
-    if module.distribution is None:
-        module.update_distribution("argon2-cffi")
-        finder.include_module("_cffi_backend")
+    _include_cffi_backend(finder, module)
 
 
 def load_babel(finder: ModuleFinder, module: Module) -> None:
@@ -51,12 +62,8 @@ def load_babel(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
-    """The bcrypt < 4.0 package requires the _cffi_backend module
-    (loaded implicitly).
-    """
-    # bcrypt < 4 supports Python <= 3.10
-    if module.distribution is None or int(module.distribution.version[0]) < 4:
-        finder.include_module("_cffi_backend")
+    """The bcrypt < 4.0 package requires the _cffi_backend module."""
+    _include_cffi_backend(finder, module)
 
 
 def load_boto(finder: ModuleFinder, module: Module) -> None:
@@ -91,11 +98,6 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
         finder.zip_include_files(cacert, Path("certifi", cacert.name))
 
 
-def load__cffi_backend(finder: ModuleFinder, module: Module) -> None:
-    """Add the cffi metadata for _cffi_backend module."""
-    module.update_distribution("cffi")
-
-
 def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
     """The cffi.cparser module can use a extension if present."""
     try:
@@ -121,20 +123,12 @@ def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
 
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
     """The google.crc32c module requires _cffi_backend module."""
-    finder.include_module("_cffi_backend")
+    _include_cffi_backend(finder, module)
 
 
 def load_cryptography(finder: ModuleFinder, module: Module) -> None:
     """The cryptography module requires the _cffi_backend module."""
-    include_cffi = True
-    if module.distribution and module.distribution.requires:
-        include_cffi = False
-        for req in module.distribution.requires:
-            if req.startswith("cffi"):
-                include_cffi = True
-                break
-    if include_cffi:
-        finder.include_module("_cffi_backend")
+    _include_cffi_backend(finder, module)
 
 
 def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:

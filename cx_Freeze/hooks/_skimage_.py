@@ -23,34 +23,34 @@ class Hook(ModuleHook):
         """Include the skimage package, using the lazy implementation."""
         module.lazy = True
 
-        # Exclude unnecessary modules
-        if module.distribution is None:
+        dist = finder.import_distributions.get(module.name)
+        if not dist:
+            # usually fails with importlib.metadata do python 3.10
             module.update_distribution("scikit-image")
-
-        distribution = module.distribution
-        if distribution:
+            dist = getattr(module.distribution, "_dist", None)
+        if dist and dist.files:
             # Exclude all tests
             excludes = set()
-            files = distribution.original.files or []
-            for file in files:
+            for file in dist.files:
                 if file.parent.match("**/tests"):
                     excludes.add(file.parent.as_posix().replace("/", "."))
             for exclude in excludes:
                 finder.exclude_module(exclude)
             # Include stubs
             if module.in_file_system == 0:
-                for file in files:
+                for file in dist.files:
                     if file.match("*.pyi"):
                         finder.zip_include_files(
                             file.locate(), file.as_posix()
                         )
             else:
-                for file in files:
+                for file in dist.files:
                     if file.match("*.pyi"):
                         finder.include_files(
                             file.locate(), f"lib/{file.as_posix()}"
                         )
 
+        # Exclude unnecessary modules
         finder.exclude_module("skimage.conftest")
         finder.exclude_module("skimage._shared.testing")
 

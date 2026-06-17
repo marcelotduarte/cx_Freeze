@@ -63,20 +63,20 @@ class Hook(ModuleHook):
         finder.exclude_module("numpy.typing.mypy_plugin")
         module.ignore_names.add("numpy.distutils")
 
-        # Exclude/Include modules based on distribution and/or version
-        dist = module.distribution
-        if dist:
-            # Exclude tests
+        # Exclude tests
+        dist = finder.import_distributions.get(module.name)
+        if dist and dist.files:
             excludes = set()
-            files = dist.original.files or []
-            for file in files:
+            for file in dist.files:
                 if file.parent.match("**/tests"):
                     excludes.add(file.parent.as_posix().replace("/", "."))
             excludes.discard("numpy._core.tests")
             for exclude in excludes:
                 finder.exclude_module(exclude)
 
-            # Include dynamically loaded module / exclude unnecessary modules
+        # Exclude/Include modules based on distribution and/or version
+        dist = module.distribution
+        if dist:
             if (int(dist.version[0]), int(dist.version[1])) >= (2, 0):
                 finder.exclude_module("numpy._core.include")
                 finder.exclude_module("numpy._core.lib")

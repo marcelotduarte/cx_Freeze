@@ -25,23 +25,20 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,
     ) -> None:
-        # Exclude unnecessary modules
-        if module.distribution is None:
-            module.update_distribution("scikit-learn")
-        distribution = module.distribution
-        if distribution:
+        dist = finder.import_distributions.get(module.name)
+        if dist and dist.files:
             # Exclude tests
             excludes = set()
-            files = distribution.original.files or []
-            for file in files:
+            for file in dist.files:
                 if file.parent.match("**/conftest.py"):
                     exclude = file.with_suffix("").as_posix().replace("/", ".")
                     excludes.add(exclude)
-            for file in files:
+            for file in dist.files:
                 if file.parent.match("**/tests"):
                     excludes.add(file.parent.as_posix().replace("/", "."))
             for exclude in excludes:
                 finder.exclude_module(exclude)
+        # Exclude unnecessary modules
         finder.exclude_module("sklearn._build_utils")
         finder.exclude_module("sklearn.utils._testing")
         with suppress(ImportError):

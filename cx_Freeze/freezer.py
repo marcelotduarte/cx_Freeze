@@ -186,9 +186,9 @@ class Freezer:
         self._symlinks: set[tuple[Path, Path, bool]] = set()
         self.files_copied: set[Path] = set()
         self.modules_copied: list[Module] = []
-        self.finder: ModuleFinder = self._get_module_finder()
-        self._check_installation()
         self._warnings: dict[str, bool] = {}
+        self._check_installation()
+        self.finder: ModuleFinder = self._get_module_finder()
 
     @property
     def target_dir(self) -> Path:
@@ -235,7 +235,7 @@ class Freezer:
 
     def _check_installation(self) -> None:
         if IS_CONDA:
-            dist = DistributionCache(self.finder.cache_path, "freeze_core")
+            dist = DistributionCache("freeze_core", self.finder)
             if dist.installer == "pip":
                 print(WARNING_PIP_FREEZE_CORE_IN_CONDA_PYTHON, file=sys.stderr)
 
@@ -541,7 +541,7 @@ class Freezer:
         return dist.executables  # ty: ignore[unresolved-attribute]
 
     @staticmethod
-    def _validate_path(path: list[StrPath] | None = None) -> list[str]:
+    def _validate_path(path: list[StrPath] | None) -> list[str]:
         """Returns valid search path for modules.
 
         Fix the path for built-in modules when it differs from the running
@@ -565,7 +565,6 @@ class Freezer:
         for index, p in enumerate(valid_path):
             if p.endswith(path_vendor):
                 valid_path.pop(index)
-                break
         return valid_path
 
     @staticmethod
