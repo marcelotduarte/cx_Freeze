@@ -1,4 +1,4 @@
-"""Tests for hooks of compression.zstd."""
+"""Tests for hooks of stdlib compression.zstd."""
 
 from __future__ import annotations
 
