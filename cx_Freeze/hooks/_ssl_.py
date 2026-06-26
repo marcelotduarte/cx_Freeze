@@ -42,45 +42,43 @@ class Hook(ModuleHook):
 
         # first, check if there is a user-defined environment variable
         cert_file = os.environ.get("SSL_CERT_FILE")
-        if cert_file is None:
+        if cert_file is None or not os.path.exists(cert_file):
             # manylinux wheels and macpython wheels store certs.pem
             cert_file = resource_path("share/certs.pem")
         if cert_file is None or not os.path.exists(cert_file):
             ssl_paths = __import__("ssl").get_default_verify_paths()
             cert_file = ssl_paths.cafile
-            if cert_file and not os.path.exists(cert_file):
+            if cert_file is None or not os.path.exists(cert_file):
                 cert_file = ssl_paths.openssl_cafile
-        if cert_file:
-            source = Path(cert_file).resolve()
-            if not source.exists():
-                return
-            finder.include_files(source, "share/certs.pem")
-            # patch source code
-            patch = r"""
-                # cx_Freeze patch start
-                import os as _os
-                import sys as _sys
-                _cert_file = _os.environ.get("SSL_CERT_FILE")
-                if _cert_file is None or not _os.path.exists(_cert_file):
-                    _prefix = _sys.prefix
-                    if _sys.platform == "darwin":
-                        _mac_prefix = _os.path.join(
-                            _os.path.dirname(_prefix), "Resources"
-                        )
-                        if _os.path.exists(_mac_prefix):
-                            _prefix = _mac_prefix  # using bdist_mac
-                    _cert_file = _os.path.join(_prefix, "share", "certs.pem")
-                    _os.environ["SSL_CERT_FILE"] = _cert_file
-                # cx_Freeze patch end
-            """
-            loader = module.loader
-            if not isinstance(loader, SourceFileLoader):
-                return
-            source_code = loader.get_source(module.name)
-            if source_code is None:
-                return
-            module.code = loader.source_to_code(
-                dedent(patch) + source_code,
-                loader.get_filename(module.name),
-                _optimize=finder.optimize,
-            )
+        if cert_file is None or not os.path.exists(cert_file):
+            return
+        finder.include_files(os.path.abspath(cert_file), "share/certs.pem")
+        # patch source code
+        patch = r"""
+            # cx_Freeze patch start
+            import os as _os
+            import sys as _sys
+            _cert_file = _os.environ.get("SSL_CERT_FILE")
+            if _cert_file is None or not _os.path.exists(_cert_file):
+                _prefix = _sys.prefix
+                if _sys.platform == "darwin":
+                    _mac_prefix = _os.path.join(
+                        _os.path.dirname(_prefix), "Resources"
+                    )
+                    if _os.path.exists(_mac_prefix):
+                        _prefix = _mac_prefix  # using bdist_mac
+                _cert_file = _os.path.join(_prefix, "share", "certs.pem")
+                _os.environ["SSL_CERT_FILE"] = _cert_file
+            # cx_Freeze patch end
+        """
+        loader = module.loader
+        if not isinstance(loader, SourceFileLoader):
+            return
+        source_code = loader.get_source(module.name)
+        if source_code is None:
+            return
+        module.code = loader.source_to_code(
+            dedent(patch) + source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
+        )

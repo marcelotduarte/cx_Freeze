@@ -78,8 +78,8 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek>=0.4.0,<0.5.0",
-    "ty>=0.0.48",
+    "prek>=0.4.5,<0.5.0",
+    "ty>=0.0.54",
 ]
 doc = [
     "sphinx>=9.1.0,<9.2",
@@ -312,4 +312,5 @@ exclude = [
 ]
 
 [tool.ty.terminal]
+error-on-warning = false
 output-format = "concise"
