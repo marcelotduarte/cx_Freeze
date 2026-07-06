@@ -48,8 +48,8 @@ class Hook(ModuleHook):
         if module.distribution:
             dist = module.distribution
             name = dist.normalized_name
-            version = dist.version
-            if version[:2] < (4, 10):
+            version = tuple(map(int, dist.version[:2]))
+            if version < (4, 10):
                 m_np = finder.include_package("numpy")
                 if (
                     m_np
@@ -75,7 +75,7 @@ class Hook(ModuleHook):
 
             # cv2 4.9.0-4.10.0 conda-forge uses qt6-main
             if module.distribution.installer == "conda":
-                if version[:2] >= (4, 9):
+                if version >= (4, 9):
                     source = Path(sys.base_prefix, "lib/qt6/plugins/platforms")
                 else:
                     source = Path(sys.base_prefix, "plugins/platforms")
