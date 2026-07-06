@@ -35,7 +35,7 @@ repos:
     hooks:
       - id: validate-pyproject
         additional_dependencies:
-          - validate-pyproject-schema-store[all]>=2026.06.26
+          - validate-pyproject-schema-store[all]>=2026.07.06
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: c59bba8fb259db0fec2bbb77ad8ba51ea7341b56 # frozen: v0.15.20
@@ -62,7 +62,7 @@ repos:
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: 06507ab9500d4a9919b5ebd76d9d5b7074f15c1f # frozen: v3.8.4
+    rev: 39e2973981e6d2f9b6c543b0086a2d2393abdc89 # frozen: v3.9.4
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
@@ -73,7 +73,7 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 2a372400485ad8d97b7755613cbe68e03050df5a # frozen: v0.0.54
+    rev: a6000401e1ca0cf427a8398b42fd636a3a0dcb54 # frozen: v0.0.56
     hooks:
       - id: ty
         args: [--no-sync]
