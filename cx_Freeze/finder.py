@@ -96,7 +96,6 @@ class ModuleFinder:
             zip_includes
         )
         self.namespaces: list[Module] = []
-        self.modules: list[Module] = []
         self.aliases: dict[str, str] = {}
         self.excluded_dependent_files: set[Path] = set()
         self._bad_modules = {}
@@ -111,6 +110,17 @@ class ModuleFinder:
 
     def cleanup(self) -> None:
         self._tmp_dir.cleanup()
+
+    @cached_property
+    def modules(self) -> list[Module]:
+        return sorted(
+            [
+                m
+                for m in set(self._modules.values())
+                if m is not None and m not in self.namespaces
+            ],
+            key=lambda m: m.name,
+        )
 
     def _add_module(
         self,
@@ -128,7 +138,6 @@ class ModuleFinder:
         if module is None:
             module = Module(name, path, filename, parent)
             self._modules[name] = module
-            self.modules.append(module)
             if name in self._bad_modules:
                 logger.debug(
                     "Removing module [%s] from list of bad modules", name
@@ -436,8 +445,6 @@ class ModuleFinder:
                 module = self._add_module(name, path=path, parent=parent)
                 logger.debug("Adding module [%s] [NESTED NAMESPACE]", name)
                 self.namespaces.append(module)
-                with suppress(ValueError):
-                    self.modules.remove(module)
                 module.in_import = False
                 return module
 
@@ -455,8 +462,6 @@ class ModuleFinder:
             if spec.origin is None:
                 logger.debug("Adding module [%s] [NAMESPACE]", name)
                 self.namespaces.append(module)
-                with suppress(ValueError):
-                    self.modules.remove(module)
                 module.in_import = False
                 return module
             if spec.submodule_search_locations:
@@ -763,26 +768,18 @@ class ModuleFinder:
 
         The modules are excluded in the resulting frozen executable.
         """
-        modules_to_discard = [
+        submodules = [
             mod for mod in self.excludes if mod.startswith(f"{name}.")
         ]
-        self.excludes.difference_update(modules_to_discard)
+        self.excludes.difference_update(submodules)
         self.excludes.add(name)
 
-        modules_to_discard = [
+        submodules = [
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
-        for mod in modules_to_discard:
-            self._modules.pop(mod, None)
+        for submodule in submodules:
+            self._modules.pop(submodule, None)
         self._modules[name] = None
-
-        modules_to_discard = [
-            mod
-            for mod in self.modules
-            if mod.name == name or mod.name.startswith(f"{name}.")
-        ]
-        for mod in modules_to_discard:
-            self.modules.remove(mod)
 
     @cached_property
     def import_distributions(self) -> Mapping[str, Distribution]:
