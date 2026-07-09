@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 import pytest
 from packaging.requirements import Requirement
 
+from cx_Freeze._compat import IS_LINUX, IS_MACOS, IS_WINDOWS
+
 if sys.version_info[:2] >= (3, 11):
     import tomllib
 else:
@@ -38,10 +40,7 @@ pyproject.toml
     name = "test_setuptools"
     version = "0.1.2.3"
     dependencies = [
-        "setuptools==78.1.1;python_version <= '3.12'",
-        "setuptools==80.9.0;python_version == '3.13'",
-        "setuptools==80.10.2;python_version == '3.14'",
-        "setuptools>=81.0;python_version > '3.14'",
+        "{setuptools}",
         # using versions greater than vendored by latest setuptools
         "jaraco.collections>5.1.0",
         "jaraco.functools>4.4.0",
@@ -56,12 +55,34 @@ pyproject.toml
     silent = true
 """
 
+if IS_LINUX or IS_MACOS or IS_WINDOWS:
+    SETUPTOOLS_VERSIONS = (
+        "78.1.1",
+        "80.9.0",
+        "80.10.2",
+        "81.0.0",
+        "82.0.0",
+        "83.0.0",
+    )
+else:
+    SETUPTOOLS_VERSIONS = ("installed",)  # mingw, ...
+
 
 @pytest.mark.venv
 @zip_packages
-def test_setuptools(tmp_package: TempPackage, zip_packages: bool) -> None:
+@pytest.mark.parametrize("pkgver", SETUPTOOLS_VERSIONS)
+def test_setuptools(
+    tmp_package: TempPackage, zip_packages: bool, pkgver: str
+) -> None:
     """Test if setuptools hook is working correctly."""
-    tmp_package.create(SOURCE_TEST_SETUPTOOLS)
+    if pkgver == "installed":
+        tmp_package.create(
+            SOURCE_TEST_SETUPTOOLS.format(setuptools="setuptools")
+        )
+    else:
+        tmp_package.create(
+            SOURCE_TEST_SETUPTOOLS.format(setuptools=f"setuptools=={pkgver}")
+        )
     pyproject = tmp_package.path / "pyproject.toml"
     if zip_packages:
         buf = pyproject.read_bytes().decode().splitlines()
