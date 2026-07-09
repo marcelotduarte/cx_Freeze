@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools~=82.0",
+    "setuptools~=83.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -29,7 +29,7 @@ classifiers = [
 dependencies = [
     "freeze-core>=0.6.1",
     "packaging>=25.0",
-    "setuptools>=78.1.1,<83.0",
+    "setuptools>=78.1.1,<84.0",
     # Linux
     "filelock>=3.20.3 ;sys_platform == 'linux'",
     "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
