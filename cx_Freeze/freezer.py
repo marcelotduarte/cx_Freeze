@@ -185,7 +185,6 @@ class Freezer:
 
         self._symlinks: set[tuple[Path, Path, bool]] = set()
         self.files_copied: set[Path] = set()
-        self.modules_copied: list[Module] = []
         self._warnings: dict[str, bool] = {}
         self._check_installation()
         self.finder: ModuleFinder = self._get_module_finder()
@@ -640,23 +639,21 @@ class Freezer:
         finder: ModuleFinder = self.finder
         cache_path = finder.cache_path
 
-        modules: list[Module] = [
-            m for m in finder.modules if m.name not in finder.excludes
-        ]
-        for module in finder.namespaces:
+        for module in reversed(finder.namespaces):
             # if namespace package should be written to zip file, convert it
             # to regular package, since then zipimport doesn't support PEP420
             if module.in_file_system == 0:
                 module.code = compile(
                     "", "__init__.py", "exec", dont_inherit=True
                 )
-                modules.append(module)
-        module = finder.include_file_as_module(
-            self.constants_module.create(cache_path, modules)
+                finder.namespaces.remove(module)
+
+        # BUILD_CONSTANTS
+        finder.include_file_as_module(
+            self.constants_module.create(cache_path, finder.modules)
         )
-        if module:
-            modules.append(module)
-        modules.sort(key=lambda m: m.name)
+        # Clear the cache, as a new module was added.
+        del finder.modules
 
         target_lib_dir = filename.parent
         self._create_directory(target_lib_dir)
@@ -668,7 +665,7 @@ class Freezer:
         ) as outfile:
             files_to_copy: list[tuple[Module, Path]] = []
 
-            for module in modules:
+            for module in finder.modules:
                 # determine if the module should be written to the file system;
                 # a number of packages make the assumption that files that they
                 # require will be found in a location relative to where they
@@ -823,9 +820,6 @@ class Freezer:
             library_data = self.target_dir / "lib" / "library.dat"
             library_data.write_bytes(self.zip_filename.name.encode())
 
-        # to report
-        self.modules_copied = modules
-
     def freeze(self) -> None:
         """Do the freeze."""
         finder: ModuleFinder = self.finder
@@ -882,7 +876,7 @@ class Freezer:
                 print(f"writing zip file {self.zip_filename}\n")
             print(f"  {'Name':<25} File")
             print(f"  {'----':<25} ----")
-            for module in self.modules_copied:
+            for module in self.finder.modules:
                 if module.path:
                     print("P", end="")
                 else:
