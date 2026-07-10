@@ -296,22 +296,23 @@ class Freezer:
         def copy_tree(
             source_dir: Path, target_dir: Path, excludes: set[str]
         ) -> None:
+            excludes_dir = {m.split(".")[1] for m in excludes}
             self._create_directory(target_dir)
+
             for source in source_dir.iterdir():
                 if any(filter(source.match, ignore_patterns)):
                     continue
                 source_name = source.name
-                if source_name in excludes:
+                if source_name in excludes_dir:
                     continue
                 target = target_dir / source_name
                 if source.is_dir():
-                    source_subdir = source_dir / source_name
-                    excludes_subdir = {
-                        m.split(f"{source_name}.", 1)[1]
+                    excludes_sub = {
+                        m.split(".", 2)[1]
                         for m in excludes
-                        if m.startswith(f"{source_name}.")
+                        if m.startswith(f"{source_dir.name}.{source_name}")
                     }
-                    copy_tree(source_subdir, target, excludes_subdir)
+                    copy_tree(source, target, excludes_sub)
                 else:
                     self._copy_file(source, target, copy_dependent_files=True)
 
@@ -320,11 +321,9 @@ class Freezer:
         if self.silent < 1:
             print(f"copying data from package {module_name}...")
         # do not copy the subfolders which belong to excluded modules
-        excludes = {
-            m.split(f"{module_name}.", 1)[1]
-            for m in self.finder.excludes
-            if m.startswith(f"{module_name}.")
-        }
+        excludes = set()
+        for exclude in self.finder.excluded_submodules(module_name):
+            excludes.add(exclude.removeprefix(module_name))
         copy_tree(source_dir, target_dir, excludes)
 
     def _pre_copy_hook(self, source: Path, target: Path) -> tuple[Path, Path]:
