@@ -84,7 +84,6 @@ class ModuleFinder:
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
-        self.excludes: set[str] = set(excludes or [])
         self.optimize = optimize
         self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
@@ -100,9 +99,8 @@ class ModuleFinder:
         self.excluded_dependent_files: set[Path] = set()
         self._bad_modules = {}
         # add the unused modules in the current platform
-        self.excludes.update(DEFAULT_EXCLUDES)
         self._modules: dict[str, Module | None] = dict.fromkeys(
-            self.excludes or []
+            set(excludes or []) | DEFAULT_EXCLUDES
         )
         self._tmp_dir = TemporaryDirectory(prefix="cxfreeze-")
         self.cache_path = Path(self._tmp_dir.name)
@@ -253,7 +251,7 @@ class ModuleFinder:
                     sub_module_name, deferred_imports
                 )
                 if sub_module is None:
-                    if sub_module_name not in self.excludes:
+                    if sub_module_name not in self._modules:
                         msg = f"No module named {sub_module_name!r}"
                         raise ImportError(msg, name=sub_module_name)
                 else:
@@ -769,17 +767,19 @@ class ModuleFinder:
         The modules are excluded in the resulting frozen executable.
         """
         submodules = [
-            mod for mod in self.excludes if mod.startswith(f"{name}.")
-        ]
-        self.excludes.difference_update(submodules)
-        self.excludes.add(name)
-
-        submodules = [
             mod for mod in self._modules if mod.startswith(f"{name}.")
         ]
         for submodule in submodules:
             self._modules.pop(submodule, None)
         self._modules[name] = None
+
+    def excluded_submodules(self, name: str) -> set[str]:
+        """The excluded set of submodules for the named module."""
+        return {
+            module_name
+            for module_name, module in self._modules.items()
+            if module_name.startswith(f"{name}.") and module is None
+        }
 
     @cached_property
     def import_distributions(self) -> Mapping[str, Distribution]:
@@ -838,9 +838,8 @@ class ModuleFinder:
         self, name: str, caller: Module | None = None
     ) -> Module | None:
         """Include the named module in the frozen executable."""
-        # Includes has priority over excludes.
-        self.excludes.discard(name)
-        # Remove the module in the module cache before trying to import it.
+        # Remove the module *marked as excludes* from the module cache before
+        # trying to import it, because includes has priority over excludes.
         if self._modules.get(name) is None:
             self._modules.pop(name, None)
         # Include the module.
@@ -856,9 +855,8 @@ class ModuleFinder:
 
         The package is excluded in the resulting frozen executable.
         """
-        # Includes has priority over excludes.
-        self.excludes.discard(name)
-        # Remove the module in the module cache before trying to import it.
+        # Remove the package *marked as excludes* from the module cache before
+        # trying to import it, because includes has priority over excludes.
         if self._modules.get(name) is None:
             self._modules.pop(name, None)
         # Include the package.

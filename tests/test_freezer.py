@@ -373,6 +373,7 @@ def test_freezer_copy_package_data(tmp_package: TempPackage) -> None:
         executables=["hello.py"],
         include_msvcr=True,
         path=[tmp_package.path, *sys.path],
+        silent=True,
     )
     freezer.freeze()
 
@@ -402,3 +403,116 @@ def test_freezer_copy_package_data(tmp_package: TempPackage) -> None:
         if any(filter(file.match, ignore_patterns))
     ]
     assert names == []
+
+
+SOURCE_2 = """
+namespacepack/firstchildpack/__init__.py
+namespacepack/firstchildpack/main.py
+    from namespacepack.firstchildpack.utils import name
+
+    def main():
+        print(f"Hello, {name()}!")
+
+    if __name__ == "__main__":
+        main()
+namespacepack/firstchildpack/utils/__init__.py
+    def name():
+        return "firstchildpack"
+namespacepack/firstchildpack/utils/basic/readme.txt
+    readme
+namespacepack/firstchildpack/configs/conf.yaml
+    test_key: "firstchildpack"
+namespacepack/firstchildpack/models/model.txt
+    Some model of firstchildpack
+namespacepack/secondchildpack/__init__.py
+namespacepack/secondchildpack/main.py
+    from namespacepack.secondchildpack.utils import name
+
+    def main():
+        print(f"Hello, {name()}!")
+
+    if __name__ == "__main__":
+        main()
+namespacepack/secondchildpack/utils.py
+    def name():
+        return "secondchildpack"
+namespacepack/secondchildpack/configs/conf.yaml
+    test_key: "secondchildpack"
+namespacepack/secondchildpack/models/model.txt
+    Some model of secondchildpack
+regularpack/__init__.py
+regularpack/main.py
+    from regularpack.utils import name
+
+    def main():
+        print(f"Hello, {name()}!")
+
+    if __name__ == "__main__":
+        main()
+regularpack/utils.py
+    def name():
+        return "regularpack"
+regularpack/configs/conf.yaml
+    test_key: "regularpack"
+regularpack/models/model.txt
+    Some model of regularpack
+"""
+
+
+def test_freezer_excludes(tmp_package: TempPackage) -> None:
+    """Test the freeze excludes option."""
+    tmp_package.create(SOURCE_2)
+
+    freezer = Freezer(
+        executables=[
+            {
+                "script": "regularpack/main.py",
+                "target_name": "regularpack",
+            },
+            {
+                "script": "namespacepack/firstchildpack/main.py",
+                "target_name": "firstchildpack",
+            },
+            {
+                "script": "namespacepack/secondchildpack/main.py",
+                "target_name": "secondchildpack",
+            },
+        ],
+        excludes=[
+            "regularpack.configs",
+            "regularpack.models",
+            "namespacepack.firstchildpack.configs",
+            "namespacepack.firstchildpack.models",
+            "namespacepack.firstchildpack.utils.basic",
+            "namespacepack.secondchildpack.configs",
+            "namespacepack.secondchildpack.models",
+        ],
+        include_msvcr=True,
+        packages=[
+            "regularpack",
+            "namespacepack.firstchildpack",
+            "namespacepack.secondchildpack",
+        ],
+        path=[tmp_package.path, *sys.path],
+        silent=True,
+    )
+    freezer.freeze()
+
+    for fullname in (
+        "regularpack",
+        "namespacepack.firstchildpack",
+        "namespacepack.secondchildpack",
+    ):
+        name = fullname.split(".")[-1]
+        executable = tmp_package.executable(name)
+        assert executable.is_file()
+
+        result = tmp_package.run(executable)
+        result.stdout.fnmatch_lines(f"Hello, {name}!")
+
+        pkg_dir = executable.parent / "lib" / fullname.replace(".", "/")
+        print(f"\n-->{fullname}")
+        filelist = [fn for fn in pkg_dir.rglob("*") if fn.is_file()]
+        for fn in filelist:
+            print(fn)
+        assert len(filelist) == 3
