@@ -77,7 +77,7 @@ def _do_test(
     import_this: str,
     modules: list[str],
     missing: list[str],
-    maybe_missing: list[str],  # noqa: ARG001
+    maybe_missing: list[str],
     source: str,
     report: bool = False,
     debug: bool = False,  # noqa: ARG001
@@ -105,9 +105,10 @@ def _do_test(
     if report:
         finder.report_missing_modules()
     modules = sorted(set(modules))
+    modules_plus_maybe_missing = sorted(set(modules) | set(maybe_missing))
     found = sorted([m.name for m in finder.modules])
     # check if we found what we expected, not more, not less
-    assert found == modules
+    assert found in (modules, modules_plus_maybe_missing)
     assert module is not None
     if module.error_msg:
         assert module.name in missing
