@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-10 05:09 +0000
+            created at 2026-07-11 16:56 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -721,8 +721,8 @@
     <p class="run"><span class="n"><a id="t639" href="#t639">639</a></span><span class="t">        <span class="nam">cache_path</span> <span class="op">=</span> <span class="nam">finder</span><span class="op">.</span><span class="nam">cache_path</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t640" href="#t640">640</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t641" href="#t641">641</a></span><span class="t">        <span class="key">for</span> <span class="nam">module</span> <span class="key">in</span> <span class="nam">reversed</span><span class="op">(</span><span class="nam">finder</span><span class="op">.</span><span class="nam">namespaces</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t642" href="#t642">642</a></span><span class="t">            <span class="com"># if namespace package should be written to zip file, convert it</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t643" href="#t643">643</a></span><span class="t">            <span class="com"># to regular package, since then zipimport doesn't support PEP420</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t642" href="#t642">642</a></span><span class="t">            <span class="com"># A namespace package must be converted into regular package</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t643" href="#t643">643</a></span><span class="t">            <span class="com"># when written to zip file because zipimport doesn't support PEP420</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t644" href="#t644">644</a></span><span class="t">            <span class="key">if</span> <span class="nam">module</span><span class="op">.</span><span class="nam">in_file_system</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t645" href="#t645">645</a></span><span class="t">                <span class="nam">module</span><span class="op">.</span><span class="nam">code</span> <span class="op">=</span> <span class="nam">compile</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t646" href="#t646">646</a></span><span class="t">                    <span class="str">""</span><span class="op">,</span> <span class="str">"__init__.py"</span><span class="op">,</span> <span class="str">"exec"</span><span class="op">,</span> <span class="nam">dont_inherit</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
@@ -1554,7 +1554,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-10 05:09 +0000
+            created at 2026-07-11 16:56 +0000
         </p>
     </div>
 </footer>
