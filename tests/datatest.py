@@ -34,17 +34,17 @@ a.py
 
 ABSOLUTE_IMPORT_TEST: SourceList = (
     "a.module",
-    ["a", "a.module", "b", "b.x", "b.y", "b.z", "__future__", "sys", "gc"],
+    ["a", "a.module", "b", "b.x", "b.y", "b.z", "__future__"],
     ["blahblah", "z"],
-    [],
+    ["sys", "gc"],  # builtins
     """\
 mymodule.py
 a/__init__.py
 a/module.py
     from __future__ import absolute_import
-    import sys # sys
+    import sys
     import blahblah # fails
-    import gc # gc
+    import gc
     import b.x # b.x
     from b import y # b.y
     from b.z import * # b.z.*
@@ -225,9 +225,9 @@ testpkg1/submod.py
 
 MAYBE_TEST: SourceList = (
     "a.module",
-    ["a", "a.module", "sys", "b"],
+    ["a", "a.module", "b"],
     ["c"],
-    ["b.something"],
+    ["sys"],
     """\
 a/__init__.py
 a/module.py
@@ -241,9 +241,9 @@ b/__init__.py
 
 MAYBE_TEST_NEW: SourceList = (
     "a.module",
-    ["a", "a.module", "sys", "b", "__future__"],
+    ["a", "a.module", "b", "__future__"],
     ["c"],
-    ["b.something"],
+    ["sys"],
     """\
 a/__init__.py
 a/module.py
@@ -321,9 +321,9 @@ OPTIMIZE_2_TEST: SourceList = (
 
 PACKAGE_TEST: SourceList = (
     "a.module",
-    ["a", "a.b", "a.c", "a.module", "mymodule", "sys"],
+    ["a", "a.b", "a.c", "a.module", "mymodule"],
     ["blahblah", "c"],
-    [],
+    ["sys"],  # builtin
     """\
 mymodule.py
 a/__init__.py
@@ -357,10 +357,9 @@ RELATIVE_IMPORT_TEST: SourceList = (
         "a.b.c.d",
         "a.b.c.e",
         "a.b.x",
-        "gc",
     ],
     [],
-    [],
+    ["gc"],
     """\
 mymodule.py
 a/__init__.py
