@@ -158,8 +158,9 @@ class ModuleFinder:
         builtin_modules: dict[str, str] = {}
         for name in sys.builtin_module_names:
             builtin_modules[name] = "built-in"
-        for name in _imp._frozen_module_names():  # ty: ignore # noqa: SLF001
-            builtin_modules[name] = "frozen"
+        if sys.version_info[:2] >= (3, 11):
+            for name in _imp._frozen_module_names():  # noqa: SLF001
+                builtin_modules[name] = "frozen"
         core_lib = resource_path("lib")
         if core_lib and core_lib.is_dir():
             # discard modules that exist in freeze-core 'lib'
@@ -877,14 +878,21 @@ class ModuleFinder:
     @cached_property
     def modules(self) -> list[Module]:
         """Sorted list of modules expected in the frozen executable."""
-        valid_modules = [
+        valid_modules = {
             module
             for name, module in self._modules.items()
             if module is not None
             and module not in self.namespaces
             and name not in self._builtin_modules
-        ]
-        return sorted(set(valid_modules), key=lambda module: module.name)
+        }
+        if sys.version_info[:2] < (3, 11):
+            frozen = [
+                module
+                for module in valid_modules
+                if module.file and module.file.name == "frozen"
+            ]
+            valid_modules.difference_update(frozen)
+        return sorted(valid_modules, key=lambda module: module.name)
 
     @property
     def optimize(self) -> int:

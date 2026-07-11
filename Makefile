@@ -38,9 +38,9 @@ uninstall:
 	@prek uninstall -q
 	@rm -f .git/hooks/pre-commit
 
-.PHONY: upgrade
-upgrade: install
-	prek auto-update --freeze
+.PHONY: update
+update: install
+	prek update --freeze
 	$(MAKE) prek
 
 .PHONY: html

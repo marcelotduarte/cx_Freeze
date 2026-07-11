@@ -639,8 +639,8 @@ class Freezer:
         cache_path = finder.cache_path
 
         for module in reversed(finder.namespaces):
-            # if namespace package should be written to zip file, convert it
-            # to regular package, since then zipimport doesn't support PEP420
+            # A namespace package must be converted into regular package
+            # when written to zip file because zipimport doesn't support PEP420
             if module.in_file_system == 0:
                 module.code = compile(
                     "", "__init__.py", "exec", dont_inherit=True
