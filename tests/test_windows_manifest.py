@@ -86,12 +86,14 @@ LIEF_VERSIONS = []
 if IS_WINDOWS:
     if IS_CONDA:
         LIEF_VERSIONS.append("installed")
-    elif ABI_THREAD == "":  # lief doesn't support free-threaded yet
-        if sys.version_info[:2] <= (3, 13):
-            LIEF_VERSIONS.append("0.16.0")
-            LIEF_VERSIONS.append("0.16.6")
-        LIEF_VERSIONS.append("0.17.0")
-        LIEF_VERSIONS.append("0.17.6")
+    else:
+        if ABI_THREAD == "":
+            if sys.version_info[:2] <= (3, 13):
+                LIEF_VERSIONS.append("0.16.0")
+                LIEF_VERSIONS.append("0.16.6")
+            LIEF_VERSIONS.append("0.17.0")
+            LIEF_VERSIONS.append("0.17.6")
+        LIEF_VERSIONS.append("1.0.0")
 elif IS_MINGW:
     LIEF_VERSIONS.append("installed")
 

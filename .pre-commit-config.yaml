@@ -73,7 +73,7 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: eae6718df64ccb8f2bf764300cd24acccba5c43c # frozen: v0.0.58
+    rev: e20b8a0be260b57e3b30f632a3ee8ade65b3dc5d # frozen: v0.0.59
     hooks:
       - id: ty
         args: [--no-sync]
