@@ -744,16 +744,7 @@ class ModuleFinder:
         When cx_Freeze is built, these modules (and modules they load) are
         included in the startup zip file.
         """
-        self.include_module("collections")
         self.include_package("encodings")
-        self.include_module("importlib.abc")
-        self.include_module("io")
-        self.include_module("os")
-        self.include_module("sys")
-        self.include_module("traceback")
-        self.include_module("unicodedata")
-        self.include_module("warnings")
-        self.include_module("zlib")
 
     def add_constant(self, name: str, value: str) -> None:
         """Makes available a constant in the module BUILD_CONSTANTS.
@@ -879,19 +870,21 @@ class ModuleFinder:
     def modules(self) -> list[Module]:
         """Sorted list of modules expected in the frozen executable."""
         valid_modules = {
+            module for module in self._modules.values() if module is not None
+        }
+        valid_modules -= set(self.namespaces)
+        builtin = {
             module
-            for name, module in self._modules.items()
-            if module is not None
-            and module not in self.namespaces
-            and name not in self._builtin_modules
+            for module in valid_modules
+            if module.name in self._builtin_modules
         }
         if sys.version_info[:2] < (3, 11):
-            frozen = [
+            builtin |= {
                 module
                 for module in valid_modules
                 if module.file and module.file.name == "frozen"
-            ]
-            valid_modules.difference_update(frozen)
+            }
+        valid_modules -= builtin
         return sorted(valid_modules, key=lambda module: module.name)
 
     @property

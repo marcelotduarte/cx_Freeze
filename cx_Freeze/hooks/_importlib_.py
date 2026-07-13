@@ -28,6 +28,18 @@ class Hook(ModuleHook):
         finder.include_module("importlib.metadata")
         finder.include_module("importlib.readers")
 
+    def importlib__bootstrap(
+        self, finder: ModuleFinder, module: Module
+    ) -> None:
+        """The importlib._bootstrap is an alias."""
+        finder.add_alias(module.name, "_frozen_importlib")
+
+    def importlib__bootstrap_external(
+        self, finder: ModuleFinder, module: Module
+    ) -> None:
+        """The importlib._bootstrap_external is an alias."""
+        finder.add_alias(module.name, "_frozen_importlib_external")
+
     def importlib_metadata(self, finder: ModuleFinder, module: Module) -> None:
         """The importlib.metadata module should filter import names."""
         if module.name == "importlib.metadata":

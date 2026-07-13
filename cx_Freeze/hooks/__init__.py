@@ -114,6 +114,7 @@ def load_collections(finder: ModuleFinder, module: Module) -> None:
         # collections.abc module does not exist in Python 3.13+
         # >>> _sys.modules['collections.abc'] = _collections_abc
         finder.add_alias("collections.abc", "_collections_abc")
+        finder.include_module("collections.abc")
 
 
 def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
@@ -176,6 +177,7 @@ def load_datetime(finder: ModuleFinder, module: Module) -> None:
         except ImportError:
             finder.include_module("_pydatetime")
             module.ignore_names.add("_datetime")
+    finder.include_module("_strptime")
 
 
 def load_decimal(finder: ModuleFinder, module: Module) -> None:
@@ -490,6 +492,11 @@ def load_site(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.update(["sitecustomize", "usercustomize"])
 
 
+def load__socket(finder: ModuleFinder, module: Module) -> None:
+    """The _socket module implicitly loads encodings.idna."""
+    finder.include_module("encodings.idna")
+
+
 def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
     """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
     be present in the build directory.
@@ -594,6 +601,12 @@ def load_yaml(finder: ModuleFinder, module: Module) -> None:
     module.update_distribution("PyYAML")
 
 
+def load_zipfile(finder: ModuleFinder, module: Module) -> None:
+    """The zipfile module implicitly loads encodings."""
+    finder.include_module("encodings.ascii")
+    finder.include_module("encodings.cp437")
+
+
 def load_zlib(finder: ModuleFinder, module: Module) -> None:
     """In Windows, the zlib module requires the zlib.dll to be present in the
     executable directory if using conda-forge. However, the required shared
@@ -608,7 +621,7 @@ def load_zlib(finder: ModuleFinder, module: Module) -> None:
             finder.lib_files[source] = target
     else:
         # ensure zlib1.dll is copied in Python 3.12+
-        # (when Life is installed, the DLL is detected)
+        # (when Lief is installed, the DLL is detected)
         for source in Path(sys.base_prefix, "DLLs").glob("zlib*.dll"):
             target = f"lib/{source.name}"
             finder.lib_files[source] = target

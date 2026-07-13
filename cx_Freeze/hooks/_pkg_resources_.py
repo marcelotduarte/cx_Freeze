@@ -25,18 +25,18 @@ class Hook(ModuleHook):
     def pkg_resources(self, finder: ModuleFinder, module: Module) -> None:
         """The pkg_resources must import modules from the setuptools."""
         finder.exclude_module("pkg_resources.tests")
-
-        if module.file is None:
-            return
-        vendor = os.path.normpath(
-            module.file.parent.parent / "setuptools" / "_vendor"
-        )
         failed = [
             name
             for name in ("jaraco.text", "packaging", "platformdirs")
             if finder.include_module(name, module) is None
         ]
-        finder.path.append(vendor)
-        for name in failed:
-            finder.include_module(name, module)
-        finder.path.pop()
+        if not failed:
+            return
+        if module.file is None:  # to satisfy ty
+            return
+        vendor_dir = module.file.parent.parent / "setuptools" / "_vendor"
+        if vendor_dir.is_dir():
+            finder.path.append(os.path.normpath(vendor_dir))
+            for name in failed:
+                finder.include_module(name, module)
+            finder.path.pop()

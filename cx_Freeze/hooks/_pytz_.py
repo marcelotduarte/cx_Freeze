@@ -28,6 +28,7 @@ class Hook(ModuleHook):
         directory or in the zip file where the package is written.
         """
         module.exclude_names.add("doctest")
+        module.ignore_names.add("pkg_resources")
         if module.file:
             source_path = module.file.parent / "zoneinfo"
             if not source_path.is_dir():

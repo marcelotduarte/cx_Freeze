@@ -62,7 +62,9 @@ class Hook(ModuleHook):
             for name in core_names
             if finder.include_module(name, module) is None
         ]
-        if module.file is None:
+        if not failed:
+            return
+        if module.file is None:  # to satisfy ty
             return
         vendor_dir = module.file.parent / "_vendor"
         if vendor_dir.is_dir():

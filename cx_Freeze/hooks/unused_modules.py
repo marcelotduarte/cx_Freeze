@@ -261,18 +261,8 @@ if PY_VERSION >= (3, 13):
 # remove test modules
 DEFAULT_EXCLUDES.update(["test", "test.support"])
 
-# remove modules mapped to internal modules
-DEFAULT_EXCLUDES.update(
-    [
-        "importlib._bootstrap",  # mapped-> _frozen_importlib
-        "importlib._bootstrap_external",  # _frozen_importlib_external
-    ]
-)
-
 DEFAULT_IGNORE_NAMES: set[str] = {
     "__main__",
-    "_frozen_importlib",  # internal
-    "_frozen_importlib_external",  # internal
     "_manylinux",  # flag
     "_typeshed",
     "_typeshed.dbapi",
@@ -319,6 +309,7 @@ if PY_VERSION >= (3, 11):
 if PY_VERSION >= (3, 12):
     DEFAULT_IGNORE_NAMES.add("backports.tarfile")
 if PY_VERSION >= (3, 14):
+    DEFAULT_IGNORE_NAMES.add("backports")
     DEFAULT_IGNORE_NAMES.add("backports.zstd")
 
 # ignore new libraries in Python 3.10+
