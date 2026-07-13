@@ -35,12 +35,14 @@ if IS_WINDOWS:
     PACKAGE_VERSION = [("imagehlp", "bind")]
     if IS_CONDA:
         PACKAGE_VERSION.append(("py-lief", "0.17.6"))
-    elif ABI_THREAD == "":  # lief doesn't support free-threaded yet
-        if sys.version_info[:2] <= (3, 13):
-            PACKAGE_VERSION.append(("lief", "0.16.0"))
-            PACKAGE_VERSION.append(("lief", "0.16.6"))
-        PACKAGE_VERSION.append(("lief", "0.17.0"))
-        PACKAGE_VERSION.append(("lief", "0.17.6"))
+    else:
+        if ABI_THREAD == "":
+            if sys.version_info[:2] <= (3, 13):
+                PACKAGE_VERSION.append(("lief", "0.16.0"))
+                PACKAGE_VERSION.append(("lief", "0.16.6"))
+            PACKAGE_VERSION.append(("lief", "0.17.0"))
+            PACKAGE_VERSION.append(("lief", "0.17.6"))
+        PACKAGE_VERSION.append(("lief", "1.0.0"))
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
 elif IS_LINUX:
