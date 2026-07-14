@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-asyncio package is included.
-"""
+"""Hooks triggered by finder when asuncio package is included."""
 
 from __future__ import annotations
 
@@ -20,6 +18,6 @@ class Hook(ModuleHook):
     """The Hook class for asyncio."""
 
     def asyncio(self, finder: ModuleFinder, module: Module) -> None:
-        """The asyncio must be loaded as a package."""
+        """Load asyncio as a package."""
         module.global_names.update(ASYNCIO_GLOBAL_NAMES)
         finder.include_package("asyncio")

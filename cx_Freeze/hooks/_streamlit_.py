@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-streamlit package is included.
-"""
+"""Hooks triggered by finder when streamlit package is included."""
 
 from __future__ import annotations
 
@@ -19,7 +17,7 @@ class Hook(ModuleHook):
     """The Hook class for 'streamlit' package."""
 
     def streamlit(self, finder: ModuleFinder, module: Module) -> None:
-        """The streamlit must be loaded as a package in the file system."""
+        """Load as a package the package streamlit in the file system."""
         module.in_file_system = 1
         finder.exclude_module("streamlit.testing")
         finder.include_package("streamlit")

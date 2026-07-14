@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-nvidia package is included.
-"""
+"""Hooks triggered by finder when nvidia package is included."""
 
 from __future__ import annotations
 
@@ -24,8 +22,7 @@ class Hook(ModuleHook):
     """The Hook class for nvidia."""
 
     def nvidia(self, finder: ModuleFinder, module: Module) -> None:
-        """Hook for nvidia."""
-        # include the cuda libraries as fixed libraries
+        """Include the cuda libraries as fixed libraries."""
         if IS_MINGW or IS_WINDOWS:
             extension = "*.dll"
         elif IS_MACOS:

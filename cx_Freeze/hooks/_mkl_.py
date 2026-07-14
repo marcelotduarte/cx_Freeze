@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-mkl package is included.
-"""
+"""Hooks triggered by finder when mkl package is included."""
 
 from __future__ import annotations
 
@@ -31,7 +29,6 @@ class Hook(ModuleHook):
     """The Hook class for mkl."""
 
     def mkl(self, finder: ModuleFinder, module: Module) -> None:
-        """The mkl package."""
         finder.exclude_module("mkl.tests")
 
         distribution = module.distribution

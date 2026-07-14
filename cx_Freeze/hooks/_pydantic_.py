@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pydantic package is included.
-"""
+"""Hooks triggered by finder when pydantic package is included."""
 
 from __future__ import annotations
 
@@ -20,9 +18,9 @@ class Hook(ModuleHook):
     """The Hook class for pydantic."""
 
     def pydantic(self, finder: ModuleFinder, module: Module) -> None:
-        """The pydantic package is compiled by Cython.
+        """Import the hidden modules.
 
-        The imports are hidden.
+        pydantic package is compiled by Cython.
         """
         module.global_names.update(
             [

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-VTK package is included.
-"""
+"""Hooks triggered by finder when VTK package is included."""
 
 from __future__ import annotations
 
@@ -25,7 +23,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,  # noqa:ARG002
         module: Module,
     ) -> None:
-        """The VTK (vtkmodules) package."""
+        """Ignore optional modules in the VTK (vtkmodules) package."""
         module.update_distribution("vtk")
         module.ignore_names.add("_vtkmodules_static")
         module.ignore_names.add("vtkmodules._build_paths")

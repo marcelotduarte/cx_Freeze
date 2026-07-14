@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-wxPython (wx) package is included.
-"""
+"""Hooks triggered by finder when wxPython (wx) package is included."""
 
 from __future__ import annotations
 
@@ -27,7 +25,9 @@ class Hook(ModuleHook):
     def wx_lib_pubsub_core(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The wx.lib.pubsub.core module modifies the search path which cannot
+        """Modify the search path.
+
+        The wx.lib.pubsub.core module modifies the search path which cannot
         be done in a frozen application in the same way; modify the module
         search path here instead so that the right modules are found; note
         that this only works if the import of wx.lib.pubsub.setupkwargs

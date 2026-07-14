@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 
 def isMachOFile(path: Path) -> bool:
-    """Determines whether the file is a Mach-O file."""
+    """Determine whether the file is a Mach-O file."""
     if not path.is_file():
         return False
     cmd = ("file", path)
@@ -48,7 +48,9 @@ class MachOReference:
         raw_path: str,
         resolved_path: Path | None,
     ) -> None:
-        """:param source_file: DarwinFile object for file in which the
+        """Represent a linking reference from Mach-O file to another file.
+
+        :param source_file: DarwinFile object for file in which the
         reference was found
         :param raw_path: The load path that appears in the file
         (may include @rpath, etc.)
@@ -77,10 +79,11 @@ class MachOReference:
 
 
 class DarwinFile:
-    """A DarwinFile object represents a file that will be copied into the
-    application, and record where it was ultimately moved to in the application
-    bundle. Mostly used to provide special handling for copied files that are
-    Mach-O files.
+    """Represents a file that will be copied into the application.
+
+    And record where it was ultimately moved to in the application bundle.
+    Mostly used to provide special handling for copied files that are Mach-O
+    files.
     """
 
     def __init__(
@@ -89,7 +92,9 @@ class DarwinFile:
         referencing_file: DarwinFile | None = None,
         strict: bool = False,
     ) -> None:
-        """:param path: The original path of the DarwinFile
+        """Represent a file that will be copied into the application.
+
+        :param path: The original path of the DarwinFile
         (before copying into app)
         :param referencing_file: DarwinFile object representing the referencing
         source file
@@ -181,13 +186,13 @@ class DarwinFile:
         return "\n".join(parts)
 
     def fileReferenceDepth(self) -> int:
-        """Returns how deep this Mach-O file is in the dynamic load order."""
+        """Return how deep this Mach-O file is in the dynamic load order."""
         if self.referencing_file is not None:
             return self.referencing_file.fileReferenceDepth() + 1
         return 0
 
     def printFileInformation(self) -> None:
-        """Prints information about the Mach-O file."""
+        """Print information about the Mach-O file."""
         print(f"[{self.fileReferenceDepth()}] File: {self.path}")
         print("  Commands:")
         if len(self.commands) > 0:
@@ -235,8 +240,10 @@ class DarwinFile:
         return path.startswith("@rpath")
 
     def resolveLoader(self, path: str) -> Path:
-        """Resolve a path that includes @loader_path. @loader_path represents
-        the directory in which the DarwinFile is located.
+        """Resolve a path that includes @loader_path.
+
+        @loader_path represents the directory in which the DarwinFile is
+        located.
         """
         if self.isLoaderPath(path):
             return self.path.parent / Path(path).relative_to("@loader_path")
@@ -244,10 +251,11 @@ class DarwinFile:
         raise PlatformError(msg)
 
     def resolveExecutable(self, path: str) -> Path:
-        """@executable_path should resolve to the directory where the original
-        executable was located. By default, we set that to the directory of
-        the library, so it would resolve in the same was as if linked from an
-        executable in the same directory.
+        """Resolve @executable_path to the directory of the executable.
+
+        By default, we set that to the directory of the library, so it would
+        resolve in the same was as if linked from an executable in the same
+        directory.
         """
         # consider making this resolve to the directory of the python
         # interpreter? Apparently not a big issue in practice, since the
@@ -273,9 +281,10 @@ class DarwinFile:
         raise PlatformError(msg)
 
     def getRPath(self) -> list[Path]:
-        """Returns the rpath in effect for this file. Determined by rpath
-        commands in this file and (recursively) the chain of files that
-        referenced this file.
+        """Return the rpath in effect for this file.
+
+        Determined by rpath commands in this file and (recursively) the chain
+        of files that referenced this file.
         """
         if self._rpath is not None:
             return self._rpath
@@ -297,7 +306,9 @@ class DarwinFile:
         return rpath
 
     def resolvePath(self, path: str) -> Path | None:
-        """Resolves any @executable_path, @loader_path, and @rpath references
+        """Resolve any path references.
+
+        Resolve @executable_path, @loader_path, and @rpath references
         in a path.
         """
         if self.isLoaderPath(path):  # replace @loader_path
@@ -330,7 +341,7 @@ class DarwinFile:
                 self.libraryPathResolution[raw_path] = resolved_path
 
     def getDependentFilePaths(self) -> set[Path]:
-        """Returns a list the available resolved paths to dependencies."""
+        """Return a list the available resolved paths to dependencies."""
         dependents: set[Path] = set()
         for ref in self.machOReferenceForTargetPath.values():
             # skip load references that could not be resolved
@@ -342,9 +353,10 @@ class DarwinFile:
         return list(self.machOReferenceForTargetPath.values())
 
     def getMachOReferenceForPath(self, path: Path) -> MachOReference | None:
-        """Returns the reference pointing to the specified path, based on paths
-        stored in self.machOReferenceTargetPath. Raises Exception if not
-        available.
+        """Return the reference pointing to the specified path.
+
+        Based on paths stored in self.machOReferenceTargetPath.
+        Raises Exception if not available.
         """
         try:
             return self.machOReferenceForTargetPath[path]
@@ -375,8 +387,9 @@ class MachOCommand:
 
     @staticmethod
     def getMachOCommands(path: Path) -> list[MachOCommand]:
-        """Returns a list of load commands in the specified file,
-        using otool.
+        """Return a list of load commands in the specified file.
+
+        Using otool.
         """
         cmd = ("otool", "-l", path)
         commands: list[MachOCommand] = []
@@ -461,8 +474,9 @@ def _printFile(
     level: int,
     noRecurse: bool = False,
 ) -> None:
-    """Utility function to prints details about a DarwinFile and (optionally)
-    recursively any other DarwinFiles that it references.
+    """Print details about a DarwinFile.
+
+    Optionally, recursively any other DarwinFiles that it references.
     """
     print("{}{}".format(level * "|  ", os.fspath(darwinFile.path)), end="")
     print(" (already seen)" if noRecurse else "")
@@ -484,7 +498,7 @@ def _printFile(
 
 
 def printMachOFiles(fileList: list[DarwinFile]) -> None:
-    """Utility function to prints details about a list of DarwinFile."""
+    """Print details about a list of DarwinFile."""
     seenFiles = set()
     for file in fileList:
         if file not in seenFiles:
@@ -495,8 +509,9 @@ def printMachOFiles(fileList: list[DarwinFile]) -> None:
 def change_load_reference(
     filename: str, old_reference: str, new_reference: str, verbose: bool = True
 ) -> None:
-    """Utility function that uses install_name_tool to change old_reference to
-    new_reference in the machO file specified by filename.
+    """Change old_reference to new_reference in the machO file.
+
+    Uses install_name_tool with the specified by filename.
     """
     if verbose:
         print("Redirecting load reference for ", end="")
@@ -563,15 +578,14 @@ class DarwinFileTracker:
         return iter(self._copied_file_list)
 
     def pathIsAlreadyCopiedTo(self, target_path: Path) -> bool:
-        """Check if the given target_path has already has a file copied to
-        it.
-        """
+        """Check if target_path has already has a file copied to it."""
         return target_path in self._darwin_file_for_build_path
 
     def getDarwinFile(
         self, source_path: Path, target_path: Path
     ) -> DarwinFile:
-        """Gets the DarwinFile for file copied from source_path to target_path.
+        """Get the DarwinFile for file copied from source_path to target_path.
+
         If either (i) nothing, or (ii) a different file has been copied to
         targetPath, raises a PlatformError.
         """
@@ -604,8 +618,9 @@ class DarwinFileTracker:
     def recordCopiedFile(
         self, target_path: Path, darwin_file: DarwinFile
     ) -> None:
-        """Record that a DarwinFile is being copied to a given path. If a
-        file has been copied to that path, raise a PlatformError.
+        """Record that a DarwinFile is being copied to a given path.
+
+        If a file has been copied to that path, raise a PlatformError.
         """
         if self.pathIsAlreadyCopiedTo(target_path):
             msg = (
@@ -627,8 +642,9 @@ class DarwinFileTracker:
         return self._reference_cache.get(source_path)
 
     def findDarwinFileForFilename(self, filename: str) -> DarwinFile | None:
-        """Attempts to locate a copied DarwinFile with the specified filename
-        and returns that. Otherwise returns None.
+        """Attempt to locate a copied DarwinFile with the specified filename.
+
+        Returns the DarwinFile. Otherwise returns None.
         """
         basename = Path(filename).name
         for file in self._copied_file_list:
@@ -637,10 +653,11 @@ class DarwinFileTracker:
         return None
 
     def finalizeReferences(self) -> None:
-        """Does a final pass through the references for all the copied
-        DarwinFiles and attempts to clean up any remaining references
-        that are not already marked as copied. It covers two cases where the
-        reference might not be marked as copied:
+        """Do a final passthrough to the references for all copied DarwinFiles.
+
+        Attempt to clean up any remaining references that are not already
+        marked as copied. It covers two cases where the reference might not be
+        marked as copied:
         1) Files where _CopyFile was called without copyDependentFiles=True
            (in which the information would not have been added to the
             references at that time).
@@ -697,9 +714,7 @@ class DarwinFileTracker:
     def set_relative_reference_paths(
         self, build_dir: StrPath, bin_dir: StrPath
     ) -> None:
-        """Make all the references from included Mach-O files to other included
-        Mach-O files relative.
-        """
+        """Make all the references from included Mach-O files relative."""
         darwin_file: DarwinFile
 
         for darwin_file in self._copied_file_list:

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-zmq package is included.
-"""
+"""Hooks triggered by finder when zmq package is included."""
 
 from __future__ import annotations
 
@@ -22,7 +20,8 @@ class Hook(ModuleHook):
     """The Hook class for zmq."""
 
     def zmq(self, finder: ModuleFinder, module: Module) -> None:
-        """The zmq package links dynamically to zmq.libzmq or shared lib.
+        """Links dynamically to zmq.libzmq or shared lib.
+
         Tested pyzmq 16.0.4 to 27.0.0.
         """
         # Globals

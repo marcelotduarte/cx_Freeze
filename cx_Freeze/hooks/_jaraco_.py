@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-jaraco namespace is included.
-"""
+"""Hooks triggered by finder when jaraco namespace is included."""
 
 from __future__ import annotations
 
@@ -10,7 +8,6 @@ from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
-
 
 __all__ = ["Hook"]
 
@@ -23,7 +20,7 @@ class Hook(ModuleHook):
         module.ignore_names.add("more_itertools")
 
     def jaraco_text(self, finder: ModuleFinder, module: Module) -> None:
-        """jaraco.text requires a text file."""
+        """Include the required text file for jaraco.text."""
         if module.in_file_system == 0 and module.file:
             target_dir = module.name.replace(".", "/")
             for textfile in module.file.parent.glob("*.txt"):

@@ -270,7 +270,6 @@ ignore = [
     "D213",     # conflict with D212
     # should be revised in future - last revised using ruff 0.15.16
     "D102",     # Missing docstring in public method
-    "D401",     # First line of docstring should be in imperative mood - 180
     "PLR2004",  # magic-value-comparison
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
@@ -285,9 +284,6 @@ typing-modules = ["cx_Freeze._typing"]
 "cx_Freeze/command/bdist_msi.py" = ["ERA001"]
 "samples/*" = ["D1"]
 "tests/*" = ["S101"]
-# D205 (1 blank line required between summary line and description)
-"cx_Freeze/darwintools.py" = ["D205"]
-"cx_Freeze/hooks/*" = ["D205"]
 
 [tool.ruff.lint.flake8-builtins]
 strict-checking = true

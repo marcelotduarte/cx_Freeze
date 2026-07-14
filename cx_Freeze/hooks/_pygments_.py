@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pygments package is included.
-"""
+"""Hooks triggered by finder when pygments package is included."""
 
 from __future__ import annotations
 
@@ -22,7 +20,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The pygments package dynamically load styles."""
+        """Dynamically load styles for pygments package."""
         finder.include_package("pygments.styles")
         finder.include_package("pygments.lexers")
         finder.include_package("pygments.formatters")

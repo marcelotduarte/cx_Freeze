@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pandas package is included.
-"""
+"""Hooks triggered by finder when pandas package is included."""
 
 from __future__ import annotations
 
@@ -24,7 +22,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,
     ) -> None:
-        """The pandas package.
+        """Patch the pandas package.
 
         Supported pypi and conda-forge versions (tested from 1.3.3 to 2.3.0).
         """

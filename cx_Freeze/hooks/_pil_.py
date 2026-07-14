@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-Pillow (PIL) package is included.
-"""
+"""Hooks triggered by finder when Pillow (PIL) package is included."""
 
 from __future__ import annotations
 
@@ -20,7 +18,7 @@ class Hook(ModuleHook):
     """The Hook class for Pillow."""
 
     def pil(self, finder: ModuleFinder, module: Module) -> None:
-        """The Pillow must be loaded as a package."""
+        """Must be loaded as a package."""
         finder.include_package("PIL")
         module.update_distribution("pillow")
         if IS_LINUX and module.in_file_system == 0:

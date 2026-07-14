@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-tiktoken package is included.
-"""
+"""Hooks triggered by finder when tiktoken package is included."""
 
 from __future__ import annotations
 
@@ -23,5 +21,5 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The tiktoken must include extension."""
+        """Include and extension required by tiktoken package."""
         finder.include_module("tiktoken_ext.openai_public")

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-TKinter package is included.
-"""
+"""Hooks triggered by finder when TKinter package is included."""
 
 from __future__ import annotations
 
@@ -26,8 +24,9 @@ class Hook(ModuleHook):
     """The Hook class for TKinter."""
 
     def tkinter(self, finder: ModuleFinder, module: Module) -> None:
-        """The tkinter module has data files (also called tcl/tk libraries)
-        that are required to be loaded at runtime.
+        """Include required data files (also called tcl/tk libraries).
+
+        The tkinter package requires the tcl/tk libraries loaded at runtime.
         """
         # Ignore names that should not be confused with modules to be imported
         module.global_names.update(TKINTER_GLOBAL_NAMES)

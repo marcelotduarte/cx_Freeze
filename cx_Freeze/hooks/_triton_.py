@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-triton package is included.
-"""
+"""Hooks triggered by finder when triton package is included."""
 
 from __future__ import annotations
 
@@ -21,7 +19,7 @@ class Hook(ModuleHook):
     """The Hook class for triton."""
 
     def triton(self, finder: ModuleFinder, module: Module) -> None:
-        """Hook for triton."""
+        """Include modules and files required by triton."""
         # exclude _C module that causes RecursionError
         finder.exclude_module("triton._C")
         # but, include the module libtriton as library

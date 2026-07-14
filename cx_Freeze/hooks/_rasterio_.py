@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-rasterio package is included.
-"""
+"""Hooks triggered by finder when rasterio package is included."""
 
 from __future__ import annotations
 
@@ -26,7 +24,9 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The rasterio package loads items within itself in a way that causes
+        """Load rasterio as a package.
+
+        The rasterio package loads items within itself in a way that causes
         problems without libs and data being present.
         """
         # this can be optimized

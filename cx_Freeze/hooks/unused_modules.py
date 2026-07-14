@@ -1,5 +1,6 @@
-"""Set of unused modules, named default excludes and default ignore names,
-on various platforms and python versions.
+"""Set of unused modules, named default excludes and default ignore names.
+
+On various platforms and python versions.
 """
 
 from __future__ import annotations

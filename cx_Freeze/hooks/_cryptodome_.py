@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pycryptodomex package is included.
-"""
+"""Hooks triggered by finder when pycryptodomex package is included."""
 
 from __future__ import annotations
 
@@ -19,43 +17,43 @@ class Hook(ModuleHook):
     """The Module Hook class."""
 
     def cryptodome_cipher(self, finder: ModuleFinder, module: Module) -> None:
-        """The Crypto.Cipher subpackage of pycryptodome package."""
+        """Include subpackage Crypto.Cipher of pycryptodome package."""
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
     def cryptodome_hash(self, finder: ModuleFinder, module: Module) -> None:
-        """The Crypto.Hash subpackage of pycryptodome package."""
+        """Include subpackage Crypto.Hash of pycryptodome package."""
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
     def cryptodome_math(self, finder: ModuleFinder, module: Module) -> None:
-        """The Crypto.Math subpackage of pycryptodome package."""
+        """Include subpackage Crypto.Math of pycryptodome package."""
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
     def cryptodome_protocol(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        """The Crypto.Protocol subpackage of pycryptodome package."""
+        """Include subpackage Crypto.Protocol of pycryptodome package."""
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
     def cryptodome_publickey(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        """The Crypto.PublicKey subpackage of pycryptodome package."""
+        """Include subpackage Crypto.PublicKey of pycryptodome package."""
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
     def cryptodome_util(self, finder: ModuleFinder, module: Module) -> None:
-        """The Crypto.Util subpackage of pycryptodome package."""
+        """Include subpackage Crypto.Util of pycryptodome package."""
         if module.in_file_system == 0:
             finder.include_package(module.name)
 
     def cryptodome_util__file_system(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The patch for pycryptodome package."""
+        """Include subpackage patch for pycryptodome package."""
         code = module.code
         if module.in_file_system == 0 and code is not None:
             name = "pycryptodome_filename"

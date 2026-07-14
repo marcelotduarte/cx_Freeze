@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-numpy package is included.
-"""
+"""Hooks triggered by finder when numpy package is included."""
 
 from __future__ import annotations
 
@@ -47,7 +45,7 @@ class Hook(ModuleHook):
     """The Hook class for numpy."""
 
     def numpy(self, finder: ModuleFinder, module: Module) -> None:
-        """The numpy package.
+        """Patch numpy package.
 
         Supported pypi and conda-forge versions.
         Tested numpy versions of pypi from 1.21.2 to 2.5.0rc1.
@@ -172,9 +170,10 @@ class Hook(ModuleHook):
     def numpy__core_numerictypes(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The numpy._core.numerictypes module adds a number of items to itself
-        dynamically; define these to avoid spurious errors about missing
-        modules.
+        """Add a number of items to the numpy._core.numerictypes module.
+
+        These items are added dynamically; define them to avoid spurious errors
+        about missing modules.
         """
         module.global_names.update(NUMPY__CORE_NUMERICTYPES_GLOBAL_NAMES)
 
@@ -183,9 +182,10 @@ class Hook(ModuleHook):
     def numpy__core_overrides(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        """Recompile the numpy._core.overrides module to workaround an
-        optimization that removes docstrings, which are required for this
-        module.
+        """Recompile the numpy._core.overrides module.
+
+        This is requires to workaround an optimization that removes docstrings,
+        which are required in this module.
         """
         loader = module.loader
         if not isinstance(loader, SourceFileLoader):
@@ -314,23 +314,25 @@ class Hook(ModuleHook):
     def numpy_lib_utils(
         self, _finder: ModuleFinder, module: Module
     ) -> None:  # numpy<2
-        """The module numpy.lib.utils optionally imports the threadpoolctl
-        module; ignore the error if the module cannot be found.
+        """Optionally imports the threadpoolctl module.
+
+        The module numpy.lib.utils tries to imports it.
+        Ignore the error if the module cannot be found.
         """
         module.ignore_names.add("threadpoolctl")
 
     def numpy_lib__utils_impl(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The module numpy.lib._utils_impl optionally imports the
-        threadpoolctl module; ignore the error if the module cannot be found.
+        """Optionally imports the threadpoolctl module.
+
+        The module numpy.lib._utils_impl tries to imports it.
+        Ignore the error if the module cannot be found.
         """
         module.ignore_names.add("threadpoolctl")
 
     def numpy_linalg(self, finder: ModuleFinder, module: Module) -> None:
-        """The numpy.linalg module implicitly loads the lapack_lite module;
-        make sure this happens.
-        """
+        """Implicitly loads some modules required by numpy.linalg module."""
         module.global_names.update(NUMPY_LINALG_GLOBAL_NAMES)
         finder.include_module("numpy.linalg.lapack_lite")
         finder.include_module("numpy.linalg._umath_linalg")
@@ -357,7 +359,9 @@ class Hook(ModuleHook):
     def numpy_random_mtrand(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The numpy.random.mtrand module is an extension module and the numpy
+        """Include global names.
+
+        The numpy.random.mtrand module is an extension module and the numpy
         module imports * from this module; define the list of global names
         available to this module in order to avoid spurious errors about
         missing modules.

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-zoneinfo package is included.
-"""
+"""Hooks triggered by finder when zoneinfo package is included."""
 
 from __future__ import annotations
 
@@ -24,7 +22,8 @@ class Hook(ModuleHook):
     """The Hook class for zoneinfo."""
 
     def zoneinfo(self, finder: ModuleFinder, module: Module) -> None:
-        """The zoneinfo package requires timezone data.
+        """Include required timezone data for the zoneinfo package.
+
         The timezone data can be retrieved from tzdata package or from the OS.
         """
         module.global_names.update(ZONEINFO_GLOBAL_NAMES)

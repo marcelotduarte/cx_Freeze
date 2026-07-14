@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-multiprocessing package is included.
-"""
+"""Hooks triggered by finder when multiprocessing package is included."""
 
 from __future__ import annotations
 
@@ -51,7 +49,9 @@ class Hook(ModuleHook):
     """The Module Hook class."""
 
     def multiprocessing(self, finder: ModuleFinder, module: Module) -> None:
-        """The forkserver method calls utilspawnv_passfds in ensure_running to
+        """Patch multiprocessing.
+
+        The forkserver method calls utilspawnv_passfds in ensure_running to
         pass a command line to python. In cx_Freeze the running executable
         is called, then we need to catch this and use exec function.
         For the spawn method there are a similar process to resource_tracker.

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-shapely package is included.
-"""
+"""Hooks triggered by finder when shapely package is included."""
 
 from __future__ import annotations
 
@@ -25,7 +23,7 @@ class Hook(ModuleHook):
     # Note: shapely 1.8.5 supports Python <= 3.11
 
     def shapely(self, finder: ModuleFinder, module: Module) -> None:
-        """Hook for shapely."""
+        """Patch shapely."""
         finder.exclude_module("shapely.examples")  # shapely < 2.0
         finder.exclude_module("shapely.tests")  # shapely >= 2.0
         if module.in_file_system == 0:
@@ -46,7 +44,7 @@ class Hook(ModuleHook):
             )
 
     def shapely_geos(self, finder: ModuleFinder, module: Module) -> None:
-        """Hook for shapely.geos for shapely < 2.0."""
+        """Patch shapely.geos for shapely < 2.0."""
         # The directory must be found
         if module.in_file_system == 0:
             loader = module.loader
@@ -68,5 +66,5 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """Hook for shapely._geometry_helpers for shapely >= 2.0."""
+        """Include for shapely._geometry_helpers (shapely >= 2.0)."""
         finder.include_module("shapely._geos")

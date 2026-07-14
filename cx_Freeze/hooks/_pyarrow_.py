@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pyarrow package is included.
-"""
+"""Hooks triggered by finder when pyarrow package is included."""
 
 from __future__ import annotations
 
@@ -35,7 +33,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The pyarrow must include vendored modules."""
+        """Include vendored modules."""
         finder.include_module("pyarrow.vendored.docscrape")
 
     def pyarrow_fs(self, _finder: ModuleFinder, module: Module) -> None:

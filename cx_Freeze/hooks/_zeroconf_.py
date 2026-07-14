@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-zeroconf package is included.
-"""
+"""Hooks triggered by finder when zeroconf package is included."""
 
 from __future__ import annotations
 
@@ -23,7 +21,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,  # noqa: ARG002
         module: Module,
     ) -> None:
-        """The zeroconf hooks."""
+        """Inclide global names to zeroconf hooks."""
         module.global_names.update(
             [
                 "ServiceListener",
@@ -38,7 +36,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The zeroconf hooks."""
+        """Include hidden module."""
         finder.include_module("zeroconf._utils.ipaddress")
 
     def zeroconf__listener(
@@ -46,5 +44,5 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The zeroconf hooks."""
+        """Include hidden module."""
         finder.include_module("zeroconf._handlers.answers")

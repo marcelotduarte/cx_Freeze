@@ -166,7 +166,7 @@ class String(Structure):
         self._children = 0
 
     def children(self, value: String) -> None:
-        """Represents the child String object."""
+        """Represent the child String object."""
         pad_len = 4 - (self.wLength & 3)
         if 0 < pad_len < 4:
             field = f"Padding{self._children}"
@@ -252,7 +252,7 @@ class VersionInfo:
             print("Stamped:", path)
 
     def version_info(self, path: StrPath) -> String:
-        """Returns the String version info used to stamp the version."""
+        """Return the String version info used to stamp the version."""
         major = self.valid_version.major
         minor = self.valid_version.minor
         micro = self.valid_version.micro
