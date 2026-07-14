@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-backports namespace is included.
-"""
+"""Hooks triggered by finder when backports namespace is included."""
 
 from __future__ import annotations
 
@@ -20,7 +18,7 @@ class Hook(ModuleHook):
     """The Hook class for backports."""
 
     def backports(self, finder: ModuleFinder, module: Module) -> None:
-        """The backports namespace cleanup."""
+        """Hooks for backports namespace."""
         loader = module.loader
         if not isinstance(loader, SourceFileLoader):
             return
@@ -34,5 +32,5 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The backports.zstd module should filter import names."""
+        """Filter import names."""
         finder.exclude_module("backports.zstd._cffi")

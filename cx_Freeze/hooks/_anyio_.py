@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-anyio package is included.
-"""
+"""Hooks triggered by finder when anyio package is included."""
 
 from __future__ import annotations
 
@@ -23,5 +21,5 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The anyio must include backends."""
+        """Include backends."""
         finder.include_module("anyio._backends._asyncio")

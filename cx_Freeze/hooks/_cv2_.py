@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-opencv-python package is included.
-"""
+"""Hooks triggered by finder when opencv-python package is included."""
 
 from __future__ import annotations
 
@@ -31,7 +29,9 @@ class Hook(ModuleHook):
     """The Hook class for opencv-python."""
 
     def cv2(self, finder: ModuleFinder, module: Module) -> None:
-        """Versions of cv2 (opencv-python) above 4.5.3 may require additional
+        """Include additional configuration files.
+
+        Versions of cv2 (opencv-python) above 4.5.3 may require additional
         configuration files.
 
         Additionally, on Linux the opencv_python.libs directory is not

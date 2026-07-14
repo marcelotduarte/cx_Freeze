@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-ssl module is included.
-"""
+"""Hooks triggered by finder when ssl module is included."""
 
 from __future__ import annotations
 
@@ -26,9 +24,7 @@ class Hook(ModuleHook):
     """The Hook class for ssl."""
 
     def ssl(self, finder: ModuleFinder, module: Module) -> None:
-        """In Windows, the SSL module requires additional dlls to be present in
-        the build directory. In other OS certificates are required.
-        """
+        """Include the required dlls (Windows) or the certificate (Posix)."""
         if IS_WINDOWS:
             parts = ["DLLs", "Library/bin"]
             patterns = ["libcrypto-*.dll", "libssl-*.dll"]

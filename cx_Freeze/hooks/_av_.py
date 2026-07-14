@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-AV (PyAV) package is included.
-"""
+"""Hooks triggered by finder when AV (PyAV) package is included."""
 
 from __future__ import annotations
 
@@ -26,7 +24,7 @@ class Hook(ModuleHook):
     """
 
     def av(self, finder: ModuleFinder, module: Module) -> None:
-        """The AV (PyAV) package."""
+        """Hooks for AV (PyAV) package."""
         if module.in_file_system == 0:
             finder.include_package("av")
         with suppress(ImportError):

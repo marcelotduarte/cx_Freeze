@@ -77,7 +77,7 @@ class Parser(ABC):
     def find_library(
         self, name: str, search_path: list[StrPath] | None = None
     ) -> Path | None:
-        """Returns the pathname of a library, or None."""
+        """Return the pathname of a library, or None."""
         if search_path is None:
             search_path = cast("list[StrPath]", self.search_path)
         for directory in map(Path, search_path):
@@ -114,7 +114,7 @@ class Parser(ABC):
 
     @staticmethod  # pragma: no cover
     def _is_binary(filename: Path) -> bool:
-        """Determines whether the file is a binary file.
+        """Determine whether the file is a binary file.
 
         Binary file can be an executable or a shared library.
         (Implemented separately for each platform).
@@ -175,7 +175,7 @@ class PEParser(Parser):
 
     @staticmethod
     def _is_binary(filename: StrPath) -> bool:
-        """Determines whether the file is a PE file."""
+        """Determine whether the file is a PE file."""
         filename = Path(filename)
         return filename.suffix.lower().endswith(PE_EXT) and filename.is_file()
 
@@ -377,7 +377,7 @@ class ELFParser(Parser):
         _get_dependent_files = _get_dependent_files_ldd
 
     def get_needed(self, filename: StrPath) -> list[str]:
-        """Gets the DT_NEEDED entry of the dynamic table."""
+        """Get the DT_NEEDED entry of the dynamic table."""
         libraries: list[str] = []
         with suppress(subprocess.CalledProcessError):
             libraries.extend(
@@ -386,7 +386,7 @@ class ELFParser(Parser):
         return libraries
 
     def get_resolved_rpath(self, filename: StrPath) -> list[Path] | None:
-        """Gets the resolved rpath of the executable."""
+        """Get the resolved rpath of the executable."""
         rpath = self.get_rpath(filename)
         if rpath:
             origin = Path(filename).parent.as_posix()
@@ -395,7 +395,7 @@ class ELFParser(Parser):
         return None
 
     def get_rpath(self, filename: StrPath) -> str:
-        """Gets the rpath of the executable."""
+        """Get the rpath of the executable."""
         with suppress(subprocess.CalledProcessError):
             return self.run_patchelf(["--print-rpath", filename]).strip()
         return ""
@@ -408,7 +408,7 @@ class ELFParser(Parser):
         self.run_patchelf(["--replace-needed", so_name, new_so_name, filename])
 
     def set_rpath(self, filename: StrPath, rpath: str) -> None:
-        """Sets the rpath of the executable."""
+        """Set the rpath of the executable."""
         self._set_write_mode(filename)
         rpath_list = rpath.split(":")
         for i, rp in enumerate(rpath_list):
@@ -424,7 +424,7 @@ class ELFParser(Parser):
             self.run_patchelf(["--add-rpath", rpath, filename])
 
     def set_soname(self, filename: StrPath, new_so_name: str) -> None:
-        """Sets DT_SONAME entry in the dynamic table."""
+        """Set DT_SONAME entry in the dynamic table."""
         self._set_write_mode(filename)
         self.run_patchelf(["--set-soname", new_so_name, filename])
 
@@ -447,7 +447,7 @@ class ELFParser(Parser):
             filename.chmod(mode | stat.S_IWUSR)
 
     def _verify_patchelf(self) -> None:
-        """Looks for the ``patchelf`` external binary in the PATH.
+        """Look for the ``patchelf`` external binary in the PATH.
 
         Checks for the required version, and throws an exception if a proper
         version can't be found. Otherwise, silence is golden.

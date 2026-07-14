@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-PySide2 package is included.
-"""
+"""Hooks triggered by finder when PySide2 package is included."""
 
 from __future__ import annotations
 
@@ -27,8 +25,9 @@ class Hook(QtHook):
         self.name = "qt"
 
     def qt(self, finder: ModuleFinder, module: Module) -> None:
-        """Inject code in PySide2 __init__ to locate and load plugins and
-        resources. Also, this fixes issues with conda-forge versions.
+        """Inject code in PySide2 to locate and load plugins and resources.
+
+        Also, this fixes issues with conda-forge versions.
         """
         distribution = module.distribution
         environment = (distribution and distribution.installer) or "pip"

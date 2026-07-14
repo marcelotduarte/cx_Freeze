@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-setuptools package is included.
-"""
+"""Hooks triggered by finder when setuptools package is included."""
 
 from __future__ import annotations
 
@@ -30,7 +28,7 @@ class Hook(ModuleHook):
     """
 
     def setuptools(self, finder: ModuleFinder, module: Module) -> None:
-        """The setuptools must load the _distutils and _vendor subpackage."""
+        """Include _distutils and _vendor subpackage of setuptools."""
         finder.exclude_module("setuptools.tests")
         finder.exclude_module("setuptools._distutils.tests")
         finder.exclude_module("setuptools._vendor")
@@ -108,7 +106,9 @@ class Hook(ModuleHook):
     def setuptools_extension(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The setuptools.extension module optionally loads
+        """Ignore optional modules.
+
+        The setuptools.extension module optionally loads
         Pyrex.Distutils.build_ext but its absence is not considered an error.
         """
         module.ignore_names.update(

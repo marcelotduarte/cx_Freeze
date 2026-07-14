@@ -28,7 +28,7 @@ def resource_path(name: StrPath) -> Path | None:
 def normalize_to_list(
     value: str | list[str] | tuple[str, ...] | None,
 ) -> list[str]:
-    """Takes the different formats of options containing multiple values.
+    """Take the different formats of options containing multiple values.
 
     Returns the value as a list object.
     """

@@ -340,7 +340,7 @@ class ModuleFinder:
     def _internal_import_module(
         self, name: str, deferred_imports: DeferredList
     ) -> Module | None:
-        """Internal method used for importing a module.
+        """Add the module to the internal import list.
 
         Assumes that the name given is an absolute name.
         None is returned if the module cannot be found.
@@ -747,7 +747,7 @@ class ModuleFinder:
         self.include_package("encodings")
 
     def add_constant(self, name: str, value: str) -> None:
-        """Makes available a constant in the module BUILD_CONSTANTS.
+        """Make available a constant in the module BUILD_CONSTANTS.
 
         BUILD_CONSTANTS is used in the initscripts.
         """
@@ -773,7 +773,7 @@ class ModuleFinder:
         self._modules[name] = None
 
     def excluded_submodules(self, name: str) -> set[str]:
-        """The excluded set of submodules for the named module."""
+        """Return the excluded set of submodules for the named module."""
         return {
             module_name
             for module_name, module in self._modules.items()

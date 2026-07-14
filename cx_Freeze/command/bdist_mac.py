@@ -251,7 +251,7 @@ class bdist_mac(Command):
             apply_adhoc_signature(filepath)
 
     def find_qt_menu_nib(self) -> str | None:
-        """Returns the location of a qt_menu.nib folder for a Qt application.
+        """Return the location of a qt_menu.nib folder for a Qt application.
 
         Returns None for non-Qt app.
         """

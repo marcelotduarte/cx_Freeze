@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pkg_resources package is included.
-"""
+"""Hooks triggered by finder when pkg_resources package is included."""
 
 from __future__ import annotations
 
@@ -23,7 +21,7 @@ class Hook(ModuleHook):
     """
 
     def pkg_resources(self, finder: ModuleFinder, module: Module) -> None:
-        """The pkg_resources must import modules from the setuptools."""
+        """Import modules from setuptools."""
         finder.exclude_module("pkg_resources.tests")
         failed = [
             name

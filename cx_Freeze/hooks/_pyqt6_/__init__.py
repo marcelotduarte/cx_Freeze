@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-PyQt6 package is included.
-"""
+"""Hooks triggered by finder when PyQt6 package is included."""
 
 from __future__ import annotations
 
@@ -28,9 +26,7 @@ class Hook(QtHook):
         self.name = "qt"
 
     def qt(self, finder: ModuleFinder, module: Module) -> None:
-        """Inject code in PyQt6 __init__ to locate and load plugins and
-        resources.
-        """
+        """Inject code in PyQt6 to locate and load plugins and resources."""
         distribution = module.distribution
         environment = (distribution and distribution.installer) or "pip"
         # Activate the optimized mode by default in pip environments

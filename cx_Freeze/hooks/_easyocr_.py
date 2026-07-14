@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-easyocr package is included.
-"""
+"""Hooks triggered by finder when easyocr package is included."""
 
 from __future__ import annotations
 
@@ -23,7 +21,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The easyocr package."""
+        """Include modules implicitly imported by easyocr package."""
         finder.include_module("easyocr.easyocr")
         finder.include_module("easyocr.model.vgg_model")
         finder.include_module("imageio.plugins.pillow")

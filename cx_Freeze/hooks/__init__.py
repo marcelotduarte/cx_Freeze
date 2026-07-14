@@ -1,5 +1,6 @@
-"""A collection of functions which are triggered automatically by finder when
-certain packages are included or not found.
+"""Hooks triggered by finder when certain packages are included.
+
+Also, take care of missing modules.
 """
 
 # ruff: noqa: ARG001
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 
 def _include_cffi_backend(finder: ModuleFinder, module: Module) -> None:
-    """Helper function to include _cffi_backend module when required."""
+    """Include _cffi_backend module when required."""
     include_cffi = False
     if module.distribution and module.distribution.requires:
         for req in module.distribution.requires:
@@ -43,12 +44,12 @@ def load_abc(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_aiofiles(finder: ModuleFinder, module: Module) -> None:
-    """The aiofiles must be loaded as a package."""
+    """Load aiofiles as a package."""
     finder.include_package("aiofiles")
 
 
 def load__argon2_cffi_bindings(finder: ModuleFinder, module: Module) -> None:
-    """The _argon2_cffi_bindings package requires the _cffi_backend module.
+    """Include _argon2_cffi_bindings package required by _cffi_backend module.
 
     This package is distributed with argon2-cffi package.
     """
@@ -56,23 +57,23 @@ def load__argon2_cffi_bindings(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_babel(finder: ModuleFinder, module: Module) -> None:
-    """The babel must be loaded as a package, and has pickeable data."""
+    """Load babel as a package, because it has pickeable data."""
     finder.include_package("babel")
     module.in_file_system = 1
 
 
 def load_bcrypt(finder: ModuleFinder, module: Module) -> None:
-    """The bcrypt < 4.0 package requires the _cffi_backend module."""
+    """Include required _cffi_backend module (bcrypt < 4.0 only)."""
     _include_cffi_backend(finder, module)
 
 
 def load_boto(finder: ModuleFinder, module: Module) -> None:
-    """The boto package uses 'six' fake modules."""
+    """Include the 'six' fake modules used by boto package."""
     finder.exclude_module("boto.vendored.six.moves")
 
 
 def load_boto3(finder: ModuleFinder, module: Module) -> None:
-    """The boto3 package."""
+    """Include subpackages of boto3 package and data."""
     finder.include_package("boto3.dynamodb")
     finder.include_package("boto3.ec2")
     finder.include_package("boto3.s3")
@@ -82,16 +83,15 @@ def load_boto3(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_ceODBC(finder: ModuleFinder, module: Module) -> None:
-    """The ceODBC module implicitly imports both datetime and decimal;
-    make sure this happens.
-    """
+    """Implicitly imports datetime and decimal required by ceODBC module."""
     finder.include_module("datetime")
     finder.include_module("decimal")
 
 
 def load_certifi(finder: ModuleFinder, module: Module) -> None:
-    """The certifi package uses importlib.resources to locate the cacert.pem
-    in zip packages.
+    """Include the certificate in zipfile if required.
+
+    The certifi package uses importlib.resources to locate the cacert.pem.
     """
     if module.in_file_system == 0:
         cacert = Path(__import__("certifi").where())
@@ -99,7 +99,7 @@ def load_certifi(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
-    """The cffi.cparser module can use a extension if present."""
+    """Include an optional extension for cffi.cparser module."""
     try:
         finder.include_module("cffi._pycparser")
     except ImportError:
@@ -107,7 +107,7 @@ def load_cffi_cparser(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_collections(finder: ModuleFinder, module: Module) -> None:
-    """Sets the alias for collections.abc."""
+    """Set the alias for collections.abc."""
     try:
         finder.include_module("collections.abc")
     except ImportError:
@@ -123,17 +123,17 @@ def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_crc32c(finder: ModuleFinder, module: Module) -> None:
-    """The google.crc32c module requires _cffi_backend module."""
+    """Include required _cffi_backend module (google.crc32c)."""
     _include_cffi_backend(finder, module)
 
 
 def load_cryptography(finder: ModuleFinder, module: Module) -> None:
-    """The cryptography module requires the _cffi_backend module."""
+    """Include required _cffi_backend module (cryptography)."""
     _include_cffi_backend(finder, module)
 
 
 def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
-    """The ctypes.util module should filter import names."""
+    """Filter import names in ctypes.util module."""
     if not IS_MACOS:
         finder.exclude_module("ctypes.macholib")
         module.ignore_names.add("ctypes.macholib.dyld")
@@ -142,9 +142,7 @@ def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
 
 
 def load__ctypes(finder: ModuleFinder, module: Module) -> None:
-    """The _ctypes module requires an additional dependency to be present
-    in the build directory.
-    """
+    """Include an additional dependency required by _ctypes module."""
     if IS_WINDOWS:
         parts = ["DLLs", "Library/bin"]
         patterns = ["libffi-*.dll", "ffi-*.dll"]
@@ -160,9 +158,7 @@ def load__ctypes(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_cx_Oracle(finder: ModuleFinder, module: Module) -> None:
-    """The cx_Oracle module implicitly imports datetime; make sure this
-    happens.
-    """
+    """Implicitly imports datetime and decimal required by cx_Oracle module."""
     finder.include_module("datetime")
     finder.include_module("decimal")
 
@@ -191,40 +187,41 @@ def load_decimal(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_discord(finder: ModuleFinder, module: Module) -> None:
-    """py-cord requires its metadata."""
+    """Add required metadata of py-cord."""
     module.update_distribution("py-cord")
 
 
 def load_difflib(finder: ModuleFinder, module: Module) -> None:
-    """The difflib module uses doctest for tests and shouldn't be imported."""
+    """Exclude doctest module, used for tests by difflib module."""
     module.exclude_names.add("doctest")
 
 
 def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
-    """flask-compress requires its metadata."""
+    """Add required metadata of flask-compress."""
     module.update_distribution("Flask_Compress")
 
 
 def load_gevent(finder: ModuleFinder, module: Module) -> None:
-    """The gevent must be loaded as a package."""
+    """Load gevent as a package."""
     finder.include_package("gevent")
 
 
 def load_GifImagePlugin(finder: ModuleFinder, module: Module) -> None:
-    """The GifImagePlugin module optionally imports the _imaging_gif module."""
+    """Ignore optional imports of GifImagePlugin module."""
     module.ignore_names.add("_imaging_gif")
 
 
 def load_googleapiclient(finder: ModuleFinder, module: Module) -> None:
-    """Add the googleapiclient metadata for googleapiclient package."""
+    """Add required metadata of googleapiclient."""
     module.update_distribution("google_api_python_client")
 
 
 def load_googleapiclient_discovery(
     finder: ModuleFinder, module: Module
 ) -> None:
-    """The googleapiclient.discovery module needs discovery_cache subpackage
-    in file system.
+    """Include required subpackage of googleapiclient.discovery module.
+
+    The discovery_cache module should be in the file system.
     """
     discovery_cache = finder.include_package("googleapiclient.discovery_cache")
     if discovery_cache:
@@ -232,12 +229,15 @@ def load_googleapiclient_discovery(
 
 
 def load_google_cloud_storage(finder: ModuleFinder, module: Module) -> None:
-    """The google.cloud.storage package always uses the parent module."""
+    """Include the parent module of google.cloud.storage package.
+
+    It always uses the parent module.
+    """
     finder.include_package("google.cloud")
 
 
 def load_gtk__gtk(finder: ModuleFinder, module: Module) -> None:
-    """The gtk._gtk module has a number of implicit imports."""
+    """Include a number of implicit imports of gtk._gtk module."""
     finder.include_module("atk")
     finder.include_module("cairo")
     finder.include_module("gio")
@@ -246,7 +246,7 @@ def load_gtk__gtk(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_h5py(finder: ModuleFinder, module: Module) -> None:
-    """h5py module has a number of implicit imports."""
+    """Include a number of implicit imports of h5py module."""
     finder.include_module("h5py.defs")
     finder.include_module("h5py.utils")
     finder.include_module("h5py._proxy")
@@ -260,41 +260,43 @@ def load_h5py(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_h5py_wrapper(finder: ModuleFinder, module: Module) -> None:
-    """h5py_wrapper module requires future and pytest-runner."""
+    """Include module required by h5py_wrapper."""
     finder.include_module("future")
     finder.include_module("ptr")
 
 
 def load_hashlib(finder: ModuleFinder, module: Module) -> None:
-    """The hashlib's fallback modules don't exist if the equivalent OpenSSL
+    """Ignore optional imports of hashlib module.
+
+    The hashlib's fallback modules don't exist if the equivalent OpenSSL
     algorithms are loaded from _hashlib, so we can ignore the error.
     """
     module.ignore_names.update(["_md5", "_sha", "_sha256", "_sha512"])
 
 
 def load_heapq(finder: ModuleFinder, module: Module) -> None:
-    """The heapq module uses doctest for tests and shouldn't be imported."""
+    """Exclude doctest module, used for tests by heapq module."""
     module.exclude_names.add("doctest")
 
 
 def load_hdfdict(finder: ModuleFinder, module: Module) -> None:
-    """The hdfdict module requires h5py_wrapper and PyYAML."""
+    """Include required module of hdfdict module."""
     finder.include_module("h5py_wrapper")
     finder.include_package("yaml")
 
 
 def load_idna(finder: ModuleFinder, module: Module) -> None:
-    """The idna module implicitly loads data; make sure this happens."""
+    """Include data of idna."""
     finder.include_module("idna.idnadata")
 
 
 def load_imagej(finder: ModuleFinder, module: Module) -> None:
-    """The pyimagej package requires its metadata."""
+    """Add metadata of pyimagej package."""
     module.update_distribution("pyimagej")
 
 
 def load_jpype(finder: ModuleFinder, module: Module) -> None:
-    """The JPype1 package requires its binary."""
+    """Add required binary of JPype1 package."""
     dist = module.distribution
     if dist:
         source = dist.locate_file("org.jpype.jar")
@@ -305,37 +307,33 @@ def load_jpype(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_librosa(finder: ModuleFinder, module: Module) -> None:
-    """The librosa must be loaded as package."""
+    """Load librosa as package."""
     finder.include_package("librosa")
 
 
 def load_llvmlite(finder: ModuleFinder, module: Module) -> None:
-    """The llvmlite must be loaded as package."""
+    """Load llvmlite as package."""
     finder.include_package("llvmlite")
     finder.exclude_module("llvmlite.tests")
 
 
 def load_lxml(finder: ModuleFinder, module: Module) -> None:
-    """The lxml package uses an extension."""
+    """Include and extension required by lxml package."""
     finder.include_module("lxml._elementpath")
 
 
 def load_markdown(finder: ModuleFinder, module: Module) -> None:
-    """The markdown package implicitly loads html.parser; make sure this
-    happens.
-    """
+    """Include module implicitly loaded by markdown package."""
     finder.include_module("html.parser")
 
 
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
-    """The Numeric module optionally loads the dotblas module; ignore the error
-    if this modules does not exist.
-    """
+    """Ignore optional module loaded by Numeric module."""
     module.ignore_names.add("dotblas")
 
 
 def load_orjson(finder: ModuleFinder, module: Module) -> None:
-    """The orjson has dynamic imports."""
+    """Include dynamic imports of orjson."""
     finder.include_module("dataclasses")
     finder.include_module("datetime")
     finder.include_module("decimal")
@@ -346,7 +344,7 @@ def load_orjson(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_os(finder: ModuleFinder, module: Module) -> None:
-    """Sets the alias for os.path."""
+    """Set the alias for os.path."""
     if "posix" in sys.builtin_module_names:
         finder.add_alias("os.path", "posixpath")
     else:
@@ -354,35 +352,33 @@ def load_os(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pickle(finder: ModuleFinder, module: Module) -> None:
-    """The pickle module uses doctest for tests and shouldn't be imported."""
+    """Exclude doctest module, used for tests by pickle module."""
     module.exclude_names.add("doctest")
 
 
 def load_pickletools(finder: ModuleFinder, module: Module) -> None:
-    """The pickletools module uses doctest that shouldn't be imported."""
+    """Exclude doctest module, used for tests by pickletools module."""
     module.exclude_names.add("doctest")
 
 
 def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
-    """The pikepdf must be loaded as a package."""
+    """Load pikepdf as a package."""
     finder.include_package("pikepdf")
 
 
 def load_platform(finder: ModuleFinder, module: Module) -> None:
-    """The platform module should filter import names."""
+    """Exclude a module if not used by platform module."""
     if not IS_MACOS:
         module.exclude_names.add("plistlib")
 
 
 def load_plotly(finder: ModuleFinder, module: Module) -> None:
-    """The plotly must be loaded as a package."""
+    """Load plotly as a package."""
     finder.include_package("plotly")
 
 
 def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
-    """The postgresql.lib module requires the libsys.sql file to be included
-    so make sure that file is included.
-    """
+    """Include required data of postgresql.lib module."""
     path = module.path
     if path:
         libsys = path[0] / "libsys.sql"
@@ -391,51 +387,52 @@ def load_postgresql_lib(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pty(finder: ModuleFinder, module: Module) -> None:
-    """The sgi module is not needed for this module to function."""
+    """Ignore optional imports of pty module."""
     module.ignore_names.add("sgi")
 
 
 def load_ptr(finder: ModuleFinder, module: Module) -> None:
-    """pytest-runner requires its metadata."""
+    """Add metadata of pytest-runner."""
     module.update_distribution("pytest-runner")
 
 
 def load_pycountry(finder: ModuleFinder, module: Module) -> None:
-    """The pycountry module has data in subdirectories."""
+    """Use pycountry module in the file system.
+
+    It has data in subdirectories.
+    """
     finder.exclude_module("pycountry.tests")
     module.in_file_system = 1
 
 
 def load_pyodbc(finder: ModuleFinder, module: Module) -> None:
-    """The pyodbc module implicitly imports others modules;
-    make sure this happens.
-    """
+    """Include implicitly imports of pyodbc module."""
     for mod in ("datetime", "decimal", "hashlib", "locale", "uuid"):
         finder.include_module(mod)
 
 
 def load_pyreadstat(finder: ModuleFinder, module: Module) -> None:
-    """The pyreadstat package must be loaded as a package."""
+    """Load pyreadstat as a package."""
     finder.include_package("pyreadstat")
     finder.include_module("pandas")
 
 
 def load_pyqtgraph(finder: ModuleFinder, module: Module) -> None:
-    """The pyqtgraph package must be loaded as a package."""
+    """Load pyqtgraph as a package."""
     finder.include_package("pyqtgraph")
 
 
 def load_pytest(finder: ModuleFinder, module: Module) -> None:
-    """The pytest package implicitly imports others modules;
-    make sure this happens.
-    """
+    """Include implicitly imports of pytest module."""
     pytest = __import__("pytest")
     for mod in pytest.freeze_includes():
         finder.include_module(mod)
 
 
 def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
-    """The pythoncom module is actually contained in a DLL but since those
+    """Copy required DLL.
+
+    The pythoncom module is actually contained in a DLL but since those
     cannot be loaded directly in Python 2.5 and higher a special module is
     used to perform that task; simply use that technique directly to
     determine the name of the DLL and ensure it is included as a file in
@@ -451,7 +448,9 @@ def load_pythoncom(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
-    """The pywintypes module is actually contained in a DLL but since those
+    """Copy required DLL.
+
+    The pywintypes module is actually contained in a DLL but since those
     cannot be loaded directly in Python 2.5 and higher a special module is
     used to perform that task; simply use that technique directly to
     determine the name of the DLL and ensure it is included as a file in the
@@ -467,14 +466,12 @@ def load_pywintypes(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_reportlab(finder: ModuleFinder, module: Module) -> None:
-    """The reportlab module loads a submodule rl_settings via exec so force
-    its inclusion here.
-    """
+    """Include import of reportlab module, loaded via exec."""
     finder.include_module("reportlab.rl_settings")
 
 
 def load_sentry_sdk(finder: ModuleFinder, module: Module) -> None:
-    """The Sentry.io SDK."""
+    """Include implicitly imports of Sentry.io SDK."""
     finder.include_module("sentry_sdk.integrations.stdlib")
     finder.include_module("sentry_sdk.integrations.excepthook")
     finder.include_module("sentry_sdk.integrations.dedupe")
@@ -486,19 +483,19 @@ def load_sentry_sdk(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_site(finder: ModuleFinder, module: Module) -> None:
-    """The site module optionally loads the sitecustomize and usercustomize
-    modules; ignore the error if these modules do not exist.
-    """
+    """Ignore optional imports of site module."""
     module.ignore_names.update(["sitecustomize", "usercustomize"])
 
 
 def load__socket(finder: ModuleFinder, module: Module) -> None:
-    """The _socket module implicitly loads encodings.idna."""
+    """Include encodings.idna used by _sockets module."""
     finder.include_module("encodings.idna")
 
 
 def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
-    """In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
+    """Copy required DLL.
+
+    In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
     be present in the build directory.
     """
     if IS_WINDOWS:
@@ -513,7 +510,7 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
-    """The sysconfig module implicitly loads _sysconfigdata."""
+    """Include _sysconfigdata implicitly loaded by sysconfig module."""
     if IS_WINDOWS:
         return
     get_data_name = getattr(sysconfig, "_get_sysconfigdata_name", None)
@@ -524,7 +521,7 @@ def load_sysconfig(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_time(finder: ModuleFinder, module: Module) -> None:
-    """The time module implicitly loads _strptime; make sure this happens."""
+    """Include a module implicitly imported by time."""
     finder.include_module("_strptime")
 
 
@@ -534,17 +531,10 @@ def load_typing(finder: ModuleFinder, module: Module) -> None:
     finder.add_alias("typing.re", "re")
 
 
-def load_twisted_conch_ssh_transport(
-    finder: ModuleFinder, module: Module
-) -> None:
-    """The twisted.conch.ssh.transport module uses __import__ builtin to
-    dynamically load different ciphers at runtime.
-    """
-    finder.include_package("Crypto.Cipher")
-
-
 def load_twitter(finder: ModuleFinder, module: Module) -> None:
-    """The twitter module tries to load the simplejson, json and django.utils
+    """Ignore optional modules.
+
+    The twitter module tries to load the simplejson, json and django.utils
     module in an attempt to locate any module that will implement the
     necessary protocol; ignore these modules if they cannot be found.
     """
@@ -552,65 +542,55 @@ def load_twitter(finder: ModuleFinder, module: Module) -> None:
 
 
 def load_uvloop(finder: ModuleFinder, module: Module) -> None:
-    """The uvloop module implicitly loads an extension module."""
+    """Include an internal extension module of uvloop."""
     finder.include_module("uvloop._noop")
 
 
 def load_win32api(finder: ModuleFinder, module: Module) -> None:
-    """The win32api module implicitly loads the pywintypes module; make sure
-    this happens.
-    """
+    """Include a module implicitly imported by win32api."""
     if module.file:
         finder.exclude_dependent_files(module.file)
     finder.include_module("pywintypes")
 
 
 def load_win32com(finder: ModuleFinder, module: Module) -> None:
-    """The win32com package manipulates its search path at runtime to include
-    the sibling directory called win32comext; simulate that by changing the
-    search path in a similar fashion here.
-    """
+    """Manipulate the search path at runtime to include win32comext."""
     if module.file and module.path:
         module.path.append(module.file.parent.parent / "win32comext")
 
 
 def load_win32file(finder: ModuleFinder, module: Module) -> None:
-    """The win32file module implicitly loads the pywintypes and win32timezone
-    module; make sure this happens.
-    """
+    """Include modules implicitly imported by win32file."""
     finder.include_module("pywintypes")
     finder.include_module("win32timezone")
 
 
 def load_win32print(finder: ModuleFinder, module: Module) -> None:
-    """The win32print module implicitly loads the pywintypes module;
-    make sure this happens.
-    """
+    """Include a module implicitly imported by win32print."""
     finder.include_module("pywintypes")
 
 
 def load_xml_etree_cElementTree(finder: ModuleFinder, module: Module) -> None:
-    """The xml.etree.cElementTree module implicitly loads the
-    xml.etree.ElementTree module; make sure this happens.
-    """
+    """Include a module implicitly imported by xml.etree.cElementTree."""
     finder.include_module("xml.etree.ElementTree")
 
 
 def load_yaml(finder: ModuleFinder, module: Module) -> None:
-    """PyYAML requires its metadata."""
+    """Add metadata of PyYAML."""
     module.update_distribution("PyYAML")
 
 
 def load_zipfile(finder: ModuleFinder, module: Module) -> None:
-    """The zipfile module implicitly loads encodings."""
+    """Include encodings required by zipfile module."""
     finder.include_module("encodings.ascii")
     finder.include_module("encodings.cp437")
 
 
 def load_zlib(finder: ModuleFinder, module: Module) -> None:
-    """In Windows, the zlib module requires the zlib.dll to be present in the
-    executable directory if using conda-forge. However, the required shared
-    library is zlib1.dll in official Python >= 3.12.
+    """Include required DLL, in Windows, by zlib module.
+
+    Using conda-forge, the required DLL is zlib.dll, however, using the
+    official Python 3.12+, the requiref DLL is zlib1.dll.
     """
     if not IS_WINDOWS:
         return
@@ -634,26 +614,23 @@ def load_zlib(finder: ModuleFinder, module: Module) -> None:
 
 
 def missing_gdk(finder: ModuleFinder, caller: Module) -> None:
-    """The gdk module is buried inside gtk so there is no need to concern
-    ourselves with an error saying that it cannot be found.
-    """
+    """Ignore module gdk, that is buried inside gtk."""
     caller.ignore_names.add("gdk")
 
 
 def missing_ltihooks(finder: ModuleFinder, caller: Module) -> None:
-    """The ltihooks module is not necessarily present so ignore it when it
-    cannot be found.
-    """
+    """Ignore module ltihooks, if it is not found."""
     caller.ignore_names.add("ltihooks")
 
 
 def missing_six_moves(finder: ModuleFinder, caller: Module) -> None:
-    """The six module creates fake modules."""
+    """Ignore the fake module that six module creates."""
     caller.ignore_names.add("six.moves")
 
 
 def missing_typing_extensions(finder: ModuleFinder, caller: Module) -> None:
-    """The typing_extensions module is not required at runtime, so ignore it
-    when it cannot be found.
+    """Ignore typing_extensions module when it cannot be found.
+
+    Is not required at runtime, so ignore it.
     """
     caller.ignore_names.add("typing_extensions")

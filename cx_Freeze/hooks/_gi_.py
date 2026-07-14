@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-PyGObject package is included.
-"""
+"""Hooks triggered by finder when PyGObject (gi) package is included."""
 
 from __future__ import annotations
 
@@ -16,9 +14,7 @@ from cx_Freeze.module import Module, ModuleHook
 if TYPE_CHECKING:
     from cx_Freeze.finder import ModuleFinder
 
-
 __all__ = ["Hook"]
-
 
 # To test in Ubuntu, pulls all dependencies for pygobject, then install it:
 # sudo apt install python3-gi libgirepository1.0-dev libcairo2-dev
@@ -29,7 +25,7 @@ class Hook(ModuleHook):
     """The Hook class for PyGObject."""
 
     def gi(self, finder: ModuleFinder, module: Module) -> None:
-        """The PyGObject package."""
+        """Include internal libraries of PyGObject package."""
         libraries = [
             "libgtk-3-0",
             "libgdk-3-0",

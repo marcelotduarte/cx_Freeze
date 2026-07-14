@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-re module is included.
-"""
+"""Hooks triggered by finder when re module is included."""
 
 from __future__ import annotations
 
@@ -20,8 +18,6 @@ class Hook(ModuleHook):
     """The Hook class for 're' module."""
 
     def re(self, _finder: ModuleFinder, module: Module) -> None:
-        """Ignore names that should not be confused with modules to be
-        imported.
-        """
+        """Ignore names that should not be confused with modules."""
         if module.path:  # package since Python 3.11
             module.global_names.update(RE_GLOBAL_NAMES)

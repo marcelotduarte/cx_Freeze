@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-lazy-loader package is included.
-"""
+"""Hooks triggered by finder when lazy-loader package is included."""
 
 from __future__ import annotations
 

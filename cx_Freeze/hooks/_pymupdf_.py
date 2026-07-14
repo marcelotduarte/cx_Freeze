@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pymupdf package is included.
-"""
+"""Hooks triggered by finder when pymupdf package is included."""
 
 from __future__ import annotations
 
@@ -22,7 +20,7 @@ class Hook(ModuleHook):
     """The Hook class for pymupdf."""
 
     def pymupdf(self, finder: ModuleFinder, module: Module) -> None:
-        """The pymupdf must include hidden modules."""
+        """Include hidden modules of pymupdf."""
         if module.in_file_system == 0:
             module.in_file_system = 1
         module.ignore_names.update(

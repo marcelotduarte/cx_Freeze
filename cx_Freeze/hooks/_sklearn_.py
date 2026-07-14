@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-scikit-learn package is included.
-"""
+"""Hooks triggered by finder when scikit-learn package is included."""
 
 from __future__ import annotations
 
@@ -64,7 +62,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """Loads an extension module."""
+        """Load an extension module."""
         finder.include_package("sklearn.externals.array_api_compat.numpy.fft")
 
     def sklearn_utils(

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-winrt package (pywinrt) is included.
-"""
+"""Hooks triggered by finder when winrt package (pywinrt) is included."""
 
 from __future__ import annotations
 

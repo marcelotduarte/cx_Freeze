@@ -383,7 +383,7 @@ class Freezer:
 
     @abstractmethod
     def _get_top_dependencies(self, source: StrPath) -> None:
-        """Called to get the dependencies of an executable."""
+        """Get the top dependencies of an executable."""
 
     @abstractmethod
     def _default_bin_excludes(self) -> list[str]:
@@ -534,13 +534,13 @@ class Freezer:
     def _validate_executables(
         self, executables: Sequence[Executable | Mapping[str, str] | str]
     ) -> list[Executable]:
-        """Returns valid Executable list."""
+        """Return valid Executable list."""
         dist = Distribution(attrs={"executables": executables})
         return dist.executables  # ty: ignore[unresolved-attribute]
 
     @staticmethod
     def _validate_path(path: list[StrPath] | None) -> list[str]:
-        """Returns valid search path for modules.
+        """Return valid search path for modules.
 
         Fix the path for built-in modules when it differs from the running
         python built-in modules.
@@ -569,14 +569,14 @@ class Freezer:
     def _validate_bin_file(
         filenames: Sequence[StrPath] | None,
     ) -> list[str]:
-        """Returns valid filenames for bin_includes and bin_excludes."""
+        """Return valid filenames for bin_includes and bin_excludes."""
         if filenames is None:
             return []
         return [os.path.normcase(filename) for filename in filenames]
 
     @staticmethod
     def _validate_bin_path(bin_path: Sequence[StrPath] | None) -> list[str]:
-        """Returns valid search path.
+        """Return valid search path.
 
         For bin_path_includes and bin_path_excludes.
         """

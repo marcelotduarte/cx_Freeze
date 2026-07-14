@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-Xlib package is included.
-"""
+"""Hooks triggered by finder when Xlib package is included."""
 
 from __future__ import annotations
 
@@ -24,8 +22,9 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The Xlib.display module implicitly loads a number of extension
-        modules; make sure this happens.
+        """Implicitly loads a number of extension modules for Xlib.display.
+
+        Make sure this happens.
         """
         finder.include_module("Xlib.ext.xtest")
         finder.include_module("Xlib.ext.shape")
@@ -39,8 +38,9 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The Xlib.support.connect module implicitly loads a platform specific
-        module; make sure this happens.
+        """Implicitly loads a number of extension modules.
+
+        Make sure this happens.
         """
         if sys.platform.split("-", maxsplit=1)[0] == "OpenVMS":
             module_name = "vms_connect"
@@ -53,8 +53,9 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The Xlib.XK module implicitly loads some keysymdef modules;
-        make sure this happens.
+        """Implicitly loads some keysymdef modules for Xlib.XK module.
+
+        Make sure this happens.
         """
         finder.include_module("Xlib.keysymdef.miscellany")
         finder.include_module("Xlib.keysymdef.latin1")

@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-pytz package is included.
-"""
+"""Hooks triggered by finder when pytz package is included."""
 
 from __future__ import annotations
 
@@ -24,7 +22,9 @@ class Hook(ModuleHook):
     """The Hook class for pytz."""
 
     def pytz(self, finder: ModuleFinder, module: Module) -> None:
-        """The pytz module requires timezone data to be found in a known
+        """Include required timezone data for the pytz package.
+
+        The pytz module requires timezone data to be found in a known
         directory or in the zip file where the package is written.
         """
         module.exclude_names.add("doctest")

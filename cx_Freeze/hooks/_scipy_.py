@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-scipy package is included.
-"""
+"""Hooks triggered by finder when scipy package is included."""
 
 from __future__ import annotations
 
@@ -45,7 +43,7 @@ class Hook(ModuleHook):
     """The Hook class for scipy."""
 
     def scipy(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy package.
+        """Optimize hook.
 
         Supported pypi and conda-forge versions (tested until 1.18.0rc2).
         """
@@ -123,7 +121,9 @@ class Hook(ModuleHook):
     def scipy_linalg_interface_gen(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
-        """The scipy.linalg.interface_gen module optionally imports the pre
+        """Ignore optional modules.
+
+        The scipy.linalg.interface_gen module optionally imports the pre
         module; ignore the error if this module cannot be found.
         """
         module.ignore_names.add("pre")
@@ -138,7 +138,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The scipy.sparse.csgraph must be loaded as a package."""
+        """Load as a package the package scipy.sparse.csgraph."""
         finder.include_package("scipy.sparse.csgraph")
 
     def scipy_sparse_linalg(
@@ -154,13 +154,14 @@ class Hook(ModuleHook):
         finder: ModuleFinder,  # noqa: ARG002
         module: Module,
     ) -> None:
-        """The scipy.sparse.linalg._dsolve.linsolve optionally loads
-        scikits.umfpack.
+        """Ignore optional module.
+
+        scipy.sparse.linalg._dsolve.linsolve optionally loads scikits.umfpack.
         """
         module.ignore_names.add("scikits.umfpack")
 
     def scipy_spatial(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy.spatial must be loaded as a package."""
+        """Load scipy.spatial as a package."""
         module.global_names.update(global_names.SCIPY_SPATIAL_GLOBAL_NAMES)
         finder.include_package("scipy.spatial")
         if IS_WINDOWS or IS_MINGW:
@@ -171,11 +172,11 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The scipy.spatial.transform must be loaded as a package."""
+        """Load as a package the package scipy.spatial.transform."""
         finder.include_package("scipy.spatial.transform")
 
     def scipy_special(self, finder: ModuleFinder, module: Module) -> None:
-        """The scipy.special must be loaded as a package."""
+        """Load as a package the package scipy.special."""
         module.global_names.update(global_names.SCIPY_SPECIAL_GLOBAL_NAMES)
         finder.include_package("scipy.special")
         finder.include_package("scipy.special._precompute")
@@ -185,7 +186,9 @@ class Hook(ModuleHook):
         finder: ModuleFinder,  # noqa: ARG002
         module: Module,
     ) -> None:
-        """The scipy.special._cephes is an extension module and the scipy
+        """Include global names.
+
+        The scipy.special._cephes is an extension module and the scipy
         module imports * from it in places; advertise the global names that
         are used in order to avoid spurious errors about missing modules.
         """

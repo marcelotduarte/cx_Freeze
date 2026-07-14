@@ -45,7 +45,7 @@ Windows:
 
 
 def prepare_parser() -> argparse.ArgumentParser:
-    """Helper function to parse the arguments."""
+    """Parse the arguments."""
     parser = argparse.ArgumentParser(
         prog="cxfreeze",
         description=DESCRIPTION,

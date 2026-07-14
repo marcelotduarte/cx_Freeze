@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-yt_dlp package is included.
-"""
+"""Hooks triggered by finder when yt_dlp package is included."""
 
 from __future__ import annotations
 
@@ -23,7 +21,7 @@ class Hook(ModuleHook):
         finder: ModuleFinder,
         module: Module,  # noqa: ARG002
     ) -> None:
-        """The yt_dlp must include backends."""
+        """Include backends for yt_dlp package."""
         finder.include_module("yt_dlp.compat._deprecated")
         finder.include_module("yt_dlp.compat._legacy")
         finder.include_module("yt_dlp.utils._deprecated")

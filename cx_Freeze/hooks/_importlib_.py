@@ -1,6 +1,4 @@
-"""A collection of functions which are triggered automatically by finder when
-importlib namespace is included.
-"""
+"""Hooks triggered by finder when importlib package is included."""
 
 from __future__ import annotations
 
@@ -19,7 +17,7 @@ class Hook(ModuleHook):
     """The Hook class for importlib."""
 
     def importlib(self, finder: ModuleFinder, module: Module) -> None:
-        """The importlib module should filter import names."""
+        """Hooks for importlib package."""
         if module.in_file_system == 1:
             # Use optimized mode
             module.in_file_system = 2
@@ -31,17 +29,17 @@ class Hook(ModuleHook):
     def importlib__bootstrap(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        """The importlib._bootstrap is an alias."""
+        """Set importlib._bootstrap as an alias."""
         finder.add_alias(module.name, "_frozen_importlib")
 
     def importlib__bootstrap_external(
         self, finder: ModuleFinder, module: Module
     ) -> None:
-        """The importlib._bootstrap_external is an alias."""
+        """Set importlib._bootstrap_external as an alias."""
         finder.add_alias(module.name, "_frozen_importlib_external")
 
     def importlib_metadata(self, finder: ModuleFinder, module: Module) -> None:
-        """The importlib.metadata module should filter import names."""
+        """Ignore optional modules."""
         if module.name == "importlib.metadata":
             module.ignore_names.add("pep517")
             finder.include_module("email")
