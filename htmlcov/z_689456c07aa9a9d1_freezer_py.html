@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-13 08:03 +0000
+            created at 2026-07-14 07:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -465,7 +465,7 @@
     <p class="pln"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="exc show_exc"><span class="n"><a id="t384" href="#t384">384</a></span><span class="t">    <span class="op">@</span><span class="nam">abstractmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc show_exc"><span class="n"><a id="t385" href="#t385">385</a></span><span class="t">    <span class="key">def</span> <span class="nam">_get_top_dependencies</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">source</span><span class="op">:</span> <span class="nam">StrPath</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="exc show_exc"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t">        <span class="str">"""Called to get the dependencies of an executable."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="exc show_exc"><span class="n"><a id="t386" href="#t386">386</a></span><span class="t">        <span class="str">"""Get the top dependencies of an executable."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t387" href="#t387">387</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="exc show_exc"><span class="n"><a id="t388" href="#t388">388</a></span><span class="t">    <span class="op">@</span><span class="nam">abstractmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="exc show_exc"><span class="n"><a id="t389" href="#t389">389</a></span><span class="t">    <span class="key">def</span> <span class="nam">_default_bin_excludes</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -616,13 +616,13 @@
     <p class="run"><span class="n"><a id="t534" href="#t534">534</a></span><span class="t">    <span class="key">def</span> <span class="nam">_validate_executables</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span> <span class="nam">executables</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">Executable</span> <span class="op">|</span> <span class="nam">Mapping</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span> <span class="op">|</span> <span class="nam">str</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t">    <span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">Executable</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t">        <span class="str">"""Returns valid Executable list."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t">        <span class="str">"""Return valid Executable list."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t">        <span class="nam">dist</span> <span class="op">=</span> <span class="nam">Distribution</span><span class="op">(</span><span class="nam">attrs</span><span class="op">=</span><span class="op">{</span><span class="str">"executables"</span><span class="op">:</span> <span class="nam">executables</span><span class="op">}</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t">        <span class="key">return</span> <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span>  <span class="com"># ty: ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t541" href="#t541">541</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t542" href="#t542">542</a></span><span class="t">    <span class="key">def</span> <span class="nam">_validate_path</span><span class="op">(</span><span class="nam">path</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">StrPath</span><span class="op">]</span> <span class="op">|</span> <span class="key">None</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t">        <span class="str">"""Returns valid search path for modules.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t543" href="#t543">543</a></span><span class="t">        <span class="str">"""Return valid search path for modules.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t544" href="#t544">544</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t545" href="#t545">545</a></span><span class="t"><span class="str">        Fix the path for built-in modules when it differs from the running</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t546" href="#t546">546</a></span><span class="t"><span class="str">        python built-in modules.</span>&nbsp;</span><span class="r"></span></p>
@@ -651,14 +651,14 @@
     <p class="run"><span class="n"><a id="t569" href="#t569">569</a></span><span class="t">    <span class="key">def</span> <span class="nam">_validate_bin_file</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t570" href="#t570">570</a></span><span class="t">        <span class="nam">filenames</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">StrPath</span><span class="op">]</span> <span class="op">|</span> <span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t571" href="#t571">571</a></span><span class="t">    <span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t572" href="#t572">572</a></span><span class="t">        <span class="str">"""Returns valid filenames for bin_includes and bin_excludes."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t572" href="#t572">572</a></span><span class="t">        <span class="str">"""Return valid filenames for bin_includes and bin_excludes."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t573" href="#t573">573</a></span><span class="t">        <span class="key">if</span> <span class="nam">filenames</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t574" href="#t574">574</a></span><span class="t">            <span class="key">return</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t575" href="#t575">575</a></span><span class="t">        <span class="key">return</span> <span class="op">[</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">normcase</span><span class="op">(</span><span class="nam">filename</span><span class="op">)</span> <span class="key">for</span> <span class="nam">filename</span> <span class="key">in</span> <span class="nam">filenames</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t576" href="#t576">576</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t577" href="#t577">577</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t578" href="#t578">578</a></span><span class="t">    <span class="key">def</span> <span class="nam">_validate_bin_path</span><span class="op">(</span><span class="nam">bin_path</span><span class="op">:</span> <span class="nam">Sequence</span><span class="op">[</span><span class="nam">StrPath</span><span class="op">]</span> <span class="op">|</span> <span class="key">None</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t">        <span class="str">"""Returns valid search path.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t579" href="#t579">579</a></span><span class="t">        <span class="str">"""Return valid search path.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t580" href="#t580">580</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t581" href="#t581">581</a></span><span class="t"><span class="str">        For bin_path_includes and bin_path_excludes.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t582" href="#t582">582</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
@@ -1554,7 +1554,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_module_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-13 08:03 +0000
+            created at 2026-07-14 07:20 +0000
         </p>
     </div>
 </footer>

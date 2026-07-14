@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-13 08:03 +0000
+            created at 2026-07-14 07:20 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -422,7 +422,7 @@
     <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">    <span class="key">def</span> <span class="nam">_internal_import_module</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">deferred_imports</span><span class="op">:</span> <span class="nam">DeferredList</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">    <span class="op">)</span> <span class="op">-></span> <span class="nam">Module</span> <span class="op">|</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">        <span class="str">"""Internal method used for importing a module.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">        <span class="str">"""Add the module to the internal import list.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t"><span class="str">        Assumes that the name given is an absolute name.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="str">        None is returned if the module cannot be found.</span>&nbsp;</span><span class="r"></span></p>
@@ -829,7 +829,7 @@
     <p class="run"><span class="n"><a id="t747" href="#t747">747</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">include_package</span><span class="op">(</span><span class="str">"encodings"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t748" href="#t748">748</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t749" href="#t749">749</a></span><span class="t">    <span class="key">def</span> <span class="nam">add_constant</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">:</span> <span class="nam">str</span><span class="op">,</span> <span class="nam">value</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t750" href="#t750">750</a></span><span class="t">        <span class="str">"""Makes available a constant in the module BUILD_CONSTANTS.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t750" href="#t750">750</a></span><span class="t">        <span class="str">"""Make available a constant in the module BUILD_CONSTANTS.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t751" href="#t751">751</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t752" href="#t752">752</a></span><span class="t"><span class="str">        BUILD_CONSTANTS is used in the initscripts.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t753" href="#t753">753</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
@@ -855,7 +855,7 @@
     <p class="mis show_mis"><span class="n"><a id="t773" href="#t773">773</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t774" href="#t774">774</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t775" href="#t775">775</a></span><span class="t">    <span class="key">def</span> <span class="nam">excluded_submodules</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="nam">set</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t776" href="#t776">776</a></span><span class="t">        <span class="str">"""The excluded set of submodules for the named module."""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t776" href="#t776">776</a></span><span class="t">        <span class="str">"""Return the excluded set of submodules for the named module."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t777" href="#t777">777</a></span><span class="t">        <span class="key">return</span> <span class="op">{</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t778" href="#t778">778</a></span><span class="t">            <span class="nam">module_name</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t779" href="#t779">779</a></span><span class="t">            <span class="key">for</span> <span class="nam">module_name</span><span class="op">,</span> <span class="nam">module</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span><span class="op">.</span><span class="nam">items</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1016,7 +1016,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-13 08:03 +0000
+            created at 2026-07-14 07:20 +0000
         </p>
     </div>
 </footer>
