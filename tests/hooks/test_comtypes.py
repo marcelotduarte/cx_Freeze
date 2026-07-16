@@ -30,15 +30,10 @@ test_comtypes.py
     )
 
 test_comtypes_client.py
-    import importlib.util
-
     from comtypes.client import GetModule
 
-    print("GetModule imported", GetModule.__name__)
-    print(
-        "comtypes.stream found",
-        importlib.util.find_spec("comtypes.stream") is not None,
-    )
+    scripting = GetModule("scrrun.dll")
+    print("GetModule generated", scripting.__name__)
 
 pyproject.toml
     [project]
@@ -89,7 +84,6 @@ def test_comtypes(tmp_package: TempPackage, zip_packages: bool) -> None:
     result = tmp_package.run(executable, timeout=TIMEOUT)
     result.stdout.fnmatch_lines(
         [
-            "GetModule imported GetModule",
-            "comtypes.stream found True",
+            "GetModule generated comtypes.gen.Scripting",
         ]
     )
