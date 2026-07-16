@@ -57,7 +57,7 @@ class bdist_dmg(Command):
             "petabytes respectively.",
         ),
         (
-            "background",
+            "background=",
             "b",
             "A rgb color in the form #3344ff, svg named color like goldenrod, "
             "a path to an image, or the words 'builtin-arrow' [default: None]",
