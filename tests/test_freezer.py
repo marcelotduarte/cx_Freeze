@@ -277,42 +277,42 @@ def test_freezer_options(
         pytest.param(
             {"zip_filename": None},
             {"zip_filename": "library.zip"},  # default compress is True
-            id="zip_filename=none",
+            id="zip_filename_none",
         ),
         pytest.param(
             {"zip_filename": "test"},
             {"zip_filename": "test.zip"},
-            id="zip_filename=test",
+            id="zip_filename_test",
         ),
         pytest.param(
             {"zip_filename": "test.zip"},
             {"zip_filename": "test.zip"},
-            id="zip_filename=test.zip",
+            id="zip_filename_test_zip",
         ),
         pytest.param(
             {"zip_filename": "test.zip", "target_dir": "ação"},
             {"zip_filename": "test.zip"},
-            id="zip_filename=test.zip/target_dir=utf_8/portuguese",
+            id="zip_filename_test_zip_target_dir_utf_8_portuguese",
         ),
         pytest.param(
             {"zip_filename": "test.zip", "target_dir": "行動"},
             {"zip_filename": "test.zip"},
-            id="zip_filename=test.zip/target_dir=utf_8/chinese",
+            id="zip_filename_test_zip_target_dir_utf_8_chinese",
         ),
         pytest.param(
             {"compress": True},
             {"compress": True, "zip_filename": "library.zip"},
-            id="zip_filename=none/compress=true",
+            id="zip_filename_none_compress_true",
         ),
         pytest.param(
             {"compress": False},
             {"compress": False, "zip_filename": None},
-            id="zip_filename=none/compress=false",
+            id="zip_filename_none_compress_false",
         ),
         pytest.param(
             {"compress": False, "zip_filename": "library.zip"},
             {"compress": False, "zip_filename": "library.zip"},
-            id="zip_filename=name/compress=false",
+            id="zip_filename_name_compress_false",
         ),
     ],
 )
