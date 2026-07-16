@@ -114,7 +114,6 @@ def load_collections(finder: ModuleFinder, module: Module) -> None:
         # collections.abc module does not exist in Python 3.13+
         # >>> _sys.modules['collections.abc'] = _collections_abc
         finder.add_alias("collections.abc", "_collections_abc")
-        finder.include_module("collections.abc")
 
 
 def load_concurrent_futures(finder: ModuleFinder, module: Module) -> None:

@@ -729,10 +729,15 @@ class ModuleFinder:
     def add_alias(self, name: str, alias_for: str) -> None:
         """Add an alias for a particular module.
 
-        When an attempt is made to import a module using the alias name,
-        import the actual name instead.
+        When an attempt is made to import that module, the alias is used to
+        import the actual name.
         """
         self.aliases[name] = alias_for
+        # Import the module — if it was previously imported under its original
+        # name — using the alias defined at this point.
+        if name in self._modules:
+            self._modules.pop(name)
+            self.include_module(name)
 
     def add_base_modules(self) -> None:
         """Add the base modules to the finder.
