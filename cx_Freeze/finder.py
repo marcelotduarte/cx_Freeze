@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import _imp
 import inspect
+import json
 import linecache
 import logging
 import os
@@ -41,7 +42,7 @@ from cx_Freeze._bytecode import (
     code_object_replace_package,
     scan_code,
 )
-from cx_Freeze._compat import IS_WINDOWS
+from cx_Freeze._compat import IS_WINDOWS, SOABI
 from cx_Freeze.common import process_path_specs, resource_path
 from cx_Freeze.hooks.unused_modules import (
     DEFAULT_EXCLUDES,
@@ -146,28 +147,11 @@ class ModuleFinder:
             module.finder = self
             root_name = name.split(".", maxsplit=1)[0]
             if (
-                name not in self._builtin_modules
+                name not in self.builtin_modules
                 and root_name not in sys.stdlib_module_names
             ):
                 module.update_distribution()
         return module
-
-    @cached_property
-    def _builtin_modules(self) -> Mapping[str, str]:
-        """The built-in modules are based on the `freeze-core` build."""
-        builtin_modules: dict[str, str] = {}
-        for name in sys.builtin_module_names:
-            builtin_modules[name] = "built-in"
-        if sys.version_info[:2] >= (3, 11):
-            for name in _imp._frozen_module_names():  # noqa: SLF001
-                builtin_modules[name] = "frozen"
-        core_lib = resource_path("lib")
-        if core_lib and core_lib.is_dir():
-            # discard modules that exist in freeze-core 'lib'
-            ext_suffix = get_config_var("EXT_SUFFIX")
-            for file in core_lib.glob(f"*{ext_suffix}"):
-                builtin_modules.pop(file.name.removesuffix(ext_suffix), None)
-        return builtin_modules
 
     def _determine_parent(self, caller: Module | None) -> Module | None:
         """Determine the parent to use when searching packages."""
@@ -739,24 +723,35 @@ class ModuleFinder:
             self._modules.pop(name)
             self.include_module(name)
 
-    def add_base_modules(self) -> None:
-        """Add the base modules to the finder.
-
-        These are the modules that Python imports itself during initialization
-        and, if not found, can result in behavior that differs from running
-        from source; also include modules used within the bootstrap code.
-
-        When cx_Freeze is built, these modules (and modules they load) are
-        included in the startup zip file.
-        """
-        self.include_package("encodings")
-
     def add_constant(self, name: str, value: str) -> None:
         """Make available a constant in the module BUILD_CONSTANTS.
 
         BUILD_CONSTANTS is used in the initscripts.
         """
         self.constants_module.values[name] = value
+
+    @cached_property
+    def builtin_modules(self) -> Mapping[str, str]:
+        """The built-in modules are based on the `freeze-core` build."""
+        builtin_modules: dict[str, str] = {}
+        frozen_file = resource_path(f"frozen/frozen-{SOABI}.json")
+        if frozen_file:
+            # using freeze-core 0.7.0+
+            builtin_modules.update(json.loads(frozen_file.read_bytes()))
+            builtin_modules.pop("__version__", None)
+            return builtin_modules
+        for name in sys.builtin_module_names:
+            builtin_modules[name] = "built-in"
+        if sys.version_info[:2] >= (3, 11):
+            for name in _imp._frozen_module_names():  # noqa: SLF001
+                builtin_modules[name] = "frozen"
+        core_lib = resource_path("lib")
+        if core_lib and core_lib.is_dir():
+            # discard modules that exist in freeze-core 'lib'
+            ext_suffix = get_config_var("EXT_SUFFIX")
+            for file in core_lib.glob(f"*{ext_suffix}"):
+                builtin_modules.pop(file.name.removesuffix(ext_suffix), None)
+        return builtin_modules
 
     def exclude_dependent_files(self, filename: StrPath) -> None:
         """Exclude the dependent files of the named file.
@@ -881,7 +876,7 @@ class ModuleFinder:
         builtin = {
             module
             for module in valid_modules
-            if module.name in self._builtin_modules
+            if module.name in self.builtin_modules
         }
         if sys.version_info[:2] < (3, 11):
             builtin |= {
