@@ -34,14 +34,13 @@ a.py
 
 ABSOLUTE_IMPORT_TEST: SourceList = (
     "a.module",
-    ["a", "a.module", "b", "b.x", "b.y", "b.z", "__future__"],
+    ["a", "a.module", "b", "b.x", "b.y", "b.z"],
     ["blahblah", "z"],
     ["sys", "gc"],  # builtins
     """\
 mymodule.py
 a/__init__.py
 a/module.py
-    from __future__ import absolute_import
     import sys
     import blahblah # fails
     import gc
@@ -241,7 +240,7 @@ b/__init__.py
 
 MAYBE_TEST_NEW: SourceList = (
     "a.module",
-    ["a", "a.module", "b", "__future__"],
+    ["a", "a.module", "b"],
     ["c"],
     ["sys"],
     """\
@@ -250,7 +249,6 @@ a/module.py
     from b import something
     from c import something
 b/__init__.py
-    from __future__ import absolute_import
     from sys import *
 """,
     {},
@@ -346,7 +344,6 @@ a/c.py
 RELATIVE_IMPORT_TEST: SourceList = (
     "a.module",
     [
-        "__future__",
         "a",
         "a.module",
         "a.b",
@@ -365,7 +362,6 @@ mymodule.py
 a/__init__.py
     from .b import y, z # a.b.y, a.b.z
 a/module.py
-    from __future__ import absolute_import # __future__
     import gc # gc
 a/gc.py
 a/sys.py

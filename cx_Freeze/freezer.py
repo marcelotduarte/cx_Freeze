@@ -363,9 +363,6 @@ class Freezer:
         finder: ModuleFinder = self.finder
         finder.include_file_as_module(exe.main_script, exe.main_module_name)
         finder.include_file_as_module(exe.init_script, exe.init_module_name)
-        startup = resource_path("initscripts/__startup__.py")
-        if startup:
-            finder.include_file_as_module(startup)
 
         # copy the executable and its dependencies
         target_path = self.target_dir / exe.target_name
@@ -450,7 +447,14 @@ class Freezer:
             finder.include_module(name)
         for name in self.packages:
             finder.include_package(name)
-        finder.add_base_modules()
+        # Include modules required during initialization;
+        # (using freeze-core 0.7.0+ it is frozen in the executable).
+        if "encodings" not in finder.builtin_modules:
+            finder.include_package("encodings")
+        if "__startup__" not in finder.builtin_modules:
+            startup = resource_path("initscripts/__startup__.py")
+            if startup:
+                finder.include_file_as_module(startup)
         return finder
 
     def _post_freeze_hook(self) -> None:

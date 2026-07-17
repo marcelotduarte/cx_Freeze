@@ -24,11 +24,6 @@ if TYPE_CHECKING:
 
     from cx_Freeze._typing import StrPath
 
-
-STRINGREPLACE = list(
-    string.whitespace + string.punctuation.replace(".", "").replace("_", "")
-)
-
 __all__ = ["Executable", "validate_executables"]
 
 
@@ -261,8 +256,9 @@ class Executable:
         self._name = name
         name = name.partition(".")[0]
         if not name.isidentifier():
-            for invalid in STRINGREPLACE:
-                name = name.replace(invalid, "_")
+            invalid = string.whitespace + string.punctuation
+            idtable = str.maketrans(invalid, "_" * len(invalid))
+            name = name.translate(idtable)
         name = os.path.normcase(name)
         self._internal_name = name
 
