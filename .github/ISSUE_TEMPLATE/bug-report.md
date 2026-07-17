@@ -28,10 +28,10 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
 
-- Platform information (e.g. Ubuntu Linux 22.04):
+- Platform information (e.g. Ubuntu Linux 26.04):
 - OS architecture (e.g. amd64):
-- cx_Freeze version [e.g. 6.11]:
-- Python version [e.g. 3.10]:
+- cx_Freeze version [e.g. 8.7.0]:
+- Python version [e.g. 3.14]:
 
 **Additional context**
 Add any other context about the problem here.

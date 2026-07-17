@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cx_Freeze"
-version = "8.6.4"
+version = "8.7.0.dev0"
 description = "Create standalone executables from Python scripts"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -78,8 +78,8 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek>=0.4.8,<0.5.0",
-    "ty>=0.0.59",
+    "prek>=0.4.10,<0.5.0",
+    "ty>=0.0.60",
 ]
 doc = [
     "sphinx>=9.1.0,<9.2",
