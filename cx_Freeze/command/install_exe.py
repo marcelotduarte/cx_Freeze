@@ -59,7 +59,9 @@ class install_exe(Command):
         bin_dir = os.path.join(
             os.path.dirname(os.path.dirname(install_dir)), "bin"
         )
-        self.execute(shutil.rmtree, (bin_dir, True), msg=f"removing {bin_dir}")
+        self.execute(
+            shutil.rmtree, (bin_dir, True, None), msg=f"removing {bin_dir}"
+        )
         self.mkpath(bin_dir)
         for executable in self.get_inputs():
             name = executable.target_name

@@ -325,7 +325,7 @@ class bdist_mac(Command):
         # ( avoids confusing issues where prior builds persist! )
         self.execute(
             shutil.rmtree,
-            (self.bundle_dir, True),
+            (self.bundle_dir, True, None),
             msg=f"staging - removed existing '{self.bundle_dir}'",
         )
 
@@ -403,7 +403,7 @@ class bdist_mac(Command):
         if self.absolute_reference_path:
             self.execute(
                 self.set_absolute_reference_paths,
-                (),
+                (None,),
                 msg="set absolute reference path "
                 f"'{self.absolute_reference_path}",
             )

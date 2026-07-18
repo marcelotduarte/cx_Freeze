@@ -377,8 +377,8 @@ class bdist_msi(Command):
             65543,
             self.title,
             "ErrorText",
-            None,  # ty: ignore # typeshed is incorrect
-            None,  # ty: ignore # typeshed is incorrect
+            None,
+            None,
         )
         dialog.text("ErrorText", 50, 9, 280, 48, 3, "")
         for text, pos in [
@@ -551,7 +551,7 @@ class bdist_msi(Command):
         root = Directory(
             database,
             cab,
-            None,  # ty: ignore # typeshed is incorrect
+            None,
             rootdir,
             "TARGETDIR",
             "SourceDir",
@@ -581,7 +581,7 @@ class bdist_msi(Command):
                     new_dir = Directory(
                         database,
                         cab,
-                        directory,  # ty: ignore # typeshed is incorrect
+                        directory,
                         file,
                         file,
                         f"{sfile}|{file}",
