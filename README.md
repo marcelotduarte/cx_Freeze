@@ -14,7 +14,7 @@
 | cx\_Freeze/cli.py                     |       97 |        0 |    100.00% |           |
 | cx\_Freeze/command/\_\_init\_\_.py    |        0 |        0 |    100.00% |           |
 | cx\_Freeze/command/\_pydialog.py      |       22 |        1 |     95.45% |       119 |
-| cx\_Freeze/command/bdist\_appimage.py |      194 |        9 |     95.36% |251, 324, 326, 355-356, 366-368, 389 |
+| cx\_Freeze/command/bdist\_appimage.py |      194 |        9 |     95.36% |253, 326, 328, 357-358, 368-370, 391 |
 | cx\_Freeze/command/bdist\_deb.py      |       67 |        9 |     86.57% |87-88, 104-113, 119-120 |
 | cx\_Freeze/command/bdist\_dmg.py      |      194 |       18 |     90.72% |188-189, 203-207, 238, 272, 294, 296, 377-386 |
 | cx\_Freeze/command/bdist\_mac.py      |      217 |      102 |     53.00% |170-174, 194-195, 225-251, 259, 261, 265, 269-291, 301, 312-319, 371, 377, 386-395, 404, 421-435, 456-473, 476-502, 505-544 |
