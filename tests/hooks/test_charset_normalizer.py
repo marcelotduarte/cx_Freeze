@@ -26,8 +26,8 @@ pyproject.toml
     name = "test_charset_normalizer"
     version = "0.1.2.3"
     dependencies = [
-        "charset_normalizer<3.0;python_version < '3.12'",
-        "charset_normalizer>=3.0;python_version >= '3.12'",
+        "charset-normalizer<3.0;python_version < '3.12'",
+        "charset-normalizer>=3.0;python_version >= '3.12'",
     ]
 
     [tool.cxfreeze]

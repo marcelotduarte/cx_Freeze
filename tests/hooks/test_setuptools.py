@@ -26,24 +26,24 @@ zip_packages = pytest.mark.parametrize(
 
 SOURCE_TEST_SETUPTOOLS = """
 test_setuptools.py
-    import setuptools
-    import jaraco.collections
-    import jaraco.functools
     from importlib.metadata import version
+
+    import setuptools
+    import {package_1}
+    import {package_2}
 
     print("Hello from cx_Freeze")
     print(setuptools.__name__, version("setuptools"))
-    print(jaraco.collections.__name__, version("jaraco.collections"))
-    print(jaraco.functools.__name__, version("jaraco.functools"))
+    print({package_1}.__name__, version("{package_1}"))
+    print({package_2}.__name__, version("{package_2}"))
 pyproject.toml
     [project]
     name = "test_setuptools"
     version = "0.1.2.3"
     dependencies = [
-        "{setuptools}",
-        # using versions greater than vendored by latest setuptools
-        "jaraco.collections>5.1.0",
-        "jaraco.functools>4.4.0",
+        "{setuptools}{version}",
+        "{package_1}{package_1v}",
+        "{package_2}{package_2v}",
     ]
 
     [tool.cxfreeze]
@@ -57,12 +57,12 @@ pyproject.toml
 
 if IS_LINUX or IS_MACOS or IS_WINDOWS:
     SETUPTOOLS_VERSIONS = (
-        "78.1.1",
-        "80.9.0",
-        "80.10.2",
-        "81.0.0",
-        "82.0.0",
-        "83.0.0",
+        "==78.1.1",
+        "==80.9.0",
+        "==80.10.2",
+        "==81.0.0",
+        "==82.0.0",
+        "==83.0.0",
     )
 else:
     SETUPTOOLS_VERSIONS = ("installed",)  # mingw, ...
@@ -75,14 +75,29 @@ def test_setuptools(
     tmp_package: TempPackage, zip_packages: bool, pkgver: str
 ) -> None:
     """Test if setuptools hook is working correctly."""
+    setuptools = "setuptools"
+    version = pkgver
     if pkgver == "installed":
-        tmp_package.create(
-            SOURCE_TEST_SETUPTOOLS.format(setuptools="setuptools")
-        )
+        version = ">=78.1.1"
+        package_1 = "jaraco.context"
+        package_1v = ">6.1.0"
+        package_2 = "platformdirs"
+        package_2v = ">4.4.0"
     else:
-        tmp_package.create(
-            SOURCE_TEST_SETUPTOOLS.format(setuptools=f"setuptools=={pkgver}")
+        package_1 = "jaraco.collections"
+        package_1v = ">5.1.0"
+        package_2 = "jaraco.functools"
+        package_2v = ">4.4.0"
+    tmp_package.create(
+        SOURCE_TEST_SETUPTOOLS.format(
+            setuptools=setuptools,
+            version=version,
+            package_1=package_1,
+            package_1v=package_1v,
+            package_2=package_2,
+            package_2v=package_2v,
         )
+    )
     pyproject = tmp_package.path / "pyproject.toml"
     if zip_packages:
         buf = pyproject.read_bytes().decode().splitlines()
@@ -97,8 +112,8 @@ def test_setuptools(
         [
             "Hello from cx_Freeze",
             "setuptools *",
-            "jaraco.collections *",
-            "jaraco.functools *",
+            f"{package_1} *",
+            f"{package_2} *",
         ],
         consecutive=True,
     )

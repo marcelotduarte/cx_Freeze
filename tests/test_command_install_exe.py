@@ -19,7 +19,9 @@ DIST_ATTRS = {
 }
 
 if sys.platform == "win32":
-    BASE_DIR = os.path.join(os.environ["PROGRAMFILES"], "foo")
+    BASE_DIR = os.path.join(
+        os.path.normpath(os.environ["PROGRAMFILES"]), "foo"
+    )
 else:
     BASE_DIR = os.path.join(get_config_var("base"), "lib/foo-0.0")
 

@@ -10,23 +10,29 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     exit 1
 fi
 
-# Detect environment
+# Detect environment. For mingw and conda environments, python is not required
+# to be installed, but will be installed by this script.
 IS_CONDA="0"
 IS_MINGW="0"
 IS_UV="0"
 IS_WINDOWS="0"
 if [ -n "$CONDA_EXE" ]; then
     IS_CONDA="1"
-elif [ -n "$MINGW_PACKAGE_PREFIX" ]; then
-    IS_MINGW="1"
 elif which python &>/dev/null; then
     PY_PLATFORM=$(python -c "import sysconfig; print(sysconfig.get_platform(), end='')")
     IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
-    IS_UV="1"
+    IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
+    if ! [ "$IS_MINGW" == "1" ]; then
+        IS_UV="1"
+    fi
     python ci/requirements.py
 else
-    echo "error: Python is required."
-    exit 1
+    if [ -n "$MINGW_PACKAGE_PREFIX" ]; then
+        IS_MINGW="1"
+    else
+        echo "error: Python is required."
+        exit 1
+    fi
 fi
 
 # Install/update dev tools (including uv if required)

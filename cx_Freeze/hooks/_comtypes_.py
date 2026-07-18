@@ -16,6 +16,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for comtypes."""
 
-    def comtypes(self, finder: ModuleFinder, _module: Module) -> None:
+    def comtypes(self, finder: ModuleFinder, module: Module) -> None:
         """Include the lazily imported stream module."""
-        finder.include_module("comtypes.stream")
+        finder.exclude_module("comtypes.test")
+        finder.include_module("comtypes.stream", module)
