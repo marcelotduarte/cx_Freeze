@@ -26,7 +26,6 @@ PY_ABI_THREAD=$($PYTHON -c "import sysconfig; print(sysconfig.get_config_var('ab
 
 IS_CONDA=$([ -n "$CONDA_EXE" ] && echo "1")
 IS_MINGW=$([[ $PY_PLATFORM == mingw* ]] && echo "1")
-IS_WINDOWS=$([[ $PY_PLATFORM == win* ]] && echo "1")
 
 PYTHON_TAG=cp$PY_VERSION_NODOT
 if [ "$IS_CONDA" == "1" ]; then
@@ -106,7 +105,7 @@ _get_dirty () {
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    else
+    elif [ "$PY_PLATFORM" == "linux-x86_64" ]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
     fi
 }
@@ -122,7 +121,7 @@ _build_wheel () {
     elif [[ $PY_PLATFORM == macos* ]] && [[ $args == *--only* ]]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
     else
-        if [ "$CI" == "true" ] && [ "$IS_WINDOWS" == "1" ]; then
+        if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
             export UV_LINK_MODE=copy
         fi
         "$INSTALL_DIR/cibuildwheel" "$args"

@@ -344,8 +344,16 @@ class ModuleFinder:
             )
             if parent_module is None:
                 return None
-            path = parent_module.path
-            path = self.path if path is None else list(map(os.fspath, path))
+            parent_path = parent_module.path
+            if parent_path is None:
+                path = self.path
+            else:
+                path = list(map(os.path.normpath, parent_path))
+                if parent_module in self.namespaces:
+                    for pathname in self.path:
+                        pathtoadd = os.path.join(pathname, parent_name)
+                        if os.path.isdir(pathtoadd) and pathtoadd not in path:
+                            path.append(pathtoadd)
 
         if name in self.aliases:
             actual_name = self.aliases[name]
