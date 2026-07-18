@@ -220,7 +220,9 @@ class bdist_appimage(Command):
         # Create AppDir format
         bdist_base: str = cast("str", self.bdist_base)
         appdir = os.path.abspath(os.path.join(bdist_base, "AppDir"))
-        self.execute(shutil.rmtree, (appdir, True), msg=f"removing {appdir}")
+        self.execute(
+            shutil.rmtree, (appdir, True, None), msg=f"removing {appdir}"
+        )
         self.mkpath(appdir)
 
         # Copy from build_exe
@@ -266,7 +268,7 @@ class bdist_appimage(Command):
         origin = os.path.join(appdir, ".DirIcon")
         self.execute(
             os.symlink,
-            (relative_reference, origin),
+            (relative_reference, origin, False),
             msg=f"linking {origin} -> {relative_reference}",
         )
         origin = os.path.join(
@@ -274,7 +276,7 @@ class bdist_appimage(Command):
         )
         self.execute(
             os.symlink,
-            (relative_reference, origin),
+            (relative_reference, origin, False),
             msg=f"linking {origin} -> {relative_reference}",
         )
 
