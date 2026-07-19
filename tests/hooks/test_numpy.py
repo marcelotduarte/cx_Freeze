@@ -61,7 +61,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
+    excludes = ["tkinter", "PySide6", "shiboken6"]
     silent = true
 """
 
@@ -142,7 +142,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
+    excludes = ["tkinter", "PySide6", "shiboken6"]
     silent = true
 """
 
@@ -208,7 +208,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
+    excludes = ["tkinter", "PySide6", "shiboken6"]
     silent = true
 """
 
@@ -285,7 +285,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest", "PySide6", "shiboken6"]
+    excludes = ["tkinter", "PySide6", "shiboken6"]
     silent = true
 """
 

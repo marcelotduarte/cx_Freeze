@@ -53,7 +53,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 simple.manifest
     <?xml version='1.0' encoding='UTF-8' standalone='yes'?>

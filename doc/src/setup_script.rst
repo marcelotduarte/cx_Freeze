@@ -29,7 +29,7 @@ executable, this can be done using one of the following methods:
         ]
 
         [tool.cxfreeze.build_exe]
-        excludes = ["tkinter", "unittest"]
+        excludes = ["tkinter"]
         zip-include-packages = ["encodings", "PySide6", "shiboken6"]
 
    .. tab:: setup.py
@@ -40,7 +40,7 @@ executable, this can be done using one of the following methods:
 
         # Dependencies are automatically detected, but they might need fine-tuning.
         build_exe_options = {
-            "excludes": ["tkinter", "unittest"],
+            "excludes": ["tkinter"],
             "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
         }
 
@@ -62,7 +62,7 @@ executable, this can be done using one of the following methods:
         description = My GUI application!
 
         [build_exe]
-        excludes = tkinter,unittest
+        excludes = tkinter
         zip_include_packages = encodings,PySide6,shiboken6
 
       Minimum required file: ``setup.py``, to pass the `executables`.
@@ -112,13 +112,13 @@ The script is invoked as follows:
 
       .. code-block:: console
 
-        cxfreeze --script=hello.py --base=gui --excludes=tkinter,unittest --zip-include-packages=encodings,PySide6,shiboken6
+        cxfreeze --script=hello.py --base=gui --excludes=tkinter --zip-include-packages=encodings,PySide6,shiboken6
 
    .. tab:: setup script command line
 
       .. code-block:: console
 
-        python setup.py build_exe --excludes=tkinter,unittest --zip-include-packages=encodings,PySide6,shiboken6
+        python setup.py build_exe --excludes=tkinter --zip-include-packages=encodings,PySide6,shiboken6
 
 .. seealso::
 
@@ -142,7 +142,7 @@ snippet:
   .. code-block:: toml
 
     [tool.cxfreeze.build_exe]
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     zip-include-packages = ["encodings", "PySide6", "shiboken6"]
 
 To specify options in the script, underscores are used:
@@ -151,7 +151,7 @@ To specify options in the script, underscores are used:
 
     # ...
     build_exe_options = {
-        "excludes": ["tkinter", "unittest"],
+        "excludes": ["tkinter"],
         "zip_include_packages": ["encodings", "PySide6", "shiboken6"],
     }
 
@@ -159,7 +159,7 @@ While on the command line, to specify the same options, dashes are used:
 
   .. code-block:: console
 
-    python setup.py build_exe --excludes=tkinter,unittest --zip-include-packages=encodings,PySide6,shiboken6
+    python setup.py build_exe --excludes=tkinter --zip-include-packages=encodings,PySide6,shiboken6
 
 On Windows, you can build a simple installer containing all the files cx_Freeze
 includes for your application, by running the setup script as:

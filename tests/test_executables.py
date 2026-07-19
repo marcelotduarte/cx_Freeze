@@ -48,7 +48,7 @@ pyproject.toml
     [tool.cxfreeze.build_exe]
     build-exe = "build/test"
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 command
     cxfreeze build_exe
@@ -69,7 +69,7 @@ setup.py
         "build_exe": {
             "build_exe": "build/test",
             "include_msvcr": True,
-            "excludes": ["tkinter", "unittest"],
+            "excludes": ["tkinter"],
             "silent": True
         }
     }
@@ -96,7 +96,7 @@ setup.cfg
     [build_exe]
     build_exe = "build/test"
     include_msvcr = true
-    excludes = tkinter,unittest
+    excludes = tkinter
     silent = true
 command
     cxfreeze --script test_1.py
@@ -117,7 +117,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 setup.py
     from cx_Freeze import setup
@@ -173,7 +173,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 command
     cxfreeze build
@@ -205,7 +205,7 @@ setup.py
     options = {
         "build_exe": {
             "include_msvcr": True,
-            "excludes": ["tkinter", "unittest"],
+            "excludes": ["tkinter"],
             "include_path": ["."],
             "silent": True
         }
@@ -485,7 +485,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = false
 """
 
@@ -533,7 +533,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = false
 """
 
@@ -569,7 +569,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent_level = 1
 """
 
@@ -596,7 +596,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 """
 
@@ -744,7 +744,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = false
 """
 

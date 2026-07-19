@@ -15,7 +15,7 @@ from cx_Freeze import Executable, setup
 options = {
     "build_exe": {
         # exclude packages that are not really needed
-        "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
+        "excludes": ["tkinter", "email", "http", "xml"],
         "include_files": [("image.png", "share/image.png")],
     }
 }

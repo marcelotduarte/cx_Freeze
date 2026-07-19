@@ -33,7 +33,7 @@ zip_packages = pytest.mark.parametrize(
 def test_win32com(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""
     tmp_package.create_from_sample("win32com")
-    command = "cxfreeze --script test_win32com.py --excludes=tkinter,unittest"
+    command = "cxfreeze --script test_win32com.py --excludes=tkinter"
     if zip_packages:
         command += " --zip-include-packages=* --zip-exclude-packages="
     command += " --include-msvcr --silent"
@@ -75,7 +75,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 """
 

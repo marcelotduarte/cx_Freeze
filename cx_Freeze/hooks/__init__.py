@@ -136,7 +136,7 @@ def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
     if not IS_MACOS:
         finder.exclude_module("ctypes.macholib")
         module.ignore_names.add("ctypes.macholib.dyld")
-    if not sys.platform.startswith("aix"):
+    if sys.platform != "aix":
         module.exclude_names.add("ctypes._aix")
 
 

@@ -15,5 +15,5 @@ constants = [
     "USERDEFINED_C=",
 ]
 include_msvcr = true
-excludes = ["tkinter", "unittest"]
+excludes = ["tkinter"]
 silent = true

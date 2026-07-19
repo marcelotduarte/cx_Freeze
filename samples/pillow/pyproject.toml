@@ -13,5 +13,5 @@ executables = ["test_pillow.py"]
 [tool.cxfreeze.build_exe]
 include_files = [["icon.png", "share/icon.png"]]
 include_msvcr = true
-excludes = ["tkinter", "unittest"]
+excludes = ["tkinter"]
 silent = true

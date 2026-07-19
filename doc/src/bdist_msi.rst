@@ -142,7 +142,7 @@ For example:
         shortcut-dir = "MyProgramMenu"
 
         [tool.cxfreeze.build_exe]
-        excludes = ["tkinter", "unittest"]
+        excludes = ["tkinter"]
         include-msvcr = true
 
         [tool.cxfreeze.bdist_msi]

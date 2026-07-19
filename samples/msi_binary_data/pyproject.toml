@@ -22,7 +22,7 @@ shortcut_name = "My Program Name"
 shortcut_dir = "MyProgramMenu"
 
 [tool.cxfreeze.build_exe]
-excludes = ["tkinter", "unittest"]
+excludes = ["tkinter"]
 include_msvcr = true
 
 [tool.cxfreeze.bdist_msi]

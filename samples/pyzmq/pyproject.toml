@@ -8,6 +8,6 @@ dependencies = ["pyzmq>=20.0"]
 executables = ["pyzmq_server.py", "pyzmq_client.py"]
 
 [tool.cxfreeze.build_exe]
-excludes = ["tkinter", "unittest"]
+excludes = ["tkinter"]
 include_msvcr = true
 silent = true

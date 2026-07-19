@@ -63,7 +63,7 @@ def test_parser(tmp_package: TempPackage, package: str, version: str) -> None:
 
     # first run, count the files
     command = "cxfreeze --script test.py --silent"
-    command += " --excludes=tkinter,unittest --include-msvcr"
+    command += " --excludes=tkinter --include-msvcr"
     tmp_package.freeze(command)
 
     file_created = tmp_package.executable("test")

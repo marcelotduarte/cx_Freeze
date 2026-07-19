@@ -178,7 +178,7 @@ pyproject.toml
     script = "hello.py"
 
     [tool.cxfreeze.build_exe]
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
 
     [tool.cxfreeze.bdist_msi]
     product_name = "Hello cx_Freeze"
