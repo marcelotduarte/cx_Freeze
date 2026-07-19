@@ -31,8 +31,11 @@ class Hook(ModuleHook):
         """Include _distutils and _vendor subpackage of setuptools."""
         finder.exclude_module("setuptools.tests")
         finder.exclude_module("setuptools._distutils.tests")
+        finder.exclude_module("setuptools._distutils.compilers.C.tests")
         finder.exclude_module("setuptools._vendor")
-        finder.include_package("setuptools._distutils")
+        finder.add_alias("distutils", "setuptools._distutils")
+        if module.in_file_system == 1:
+            module.in_file_system = 2
 
         try:
             requires = metadata.requires(module.name)

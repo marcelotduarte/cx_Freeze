@@ -21,7 +21,7 @@ class Hook(ModuleHook):
     """
 
     def pkg_resources(self, finder: ModuleFinder, module: Module) -> None:
-        """Import modules from setuptools."""
+        """Import modules from setuptools._vendor."""
         finder.exclude_module("pkg_resources.tests")
         failed = [
             name
@@ -36,5 +36,9 @@ class Hook(ModuleHook):
         if vendor_dir.is_dir():
             finder.path.append(os.path.normpath(vendor_dir))
             for name in failed:
+                pos = name.rfind(".")
+                if pos > 0:
+                    parent_name = name[:pos]
+                    finder.include_module(parent_name)
                 finder.include_module(name, module)
             finder.path.pop()

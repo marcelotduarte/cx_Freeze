@@ -355,8 +355,15 @@ class ModuleFinder:
                         if os.path.isdir(pathtoadd) and pathtoadd not in path:
                             path.append(pathtoadd)
 
-        if name in self.aliases:
-            actual_name = self.aliases[name]
+        # Search for an alias of a module or package.
+        pos = len(name)
+        while pos >= 0:
+            actual_name = self.aliases.get(name[:pos])
+            if actual_name is not None:
+                break
+            pos = name.rfind(".", 0, pos)
+        if actual_name:
+            actual_name += name[pos:]
             module = self._internal_import_module(
                 actual_name, deferred_imports
             )
