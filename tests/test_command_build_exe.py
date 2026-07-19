@@ -37,14 +37,14 @@ DIST_ATTRS = {
             {"build_exe": "dist"}, {"build_exe": "dist"}, id="build-exe=dist"
         ),
         pytest.param(
-            {"excludes": "tkinter,unittest"},
-            {"excludes": ["tkinter", "unittest"]},
-            id="excludes='tkinter,unittest'",
+            {"excludes": "tkinter"},
+            {"excludes": ["tkinter"]},
+            id="excludes='tkinter'",
         ),
         pytest.param(
-            {"excludes": ["tkinter", "unittest"]},
-            {"excludes": ["tkinter", "unittest"]},
-            id="excludes=['tkinter','unittest']",
+            {"excludes": ["tkinter"]},
+            {"excludes": ["tkinter"]},
+            id="excludes=['tkinter']",
         ),
         pytest.param(
             {"include_msvcr": None},
@@ -229,21 +229,21 @@ def test_build_exe_call_invalid(
         ),
         pytest.param(["--excludes="], {"excludes": []}, id="--excludes="),
         pytest.param(
-            ["--excludes=tkinter,unittest"],
-            {"excludes": ["tkinter", "unittest"]},
-            id="--excludes=tkinter,unittest",
+            ["--excludes=tkinter"],
+            {"excludes": ["tkinter"]},
+            id="--excludes=tkinter",
         ),
         pytest.param(["--includes="], {"includes": []}, id="--includes="),
         pytest.param(
-            ["--includes=tkinter,unittest"],
-            {"includes": ["tkinter", "unittest"]},
-            id="--includes=tkinter,unittest",
+            ["--includes=tkinter"],
+            {"includes": ["tkinter"]},
+            id="--includes=tkinter",
         ),
         pytest.param(["--packages="], {"packages": []}, id="--packages="),
         pytest.param(
-            ["--packages=tkinter,unittest"],
-            {"packages": ["tkinter", "unittest"]},
-            id="--packages=tkinter,unittest",
+            ["--packages=tkinter"],
+            {"packages": ["tkinter"]},
+            id="--packages=tkinter",
         ),
         pytest.param(
             ["--replace-paths=*="],
@@ -444,8 +444,7 @@ def test_build_exe_asmodule(tmp_package: TempPackage) -> None:
     """Test the asmodule sample."""
     tmp_package.create_from_sample("asmodule")
     tmp_package.freeze(
-        "python setup.py build_exe"
-        " --excludes=tkinter,unittest --include-msvcr --silent"
+        "python setup.py build_exe --excludes=tkinter --include-msvcr --silent"
     )
 
     executable = tmp_package.executable("asmodule")
@@ -475,7 +474,7 @@ pyproject.toml
     script = "test2.py"
 
     [tool.cxfreeze.build_exe]
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     include_msvcr = true
     include_path = ["extra"]
     silent = true
@@ -501,7 +500,7 @@ pyproject.toml
     script = "src/test2.py"
 
     [tool.cxfreeze.build_exe]
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     include_msvcr = true
     include_path = ["src/extra"]
     silent = true

@@ -20,7 +20,7 @@ setup.py
     options = {
         "build_exe": {
             "include_msvcr": True,
-            "excludes": ["tkinter", "unittest"],
+            "excludes": ["tkinter"],
             "silent": True
         }
     }
@@ -73,7 +73,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 command
     cxfreeze install --prefix=base --root=root

@@ -19,7 +19,7 @@ def test_cxfreeze(tmp_package: TempPackage) -> None:
     """Test cxfreeze."""
     tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --target-dir=dist"
-    command += " --excludes=tkinter,unittest --include-msvcr"
+    command += " --excludes=tkinter --include-msvcr"
     tmp_package.freeze(command)
 
     executable = tmp_package.executable_in_dist("test")
@@ -47,7 +47,7 @@ def test_cxfreeze_debug_verbose(tmp_package: TempPackage) -> None:
     """Test cxfreeze --debug --verbose."""
     tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --debug --verbose"
-    command += " --excludes=tkinter,unittest --include-msvcr"
+    command += " --excludes=tkinter --include-msvcr"
     tmp_package.freeze(command)
 
     file_created = tmp_package.executable("test")
@@ -63,7 +63,7 @@ def test_cxfreeze_target_name_not_isidentifier(
     """Test cxfreeze --target-name not isidentifier, but valid filename."""
     tmp_package.create(SOURCE)
     command = "cxfreeze --script test.py --target-name=12345"
-    command += " --excludes=tkinter,unittest --include-msvcr"
+    command += " --excludes=tkinter --include-msvcr"
     tmp_package.freeze(command)
 
     file_created = tmp_package.executable("12345")
@@ -78,7 +78,7 @@ def test_cxfreeze_deprecated_behavior(tmp_package: TempPackage) -> None:
     tmp_package.create(SOURCE)
     tmp_package.path.joinpath("test.py").rename(tmp_package.path / "test2")
     command = "cxfreeze --install-dir=dist test2"
-    command += " --excludes=tkinter,unittest --include-msvcr"
+    command += " --excludes=tkinter --include-msvcr"
     tmp_package.freeze(command)
 
     file_created = tmp_package.executable_in_dist("test2")
@@ -92,7 +92,7 @@ def test_cxfreeze_deprecated_option(tmp_package: TempPackage) -> None:
     """Test cxfreeze deprecated option."""
     tmp_package.create(SOURCE)
     command = "cxfreeze -c -O -OO test.py --target-dir=dist"
-    command += " --excludes=tkinter,unittest --include-msvcr"
+    command += " --excludes=tkinter --include-msvcr"
     result = tmp_package.freeze(command)
     assert "WARNING: deprecated" in str(result.stdout)
 
@@ -135,7 +135,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     build_exe = "dist"
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     includes = ["testfreeze_1", "testfreeze_2"]
     include-msvcr = true
     silent = true

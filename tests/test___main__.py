@@ -21,7 +21,7 @@ pyproject.toml
 
     [tool.cxfreeze.build_exe]
     include-msvcr = true
-    excludes = ["tkinter", "unittest"]
+    excludes = ["tkinter"]
     silent = true
 command
     python -m cx_Freeze build_exe --target-dir=dist

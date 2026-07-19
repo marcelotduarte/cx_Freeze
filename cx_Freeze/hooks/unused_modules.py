@@ -11,8 +11,48 @@ import sys
 
 __all__ = ("DEFAULT_EXCLUDES", "DEFAULT_IGNORE_NAMES")
 
+# EXCLUDES - modules that exists in the current supported Python version or
+# platforms and shouldn't included in the frozen executable.
 DEFAULT_EXCLUDES: set[str] = {
-    # py2 modules that have been removed or renamed in py3
+    "ensurepip",
+    "idlelib",
+    "pip",
+    "pydoc",
+    "pydoc_data",
+    "sitecustomize",
+    "test",
+    "test.support",
+    "this",
+    "unittest",
+    "usercustomize",
+    "venv",
+    "zipapp",
+}
+
+# Excludes modules for platforms other than the current one.
+if sys.platform != "aix":
+    DEFAULT_EXCLUDES.add("_aix_support")
+if sys.platform != "android":
+    DEFAULT_EXCLUDES.add("_android_support")
+if sys.platform != "darwin":
+    DEFAULT_EXCLUDES |= {
+        "_apple_support",
+        "_scproxy",
+        "_osx_support",
+    }
+if sys.platform != "ios":
+    DEFAULT_EXCLUDES.add("_ios_support")
+if os.name != "nt":
+    DEFAULT_EXCLUDES |= {
+        "nturl2path",
+    }
+if "__pypy__" not in sys.builtin_module_names:
+    DEFAULT_EXCLUDES.add("__pypy__")
+
+# IGNORE - optional modules that may be referenced but no longer exist
+# (legacy code) or were not installed, and will not cause problems.
+DEFAULT_IGNORE_NAMES: set[str] = {
+    # Ignore py2 modules that have been removed or renamed in py3.
     "__builtin__",
     "audiodev",
     "anydbm",
@@ -135,134 +175,107 @@ DEFAULT_EXCLUDES: set[str] = {
     "imgfile",
     "jpeg",
     "sv",
+    # OpenVMS
+    "vms_lib",
 }
-# old collections modules
-DEFAULT_EXCLUDES.update(
-    [f"collections.{name}" for name in collections.abc.__all__]
-)
-# exclusion by platform/os
-if os.name != "nt":
-    DEFAULT_EXCLUDES.update(
-        [
-            "msilib",
-            "nturl2path",
-            "pyHook",
-            "pythoncom",
-            "pywintypes",
-            "winerror",
-            "winsound",
-            "win32api",
-            "win32con",
-            "win32com.client",
-            "win32com.server",
-            "win32com.server.dispatcher",
-            "win32com.server.policy",
-            "win32com.server.util",
-            "win32com.shell",
-            "win32gui",
-            "win32event",
-            "win32evtlog",
-            "win32evtlogutil",
-            "win32file",
-            "win32pdh",
-            "win32pipe",
-            "win32process",
-            "win32security",
-            "win32service",
-            "win32stat",
-            "win32timezone",
-            "win32wnet",
-            "wx.activex",
-        ]
-    )
+# Ignore old names of collections modules.
+DEFAULT_IGNORE_NAMES |= {
+    f"collections.{name}" for name in collections.abc.__all__
+}
 
-# removed by platform
-if sys.platform != "aix":
-    DEFAULT_EXCLUDES.add("_aix_support")
+# Ignores modules for platforms other than the current one.
 if sys.platform != "darwin":
-    DEFAULT_EXCLUDES.update(
-        [
-            "appscript",
-            "appscript.reference",
-            "mac",
-            "macurl2path",
-            "_scproxy",
-            "_osx_support",
-        ]
-    )
-if os.name != "os2":
-    DEFAULT_EXCLUDES.update(["os2", "os2emxpath", "_emx_link"])
-if os.name != "ce":
-    DEFAULT_EXCLUDES.add("ce")
-if os.name != "riscos":
-    DEFAULT_EXCLUDES.update(
-        ["riscos", "riscosenviron", "riscospath", "rourl2path"]
-    )
-if "__pypy__" not in sys.builtin_module_names:
-    DEFAULT_EXCLUDES.add("__pypy__")
+    DEFAULT_IGNORE_NAMES |= {
+        "appscript",
+        "appscript.reference",
+        "mac",
+        "macurl2path",
+    }
+if os.name != "nt":
+    DEFAULT_IGNORE_NAMES |= {
+        "msilib",
+        "pyHook",
+        "pythoncom",
+        "pywintypes",
+        "winerror",
+        "winsound",
+        "win32api",
+        "win32con",
+        "win32com.client",
+        "win32com.server",
+        "win32com.server.dispatcher",
+        "win32com.server.policy",
+        "win32com.server.util",
+        "win32com.shell",
+        "win32gui",
+        "win32event",
+        "win32evtlog",
+        "win32evtlogutil",
+        "win32file",
+        "win32pdh",
+        "win32pipe",
+        "win32process",
+        "win32security",
+        "win32service",
+        "win32stat",
+        "win32timezone",
+        "win32wnet",
+        "wx.activex",
+    }
 
-# removed in python versions > 3.0
+# Ignore modules removed in python versions > 3.0.
 PY_VERSION = sys.version_info[:2]
 
 if PY_VERSION >= (3, 10):
-    DEFAULT_EXCLUDES.update(
-        [
-            # 3.3
-            "cElementTree",
-            # 3.8
-            "macpath",
-            # 3.9
-            "_dummy_thread",
-            "dummy_threading",
-            "_dummy_threading",
-            # 3.10
-            "formatter",
-            "parser",
-        ]
-    )
+    DEFAULT_IGNORE_NAMES |= {
+        # 3.3
+        "cElementTree",
+        # 3.8
+        "macpath",
+        # 3.9
+        "_dummy_thread",
+        "dummy_threading",
+        "_dummy_threading",
+        # 3.10
+        "formatter",
+        "parser",
+    }
 if PY_VERSION >= (3, 11):
-    DEFAULT_EXCLUDES.add("binhex")
+    DEFAULT_IGNORE_NAMES.add("binhex")
 if PY_VERSION >= (3, 12):
-    DEFAULT_EXCLUDES.update(
-        [
-            # "asynchat",  # available as pyasynchat
-            # "asyncore",  # available as pyasyncore
-            "distutils",
-            "imp",
-            "smtpd",
-        ]
-    )
+    DEFAULT_IGNORE_NAMES |= {
+        "asynchat",  # available as pyasynchat
+        "asyncore",  # available as pyasyncore
+        "distutils",  # available w/ setuptools
+        "imp",
+        "smtpd",
+    }
 if PY_VERSION >= (3, 13):
-    DEFAULT_EXCLUDES.update(
-        [
-            "aifc",
-            "audioop",
-            "chunk",
-            "cgi",
-            "cgitb",
-            "crypt",
-            "_crypt",
-            "imghdr",
-            "lib2to3",
-            "mailcap",
-            # "msilib",  # available as python-msilib
-            "nis",
-            "nntplib",
-            "ossaudiodev",
-            "pipes",
-            "sndhdr",
-            "spwd",
-            "sunau",
-            "telnetlib",
-            "uu",
-            "xdrlib",
-        ]
-    )
+    DEFAULT_IGNORE_NAMES |= {
+        "aifc",
+        "audioop",
+        "chunk",
+        "cgi",
+        "cgitb",
+        "crypt",
+        "_crypt",
+        "imghdr",
+        "lib2to3",
+        "mailcap",
+        "msilib",  # available as python-msilib
+        "nis",
+        "nntplib",
+        "ossaudiodev",
+        "pipes",
+        "sndhdr",
+        "spwd",
+        "sunau",
+        "telnetlib",
+        "uu",
+        "xdrlib",
+    }
 
-# remove test modules
-DEFAULT_EXCLUDES.update(["test", "test.support"])
-
-DEFAULT_IGNORE_NAMES: set[str] = {
+DEFAULT_IGNORE_NAMES |= {
     "__main__",
     "_manylinux",  # flag
     "_typeshed",
@@ -273,59 +286,68 @@ DEFAULT_IGNORE_NAMES: set[str] = {
     "typeshed",
 }
 
-# ignored by platform / os
-if not sys.platform.startswith("android"):
-    DEFAULT_IGNORE_NAMES.update(["android", "jnius"])
-if not sys.platform.startswith("java"):
-    DEFAULT_IGNORE_NAMES.update(["java.lang", "jnius", "org.python.core"])
-if not sys.platform.startswith("OpenVMS"):
-    DEFAULT_IGNORE_NAMES.add("vms_lib")
+# Ignore modules for platforms other than the current one.
+if sys.platform != "android":
+    DEFAULT_IGNORE_NAMES |= {
+        "android",
+        "jnius",
+    }
+if os.name != "java":
+    DEFAULT_IGNORE_NAMES |= {
+        "java.lang",
+        "jnius",
+        "org.python.core",
+    }
 if os.name != "nt":
-    DEFAULT_IGNORE_NAMES.update(
-        ["msvcrt", "_overlapped", "_winapi", "winreg", "_wmi"]
-    )
+    DEFAULT_IGNORE_NAMES |= {
+        "msvcrt",
+        "_overlapped",
+        "_winapi",
+        "winreg",
+        "_wmi",
+    }
 else:
-    DEFAULT_IGNORE_NAMES.update(
-        [
-            "fcntl",
-            "grp",
-            "_posixshmem",
-            "_posixsubprocess",
-            "pwd",
-            "readline",
-            "termios",
-        ]
-    )
+    DEFAULT_IGNORE_NAMES |= {
+        "fcntl",
+        "grp",
+        "_posixshmem",
+        "_posixsubprocess",
+        "pwd",
+        "readline",
+        "termios",
+    }
 if "posix" in sys.builtin_module_names:
     DEFAULT_IGNORE_NAMES.add("nt")  # only windows, not mingw
 else:
     DEFAULT_IGNORE_NAMES.add("posix")
 
-# ignore backports
-DEFAULT_IGNORE_NAMES.update(
-    ["backports.zoneinfo", "importlib_metadata", "importlib_resources"]
-)
+# Ignore backports.
+DEFAULT_IGNORE_NAMES |= {
+    "backports",
+    "backports.zoneinfo",
+    "importlib_metadata",
+    "importlib_resources",
+}
 if PY_VERSION >= (3, 11):
     DEFAULT_IGNORE_NAMES.add("exceptiongroup")
 if PY_VERSION >= (3, 12):
     DEFAULT_IGNORE_NAMES.add("backports.tarfile")
 if PY_VERSION >= (3, 14):
-    DEFAULT_IGNORE_NAMES.add("backports")
     DEFAULT_IGNORE_NAMES.add("backports.zstd")
 
-# ignore new libraries in Python 3.10+
+# Ignore new libraries in Python 3.10+.
 if PY_VERSION < (3, 11):
-    DEFAULT_IGNORE_NAMES.update(["tomllib", "wsgiref.types"])
+    DEFAULT_IGNORE_NAMES |= {
+        "tomllib",
+        "wsgiref.types",
+    }
 if PY_VERSION < (3, 14):
-    DEFAULT_IGNORE_NAMES.update(
-        [
-            "annotationlib",
-            "concurrent.interpreters",
-            "compression",
-            "string.templatelib",
-        ]
-    )
+    DEFAULT_IGNORE_NAMES |= {
+        "annotationlib",
+        "concurrent.interpreters",
+        "compression",
+        "string.templatelib",
+    }
 
-
-# ignore all default excludes
+# Ignore all default excludes.
 DEFAULT_IGNORE_NAMES.update(DEFAULT_EXCLUDES)

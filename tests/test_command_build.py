@@ -22,7 +22,7 @@ setup.py
     options = {
         "build_exe": {
             "include_msvcr": True,
-            "excludes": ["tkinter", "unittest"],
+            "excludes": ["tkinter"],
             "silent": True
         }
     }

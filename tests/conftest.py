@@ -78,6 +78,13 @@ class TempPackage:
 
         monkeypatch.setenv("PYTHONUNBUFFERED", "1")
 
+        # determine the root of pytest tmp_path
+        self._root: Path = tmp_path_factory.getbasetemp().parent
+        self._worker: str = os.environ.get("PYTEST_XDIST_WORKER", "master")
+        if self._worker != "master":
+            # using xdist, the root is one level up
+            self._root = self._root.parent
+
         # environment
         sysexe = Path(sys.executable)
         prefix = Path(sys.prefix)
@@ -227,6 +234,7 @@ class TempPackage:
 
         if command[0] == "python":
             command[0] = os.fspath(self.python)
+
         cwd = os.fspath(self.path if cwd is None else cwd)
         try:
             process = subprocess.run(
@@ -248,9 +256,15 @@ class TempPackage:
             returncode = process.returncode
             stdout = process.stdout or ""
             stderr = process.stderr or ""
+
         stdout = stdout.decode() if isinstance(stdout, bytes) else str(stdout)
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
+        if self._worker == "master":
+            # not using xdist, so print the results as debug information
+            print(stdout, flush=True)
+            print(stderr, file=sys.stderr)
+
         return pytest.RunResult(
             returncode, stdout.splitlines(), stderr.splitlines(), 0
         )
@@ -487,13 +501,6 @@ class TempPackageVenv(TempPackage):
         if monkeypatch is None:
             monkeypatch = pytest.MonkeyPatch()
         super().__init__(request, tmp_path_factory, monkeypatch)
-
-        # determine the root of pytest tmp_path
-        self._root: Path = tmp_path_factory.getbasetemp().parent
-        self._worker: str = os.environ.get("PYTEST_XDIST_WORKER", "master")
-        if self._worker != "master":
-            # using xdist, the root is one level up
-            self._root = self._root.parent
 
         # activate the venv
         self._prefix = self.prefix

@@ -104,10 +104,11 @@ class Hook(ModuleHook):
 
     def scipy__lib__docscrape(
         self,
-        finder: ModuleFinder,  # noqa: ARG002
+        finder: ModuleFinder,
         module: Module,
     ) -> None:
         module.exclude_names.update(["sphinx.ext.autodoc"])
+        finder.include_module("pydoc")
 
     def scipy__lib__testutils(
         self,

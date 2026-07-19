@@ -9,5 +9,5 @@ executables = ["test_tz.py"]
 
 [tool.cxfreeze.build_exe]
 include_msvcr = true
-excludes = ["tkinter", "unittest"]
+excludes = ["tkinter"]
 silent = true

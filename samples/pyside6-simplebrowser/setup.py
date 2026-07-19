@@ -18,7 +18,7 @@ options = {
     "build_exe": {
         "bin_excludes": ["libqpdf.so", "libqpdf.dylib"],
         # exclude packages that are not really needed
-        "excludes": ["tkinter", "unittest", "email", "http", "xml", "pydoc"],
+        "excludes": ["tkinter", "email", "http", "xml"],
     },
     "bdist_mac": {
         "custom_info_plist": None,  # Set this to use a custom info.plist file

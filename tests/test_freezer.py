@@ -146,18 +146,18 @@ def test_freezer_populate_zip_options_invalid_values(
         )
 
     # zip_include_packages and zip_exclude_packages has the same package
-    with pytest.raises(OptionError, match="package 'tkinter' cannot be both"):
+    with pytest.raises(OptionError, match="package 'one' cannot be both"):
         Freezer(
             executables=["hello.py"],
-            zip_include_packages=["tkinter"],
-            zip_exclude_packages=["tkinter"],
+            zip_include_packages=["one"],
+            zip_exclude_packages=["one"],
         )
-    msg = "packages 'tkinter, unittest' cannot be both"
+    msg = "packages 'one, two' cannot be both"
     with pytest.raises(OptionError, match=msg):
         Freezer(
             executables=["hello.py"],
-            zip_include_packages=["tkinter", "unittest"],
-            zip_exclude_packages=["tkinter", "unittest", "codeop"],
+            zip_include_packages=["one", "two"],
+            zip_exclude_packages=["one", "two", "codeop"],
         )
 
 
@@ -174,9 +174,9 @@ def test_freezer_populate_zip_options_invalid_values(
             {"compress": True}, {"compress": True}, id="compress=true"
         ),
         pytest.param(
-            {"excludes": ["tkinter", "unittest"]},
-            {"excludes": ["tkinter", "unittest"]},
-            id="excludes=['tkinter','unittest']",
+            {"excludes": ["tkinter"]},
+            {"excludes": ["tkinter"]},
+            id="excludes=['tkinter']",
         ),
         pytest.param(
             {"include_msvcr": None},
