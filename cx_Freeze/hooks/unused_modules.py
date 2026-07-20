@@ -14,11 +14,13 @@ __all__ = ("DEFAULT_EXCLUDES", "DEFAULT_IGNORE_NAMES")
 # EXCLUDES - modules that exists in the current supported Python version or
 # platforms and shouldn't included in the frozen executable.
 DEFAULT_EXCLUDES: set[str] = {
+    "doctest",
     "ensurepip",
     "idlelib",
     "pip",
     "pydoc",
     "pydoc_data",
+    "pytest",
     "sitecustomize",
     "test",
     "test.support",

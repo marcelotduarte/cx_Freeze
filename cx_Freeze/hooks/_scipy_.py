@@ -116,7 +116,7 @@ class Hook(ModuleHook):
         module: Module,
     ) -> None:
         module.exclude_names.update(
-            ["Cython.Compiler.Version", "cython", "psutil", "pytest"]
+            ["Cython.Compiler.Version", "cython", "psutil"]
         )
 
     def scipy_linalg_interface_gen(
@@ -194,20 +194,6 @@ class Hook(ModuleHook):
         are used in order to avoid spurious errors about missing modules.
         """
         module.global_names.add("gammaln")
-
-    def scipy_special__mptestutils(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
-    ) -> None:
-        module.exclude_names.add("pytest")
-
-    def scipy_special__testutils(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
-    ) -> None:
-        module.exclude_names.add("pytest")
 
     def scipy_stats__binned_statistic(
         self, finder: ModuleFinder, module: Module

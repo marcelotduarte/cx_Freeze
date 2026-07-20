@@ -306,16 +306,15 @@ class Hook(ModuleHook):
 
     def pandas_io_sql(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional modules in the pandas.io.sql module."""
-        module.ignore_names.update(
-            [
-                "pyarrow",
-                "sqlalchemy",
-                "sqlalchemy.engine",
-                "sqlalchemy.schema",
-                "sqlalchemy.sql.expression",
-                "sqlalchemy.types",
-            ]
-        )
+        module.ignore_names |= {
+            "pyarrow",
+            "sqlalchemy",
+            "sqlalchemy.engine",
+            "sqlalchemy.exc",
+            "sqlalchemy.schema",
+            "sqlalchemy.sql.expression",
+            "sqlalchemy.types",
+        }
 
     def pandas_io__util(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional modules in the pandas.io._util module."""
@@ -352,18 +351,8 @@ class Hook(ModuleHook):
             ]
         )
 
-    def pandas__testing(self, _finder: ModuleFinder, module: Module) -> None:
-        """Ignore optional modules in the pandas._testing module."""
-        module.exclude_names.add("pytest")
-
     def pandas__testing_asserters(
         self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Ignore optional modules in the pandas._testing.asserters module."""
         module.ignore_names.add("matplotlib.pyplot")
-
-    def pandas__testing__io(
-        self, _finder: ModuleFinder, module: Module
-    ) -> None:
-        """Ignore optional modules in the pandas._testing._io module."""
-        module.exclude_names.add("pytest")
