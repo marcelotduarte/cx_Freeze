@@ -13,7 +13,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_CONDA, IS_MACOS, IS_MINGW, IS_WINDOWS
-from cx_Freeze.hooks.global_names import CONCURRENT_FUTURES_GLOBAL_NAMES
+from cx_Freeze.hooks.global_names import (
+    CONCURRENT_FUTURES_GLOBAL_NAMES,
+    SQLITE3_GLOBAL_NAMES,
+)
 from cx_Freeze.hooks.qthooks import get_qt_plugins_paths  # noqa: F401
 
 if TYPE_CHECKING:
@@ -190,11 +193,6 @@ def load_discord(finder: ModuleFinder, module: Module) -> None:
     module.update_distribution("py-cord")
 
 
-def load_difflib(finder: ModuleFinder, module: Module) -> None:
-    """Exclude doctest module, used for tests by difflib module."""
-    module.exclude_names.add("doctest")
-
-
 def load_flask_compress(finder: ModuleFinder, module: Module) -> None:
     """Add required metadata of flask-compress."""
     module.update_distribution("Flask_Compress")
@@ -273,11 +271,6 @@ def load_hashlib(finder: ModuleFinder, module: Module) -> None:
     module.ignore_names.update(["_md5", "_sha", "_sha256", "_sha512"])
 
 
-def load_heapq(finder: ModuleFinder, module: Module) -> None:
-    """Exclude doctest module, used for tests by heapq module."""
-    module.exclude_names.add("doctest")
-
-
 def load_hdfdict(finder: ModuleFinder, module: Module) -> None:
     """Include required module of hdfdict module."""
     finder.include_module("h5py_wrapper")
@@ -348,16 +341,6 @@ def load_os(finder: ModuleFinder, module: Module) -> None:
         finder.add_alias("os.path", "posixpath")
     else:
         finder.add_alias("os.path", "ntpath")
-
-
-def load_pickle(finder: ModuleFinder, module: Module) -> None:
-    """Exclude doctest module, used for tests by pickle module."""
-    module.exclude_names.add("doctest")
-
-
-def load_pickletools(finder: ModuleFinder, module: Module) -> None:
-    """Exclude doctest module, used for tests by pickletools module."""
-    module.exclude_names.add("doctest")
 
 
 def load_pikepdf(finder: ModuleFinder, module: Module) -> None:
@@ -481,22 +464,13 @@ def load_sentry_sdk(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("sentry_sdk.integrations.threading")
 
 
-def load_site(finder: ModuleFinder, module: Module) -> None:
-    """Ignore optional imports of site module."""
-    module.ignore_names.update(["sitecustomize", "usercustomize"])
-
-
 def load__socket(finder: ModuleFinder, module: Module) -> None:
     """Include encodings.idna used by _sockets module."""
     finder.include_module("encodings.idna")
 
 
 def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
-    """Copy required DLL.
-
-    In Windows, the sqlite3 module requires an additional dll sqlite3.dll to
-    be present in the build directory.
-    """
+    """Include required DLL, in Windows, by sqlite3 module."""
     if IS_WINDOWS:
         parts = ["DLLs", "Library/bin"]
         for part in parts:
@@ -506,6 +480,7 @@ def load_sqlite3(finder: ModuleFinder, module: Module) -> None:
                 finder.lib_files[source] = target
                 finder.include_files(source, target)
     finder.include_module("sqlite3.dump")
+    module.global_names.update(SQLITE3_GLOBAL_NAMES)
 
 
 def load_sysconfig(finder: ModuleFinder, module: Module) -> None:

@@ -91,8 +91,6 @@ class Hook(ModuleHook):
                 loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
-
-        module.exclude_names.add("pytest")
         module.ignore_names.add("pytest")
 
     def skimage_io_manage_plugins(

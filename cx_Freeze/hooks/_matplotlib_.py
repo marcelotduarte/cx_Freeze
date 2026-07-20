@@ -28,7 +28,6 @@ class Hook(ModuleHook):
         with suppress(ImportError):
             finder.include_module("mpl_toolkits")
         module.ignore_names.update(["certifi", "setuptools_scm", "pytest"])
-        module.exclude_names.update(["pytest"])
         finder.include_package("matplotlib")
 
         # mpl-data is always in a subdirectory in matplotlib >= 3.4

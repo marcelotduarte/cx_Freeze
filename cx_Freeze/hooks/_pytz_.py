@@ -27,7 +27,6 @@ class Hook(ModuleHook):
         The pytz module requires timezone data to be found in a known
         directory or in the zip file where the package is written.
         """
-        module.exclude_names.add("doctest")
         module.ignore_names.add("pkg_resources")
         if module.file:
             source_path = module.file.parent / "zoneinfo"

@@ -91,7 +91,7 @@ class ModuleFinder:
         self.optimize = optimize
         self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
-        self.zip_include_all_packages = zip_include_all_packages
+        self.zip_include_all_packages: bool = zip_include_all_packages
         self.zip_exclude_packages: set[str] = set(zip_exclude_packages or [])
         self.zip_include_packages: set[str] = set(zip_include_packages or [])
         self.constants_module: ConstantsModule = constants_module
@@ -101,7 +101,7 @@ class ModuleFinder:
         self.namespaces: list[Module] = []
         self.aliases: dict[str, str] = {}
         self.excluded_dependent_files: set[Path] = set()
-        self._bad_modules = {}
+        self._bad_modules: dict[str, set[str]] = {}
         # add the unused modules in the current platform
         self._modules: dict[str, Module | None] = dict.fromkeys(
             set(excludes or []) | DEFAULT_EXCLUDES
@@ -618,8 +618,8 @@ class ModuleFinder:
         else:
             method(self, caller)
         if module_name not in caller.ignore_names:
-            callers = self._bad_modules.setdefault(module_name, {})
-            callers[caller.name] = None
+            callers = self._bad_modules.setdefault(module_name, set())
+            callers.add(caller.name)
 
     def _replace_paths_in_code(
         self, module: Module, code: CodeType | None = None
@@ -916,8 +916,8 @@ class ModuleFinder:
         """Display a list of modules that weren't found."""
         if self._bad_modules:
             print("Missing modules:")
-            for name in sorted(self._bad_modules.keys()):
-                callers = sorted(self._bad_modules[name].keys())
+            for name in sorted(self._bad_modules):
+                callers = sorted(self._bad_modules[name])
                 print(f"? {name} imported from", ", ".join(callers))
             print("This is not necessarily a problem - the modules ", end="")
             print("may not be needed on this platform.\n")

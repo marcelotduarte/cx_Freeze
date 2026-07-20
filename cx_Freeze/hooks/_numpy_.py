@@ -345,9 +345,6 @@ class Hook(ModuleHook):
         self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Remove optional modules in the numpy._pytesttester module."""
-        module.exclude_names.update(
-            ["numpy.distutils", "numpy.testing", "pytest"]
-        )
         module.ignore_names.update(
             ["numpy.distutils", "numpy.testing", "pytest"]
         )
