@@ -85,8 +85,8 @@ class Module:
         self._file = self._file_validate(filename)
 
     def _file_validate(self, filename: StrPath | None) -> Path | None:
-        if "stub_code" in self.__dict__:
-            del self.__dict__["stub_code"]  # clear the cache
+        if hasattr(self, "_file"):
+            del self.stub_code  # clear the cache
         if not filename:
             return None
         return Path(filename)
