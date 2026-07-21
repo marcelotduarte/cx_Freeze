@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/finder.py: 89.96%</title>
+    <title>Coverage for cx_Freeze/finder.py: 91.31%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze<span class="sep">/</span>finder.py</b>:
-            <span class="pc_cov">89.96%</span>
+            <span class="pc_cov">91.31%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">518 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">466<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">52<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">473<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">45<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">4<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-20 22:04 +0000
+            created at 2026-07-21 00:38 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -698,7 +698,7 @@
     <p class="run"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t">        <span class="key">except</span> <span class="op">(</span><span class="nam">AttributeError</span><span class="op">,</span> <span class="nam">ValueError</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t">            <span class="key">pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t">            <span class="nam">method</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">caller</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t619" href="#t619">619</a></span><span class="t">            <span class="nam">method</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">caller</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t620" href="#t620">620</a></span><span class="t">        <span class="key">if</span> <span class="nam">module_name</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">caller</span><span class="op">.</span><span class="nam">ignore_names</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t621" href="#t621">621</a></span><span class="t">            <span class="nam">callers</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_bad_modules</span><span class="op">.</span><span class="nam">setdefault</span><span class="op">(</span><span class="nam">module_name</span><span class="op">,</span> <span class="nam">set</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t622" href="#t622">622</a></span><span class="t">            <span class="nam">callers</span><span class="op">.</span><span class="nam">add</span><span class="op">(</span><span class="nam">caller</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -997,12 +997,12 @@
     <p class="run"><span class="n"><a id="t915" href="#t915">915</a></span><span class="t">    <span class="key">def</span> <span class="nam">report_missing_modules</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t916" href="#t916">916</a></span><span class="t">        <span class="str">"""Display a list of modules that weren't found."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t917" href="#t917">917</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_bad_modules</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t918" href="#t918">918</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">"Missing modules:"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t919" href="#t919">919</a></span><span class="t">            <span class="key">for</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_bad_modules</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t920" href="#t920">920</a></span><span class="t">                <span class="nam">callers</span> <span class="op">=</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_bad_modules</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t921" href="#t921">921</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">? </span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst"> imported from</span><span class="fst">"</span><span class="op">,</span> <span class="str">", "</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">callers</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t922" href="#t922">922</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">"This is not necessarily a problem - the modules "</span><span class="op">,</span> <span class="nam">end</span><span class="op">=</span><span class="str">""</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t923" href="#t923">923</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">"may not be needed on this platform.\n"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t918" href="#t918">918</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">"Missing modules:"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t919" href="#t919">919</a></span><span class="t">            <span class="key">for</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_bad_modules</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t920" href="#t920">920</a></span><span class="t">                <span class="nam">callers</span> <span class="op">=</span> <span class="nam">sorted</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_bad_modules</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t921" href="#t921">921</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="fst">f"</span><span class="fst">? </span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst"> imported from</span><span class="fst">"</span><span class="op">,</span> <span class="str">", "</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">callers</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t922" href="#t922">922</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">"This is not necessarily a problem"</span><span class="op">,</span> <span class="nam">end</span><span class="op">=</span><span class="str">" - "</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t923" href="#t923">923</a></span><span class="t">            <span class="nam">print</span><span class="op">(</span><span class="str">"the modules may not be needed on this platform.\n"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t924" href="#t924">924</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t925" href="#t925">925</a></span><span class="t">    <span class="key">def</span> <span class="nam">zip_include_files</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t926" href="#t926">926</a></span><span class="t">        <span class="nam">self</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -1031,7 +1031,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.14.3">coverage.py v7.14.3</a>,
-            created at 2026-07-20 22:04 +0000
+            created at 2026-07-21 00:38 +0000
         </p>
     </div>
 </footer>
