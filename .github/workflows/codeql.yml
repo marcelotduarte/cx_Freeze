@@ -32,9 +32,9 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
-      actions: read
+      actions: read # MANDATORY
       contents: read
-      security-events: write
+      security-events: write # Needed to upload the results to code-scanning dashboard.
 
     strategy:
       fail-fast: false

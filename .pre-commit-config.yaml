@@ -62,7 +62,7 @@ repos:
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: 9337a74165b178ae2c766f60bee7252a0f06f3e8 # frozen: v3.9.5
+    rev: 0ee178619d696787ca73d210cc191d720868c631 # frozen: v3.9.6
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
@@ -82,7 +82,7 @@ repos:
     rev: 64a97fb7fa63188393d3215c6e312f5f9c6d0f78 # frozen: v1.27.0
     hooks:
       - id: zizmor
-        args: ["--fix=all", "--no-progress"]
+        args: ["--fix=all", "--no-progress", "-p"]
 
   - repo: local
     hooks:
