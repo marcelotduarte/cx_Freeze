@@ -254,6 +254,20 @@ b/__init__.py
     {},
 )
 
+MISSING_TEST: SourceList = (
+    "a",
+    ["a"],
+    ["b"],
+    [],
+    """\
+a.py
+    import b
+    import six.moves  # will be ignored by missing_six_moves hook
+    print("Hello from cx_Freeze")
+""",
+    {"report": True},
+)
+
 NAMESPACE_TEST: SourceList = (
     "main",
     ["main", "namespace.package"],

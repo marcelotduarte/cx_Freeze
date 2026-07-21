@@ -919,8 +919,8 @@ class ModuleFinder:
             for name in sorted(self._bad_modules):
                 callers = sorted(self._bad_modules[name])
                 print(f"? {name} imported from", ", ".join(callers))
-            print("This is not necessarily a problem - the modules ", end="")
-            print("may not be needed on this platform.\n")
+            print("This is not necessarily a problem", end=" - ")
+            print("the modules may not be needed on this platform.\n")
 
     def zip_include_files(
         self,

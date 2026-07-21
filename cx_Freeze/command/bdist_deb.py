@@ -15,7 +15,7 @@ from setuptools import Command
 
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_rpm import bdist_rpm
-from cx_Freeze.exception import ExecError, PlatformError
+from cx_Freeze.exception import ExecError, FileError, PlatformError
 
 __all__ = ["bdist_deb"]
 
@@ -84,8 +84,8 @@ class bdist_deb(Command):
                 rpm_filename = os.path.basename(filename)
                 break
         if rpm_filename is None:
-            msg = "could not build rpm"
-            raise ExecError(msg)
+            msg = "could not create rpm filename"
+            raise FileError(msg)
 
         # convert rpm to deb (by default in dist directory)
         logger.info("building DEB")

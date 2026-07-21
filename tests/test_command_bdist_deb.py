@@ -9,7 +9,7 @@ from setuptools import Distribution
 
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_deb import bdist_deb
-from cx_Freeze.exception import PlatformError
+from cx_Freeze.exception import FileError, PlatformError
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -55,6 +55,22 @@ def test_bdist_deb_not_fakeroot(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("shutil.which", lambda cmd: cmd != "fakeroot")
     with pytest.raises(PlatformError, match="failed to find 'fakeroot'"):
         cmd.finalize_options()
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_deb_not_rpm_filename(
+    tmp_package: TempPackage, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test bdist_deb uses bdist_rpm that uses rpmbuild."""
+    tmp_package.create_from_sample("simple_pyproject")
+    dist = Distribution(DIST_ATTRS)
+    cmd = bdist_deb(dist)
+    monkeypatch.setattr(
+        "shutil.which", lambda cmd: cmd in ("alien", "fakeroot", "rpmbuild")
+    )
+    cmd.finalize_options()
+    with pytest.raises(FileError, match="could not create rpm filename"):
+        cmd.run()
 
 
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
