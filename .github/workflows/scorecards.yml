@@ -14,25 +14,24 @@ on:
   push:
     branches: ["main"]
 
-# Declare default permissions as read only.
-permissions: read-all
+concurrency:
+  group: sec-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
   analysis:
     name: Scorecard analysis
     runs-on: ubuntu-latest
     permissions:
-      # Needed to upload the results to code-scanning dashboard.
-      security-events: write
-      # Needed to publish results and get a badge (see publish_results below).
-      id-token: write
+      security-events: write # Needed to upload the results to code-scanning dashboard.
+      id-token: write # Needed to publish results and get a badge (see publish_results below).
       contents: read
-      actions: read
-      # To allow GraphQL ListCommits to work
-      issues: read
-      pull-requests: read
-      # To detect SAST tools
-      checks: read
+      actions: read # MANDATORY
+      issues: read # To allow GraphQL ListCommits to work
+      pull-requests: read # MANDATORY
+      checks: read # To detect SAST tools
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

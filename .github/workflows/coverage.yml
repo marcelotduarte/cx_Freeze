@@ -1,10 +1,18 @@
 name: Post coverage comment
 
-on:
+# We're using workflow_run to post a coverage comment on external PRs. This is
+# safe because we don't checkout the external code or interact with the
+# external code in any way but extracting an artifact containing the comment to
+# post, and post it.
+on: # zizmor: ignore[dangerous-triggers]
   workflow_run:
     workflows: ["CI"]
     types:
       - completed
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -15,16 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
-      pull-requests: write
-      # Gives the action the necessary permissions for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
-      contents: write
+      pull-requests: write # Required for publishing new comments in pull requests.
+      # Avoid publishing multiple comments in the same PR.
+      contents: write # Required for editing existing comments.
       # Gives the action the necessary permissions for looking up the
       # workflow that launched this workflow, and download the related
       # artifact that contains the comment to be published
-      actions: read
+      actions: read # Required
     steps:
       # DO NOT run actions/checkout here, for security reasons
       # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
@@ -36,7 +41,7 @@ jobs:
       - name: Post comment
         uses: py-cov-action/python-coverage-comment-action@5d8df5979747514c914e1c5a12335a7cf9a2745f # v4.1
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
           MINIMUM_GREEN: 80
           MINIMUM_ORANGE: 50
