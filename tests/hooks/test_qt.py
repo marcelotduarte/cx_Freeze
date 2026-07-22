@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import os
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -105,6 +104,16 @@ def test_qt(tmp_package: TempPackage, qt_impl: str) -> None:
             and IS_ARM_64
         ):
             pytest.skip(f"{qt_impl} not supported in arm64")
+        if qt_impl in ("PyQt6", "PySide6") and IS_LINUX:
+            from platform import libc_ver  # noqa: PLC0415
+
+            version_raw = libc_ver()
+            version = tuple(map(int, version_raw[1].split(".")))
+            if version < (2, 28):
+                pytest.skip(
+                    f"{qt_impl} requires glibc>=2.28, "
+                    f"found {version_raw[0]} {version_raw[1]}"
+                )
 
     tmp_package.map_package_to_conda.update(
         {
@@ -121,18 +130,30 @@ def test_qt(tmp_package: TempPackage, qt_impl: str) -> None:
             "PySide6": "pyside6",
         }
     )
-    tmp_package.create(SOURCE_QT % {"qt_mod": qt_impl})
-    tmp_package.freeze()
 
-    # Test frozen app
+    # Freeze the app and check if it is created
+    tmp_package.create(SOURCE_QT % {"qt_mod": qt_impl})
+    result_freeze = tmp_package.freeze()
+    try:
+        missing = cast(
+            "list[str]",
+            result_freeze.stdout.get_lines_after("Missing dependencies:"),
+        )
+    except ValueError:
+        missing = None
     executable = tmp_package.executable("test_qt")
     assert executable.is_file()
-    # Do not test in Linux using CI yet because of missing xcb libs
-    # but we can compare duplicate libs
-    if not (IS_LINUX and os.environ.get("CI")):
-        result = tmp_package.run(executable, timeout=TIMEOUT)
-        result.stdout.fnmatch_lines(["Hello from Qt!"])
 
     # Check for duplicate libs
     duplicate_libs = find_duplicates_libs(executable.parent / "lib")
     assert not duplicate_libs
+
+    # xfail on Linux in the CI or docker or podman, because of missing xcb libs
+    result = tmp_package.run(executable, timeout=TIMEOUT)
+    if result.ret != 0 and IS_LINUX and missing:
+        for i, m in enumerate(missing):
+            missing[i] = m.replace("? ", "")
+        missing.pop()
+        missing.pop()
+        pytest.xfail("Missing dependencies: " + ", ".join(missing))
+    result.stdout.fnmatch_lines(["Hello from Qt!"])

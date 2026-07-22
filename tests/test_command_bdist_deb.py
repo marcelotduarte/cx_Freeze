@@ -49,10 +49,10 @@ def test_bdist_deb_not_alien(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_deb_not_fakeroot(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test the bdist_deb uses fakeroot."""
+    monkeypatch.setattr("os.getuid", lambda: 1000)
+    monkeypatch.setattr("shutil.which", lambda cmd: cmd == "alien")
     dist = Distribution(DIST_ATTRS)
     cmd = bdist_deb(dist)
-    monkeypatch.setattr("os.getuid", lambda: 1000)
-    monkeypatch.setattr("shutil.which", lambda cmd: cmd != "fakeroot")
     with pytest.raises(PlatformError, match="failed to find 'fakeroot'"):
         cmd.finalize_options()
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -378,7 +379,7 @@ def test_build_exe_command_line(
     build_args: list[str], expected: dict[str, Any]
 ) -> None:
     """Test the build_exe with command line parameters."""
-    attrs = DIST_ATTRS.copy()
+    attrs = deepcopy(DIST_ATTRS)
     attrs["script_args"] = ["build_exe", *build_args]
     dist = Distribution(attrs)
     dist.parse_command_line()
