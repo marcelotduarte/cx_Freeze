@@ -42,9 +42,10 @@ class Hook(ModuleHook):
         source_code = source_code.replace(
             "from pandas import testing", "testing = None"
         )
-        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
-            source_code, path, _optimize=finder.optimize
+            source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def pandas_core__numba_executor(

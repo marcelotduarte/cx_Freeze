@@ -56,7 +56,8 @@ class Hook(ModuleHook):
             source_code = source_code.replace(
                 "def attach_stub(", "def _attach_stub("
             )
-            path = loader.get_filename(module.name)
             module.code = loader.source_to_code(
-                source_code + ATTACH_STUB, path, _optimize=finder.optimize
+                source_code + ATTACH_STUB,
+                loader.get_filename(module.name),
+                _optimize=finder.optimize,
             )

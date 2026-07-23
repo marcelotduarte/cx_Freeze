@@ -55,7 +55,8 @@ class Hook(ModuleHook):
         source_code = loader.get_source(module.name)
         if source_code is None:
             return
-        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
-            source_code + dedent(patch), path, _optimize=finder.optimize
+            source_code + dedent(patch),
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )

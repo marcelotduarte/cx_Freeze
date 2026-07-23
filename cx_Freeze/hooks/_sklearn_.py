@@ -54,7 +54,9 @@ class Hook(ModuleHook):
             # msvcp140 and vcomp140 dlls should be copied
             # but in cx_Freeze, include_msvcr do the work
             module.code = loader.source_to_code(
-                "", loader.get_filename(module.name), _optimize=finder.optimize
+                "",
+                loader.get_filename(module.name),
+                _optimize=finder.optimize,
             )
 
     def sklearn_externals_array_api_compat_numpy(
@@ -92,10 +94,11 @@ class Hook(ModuleHook):
                 source_code = loader.get_source(module.name)
                 if source_code is None:
                     return
+                source_code = source_code.replace(
+                    "__file__", "__file__.replace('library.zip', '.')"
+                )
                 module.code = loader.source_to_code(
-                    source_code.replace(
-                        "__file__", "__file__.replace('library.zip', '.')"
-                    ),
+                    source_code,
                     loader.get_filename(module.name),
                     _optimize=finder.optimize,
                 )
@@ -140,10 +143,11 @@ class Hook(ModuleHook):
             source_code = loader.get_source(module.name)
             if source_code is None:
                 return
+            source_code = source_code.replace(
+                "__file__", "__file__.replace('library.zip', '.')"
+            )
             module.code = loader.source_to_code(
-                source_code.replace(
-                    "__file__", "__file__.replace('library.zip', '.')"
-                ),
+                source_code,
                 loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )

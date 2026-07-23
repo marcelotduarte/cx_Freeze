@@ -132,11 +132,12 @@ class Hook(ModuleHook):
         source_code = loader.get_source(module.name)
         if source_code is None:
             return
+        source_code = source_code.replace(
+            "return _strip_init_py(m.__file__)",
+            'return _strip_init_py(getattr(m, "__file__", ""))',
+        )
         module.code = loader.source_to_code(
-            source_code.replace(
-                "return _strip_init_py(m.__file__)",
-                'return _strip_init_py(getattr(m, "__file__", ""))',
-            ),
+            source_code,
             loader.get_filename(module.name),
             _optimize=finder.optimize,
         )

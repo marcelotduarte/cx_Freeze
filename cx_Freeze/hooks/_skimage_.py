@@ -104,11 +104,12 @@ class Hook(ModuleHook):
             source_code = loader.get_source(module.name)
             if source_code is None:
                 return
+            source_code = source_code.replace(
+                "__file__",
+                "__import__('sys').prefix + '/share/skimage/_'",
+            )
             module.code = loader.source_to_code(
-                source_code.replace(
-                    "__file__",
-                    "__import__('sys').prefix + '/share/skimage/_'",
-                ),
+                source_code,
                 loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
