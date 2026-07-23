@@ -35,10 +35,11 @@ class Hook(ModuleHook):
             source_code = loader.get_source(module.name)
             if source_code is None:
                 return
+            source_code = source_code.replace(
+                "__file__", "__file__.replace('library.zip', '.')"
+            )
             module.code = loader.source_to_code(
-                source_code.replace(
-                    "__file__", "__file__.replace('library.zip', '.')"
-                ),
+                source_code,
                 loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )
@@ -53,10 +54,11 @@ class Hook(ModuleHook):
             source_code = loader.get_source(module.name)
             if source_code is None:
                 return
+            source_code = source_code.replace(
+                "__file__", "__file__.replace('library.zip', '.')"
+            )
             module.code = loader.source_to_code(
-                source_code.replace(
-                    "__file__", "__file__.replace('library.zip', '.')"
-                ),
+                source_code,
                 loader.get_filename(module.name),
                 _optimize=finder.optimize,
             )

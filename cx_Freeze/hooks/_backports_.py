@@ -22,9 +22,10 @@ class Hook(ModuleHook):
         loader = module.loader
         if not isinstance(loader, SourceFileLoader):
             return
-        path = loader.get_filename(module.name)
         module.code = loader.source_to_code(
-            "", path, _optimize=finder.optimize
+            "",
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def backports_zstd(

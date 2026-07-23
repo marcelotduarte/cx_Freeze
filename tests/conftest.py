@@ -622,9 +622,8 @@ class TempPackageVenv(TempPackage):
                 except KeyError:
                     if pkg["name"] != name:
                         packages.append(pkg["spec"])
-        self.install(packages)
         for package in editables:
-            self.install(f"-e{package}")
+            self.install(f"-e{package}", deps=False)
         if not name_in_editables:
             self.install(
                 name,
@@ -632,6 +631,7 @@ class TempPackageVenv(TempPackage):
                 index=self.system_path / "wheelhouse",
                 prerelease=True,
             )
+        self.install(packages)
 
     def lock(self) -> None:
         prefix = self.venv_prefix

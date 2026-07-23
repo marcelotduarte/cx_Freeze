@@ -105,7 +105,6 @@ class Hook(ModuleHook):
         source_code = loader.get_source(module.name)
         if source_code is None:
             return
-        path = loader.get_filename(module.name)
         if module.in_file_system == 0:
             source_code = source_code.replace(
                 "__file__", "__file__.replace('library.zip', '.')"
@@ -117,7 +116,9 @@ class Hook(ModuleHook):
             "import numpy.testing as testing", "testing = None"
         )
         module.code = loader.source_to_code(
-            source_code, path, _optimize=finder.optimize
+            source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def numpy_compat(self, _finder: ModuleFinder, module: Module) -> None:
@@ -193,14 +194,13 @@ class Hook(ModuleHook):
         source_code = loader.get_source(module.name)
         if source_code is None:
             return
-        path = loader.get_filename(module.name)
         search = "add_docstring(implementation, dispatcher.__doc__)"
         if search not in source_code:
             return
         replace = "add_docstring(implementation, dispatcher.__doc__ or '')"
         module.code = loader.source_to_code(
             source_code.replace(search, replace),
-            path,
+            loader.get_filename(module.name),
             _optimize=finder.optimize,
         )
 
@@ -226,7 +226,6 @@ class Hook(ModuleHook):
         source_code = loader.get_source(module.name)
         if source_code is None:
             return
-        path = loader.get_filename(module.name)
 
         module_dir = cast("Path", module.file).parent
         exclude_dependent_files = False
@@ -308,7 +307,9 @@ class Hook(ModuleHook):
                 "__file__", "__file__.replace('library.zip', '.')"
             )
         module.code = loader.source_to_code(
-            source_code, path, _optimize=finder.optimize
+            source_code,
+            loader.get_filename(module.name),
+            _optimize=finder.optimize,
         )
 
     def numpy_lib_utils(

@@ -105,7 +105,7 @@ _get_dirty () {
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    elif [ "$PY_PLATFORM" == "linux-x86_64" ]; then
+    elif [ "$PY_PLATFORM" == "linux-x86_64" ] || [ "$BUILD_SDIST" == "true" ]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
     fi
 }
