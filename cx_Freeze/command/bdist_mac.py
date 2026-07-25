@@ -192,7 +192,7 @@ class bdist_mac(Command):
         # Use custom plist if supplied, otherwise create a simple default.
         if self.custom_info_plist:
             with open(self.custom_info_plist, "rb") as file:
-                contents = plistlib.load(file)
+                contents: dict[str, str] = plistlib.load(file)
         else:
             contents = {
                 "CFBundleIconFile": "icon.icns",
@@ -205,6 +205,12 @@ class bdist_mac(Command):
                 # be pixelated)
                 "NSHighResolutionCapable": "True",
             }
+
+        # Optional
+        if self.distribution.metadata.version:
+            contents.setdefault(
+                "CFBundleVersion", self.distribution.metadata.get_version()
+            )
 
         # Ensure CFBundleExecutable is set correctly
         contents["CFBundleExecutable"] = self.bundle_executable
