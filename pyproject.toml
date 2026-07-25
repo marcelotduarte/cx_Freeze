@@ -274,6 +274,7 @@ ignore = [
     "PLR0912",  # too-many-branches
     "PLR0913",  # too-many-arguments
     "PLR0915",  # too-many-statements
+    "PLR0917",  # too-many-positional-arguments - added ruff 0.16
     # prone to false positives: https://github.com/astral-sh/ruff/issues/4045
     "S603",
 ]

@@ -154,9 +154,9 @@ def prepare_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs=argparse.OPTIONAL,
-        metavar="COMMAND",
-        help="build, build_exe or supported bdist commands (and to be "
-        "backwards compatible, can replace --script option)",
+        metavar="COMMAND [command_options] ...",
+        help="build, build_exe or supported bdist commands and options "
+        "(commands can be chained in the order of execution)",
     )
     # Version
     parser.add_argument("--version", action="version", version=VERSION)
@@ -187,17 +187,16 @@ def main() -> None:
         parser.exit()
 
     # usage
-    deprecated = []
     if script is None:
         if command is None:
             parser.error("--script or command must be specified")
         elif not command.startswith(("build", "bdist", "install")):
-            args.script, command = command, script  # backwards compatible
-            deprecated.append("usage: required to use --script NAME")
+            parser.error("command not valid")
     if command is None:
         command = "build_exe"
 
     # deprecated options
+    deprecated = []
     if command == "build_exe" or "build_exe" in argv:
         args_to_replace = [
             ("--install-dir", "--build-exe"),
