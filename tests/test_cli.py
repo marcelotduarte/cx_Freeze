@@ -73,25 +73,21 @@ def test_cxfreeze_target_name_not_isidentifier(
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 
 
-def test_cxfreeze_deprecated_behavior(tmp_package: TempPackage) -> None:
-    """Test cxfreeze deprecated behavior."""
+def test_cxfreeze_command_not_valid(tmp_package: TempPackage) -> None:
+    """Test cxfreeze command not valid.
+
+    Deprecated, but valid up to 8.6.4.
+    """
     tmp_package.create(SOURCE)
-    tmp_package.path.joinpath("test.py").rename(tmp_package.path / "test2")
-    command = "cxfreeze --install-dir=dist test2"
-    command += " --excludes=tkinter --include-msvcr"
-    tmp_package.freeze(command)
-
-    file_created = tmp_package.executable_in_dist("test2")
-    assert file_created.is_file(), f"file not found: {file_created}"
-
-    result = tmp_package.run(file_created)
-    result.stdout.fnmatch_lines("Hello from cx_Freeze")
+    command = "cxfreeze test.py"
+    result = tmp_package.freeze(command)
+    result.stderr.fnmatch_lines("cxfreeze: error: command not valid*")
 
 
 def test_cxfreeze_deprecated_option(tmp_package: TempPackage) -> None:
     """Test cxfreeze deprecated option."""
     tmp_package.create(SOURCE)
-    command = "cxfreeze -c -O -OO test.py --target-dir=dist"
+    command = "cxfreeze --script=test.py -c -O -OO --target-dir=dist"
     command += " --excludes=tkinter --include-msvcr"
     result = tmp_package.freeze(command)
     assert "WARNING: deprecated" in str(result.stdout)
@@ -107,7 +103,9 @@ def test_cxfreeze_without_options(tmp_package: TempPackage) -> None:
     """Test cxfreeze without options."""
     tmp_package.create(SOURCE)
     result = tmp_package.freeze("cxfreeze")
-    assert result.ret > 0
+    result.stderr.fnmatch_lines(
+        "cxfreeze: error: --script or command must be specified"
+    )
 
 
 SOURCE_TEST_PATH = """
