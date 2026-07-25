@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import plistlib
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -68,9 +70,27 @@ def test_bdist_mac(tmp_package: TempPackage) -> None:
     """Test the simple sample with bdist_mac."""
     name = "hello"
     version = "0.1.2.3"
-    base_name = f"{name}-{version}"
 
     tmp_package.create_from_sample("simple")
-    tmp_package.freeze("python setup.py bdist_mac")
-    file_created = tmp_package.path / "build" / f"{base_name}.app"
-    assert file_created.is_dir(), f"{base_name}.app"
+    attrs = deepcopy(DIST_ATTRS)
+    attrs["name"] = name
+    attrs["version"] = version
+    dist = Distribution(attrs)
+    cmd = bdist_mac(dist, bundle_name=name)
+    cmd.finalize_options()
+    cmd.run()
+
+    app_created = tmp_package.path / "build" / f"{name}.app"
+    assert app_created.is_dir(), f"{name}.app"
+
+    info_plist = app_created / "Contents" / "Info.plist"
+    assert info_plist.exists(), "Info.plist"
+    with info_plist.open("rb") as fp:
+        contents = plistlib.load(fp)
+    assert contents["CFBundleIconFile"] == "icon.icns"
+    assert contents["CFBundleDevelopmentRegion"] == "English"
+    assert contents["CFBundleIdentifier"] == name
+    assert contents["CFBundlePackageType"] == "APPL"
+    assert contents["NSHighResolutionCapable"] == "True"
+    assert contents["CFBundleVersion"] == version
+    assert contents["CFBundleExecutable"] == name
