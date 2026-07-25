@@ -27,7 +27,7 @@ pyproject.toml
     [project]
     name = "test_streamlit"
     version = "0.1.2.3"
-    dependencies = ["streamlit<1.57"]
+    dependencies = ["streamlit>=1.51"]
 
     [[tool.cxfreeze.executables]]
     script = "test_streamlit.py"
