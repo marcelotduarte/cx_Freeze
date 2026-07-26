@@ -74,12 +74,13 @@ if TYPE_CHECKING:
 
 
 def _do_test(
-    test_dir: TempPackage,
     import_this: str,
     modules: list[str],
     missing: list[str],
     maybe_missing: list[str],
     source: str,
+    *,
+    test_dir: TempPackage,
     report: bool = False,
     debug: bool = False,  # noqa: ARG001
     modulefinder_class: Callable = ModuleFinder,
@@ -187,22 +188,23 @@ def _do_test(
     ],
 )
 def test_finder(
-    tmp_package: TempPackage,
     import_this: str,
     modules: list[str],
     missing: list[str],
     maybe_missing: list[str],
     source: str,
+    *,
+    tmp_package: TempPackage,
     kwargs: dict[str, Any],
 ) -> None:
     """Provides test cases for ModuleFinder class."""
     _do_test(
-        tmp_package,
         import_this,
         modules,
         missing,
         maybe_missing,
         source,
+        test_dir=tmp_package,
         **kwargs,
     )
 
@@ -213,12 +215,13 @@ def test_finder(
     ids=["bytecode_test"],
 )
 def test_bytecode(
-    tmp_package: TempPackage,
     import_this: str,
     modules: list[str],
     missing: list[str],
     maybe_missing: list[str],
     source: str,
+    *,
+    tmp_package: TempPackage,
     kwargs: dict[str, Any],
 ) -> None:
     """Provides bytecode test case for ModuleFinder class."""
@@ -228,12 +231,12 @@ def test_bytecode(
     py_compile.compile(os.fspath(source_path), cfile=os.fspath(bytecode_path))
     os.remove(source_path)
     _do_test(
-        tmp_package,
         import_this,
         modules,
         missing,
         maybe_missing,
         source,
+        test_dir=tmp_package,
         **kwargs,
     )
 
@@ -244,24 +247,25 @@ def test_bytecode(
     ids=["editable_package_test", "editable_package_test_1"],
 )
 def test_editable_packages(
-    tmp_package: TempPackage,
     import_this: str,
     modules: list[str],
     missing: list[str],
     maybe_missing: list[str],
     source: str,
+    *,
+    tmp_package: TempPackage,
     kwargs: dict[str, Any],
 ) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(source)
     tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
     _do_test(
-        tmp_package,
         import_this,
         modules,
         missing,
         maybe_missing,
         source,
+        test_dir=tmp_package,
         **kwargs,
     )
 

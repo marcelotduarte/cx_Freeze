@@ -188,6 +188,7 @@ class VersionInfo:
         version: str,
         internal_name: str | None = None,
         original_filename: str | None = None,
+        *,
         comments: str | None = None,
         company: str | None = None,
         description: str | None = None,

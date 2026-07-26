@@ -21,6 +21,7 @@ class PyDialog(Dialog):
         self,
         db: _Database,
         name: str,
+        *,
         x: int,
         y: int,
         w: int,

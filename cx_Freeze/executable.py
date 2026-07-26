@@ -37,6 +37,7 @@ class Executable:
         base: StrPath | None = None,
         target_name: str | None = None,
         icon: StrPath | None = None,
+        *,
         shortcut_name: str | None = None,
         shortcut_dir: StrPath | None = None,
         copyright: str | None = None,  # noqa: A002
@@ -291,7 +292,7 @@ def validate_executables(
         dist.executables = []  # ty: ignore[unresolved-attribute]
     executables = list(value)
     for i, executable in enumerate(executables):
-        if isinstance(executable, str):
+        if isinstance(executable, str):  # only script is provided
             executables[i] = Executable(executable)
         elif isinstance(executable, Mapping):
             executables[i] = Executable(**executable)  # ty: ignore

@@ -75,6 +75,7 @@ class ModuleFinder:
     def __init__(
         self,
         constants_module: ConstantsModule,
+        *,
         excludes: list[str] | None = None,
         include_files: IncludesList | None = None,
         optimize: int = 0,
