@@ -105,6 +105,7 @@ class Freezer:
         self,
         executables: Sequence[Executable | Mapping[str, str] | str],
         constants_module: ConstantsModule | None = None,
+        *,
         includes: list[str] | None = None,
         excludes: list[str] | None = None,
         packages: list[str] | None = None,
@@ -433,15 +434,15 @@ class Freezer:
     def _get_module_finder(self) -> ModuleFinder:
         finder = ModuleFinder(
             self.constants_module,
-            self.excludes,
-            self.include_files,
-            self.optimize,
-            cast("list[StrPath]", self.path),
-            self.replace_paths,
-            self.zip_exclude_packages,
-            self.zip_include_packages,
-            self.zip_include_all_packages,
-            self.zip_includes,
+            excludes=self.excludes,
+            include_files=self.include_files,
+            optimize=self.optimize,
+            path=cast("list[StrPath]", self.path),
+            replace_paths=self.replace_paths,
+            zip_exclude_packages=self.zip_exclude_packages,
+            zip_include_packages=self.zip_include_packages,
+            zip_include_all_packages=self.zip_include_all_packages,
+            zip_includes=self.zip_includes,
         )
         for name in self.includes:
             finder.include_module(name)

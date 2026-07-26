@@ -680,12 +680,13 @@ command
     ],
 )
 def test_executable_namespace(
-    tmp_package: TempPackage,
     source: str,
     hello: int,
     namespace: int,
     package_or_module: int,
     zip_packages: bool,
+    *,
+    tmp_package: TempPackage,
 ) -> None:
     """Test executable with namespace package."""
     tmp_package.create(source)
