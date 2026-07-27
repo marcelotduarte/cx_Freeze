@@ -18,7 +18,7 @@
 # -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = "8.0"
+needs_sphinx = "8.1"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -36,7 +36,10 @@ extensions = [
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
@@ -56,7 +59,8 @@ def _get_version() -> str:
 
     import tomllib
 
-    pyproject_toml = Path("../../pyproject.toml")
+    root_dir = Path(__file__).resolve().parent.parent.parent
+    pyproject_toml = root_dir / "pyproject.toml"
     if not pyproject_toml.exists():
         print("pyproject.toml not found", file=sys.stderr)
         sys.exit(1)
@@ -204,7 +208,7 @@ htmlhelp_basename = "cx_Freezedoc"
 # latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
+# (source start file, target name, title, author, documentclass[howto/manual]).
 latex_documents = [
     (
         "index",

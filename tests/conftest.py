@@ -810,6 +810,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     group.addoption(
         "--venv-prerelease",
         action="store_true",
+        default=bool(sys.version_info.releaselevel != "final"),
         help="Enable tests with prerelease versions.",
     )
 
