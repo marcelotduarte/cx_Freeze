@@ -7,13 +7,14 @@ build:
   tools:
     python: "3.12"
 
-sphinx:
-  builder: html
-  configuration: doc/conf.py
-  fail_on_warning: true
-
 python:
   install:
     - method: uv
-      command: pip
-      requirements: doc/requirements.txt
+      command: sync
+      groups:
+        - doc
+
+sphinx:
+  builder: html
+  configuration: doc/src/conf.py
+  fail_on_warning: true
