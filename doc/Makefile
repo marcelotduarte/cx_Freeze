@@ -1,31 +1,40 @@
 # Makefile to generate cx_Freeze documentation using Sphinx
 
+TOP_DIR=$(shell (cd .. && pwd))
 ifeq ($(origin READTHEDOCS_OUTPUT), undefined)
-	BUILDDIR = ../build/doc
+	BUILDDIR = $(TOP_DIR)/build/doc
 else
 	BUILDDIR = $(READTHEDOCS_OUTPUT)
 endif
-BUILDDIRHTML = $(BUILDDIR)/html
+
 SOURCEDIR    = src
-SPHINXBUILD = uvx -p 3.12 --with-requirements=requirements.txt --from sphinx sphinx-build
-SPHINXOPTS   = -d $(BUILDDIR)/.doctrees -j auto -T -W --keep-going -n
+SPHINXBUILD  = sphinx-build
+SPHINXOPTS   = --color -j auto --fail-on-warning --nitpicky --show-traceback
+
+.PHONY: all
+all: html
+
+.PHONY: install
+install:
+	@$(TOP_DIR)/ci/install-tools.sh --doc
 
 .PHONY: html
-html:
-	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIRHTML) $(SPHINXOPTS) -b html
+html: install
+	@$(SPHINXBUILD) -M html $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: epub
-epub:
-	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS) -b epub
+epub: install
+	@$(SPHINXBUILD) -M epub $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: pdf
-pdf:
-	@$(SPHINXBUILD) $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS) -b latexpdf
+pdf: install
+	@$(SPHINXBUILD) -M latexpdf $(SOURCEDIR) $(BUILDDIR) $(SPHINXOPTS)
 
 .PHONY: test
-test:
-	(cd $(BUILDDIRHTML) && python -m webbrowser -t index.html)
+test: install
+	(cd $(BUILDDIR)/html && python -m webbrowser -t index.html)
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)
+	@rm -rf $(BUILDDIR)
+	@uv tool uninstall sphinx || true

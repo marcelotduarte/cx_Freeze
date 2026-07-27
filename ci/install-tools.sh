@@ -3,12 +3,17 @@
 # Usage
 if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "Usage:"
-    echo "$0 [--tests]"
+    echo "$0 [--dev][--doc][--tests]"
     echo "Where:"
     echo "  --dev   Install additional packages for development."
+    echo "  --doc   Install additional packages for documentation."
     echo "  --tests Install additional packages to run 'pytest'."
     exit 1
 fi
+
+# Get script directory (without using /usr/bin/realpath)
+THIS_DIR=$(dirname "${BASH_SOURCE[0]}")
+CI_DIR=$(cd "$THIS_DIR" && pwd)
 
 # Detect environment. For mingw and conda environments, python is not required
 # to be installed, but will be installed by this script.
@@ -25,7 +30,7 @@ elif which python &>/dev/null; then
     if ! [ "$IS_MINGW" == "1" ]; then
         IS_UV="1"
     fi
-    python ci/requirements.py
+    python "$CI_DIR/requirements.py"
 else
     if [ -n "$MINGW_PACKAGE_PREFIX" ]; then
         IS_MINGW="1"
@@ -39,11 +44,17 @@ fi
 INSTALL_DIR="$HOME/bin"
 mkdir -p "$INSTALL_DIR"
 
+TOP_DIR=$(dirname "$CI_DIR")
+pushd "$TOP_DIR" >/dev/null || exit
+
 INSTALL_DEV=""
+INSTALL_DOC=""
 INSTALL_TESTS=""
 while [ -n "$1" ]; do
     if [ "$1" == "--dev" ]; then
         INSTALL_DEV="1"
+    elif [ "$1" == "--doc" ]; then
+        INSTALL_DOC="1"
     elif [ "$1" == "--tests" ]; then
         INSTALL_TESTS="1"
     else
@@ -147,11 +158,13 @@ else
     fi
 fi
 
+# Get Python version
+PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
+PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
+
 # Install dev tools
 if [ "$INSTALL_DEV" == "1" ]; then
     if [ -f requirements-dev.txt ]; then
-        PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
-        PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
         PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
         if [ "$PY_VERSION" == "3.10" ] || [ "$PY_VERSION" == "3.11" ]; then
             PY_VER_ABI="3.12"
@@ -163,6 +176,8 @@ if [ "$INSTALL_DEV" == "1" ]; then
                 $CONDA_EXE install -c conda-forge "$name" -S -q -y
             elif [ "$name" != "cibuildwheel" ] && [ "$IS_UV" == "1" ]; then
                 uv pip install --upgrade "$name"
+            elif [ "$IS_UV" == "1" ]; then
+                uv tool install -p "$PY_VER_ABI" "$line"
             else
                 filename=$INSTALL_DIR/$name
                 echo "Create $filename"
@@ -173,4 +188,17 @@ if [ "$INSTALL_DEV" == "1" ]; then
         done < requirements-dev.txt
     fi
 fi
+
+# Install doc tools (sphinx and extensions)
+if [ "$INSTALL_DOC" == "1" ]; then
+    if [ -f doc/requirements.txt ]; then
+        PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
+        if [ "$PY_VERSION" == "3.10" ] || [ "$PY_VERSION" == "3.11" ]; then
+            PY_VER_ABI="3.12"
+        fi
+        uv tool install -p "$PY_VER_ABI" \
+            --with-requirements=doc/requirements.txt sphinx
+    fi
+fi
+popd >/dev/null || true
 echo "::endgroup::"

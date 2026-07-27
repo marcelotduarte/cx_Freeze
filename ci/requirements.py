@@ -14,16 +14,15 @@ else:
 
 def main() -> None:
     """Entry point."""
-    pyproject_toml = Path("pyproject.toml")
+    root_dir = Path(__file__).resolve().parent.parent
+    pyproject_toml = root_dir / "pyproject.toml"
     if not pyproject_toml.exists():
         print("pyproject.toml not found", file=sys.stderr)
         sys.exit(1)
     with pyproject_toml.open("rb") as file:
         config = tomllib.load(file)
 
-    root_dir = pyproject_toml.parent
     requirements = root_dir / "requirements.txt"
-
     try:
         dependencies = config["project"]["dependencies"]
         contents = list(dependencies)
