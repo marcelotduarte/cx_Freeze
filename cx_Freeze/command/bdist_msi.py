@@ -24,7 +24,7 @@ if IS_MINGW or IS_WINDOWS:
 
     warnings.filterwarnings("ignore", "'msilib' is deprecated")
     try:
-        from msilib import (
+        from msilib import (  # ty: ignore[unresolved-import]
             CAB,  # ty: ignore
             PID_AUTHOR,  # ty: ignore
             PID_COMMENTS,  # ty: ignore

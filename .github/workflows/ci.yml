@@ -72,7 +72,9 @@ jobs:
         run: ci/install-tools.sh --tests
 
       - name: Type check
-        run: uv check --quiet --preview-features=check-command --no-sync
+        uses: j178/prek-action@e98a699c41eb69ab013a45817a0406469a748f8d # v2.0.5
+        with:
+          extra-args: "--all-files ty"
 
   build_wheel:
     name: Build wheels
