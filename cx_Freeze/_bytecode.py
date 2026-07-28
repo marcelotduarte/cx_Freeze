@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from cx_Freeze.module import Module
 
 if sys.version_info[:2] >= (3, 13):
-    from dis import _unpack_opargs
+    from dis import _unpack_opargs  # ty: ignore[unresolved-import]
 else:
     from dis import (
         _unpack_opargs as dis_unpack_opargs,  # ty: ignore[unresolved-import]
