@@ -758,8 +758,9 @@ class ModuleFinder:
             return builtin_modules
         for name in sys.builtin_module_names:
             builtin_modules[name] = "built-in"
-        if sys.version_info[:2] >= (3, 11):
-            for name in _imp._frozen_module_names():  # noqa: SLF001
+        if sys.version_info >= (3, 11):
+            names = _imp._frozen_module_names()  # noqa: SLF001 # ty: ignore
+            for name in names:
                 builtin_modules[name] = "frozen"
         core_lib = resource_path("lib")
         if core_lib and core_lib.is_dir():
