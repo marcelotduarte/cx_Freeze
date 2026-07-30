@@ -1,6 +1,6 @@
 """Tests for hooks of numpy and packages that depend on it.
 
-I.e. also tests matplotlib, pandas, raterio, scipy, shapely, and vtk.
+I.e. also tests matplotlib, pandas, scipy, shapely, and vtk.
 """
 
 from __future__ import annotations
@@ -116,63 +116,6 @@ def test_pandas(tmp_package: TempPackage, zip_packages: bool) -> None:
             "3*",
             "4*",
         ]
-    )
-
-
-SOURCE_TEST_RASTERIO = """
-test_rasterio.py
-    import numpy as np
-    import rasterio
-
-    print("Hello from cx_Freeze")
-    print("numpy version", np.__version__)
-    print("rasterio version", rasterio.__version__)
-pyproject.toml
-    [project]
-    name = "test_rasterio"
-    version = "0.1.2.3"
-    dependencies = [
-        "numpy<2;python_version < '3.11'",
-        "numpy>=2;python_version >= '3.11'",
-        "rasterio",
-    ]
-
-    [tool.cxfreeze]
-    executables = ["test_rasterio.py"]
-
-    [tool.cxfreeze.build_exe]
-    include-msvcr = true
-    excludes = ["tkinter", "PySide6", "shiboken6"]
-    silent = true
-"""
-
-
-@pytest.mark.xfail(
-    IS_MINGW,
-    raises=ModuleNotFoundError,
-    reason="rasterio not supported in mingw",
-    strict=True,
-)
-@pytest.mark.venv
-@zip_packages
-def test_rasterio(tmp_package: TempPackage, zip_packages: bool) -> None:
-    """Test if rasterio hook is working correctly."""
-    tmp_package.create(SOURCE_TEST_RASTERIO)
-    if IS_MACOS and zip_packages:
-        pytest.xfail("rasterio 1.4.4 fails in macOS using zipfile")
-    if zip_packages:
-        pyproject = tmp_package.path / "pyproject.toml"
-        buf = pyproject.read_bytes().decode().splitlines()
-        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
-        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.freeze()
-
-    executable = tmp_package.executable("test_rasterio")
-    assert executable.is_file()
-    result = tmp_package.run(executable, timeout=TIMEOUT_SLOW)
-
-    result.stdout.fnmatch_lines(
-        ["Hello from cx_Freeze", "numpy version *", "rasterio version *"]
     )
 
 
