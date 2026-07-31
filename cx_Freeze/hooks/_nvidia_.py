@@ -4,14 +4,12 @@ from __future__ import annotations
 
 from importlib.machinery import SourceFileLoader
 from textwrap import dedent
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -30,7 +28,9 @@ class Hook(ModuleHook):
         else:
             extension = "*.so*"
 
-        source_lib = cast("Path", module.file).parent
+        if module.file is None:  # to make ty happy
+            return
+        source_lib = module.file.parent
         if source_lib.exists():
             target_lib = f"lib/{source_lib.name}"
             for source in source_lib.glob(f"*/lib/{extension}"):

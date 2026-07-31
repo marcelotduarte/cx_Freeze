@@ -6,7 +6,7 @@ import json
 import sys
 from importlib.machinery import EXTENSION_SUFFIXES, SourceFileLoader
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_LINUX, IS_MINGW, IS_WINDOWS
 from cx_Freeze.hooks.global_names import (
@@ -48,18 +48,22 @@ class Hook(ModuleHook):
         """Patch numpy package.
 
         Supported pypi and conda-forge versions.
-        Tested numpy versions of pypi from 1.21.2 to 2.5.0rc1.
+        Tested numpy versions of pypi from 1.21.2 to 2.5.1.
         """
+        dist = module.distribution
+        version = tuple(map(int, dist.version[:2])) if dist else (1, 21)
+
         # Exclude unnecessary modules
         finder.exclude_module("numpy._configtool")
         finder.exclude_module("numpy.conftest")
-        finder.exclude_module("numpy.distutils")
         finder.exclude_module("numpy.f2py")
         finder.exclude_module("numpy._pyinstaller")
         finder.exclude_module("numpy.random._examples")
         finder.exclude_module("numpy.testing")
         finder.exclude_module("numpy.typing.mypy_plugin")
-        module.ignore_names.add("numpy.distutils")
+        if version < (2, 5):
+            finder.exclude_module("numpy.distutils")
+            module.ignore_names.add("numpy.distutils")
 
         # Exclude tests
         dist = finder.import_distributions.get(module.name)
@@ -75,7 +79,7 @@ class Hook(ModuleHook):
         # Exclude/Include modules based on distribution and/or version
         dist = module.distribution
         if dist:
-            if (int(dist.version[0]), int(dist.version[1])) >= (2, 0):
+            if version >= (2, 0):
                 finder.exclude_module("numpy._core.include")
                 finder.exclude_module("numpy._core.lib")
                 finder.exclude_module("numpy.compat")
@@ -227,7 +231,9 @@ class Hook(ModuleHook):
         if source_code is None:
             return
 
-        module_dir = cast("Path", module.file).parent
+        if module.file is None:  # to make ty happy
+            return
+        module_dir = module.file.parent
         exclude_dependent_files = False
         if dist.installer == "pip":
             # cgohlke/numpy-mkl.whl, numpy 1.23.5+mkl (Windows)

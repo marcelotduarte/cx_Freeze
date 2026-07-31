@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -23,7 +21,9 @@ class Hook(ModuleHook):
         # exclude _C module that causes RecursionError
         finder.exclude_module("triton._C")
         # but, include the module libtriton as library
-        parent_path = cast("Path", module.file).parent
+        if module.file is None:  # to make ty happy
+            return
+        parent_path = module.file.parent
         source_lib = parent_path / "_C"
         if source_lib.exists():
             finder.include_files(source_lib, f"lib/{module.name}/_C")

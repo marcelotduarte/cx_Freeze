@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MACOS, IS_MINGW, IS_WINDOWS, PYTHON_VERSION
 from cx_Freeze.module import Module, ModuleHook
@@ -37,7 +37,9 @@ class Hook(ModuleHook):
         Additionally, on Linux the opencv_python.libs directory is not
         copied across for versions above 4.5.3.
         """
-        source_dir = cast("Path", module.file).parent
+        if module.file is None:  # to make ty happy
+            return
+        source_dir = module.file.parent
         target_dir = "lib/cv2"
 
         if module.distribution is None:

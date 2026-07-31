@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from packaging.requirements import Requirement
 
@@ -13,8 +13,6 @@ from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -91,7 +89,9 @@ class Hook(ModuleHook):
         else:
             module.ignore_names.add("tomllib")
             if finder.include_module("tomli", module) is None:
-                root_dir = cast("Path", module.root.file).parent
+                if module.root.file is None:  # to make ty happy
+                    return
+                root_dir = module.root.file.parent
                 vendor_dir = root_dir / "_vendor"
                 if vendor_dir.is_dir():
                     finder.path.append(os.path.normpath(vendor_dir))
