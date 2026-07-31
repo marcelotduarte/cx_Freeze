@@ -6,6 +6,7 @@ from importlib.machinery import SourceFileLoader
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MACOS
 from cx_Freeze.module import ModuleHook
 
 if TYPE_CHECKING:
@@ -31,6 +32,9 @@ class Hook(ModuleHook):
         finder.include_package("rasterio")
 
         if module.in_file_system == 0 and module.file:
+            if IS_MACOS:  # rasterio fails in macOS using zipfile
+                module.in_file_system = 1
+                return
             # in zip file
             source_path = module.file.parent / "gdal_data"
             if source_path.is_dir():
