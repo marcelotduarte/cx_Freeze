@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 from importlib.machinery import SourceFileLoader
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from cx_Freeze._compat import IS_MINGW, IS_WINDOWS
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from cx_Freeze.finder import ModuleFinder
 
 
@@ -25,7 +23,9 @@ class Hook(ModuleHook):
 
         Tested in Windows and Linux.
         """
-        module_path = cast("Path", module.file).parent
+        if module.file is None:  # to make ty happy
+            return
+        module_path = module.file.parent
         site_packages_path = module_path.parent
 
         # implicitly loaded packages
