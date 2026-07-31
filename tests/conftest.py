@@ -260,8 +260,8 @@ class TempPackage:
         stdout = stdout.decode() if isinstance(stdout, bytes) else str(stdout)
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
-        if self._worker == "master":
-            # not using xdist, so print the results as debug information
+        # print result as debug information if not using xdist or on error
+        if self._worker == "master" or returncode != 0:
             print(stdout, flush=True)
             print(stderr, file=sys.stderr)
 
