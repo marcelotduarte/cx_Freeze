@@ -35,9 +35,6 @@ else
     if [[ $PY_PLATFORM == linux* ]]; then
         PLATFORM_TAG=many${PY_PLATFORM/-/_}
         PLATFORM_TAG_MASK=${PLATFORM_TAG/_/*_}
-        if ! [ "$CI" == "true" ] && which podman &>/dev/null; then
-            export CIBW_CONTAINER_ENGINE=podman
-        fi
     elif [[ $PY_PLATFORM == macosx* ]]; then
         PLATFORM_TAG=macosx_universal2
         PLATFORM_TAG_MASK="macosx_*"
@@ -111,20 +108,30 @@ _build_sdist () {
 }
 
 _build_wheel () {
-    local args=$*
+    local args
+    read -ra args <<<"$*"
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
-    elif [ "$ZIP_SAFE" == "true" ]; then
-        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-    elif [[ $PY_PLATFORM == win* ]] && [[ $args == *--only* ]]; then
-        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-    elif [[ $PY_PLATFORM == macos* ]] && [[ $args == *--only* ]]; then
-        uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
     else
         if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
             export UV_LINK_MODE=copy
         fi
-        "$INSTALL_DIR/cibuildwheel" "$args"
+        if [ "$ZIP_SAFE" == "true" ]; then
+            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
+        elif [[ $PY_PLATFORM == win* ]] && [[ ${args[0]} == *--only* ]]; then
+            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
+        elif [[ $PY_PLATFORM == macos* ]] && [[ ${args[0]} == *--only* ]]; then
+            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
+        else
+            if ! [ "$CI" == "true" ] && which podman &>/dev/null; then
+                export CIBW_CONTAINER_ENGINE=podman
+            fi
+            if [ -f "$INSTALL_DIR/cibuildwheel" ]; then
+                "$INSTALL_DIR/cibuildwheel" "${args[@]}"
+            else
+                uv tool run cibuildwheel "${args[@]}"
+            fi
+        fi
     fi
 }
 
