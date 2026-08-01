@@ -1,23 +1,32 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
     cooldown:
-      default-days: 14
-  - package-ecosystem: "pip"
+      default-days: 7
     directory: "/"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 14
     groups:
-      dependencies:
-        group-by: dependency-name
-  - package-ecosystem: "pre-commit"
-    directory: "/"
+      monthly-batch:
+        patterns:
+          - "*"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+  - package-ecosystem: "pip"
     cooldown:
-      default-days: 14
+      default-days: 7
+    directory: "/"
+    groups:
+      monthly-batch:
+        patterns:
+          - "*"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "pre-commit"
+    cooldown:
+      default-days: 7
+    directory: "/"
+    groups:
+      monthly-batch:
+        patterns:
+          - "*"
+    schedule:
+      interval: "monthly"
