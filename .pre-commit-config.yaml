@@ -73,13 +73,13 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: ac85803d0443afba1e0700690366fd2d39e02580 # frozen: v0.0.65
+    rev: 85487c004b6188a1b2dcb888f1202c3556dc6e9d # frozen: v0.0.68
     hooks:
       - id: ty
         args: [--no-sync]
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: 067260dc5fe6ea86b7551bfd6f8b3ba4e6c93129 # frozen: v1.28.0
+    rev: 451b56af716f9f0d0c2b816503a3fd0cf8b036fa # frozen: v1.29.0
     hooks:
       - id: zizmor
         args: ["--fix=all", "--no-progress", "-p"]
