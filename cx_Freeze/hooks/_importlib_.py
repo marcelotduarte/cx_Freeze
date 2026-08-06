@@ -32,7 +32,7 @@ class Hook(ModuleHook):
         finder.add_alias(module.name, "_frozen_importlib_external")
 
     def importlib_metadata(self, finder: ModuleFinder, module: Module) -> None:
-        """Ignore optional modules."""
+        """Include email as package (required if using Python 3.14+)."""
         if module.name == "importlib.metadata":
             module.ignore_names.add("pep517")  # Python 3.10
-        finder.include_module("email")
+        finder.include_package("email")

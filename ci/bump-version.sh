@@ -13,7 +13,7 @@ fi
 # Usage
 _usage () {
     echo "Usage:"
-    echo "$0 <major|minor|patch|dev|stable>"
+    echo "$0 <major|minor|patch|dev|stable|post>"
     echo "Based on:"
     echo "  https://docs.astral.sh/uv/reference/cli/#uv-version--bump"
     echo "Also can be used as:"
@@ -27,7 +27,7 @@ fi
 
 echo "::group::Bump new version"
 VERSION=$(uv version --short)
-if [ "$1" == "major" ] || [ "$1" == "minor" ] || [ "$1" == "patch" ]; then
+if [ "$1" == "major" ] || [ "$1" == "minor" ] || [ "$1" == "patch" ] || [ "$1" == "post" ]; then
     uv version --no-sync --bump "$1"
     exit_value=$?
 elif [ "$1" == "stable" ]; then
