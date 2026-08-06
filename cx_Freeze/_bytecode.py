@@ -15,16 +15,25 @@ if TYPE_CHECKING:
 
     from cx_Freeze.module import Module
 
-if sys.version_info[:2] >= (3, 13):
-    from dis import _unpack_opargs  # ty: ignore[unresolved-import]
-else:
-    from dis import (
-        _unpack_opargs as dis_unpack_opargs,  # ty: ignore[unresolved-import]
-    )
+from dis import _unpack_opargs  # ty: ignore[unresolved-import]
 
-    def _unpack_opargs(co_code: bytes) -> Generator:
-        for i, op, arg in dis_unpack_opargs(co_code):
+if sys.version_info[:2] >= (3, 13):
+    unpack_opargs = _unpack_opargs
+else:
+
+    def unpack_opargs(co_code: bytes) -> Generator:
+        for i, op, arg in _unpack_opargs(co_code):
             yield (i, i, op, arg)
+
+
+if sys.version_info[:2] >= (3, 14):
+    from dis import _common_constants  # ty: ignore[unresolved-import]
+else:
+    _common_constants = []
+if sys.version_info[:2] >= (3, 15):
+    HAS_LAZY = True
+else:
+    HAS_LAZY = False
 
 
 CALL = opmap.get("CALL")  # Python 3.11+
@@ -33,9 +42,10 @@ PRECALL = opmap.get("PRECALL")  # Python 3.11 only
 PUSH_NULL = opmap.get("PUSH_NULL")  # Python 3.11+
 
 EXTENDED_ARG = opmap["EXTENDED_ARG"]
+LOAD_COMMON_CONSTANT = opmap.get("LOAD_COMMON_CONSTANT")  # Python 3.14+
 LOAD_CONST = opmap["LOAD_CONST"]
 LOAD_NAME = opmap["LOAD_NAME"]
-LOAD_SMALL_INT = opmap.get("LOAD_SMALL_INT")  # Python 3.14
+LOAD_SMALL_INT = opmap.get("LOAD_SMALL_INT")  # Python 3.14+
 
 IMPORT_NAME = opmap["IMPORT_NAME"]
 IMPORT_FROM = opmap["IMPORT_FROM"]
@@ -135,7 +145,7 @@ def scan_code(code: CodeType) -> Generator:
     arguments = []
     names = code.co_names
     consts = code.co_consts
-    for _i, _offset, opc, arg in _unpack_opargs(code.co_code):
+    for _i, _offset, opc, arg in unpack_opargs(code.co_code):
         # keep track of constants (these are used for importing)
         # immediately restart loop so arguments are retained
         if opc == LOAD_CONST:
@@ -144,6 +154,12 @@ def scan_code(code: CodeType) -> Generator:
         # constants in Python 3.14
         if LOAD_SMALL_INT and opc == LOAD_SMALL_INT:
             arguments.append(arg)
+            continue
+        # constants in Python 3.15 (extended use of LOAD_COMMON_CONSTANT)
+        if LOAD_COMMON_CONSTANT and opc == LOAD_COMMON_CONSTANT:
+            # arg 0-6 are callables; 7-11 are literal values.
+            if 7 <= arg <= 11:
+                arguments.append(_common_constants[arg])
             continue
 
         # keep track of the name which can be the name of the import func
@@ -185,7 +201,9 @@ def scan_code(code: CodeType) -> Generator:
 
         # import statement: attempt to import module
         elif opc == IMPORT_NAME:
-            name = names[arg]
+            # IMPORT_NAME encodes lazy/eager flags in bits 0-1,
+            # name index in bits 2+.
+            name = names[arg >> 2 if HAS_LAZY else arg]
             if len(arguments) >= 2:
                 relative_import_index, from_list = arguments[-2:]
             else:

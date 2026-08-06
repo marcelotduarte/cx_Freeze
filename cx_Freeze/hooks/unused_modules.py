@@ -276,6 +276,12 @@ if PY_VERSION >= (3, 13):
         "uu",
         "xdrlib",
     }
+if PY_VERSION >= (3, 15):
+    DEFAULT_IGNORE_NAMES |= {
+        "sre_compile",
+        "sre_constants",
+        "sre_parse",
+    }
 
 DEFAULT_IGNORE_NAMES |= {
     "__main__",
