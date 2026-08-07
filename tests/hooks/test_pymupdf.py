@@ -48,6 +48,18 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="pymupdf does not support Python 3.15t yet",
+    strict=True,
+)
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t" and not IS_LINUX,
+    raises=ModuleNotFoundError,
+    reason="pymupdf support Python 3.14t only in Linux",
+    strict=True,
+)
 @pytest.mark.skipif(
     IS_CONDA and (IS_LINUX or IS_WINDOWS or (IS_ARM_64 and IS_MACOS)),
     reason="pymupdf is broken in conda-forge (except on OSX64)",
@@ -57,12 +69,6 @@ pyproject.toml
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="pymupdf does not support Windows arm64",
-    strict=True,
-)
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t" and not IS_LINUX,
-    raises=ModuleNotFoundError,
-    reason="pymupdf support Python 3.14t only in Linux",
     strict=True,
 )
 @pytest.mark.venv

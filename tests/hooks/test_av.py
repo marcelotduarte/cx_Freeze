@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
 from cx_Freeze._compat import (
+    ABI_THREAD,
     IS_ARM_64,
     IS_CONDA,
     IS_LINUX,
@@ -47,6 +49,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="av does not support Python 3.15t yet",
+    strict=True,
+)
 @pytest.mark.skipif(
     IS_CONDA and (IS_LINUX or (IS_ARM_64 and IS_MACOS)),
     reason="av (pyAV) is too slow in conda-forge (Linux and OSX_ARM64)",
