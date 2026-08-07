@@ -104,6 +104,12 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="ortools does not support Python 3.15 yet",
+    strict=True,
+)
+@pytest.mark.xfail(
     IS_CONDA and (not IS_LINUX or sys.version_info[:2] > (3, 11)),
     raises=ModuleNotFoundError,
     reason="ortools is supported in conda python <= 3.11 on Linux only",

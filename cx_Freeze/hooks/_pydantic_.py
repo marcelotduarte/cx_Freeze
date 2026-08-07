@@ -20,7 +20,8 @@ class Hook(ModuleHook):
     def pydantic(self, finder: ModuleFinder, module: Module) -> None:
         """Import the hidden modules.
 
-        pydantic package is compiled by Cython.
+        pydantic 1.x is compiled by Cython.
+        pydantic-core 2.x is compiled by Rust.
         """
         module.global_names.update(
             [
@@ -44,6 +45,8 @@ class Hook(ModuleHook):
                 finder.include_module("dataclasses")  # support in v1.7+
             with suppress(ImportError):
                 finder.include_module("typing_extensions")  # support in v1.8+
+        else:
+            finder.include_package("pydantic._internal")
 
     def pydantic__internal__core_utils(
         self, _finder: ModuleFinder, module: Module

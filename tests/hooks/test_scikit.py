@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -58,6 +59,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_scipy(tmp_package: TempPackage, zip_packages: bool) -> None:
@@ -126,6 +133,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_skimage(tmp_package: TempPackage, zip_packages: bool) -> None:
@@ -172,6 +185,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_sklearn(tmp_package: TempPackage, zip_packages: bool) -> None:

@@ -5,9 +5,12 @@ Implicitly test the asyncio and uvloop packages.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
+
+from cx_Freeze._compat import ABI_THREAD
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -23,6 +26,10 @@ test_anyio.py
     import sys
 
     from anyio import run
+    try:
+        import uvloop
+    except ImportError:
+        uvloop = None
 
     async def main():
         print("Hello from cx_Freeze")
@@ -30,9 +37,7 @@ test_anyio.py
     run(
         main,
         backend_options={
-            "use_uvloop": (
-                sys.platform != "win32" and sys.version_info[:2] != (3, 13)
-            )
+            "use_uvloop": uvloop is not None,
         },
     )
 pyproject.toml
@@ -41,7 +46,6 @@ pyproject.toml
     version = "0.1.2.3"
     dependencies = [
         "anyio",
-        "uvloop; sys_platform != 'win32' and python_version != '3.13'",
     ]
 
     [tool.cxfreeze]
@@ -66,6 +70,11 @@ def test_anyio(
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
+    if sys.platform != "win32":
+        if not (
+            sys.version_info == (3, 13) and ABI_THREAD == "t"
+        ) and sys.version_info < (3, 15):
+            tmp_package.install("uvloop")
     tmp_package.freeze()
     executable = tmp_package.executable("test_anyio")
     assert executable.is_file()

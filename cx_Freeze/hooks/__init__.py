@@ -319,6 +319,12 @@ def load_markdown(finder: ModuleFinder, module: Module) -> None:
     finder.include_module("html.parser")
 
 
+def load_math(finder: ModuleFinder, module: Module) -> None:
+    """Include module implicitly loaded by math package."""
+    if "_math_integer" in sys.stdlib_module_names:  # py 3.15+
+        finder.include_module("_math_integer")
+
+
 def load_Numeric(finder: ModuleFinder, module: Module) -> None:
     """Ignore optional module loaded by Numeric module."""
     module.ignore_names.add("dotblas")
