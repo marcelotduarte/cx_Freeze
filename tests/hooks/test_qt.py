@@ -98,6 +98,8 @@ def test_qt(tmp_package: TempPackage, qt_impl: str) -> None:
                 pytest.skip("PySide2 does not support macOS")
             if not IS_MINGW and sys.version_info[:2] >= (3, 11):
                 pytest.skip("PySide2 does not support Python 3.11+")
+        if qt_impl in ("PyQt5", "PyQt6") and sys.version_info[:2] >= (3, 15):
+            pytest.skip(f"{qt_impl} does not support Python 3.15+")
         if (
             qt_impl in ("PyQt5", "PySide2")
             and (IS_LINUX or IS_WINDOWS)

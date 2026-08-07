@@ -5,6 +5,7 @@ Implicitly test the asyncio and uvloop packages.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -54,6 +55,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="anyio does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_anyio(

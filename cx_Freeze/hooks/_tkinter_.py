@@ -26,8 +26,8 @@ class Hook(ModuleHook):
     def tkinter(self, finder: ModuleFinder, module: Module) -> None:
         """Include required tcl/tk 8.x script library to be loaded at runtime.
 
-        Tcl/Tk 9 embed the script library in the DLLs on Windows and is used
-        since Python 3.14.7.
+        Tcl/Tk 9 embeds the script library in the DLLs on Windows and has been
+        used in Python 3.14.7+.
         """
         # Ignore names that should not be confused with modules to be imported
         module.global_names.update(TKINTER_GLOBAL_NAMES)

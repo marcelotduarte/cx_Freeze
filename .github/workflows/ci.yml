@@ -128,7 +128,17 @@ jobs:
       matrix:
         os: [ubuntu, windows, macos]
         os_version: [latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t"]
+        python-version:
+          [
+            "3.10",
+            "3.11",
+            "3.12",
+            "3.13",
+            "3.14",
+            "3.14t",
+            "3.15-dev",
+            "3.15t-dev",
+          ]
     defaults:
       run:
         shell: bash

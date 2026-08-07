@@ -5,6 +5,7 @@ I.e. also tests matplotlib, pandas, scipy, shapely, and vtk.
 
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -66,6 +67,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_matplotlib(tmp_package: TempPackage, zip_packages: bool) -> None:
@@ -88,6 +95,12 @@ def test_matplotlib(tmp_package: TempPackage, zip_packages: bool) -> None:
     assert tmp_package.path.joinpath("test.png").is_file()
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.venv
 @zip_packages
 def test_pandas(tmp_package: TempPackage, zip_packages: bool) -> None:
@@ -156,6 +169,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.xfail(
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
@@ -233,6 +252,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15),
+    raises=ModuleNotFoundError,
+    reason="numpy does not support Python 3.15 yet",
+    strict=True,
+)
 @pytest.mark.skipif(
     IS_CONDA and (IS_LINUX or (IS_ARM_64 and IS_MACOS)),
     reason="vtkmodules (vtk) is too slow in conda-forge (Linux and OSX_ARM64)",
