@@ -24,14 +24,16 @@ class Hook(ModuleHook):
     """The Hook class for TKinter."""
 
     def tkinter(self, finder: ModuleFinder, module: Module) -> None:
-        """Include required data files (also called tcl/tk libraries).
+        """Include required tcl/tk 8.x script library to be loaded at runtime.
 
-        The tkinter package requires the tcl/tk libraries loaded at runtime.
+        Tcl/Tk 9 embed the script library in the DLLs on Windows and is used
+        since Python 3.14.7.
         """
         # Ignore names that should not be confused with modules to be imported
         module.global_names.update(TKINTER_GLOBAL_NAMES)
 
-        # manylinux (and macpython) wheels store tcl/tk libraries and extension
+        # The tcl/tk 8.x script library are stored in the wheel of freeze-core
+        # when using manylinux and macpython.
         tcl_library = None
         tk_library = None
         share = resource_path("share")
@@ -39,47 +41,74 @@ class Hook(ModuleHook):
         if share and share.is_dir() and lib_tkinter and lib_tkinter.exists():
             tcl_library = next(share.glob("tcl*.*"), None)
             tk_library = next(share.glob("tk*.*"), None)
-        if tcl_library is None:
-            # search tcl/tk libraries (Windows, MSYS2, conda-forge, etc)
+        if tcl_library is None or tk_library is None:
+            # Check for tcl/tk >= 9.0 (initially only on Windows)
             try:
                 tkinter = __import__("tkinter")
             except ImportError:
                 return
+            tcl_version = tkinter.TclVersion
+            tk_version = tkinter.TkVersion
+            # Include dlls for Windows (when using lief, they are detected)
+            if IS_WINDOWS:
+                tk_ext = finder.include_module("_tkinter")
+                if tk_ext is None or tk_ext.file is None:
+                    return
+                if tcl_version >= 9.0:
+                    # Include dlls like tcl90.dll and tcl9tk90.dll
+                    dll_names = (
+                        f"tcl{int(tcl_version * 10)}.dll",
+                        f"tcl{int(tcl_version)}tk{int(tk_version * 10)}.dll",
+                    )
+                else:
+                    # Include dlls like tcl86t.dll and tk86t.dll
+                    dll_names = (
+                        f"tcl{int(tcl_version * 10)}t.dll",
+                        f"tk{int(tk_version * 10)}t.dll",
+                    )
+                for dll_name in dll_names:
+                    dll_path = tk_ext.file.parent / dll_name
+                    if dll_path.exists():
+                        finder.include_files(dll_path, f"lib/{dll_name}")
+            if tcl_version >= 9.0:
+                return
+
+            # Search tcl/tk 8.x libraries (Windows, MSYS2, conda-forge, etc)
             try:
                 root = tkinter.Tk(useTk=False)
             except tkinter.TclError:
                 # provisional fix for Python 3.13 beta and rc1 [windows]
-                tcl_library = Path(
-                    sys.base_prefix, "tcl", f"tcl{tkinter.TclVersion}"
-                )
+                tcl_prefix = Path(sys.base_prefix, "tcl")
+                tcl_library = tcl_prefix / f"tcl{tcl_version}"
                 if not tcl_library.exists():
                     return
+                tk_library = tcl_prefix / f"tk{tk_version}"
             else:
-                tcl_library = Path(root.tk.exprstring("$tcl_library"))
-            tk_library = tcl_library.parent.joinpath(
-                tcl_library.name.replace("tcl", "tk")
-            )
-        # include tcl/tk files
+                tcl_library_expr = root.tk.exprstring("$tcl_library")
+                tcl_library = Path(tcl_library_expr)
+                tk_library = tcl_library.parent.joinpath(
+                    tcl_library.name.replace("tcl", "tk")
+                )
+
+        # Include tcl/tk 8.x script libraries
+        self._include_script_libraries(finder, module, tcl_library, tk_library)
+
+    def _include_script_libraries(
+        self,
+        finder: ModuleFinder,
+        module: Module,
+        tcl_library: Path,
+        tk_library: Path,
+    ) -> None:
+        # Include tcl/tk 8.x directories
         for source_path in [
             tcl_library,
             tcl_library.with_suffix(""),
             tk_library,
         ]:
-            if source_path is None:
-                continue
             if source_path.is_dir():
                 finder.include_files(source_path, f"share/{source_path.name}")
-            if IS_WINDOWS:  # include dlls like tcl86t.dll and tk86t.dll
-                dll_name = source_path.name.replace(".", "") + "t.dll"
-                dll_path = Path(sys.base_prefix, "DLLs", dll_name)
-                if dll_path.exists():
-                    finder.include_files(dll_path, f"lib/{dll_name}")
-        # patch source code
-        tcl_library_name = tcl_library.name
-        if tk_library:
-            tk_library_name = tk_library.name
-        else:
-            tk_library_name = tcl_library_name.replace("tcl", "tk")
+        # Patch source code to point to shared data
         patch = rf"""
             # cx_Freeze patch start
             import os as _os
@@ -92,12 +121,11 @@ class Hook(ModuleHook):
                 if _os.path.exists(_mac_prefix):
                     _prefix = _mac_prefix  # using bdist_mac
             _tcl_library = _os.path.join(
-                _prefix, "share", "{tcl_library_name}"
+                _prefix, "share", "{tcl_library.name}"
             )
-            _tk_library = _os.path.join(_prefix, "share", "{tk_library_name}")
+            _tk_library = _os.path.join(_prefix, "share", "{tk_library.name}")
             _os.environ["TCL_LIBRARY"] = _os.path.normpath(_tcl_library)
             _os.environ["TK_LIBRARY"] = _os.path.normpath(_tk_library)
-
             # cx_Freeze patch end
         """
         loader = module.loader
