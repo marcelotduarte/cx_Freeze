@@ -55,7 +55,7 @@ pyproject.toml
     strict=True,
 )
 @pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t" and not IS_LINUX,
+    sys.version_info[:2] == (3, 14) and ABI_THREAD == "t" and not IS_LINUX,
     raises=ModuleNotFoundError,
     reason="pymupdf support Python 3.14t only in Linux",
     strict=True,

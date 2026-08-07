@@ -91,8 +91,9 @@ if IS_WINDOWS:
             if sys.version_info[:2] <= (3, 13):
                 LIEF_VERSIONS.append("0.16.0")
                 LIEF_VERSIONS.append("0.16.6")
-            LIEF_VERSIONS.append("0.17.0")
-            LIEF_VERSIONS.append("0.17.6")
+            if sys.version_info[:2] <= (3, 14):
+                LIEF_VERSIONS.append("0.17.0")
+                LIEF_VERSIONS.append("0.17.6")
         LIEF_VERSIONS.append("1.0.0")
 elif IS_MINGW:
     LIEF_VERSIONS.append("installed")

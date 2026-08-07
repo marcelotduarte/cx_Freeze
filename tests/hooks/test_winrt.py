@@ -53,6 +53,12 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "",
+    raises=ModuleNotFoundError,
+    reason="pywinrt does not support Python 3.15 yet",
+    strict=True,
+)
+@pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="pywinrt not supported in mingw",
@@ -67,7 +73,7 @@ pyproject.toml
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="pywinrt does not support Python 3.14t",
+    reason="pywinrt does not support Python 3.14t/3.15t",
     strict=True,
 )
 @pytest.mark.venv(scope="module")

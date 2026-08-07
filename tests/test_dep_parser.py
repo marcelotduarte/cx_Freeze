@@ -40,8 +40,9 @@ if IS_WINDOWS:
             if sys.version_info[:2] <= (3, 13):
                 PACKAGE_VERSION.append(("lief", "0.16.0"))
                 PACKAGE_VERSION.append(("lief", "0.16.6"))
-            PACKAGE_VERSION.append(("lief", "0.17.0"))
-            PACKAGE_VERSION.append(("lief", "0.17.6"))
+            if sys.version_info[:2] <= (3, 14):
+                PACKAGE_VERSION.append(("lief", "0.17.0"))
+                PACKAGE_VERSION.append(("lief", "0.17.6"))
         PACKAGE_VERSION.append(("lief", "1.0.0"))
 elif IS_MINGW:
     PACKAGE_VERSION = [("imagehlp", "bind")]
