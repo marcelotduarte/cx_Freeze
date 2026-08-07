@@ -68,8 +68,8 @@ jobs:
           cache-dependency-glob: "pyproject.toml"
           enable-cache: true
 
-      - name: Install dependencies
-        run: ci/install-tools.sh --tests
+      - name: Install the dependencies for the tests
+        run: uv pip install --upgrade -r pyproject.toml --group tests
 
       - name: Type check
         uses: j178/prek-action@5337cb91e0fa35a7ff31b9ca345126d8bbbcdf16 # v2.0.6
@@ -174,8 +174,8 @@ jobs:
           pattern: cx-freeze-wheel
           path: wheelhouse
 
-      - name: Install dependencies to test
-        run: ci/install-tools.sh --tests
+      - name: Install the dependencies for the tests
+        run: uv pip install --upgrade -r pyproject.toml --group tests
 
       - name: Install cx_Freeze from wheelhouse
         run: |

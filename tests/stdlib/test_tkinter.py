@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import os
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_LINUX, IS_MACOS
+from cx_Freeze._compat import IS_MACOS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -33,6 +32,7 @@ test_tk.py
     import tkinter
 
     root = tkinter.Tk(useTk=False)
+    print("tcl/tk version:", root.tk.exprstring("$tcl_version"))
     print(root.tk.exprstring("$tcl_library"))
 pyproject.toml
     [project]
@@ -48,9 +48,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.skipif(
-    not IS_LINUX and sys.version_info >= (3, 14, 7), reason="Disabled test"
-)
 @mac_extra_test
 @zip_packages
 def test_tkinter(
@@ -84,4 +81,10 @@ def test_tkinter(
     # Compare the start of the returned path, version independent.
     # This is necessary when the OS has an older tcl/tk version than the
     # version contained in the cx_Freeze wheels.
-    result.stdout.fnmatch_lines(f"{expected}*")
+    expected_version_line = "tcl/tk version: *"
+    lines_after = result.stdout.get_lines_after(expected_version_line)
+    if "//zipfs:" in lines_after[0]:  # tcl/tk 9.0+
+        expected_library_line = lines_after[0]
+    else:
+        expected_library_line = f"{expected}*"
+    result.stdout.fnmatch_lines([expected_version_line, expected_library_line])
