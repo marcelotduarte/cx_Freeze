@@ -463,8 +463,9 @@ class ELFParser(Parser):
 
         mobj = re.match(r"patchelf\s+(\d+(.\d+)?)", version)
         if mobj:
-            version = tuple(map(int, mobj.group(1).split(".")))
-            if version >= (0, 14) and version[:2] != (0, 18):
+            version = mobj.group(1)
+            version_tuple = tuple(map(int, version.split(".")))
+            if version_tuple[:2] >= (0, 14) and version_tuple[:2] != (0, 18):
                 return
         msg = (
             f"patchelf {version} found. "
