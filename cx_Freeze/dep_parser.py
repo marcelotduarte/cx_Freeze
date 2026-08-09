@@ -463,8 +463,11 @@ class ELFParser(Parser):
 
         mobj = re.match(r"patchelf\s+(\d+(.\d+)?)", version)
         if mobj:
-            version = mobj.group(1)
-            if tuple(map(int, version.split("."))) >= (0, 14):
+            version = tuple(map(int, mobj.group(1).split(".")))
+            if version >= (0, 14) and version[:2] != (0, 18):
                 return
-        msg = f"patchelf {version} found. cx_Freeze requires patchelf >= 0.14."
+        msg = (
+            f"patchelf {version} found. "
+            "cx_Freeze requires 'patchelf>=0.14,!=0.18'."
+        )
         raise ValueError(msg)
