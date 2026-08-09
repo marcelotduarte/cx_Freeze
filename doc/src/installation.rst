@@ -61,16 +61,17 @@ Python requirements are installed automatically by pip, uv, conda or pacman.
 
    freeze-core >=0.6.1
    packaging >=25.0
-   setuptools >=78.1.1,<84.0
+   setuptools >=78.1.1,<85.0
    filelock >=3.20.3           #  Linux
-   patchelf >=0.14,<0.18       #  Linux
+   patchelf >=0.16.1           #  Linux
    dmgbuild >=1.6.1            #  macOS
-   lief >=0.16,<=1.0           #  Windows
+   lief >=0.16.0,<1.1.0        #  Windows
    python-msilib >=0.4.1       #  Python 3.13+ on Windows
 
 .. note::
 
-   #. If you have trouble with patchelf, check :ref:`patchelf`.
+   #. When using the system package manager, you can use "patchelf>=0.14".
+      If you have trouble with patchelf, check :ref:`patchelf`.
    #. ``lief`` in conda-forge is named ``py-lief``.
 
 Download the source code

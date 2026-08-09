@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools~=83.0",
+    "setuptools~=84.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -30,19 +30,19 @@ classifiers = [
 dependencies = [
     "freeze-core>=0.6.1",
     "packaging>=25.0",
-    "setuptools>=78.1.1,<84.0",
+    "setuptools>=78.1.1,<85.0",
     # Linux
     "filelock>=3.20.3 ;sys_platform == 'linux'",
-    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'i686'",
-    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
-    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
-    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 'ppc64le'",
-    "patchelf>=0.16.1,<0.18 ;sys_platform == 'linux' and platform_machine == 's390x'",
+    "patchelf>=0.16.1 ;sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "patchelf>=0.16.1 ;sys_platform == 'linux' and platform_machine == 'i686'",
+    "patchelf>=0.16.1 ;sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "patchelf>=0.16.1 ;sys_platform == 'linux' and platform_machine == 'armv7l'",
+    "patchelf>=0.16.1 ;sys_platform == 'linux' and platform_machine == 'ppc64le'",
+    "patchelf>=0.16.1 ;sys_platform == 'linux' and platform_machine == 's390x'",
     # macOS
     "dmgbuild>=1.6.1 ;sys_platform == 'darwin'",
     # Windows
-    "lief>=0.16.0,<=1.0.0 ;sys_platform == 'win32'",
+    "lief>=0.16.0,<1.1.0 ;sys_platform == 'win32'",
     "python-msilib>=0.4.1 ;sys_platform == 'win32' and python_version >= '3.13'",
 ]
 keywords = ["cx-freeze cxfreeze cx_Freeze freeze python"]
