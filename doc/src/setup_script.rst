@@ -484,25 +484,25 @@ constructor are as follows:
 
 .. option:: init_script
 
-    the name of the initialization script that will be executed before the
-    actual script is executed; this script is used to set up the environment
-    for the executable; if a name is given without an absolute path the
-    names of files in the initscripts subdirectory of the cx_Freeze package
-    is searched
+    script which will be executed upon startup (before script);
+    this script is used to set up the environment for the executable;
+    pre-defined values: "console", "streamlit";
+    an user-defined initscripts is accepted if it is given with
+    an absolute path name [default: console]
 
 .. option:: base
 
-    the name of the base executable; the pre-defined values are:
-    "console", "gui", "gui_dgpu" and "service";
-    an user-defined base is accepted if it is given with an absolute
-    path name [default: "console"]
+    the name of the base executable;
+    pre-defined values: "console", "gui", "gui_dgpu" and "service";
+    an user-defined base is accepted if it is given with
+    an absolute path name [default: console]
 
 .. option:: target_name
 
-    the name of the target executable; the default value is the
-    name of the script; it is recommended NOT to use an extension
-    (automatically added on Windows); target-name with version is
-    supported; if specified a path, raise an error
+    the name of the target executable; it is recommended NOT to
+    use an extension (automatically added on Windows); target_name with
+    version is supported; if specified a path, raise an error
+    [default: the name of script]
 
 .. option:: icon
 
@@ -570,6 +570,7 @@ constructor are as follows:
     - this ensures that frozen applications automatically prefer the
     high-performance discrete GPU on Windows systems with hybrid graphics
     (NVIDIA Optimus / AMD PowerXpress)
+    :option:`init_script` option has a new pre-defined value: "streamlit"
 
 .. seealso::
 

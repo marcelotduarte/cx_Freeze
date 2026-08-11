@@ -1,10 +1,9 @@
 cxfreeze script
 ===============
 
-The :program:`cxfreeze` script is included with other Python scripts.
-On Windows this is in the ``Scripts`` subdirectory of your Python installation
-whereas on Unix platforms this is in the ``bin`` directory of the prefix where
-Python is installed.
+Freeze a Python script and all of its referenced modules to a standalone \
+executable which can then be distributed without requiring a Python \
+installation.
 
 Assuming you have a script called ``hello.py`` which you want to turn into an
 executable, this can be accomplished by this command:
@@ -19,29 +18,29 @@ Further customization can be done using the following options:
 
 .. option:: --script=NAME
 
-    script which will be turned into an executable
+    the name of the file containing the script which is to be frozen
 
 .. option:: --init-script=NAME
 
-    script which will be executed upon startup; if the
-    name of the file is not an absolute file name, the
-    subdirectory initscripts (rooted in the directory in
-    which the :program:`cx_Freeze` package is found) will be searched
-    for a file matching the name
+    script which will be executed upon startup (before script);
+    this script is used to set up the environment for the executable;
+    pre-defined values: "console", "streamlit";
+    an user-defined initscripts is accepted if it is given with
+    an absolute path name [default: console]
 
 .. option:: --base=NAME, --base-name=NAME
 
-    the name of the base executable; the pre-defined values are:
-    "console", "gui", "gui_dgpu", and "service";
-    an user-defined base is accepted if it is given with an absolute
-    path name [default: "console"]
+    the name of the base executable;
+    pre-defined values: "console", "gui", "gui_dgpu" and "service";
+    an user-defined base is accepted if it is given with
+    an absolute path name [default: console]
 
 .. option:: --target-name=NAME
 
-    the name of the target executable; the default value is the
-    name of the script; it is recommended NOT to use an extension
-    (automatically added on Windows); target-name with version is
-    supported; if specified a path, raise an error
+    the name of the target executable; it is recommended NOT to
+    use an extension (automatically added on Windows); --target-name with
+    version is supported; if specified a path, raise an error
+    [default: the name of script]
 
 .. option:: --target-dir=DIR
 
@@ -126,3 +125,4 @@ Further customization can be done using the following options:
 
 .. versionchanged:: 8.6
     :option:`--base` option has a new pre-defined value: "gui_dgpu"
+    :option:`--init-script` option has a new pre-defined value: "streamlit"

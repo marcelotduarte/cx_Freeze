@@ -3,15 +3,19 @@ Using cx_Freeze
 
 There are three different ways to use :program:`cx_Freeze`:
 
-1. Use the included :doc:`cxfreeze script <script>`.
-2. Create a :doc:`setup script <setup_script>`. This is useful if you
-   need extra options when freezing your program because you can save them in
-   the script. Run ``cxfreeze-quickstart`` to generate a simple setup script.
+1. Create a `pyproject.toml` project file where you can specify extra options,
+   and use the included :doc:`cxfreeze script <script>`.
+   It is also useful when you want to use only the command line.
+2. Create a :doc:`setup script <setup_script>`. This is useful if you need
+   extra options programmatically when freezing your program because you can
+   save them in the script. Run ``cxfreeze-quickstart`` to generate a simple
+   setup script.
 3. Work directly with the classes and modules used internally by cx_Freeze.
    This should be reserved for complicated scripts or extending or embedding.
+   (Not covered in this documentation).
 
-cx_Freeze normally produces a folder containing an executable file for your
-program and the shared libraries (DLLs or .so files) needed to run it.
+:program:`cx_Freeze` normally produces a folder containing an executable file
+for your program and the shared libraries (DLLs or .so files) needed to run it.
 
 :program:`cx_Freeze` 7.0, introduced the :doc:`bdist_appimage` command for
 Linux, which supports building in such a way that all the libraries of your
