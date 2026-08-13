@@ -14,15 +14,24 @@ using different configuration files.
 
 In a virtual environment, install by issuing the command:
 
+1. In Windows 32 and 64 bits, cx_Logging 3.2.1 has support for Python 3.9 up to 3.13
+
 ```
 pip install --upgrade cx_Freeze cx_Logging
 ```
 
-cx_Logging 3.2.1 has support for Python 3.9 up to 3.13 in Windows 32 and amd64.
-To install in Python 3.14 and/or in arm64, use:
+2. In Windows 32 and 64 bits, using Python 3.14+
 
 ```
-pip install cx-logging --extra-index-url https://marcelotduarte.github.io/packages/
+pip install --upgrade cx_Freeze
+pip install --index-url https://test.pypi.org/simple/ cx-logging
+```
+
+3. In Windows ARM64, using Python 3.11+
+
+```
+pip install --upgrade cx_Freeze
+pip install --index-url https://test.pypi.org/simple/ cx-logging
 ```
 
 # Build the executable:
