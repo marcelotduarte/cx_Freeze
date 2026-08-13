@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -47,12 +46,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="rasterio does not support Python 3.15 yet",
-    strict=True,
-)
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,

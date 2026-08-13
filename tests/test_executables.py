@@ -750,12 +750,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="numpy does not support Python 3.15 yet",
-    strict=True,
-)
 @pytest.mark.skipif(IS_CONDA, reason="Disabled on conda-forge")
 @pytest.mark.skipif(IS_MINGW, reason="Disabled on msys2")
 @pytest.mark.venv
