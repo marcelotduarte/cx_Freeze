@@ -67,11 +67,6 @@ repos:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: 745eface02aef23e168a8afb6b5737818efbea95 # frozen: v0.11.0.1
-    hooks:
-      - id: shellcheck
-
   - repo: https://github.com/astral-sh/ty-pre-commit
     rev: 94e5ef6a17c7b84d9c5a45457a66b2c23a13b532 # frozen: v0.0.71
     hooks:
@@ -100,3 +95,9 @@ repos:
         files: ^(pyproject.toml|requirements.txt|requirements-dev.txt|
           doc/requirements.txt|tests/requirements.txt
           )$
+
+      - id: lint-shell
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
