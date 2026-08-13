@@ -70,10 +70,11 @@ class Hook(ModuleHook):
                     dll_path = tk_ext.file.parent / dll_name
                     if dll_path.exists():
                         finder.include_files(dll_path, f"lib/{dll_name}")
-            if tcl_version >= 9.0:
-                return
+                if tcl_version >= 9.0:
+                    return
 
             # Search tcl/tk 8.x libraries (Windows, MSYS2, conda-forge, etc)
+            # And tcl/tk 9.x for Linux (at least with uv python)
             try:
                 root = tkinter.Tk(useTk=False)
             except tkinter.TclError:
@@ -85,12 +86,15 @@ class Hook(ModuleHook):
                 tk_library = tcl_prefix / f"tk{tk_version}"
             else:
                 tcl_library_expr = root.tk.exprstring("$tcl_library")
+                if tcl_library_expr.startswith("//zipfs:"):
+                    # tcl/tk 9.0+ embebed scripts
+                    return
                 tcl_library = Path(tcl_library_expr)
                 tk_library = tcl_library.parent.joinpath(
                     tcl_library.name.replace("tcl", "tk")
                 )
 
-        # Include tcl/tk 8.x script libraries
+        # Include tcl/tk 8.x/9.x script libraries
         self._include_script_libraries(finder, module, tcl_library, tk_library)
 
     def _include_script_libraries(

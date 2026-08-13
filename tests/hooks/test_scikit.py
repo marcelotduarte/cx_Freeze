@@ -62,7 +62,7 @@ pyproject.toml
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
-    reason="numpy does not support Python 3.15 yet",
+    reason="scipy does not support Python 3.15 yet",
     strict=True,
 )
 @pytest.mark.venv
@@ -136,7 +136,7 @@ pyproject.toml
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
-    reason="numpy does not support Python 3.15 yet",
+    reason="scikit-image does not support Python 3.15 yet",
     strict=True,
 )
 @pytest.mark.venv
@@ -188,7 +188,7 @@ pyproject.toml
 @pytest.mark.xfail(
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
-    reason="numpy does not support Python 3.15 yet",
+    reason="scikit-learn does not support Python 3.15 yet",
     strict=True,
 )
 @pytest.mark.venv

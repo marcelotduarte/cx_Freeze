@@ -16,7 +16,9 @@ if [ -n "$UV_PYTHON" ]; then
     PYTHON=$(uv python find "$UV_PYTHON")
 elif which python &>/dev/null; then
     PYTHON=python
-else
+fi
+if [ -z "$PYTHON" ]; then
+    echo "Python not found!"
     exit 1
 fi
 PY_PLATFORM=$($PYTHON -c "import sysconfig; print(sysconfig.get_platform(), end='')")
@@ -117,19 +119,19 @@ _build_wheel () {
             export UV_LINK_MODE=copy
         fi
         if [ "$ZIP_SAFE" == "true" ]; then
-            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-        elif [[ $PY_PLATFORM == win* ]] && [[ ${args[0]} == *--only* ]]; then
-            uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
-        elif [[ $PY_PLATFORM == macos* ]] && [[ ${args[0]} == *--only* ]]; then
+            UV_NO_BUILD=0 \
             uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
         else
             if ! [ "$CI" == "true" ] && which podman &>/dev/null; then
                 export CIBW_CONTAINER_ENGINE=podman
             fi
-            if [ -f "$INSTALL_DIR/cibuildwheel" ]; then
+            if which uv &>/dev/null; then
+                uv tool run cibuildwheel "${args[@]}"
+            elif [ -f "$INSTALL_DIR/cibuildwheel" ]; then
                 "$INSTALL_DIR/cibuildwheel" "${args[@]}"
             else
-                uv tool run cibuildwheel "${args[@]}"
+                echo "cibuildwheel not found!"
+                exit 1
             fi
         fi
     fi
