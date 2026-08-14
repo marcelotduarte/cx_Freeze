@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import os
+import sys
 from importlib.machinery import SourceFileLoader
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MINGW
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -19,6 +22,11 @@ class Hook(ModuleHook):
     """The Hook class for rtree."""
 
     def rtree_finder(self, finder: ModuleFinder, module: Module) -> None:
+        if IS_MINGW:
+            bin_dir = Path(sys.base_prefix, "bin")
+            for source in bin_dir.glob("libspatialindex_c-*"):
+                target = f"lib/{source.name}"
+                finder.lib_files[source] = target
         spatialindex = None
         for source, target in finder.lib_files.items():
             if source.name.startswith(("spatialindex", "libspatialindex")):
