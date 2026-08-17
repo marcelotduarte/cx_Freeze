@@ -65,12 +65,14 @@ done
 
 echo "::group::Install dependencies and build tools"
 if [ "$IS_CONDA" == "1" ]; then
-    # Install libmamba-solver and use it to speed up packages installation
-    echo "Update conda to use libmamba-solver"
+    # Cleanup
+    $CONDA_EXE config --remove-key solver 2>/dev/null || true
+    $CONDA_EXE config --remove channels conda-pypi 2>/dev/null || true
     $CONDA_EXE clean --index-cache --logfiles --quiet --yes
-    $CONDA_EXE update -n base conda --quiet --yes
-    $CONDA_EXE install -n base conda-libmamba-solver --quiet --yes
-    $CONDA_EXE config --set solver libmamba
+    # Install rattler-solver for faster solves
+    echo "Update conda to use rattler-solver with conda-pypi plugin"
+    $CONDA_EXE install -n base "conda>=26.5" --quiet --yes
+    $CONDA_EXE config --set solver rattler
     if ! which python &>/dev/null; then
         $CONDA_EXE install -c conda-forge python -S -q -y
     fi
@@ -99,6 +101,18 @@ if [ "$IS_CONDA" == "1" ]; then
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
             pkgs+=("$name")
         done < tests/requirements.txt
+    fi
+
+    # add setuptools
+    found=false
+    for pkg in "${pkgs[@]}"; do
+        if [[ $pkg == setuptools* ]]; then
+            found=true
+            break
+        fi
+    done
+    if [ "$found" == false ]; then
+        pkgs+=("setuptools")
     fi
 
     echo "Install packages"

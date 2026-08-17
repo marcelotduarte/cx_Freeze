@@ -187,8 +187,8 @@ class Freezer:
         self._symlinks: set[tuple[Path, Path, bool]] = set()
         self.files_copied: set[Path] = set()
         self._warnings: dict[str, bool] = {}
-        self._check_installation()
         self.finder: ModuleFinder = self._get_module_finder()
+        self._check_installation()
 
     @property
     def target_dir(self) -> Path:
