@@ -12,7 +12,7 @@ import string
 import subprocess
 import sys
 import sysconfig
-from contextlib import redirect_stdout, suppress
+from contextlib import redirect_stdout
 from pathlib import Path
 from shutil import copytree, ignore_patterns, rmtree, which
 from textwrap import dedent
@@ -289,33 +289,36 @@ class TempPackage:
         # check backend values
         if backend is None:
             backend = self.backend
-        if backend in ("uv", "pip") and backend != self.backend:
-            # use a different backend only in conda and mingw
-            if self.backend in ("uv", "pip"):
-                backend = self.backend
-            else:
-                # ensure that extra backend (pip or uv) is installed
-                self.install(backend)
+        elif self.backend == "conda" and backend in ("pip", "uv"):
+            # conda>=26.5 supports conda-pypi (uv will be ignored)
+            backend = self.backend
+            # TODO: conda config --append channels conda-pypi
+        elif self.backend == "mingw" and backend in ("pip", "uv"):
+            # ensure that extra backend (pip or uv) is installed
+            self.install(backend)
+        else:
+            backend = self.backend
 
         with self._lock:
-            # for pip or uv, accept -e, -r # TODO: improve -r
-            if backend in ("uv", "pip") and packages[0].startswith("-"):
-                names_and_specs = packages
-            else:
-                names = []
-                names_and_specs = []
-                for package in packages:
-                    req = Requirement(package)
-                    if req.marker is not None and not req.marker.evaluate():
-                        continue
-                    names.append(req.name)
-                    names_and_specs.append(f"{req.name}{req.specifier!s}")
-                if not names:
-                    return None
-                if backend == "conda":
-                    return self._install_conda(names)
-                if backend == "mingw":
-                    return self._install_mingw(names)
+            names = []
+            names_and_specs = []
+            for package in packages:
+                # for conda, pip or uv, accept -e, -r # TODO: improve -r
+                if package.startswith("-"):
+                    names.append(package)
+                    names_and_specs = packages
+                    break
+                req = Requirement(package)
+                if req.marker is not None and not req.marker.evaluate():
+                    continue
+                names.append(req.name)
+                names_and_specs.append(f"{req.name}{req.specifier!s}")
+            if not names:
+                return None
+            if backend == "conda":
+                return self._install_conda(names_and_specs)
+            if backend == "mingw":
+                return self._install_mingw(names)
             return self._install_pip(
                 names_and_specs,
                 backend=backend,
@@ -355,7 +358,9 @@ class TempPackage:
         """Get installed packages."""
         if python is None:
             python = self.python
-        if self.backend == "uv":
+        if self.backend == "conda":
+            cmd = f"conda list --json -p {self.prefix} -q"
+        elif self.backend == "uv":
             cmd = f"uv pip list --format=json --python={python} -q"
         else:
             cmd = f"{python} -m pip list --format=json"
@@ -371,17 +376,51 @@ class TempPackage:
         return installed
 
     def _install_conda(self, packages: list[str]) -> pytest.RunResult:
+        editable = False
         for i, package in enumerate(packages):
-            with suppress(KeyError):
-                packages[i] = self.map_package_to_conda[package]
+            if package.startswith("-e"):
+                editable = True
+                break
+            try:
+                req = Requirement(package)
+            except InvalidRequirement:
+                break
+            if req.marker is not None and not req.marker.evaluate():
+                continue
+            try:
+                conda_name = self.map_package_to_conda[req.name]
+            except KeyError:
+                continue
+            if req.specifier:
+                conda_name = f"{conda_name}{req.specifier!s}"
+            packages[i] = conda_name
         packages: str = " ".join(packages)
-        cmd = f"conda install -S -q -y -p {self.prefix}"
-        if not any(
-            opc for opc in ("-c", "--channel", "::") if opc in packages
-        ):
-            cmd = f"{cmd} -c conda-forge"
+        if editable:
+            installed = self._get_installed_packages()
+            cmd = f"conda pypi install -p {self.prefix} -q -y"
+        else:
+            cmd = f"conda install -p {self.prefix} -q -y -S"
         cmd = f"{cmd} {packages}"
         result = self.run(cmd, cwd=self.system_path)
+        if editable:
+            names = [pkg["name"] for pkg in installed]
+            name_to_remove = None
+            for pkg in self._get_installed_packages():
+                name = pkg["name"]
+                if name not in names:
+                    name_to_remove = name
+                    break
+            if name_to_remove:
+
+                def _conda_remove_editable() -> None:
+                    cmd = (
+                        f"conda remove {name_to_remove} -p {self.prefix}"
+                        " -q -y --force --offline"
+                    )
+                    with io.StringIO() as f, redirect_stdout(f):
+                        self.run(cmd, cwd=self.system_path)
+
+                self.request.config.add_cleanup(_conda_remove_editable)
         if result.ret > 0:
             raise ModuleNotFoundError(packages) from None
         return result
@@ -661,7 +700,9 @@ class TempPackageVenv(TempPackage):
         else:
             # point to the new environment (or reuse an existing one)
             if scope == "function":  # default scope
-                self.venv_prefix = self.path / ".venv"
+                self.venv_prefix = self.path / (
+                    f".{self.backend}" if self.backend == "conda" else ".venv"
+                )
             else:
                 self.venv_prefix = self._root / f".{self.backend}-{self._name}"
                 self.lock()

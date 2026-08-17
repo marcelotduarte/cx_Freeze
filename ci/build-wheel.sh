@@ -114,6 +114,12 @@ _build_wheel () {
     read -ra args <<<"$*"
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
+        if [ "$IS_CONDA" == "1" ]; then
+            rm -rf "condahouse/$NORMALIZED_NAME"
+            mkdir -p "condahouse/$NORMALIZED_NAME"
+            $CONDA_EXE pypi convert "wheelhouse/$PKG_NAME" \
+                --output-folder "condahouse/$NORMALIZED_NAME"
+        fi
     else
         if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
             export UV_LINK_MODE=copy
@@ -165,23 +171,25 @@ echo "Name: $NAME ($NORMALIZED_NAME)"
 echo "Version: $VERSION ($NORMALIZED_VERSION)"
 echo "::endgroup::"
 
-mkdir -p wheelhouse >/dev/null
+WHEELHOUSE=$PWD/wheelhouse
+mkdir -p "$WHEELHOUSE" >/dev/null
 DIRTY=$(_get_dirty)
-FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION"
-FILEEXISTS=$(find "wheelhouse/$FILEMASK.tar.gz" 2>/dev/null || echo '')
+PKG_BASENAME="$NORMALIZED_NAME-$NORMALIZED_VERSION"
+FILEEXISTS=$(find "$WHEELHOUSE/$PKG_BASENAME.tar.gz" 2>/dev/null || echo '')
 if [ "$DIRTY" != "0" ] || [ -z "$FILEEXISTS" ]; then
     echo "::group::Build sdist"
     _build_sdist
     echo "::endgroup::"
 fi
 echo "::group::Build wheel(s)"
+PKG_NAME=$PKG_BASENAME.whl
 if [ "$BUILD_TAG" == "$BUILD_TAG_DEFAULT" ]; then
     if [ "$ZIP_SAFE" == "true" ]; then
-        FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$BUILD_TAG_DEFAULT"
+        PKG_NAME="$PKG_BASENAME-$BUILD_TAG_DEFAULT.whl"
     else
-        FILEMASK="$NORMALIZED_NAME-$NORMALIZED_VERSION-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK"
+        PKG_NAME="$PKG_BASENAME-$PYTHON_TAG-$PYTHON_TAG$PY_ABI_THREAD-$PLATFORM_TAG_MASK.whl"
     fi
-    FILEEXISTS=$(find "wheelhouse/$FILEMASK.whl" 2>/dev/null || echo '')
+    FILEEXISTS=$(find "$WHEELHOUSE/$PKG_NAME" 2>/dev/null || echo '')
     if [ "$DIRTY" != "0" ] || [ -z "$FILEEXISTS" ]; then
         _build_wheel --only "$BUILD_TAG_DEFAULT"
     fi
@@ -194,12 +202,20 @@ echo "::endgroup::"
 
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
-    if [[ $PY_PLATFORM == mingw* ]]; then
-        PIP_COMMAND="pip install --break-system-packages --force-reinstall"
+    if [ "$IS_CONDA" == "1" ]; then
+        PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/$NAME-$NORMALIZED_VERSION-pypi_0.conda"
+        if ! [ -f "$PKG_CONDA" ]; then
+            PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/$PKG_BASENAME-pypi_0.conda"
+        fi
+        $CONDA_EXE install "$PKG_CONDA" --force-reinstall --no-deps --yes
     else
-        PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
+        if [ "$IS_MINGW" == "1" ]; then
+            PIP_COMMAND="pip install --break-system-packages --force-reinstall"
+        else
+            PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
+        fi
+        $PIP_COMMAND "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f "$WHEELHOUSE" \
+            --no-deps --no-index
     fi
-    $PIP_COMMAND "$NORMALIZED_NAME==$NORMALIZED_VERSION" -f wheelhouse \
-        --no-deps --no-index
     echo "::endgroup::"
 fi
