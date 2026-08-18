@@ -77,61 +77,66 @@ def find_duplicates_libs(build_lib_dir: Path) -> dict[str, list[str]]:
     return {k: v for k, v in libs.items() if len(v) > 1}
 
 
+def skip_unsupported(qt_impl: str) -> str | None:
+    """Skip if the Qt variant is not supported in the test system."""
+    msg = None
+    if IS_CONDA:
+        if qt_impl == "PyQt6":
+            msg = f"{qt_impl} not supported in conda"
+        elif qt_impl == "PySide2" and sys.version_info[:2] >= (3, 13):
+            msg = "PySide2 does not support Python 3.13+ on conda"
+    elif qt_impl == "PySide2":
+        if IS_MACOS:
+            msg = "PySide2 does not support macOS"
+        elif not IS_MINGW and sys.version_info[:2] >= (3, 11):
+            msg = "PySide2 does not support Python 3.11+"
+    elif qt_impl in ("PyQt5", "PyQt6") and sys.version_info[:2] >= (3, 15):
+        msg = f"{qt_impl} does not support Python 3.15+"
+    elif (
+        qt_impl in ("PyQt5", "PySide2")
+        and (IS_LINUX or IS_WINDOWS)
+        and IS_ARM_64
+    ):
+        msg = f"{qt_impl} not supported in arm64"
+    elif qt_impl in ("PyQt6", "PySide6") and IS_LINUX:
+        from platform import libc_ver  # noqa: PLC0415
+
+        version_raw = libc_ver()
+        version = tuple(map(int, version_raw[1].split(".")))
+        if version < (2, 28):
+            return (
+                f"{qt_impl} requires glibc>=2.28, "
+                f"found {version_raw[0]} {version_raw[1]}"
+            )
+    return msg
+
+
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="Qt does not support Python 3.14t",
+    reason="Qt does not support Python 3.14t/3.15t",
     strict=True,
 )
 @pytest.mark.venv
 @pytest.mark.parametrize("qt_impl", ["PyQt6", "PySide6", "PyQt5", "PySide2"])
 def test_qt(tmp_package: TempPackage, qt_impl: str) -> None:
     """Test if qt is working correctly."""
-    if IS_CONDA:
-        if qt_impl == "PyQt6":
-            pytest.skip(f"{qt_impl} not supported in conda")
-        if qt_impl == "PySide2" and sys.version_info[:2] >= (3, 13):
-            pytest.skip("PySide2 does not support Python 3.13+ on conda")
-    else:
-        if qt_impl == "PySide2":
-            if IS_MACOS:
-                pytest.skip("PySide2 does not support macOS")
-            if not IS_MINGW and sys.version_info[:2] >= (3, 11):
-                pytest.skip("PySide2 does not support Python 3.11+")
-        if qt_impl in ("PyQt5", "PyQt6") and sys.version_info[:2] >= (3, 15):
-            pytest.skip(f"{qt_impl} does not support Python 3.15+")
-        if (
-            qt_impl in ("PyQt5", "PySide2")
-            and (IS_LINUX or IS_WINDOWS)
-            and IS_ARM_64
-        ):
-            pytest.skip(f"{qt_impl} not supported in arm64")
-        if qt_impl in ("PyQt6", "PySide6") and IS_LINUX:
-            from platform import libc_ver  # noqa: PLC0415
+    msg = skip_unsupported(qt_impl)
+    if msg is not None:
+        pytest.skip(msg)
 
-            version_raw = libc_ver()
-            version = tuple(map(int, version_raw[1].split(".")))
-            if version < (2, 28):
-                pytest.skip(
-                    f"{qt_impl} requires glibc>=2.28, "
-                    f"found {version_raw[0]} {version_raw[1]}"
-                )
-
-    tmp_package.map_package_to_conda.update(
-        {
-            "PyQt5": "pyqt=5",
-            "PySide2": "pyside2",
-            "PySide6": "pyside6",
-        }
-    )
-    tmp_package.map_package_to_mingw.update(
-        {
-            "PyQt5": "python-pyqt5",
-            "PyQt6": "python-pyqt6",
-            "PySide2": "pyside2",
-            "PySide6": "pyside6",
-        }
-    )
+    tmp_package.map_package_to_conda |= {
+        "PyQt5": "pyqt=5",
+        "PyQt6": "pyqt=6",
+        "PySide2": "pyside2",
+        "PySide6": "pyside6",
+    }
+    tmp_package.map_package_to_mingw |= {
+        "PyQt5": "python-pyqt5",
+        "PyQt6": "python-pyqt6",
+        "PySide2": "pyside2",
+        "PySide6": "pyside6",
+    }
 
     # Freeze the app and check if it is created
     tmp_package.create(SOURCE_QT % {"qt_mod": qt_impl})

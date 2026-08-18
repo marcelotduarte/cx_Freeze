@@ -79,7 +79,7 @@ Workflows = "https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:ma
 
 [dependency-groups]
 dev = [
-    "prek>=0.4.13,<0.5.0",
+    "prek>=0.4.14,<0.5.0",
 ]
 doc = [
     "sphinx>=9.1.0,<9.2.0",
@@ -209,6 +209,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:pkg_resources.*",
     "ignore::DeprecationWarning:setuptools.*",
 ]
+strict_parametrization_ids = true
 
 [tool.ruff]
 extend-exclude = [
