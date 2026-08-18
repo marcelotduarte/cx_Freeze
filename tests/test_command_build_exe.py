@@ -35,7 +35,9 @@ DIST_ATTRS = {
             id="build-exe=none",
         ),
         pytest.param(
-            {"build_exe": "dist"}, {"build_exe": "dist"}, id="build-exe=dist"
+            {"build_exe": "dist"},
+            {"build_exe": "dist"},
+            id="build-exe=dist",
         ),
         pytest.param(
             {"excludes": "tkinter"},
@@ -92,23 +94,45 @@ DIST_ATTRS = {
             {"replace_paths": ["*="]},
             id="replace_paths=[*=]",
         ),
-        pytest.param({"silent": None}, {"silent": 0}, id="silent=none->0"),
-        pytest.param({"silent": False}, {"silent": 0}, id="silent=false->0"),
-        pytest.param({"silent": True}, {"silent": 1}, id="silent=true->1"),
         pytest.param(
-            {"silent_level": None}, {"silent": 0}, id="silent-level=none->0"
+            {"silent": None},
+            {"silent": 0},
+            id="silent=none->0",
         ),
         pytest.param(
-            {"silent_level": 0}, {"silent": 0}, id="silent-level=0->0"
+            {"silent": False},
+            {"silent": 0},
+            id="silent=false->0",
         ),
         pytest.param(
-            {"silent_level": 1}, {"silent": 1}, id="silent-level=1->1"
+            {"silent": True},
+            {"silent": 1},
+            id="silent=true->1",
         ),
         pytest.param(
-            {"silent_level": 2}, {"silent": 2}, id="silent-level=2->2"
+            {"silent_level": None},
+            {"silent": 0},
+            id="silent-level=none->0",
         ),
         pytest.param(
-            {"silent_level": "3"}, {"silent": 3}, id="silent-level=3->3"
+            {"silent_level": 0},
+            {"silent": 0},
+            id="silent-level=0->0",
+        ),
+        pytest.param(
+            {"silent_level": 1},
+            {"silent": 1},
+            id="silent-level=1->1",
+        ),
+        pytest.param(
+            {"silent_level": 2},
+            {"silent": 2},
+            id="silent-level=2->2",
+        ),
+        pytest.param(
+            {"silent_level": "3"},
+            {"silent": 3},
+            id="silent-level=3->3",
         ),
         pytest.param(
             {"zip_include_packages": None, "zip_exclude_packages": None},
@@ -159,17 +183,17 @@ DIST_ATTRS = {
         pytest.param(
             {},
             {"no_compress": False, "zip_filename": "library.zip"},
-            id="zip_filename=",
+            id="empty/zip_filename=library.zip",
         ),
         pytest.param(
             {"no_compress": None},
             {"no_compress": False, "zip_filename": "library.zip"},
-            id="zip_filename=",
+            id="no_compress=none/zip_filename=library.zip",
         ),
         pytest.param(
             {"no_compress": False},
             {"no_compress": False, "zip_filename": "library.zip"},
-            id="no_compress=false",
+            id="no_compress=false/zip_filename=library.zip",
         ),
         pytest.param(
             {"no_compress": True},
@@ -226,21 +250,35 @@ def test_build_exe_call_invalid(
             id="--build-exe=",
         ),
         pytest.param(
-            ["--build-exe=dist"], {"build_exe": "dist"}, id="--build-exe=dist"
+            ["--build-exe=dist"],
+            {"build_exe": "dist"},
+            id="--build-exe=dist",
         ),
-        pytest.param(["--excludes="], {"excludes": []}, id="--excludes="),
+        pytest.param(
+            ["--excludes="],
+            {"excludes": []},
+            id="--excludes=",
+        ),
         pytest.param(
             ["--excludes=tkinter"],
             {"excludes": ["tkinter"]},
             id="--excludes=tkinter",
         ),
-        pytest.param(["--includes="], {"includes": []}, id="--includes="),
+        pytest.param(
+            ["--includes="],
+            {"includes": []},
+            id="--includes=",
+        ),
         pytest.param(
             ["--includes=tkinter"],
             {"includes": ["tkinter"]},
             id="--includes=tkinter",
         ),
-        pytest.param(["--packages="], {"packages": []}, id="--packages="),
+        pytest.param(
+            ["--packages="],
+            {"packages": []},
+            id="--packages=",
+        ),
         pytest.param(
             ["--packages=tkinter"],
             {"packages": ["tkinter"]},
@@ -252,10 +290,14 @@ def test_build_exe_call_invalid(
             id="--replace-paths=*=",
         ),
         pytest.param(
-            ["--bin-excludes="], {"bin_excludes": []}, id="--bin-excludes="
+            ["--bin-excludes="],
+            {"bin_excludes": []},
+            id="--bin-excludes=",
         ),
         pytest.param(
-            ["--bin-includes="], {"bin_includes": []}, id="--bin-includes="
+            ["--bin-includes="],
+            {"bin_includes": []},
+            id="--bin-includes=",
         ),
         pytest.param(
             ["--bin-path-excludes="],
@@ -268,10 +310,14 @@ def test_build_exe_call_invalid(
             id="--bin-path-includes=",
         ),
         pytest.param(
-            ["--include-files="], {"include_files": []}, id="--include-files="
+            ["--include-files="],
+            {"include_files": []},
+            id="--include-files=",
         ),
         pytest.param(
-            ["--zip-includes="], {"zip_includes": []}, id="--zip-includes="
+            ["--zip-includes="],
+            {"zip_includes": []},
+            id="--zip-includes=",
         ),
         pytest.param(
             [],
@@ -329,29 +375,75 @@ def test_build_exe_call_invalid(
             {"no_compress": True, "zip_filename": None},
             id="--no-compress",
         ),
-        pytest.param([], {"optimize": 0}, id="--optimize(notused)"),
-        pytest.param(["--optimize=0"], {"optimize": 0}, id="--optimize=0"),
-        pytest.param(["--optimize=1"], {"optimize": 1}, id="--optimize=1"),
-        pytest.param(["--optimize=2"], {"optimize": 2}, id="--optimize=2"),
-        pytest.param(["-O0"], {"optimize": 0}, id="--optimize(-O0"),
-        pytest.param(["-O1"], {"optimize": 1}, id="--optimize(-O1"),
-        pytest.param(["-O2"], {"optimize": 2}, id="--optimize(-O2"),
-        pytest.param([], {"silent": 0}, id="--silent(notused)"),
-        pytest.param(["--silent"], {"silent": 1}, id="--silent"),
         pytest.param(
-            ["--silent-level=0"], {"silent": 0}, id="--silent-level=0->0"
+            [],
+            {"optimize": 0},
+            id="--optimize(notused)",
         ),
         pytest.param(
-            ["--silent-level=1"], {"silent": 1}, id="--silent-level=1->1"
+            ["--optimize=0"],
+            {"optimize": 0},
+            id="--optimize=0",
         ),
         pytest.param(
-            ["--silent-level=2"], {"silent": 2}, id="--silent-level=2->2"
+            ["--optimize=1"],
+            {"optimize": 1},
+            id="--optimize=1",
         ),
         pytest.param(
-            ["--silent-level=3"], {"silent": 3}, id="--silent-level=3->3"
+            ["--optimize=2"],
+            {"optimize": 2},
+            id="--optimize=2",
         ),
         pytest.param(
-            [], {"include_msvcr": False}, id="--include-msvcr(notused)"
+            ["-O0"],
+            {"optimize": 0},
+            id="--optimize=-O0",
+        ),
+        pytest.param(
+            ["-O1"],
+            {"optimize": 1},
+            id="--optimize=-O1",
+        ),
+        pytest.param(
+            ["-O2"],
+            {"optimize": 2},
+            id="--optimize=-O2",
+        ),
+        pytest.param(
+            [],
+            {"silent": 0},
+            id="--silent(notused)",
+        ),
+        pytest.param(
+            ["--silent"],
+            {"silent": 1},
+            id="--silent",
+        ),
+        pytest.param(
+            ["--silent-level=0"],
+            {"silent": 0},
+            id="--silent-level=0->0",
+        ),
+        pytest.param(
+            ["--silent-level=1"],
+            {"silent": 1},
+            id="--silent-level=1->1",
+        ),
+        pytest.param(
+            ["--silent-level=2"],
+            {"silent": 2},
+            id="--silent-level=2->2",
+        ),
+        pytest.param(
+            ["--silent-level=3"],
+            {"silent": 3},
+            id="--silent-level=3->3",
+        ),
+        pytest.param(
+            [],
+            {"include_msvcr": False},
+            id="--include-msvcr(notused)",
         ),
         pytest.param(
             ["--include-msvcr"],
