@@ -68,7 +68,7 @@ repos:
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 757b1b0ee6dce6b1541bbe70218055b62aaeb051 # frozen: v0.0.72
+    rev: e0bc482078af7eee1555b1f01d27e618d2212720 # frozen: v0.0.73
     hooks:
       - id: ty
         args: [--no-sync]

@@ -258,7 +258,7 @@ def test_editable_packages(
 ) -> None:
     """Provides test cases for ModuleFinder class."""
     tmp_package.create(source)
-    tmp_package.install(["-e", f"{tmp_package.path}/foo-bar"], backend="pip")
+    tmp_package.install_editable(f"{tmp_package.path}/foo-bar")
     _do_test(
         import_this,
         modules,
