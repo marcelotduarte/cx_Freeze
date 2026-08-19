@@ -23,7 +23,7 @@ pylint:
 clean: uninstall
 	@$(MAKE) -C doc clean
 	@rm -f .coverage* || true
-	@rm -rf build dist wheelhouse
+	@rm -rf build dist condahouse wheelhouse
 	@prek cache clean -q
 
 .PHONY: install
@@ -51,10 +51,8 @@ html:
 	else\
 		$(MAKE) -C doc html;\
 	fi
-
-.PHONY: htmltest
-htmltest:
-	$(MAKE) -C doc test
+	@echo -n "See the "
+	@echo -e "\e]8;;file://$(PWD)/build/doc/html/index.html\e\\documentation\e]8;;\e\\."
 
 .PHONY: doc
 doc:
