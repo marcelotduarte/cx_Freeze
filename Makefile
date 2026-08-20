@@ -51,8 +51,8 @@ html:
 	else\
 		$(MAKE) -C doc html;\
 	fi
-	@echo -n "See the "
-	@echo -e "\e]8;;file://$(PWD)/build/doc/html/index.html\e\\documentation\e]8;;\e\\."
+	@echo -n "Wrote HTML documentation to "
+	@echo -e "\e]8;;file://$(PWD)/build/doc/html/index.html\e\\\build/doc/html\e]8;;\e\\"
 
 .PHONY: doc
 doc:

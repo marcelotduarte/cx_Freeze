@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING, cast
 
@@ -115,7 +116,7 @@ def skip_unsupported(qt_impl: str) -> str | None:
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="Qt does not support Python 3.14t/3.15t",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @pytest.mark.parametrize("qt_impl", ["PyQt6", "PySide6", "PyQt5", "PySide2"])

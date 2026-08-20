@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING
 
@@ -117,7 +118,7 @@ def _parameters_data() -> list:
     IS_WINDOWS and IS_ARM_64,
     raises=ModuleNotFoundError,
     reason="multiprocess does not support Windows arm64",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv(scope="module")
 @pytest.mark.parametrize(

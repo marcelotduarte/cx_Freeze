@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING
 
@@ -63,7 +64,7 @@ pyproject.toml
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
     reason="scipy does not support Python 3.15 yet",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @zip_packages
@@ -137,7 +138,7 @@ pyproject.toml
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
     reason="scikit-image does not support Python 3.15 yet",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @zip_packages
@@ -189,7 +190,7 @@ pyproject.toml
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
     reason="scikit-learn does not support Python 3.15 yet",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @zip_packages
