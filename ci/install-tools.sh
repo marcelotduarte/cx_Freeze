@@ -68,7 +68,7 @@ if [ "$IS_CONDA" == "1" ]; then
     # Cleanup
     $CONDA_EXE config --remove-key solver 2>/dev/null || true
     $CONDA_EXE config --remove channels conda-pypi 2>/dev/null || true
-    $CONDA_EXE clean --index-cache --logfiles --quiet --yes
+    $CONDA_EXE clean --all --quiet --yes
     # Install rattler-solver for faster solves
     echo "Update conda to use rattler-solver with conda-pypi plugin"
     $CONDA_EXE install -n base "conda>=26.5" --quiet --yes

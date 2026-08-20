@@ -112,6 +112,7 @@ _build_sdist () {
 _build_wheel () {
     local args
     read -ra args <<<"$*"
+    rm -f "wheelhouse/$PKG_NAME"
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
         if [ "$IS_CONDA" == "1" ]; then
@@ -207,7 +208,8 @@ if [ "$INSTALL" == "1" ]; then
         if ! [ -f "$PKG_CONDA" ]; then
             PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/$PKG_BASENAME-pypi_0.conda"
         fi
-        $CONDA_EXE install "$PKG_CONDA" --force-reinstall --no-deps --yes
+        $CONDA_EXE remove "$NORMALIZED_NAME" --force --yes || true
+        $CONDA_EXE install "$PKG_CONDA" --no-deps --yes
     else
         if [ "$IS_MINGW" == "1" ]; then
             PIP_COMMAND="pip install --break-system-packages --force-reinstall"

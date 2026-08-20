@@ -10,6 +10,7 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 from abc import ABC, abstractmethod
 from contextlib import suppress
 from ctypes.util import find_library
@@ -285,7 +286,8 @@ class ELFParser(Parser):
         warnings: dict[str, bool],
     ) -> None:
         super().__init__(path, bin_path_includes, silent, warnings)
-        self._patchelf = shutil.which("patchelf")
+        # Search for patchelf on binary directory of the venv.
+        self._patchelf = shutil.which("patchelf", path=Path(sys.prefix, "bin"))
         self._verify_patchelf()
 
     def find_library(
@@ -447,11 +449,16 @@ class ELFParser(Parser):
             filename.chmod(mode | stat.S_IWUSR)
 
     def _verify_patchelf(self) -> None:
-        """Look for the ``patchelf`` external binary in the PATH.
+        """Look for the ``patchelf`` external binary.
+
+        The default is the search on binary directory of the venv.
+        Otherwise, search the PATH environment variable.
 
         Checks for the required version, and throws an exception if a proper
         version can't be found. Otherwise, silence is golden.
         """
+        if not self._patchelf:
+            self._patchelf = shutil.which("patchelf")
         if not self._patchelf:
             msg = "Cannot find required utility `patchelf` in PATH"
             raise PlatformError(msg)

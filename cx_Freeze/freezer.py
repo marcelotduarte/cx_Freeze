@@ -1402,8 +1402,11 @@ class LinuxFreezer(Freezer, ELFParser):
 
     def _get_top_dependencies(self, source: StrPath) -> None:  # noqa: ARG002
         lib_files = self.finder.lib_files
-        for path in map(Path, self.default_bin_includes):
-            lib_files.setdefault(path, f"lib/{path.name}")
+        for src in map(Path, self.default_bin_includes):
+            tgt = f"lib/{src.name}"
+            lib_files.setdefault(src, tgt)
+            if IS_CONDA:
+                self.finder.include_files(src, tgt)
 
     def _post_copy_hook(
         self,

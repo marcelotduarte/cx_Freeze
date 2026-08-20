@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import stat
 import sys
@@ -105,7 +106,15 @@ def test_elf_parser(tmp_package: TempPackage) -> None:
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_verify_patchelf(monkeypatch: pytest.MonkeyPatch) -> None:
     """Test the _verify_patchelf."""
-    monkeypatch.setattr("shutil.which", lambda cmd: cmd != "patchelf")
+
+    def _which(
+        cmd: str,
+        mode: int = os.F_OK | os.X_OK,  # noqa: ARG001
+        path: str | None = None,  # noqa: ARG001
+    ) -> str | None:
+        return None if cmd == "patchelf" else cmd
+
+    monkeypatch.setattr("shutil.which", _which)
     msg = "Cannot find required utility `patchelf` in PATH"
     with pytest.raises(PlatformError, match=msg):
         ELFParser([], [], 0, {})
@@ -119,8 +128,15 @@ def test_verify_patchelf_older(tmp_package: TempPackageVenv) -> None:
     tmp_package.create(SOURCE)
     tmp_package.install("patchelf<0.14")
 
-    tmp_bin = (tmp_package.venv_prefix or tmp_package.prefix) / "bin"
-    tmp_package.monkeypatch.setattr("shutil.which", lambda cmd: tmp_bin / cmd)
+    def _which(
+        cmd: str,
+        mode: int = os.F_OK | os.X_OK,  # noqa: ARG001
+        path: str | None = None,  # noqa: ARG001
+    ) -> str | None:
+        prefix = tmp_package.venv_prefix or tmp_package.prefix
+        return prefix.joinpath("bin", cmd).as_posix()
+
+    tmp_package.monkeypatch.setattr("shutil.which", _which)
     msg = r"patchelf\s+(\d+(.\d+)?)\s+found."
     with pytest.raises(ValueError, match=msg):
         ELFParser([], [], 0, {})
