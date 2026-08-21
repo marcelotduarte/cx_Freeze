@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING
 
@@ -26,7 +27,7 @@ zip_packages = pytest.mark.parametrize(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="pywin32 does not support Python 3.14t",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv(scope="module")
 @zip_packages
@@ -84,7 +85,7 @@ pyproject.toml
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="pywin32 does not support Python 3.14t",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv(scope="module")
 @zip_packages

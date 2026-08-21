@@ -56,6 +56,7 @@ def load__argon2_cffi_bindings(finder: ModuleFinder, module: Module) -> None:
 
     This package is distributed with argon2-cffi package.
     """
+    module.update_distribution("argon2-cffi-bindings")
     _include_cffi_backend(finder, module)
 
 

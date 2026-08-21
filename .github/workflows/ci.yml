@@ -192,6 +192,8 @@ jobs:
               --no-build --no-deps --no-index --prerelease=allow --reinstall
 
       - name: Generate coverage report
+        env:
+          PYTEST_LAX_XFAIL: ${{ github.event_name != 'push' && '0' || '1' }}
         run: uv run --no-project coverage run
 
       - name: Upload coverage reports

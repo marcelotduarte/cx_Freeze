@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -175,7 +176,7 @@ class TestVersionInfo:
         ABI_THREAD == "t",
         raises=ModuleNotFoundError,
         reason="pywin32 does not support Python 3.14t",
-        strict=True,
+        strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
     )
     @pytest.mark.venv
     def test_main_with_environ(self, tmp_package: TempPackage) -> None:

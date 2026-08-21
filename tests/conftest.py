@@ -120,6 +120,9 @@ class TempPackage:
         # packages mapping
         self.map_package_to_conda: dict[str, str] = {
             "cx-logging": "cx_logging",
+            "cx_Logging": "cx_logging",
+            "cx-freeze": "cx_freeze",
+            "cx_Freeze": "cx_freeze",
             "lief": "py-lief",
         }
         self.map_package_to_mingw: dict[str, str] = {}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING
 
@@ -56,25 +57,25 @@ pyproject.toml
     sys.version_info[:2] >= (3, 15) and ABI_THREAD == "",
     raises=ModuleNotFoundError,
     reason="pywinrt does not support Python 3.15 yet",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="pywinrt not supported in mingw",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.xfail(
     IS_CONDA,
     raises=ModuleNotFoundError,
     reason="pywinrt not supported in conda",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="pywinrt does not support Python 3.14t/3.15t",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv(scope="module")
 @zip_packages

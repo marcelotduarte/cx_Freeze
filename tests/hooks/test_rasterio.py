@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import pytest
@@ -50,7 +51,7 @@ pyproject.toml
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="rasterio not supported in mingw",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @zip_packages

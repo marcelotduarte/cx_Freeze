@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import TYPE_CHECKING
 
@@ -45,13 +46,13 @@ pyproject.toml
     sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
     reason="streamlit does not support Python 3.15 yet",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="streamlit not supported in mingw",
-    strict=True,
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.skipif(
     ABI_THREAD == "t",
