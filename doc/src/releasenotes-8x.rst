@@ -1,6 +1,139 @@
 8.x releases
 ############
 
+Version 8.7 (2026-08-21)
+------------------------
+
+#)  tests(ci): disable strict xfail mode on push events (:pr:`3423`) :user:`marcelotduarte`
+#)  chore: fixes to build, test and run on miniconda (:pr:`3422`) :user:`marcelotduarte`
+#)  tests: improve support for testing w/ editable (dev) packages (:pr:`3421`) :user:`marcelotduarte`
+#)  tests: improve qt tests and fix strict parametrization ids (:pr:`3420`) :user:`marcelotduarte`
+#)  chore: improve support for testing using conda>=26.5 (:pr:`3419`) :user:`marcelotduarte`
+#)  hooks: rtree on mingw (:pr:`3418`) :user:`marcelotduarte`
+#)  doc: improve documentation, especially regarding the cxfreeze script (:pr:`3416`) :user:`marcelotduarte`
+#)  tests: make tests pass due to new NumPy 2.5.2 with support for Python 3.15 (:pr:`3417`) :user:`marcelotduarte`
+#)  build(deps): bump setuptools and patchelf dependencies (:pr:`3415`) :user:`marcelotduarte`
+#)  chore: add support for Python 3.15 (:pr:`3412`) :user:`marcelotduarte`
+#)  hooks: tkinter using tcl/tk 9 - Python 3.14.7+ Windows (:pr:`3414`) :user:`marcelotduarte`
+#)  hooks: add rtree (:pr:`3399`) :user:`marcelotduarte`
+#)  hooks: importlib (fix support to freeze-core 0.7) (:pr:`3413`) :user:`marcelotduarte`
+#)  build(deps): bump the monthly-batch group with 10 updates (:pr:`3411`) :user:`dependabot`
+#)  dependabot: modify settings to group updates (:pr:`3410`) :user:`marcelotduarte`
+#)  hooks: minor tweaks in numpy, pandas, ... (:pr:`3409`) :user:`marcelotduarte`
+#)  hooks: rasterio 1.5.0 (:pr:`3408`) :user:`marcelotduarte`
+#)  fix: compatibility with ty 0.0.64 (:pr:`3406`) :user:`marcelotduarte`
+#)  chore: improve build and dev scripts (:pr:`3405`) :user:`marcelotduarte`
+#)  chore: ruff PLR0917 (:pr:`3404`) :user:`marcelotduarte`
+#)  hooks: fix streamlit 1.57-1.60 (continues to support >=1.51) (:pr:`3403`) :user:`marcelotduarte`
+#)  bdist_mac: add support for CFBundleVersion (:pr:`3402`) :user:`marcelotduarte`
+#)  cli: remove deprecated behaviour of cxfreeze script (:pr:`3401`) :user:`marcelotduarte`
+#)  Update dev tools (:pr:`3400`) :user:`marcelotduarte`
+#)  tests: improve some tests to be more robust (:pr:`3398`) :user:`marcelotduarte`
+#)  ci(workflows): add zizmor security auditing (:pr:`3397`) :user:`marcelotduarte`
+#)  tests: two new tests to improve coverage (:pr:`3396`) :user:`marcelotduarte`
+#)  hooks: fine-tuning modules' excludes, globals, and ignores sets (:pr:`3395`) :user:`marcelotduarte`
+#)  build(deps): bump github/codeql-action/autobuild from 4.36.2 to 4.36.3 (:pr:`3390`) :user:`dependabot`
+#)  build(deps): bump j178/prek-action from 2.0.4 to 2.0.5 (:pr:`3394`) :user:`dependabot`
+#)  chore: refactor default excludes and default ignore names (:pr:`3389`) :user:`marcelotduarte`
+#)  finder: search for alias of package (previously limited to modules) (:pr:`3388`) :user:`marcelotduarte`
+#)  tests: make environment work and tests pass on MSYS2 (:pr:`3386`) :user:`marcelotduarte`
+#)  fix: type check errors found by ty 0.0.61 (:pr:`3387`) :user:`marcelotduarte`
+#)  bdist_dmg: fix option on command line (:pr:`3382`) :user:`marcelotduarte`
+#)  chore: add support for frozen modules included w/ freeze-core 0.7+ (:pr:`3383`) :user:`marcelotduarte`
+#)  Bump version: 8.6.4 → 8.7.0.dev0 [ci skip] (:pr:`3384`) :user:`marcelotduarte`
+#)  hooks: add comtypes.stream build hook for frozen builds (:pr:`3354`) :user:`mvanhorn`
+#)  fix: prevents additional modules from being copied (related to #3375) (:pr:`3378`) :user:`marcelotduarte`
+#)  chore: ruff D205 and D401 (:pr:`3377`) :user:`marcelotduarte`
+#)  chore: bump lief requirement from >=0.16.0,<0.18 to >=0.16.0,<=1.0.0 (:pr:`3376`) :user:`marcelotduarte`
+#)  finder: complementary to #3372 optimization (:pr:`3375`) :user:`marcelotduarte`
+#)  build(deps): bump py-cov-action/python-coverage-comment-action from 3.41 to 4.1 (:pr:`3374`) :user:`dependabot`
+#)  build(deps): bump actions/setup-python from 6.2.0 to 6.3.0 (:pr:`3373`) :user:`dependabot`
+#)  finder: optimize/reduce the modules in the resulting frozen executable (:pr:`3372`) :user:`marcelotduarte`
+#)  finder: memory micro-optimization by avoiding redundant variables (:pr:`3371`) :user:`marcelotduarte`
+#)  chore: bump setuptools requirement from >=78.1.1,<83.0 to >=78.1.1,<84.0 (:pr:`3370`) :user:`marcelotduarte`
+#)  finder: memory storage optimization by avoiding redundant variables (:pr:`3369`) :user:`marcelotduarte`
+#)  build(deps): bump actions/checkout from 6.0.3 to 7.0.0 (:pr:`3366`) :user:`dependabot`
+#)  hooks: fix type check error (:pr:`3367`) :user:`marcelotduarte`
+#)  chore: refactor tests of stdlib hooks (:pr:`3365`) :user:`marcelotduarte`
+#)  build(deps): bump actions/checkout from 6.0.2 to 6.0.3 (:pr:`3364`) :user:`dependabot`
+#)  build(deps): bump astral-sh/setup-uv from 8.1.0 to 8.2.0 (:pr:`3363`) :user:`dependabot`
+#)  build(deps): bump github/codeql-action from 4.36.0 to 4.36.2 (:pr:`3362`) :user:`dependabot`
+#)  chore: improve metadata handling by mapping imports to their distributions (:pr:`3361`) :user:`marcelotduarte`
+#)  hooks: support scipy 1.18.0rc2 and minor updates to other hooks (:pr:`3360`) :user:`marcelotduarte`
+#)  tests: improves testing routine to better handle venv (:pr:`3358`) :user:`marcelotduarte`
+#)  build(deps): supports pytest 9.1 (:pr:`3359`) :user:`marcelotduarte`
+#)  chore: ty-pre-commit (:pr:`3356`) :user:`marcelotduarte`
+#)  tests: improve test for setuptools hooks (:pr:`3355`) :user:`marcelotduarte`
+#)  chore: refactor DistributionCache to a new internal module (:pr:`3353`) :user:`marcelotduarte`
+#)  build(deps): bump step-security/harden-runner from 2.19.3 to 2.19.4 (:pr:`3352`) :user:`dependabot`
+#)  build(deps): bump github/codeql-action from 4.35.5 to 4.36.0 (:pr:`3351`) :user:`dependabot`
+#)  chore: ruff D205 (partial) (:pr:`3350`) :user:`marcelotduarte`
+#)  finder: refactor imports and docstrings to make it cleaner (:pr:`3349`) :user:`marcelotduarte`
+#)  build(deps): bump github/codeql-action from 4.35.4 to 4.35.5 (:pr:`3347`) :user:`dependabot`
+#)  build(deps): bump step-security/harden-runner from 2.19.1 to 2.19.3 (:pr:`3346`) :user:`dependabot`
+#)  build(deps): bump j178/prek-action from 2.0.3 to 2.0.4 (:pr:`3345`) :user:`dependabot`
+#)  doc: refactor the list of options to support kebab-case (:pr:`3344`) :user:`marcelotduarte`
+#)  chore: small type check revision (:pr:`3343`) :user:`marcelotduarte`
+#)  chore: change the way 'ty' is used, including in the CI workflow (:pr:`3341`) :user:`marcelotduarte`
+#)  chore: improve lief usage (update lief requirement to >=0.16.0) (:pr:`3342`) :user:`marcelotduarte`
+#)  build(deps): bump actions/dependency-review-action from 4.9.0 to 5.0.0 (:pr:`3340`) :user:`dependabot`
+#)  build(deps): bump github/codeql-action from 4.35.3 to 4.35.4 (:pr:`3339`) :user:`dependabot`
+#)  chore: support kebab-case parameters in pyproject.toml (:pr:`3313`) :user:`marcelotduarte`
+#)  chore: type annotation (:pr:`3336`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (ninth/final set) (:pr:`3334`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (eighth set) (:pr:`3333`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (seventh set) (:pr:`3332`) :user:`marcelotduarte`
+#)  build(deps): bump github/codeql-action from 4.35.2 to 4.35.3 (:pr:`3330`) :user:`dependabot`
+#)  build(deps): bump step-security/harden-runner from 2.19.0 to 2.19.1 (:pr:`3328`) :user:`dependabot`
+#)  chore: add typecheck using 'ty' (sixth set) (:pr:`3331`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (fifth set) (:pr:`3327`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (fourth set) (:pr:`3326`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (third set) (:pr:`3325`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (second set) (:pr:`3324`) :user:`marcelotduarte`
+#)  chore: add typecheck using 'ty' (first set of changes) (:pr:`3323`) :user:`marcelotduarte`
+#)  build(deps): bump step-security/harden-runner from 2.18.0 to 2.19.0 (:pr:`3320`) :user:`dependabot`
+#)  build(deps): bump py-cov-action/python-coverage-comment-action from 3.40 to 3.41 (:pr:`3319`) :user:`dependabot`
+#)  build(deps): bump astral-sh/setup-uv from 8.0.0 to 8.1.0 (:pr:`3318`) :user:`dependabot`
+#)  tests: improve tests for bdist_mac and bdist_dmg (:pr:`3316`) :user:`marcelotduarte`
+#)  build(deps): bump actions/upload-artifact from 7.0.0 to 7.0.1 (:pr:`3315`) :user:`dependabot`
+#)  hooks: use module.loader specialized methods (:pr:`3312`) :user:`marcelotduarte`
+#)  tests: improve modulefinder test/coverage a bit (:pr:`3311`) :user:`marcelotduarte`
+#)  finder: use specialized methods for better use of the 'optimize' flag (:pr:`3310`) :user:`marcelotduarte`
+#)  finder: importing bytecode files is handled better (:pr:`3308`) :user:`marcelotduarte`
+#)  chore: add prek action (:pr:`3307`) :user:`marcelotduarte`
+#)  finder: improve 'syntax error' handling (:pr:`3306`) :user:`marcelotduarte`
+#)  Bump version: 8.6.3 → 8.6.4 [ci skip] (:pr:`3303`) :user:`marcelotduarte`
+#)  build(deps): bump astral-sh/setup-uv from 7.3.0 to 8.0.0 (:pr:`3302`) :user:`dependabot`
+#)  build(deps): bump step-security/harden-runner from 2.14.2 to 2.16.0 (:pr:`3301`) :user:`dependabot`
+#)  build(deps): bump github/codeql-action from 4.31.9 to 4.35.1 (:pr:`3300`) :user:`dependabot`
+#)  hooks: multiprocessing - fix bug introduced by gh-144503 in Python 3.14.4 (:pr:`3299`) :user:`marcelotduarte`
+#)  hooks: multiprocessing - bug fixed by gh-135726 in Python 3.14.4 (:pr:`3298`) :user:`marcelotduarte`
+#)  chore: prek auto-update --freeze (:pr:`3297`) :user:`marcelotduarte`
+#)  tests: remove tests for experimental Python 3.13t (:pr:`3295`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate [ci skip] (:pr:`3293`) :user:`pre-commit-ci`
+#)  finder: improve include_module and include_package (:pr:`3294`) :user:`marcelotduarte`
+#)  tests: minor improvement (:pr:`3292`) :user:`marcelotduarte`
+#)  build(deps): bump actions/download-artifact from 7.0.0 to 8.0.1 (:pr:`3291`) :user:`dependabot`
+#)  Bump version: 8.6.2 → 8.6.3 [ci skip] (:pr:`3289`) :user:`marcelotduarte`
+#)  hooks: charset_normalizer 3.4.5+ (:pr:`3287`) :user:`marcelotduarte`
+#)  hooks: pymupdf 1.27.2.2 (:pr:`3288`) :user:`marcelotduarte`
+#)  Bump version: 8.6.1 → 8.6.2 [ci skip] (:pr:`3285`) :user:`marcelotduarte`
+#)  tests: improve some tests (:pr:`3284`) :user:`marcelotduarte`
+#)  fix: typo introduced in #3275 - add test (:pr:`3283`) :user:`marcelotduarte`
+#)  build(deps): bump to new versions of dev tools (:pr:`3281`) :user:`marcelotduarte`
+#)  Bump version: 8.6.1.dev0 → 8.6.1 [ci skip] (:pr:`3280`) :user:`marcelotduarte`
+#)  build(deps): bump actions/upload-artifact from 6.0.0 to 7.0.0 (:pr:`3279`) :user:`dependabot`
+#)  fix: do not use strict timestamps on zipfile (:pr:`3278`) :user:`marcelotduarte`
+#)  hooks: ssl in unixes use internal certificate file (:pr:`3275`) :user:`marcelotduarte`
+#)  chore: bump prek to 0.3.5 and lief to 0.17.5 (:pr:`3277`) :user:`marcelotduarte`
+#)  [pre-commit.ci] pre-commit autoupdate [ci skip] (:pr:`3274`) :user:`pre-commit-ci`
+#)  fix: DistributionCache.version must return a tuple (w/ tests) (:pr:`3272`) :user:`marcelotduarte`
+#)  Bump prek to 0.3.4 and auto-update (:pr:`3270`) :user:`marcelotduarte`
+#)  build(deps): bump astral-sh/setup-uv from 7.2.0 to 7.3.0 (:pr:`3269`) :user:`dependabot`
+#)  build(deps): bump step-security/harden-runner from 2.14.0 to 2.14.2 (:pr:`3268`) :user:`dependabot`
+#)  build(deps): update lief requirement from >=0.15.1,<=0.17.3 to >=0.15.1,<=0.17.4 (:pr:`3267`) :user:`marcelotduarte`
+#)  Bump version: 8.6.0 → 8.6.1.dev0 [ci skip] (:pr:`3266`) :user:`marcelotduarte`
+
 Version 8.6 (2026-02-20)
 ------------------------
 
