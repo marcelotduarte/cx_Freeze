@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-import os
-import sys
 import threading
 from typing import TYPE_CHECKING
 
 import pytest
-
-from cx_Freeze._compat import ABI_THREAD
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -21,12 +17,6 @@ zip_packages = pytest.mark.parametrize(
 )
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="cryptography does not support Python 3.15t yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.venv
 @zip_packages
 def test_pyzmq(tmp_package: TempPackage, zip_packages: bool) -> None:

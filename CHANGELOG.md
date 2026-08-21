@@ -3,6 +3,19 @@ performance as the original script.
 
 It is cross-platform and should work on any platform that Python runs on.
 
+# Version 8.7 (2026-08-21)
+
+- Support for Python 3.15 and 3.15t (cx_Freeze and freeze-core 0.7.x)
+- Stop building wheels for experimental Python 3.13t (freeze-core 0.7.x)
+- Support kebab-case parameters in pyproject.toml
+- Add type annotation
+- Optimize/reduce the modules in the resulting frozen executable
+- Many optimizations to reduce memory usage and size of the frozen executable
+- Add support for CFBundleVersion on bdist_mac command (uses [project] version information)
+- Updated hooks, including tkinter using tcl/tk 9 on Python 3.14.7+
+- Improve documentation, especially regarding the cxfreeze script
+- Bug fixes.
+
 # Version 8.6 (2026-02-20)
 
 - Refactor bdist_msi to work better with pyproject:
