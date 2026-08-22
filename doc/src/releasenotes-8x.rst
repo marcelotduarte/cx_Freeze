@@ -4,6 +4,8 @@
 Version 8.7 (2026-08-21)
 ------------------------
 
+#)  Bump version: 8.7.0-dev.0 → 8.7.0 [ci skip] (:pr:`3425`) :user:`marcelotduarte`
+#)  chore: prepare to release (:pr:`3424`) :user:`marcelotduarte`
 #)  tests(ci): disable strict xfail mode on push events (:pr:`3423`) :user:`marcelotduarte`
 #)  chore: fixes to build, test and run on miniconda (:pr:`3422`) :user:`marcelotduarte`
 #)  tests: improve support for testing w/ editable (dev) packages (:pr:`3421`) :user:`marcelotduarte`
