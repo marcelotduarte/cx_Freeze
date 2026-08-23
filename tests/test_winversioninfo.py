@@ -9,7 +9,13 @@ from typing import TYPE_CHECKING
 import pytest
 from packaging.version import Version
 
-from cx_Freeze._compat import ABI_THREAD, EXE_SUFFIX, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    EXE_SUFFIX,
+    IS_MINGW,
+    IS_WINDOWS,
+    IS_X86_32,
+)
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 if TYPE_CHECKING:
@@ -175,8 +181,11 @@ class TestVersionInfo:
     @pytest.mark.xfail(
         ABI_THREAD == "t",
         raises=ModuleNotFoundError,
-        reason="pywin32 does not support Python 3.14t",
+        reason="pywin32 does not support Python 3.14t/3.15t",
         strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+    )
+    @pytest.mark.skipif(
+        IS_MINGW and IS_X86_32, reason="pywin32 not supported in mingw32"
     )
     @pytest.mark.venv
     def test_main_with_environ(self, tmp_package: TempPackage) -> None:

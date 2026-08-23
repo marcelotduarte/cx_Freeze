@@ -24,7 +24,7 @@ options = {
 executables = [
     Executable(
         "Config.py",
-        base="Win32Service",
+        base="service",
         target_name="cx_FreezeSampleServiceAsyncio.exe",
     )
 ]
