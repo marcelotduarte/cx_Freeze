@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_MINGW
+from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -56,7 +56,13 @@ pyproject.toml
 )
 @pytest.mark.skipif(
     ABI_THREAD == "t",
-    reason="streamlit does not support Python 3.14t",
+    reason="streamlit does not support Python 3.14t/3.15t",
+)
+@pytest.mark.xfail(
+    IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="streamlit does not support Windows arm64",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @zip_packages

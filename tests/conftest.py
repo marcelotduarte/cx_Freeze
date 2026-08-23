@@ -125,7 +125,12 @@ class TempPackage:
             "cx_Freeze": "cx_freeze",
             "lief": "py-lief",
         }
-        self.map_package_to_mingw: dict[str, str] = {}
+        self.map_package_to_mingw: dict[str, str] = {
+            "cx_logging": "python-cx-logging",
+            "cx_Logging": "python-cx-logging",
+            "cx_freeze": "python-cx-freeze",
+            "cx_Freeze": "python-cx-freeze",
+        }
 
     def create(self, source: str) -> None:
         """Create package in temporary path, based on source."""
@@ -226,7 +231,9 @@ class TempPackage:
                 command = ["python", "-m", "cx_Freeze", *command[1:]]
 
         if command[0] == "conda":
-            command[0] = os.environ["CONDA_EXE"]
+            conda = which("conda")
+            if conda:
+                command[0] = conda
 
         if command[0] == "pip":
             pip = which("pip", path=self.prefix / self.relative_bin)
@@ -771,17 +778,19 @@ class TempPackageVenv(TempPackage):
             # if python file does not exists, create the new venv
             if not self.venv_python.is_file():
                 if self.backend == "conda":
-                    self._venv_conda_clone()
+                    self._venv_conda()
                 else:
                     self._venv_pip()
             # reuse the venv - point to the existing lock file
             elif self.backend == "pip":
                 self._lock = FileLock(self.venv_prefix / ".lock")
 
-    def _venv_conda_clone(self) -> None:
-        # create a clone venv
-        conda_env = os.environ["CONDA_DEFAULT_ENV"]
-        cmd = f"conda create --clone {conda_env} -p {self.venv_prefix} -q -y"
+    def _venv_conda(self) -> None:
+        # create a new conda environment
+        environment = self.path / "environment.json"
+        cmd = f"conda export -p {self.prefix} -f {environment}"
+        self.run(cmd, cwd=self.system_path)
+        cmd = f"conda create -p {self.venv_prefix} -q -y -f {environment}"
         self.run(cmd, cwd=self.system_path)
 
     def _venv_pip(self) -> None:

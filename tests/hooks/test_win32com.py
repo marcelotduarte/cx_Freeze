@@ -26,7 +26,7 @@ zip_packages = pytest.mark.parametrize(
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="pywin32 does not support Python 3.14t",
+    reason="pywin32 does not support Python 3.14t/3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv(scope="module")
@@ -84,7 +84,7 @@ pyproject.toml
 @pytest.mark.xfail(
     ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="pywin32 does not support Python 3.14t",
+    reason="pywin32 does not support Python 3.14t/3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv(scope="module")

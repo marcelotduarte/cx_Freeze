@@ -16,7 +16,6 @@ from cx_Freeze._compat import (
     IS_MACOS,
     IS_MINGW,
     IS_UCRT,
-    IS_WINDOWS,
 )
 
 if TYPE_CHECKING:
@@ -64,12 +63,6 @@ pyproject.toml
     IS_MINGW and not IS_UCRT,
     raises=ModuleNotFoundError,
     reason="av (pyAV) supported only in mingw linked to ucrt",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="av (pyAV) does not support Windows arm64",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv

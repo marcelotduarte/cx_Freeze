@@ -16,6 +16,7 @@ from cx_Freeze._compat import (
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
+    IS_X86_64,
 )
 
 if TYPE_CHECKING:
@@ -56,9 +57,11 @@ pyproject.toml
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.xfail(
-    sys.version_info[:2] == (3, 14) and ABI_THREAD == "t" and not IS_LINUX,
+    sys.version_info[:2] == (3, 14)
+    and ABI_THREAD == "t"
+    and not (IS_LINUX and IS_X86_64),
     raises=ModuleNotFoundError,
-    reason="pymupdf support Python 3.14t only in Linux",
+    reason="pymupdf support Python 3.14t only in Linux x86_64",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.skipif(
@@ -66,12 +69,6 @@ pyproject.toml
     reason="pymupdf is broken in conda-forge (except on OSX64)",
 )
 @pytest.mark.skipif(IS_MINGW, reason="pymupdf is broken in mingw")
-@pytest.mark.xfail(
-    IS_WINDOWS and IS_ARM_64,
-    raises=ModuleNotFoundError,
-    reason="pymupdf does not support Windows arm64",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.venv
 @zip_packages
 def test_pymupdf(tmp_package: TempPackage, zip_packages: bool) -> None:

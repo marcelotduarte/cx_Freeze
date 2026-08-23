@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_CONDA, IS_MINGW
+from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -47,6 +48,12 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    sys.version_info[:2] >= (3, 15) and IS_WINDOWS and IS_ARM_64,
+    raises=ModuleNotFoundError,
+    reason="av does not support Python 3.15t yet",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+)
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
