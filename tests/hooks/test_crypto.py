@@ -8,7 +8,14 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_ARM_64, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import (
+    ABI_THREAD,
+    IS_ARM_64,
+    IS_MACOS,
+    IS_MINGW,
+    IS_WINDOWS,
+    IS_X86_64,
+)
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -44,6 +51,15 @@ pyproject.toml
 """
 
 
+@pytest.mark.xfail(
+    IS_MACOS
+    and IS_X86_64
+    and sys.version_info[:2] >= (3, 15)
+    and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="argon2-cffi-bindings does not support Python 3.15t macOS Intel",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+)
 @pytest.mark.venv
 @zip_packages
 def test_argon2(

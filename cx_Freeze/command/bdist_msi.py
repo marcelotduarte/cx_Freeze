@@ -684,8 +684,22 @@ class bdist_msi(Command):
             "",
             "Next",
         )
-        group.add("Repair", 0, 18, 300, 17, "&Repair [ProductName]")
-        group.add("Remove", 0, 36, 300, 17, "Re&move [ProductName]")
+        group.add(  # ty: ignore[unresolved-attribute]
+            "Repair",
+            0,
+            18,
+            300,
+            17,
+            "&Repair [ProductName]",
+        )
+        group.add(  # ty: ignore[unresolved-attribute]
+            "Remove",
+            0,
+            36,
+            300,
+            17,
+            "Re&move [ProductName]",
+        )
         dialog.backbutton("< Back", None, active=False)
         button = dialog.nextbutton("Finish", "Cancel")
         button.event(
