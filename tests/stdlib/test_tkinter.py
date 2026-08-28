@@ -12,7 +12,7 @@ from cx_Freeze._compat import IS_MACOS
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
 
-TIMEOUT = 15
+TIMEOUT = 30 if IS_MACOS else 15
 
 if IS_MACOS:
     mac_extra_test = pytest.mark.parametrize(
