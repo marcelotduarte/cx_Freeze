@@ -59,7 +59,7 @@ pyproject.toml
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.xfail(
-    not (IS_MINGW_CLANG or IS_MINGW_UCRT),
+    IS_MINGW_CLANG or IS_MINGW_UCRT,
     raises=ModuleNotFoundError,
     reason="av (pyAV) supported only in mingw linked to ucrt",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
