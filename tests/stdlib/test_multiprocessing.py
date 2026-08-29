@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_MACOS
+from cx_Freeze._compat import IS_CONDA, IS_MACOS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
 
-TIMEOUT = 30 if IS_MACOS else 15
+TIMEOUT = 15 * (2 if IS_CONDA else 1) * (2 if IS_MACOS else 1)
 
 SOURCE = """\
 sample0.py
