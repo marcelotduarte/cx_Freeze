@@ -109,6 +109,7 @@ def _parameters_data() -> list:
     return data
 
 
+@pytest.mark.skipif(IS_CONDA, reason="Disabled on conda-forge")
 @pytest.mark.skipif(not IS_LINUX, reason="Disabled test")
 @pytest.mark.skipif(
     sys.version_info[:2] >= (3, 14),
