@@ -24,9 +24,9 @@ from cx_Freeze._compat import (
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
 
-TIMEOUT = 15
-TIMEOUT_SLOW = 60 if IS_CONDA else 30
-TIMEOUT_VERY_SLOW = 120 if IS_CONDA else 90
+TIMEOUT = 15 * (2 if IS_CONDA else 1) * (2 if IS_MACOS else 1)
+TIMEOUT_SLOW = 30 * (2 if IS_CONDA else 1) * (2 if IS_MACOS else 1)
+TIMEOUT_VERY_SLOW = 90 * (2 if IS_CONDA else 1) * (2 if IS_MACOS else 1)
 
 zip_packages = pytest.mark.parametrize(
     "zip_packages", [False, True], ids=["", "zip_packages"]

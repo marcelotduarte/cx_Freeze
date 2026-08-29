@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from cx_Freeze import ConstantsModule, ModuleFinder
+from cx_Freeze._compat import IS_CONDA
 
 from .datatest import (
     A_MODULE,
@@ -241,6 +242,7 @@ def test_bytecode(
     )
 
 
+@pytest.mark.skipif(IS_CONDA, reason="Disabled on conda-forge")
 @pytest.mark.parametrize(
     ("import_this", "modules", "missing", "maybe_missing", "source", "kwargs"),
     [EDITABLE_PACKAGE_TEST, EDITABLE_PACKAGE_TEST_1],

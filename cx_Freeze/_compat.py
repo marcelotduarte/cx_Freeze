@@ -16,11 +16,12 @@ __all__ = [
     "EXE_SUFFIX",
     "EXT_SUFFIX",
     "IS_ARM_64",
-    "IS_CLANG",
     "IS_CONDA",
     "IS_LINUX",
     "IS_MACOS",
     "IS_MINGW",
+    "IS_MINGW_CLANG",
+    "IS_MINGW_UCRT",
     "IS_UCRT",
     "IS_WINDOWS",
     "IS_X86_32",
@@ -57,9 +58,10 @@ IS_MACOS: Final[bool] = PLATFORM.startswith("macos")
 IS_MINGW: Final[bool] = PLATFORM.startswith("mingw")
 IS_WINDOWS: Final[bool] = PLATFORM.startswith("win")
 
-IS_CLANG: Final[bool] = os.environ.get("MSYSTEM", "").startswith("CLANG")
-_IS_UCRT = os.environ.get("MSYSTEM", "").startswith("UCRT")
-IS_UCRT: Final[bool] = IS_WINDOWS or (IS_MINGW and (IS_CLANG or _IS_UCRT))
+_MSYSTEM = os.environ.get("MSYSTEM", "")
+IS_MINGW_CLANG: Final[bool] = IS_MINGW and _MSYSTEM.startswith("CLANG")
+IS_MINGW_UCRT: Final[bool] = IS_MINGW and _MSYSTEM.startswith("UCRT")
+IS_UCRT: Final[bool] = IS_WINDOWS or IS_MINGW_CLANG or IS_MINGW_UCRT
 
 _SOABI = get_config_var("SOABI")
 if _SOABI is None:

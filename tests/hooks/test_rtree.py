@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_CLANG, IS_MINGW
+from cx_Freeze._compat import IS_MINGW_CLANG
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -64,7 +64,7 @@ def test_rtree(tmp_package: TempPackage, zip_packages: bool) -> None:
     executable = tmp_package.executable("test_rtree")
     assert executable.is_file()
     result = tmp_package.run(executable, timeout=TIMEOUT)
-    if result.ret != 0 and IS_MINGW and IS_CLANG:
+    if result.ret != 0 and IS_MINGW_CLANG:
         result.stderr.fnmatch_lines("*: function 'SIDX_Version' not found")
         pytest.xfail("rtree is broken on mingw/clang")
 

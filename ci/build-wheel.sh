@@ -119,7 +119,8 @@ _build_wheel () {
             rm -rf "condahouse/$NORMALIZED_NAME"
             mkdir -p "condahouse/$NORMALIZED_NAME"
             $CONDA_EXE pypi convert "wheelhouse/$PKG_NAME" \
-                --output-folder "condahouse/$NORMALIZED_NAME"
+                --output-folder "condahouse/$NORMALIZED_NAME/noarch"
+            $CONDA_EXE index "./condahouse/$NORMALIZED_NAME"
         fi
     else
         if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
@@ -204,9 +205,9 @@ echo "::endgroup::"
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
     if [ "$IS_CONDA" == "1" ]; then
-        PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/$NAME-$NORMALIZED_VERSION-pypi_0.conda"
+        PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/noarch/$NAME-$NORMALIZED_VERSION-pypi_0.conda"
         if ! [ -f "$PKG_CONDA" ]; then
-            PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/$PKG_BASENAME-pypi_0.conda"
+            PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/noarch/$PKG_BASENAME-pypi_0.conda"
         fi
         $CONDA_EXE remove "$NORMALIZED_NAME" --force --yes || true
         $CONDA_EXE install "$PKG_CONDA" --no-deps --yes
