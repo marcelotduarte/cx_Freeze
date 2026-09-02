@@ -56,8 +56,7 @@ pyproject.toml
     name = "test_zstd"
     version = "0.1.2.3"
     dependencies = [
-        "backports.zstd<1.3; python_version <= '3.12'",
-        "backports.zstd; python_version == '3.13'",
+        "backports.zstd; python_version < '3.14'",
     ]
 
     [tool.cxfreeze]

@@ -61,6 +61,7 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "  TAG       Force build the wheel for the given identifier."
     echo "            [default: $BUILD_TAG_DEFAULT]"
     echo "  --install Install after build [default on local builds]."
+    echo "  --sdist   Build a source distribution [default on Linux x64]."
     exit 1
 fi
 
@@ -69,6 +70,11 @@ if [ "$CI" == "true" ]; then
     INSTALL="0"
 else
     INSTALL="1"
+fi
+if [ "$PY_PLATFORM" == "linux-x86_64" ]; then
+    BUILD_SDIST="1"
+else
+    BUILD_SDIST="0"
 fi
 while [ -n "$1" ]; do
     if [ "$1" == "--all" ]; then
@@ -79,6 +85,8 @@ while [ -n "$1" ]; do
         fi
     elif [ "$1" == "--install" ]; then
         INSTALL="1"
+    elif [ "$1" == "--sdist" ]; then
+        BUILD_SDIST="1"
     else
         BUILD_TAG="$1"
     fi
@@ -104,7 +112,7 @@ _get_dirty () {
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    elif [ "$PY_PLATFORM" == "linux-x86_64" ] || [ "$BUILD_SDIST" == "true" ]; then
+    elif [ "$BUILD_SDIST" == "1" ]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
     fi
 }

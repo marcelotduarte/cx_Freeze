@@ -19,7 +19,7 @@ from cx_Freeze._compat import (
 from cx_Freeze.dep_parser import PEParser
 
 if TYPE_CHECKING:
-    from .conftest import TempPackage
+    from tests.conftest import TempPackage
 
 SOURCE = """
 test_manifest.py

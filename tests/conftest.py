@@ -791,6 +791,7 @@ class TempPackageVenv(TempPackage):
         cmd = f"conda export -p {self.prefix} -f {environment}"
         self.run(cmd, cwd=self.system_path)
         cmd = f"conda create -p {self.venv_prefix} -q -y -f {environment}"
+        cmd += " --solver rattler"
         self.run(cmd, cwd=self.system_path)
 
     def _venv_pip(self) -> None:
