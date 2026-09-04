@@ -14,7 +14,7 @@ from .datatest import SCAN_CODE_TEST, SYNTAX_ERROR_TEST
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
-    from .conftest import TempPackage
+    from tests.conftest import TempPackage
 
 
 class TestModuleFinder:

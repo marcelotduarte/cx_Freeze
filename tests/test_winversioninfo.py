@@ -19,7 +19,7 @@ from cx_Freeze._compat import (
 from cx_Freeze.winversioninfo import COMMENTS_MAX_LEN, VersionInfo, main_test
 
 if TYPE_CHECKING:
-    from .conftest import TempPackage
+    from tests.conftest import TempPackage
 
 SOURCE_SIMPLE_TEST = """
 test.py

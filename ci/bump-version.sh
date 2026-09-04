@@ -81,7 +81,7 @@ if (git branch --show-current | grep -q "main"); then
     git checkout -B release main
 fi
 git commit -m "Bump version: ${VERSION} → ${NEW_VERSION} [ci skip]" -a
-git log -1
+git log -1 | head -5
 if ! [ "$CI" == "true" ]; then
     git push origin "$(git branch --show-current)"
     if ! (echo "$NEW_VERSION" | grep -q "\.dev"); then

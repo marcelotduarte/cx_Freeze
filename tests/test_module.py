@@ -17,7 +17,7 @@ from cx_Freeze.exception import OptionError
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from .conftest import TempPackage
+    from tests.conftest import TempPackage
 
 SOURCE = """
 namespacepack/firstchildpack/__init__{extension}
