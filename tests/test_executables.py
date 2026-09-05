@@ -26,8 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from cx_Freeze._typing import StrPath
-
-    from .conftest import TempPackage, TempPackageVenv
+    from tests.conftest import TempPackage, TempPackageVenv
 
 
 SOURCE_SETUP_TOML = """

@@ -61,6 +61,7 @@ if [ -n "$1" ] && [ "$1" == "--help" ]; then
     echo "  TAG       Force build the wheel for the given identifier."
     echo "            [default: $BUILD_TAG_DEFAULT]"
     echo "  --install Install after build [default on local builds]."
+    echo "  --sdist   Build a source distribution [default on Linux x64]."
     exit 1
 fi
 
@@ -69,6 +70,11 @@ if [ "$CI" == "true" ]; then
     INSTALL="0"
 else
     INSTALL="1"
+fi
+if [ "$PY_PLATFORM" == "linux-x86_64" ]; then
+    BUILD_SDIST="1"
+else
+    BUILD_SDIST="0"
 fi
 while [ -n "$1" ]; do
     if [ "$1" == "--all" ]; then
@@ -79,6 +85,8 @@ while [ -n "$1" ]; do
         fi
     elif [ "$1" == "--install" ]; then
         INSTALL="1"
+    elif [ "$1" == "--sdist" ]; then
+        BUILD_SDIST="1"
     else
         BUILD_TAG="$1"
     fi
@@ -104,7 +112,7 @@ _get_dirty () {
 _build_sdist () {
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --sdist -o wheelhouse
-    elif [ "$PY_PLATFORM" == "linux-x86_64" ] || [ "$BUILD_SDIST" == "true" ]; then
+    elif [ "$BUILD_SDIST" == "1" ]; then
         uv build -p "$PY_VERSION$PY_ABI_THREAD" --sdist -o wheelhouse
     fi
 }
@@ -112,15 +120,15 @@ _build_sdist () {
 _build_wheel () {
     local args
     read -ra args <<<"$*"
-    rm -f "wheelhouse/$PKG_NAME"
+    rm -f "$WHEELHOUSE/$PKG_NAME"
     if [ "$IS_CONDA" == "1" ] || [ "$IS_MINGW" == "1" ]; then
         $PYTHON -m build -n -x --wheel -o wheelhouse
         if [ "$IS_CONDA" == "1" ]; then
-            rm -rf "condahouse/$NORMALIZED_NAME"
-            mkdir -p "condahouse/$NORMALIZED_NAME"
-            $CONDA_EXE pypi convert "wheelhouse/$PKG_NAME" \
-                --output-folder "condahouse/$NORMALIZED_NAME/noarch"
-            $CONDA_EXE index "./condahouse/$NORMALIZED_NAME"
+            rm -rf "$WHEELHOUSE/conda/$LOWER_NAME"
+            mkdir -p "$WHEELHOUSE/conda/$LOWER_NAME"
+            $CONDA_EXE pypi convert "$WHEELHOUSE/$PKG_NAME" \
+                --output-folder "$WHEELHOUSE/conda/$LOWER_NAME/noarch"
+            $CONDA_EXE index "$WHEELHOUSE/conda/$LOWER_NAME"
         fi
     else
         if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
@@ -164,6 +172,7 @@ else
         NORMALIZED_NAME=$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
     fi
 fi
+LOWER_NAME=$(echo "$NORMALIZED_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
 if [[ $VERSION == *-* ]]; then
     NORMALIZED_VERSION=$($PYTHON -c "print(''.join('$VERSION'.replace('-','.').rsplit('.',1)), end='')")
 else
@@ -205,9 +214,9 @@ echo "::endgroup::"
 if [ "$INSTALL" == "1" ]; then
     echo "::group::Install $NORMALIZED_NAME $NORMALIZED_VERSION"
     if [ "$IS_CONDA" == "1" ]; then
-        PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/noarch/$NAME-$NORMALIZED_VERSION-pypi_0.conda"
+        PKG_CONDA="$WHEELHOUSE/conda/$LOWER_NAME/noarch/$NAME-$NORMALIZED_VERSION-pypi_0.conda"
         if ! [ -f "$PKG_CONDA" ]; then
-            PKG_CONDA="$PWD/condahouse/$NORMALIZED_NAME/noarch/$PKG_BASENAME-pypi_0.conda"
+            PKG_CONDA="$WHEELHOUSE/conda/$LOWER_NAME/noarch/$PKG_BASENAME-pypi_0.conda"
         fi
         $CONDA_EXE remove "$NORMALIZED_NAME" --force --yes || true
         $CONDA_EXE install "$PKG_CONDA" --no-deps --yes

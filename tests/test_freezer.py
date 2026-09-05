@@ -24,7 +24,7 @@ from cx_Freeze.exception import OptionError
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from .conftest import TempPackage
+    from tests.conftest import TempPackage
 
 ENABLE_SHARED = bool(sysconfig.get_config_var("Py_ENABLE_SHARED"))
 

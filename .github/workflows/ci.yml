@@ -79,7 +79,7 @@ jobs:
 
   build_wheel:
     name: Build wheels
-    uses: ./.github/workflows/build-wheel.yml
+    uses: $/.github/workflows/build-wheel.yml
     needs:
       - pre_commit
       - type_check

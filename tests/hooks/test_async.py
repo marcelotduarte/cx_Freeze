@@ -45,7 +45,7 @@ pyproject.toml
     name = "test_anyio"
     version = "0.1.2.3"
     dependencies = [
-        "anyio",
+        "anyio<4.15.1",
     ]
 
     [tool.cxfreeze]

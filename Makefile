@@ -23,7 +23,7 @@ pylint:
 clean: uninstall
 	@$(MAKE) -C doc clean
 	@rm -f .coverage* || true
-	@rm -rf build dist condahouse wheelhouse
+	@rm -rf build dist wheelhouse
 	@prek cache clean -q
 
 .PHONY: install

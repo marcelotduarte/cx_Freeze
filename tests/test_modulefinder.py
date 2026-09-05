@@ -54,7 +54,7 @@ from .datatest import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from .conftest import TempPackage
+    from tests.conftest import TempPackage
 
 # Each test description is a list of 6 items:
 #
