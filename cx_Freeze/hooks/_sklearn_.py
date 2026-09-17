@@ -18,11 +18,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for scikit-learn."""
 
-    def sklearn(
-        self,
-        finder: ModuleFinder,
-        module: Module,
-    ) -> None:
+    def sklearn(self, finder: ModuleFinder, module: Module) -> None:
         dist = finder.import_distributions.get(module.name)
         if dist and dist.files:
             # Exclude tests
@@ -41,6 +37,8 @@ class Hook(ModuleHook):
         finder.exclude_module("sklearn.utils._testing")
         with suppress(ImportError):
             finder.include_module("sklearn._cyutility")  # v1.7.1
+        with suppress(ImportError):
+            finder.include_package("narwhals.stable.v2")  # v1.9.x
 
     def sklearn__distributor_init(
         self, finder: ModuleFinder, module: Module
@@ -75,9 +73,7 @@ class Hook(ModuleHook):
         module.ignore_names.update(["matplotlib", "pandas"])
 
     def sklearn_utils__estimator_html_repr(
-        self,
-        finder: ModuleFinder,
-        module: Module,
+        self, finder: ModuleFinder, module: Module
     ) -> None:
         # copy css file and patch the code to locate css file # v1.4.x to 1.6.x
         if module.in_file_system == 0 and module.file:
