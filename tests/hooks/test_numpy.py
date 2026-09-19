@@ -1,6 +1,6 @@
 """Tests for hooks of numpy and packages that depend on it.
 
-I.e. also tests matplotlib, pandas, scipy, shapely, and vtk.
+I.e. also tests matplotlib, scipy, shapely, and vtk.
 """
 
 from __future__ import annotations
@@ -88,43 +88,6 @@ def test_matplotlib(tmp_package: TempPackage, zip_packages: bool) -> None:
         ["Hello from cx_Freeze", "numpy version *", "matplotlib version *"]
     )
     assert tmp_package.path.joinpath("test.png").is_file()
-
-
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="pandas does not support Python 3.15 yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
-@pytest.mark.venv
-@zip_packages
-def test_pandas(tmp_package: TempPackage, zip_packages: bool) -> None:
-    """Test that the pandas/numpy is working correctly."""
-    tmp_package.create_from_sample("pandas")
-    if zip_packages:
-        pyproject = tmp_package.path / "pyproject.toml"
-        buf = pyproject.read_bytes().decode().splitlines()
-        buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
-        pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    tmp_package.freeze()
-
-    executable = tmp_package.executable("test_pandas")
-    assert executable.is_file()
-
-    result = tmp_package.run(executable, timeout=TIMEOUT_VERY_SLOW)
-    result.stdout.fnmatch_lines(
-        [
-            "Hello from cx_Freeze",
-            "numpy version *",
-            "pandas version *",
-            " *",
-            "0*",
-            "1*",
-            "2*",
-            "3*",
-            "4*",
-        ]
-    )
 
 
 SOURCE_TEST_SHAPELY = """

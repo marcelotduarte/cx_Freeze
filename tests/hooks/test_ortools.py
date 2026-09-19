@@ -107,7 +107,17 @@ pyproject.toml
 ORTOOLS_VERSIONS = []
 if sys.version_info[:2] <= (3, 11):
     ORTOOLS_VERSIONS.append("ortools~=9.6.0")
-ORTOOLS_VERSIONS.append("ortools>=9.15.0")
+if IS_LINUX:
+    from platform import libc_ver
+
+    version_raw = libc_ver()
+    version = tuple(map(int, version_raw[1].split(".")))
+    if version < (2, 28):
+        ORTOOLS_VERSIONS.append("ortools>=9.11.0")
+    else:
+        ORTOOLS_VERSIONS.append("ortools>=9.15.0")
+else:
+    ORTOOLS_VERSIONS.append("ortools>=9.15.0")
 
 
 @pytest.mark.xfail(

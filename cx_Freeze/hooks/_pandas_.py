@@ -21,7 +21,7 @@ class Hook(ModuleHook):
         """Patch the pandas package.
 
         Supported pypi and conda-forge versions.
-        Tested pandas versions of pypi from 1.3.3 to 3.0.5.
+        Tested pandas versions of pypi from 1.3.3 to 3.0.6.
         """
         finder.exclude_module("pandas.conftest")
         finder.exclude_module("pandas.testing")
@@ -29,6 +29,7 @@ class Hook(ModuleHook):
         finder.exclude_module("pandas.tests")
         finder.include_package("pandas._config")
         finder.include_package("pandas._libs")
+        finder.include_package("pandas.core")
 
         loader = module.loader
         if not isinstance(loader, SourceFileLoader):
