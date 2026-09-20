@@ -121,7 +121,7 @@ def _parameters_data() -> list:
     reason="multiprocess does not support Windows arm64",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.venv(scope="module")
+@pytest.mark.venv
 @pytest.mark.parametrize(
     ("source", "sample", "expected", "zip_packages"), _parameters_data()
 )

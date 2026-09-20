@@ -29,7 +29,7 @@ zip_packages = pytest.mark.parametrize(
     reason="pywin32 does not support Python 3.14t/3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.venv(scope="module")
+@pytest.mark.venv
 @zip_packages
 def test_win32com(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""
@@ -87,7 +87,7 @@ pyproject.toml
     reason="pywin32 does not support Python 3.14t/3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.venv(scope="module")
+@pytest.mark.venv
 @zip_packages
 def test_win32com_shell(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if win32com hook is working correctly."""

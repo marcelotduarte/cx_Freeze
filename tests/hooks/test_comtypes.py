@@ -51,8 +51,8 @@ pyproject.toml
 """
 
 
-@pytest.mark.venv(scope="module", install_dependencies=False)
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows tests")
+@pytest.mark.venv(install_dependencies=False)
 @zip_packages
 def test_comtypes(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if comtypes hook is working correctly."""

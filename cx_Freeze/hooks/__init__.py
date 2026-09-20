@@ -133,6 +133,8 @@ def load_crc32c(finder: ModuleFinder, module: Module) -> None:
 def load_cryptography(finder: ModuleFinder, module: Module) -> None:
     """Include required _cffi_backend module (cryptography)."""
     _include_cffi_backend(finder, module)
+    if IS_CONDA and module.in_file_system == 0:
+        module.in_file_system = 2
 
 
 def load_ctypes_util(finder: ModuleFinder, module: Module) -> None:
