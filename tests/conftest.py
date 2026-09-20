@@ -797,22 +797,15 @@ class TempPackageVenv(TempPackage):
         self._v_lock = None
 
     def _venv(self) -> None:
-        venv_marker = self.request.node.get_closest_marker(name="venv")
-        scope = venv_marker.kwargs.get("scope", "function")
-
         # activate the venv
         if self.backend == "mingw":
             # do not use venv in mingw
             self._v_lock = self._lock
         else:
             # point to the new environment (or reuse an existing one)
-            if scope == "function":  # default scope
-                self.venv_prefix = self.path / (
-                    f".{self.backend}" if self.backend == "conda" else ".venv"
-                )
-            else:
-                self.venv_prefix = self._root / f".{self.backend}-{self._name}"
-                self.lock()
+            self.venv_prefix = self.path / (
+                f".{self.backend}" if self.backend == "conda" else ".venv"
+            )
             self.venv_python = (
                 self.venv_prefix / self.relative_bin / self.python.name
             )
@@ -911,11 +904,6 @@ def tmp_package(request: pytest.FixtureRequest) -> GeneratorType[TempPackage]:
         if not isinstance(venv_marker.kwargs, dict):
             msg = "venv marker kwargs must be a dictionary"
             raise ValueError(msg)
-        # default scope: function
-        scope = venv_marker.kwargs.get("scope", "function")
-        if scope not in {"function", "module"}:
-            msg = "venv marker scope must be 'function' or 'module'"
-            raise ValueError(msg)
         install_deps = venv_marker.kwargs.get("install_dependencies", True)
         if not isinstance(install_deps, bool):
             msg = "venv marker install_dependencies must be a boolean"
@@ -930,11 +918,10 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register an additional marker."""
     config.addinivalue_line(
         "markers",
-        """venv(scope="function", install_dependencies=True):
+        """venv(install_dependencies=True):
         Mark test to run in a virtual environment.
 
         Args:
-            scope: function [default] or module
             install_dependencies: True [default] or False
         """,
     )

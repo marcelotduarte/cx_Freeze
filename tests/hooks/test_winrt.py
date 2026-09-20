@@ -77,7 +77,7 @@ pyproject.toml
     reason="pywinrt does not support Python 3.14t/3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.venv(scope="module")
+@pytest.mark.venv
 @zip_packages
 def test_winrt(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if winrt hook is working correctly."""

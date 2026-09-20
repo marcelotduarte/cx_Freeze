@@ -88,6 +88,7 @@ doc = [
     "sphinx-issues==6.0.0",
     "sphinx-new-tab-link==0.8.2",
     "furo==2025.12.19",
+        "soupsieve>=2.9.0",
     "myst-parser==5.1.0",
 ]
 tests = [
