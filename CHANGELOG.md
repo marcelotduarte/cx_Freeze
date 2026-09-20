@@ -7,10 +7,12 @@ It is cross-platform and should work on any platform that Python runs on.
 
 - Support for Python 3.15 and 3.15t (cx_Freeze and freeze-core 0.7.x)
 - Stop building wheels for experimental Python 3.13t (freeze-core 0.7.x)
-- Optimize/reduce the modules in the resulting frozen executable (freeze-core 0.7.x)
+- Optimize/reduce the modules in the resulting frozen executable
+  (freeze-core 0.7.x)
 - Many optimizations to reduce memory usage and size of the frozen executable
 - Support kebab-case parameters in pyproject.toml
-- Add support for CFBundleVersion on bdist_mac command (uses [project] version information)
+- Add support for CFBundleVersion on bdist_mac command
+  (uses [project] version information)
 - Add type checker and improve type annotation
 - Updated hooks, including tkinter using tcl/tk 9 on Python 3.14.7+
 - Improve documentation, especially regarding the cxfreeze script
@@ -77,7 +79,7 @@ It is cross-platform and should work on any platform that Python runs on.
 - Minor improvements in bdist_appimage
 - Drop rpm2_mode in bdist_rpm
 - Use an optimized mode as default for pip installations of selected packages
-- hooks: support numpy 2.0, rasterio, multiprocess (a multiprocessing fork), etc
+- hooks: support numpy 2.0, rasterio, multiprocess (multiprocessing fork), etc
 - Regression fixes, bug fixes and improvements
 
 # Version 7.1 (2024-05-26)
@@ -107,7 +109,8 @@ It is cross-platform and should work on any platform that Python runs on.
 
 - Support Python 3.11
 - Binary wheels (x86_64 and aarch64) for musllinux
-- Maintain Windows base executables on git (install from sources without C compiler)
+- Maintain Windows base executables on git
+  (install from sources without C compiler)
 - Improved documentation
 - New hooks: charset_normalizer, shapely, sklearn, pytorch
 - Improved hooks: scipy, sqlite3
@@ -147,7 +150,8 @@ It is cross-platform and should work on any platform that Python runs on.
 - New ModuleFinder engine uses importlib.machinery
 - Refactored Freezer
 - New support for package metadata improving Module and new DitributionCache
-- Enhanced support for Python 3.8 and Python 3.9, including MSYS2 and Anaconda distributions
+- Enhanced support for Python 3.8 and Python 3.9, including MSYS2 and
+  Anaconda distributions
 - Improvements for multiprocessing
 - Optimizations in detection and distribution of libraries
 - Integrated to setuptools and importlib-metadata
