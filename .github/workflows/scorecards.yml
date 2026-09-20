@@ -1,6 +1,6 @@
-# This workflow uses actions that are not certified by GitHub. They are provided
-# by a third-party and are governed by separate terms of service, privacy
-# policy, and support documentation.
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by separate terms of
+# service, privacy policy, and support documentation.
 
 name: Scorecard supply-chain security
 on:
@@ -12,7 +12,8 @@ on:
   schedule:
     - cron: "20 7 * * 2"
   push:
-    branches: ["main"]
+    branches:
+      - main
 
 concurrency:
   group: sec-${{ github.ref }}
@@ -23,7 +24,7 @@ permissions: {}
 jobs:
   analysis:
     name: Scorecard analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       security-events: write # Needed to upload the results to code-scanning dashboard.
       id-token: write # Needed to publish results and get a badge (see publish_results below).

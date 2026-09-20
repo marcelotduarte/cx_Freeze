@@ -305,8 +305,6 @@ exclude = [
     "cx_Freeze/hooks/_pyside6_/_resource.py",
     "cx_Freeze/importshed",
     "doc",
-    "new",
-    "old",
     "samples*/*/*.py",
 ]
 

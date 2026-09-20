@@ -1,8 +1,8 @@
 ---
 name: Bug report
-about:
-  Create a report to help us improve. Reduce the need to ask for additional information
-  by filling out a good report.
+about: Create a well-crafted report that reduces the need to request additional
+  information, allowing the focus to remain on fixing the issue or implementing
+  the desired improvement.
 title: ""
 labels: ""
 assignees: ""
@@ -10,15 +10,20 @@ assignees: ""
 
 **Prerequisite**
 
-- Make sure no duplicated issue has already been reported. You should look for closed issues, too.
-- Make sure you are not asking us to help to solve your specific issue. GitHub issues are opened mainly for development purposes. If you want to ask someone to help to solve your problem, go to some community site like StackOverflow, etc.
+- Make sure no duplicated issue has already been reported. You should look for
+  closed issues, too.
+- Make sure you are not asking us to help to solve your specific issue. GitHub
+  issues are opened mainly for development purposes. If you want to ask someone
+  to help to solve your problem, go to some community site like StackOverflow,
+  etc.
 - Make sure your problem is not derived from packaging (e.g. Homebrew).
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior (a setup.py or a minimal code sample will be good)
+Steps to reproduce the behavior
+(a setup.py or a minimal code sample will be good)
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
