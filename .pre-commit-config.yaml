@@ -62,13 +62,13 @@ repos:
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: b40b4e02d5a0c977e64da51e8742e3240ef6372a # frozen: v3.9.7
+    rev: 5c9b20b95f2bc1c4d3d929b83a96d5c96a29e752 # frozen: v3.9.8
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 24cb944c372f536967c7f09b62552e7221f84363 # frozen: v0.0.81
+    rev: ac772f901bb576d192f2f219574a9f02194d51ed # frozen: v0.0.83
     hooks:
       - id: ty
         args: [--no-sync]
