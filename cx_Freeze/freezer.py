@@ -10,7 +10,6 @@ import struct
 import sys
 import sysconfig
 import time
-from abc import abstractmethod
 from contextlib import suppress
 from functools import cached_property
 from importlib.util import MAGIC_NUMBER
@@ -344,14 +343,16 @@ class Freezer:
             return real_source, real_target
         return real_source, target
 
-    @abstractmethod
     def _post_copy_hook(
         self,
         source: Path,
         target: Path,
         copy_dependent_files: bool,
     ) -> None:
-        """Post-copy task."""
+        """Post-copy task.
+
+        (Overridden on Windows, macOS and Linux).
+        """
 
     def _create_directory(self, path: StrPath) -> None:
         path = Path(path)
@@ -379,18 +380,21 @@ class Freezer:
         self._add_license()
         self._add_resources(exe)
 
-    @abstractmethod
     def _get_top_dependencies(self, source: StrPath) -> None:
-        """Get the top dependencies of an executable."""
+        """Get the top dependencies of an executable.
 
-    @abstractmethod
+        (Overridden on Windows, macOS and Linux).
+        """
+
     def _default_bin_excludes(self) -> list[str]:
         """Return the file names of libraries that need not be included.
 
         Because they would normally be expected to be found on the target
         system or because they are part of a package which requires independent
         installation anyway.
+        (Overridden on Windows and Linux).
         """
+        return []
 
     def _default_bin_includes(self) -> list[str]:
         """Return the file names of libraries which must be included.
@@ -412,12 +416,13 @@ class Freezer:
                     break
         return self._validate_bin_file(python_shared_libs)
 
-    @abstractmethod
     def _default_bin_path_excludes(self) -> list[str]:
         """Return the directories with files that should not included.
 
         Generally because they contain standard system libraries.
+        (Overridden on Windows, macOS and Linux).
         """
+        return []
 
     def _default_bin_path_includes(self) -> list[str]:
         """Return the directories with files that should be included.
@@ -1177,9 +1182,6 @@ class DarwinFreezer(Freezer, Parser):
             self._warnings,
         )
         self.darwin_tracker: DarwinFileTracker = DarwinFileTracker()
-
-    def _default_bin_excludes(self) -> list[str]:
-        return []
 
     def _default_bin_includes(self) -> list[str]:
         python_shared_libs: list[Path] = []
