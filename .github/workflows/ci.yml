@@ -17,6 +17,9 @@ permissions:
 jobs:
   pre_commit:
     name: Pre commit
+    if: |
+      contains(github.event.pull_request.title, '[skip tests]') == false &&
+      contains(github.event.head_commit.message, '[skip tests]') == false
     permissions:
       contents: write # Required for pre-commit-ci lite
       id-token: write # Required for pre-commit-ci lite
@@ -40,6 +43,9 @@ jobs:
 
   type_check:
     name: Type check
+    if: |
+      contains(github.event.pull_request.title, '[skip tests]') == false &&
+      contains(github.event.head_commit.message, '[skip tests]') == false
     runs-on: ${{ matrix.os }}-${{ matrix.os_version }}
     strategy:
       fail-fast: false
