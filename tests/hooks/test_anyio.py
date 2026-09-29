@@ -76,7 +76,7 @@ def test_anyio(
         and not (sys.version_info == (3, 13) and ABI_THREAD == "t")
     ):
         tmp_package.install("uvloop")
-    if IS_LINUX:
+    if IS_LINUX and sys.version_info >= (3, 13):
         tmp_package.install("freeze-core>=0.7.6")
     tmp_package.freeze()
     executable = tmp_package.executable("test_anyio")
