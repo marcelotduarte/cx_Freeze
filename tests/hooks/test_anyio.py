@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD
+from cx_Freeze._compat import ABI_THREAD, IS_LINUX, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -45,7 +45,7 @@ pyproject.toml
     name = "test_anyio"
     version = "0.1.2.3"
     dependencies = [
-        "anyio<4.15.1",
+        "anyio",
     ]
 
     [tool.cxfreeze]
@@ -70,11 +70,14 @@ def test_anyio(
         buf = pyproject.read_bytes().decode().splitlines()
         buf += ['zip_include_packages = "*"', 'zip_exclude_packages = ""']
         pyproject.write_bytes("\n".join(buf).encode("utf_8"))
-    if sys.platform != "win32":
-        if not (
-            sys.version_info == (3, 13) and ABI_THREAD == "t"
-        ) and sys.version_info < (3, 15):
-            tmp_package.install("uvloop")
+    if (
+        not (IS_WINDOWS or IS_MINGW)
+        and sys.version_info < (3, 15)
+        and not (sys.version_info == (3, 13) and ABI_THREAD == "t")
+    ):
+        tmp_package.install("uvloop")
+    if IS_LINUX and sys.version_info >= (3, 13):
+        tmp_package.install("freeze-core>=0.7.6")
     tmp_package.freeze()
     executable = tmp_package.executable("test_anyio")
     assert executable.is_file()
