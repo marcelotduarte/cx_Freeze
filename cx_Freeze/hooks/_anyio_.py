@@ -24,6 +24,13 @@ class Hook(ModuleHook):
         """Include backends."""
         finder.exclude_module("anyio.pytest_plugin")
         finder.include_module("anyio._backends._asyncio")
+        # Python 3.15 (needs revision)
+        finder.include_module("anyio.from_thread")
+        finder.include_module("anyio.functools")
+        finder.include_module("anyio.itertools")
+        finder.include_module("anyio.to_interpreter")
+        finder.include_module("anyio.to_process")
+        finder.include_module("anyio.to_thread")
 
     def anyio__backends__asyncio(
         self, _finder: ModuleFinder, module: Module
