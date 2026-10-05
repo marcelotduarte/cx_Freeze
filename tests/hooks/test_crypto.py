@@ -219,8 +219,8 @@ pyproject.toml
 
 
 @pytest.mark.skipif(
-    IS_WINDOWS and sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
-    reason="cryptography hook does not cover Python 3.15t on Windows yet",
+    IS_WINDOWS and sys.version_info[:2] >= (3, 15),
+    reason="cryptography hook does not cover Python 3.15/3.15t on Windows yet",
 )
 @pytest.mark.venv
 @zip_packages
