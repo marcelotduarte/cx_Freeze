@@ -218,11 +218,9 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="cryptography does not support Python 3.15t yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+@pytest.mark.skipif(
+    IS_WINDOWS and sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
+    reason="cryptography hook does not cover Python 3.15t on Windows yet",
 )
 @pytest.mark.venv
 @zip_packages
