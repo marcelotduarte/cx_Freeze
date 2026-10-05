@@ -166,9 +166,9 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 14) and ABI_THREAD == "t",
+    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
-    reason="pycryptodome does not support Python 3.14t/3.15t",
+    reason="pycryptodome does not support Python 3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
@@ -218,11 +218,9 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="cryptography does not support Python 3.15t yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+@pytest.mark.skipif(
+    IS_WINDOWS and sys.version_info[:2] >= (3, 15),
+    reason="cryptography hook does not cover Python 3.15/3.15t on Windows yet",
 )
 @pytest.mark.venv
 @zip_packages
