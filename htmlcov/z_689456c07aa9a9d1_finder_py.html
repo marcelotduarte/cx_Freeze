@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/finder.py: 91.71%</title>
+    <title>Coverage for cx_Freeze/finder.py: 92.29%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script src="coverage_html_cb_15cffcd0.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze<span class="sep">/</span>finder.py</b>:
-            <span class="pc_cov">91.71%</span>
+            <span class="pc_cov">92.29%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">519 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">476<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">43<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">479<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">40<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">4<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.1">coverage.py v7.16.1</a>,
-            created at 2026-10-05 23:08 +0000
+            created at 2026-10-06 02:59 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -864,12 +864,12 @@
     <p class="pln"><span class="n"><a id="t782" href="#t782">782</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t783" href="#t783">783</a></span><span class="t"><span class="str">        The modules are excluded in the resulting frozen executable.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t784" href="#t784">784</a></span><span class="t"><span class="str">        &quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t785" href="#t785">785</a></span><span class="t">        <span class="nam">submodules</span> <span class="op">=</span> <span class="op">[</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t786" href="#t786">786</a></span><span class="t">            <span class="nam">mod</span> <span class="key">for</span> <span class="nam">mod</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span> <span class="key">if</span> <span class="nam">mod</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="fst">f&quot;</span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">.</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t787" href="#t787">787</a></span><span class="t">        <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t788" href="#t788">788</a></span><span class="t">        <span class="key">for</span> <span class="nam">submodule</span> <span class="key">in</span> <span class="nam">submodules</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t785" href="#t785">785</a></span><span class="t">        <span class="nam">submodules</span> <span class="op">=</span> <span class="op">[</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t786" href="#t786">786</a></span><span class="t">            <span class="nam">mod</span> <span class="key">for</span> <span class="nam">mod</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span> <span class="key">if</span> <span class="nam">mod</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="fst">f&quot;</span><span class="op">{</span><span class="nam">name</span><span class="op">}</span><span class="fst">.</span><span class="fst">&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t787" href="#t787">787</a></span><span class="t">        <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t788" href="#t788">788</a></span><span class="t">        <span class="key">for</span> <span class="nam">submodule</span> <span class="key">in</span> <span class="nam">submodules</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t789" href="#t789">789</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span><span class="op">.</span><span class="nam">pop</span><span class="op">(</span><span class="nam">submodule</span><span class="op">,</span> <span class="key">None</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t790" href="#t790">790</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t790" href="#t790">790</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">_modules</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t791" href="#t791">791</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t792" href="#t792">792</a></span><span class="t">    <span class="key">def</span> <span class="nam">excluded_submodules</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="nam">set</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t793" href="#t793">793</a></span><span class="t">        <span class="str">&quot;&quot;&quot;Return the excluded set of submodules for the named module.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
@@ -1033,7 +1033,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_freezer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.16.1">coverage.py v7.16.1</a>,
-            created at 2026-10-05 23:08 +0000
+            created at 2026-10-06 02:59 +0000
         </p>
     </div>
 </footer>
