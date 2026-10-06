@@ -107,6 +107,9 @@ class Hook(ModuleHook):
         finder.exclude_module("torchgen.packaged.ATen.templates")
         # torch 2.2
         finder.include_module("torch.return_types")
+        # unittest is in the default excludes, but torch imports it at
+        # runtime (torch.utils._config_module, unittest.mock in _dynamo...)
+        finder.include_module("unittest")
 
         # include 'config.py' source files
         for source in module_path.rglob("**/config.py"):
