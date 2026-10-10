@@ -1107,8 +1107,9 @@ class WinFreezer(Freezer, PEParser):
         else:
             py_version = f"{PYTHON_VERSION}{ABI_THREAD}"
             names = [
-                f"python{sys.version_info[0]}.dll",
                 f"python{py_version.replace('.', '')}.dll",
+                "python3.dll",  # abi3
+                "python3t.dll",  # abi3t
             ]
         python_shared_libs: list[Path] = []
         for name in names:
@@ -1137,7 +1138,7 @@ class WinFreezer(Freezer, PEParser):
             if path not in lib_files and self._should_copy_file(path):
                 lib_files.setdefault(path, path.name)
                 self._get_top_dependencies(path)
-        if not IS_MINGW:
+        if IS_WINDOWS:
             # abi3 packages requires python3.dll (windows/conda windows)
             for path in map(Path, self.default_bin_includes):
                 lib_files.setdefault(path, path.name)
@@ -1165,6 +1166,9 @@ class WinFreezer(Freezer, PEParser):
             paths.add(prefix / "Library/bin")
             if dest_relative:
                 paths.add(prefix / dest_relative)
+        # Official Python 3.15+ provides 'python3t.dll' on a separated folder
+        if sys.version_info[:2] >= (3, 15):
+            paths.add(Path(sys.base_prefix, "abi3t-compat"))
         # return only valid paths
         return [path.resolve() for path in paths if path.is_dir()]
 

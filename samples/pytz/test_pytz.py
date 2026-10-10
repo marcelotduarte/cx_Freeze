@@ -5,13 +5,13 @@ pytz version
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 import pytz
 
 RFC1123 = "%a, %d %b %Y %H:%M:%S %z"
 
-utc_time = datetime.datetime.now(pytz.utc)
+utc_time = dt.datetime.now(pytz.utc)
 print("UTC time:", utc_time.strftime(RFC1123))
 
 tz1 = pytz.timezone("America/Sao_Paulo")
