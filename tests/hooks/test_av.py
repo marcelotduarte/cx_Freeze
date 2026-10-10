@@ -8,14 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import (
-    ABI_THREAD,
-    IS_CONDA,
-    IS_LINUX,
-    IS_MACOS,
-    IS_MINGW_CLANG,
-    IS_MINGW_UCRT,
-)
+from cx_Freeze._compat import ABI_THREAD, IS_CONDA, IS_LINUX, IS_MACOS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -56,12 +49,6 @@ pyproject.toml
     sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
     raises=ModuleNotFoundError,
     reason="av does not support Python 3.15t yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
-@pytest.mark.xfail(
-    IS_MINGW_CLANG or IS_MINGW_UCRT,
-    raises=ModuleNotFoundError,
-    reason="av (pyAV) supported only in mingw linked to ucrt",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv

@@ -218,9 +218,14 @@ pyproject.toml
 """
 
 
-@pytest.mark.skipif(
-    IS_WINDOWS and sys.version_info[:2] >= (3, 15),
-    reason="cryptography hook does not cover Python 3.15/3.15t on Windows yet",
+@pytest.mark.xfail(
+    IS_MACOS
+    and IS_X86_64
+    and sys.version_info[:2] >= (3, 15)
+    and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="cryptography does not support Python 3.15t macOS Intel",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
 @zip_packages
