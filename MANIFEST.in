@@ -1,3 +1,4 @@
+include CHANGELOG.md
 include LICENSE.md
 include Makefile
 include requirements.txt
@@ -5,9 +6,10 @@ include requirements-dev.txt
 recursive-exclude cx_Freeze *.pyc
 recursive-include cx_Freeze/hooks *.conf *.sh *.qrc
 recursive-include cx_Freeze/importshed *.pyi
-recursive-include doc Makefile *.py *.rst *.txt
+graft ci
+graft doc
 graft samples
 prune samples/*/build
 prune samples/*/dist
 prune samples/*/wheelhouse
-recursive-include tests *.md *.py *.txt
+graft tests

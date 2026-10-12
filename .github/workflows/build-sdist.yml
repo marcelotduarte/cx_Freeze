@@ -1,0 +1,61 @@
+name: Build sdist
+
+on:
+  workflow_call:
+    inputs:
+      dev:
+        default: false
+        required: false
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      dev:
+        default: false
+        required: false
+        type: boolean
+
+concurrency:
+  group: build-sdist-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    env:
+      UV_NO_PROGRESS: true
+      UV_SYSTEM_PYTHON: true
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: marcelotduarte/cx_Freeze
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: false
+          python-version: "3.14"
+
+      - name: Bump new dev version
+        if: ${{ inputs.dev }}
+        run: ./ci/bump-version.sh build-dev
+
+      - name: Build source distribution
+        run: uv build --sdist
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cx-freeze-sdist
+          path: dist
+          compression-level: 0 # no compression

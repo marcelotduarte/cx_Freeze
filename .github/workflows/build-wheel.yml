@@ -8,36 +8,54 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: build-wheel${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
+  build_sdist:
+    name: Build sdist for cx_Freeze
+    uses: $/.github/workflows/build-sdist.yml
+    with:
+      dev: ${{ github.event_name != 'release' }}
+
   build_wheel:
+    needs:
+      - build_sdist
     name: Build wheel
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     env:
       UV_NO_PROGRESS: true
+      UV_SYSTEM_PYTHON: true
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download sdist artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          persist-credentials: false
+          name: cx-freeze-sdist
+          path: dist
+
+      - name: Checkout from sdist
+        run: |
+          (cd dist && tar xvf cx_freeze-*.tar.gz)
+          mv dist/cx_freeze-*/* .
+          rm -rf dist
+          ls -l
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
 
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           enable-cache: false
-          python-version: "3.12"
-
-      - name: Bump new dev version
-        if: github.event_name != 'release'
-        run: ./ci/bump-version.sh build-dev
 
       - name: Build sdist and wheels
         run: ./ci/build-wheel.sh
@@ -52,7 +70,8 @@ jobs:
   publish:
     if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
     name: Publish package to PyPI
-    needs: build_wheel
+    needs:
+      - build_wheel
     environment:
       name: pypi
       url: https://pypi.org/p/cx-Freeze
@@ -69,7 +88,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: wheelhouse
-          pattern: cx-freeze-wheel
+          pattern: cx-freeze-*
           merge-multiple: true
 
       - name: Publish package to PyPI

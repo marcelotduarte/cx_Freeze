@@ -35,7 +35,11 @@ if [ "$IS_CONDA" == "1" ]; then
     PLATFORM_TAG_MASK=$PLATFORM_TAG
 else
     if [[ $PY_PLATFORM == linux* ]]; then
-        PLATFORM_TAG=many${PY_PLATFORM/-/_}
+        if [ "$OSTYPE" == "linux-musl" ]; then
+            PLATFORM_TAG=musl${PY_PLATFORM/-/_}
+        else
+            PLATFORM_TAG=many${PY_PLATFORM/-/_}
+        fi
         PLATFORM_TAG_MASK=${PLATFORM_TAG/_/*_}
     elif [[ $PY_PLATFORM == macosx* ]]; then
         PLATFORM_TAG=macosx_universal2
@@ -102,7 +106,7 @@ fi
 _get_dirty () {
     local value
     if which git &>/dev/null; then
-        value=$(git status --short -uno | wc -l)
+        value=$(git status --short -uno 2>/dev/null | wc -l)
     else
         value=1
     fi
@@ -134,7 +138,8 @@ _build_wheel () {
         if [ "$CI" == "true" ] && [[ $PY_PLATFORM == win* ]]; then
             export UV_LINK_MODE=copy
         fi
-        if [ "$ZIP_SAFE" == "true" ]; then
+        # check for $container while cibuildwheel does not support to run on it
+        if [ "$ZIP_SAFE" == "true" ] || [ -n "$container" ]; then
             UV_NO_BUILD=0 \
             uv build -p "$PY_VERSION$PY_ABI_THREAD" --wheel -o wheelhouse
         else
