@@ -219,6 +219,15 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
+    IS_WINDOWS
+    and IS_ARM_64
+    and sys.version_info[:2] >= (3, 15)
+    and ABI_THREAD == "t",
+    raises=ModuleNotFoundError,
+    reason="cryptography does not support Python 3.15t Windows ARM64",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+)
+@pytest.mark.xfail(
     IS_MACOS
     and IS_X86_64
     and sys.version_info[:2] >= (3, 15)
