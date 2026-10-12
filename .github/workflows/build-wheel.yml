@@ -5,10 +5,23 @@ on:
     types:
       - created
   workflow_call:
+    inputs:
+      branch:
+        default: ${{ github.ref }}
+        required: false
+        type: string
   workflow_dispatch:
+    inputs:
+      branch:
+        default: main
+        required: true
+        type: choice
+        options:
+          - develop
+          - main
 
 concurrency:
-  group: build-wheel${{ github.ref }}
+  group: build-wheel-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -19,6 +32,7 @@ jobs:
     name: Build sdist for cx_Freeze
     uses: $/.github/workflows/build-sdist.yml
     with:
+      branch: ${{ inputs.branch }}
       dev: ${{ github.event_name != 'release' }}
 
   build_wheel:
