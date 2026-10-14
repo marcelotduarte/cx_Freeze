@@ -16,7 +16,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for pyarrow.
 
-    Supported pypi and conda-forge versions (tested from 14.0 to 22.0).
+    Supported pypi and conda-forge versions (tested from 14.0 to 25.0).
     """
 
     def pyarrow(self, finder: ModuleFinder, module: Module) -> None:
