@@ -9,7 +9,7 @@
 | cx\_Freeze/\_bytecode.py              |      119 |       28 |     76.47% |84-105, 125-140 |
 | cx\_Freeze/\_compat.py                |       32 |        0 |    100.00% |           |
 | cx\_Freeze/\_license.py               |       28 |        5 |     82.14% |36, 40-41, 46-47 |
-| cx\_Freeze/\_metadata.py              |      119 |       19 |     84.03% |47-52, 54, 60, 69, 165-166, 173, 182-185, 191-193 |
+| cx\_Freeze/\_metadata.py              |      119 |       19 |     84.03% |47-52, 54, 60, 69, 165-166, 173, 182-185, 195-197 |
 | cx\_Freeze/\_pyproject.py             |       35 |        0 |    100.00% |           |
 | cx\_Freeze/cli.py                     |       98 |        0 |    100.00% |           |
 | cx\_Freeze/command/\_\_init\_\_.py    |        0 |        0 |    100.00% |           |
