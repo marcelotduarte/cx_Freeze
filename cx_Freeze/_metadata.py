@@ -7,7 +7,7 @@ from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.metadata import PathDistribution
 from importlib.metadata import version as metadata_version
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from packaging.requirements import Requirement
 
@@ -185,8 +185,12 @@ class DistributionCache(PathDistribution):
                     package_names.append(require.name)
         return package_names
 
+    @overload
     @property
-    def version(self) -> tuple[str | int, ...]:
+    def version(self) -> tuple[str | int, ...]: ...
+
+    @property
+    def version(self):
         """Return the 'Version' metadata for the distribution package."""
         version_separators = re.compile(r"[\._-]")
         version_value = super().version or ""
