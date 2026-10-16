@@ -70,6 +70,7 @@ class PackageData:
 
     name: str
     version: str
+    base_url: str | None = None
     editable_project_location: str | None = None
 
     @property
@@ -423,19 +424,31 @@ class TempPackage:
         result = self.run(cmd, cwd=self.system_path)
         full_list: list[dict[str, str]] = json.loads(str(result.stdout))
         installed = []
+        wheelhouse = self.system_path / "wheelhouse"
+        if wheelhouse.is_dir():
+            wheelfiles = list(wheelhouse.glob("*.whl"))
+        else:
+            wheelfiles = []
         for package in full_list:
+            base_url = package.get("base_url")
             editable_location = package.get("editable_project_location")
             if self.backend == "conda":
                 if not package.get("build_string", "").startswith("py"):
                     continue
-                if (
-                    package.get("base_url") is None
-                    and package.get("channel") == "<unknown>"
-                ):
+                if base_url is None and package.get("channel") == "<unknown>":
                     editable_location = self.system_path.as_posix()
             data = PackageData(
-                package["name"], package["version"], editable_location
+                package["name"],
+                package["version"],
+                base_url,
+                editable_location,
             )
+            if self.backend != "conda":
+                normalized_name = data.normalized_name.replace("-", "_")
+                for f in wheelfiles:
+                    if f.name.startswith(f"{normalized_name}-{data.version}-"):
+                        data.base_url = f.parent.as_uri()
+                        break
             installed.append(data)
         return installed
 
@@ -576,6 +589,8 @@ class TempPackage:
             cmd = f"{cmd} --no-deps"
         if index is False:
             cmd = f"{cmd} --no-index"
+        elif isinstance(index, str) and index.startswith("file:"):
+            cmd = f"{cmd} -f {index} --no-index"
         elif isinstance(index, str):
             cmd = f"{cmd} --index {index}"
         elif isinstance(index, Path):
@@ -754,14 +769,14 @@ class TempPackageVenv(TempPackage):
         # check for editable packages in development environment
         packages = []
         editables = []
-        project_is_editable = False
+        file_url = []
         for pkg in self._get_installed_packages():
             if pkg.normalized_name in required:
                 if pkg.editable_project_location is not None:
                     editables.append(pkg.editable_project_location)
-                    if pkg.normalized_name == project_name:
-                        project_is_editable = True
-                elif pkg.normalized_name != project_name:
+                elif pkg.base_url and pkg.base_url.startswith("file:"):
+                    file_url.append(pkg)
+                else:
                     packages.append(pkg.spec)
         # install dependent packages in conda
         if self.backend == "conda":
@@ -769,13 +784,10 @@ class TempPackageVenv(TempPackage):
         # install editable packages, including project_name if editable
         for package in editables:
             self.install_editable(package, deps=False)
-        # or from wheelhouse if non-editable
-        if not project_is_editable:
-            index = self.system_path / "wheelhouse"
-            if self.backend == "conda":
-                index = index / "conda" / project_name / "noarch"
+        # install packages from file locations (from wheelhouse)
+        for pkg in file_url:
             self.install(
-                project_name, deps=False, index=index, prerelease=True
+                pkg.spec, deps=False, index=pkg.base_url, prerelease=True
             )
         # install the remaining packages if not in conda
         if self.backend != "conda":
