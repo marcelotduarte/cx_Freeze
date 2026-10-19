@@ -172,12 +172,6 @@ pyproject.toml
     reason="conda-forge does not support pycryptodome on Python 3.15+",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="pycryptodome does not support Python 3.15t",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.venv
 @zip_packages
 def test_crypto(

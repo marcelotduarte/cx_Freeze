@@ -67,25 +67,25 @@ wheel:
 .PHONY: tests
 tests: wheel
 	./ci/install-tools.sh --tests
-	cp pyproject.toml $(COV_TMPDIR)/
-	cp -a samples $(COV_TMPDIR)/
-	cp -a tests $(COV_TMPDIR)/
-	cp -a wheelhouse $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && pytest -rpfEsXx -nauto tests/test_*.py || true
-	cd $(COV_TMPDIR) && pytest -rpfEsXx -nauto --dist=loadfile tests/stdlib/test_*.py || true
-	cd $(COV_TMPDIR) && pytest -rpfEsXx -nauto --dist=loadfile tests/hooks/test_*.py || true
+	cp pyproject.toml "$(COV_TMPDIR)"/
+	cp -a samples "$(COV_TMPDIR)"/
+	cp -a tests "$(COV_TMPDIR)"/
+	cp -a wheelhouse "$(COV_TMPDIR)"/
+	cd "$(COV_TMPDIR)" && pytest -rpfEsXx -nauto tests/test_*.py || true
+	cd "$(COV_TMPDIR)" && pytest -rpfEsXx -nauto --dist=loadfile tests/stdlib/test_*.py || true
+	cd "$(COV_TMPDIR)" && pytest -rpfEsXx -nauto --dist=loadfile tests/hooks/test_*.py || true
 
 .PHONY: cov
 cov: wheel
 	./ci/install-tools.sh --tests
 	@rm -rf build/coverage_html_report
-	cp pyproject.toml $(COV_TMPDIR)/
-	cp -a samples $(COV_TMPDIR)/
-	cp -a tests $(COV_TMPDIR)/
-	cp -a wheelhouse $(COV_TMPDIR)/
-	cd $(COV_TMPDIR) && coverage run -m pytest -rpfEsXx -nauto tests/test_*.py || true
-	cd $(COV_TMPDIR) && coverage run -m pytest -rpfEsXx -nauto --dist=loadfile tests/stdlib/test_*.py || true
-	cd $(COV_TMPDIR) && coverage run -m pytest -rpfEsXx -nauto --dist=loadfile --durations=20 tests/hooks/test_*.py || true
-	coverage combine --keep --quiet -a $(COV_TMPDIR)/
+	cp pyproject.toml "$(COV_TMPDIR)"/
+	cp -a samples "$(COV_TMPDIR)"/
+	cp -a tests "$(COV_TMPDIR)"/
+	cp -a wheelhouse "$(COV_TMPDIR)"/
+	cd "$(COV_TMPDIR)" && coverage run -m pytest -rpfEsXx -nauto tests/test_*.py || true
+	cd "$(COV_TMPDIR)" && coverage run -m pytest -rpfEsXx -nauto --dist=loadfile tests/stdlib/test_*.py || true
+	cd "$(COV_TMPDIR)" && coverage run -m pytest -rpfEsXx -nauto --dist=loadfile --durations=20 tests/hooks/test_*.py || true
+	coverage combine --keep --quiet -a "$(COV_TMPDIR)"/
 	coverage report
 	coverage html

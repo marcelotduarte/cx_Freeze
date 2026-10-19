@@ -70,6 +70,7 @@ class PackageData:
 
     name: str
     version: str
+    base_url: str | None = None
     editable_project_location: str | None = None
 
     @property
@@ -375,15 +376,12 @@ class TempPackage:
             backend = self.backend
 
         with self._lock:
-            editables = [f"-e{package}" for package in packages]
-            if not editables:
-                return None
             if self.backend == "conda":
                 # conda>=26.5 supports conda-pypi
                 # TODO: conda config --append channels conda-pypi
-                return self._install_conda_editable(editables)
+                return self._install_conda_editable(packages)
             return self._install_pip(
-                editables,
+                [f"-e{package}" for package in packages],
                 backend=backend,
                 binary=False,
                 deps=deps,
@@ -423,19 +421,31 @@ class TempPackage:
         result = self.run(cmd, cwd=self.system_path)
         full_list: list[dict[str, str]] = json.loads(str(result.stdout))
         installed = []
+        wheelhouse = self.system_path / "wheelhouse"
+        if wheelhouse.is_dir():
+            wheelfiles = list(wheelhouse.glob("*.whl"))
+        else:
+            wheelfiles = []
         for package in full_list:
+            base_url = package.get("base_url")
             editable_location = package.get("editable_project_location")
             if self.backend == "conda":
                 if not package.get("build_string", "").startswith("py"):
                     continue
-                if (
-                    package.get("base_url") is None
-                    and package.get("channel") == "<unknown>"
-                ):
+                if base_url is None and package.get("channel") == "<unknown>":
                     editable_location = self.system_path.as_posix()
             data = PackageData(
-                package["name"], package["version"], editable_location
+                package["name"],
+                package["version"],
+                base_url,
+                editable_location,
             )
+            if self.backend != "conda":
+                normalized_name = data.normalized_name.replace("-", "_")
+                for f in wheelfiles:
+                    if f.name.startswith(f"{normalized_name}-{data.version}-"):
+                        data.base_url = f.parent.as_uri()
+                        break
             installed.append(data)
         return installed
 
@@ -477,39 +487,24 @@ class TempPackage:
         return result
 
     def _install_conda_editable(self, packages: list[str]) -> pytest.RunResult:
+        installed = self._get_installed_packages()
         editables = []
         for package in packages:
             if package.startswith("-e"):
                 editables.append(package)
             else:
                 editables.append(f"-e{package}")
-        installed = self._get_installed_packages()
-        packages: str = " ".join(packages)
+        packages: str = " ".join(editables)
         cmd = f"conda pypi install -p {self.prefix} -q -y {packages}"
         result = self.run(cmd, cwd=self.system_path)
         if result.ret > 0:
             raise ModuleNotFoundError(packages) from None
-        try:
-            return result
-        finally:
-            names = [pkg.name for pkg in installed]
-            name_to_remove = None
-            for pkg in self._get_installed_packages():
-                name = pkg.name
-                if name not in names:
-                    name_to_remove = name
-                    break
-            if name_to_remove:
-
-                def _conda_remove_editable() -> None:
-                    cmd = (
-                        f"conda remove {name_to_remove} -p {self.prefix}"
-                        " -q -y --force --offline"
-                    )
-                    with io.StringIO() as f, redirect_stdout(f):
-                        self.run(cmd, cwd=self.system_path)
-
-                self.request.config.add_cleanup(_conda_remove_editable)
+        # restore setuptools version if changed
+        for pkg in installed:
+            if pkg.name == "setuptools":
+                self._install_conda([pkg.spec], deps=False)
+                break
+        return result
 
     def _install_mingw(self, packages: list[str]) -> pytest.RunResult:
         MINGW_PACKAGE_PREFIX = os.environ["MINGW_PACKAGE_PREFIX"]
@@ -576,6 +571,8 @@ class TempPackage:
             cmd = f"{cmd} --no-deps"
         if index is False:
             cmd = f"{cmd} --no-index"
+        elif isinstance(index, str) and index.startswith("file:"):
+            cmd = f"{cmd} -f {index} --no-index"
         elif isinstance(index, str):
             cmd = f"{cmd} --index {index}"
         elif isinstance(index, Path):
@@ -633,24 +630,21 @@ class TempPackageVenv(TempPackage):
         self._v_lock = None
         self._venv()
 
+        # install_dependencies
+        venv_marker = self.request.node.get_closest_marker(name="venv")
+        self._install_dependencies = venv_marker.kwargs.get(
+            "install_dependencies", True
+        )
+        self.project_is_editable = False
+
     def create(self, source: str) -> None:
         super().create(source)
         self.install_system_dependencies()
-        # install dependencies
-        venv_marker = self.request.node.get_closest_marker(name="venv")
-        install_deps = venv_marker.kwargs.get("install_dependencies", True)
-        if install_deps:
-            self.install_dependencies()
         self.unlock()
 
     def create_from_sample(self, sample: str) -> None:
         super().create_from_sample(sample)
         self.install_system_dependencies()
-        # install dependencies
-        venv_marker = self.request.node.get_closest_marker(name="venv")
-        install_deps = venv_marker.kwargs.get("install_dependencies", True)
-        if install_deps:
-            self.install_dependencies()
         self.unlock()
 
     def freeze(
@@ -751,35 +745,37 @@ class TempPackageVenv(TempPackage):
 
         # get installed packages in the host environment
         # compare them with the 'required' dependencies from pyproject.toml
-        # check for editable packages in development environment
+        # editable packages in development environment will be postponed
         packages = []
         editables = []
-        project_is_editable = False
+        file_url = []
         for pkg in self._get_installed_packages():
             if pkg.normalized_name in required:
                 if pkg.editable_project_location is not None:
                     editables.append(pkg.editable_project_location)
                     if pkg.normalized_name == project_name:
-                        project_is_editable = True
-                elif pkg.normalized_name != project_name:
+                        self.project_is_editable = True
+                elif pkg.base_url and pkg.base_url.startswith("file:"):
+                    file_url.append(pkg)
+                else:
                     packages.append(pkg.spec)
         # install dependent packages in conda
         if self.backend == "conda":
             self.install(packages)
-        # install editable packages, including project_name if editable
-        for package in editables:
-            self.install_editable(package, deps=False)
-        # or from wheelhouse if non-editable
-        if not project_is_editable:
-            index = self.system_path / "wheelhouse"
-            if self.backend == "conda":
-                index = index / "conda" / project_name / "noarch"
+        # install packages from file locations (from wheelhouse)
+        for pkg in file_url:
             self.install(
-                project_name, deps=False, index=index, prerelease=True
+                pkg.spec, deps=False, index=pkg.base_url, prerelease=True
             )
         # install the remaining packages if not in conda
         if self.backend != "conda":
             self.install(packages)
+        # install dependencies from sample pyproject
+        if self._install_dependencies:
+            self.install_dependencies()
+        # install editable packages, including project_name if editable
+        for package in editables:
+            self.install_editable(package, deps=False)
 
     def lock(self) -> None:
         prefix = self.venv_prefix
