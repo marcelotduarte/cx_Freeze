@@ -1386,12 +1386,12 @@ class LinuxFreezer(Freezer, ELFParser):
             "ld.so",
             "ld64.so",
             "ld-linux.so",
-            "ld-linux-*.so",  # ld-linux-x86-64.so.2, ld-linux-aarch64.so.2
-            "libc.so",
-            "libdl.so",
-            "libm.so",
-            "libpthread.so",
-            "libutil.so",
+            "ld-linux-*.so*",  # ld-linux-x86-64.so.2, ld-linux-aarch64.so.2
+            "libc.so*",
+            "libdl.so*",
+            "libm.so*",
+            "libpthread.so*",
+            "libutil.so*",
             # musllinux
             "ld-musl-*.so",
         ]

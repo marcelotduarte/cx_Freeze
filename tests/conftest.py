@@ -429,11 +429,12 @@ class TempPackage:
         for package in full_list:
             base_url = package.get("base_url")
             editable_location = package.get("editable_project_location")
-            if self.backend == "conda":
-                if not package.get("build_string", "").startswith("py"):
-                    continue
-                if base_url is None and package.get("channel") == "<unknown>":
-                    editable_location = self.system_path.as_posix()
+            if (
+                self.backend == "conda"
+                and base_url is None
+                and package.get("channel") == "<unknown>"
+            ):
+                editable_location = self.system_path.as_posix()
             data = PackageData(
                 package["name"],
                 package["version"],
@@ -744,13 +745,16 @@ class TempPackageVenv(TempPackage):
         required.sort()
 
         # get installed packages in the host environment
+        installed = self._get_installed_packages()
         # compare them with the 'required' dependencies from pyproject.toml
         # editable packages in development environment will be postponed
         packages = []
         editables = []
         file_url = []
-        for pkg in self._get_installed_packages():
-            if pkg.normalized_name in required:
+        for package in required:
+            for pkg in installed:
+                if package != pkg.normalized_name:
+                    continue
                 if pkg.editable_project_location is not None:
                     editables.append(pkg.editable_project_location)
                     if pkg.normalized_name == project_name:
