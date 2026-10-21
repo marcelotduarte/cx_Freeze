@@ -18,7 +18,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, cast
 
-from cx_Freeze._compat import PLATFORM
+from cx_Freeze._compat import IS_CONDA, PLATFORM
 from cx_Freeze.exception import PlatformError
 
 if TYPE_CHECKING:
@@ -33,7 +33,8 @@ if TYPE_CHECKING:
 # In Linux, to get dependencies, the default is to use ldd in x64 platforms
 LDD_DISABLED = (
     os.environ.get(
-        "CX_FREEZE_BIND", "" if PLATFORM.endswith("x86_64") else "patchelf"
+        "CX_FREEZE_BIND",
+        "" if not IS_CONDA and PLATFORM.endswith("x86_64") else "patchelf",
     )
     == "patchelf"
 )
@@ -84,7 +85,8 @@ class Parser(ABC):
         for directory in map(Path, search_path):
             library = directory / name
             if self._is_binary(library):
-                return library.resolve()
+                # do not use resolve() symlinks here
+                return library
         return None
 
     def get_dependent_files(self, filename: StrPath) -> set[Path]:
