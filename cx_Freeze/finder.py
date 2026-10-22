@@ -86,11 +86,13 @@ class ModuleFinder:
         zip_include_packages: Sequence[str] | None = None,
         zip_include_all_packages: bool = False,
         zip_includes: IncludesList | None = None,
+        include_frozen_modules: bool = False,
     ) -> None:
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
         self.optimize = optimize
+        self.include_frozen_modules: bool = include_frozen_modules
         self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
         self.zip_include_all_packages: bool = zip_include_all_packages
@@ -914,6 +916,10 @@ class ModuleFinder:
             for module in valid_modules
             if module.name in self.builtin_modules
         }
+        # Keep stdlib modules that already have bytecode. C builtins and
+        # extension modules (code is None) stay out of the write list.
+        if self.include_frozen_modules:
+            builtin = {module for module in builtin if module.code is None}
         if sys.version_info[:2] < (3, 11):
             builtin |= {
                 module
