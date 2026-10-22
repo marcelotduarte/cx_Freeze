@@ -344,6 +344,13 @@ It can be further customized:
     with one of the following values: 15, 16 or 17
     (version 15 includes UCRT for Windows 8.1 and below)
 
+.. option:: include-frozen-modules
+
+    write bootstrap and core stdlib modules that freeze-core embeds (such as
+    encodings and ``__startup__``) into ``lib/library.zip`` or ``lib/`` so a
+    launcher other than the cx_Freeze base executable can import them.
+    Default off.
+
 .. versionchanged:: 6.0
    Replaced the ``compressed`` option with the :option:`no-compress` option.
 
@@ -356,64 +363,76 @@ It can be further customized:
 .. versionadded:: 8.0
     :option:`include-msvcr-version` option.
 
+.. versionadded:: 8.7.3
+    :option:`include-frozen-modules` option.
+
 This is the equivalent help to specify the same options on the command line:
 
   .. code-block:: console
 
     python setup.py build_exe --help
     Options for 'build_exe' command:
-      --build-exe (-b)        directory for built executables and dependent files
-      --includes (-i)         comma-separated list of modules to include
-      --excludes (-e)         comma-separated list of modules to exclude
-      --packages (-p)         comma-separated list of packages to include, which
-                              includes all submodules in the package
-      --replace-paths         comma-separated list of paths to replace in included
-                              modules, using the form <search>=<replace>
-      --path                  comma-separated list of paths to search for modules
-                              (use only if you know what you are doing)
-                              [default: sys.path]
-      --include-path          comma-separated list of paths to modify the search
-                              for modules
-      --constants             comma-separated list of constants to include
-      --bin-includes          list of files to include when determining
-                              dependencies of binary files that would normally be
-                              excluded
-      --bin-excludes          list of files to exclude when determining
-                              dependencies of binary files that would normally be
-                              included
-      --bin-path-includes     list of paths from which to include files when
-                              determining dependencies of binary files
-      --bin-path-excludes     list of paths from which to exclude files when
-                              determining dependencies of binary files
-      --include-files (-f)    list of tuples of additional files to include in
-                              distribution
-      --zip-includes          list of tuples of additional files to include in zip
-                              file
-      --zip-include-packages  comma-separated list of packages to include in the
-                              zip file (or * for all) [default: none]
-      --zip-exclude-packages  comma-separated list of packages to exclude from the
-                              zip file and place in the file system instead (or *
-                              for all) [default: *]
-      --zip-filename          filename for the shared zipfile (.zip) [default:
-                              "library.zip" or None if --no-compress is used]
-      --no-compress           create a zip file with no compression (See also --
-                              zip-filename)
-      --optimize (-O)         optimization level: -O1 for "python -O", -O2 for
-                              "python -OO" and -O0 to disable [default: -O0]
-      --silent (-s)           suppress all output except warnings (equivalent to
-                              --silent-level=1)
-      --silent-level          suppress output from build_exe command. level 0: get
-                              all messages; [default] level 1: suppress
-                              information messages, but still get warnings;
-                              (equivalent to --silent) level 2: suppress missing
-                              missing-module warnings level 3: suppress all
-                              warning messages
-      --include-msvcr         include the Microsoft Visual C++ Redistributable
-                              files without needing the redistributable package
-                              installed (equivalent to --include-msvcr-version=17)
-      --include-msvcr-version like --include-msvcr but the version can be set
-                              with one of the following values: 15, 16 or 17
-                              (version 15 includes UCRT for Windows 8.1 and below)
+      --build-exe (-b)          directory for built executables and dependent
+                                files
+      --includes (-i)           comma-separated list of modules to include
+      --excludes (-e)           comma-separated list of modules to exclude
+      --packages (-p)           comma-separated list of packages to include, which
+                                includes all submodules in the package
+      --replace-paths           comma-separated list of paths to replace in
+                                included modules, using the form
+                                <search>=<replace>
+      --path                    comma-separated list of paths to search for
+                                modules (use only if you know what you are doing)
+                                [default: sys.path]
+      --include-path            comma-separated list of paths to modify the search
+                                for modules
+      --constants               comma-separated list of constants to include
+      --bin-includes            list of files to include when determining
+                                dependencies of binary files that would normally
+                                be excluded
+      --bin-excludes            list of files to exclude when determining
+                                dependencies of binary files that would normally
+                                be included
+      --bin-path-includes       list of paths from which to include files when
+                                determining dependencies of binary files
+      --bin-path-excludes       list of paths from which to exclude files when
+                                determining dependencies of binary files
+      --include-files (-f)      list of tuples of additional files to include in
+                                distribution
+      --zip-includes            list of tuples of additional files to include in
+                                zip file
+      --zip-include-packages    comma-separated list of packages to include in the
+                                zip file (or * for all) [default: none]
+      --zip-exclude-packages    comma-separated list of packages to exclude from
+                                the zip file and place in the file system instead
+                                (or * for all) [default: *]
+      --zip-filename            filename for the shared zipfile (.zip) [default:
+                                "library.zip" or None if --no-compress is used]
+      --no-compress             create a zip file with no compression (See also --
+                                zip-filename)
+      --optimize (-O)           optimization level: -O1 for "python -O", -O2 for
+                                "python -OO" and -O0 to disable [default: -O0]
+      --silent (-s)             suppress all output except warnings (equivalent to
+                                --silent-level=1)
+      --silent-level            suppress output from build_exe command. level 0:
+                                get all messages; [default] level 1: suppress
+                                information messages, but still get warnings;
+                                (equivalent to --silent) level 2: suppress missing
+                                missing-module warnings level 3: suppress all
+                                warning messages
+      --include-msvcr           include the Microsoft Visual C++ Redistributable
+                                files without needing the redistributable package
+                                installed (equivalent to --include-msvcr-
+                                version=17)
+      --include-msvcr-version   like --include-msvcr but the version can be set
+                                with one of the following values: 15, 16 or 17
+                                (version 15 includes UCRT for Windows 8.1 and
+                                below)
+      --include-frozen-modules  write bootstrap and core stdlib modules that
+                                freeze-core embeds (such as encodings and
+                                __startup__) into lib/library.zip or lib/ so a
+                                launcher other than the cx_Freeze base executable
+                                can import them [default: off]
 
 
 install
