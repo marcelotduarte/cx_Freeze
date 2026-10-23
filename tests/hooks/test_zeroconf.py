@@ -51,7 +51,10 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    IS_MACOS and IS_X86_64 and sys.version_info[:2] >= (3, 15),
+    not IS_CONDA
+    and IS_MACOS
+    and IS_X86_64
+    and sys.version_info[:2] >= (3, 15),
     raises=ModuleNotFoundError,
     reason="zeroconf does not support Python 3.15 on macOS Intel",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
