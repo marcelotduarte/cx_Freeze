@@ -8,6 +8,7 @@ import json
 import linecache
 import logging
 import os
+import re
 import sys
 import traceback
 from contextlib import suppress
@@ -804,16 +805,34 @@ class ModuleFinder:
         dists = {d.name: d for d in distributions(path=self.path)}
         found = set()
         for import_name, packages in packages_distributions().items():
-            for dist_name in set(packages):
+            candidates = []
+            for dist_name in dict.fromkeys(packages):
                 if dist_name not in dists:
                     # Normally setuptools _vendor packages are not found
                     # because they are excluded from the self.path.
                     continue
                 if "." in dist_name:  # namespace package
                     imports[dist_name] = dists[dist_name]
+                    found.add(dist_name)
                 else:
-                    imports[import_name] = dists[dist_name]
-                found.add(dist_name)
+                    candidates.append(dist_name)
+            if not candidates:
+                continue
+            # Several distributions can install files into the same import
+            # package (e.g. a plugin or data distribution); prefer the one
+            # named after the import, otherwise the result would depend on
+            # the iteration order.
+            dist_name = next(
+                (
+                    name
+                    for name in candidates
+                    if re.sub(r"[-_.]+", "_", name).lower()
+                    == import_name.lower()
+                ),
+                candidates[0],
+            )
+            imports[import_name] = dists[dist_name]
+            found.add(dist_name)
         for dist_name in found:
             dists.pop(dist_name)
         if dists:
