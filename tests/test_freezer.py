@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import sysconfig
+import zipfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NoReturn
 
@@ -194,6 +195,21 @@ def test_freezer_populate_zip_options_invalid_values(
             id="include_msvcr=true",
         ),
         pytest.param(
+            {},
+            {"include_frozen_modules": False},
+            id="include_frozen_modules=omitted",
+        ),
+        pytest.param(
+            {"include_frozen_modules": None},
+            {"include_frozen_modules": False},
+            id="include_frozen_modules=none",
+        ),
+        pytest.param(
+            {"include_frozen_modules": True},
+            {"include_frozen_modules": True},
+            id="include_frozen_modules=true",
+        ),
+        pytest.param(
             {"replace_paths": [("*", "")]},
             {"replace_paths": [("*", "")]},
             id="replace_paths=*",
@@ -342,6 +358,85 @@ def test_freezer_zip_filename(
     executable = target_dir / tmp_package.executable("hello").name
     assert executable.is_file()
 
+    result = tmp_package.run(executable)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
+
+
+SOURCE_JSON = """
+hello.py
+    import json
+    print("Hello from cx_Freeze")
+"""
+
+_FROZEN_STDLIB = (
+    "__startup__",
+    "encodings",
+    "traceback",
+    "codecs",
+    "io",
+    "os",
+    "abc",
+)
+
+
+def _stdlib_pyc_present(name: str, zip_names: set[str], lib_dir: Path) -> bool:
+    """Return whether name.pyc or name/__init__.pyc was written."""
+    flat = f"{name}.pyc"
+    package = f"{name}/__init__.pyc"
+    return (
+        flat in zip_names
+        or package in zip_names
+        or (lib_dir / flat).is_file()
+        or (lib_dir / name / "__init__.pyc").is_file()
+    )
+
+
+def test_include_frozen_modules(tmp_package: TempPackage) -> None:
+    """Test opting in to write freeze-core stdlib modules."""
+    tmp_package.create(SOURCE_JSON)
+
+    freezer = Freezer(
+        executables=["hello.py"], include_msvcr=True, silent=True
+    )
+    freezer.freeze()
+    lib_dir = freezer.target_dir / "lib"
+    zip_path = lib_dir / "library.zip"
+    assert zip_path.is_file()
+    with zipfile.ZipFile(zip_path) as archive:
+        zip_names = set(archive.namelist())
+    for name in _FROZEN_STDLIB:
+        if name in freezer.finder.builtin_modules:
+            assert not _stdlib_pyc_present(name, zip_names, lib_dir), name
+    executable = tmp_package.executable("hello")
+    assert executable.is_file()
+    result = tmp_package.run(executable)
+    result.stdout.fnmatch_lines("Hello from cx_Freeze")
+
+    freezer = Freezer(
+        executables=["hello.py"],
+        include_frozen_modules=True,
+        include_msvcr=True,
+        silent=True,
+    )
+    freezer.freeze()
+    lib_dir = freezer.target_dir / "lib"
+    zip_path = lib_dir / "library.zip"
+    assert zip_path.is_file()
+    with zipfile.ZipFile(zip_path) as archive:
+        zip_names = set(archive.namelist())
+    assert "__startup__.pyc" in zip_names
+    assert _stdlib_pyc_present("encodings", zip_names, lib_dir)
+    assert _stdlib_pyc_present("traceback", zip_names, lib_dir)
+    # CPython builtins and frozen modules stay out, as before freeze-core 0.7.
+    for name in ("os", "abc", "codecs", "io"):
+        if name in freezer.finder.builtin_modules:
+            assert not _stdlib_pyc_present(name, zip_names, lib_dir), name
+    assert "sys.pyc" not in zip_names
+    assert "sys/__init__.pyc" not in zip_names
+    assert not (lib_dir / "sys.pyc").is_file()
+    assert not (lib_dir / "sys" / "__init__.pyc").is_file()
+    executable = tmp_package.executable("hello")
+    assert executable.is_file()
     result = tmp_package.run(executable)
     result.stdout.fnmatch_lines("Hello from cx_Freeze")
 

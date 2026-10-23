@@ -126,6 +126,7 @@ class Freezer:
         zip_include_packages: Sequence[str] | None = None,
         zip_exclude_packages: Sequence[str] | None = None,
         zip_filename: StrPath | None = None,
+        include_frozen_modules: bool = False,
     ) -> None:
         executables = self._validate_executables(executables)
         self.executables: list[Executable] = executables
@@ -145,6 +146,7 @@ class Freezer:
         # include-msvcr is used on Windows and some MSYS2 environments
         self.include_msvcr: bool = IS_UCRT and bool(include_msvcr)
         self.include_msvcr_version: str | None = include_msvcr_version
+        self.include_frozen_modules: bool = bool(include_frozen_modules)
         self.target_dir = target_dir
         self.default_bin_includes: list[str] = self._default_bin_includes()
         self.default_bin_excludes: list[str] = self._default_bin_excludes()
@@ -448,6 +450,7 @@ class Freezer:
             zip_include_packages=self.zip_include_packages,
             zip_include_all_packages=self.zip_include_all_packages,
             zip_includes=self.zip_includes,
+            include_frozen_modules=self.include_frozen_modules,
         )
         for name in self.includes:
             finder.include_module(name)
