@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import os
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_ARM_64, IS_CONDA, IS_MINGW, IS_WINDOWS
+from cx_Freeze._compat import IS_ARM_64, IS_MINGW, IS_WINDOWS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -44,13 +43,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_CONDA and sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="conda-forge does not support pyarrow on Python 3.15+"
-    " (streamlit dependency)",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,

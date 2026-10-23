@@ -95,10 +95,26 @@ if [ "$IS_CONDA" == "1" ]; then
         done < requirements.txt
     fi
 
-    # pytest and dependencies
+    # Dependencies for 'dev'
+    if [ -f requirements-dev.txt ]; then
+        SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
+        while read -r line; do
+            if [[ $line != *sys_platform* ]] || \
+               [[ $line == *sys_platform*==*${SYS_PLATFORM}* ]]; then
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                if [ "$name" == "cibuildwheel" ]; then continue; fi
+                if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
+                    pkgs+=("$name")
+                fi
+            fi
+        done < requirements-dev.txt
+    fi
+
+    # Dependencies for 'tests'
     if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
         while read -r line; do
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+            if [ "$name" == "cx-freeze" ]; then name="cx_freeze"; fi
             pkgs+=("$name")
         done < tests/requirements.txt
     fi
@@ -139,7 +155,25 @@ elif [ "$IS_MINGW" == "1" ]; then
         done < requirements.txt
     fi
 
-    # pytest and dependencies
+    # Dependencies for 'dev'
+    if [ -f requirements-dev.txt ]; then
+        while read -r line; do
+            if [[ $line != *sys_platform* ]] || \
+               [[ $line == *sys_platform*==*win32* ]]; then
+                name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
+                if [ "$name" == "cibuildwheel" ]; then continue; fi
+                if [ "$name" == "prek" ]; then
+                    pkgs+=("$MINGW_PACKAGE_PREFIX-$name")
+                    continue
+                fi
+                if ! printf '%s\0' "${pkgs[@]}" | grep -Fxqz -- "$name"; then
+                    pkgs+=("$MINGW_PACKAGE_PREFIX-python-$name")
+                fi
+            fi
+        done < requirements-dev.txt
+    fi
+
+    # Dependencies for 'tests'
     if [ "$INSTALL_TESTS" == "1" ] && [ -f tests/requirements.txt ]; then
         while read -r line; do
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
@@ -148,7 +182,7 @@ elif [ "$IS_MINGW" == "1" ]; then
     fi
 
     echo "Install packages"
-    pacman --needed --noconfirm --quiet -S "${pkgs[@]}"
+    pacman -S --needed --noconfirm --quiet "${pkgs[@]}"
 else
     if [ "$CI" == "true" ]; then
         if [ "$IS_WINDOWS" == "1" ]; then
@@ -170,47 +204,23 @@ else
     else
         uv pip install --upgrade -r pyproject.toml
     fi
-fi
 
-# Get Python version
-PY_VERSION=$(python -c "import sysconfig; print(sysconfig.get_python_version(), end='')")
-PY_ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
-
-# Install dev tools
-if [ "$INSTALL_DEV" == "1" ]; then
-    if [ -f requirements-dev.txt ]; then
-        PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
-        if [ "$PY_VERSION" == "3.10" ] || [ "$PY_VERSION" == "3.11" ]; then
-            PY_VER_ABI="3.12"
-        fi
+    # Install dev tools
+    PY_VER_FOR_TOOLS="3.12"
+    if [ "$INSTALL_DEV" == "1" ] && [ -f requirements-dev.txt ]; then
         while read -r line; do
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
-            # prek has no dependencies (doesn't bloat the installed packages)
-            if [ "$name" == "prek" ] && [ "$IS_CONDA" == "1" ]; then
-                $CONDA_EXE install -c conda-forge "$name" -S -q -y
-            elif [ "$name" != "cibuildwheel" ] && [ "$IS_UV" == "1" ]; then
-                uv pip install --upgrade "$name"
-            elif [ "$IS_UV" == "1" ]; then
-                uv tool install -p "$PY_VER_ABI" "$line"
+            if [ "$name" == "cibuildwheel" ] && [ "$IS_UV" == "1" ]; then
+                uv tool install -p "$PY_VER_FOR_TOOLS" "$line"
             else
-                filename=$INSTALL_DIR/$name
-                echo "Create $filename"
-                echo "#!/bin/sh"> "$filename"
-                echo "uvx -p $PY_VER_ABI \"$line\" \$@">> "$filename"
-                chmod +x "$filename"
+                uv pip install "$name"
             fi
         done < requirements-dev.txt
     fi
-fi
 
-# Install doc tools (sphinx and extensions)
-if [ "$INSTALL_DOC" == "1" ]; then
-    if [ -f doc/requirements.txt ]; then
-        PY_VER_ABI="$PY_VERSION$PY_ABI_THREAD"
-        if [ "$PY_VERSION" == "3.10" ] || [ "$PY_VERSION" == "3.11" ]; then
-            PY_VER_ABI="3.12"
-        fi
-        uv tool install -p "$PY_VER_ABI" \
+    # Install doc tools (sphinx and extensions)
+    if [ "$INSTALL_DOC" == "1" ] && [ -f doc/requirements.txt ]; then
+        uv tool install -p "$PY_VER_FOR_TOOLS" \
             --with-requirements=doc/requirements.txt sphinx
     fi
 fi

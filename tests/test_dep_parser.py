@@ -36,7 +36,9 @@ test.py
 if IS_WINDOWS:
     PACKAGE_VERSION = [("imagehlp", "bind")]
     if IS_CONDA:
-        PACKAGE_VERSION.append(("py-lief", "0.17.6"))
+        if sys.version_info[:2] < (3, 15):
+            PACKAGE_VERSION.append(("py-lief", "0.17.6"))
+        PACKAGE_VERSION.append(("py-lief", "1.0.0"))
     else:
         if ABI_THREAD == "":
             if sys.version_info[:2] <= (3, 13):

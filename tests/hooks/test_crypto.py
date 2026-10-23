@@ -11,7 +11,6 @@ import pytest
 from cx_Freeze._compat import (
     ABI_THREAD,
     IS_ARM_64,
-    IS_CONDA,
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
@@ -166,12 +165,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_CONDA and sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="conda-forge does not support pycryptodome on Python 3.15+",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.venv
 @zip_packages
 def test_crypto(

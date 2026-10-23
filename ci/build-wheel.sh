@@ -227,7 +227,10 @@ if [ "$INSTALL" == "1" ]; then
         $CONDA_EXE install "$PKG_CONDA" --no-deps --yes
     else
         if [ "$IS_MINGW" == "1" ]; then
-            PIP_COMMAND="pip install --break-system-packages --force-reinstall"
+            pacman -R "$MINGW_PACKAGE_PREFIX-python-${NORMALIZED_NAME/_/-}" \
+                -dd --noconfirm || true
+            pip uninstall --break-system-packages "$NORMALIZED_NAME" -y || true
+            PIP_COMMAND="pip install --break-system-packages --ignore-installed"
         else
             PIP_COMMAND="uv pip install --no-build --prerelease=allow --reinstall"
         fi
