@@ -426,8 +426,11 @@ def test_include_frozen_modules(tmp_package: TempPackage) -> None:
         zip_names = set(archive.namelist())
     assert "__startup__.pyc" in zip_names
     assert _stdlib_pyc_present("encodings", zip_names, lib_dir)
-    for name in ("os", "abc", "codecs", "io", "traceback"):
-        assert _stdlib_pyc_present(name, zip_names, lib_dir), name
+    assert _stdlib_pyc_present("traceback", zip_names, lib_dir)
+    # CPython builtins and frozen modules stay out, as before freeze-core 0.7.
+    for name in ("os", "abc", "codecs", "io"):
+        if name in freezer.finder.builtin_modules:
+            assert not _stdlib_pyc_present(name, zip_names, lib_dir), name
     assert "sys.pyc" not in zip_names
     assert "sys/__init__.pyc" not in zip_names
     assert not (lib_dir / "sys.pyc").is_file()

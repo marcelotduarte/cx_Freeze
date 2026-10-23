@@ -458,18 +458,11 @@ class Freezer:
             finder.include_module(name)
         for name in self.packages:
             finder.include_package(name)
-        # Include modules required during initialization.
-        # freeze-core 0.7.0+ embeds them in the executable; write them again
-        # only when include_frozen_modules is set.
-        if (
-            self.include_frozen_modules
-            or "encodings" not in finder.builtin_modules
-        ):
+        # Include modules required during initialization;
+        # (using freeze-core 0.7.0+ it is frozen in the executable).
+        if "encodings" not in finder.builtin_modules:
             finder.include_package("encodings")
-        if (
-            self.include_frozen_modules
-            or "__startup__" not in finder.builtin_modules
-        ):
+        if "__startup__" not in finder.builtin_modules:
             startup = resource_path("initscripts/__startup__.py")
             if startup:
                 finder.include_file_as_module(startup)
