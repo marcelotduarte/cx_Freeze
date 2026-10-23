@@ -753,7 +753,7 @@ class ModuleFinder:
         """The built-in modules are based on the `freeze-core` build."""
         builtin_modules: dict[str, str] = {}
         frozen_file = resource_path(f"frozen/frozen-{SOABI}.json")
-        if frozen_file:
+        if frozen_file and not self.include_frozen_modules:
             # using freeze-core 0.7.0+
             builtin_modules.update(json.loads(frozen_file.read_bytes()))
             builtin_modules.pop("__version__", None)
@@ -897,10 +897,6 @@ class ModuleFinder:
             for module in valid_modules
             if module.name in self.builtin_modules
         }
-        # Keep stdlib modules that already have bytecode. C builtins and
-        # extension modules (code is None) stay out of the write list.
-        if self.include_frozen_modules:
-            builtin = {module for module in builtin if module.code is None}
         if sys.version_info[:2] < (3, 11):
             builtin |= {
                 module
