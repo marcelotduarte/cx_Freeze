@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -10,6 +11,31 @@ import pytest
 from cx_Freeze import ConstantsModule, ModuleFinder
 
 from .datatest import SCAN_CODE_TEST, SYNTAX_ERROR_TEST
+
+SHARED_PACKAGE_DISTRIBUTIONS = """\
+pkga/__init__.py
+    import importlib.metadata
+    __version__ = importlib.metadata.version("pkga")
+pkga/extra/data.txt
+    data
+pkga-1.0.dist-info/METADATA
+    Metadata-Version: 2.1
+    Name: pkga
+    Version: 1.0
+pkga-1.0.dist-info/RECORD
+    pkga/__init__.py,,
+pkga_extra-1.0.dist-info/METADATA
+    Metadata-Version: 2.1
+    Name: pkga-extra
+    Version: 1.0
+pkga_extra-1.0.dist-info/RECORD
+    pkga/extra/data.txt,,
+test.py
+    from cx_Freeze import ConstantsModule, ModuleFinder
+
+    finder = ModuleFinder(ConstantsModule())
+    print(finder.import_distributions["pkga"].name)
+"""
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -62,3 +88,17 @@ class TestModuleFinder:
         module = fix_module_finder.include_module("invalid_syntax")
         assert module is not None
         assert module.error_msg == "SyntaxError: invalid syntax"
+
+
+@pytest.mark.parametrize("hash_seed", ["1", "2", "3", "4", "5", "6"])
+def test_import_distributions_shared_package(
+    tmp_package: TempPackage, hash_seed: str
+) -> None:
+    """Prefer the distribution named after the import package (#3456)."""
+    tmp_package.create(SHARED_PACKAGE_DISTRIBUTIONS)
+    env = dict(os.environ)
+    env["PYTHONHASHSEED"] = hash_seed
+    env["PYTHONPATH"] = os.pathsep.join(sys.path)
+    result = tmp_package.run("python test.py", env=env)
+    assert result.ret == 0, result.stderr
+    assert result.outlines[-1] == "pkga"
