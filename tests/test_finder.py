@@ -30,6 +30,11 @@ pkga_extra-1.0.dist-info/METADATA
     Version: 1.0
 pkga_extra-1.0.dist-info/RECORD
     pkga/extra/data.txt,,
+test.py
+    from cx_Freeze import ConstantsModule, ModuleFinder
+
+    finder = ModuleFinder(ConstantsModule())
+    print(finder.import_distributions["pkga"].name)
 """
 
 if TYPE_CHECKING:
@@ -91,16 +96,9 @@ def test_import_distributions_shared_package(
 ) -> None:
     """Prefer the distribution named after the import package (#3456)."""
     tmp_package.create(SHARED_PACKAGE_DISTRIBUTIONS)
-    code = (
-        "from cx_Freeze import ConstantsModule, ModuleFinder;"
-        "finder = ModuleFinder(ConstantsModule());"
-        "print(finder.import_distributions['pkga'].name)"
-    )
     env = dict(os.environ)
     env["PYTHONHASHSEED"] = hash_seed
-    env["PYTHONPATH"] = os.pathsep.join(
-        [os.fspath(tmp_package.path), *sys.path]
-    )
-    result = tmp_package.run(["python", "-c", code], env=env)
+    env["PYTHONPATH"] = os.pathsep.join(sys.path)
+    result = tmp_package.run("python test.py", env=env)
     assert result.ret == 0, result.stderr
     assert result.outlines[-1] == "pkga"
