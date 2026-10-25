@@ -281,6 +281,13 @@ It can be further customized:
     the tree is copied except for .git, .svn and CVS directories);
     the target must not be an absolute path
 
+.. option:: include-frozen-modules
+
+    write bootstrap and core stdlib modules that freeze-core embeds (such as
+    encodings and ``__startup__``) into ``lib/library.zip`` or ``lib/`` so a
+    launcher other than the cx_Freeze base executable can import them.
+    Default off.
+
 .. option:: zip-includes
 
     list containing files to be included in the zip file directory; it is
@@ -343,13 +350,6 @@ It can be further customized:
     like :option:`include-msvcr` but the version can be set
     with one of the following values: 15, 16 or 17
     (version 15 includes UCRT for Windows 8.1 and below)
-
-.. option:: include-frozen-modules
-
-    write bootstrap and core stdlib modules that freeze-core embeds (such as
-    encodings and ``__startup__``) into ``lib/library.zip`` or ``lib/`` so a
-    launcher other than the cx_Freeze base executable can import them.
-    Default off.
 
 .. versionchanged:: 6.0
    Replaced the ``compressed`` option with the :option:`no-compress` option.

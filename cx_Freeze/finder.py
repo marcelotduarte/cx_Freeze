@@ -79,6 +79,7 @@ class ModuleFinder:
         *,
         excludes: list[str] | None = None,
         include_files: IncludesList | None = None,
+        include_frozen_modules: bool = False,
         optimize: int = 0,
         path: list[StrPath] | None = None,
         replace_paths: list[tuple[str, str]] | None = None,
@@ -86,13 +87,12 @@ class ModuleFinder:
         zip_include_packages: Sequence[str] | None = None,
         zip_include_all_packages: bool = False,
         zip_includes: IncludesList | None = None,
-        include_frozen_modules: bool = False,
     ) -> None:
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
-        self.optimize = optimize
         self.include_frozen_modules: bool = include_frozen_modules
+        self.optimize = optimize
         self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
         self.zip_include_all_packages: bool = zip_include_all_packages
