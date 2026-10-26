@@ -29,6 +29,10 @@ class Hook(ModuleHook):
             def _include_subpackage(
                 finder: ModuleFinder, module: Module
             ) -> None:
+                root = module.root
+                dist = root.distribution
+                if dist and dist.version[0] >= 4:
+                    root.in_file_system = 1
                 finder.include_package(module.name)
 
             return _include_subpackage
