@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import ABI_THREAD, IS_CONDA, IS_MINGW
+from cx_Freeze._compat import IS_CONDA, IS_MINGW
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -41,7 +41,10 @@ pyproject.toml
     [project]
     name = "test_winrt"
     version = "0.1.0"
-    dependencies = ["winrt.windows.foundation"]
+    dependencies = [
+        "winrt.windows.foundation<4; python_version <= '3.11'",
+        "winrt.windows.foundation>=4; python_version > '3.11'",
+    ]
 
     [tool.cxfreeze]
     executables = ["test.py"]
@@ -54,12 +57,6 @@ pyproject.toml
 
 
 @pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15) and ABI_THREAD == "",
-    raises=ModuleNotFoundError,
-    reason="pywinrt does not support Python 3.15 yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
-@pytest.mark.xfail(
     IS_MINGW,
     raises=ModuleNotFoundError,
     reason="pywinrt not supported in mingw",
@@ -69,12 +66,6 @@ pyproject.toml
     IS_CONDA,
     raises=ModuleNotFoundError,
     reason="pywinrt not supported in conda",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
-@pytest.mark.xfail(
-    ABI_THREAD == "t",
-    raises=ModuleNotFoundError,
-    reason="pywinrt does not support Python 3.14t/3.15t",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv
