@@ -17,7 +17,9 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for skimage (scikit-image).
 
-    scikit-image 0.27 introduces a new namespace helper _skimage2
+    Tested skimage versions of pypi from 0.25.2 to 0.27rc1.
+
+    Notice that scikit-image 0.27 introduces a new namespace helper _skimage2
     (see hook in _skimage2_.py).
     """
 
