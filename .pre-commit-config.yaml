@@ -35,10 +35,10 @@ repos:
     hooks:
       - id: validate-pyproject
         additional_dependencies:
-          - validate-pyproject-schema-store[all]==2026.10.23
+          - validate-pyproject-schema-store[all]==2026.10.28
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: f368fb366ff7f2f808dd324b83a6d32267799e19 # frozen: v0.17.2
+    rev: 25bcf95026b96e2dd3c0aec3090c3d6ef6ca2e6c # frozen: v0.17.3
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -68,7 +68,7 @@ repos:
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: ae754a05e63248249a242ce594d8eaa88cbb989d # frozen: v0.0.92
+    rev: 70aae47092a06c153286d0ff6c87b282ed865be8 # frozen: v0.0.94
     hooks:
       - id: ty
         args: [--no-sync]

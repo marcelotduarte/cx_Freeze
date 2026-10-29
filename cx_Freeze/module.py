@@ -286,9 +286,13 @@ class Module:
         For instance, to load a hook for PIL.Image:
         - Using ModuleHook class:
             # module and hook methods are lowercased.
-            from cx_Freeze.hooks import _pil_ as pil
-            hook = pil.Hook()
+            from cx_Freeze.hooks._pil_ import Hook
+            hook = Hook()
             hook.pil_image(...)
+            # for helper namespace like _skimage2
+            from cx_Freeze.hooks._skimage2_ import Hook_skimage2
+            hook = Hook_skimage2()
+            hook._skimage2(...) # or hook.skimage(...) if inherited
         - For functions present in hooks.__init__:
             # module and load hook functions use the original case.
             from cx_Freeze.hooks import load_PIL_Image
@@ -298,7 +302,11 @@ class Module:
             try:
                 # new style hook using ModuleHook class - top-level call
                 root_name = self.root.name.lower()
-                hook_cls = resolve_name(f"cx_Freeze.hooks._{root_name}_:Hook")
+                if root_name.startswith("_"):  # helper namespace
+                    hook_name = f"cx_Freeze.hooks.{root_name}_:Hook{root_name}"
+                else:
+                    hook_name = f"cx_Freeze.hooks._{root_name}_:Hook"
+                hook_cls = resolve_name(hook_name)
                 if issubclass(hook_cls, ModuleHook):
                     self.root.hook = hook_cls(self.root)
             except (AttributeError, ValueError, ImportError):
