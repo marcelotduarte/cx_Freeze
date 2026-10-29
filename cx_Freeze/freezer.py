@@ -292,6 +292,8 @@ class Freezer:
         ]
         if not IS_MACOS:
             ignore_patterns.append(".DS_store")
+        if module.root.lazy:  # lazy_loader uses stub_files
+            ignore_patterns.remove("*.pyi")
 
         def copy_tree(
             source_dir: Path, target_dir: Path, excludes: set[str]

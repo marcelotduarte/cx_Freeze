@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import os
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -114,8 +112,10 @@ pyproject.toml
     name = "test_skimage"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version < '3.11'",
-        "scikit-image",
+        "numpy<2;python_version <= '3.11'",
+        "numpy>=2;python_version > '3.11'",
+        "scikit-image<0.26;python_version <= '3.11'",
+        "scikit-image>=0.26;python_version > '3.11'",
     ]
 
     [tool.cxfreeze]
@@ -128,12 +128,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="scikit-image does not support Python 3.15 yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.venv
 @zip_packages
 def test_skimage(tmp_package: TempPackage, zip_packages: bool) -> None:

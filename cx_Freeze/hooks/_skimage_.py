@@ -15,7 +15,13 @@ __all__ = ["Hook"]
 
 
 class Hook(ModuleHook):
-    """The Hook class for scikit-image."""
+    """The Hook class for skimage (scikit-image).
+
+    Tested skimage versions of pypi from 0.25.2 to 0.27rc1.
+
+    Notice that scikit-image 0.27 introduces a new namespace helper _skimage2
+    (see hook in _skimage2_.py).
+    """
 
     def skimage(self, finder: ModuleFinder, module: Module) -> None:
         """Include the skimage package, using the lazy implementation."""
@@ -35,26 +41,20 @@ class Hook(ModuleHook):
             for exclude in excludes:
                 finder.exclude_module(exclude)
             # Include stubs
-            if module.in_file_system == 0:
+            if module.name == "skimage" and module.in_file_system == 0:
                 for file in dist.files:
                     if file.match("*.pyi"):
                         finder.zip_include_files(
                             file.locate(), file.as_posix()
                         )
-            else:
-                for file in dist.files:
-                    if file.match("*.pyi"):
-                        finder.include_files(
-                            file.locate(), f"lib/{file.as_posix()}"
-                        )
 
         # Exclude unnecessary modules
-        finder.exclude_module("skimage.conftest")
-        finder.exclude_module("skimage._shared.testing")
+        finder.exclude_module(f"{module.name}.conftest")
+        finder.exclude_module(f"{module.name}._shared.testing")
 
         # Include the required skimage sub-packages
-        finder.include_package("skimage.data")
-        finder.include_package("skimage.io")
+        finder.include_package(f"{module.name}.data")
+        finder.include_package(f"{module.name}.io")
 
         # Include pillow plugin
         try:
