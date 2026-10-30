@@ -65,6 +65,21 @@ DIST_ATTRS = {
             id="include-msvcr=true",
         ),
         pytest.param(
+            {},
+            {"include_frozen_modules": False},
+            id="include-frozen-modules=omitted",
+        ),
+        pytest.param(
+            {"include_frozen_modules": False},
+            {"include_frozen_modules": False},
+            id="include-frozen-modules=false",
+        ),
+        pytest.param(
+            {"include_frozen_modules": True},
+            {"include_frozen_modules": True},
+            id="include-frozen-modules=true",
+        ),
+        pytest.param(
             {"include_msvcr_version": "15"},
             {"include_msvcr": IS_UCRT, "include_msvcr_version": "15"},
             id="include-msvcr-version=15",
@@ -465,6 +480,16 @@ def test_build_exe_call_invalid(
             {"include_msvcr": IS_UCRT, "include_msvcr_version": "17"},
             id="--include-msvcr-version=17",
         ),
+        pytest.param(
+            [],
+            {"include_frozen_modules": False},
+            id="--include-frozen-modules(notused)",
+        ),
+        pytest.param(
+            ["--include-frozen-modules"],
+            {"include_frozen_modules": True},
+            id="--include-frozen-modules",
+        ),
     ],
 )
 def test_build_exe_command_line(
@@ -494,6 +519,11 @@ def test_build_exe_command_line(
             ['build-exe = "dist"'],
             {"build_exe": "dist"},
             id="--build-exe=dist",
+        ),
+        pytest.param(
+            ["include-frozen-modules = true"],
+            {"include_frozen_modules": True},
+            id="include-frozen-modules=true",
         ),
     ],
 )

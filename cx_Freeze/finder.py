@@ -79,6 +79,7 @@ class ModuleFinder:
         *,
         excludes: list[str] | None = None,
         include_files: IncludesList | None = None,
+        include_frozen_modules: bool = False,
         optimize: int = 0,
         path: list[StrPath] | None = None,
         replace_paths: list[tuple[str, str]] | None = None,
@@ -90,6 +91,7 @@ class ModuleFinder:
         self.included_files: InternalIncludesList = process_path_specs(
             include_files
         )
+        self.include_frozen_modules: bool = include_frozen_modules
         self.optimize = optimize
         self.path: list[str] = [os.path.normpath(p) for p in path or sys.path]
         self.replace_paths: list[tuple[str, str]] = replace_paths or []
@@ -752,7 +754,7 @@ class ModuleFinder:
         """The built-in modules are based on the `freeze-core` build."""
         builtin_modules: dict[str, str] = {}
         frozen_file = resource_path(f"frozen/frozen-{SOABI}.json")
-        if frozen_file:
+        if frozen_file and not self.include_frozen_modules:
             # using freeze-core 0.7.0+
             builtin_modules.update(json.loads(frozen_file.read_bytes()))
             builtin_modules.pop("__version__", None)

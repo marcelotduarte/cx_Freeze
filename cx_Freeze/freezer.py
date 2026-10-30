@@ -118,6 +118,7 @@ class Freezer:
         bin_path_includes: list[str] | None = None,
         bin_path_excludes: list[str] | None = None,
         include_files: IncludesList | None = None,
+        include_frozen_modules: bool = False,
         zip_includes: IncludesList | None = None,
         silent: bool | int = 0,
         metadata: Any = None,
@@ -142,6 +143,7 @@ class Freezer:
         self.compress: bool = True if compress is None else compress
         self.optimize: int = int(optimize or 0)
         self.path: list[str] = self._validate_path(path)
+        self.include_frozen_modules: bool = bool(include_frozen_modules)
         # include-msvcr is used on Windows and some MSYS2 environments
         self.include_msvcr: bool = IS_UCRT and bool(include_msvcr)
         self.include_msvcr_version: str | None = include_msvcr_version
@@ -443,6 +445,7 @@ class Freezer:
             self.constants_module,
             excludes=self.excludes,
             include_files=self.include_files,
+            include_frozen_modules=self.include_frozen_modules,
             optimize=self.optimize,
             path=cast("list[StrPath]", self.path),
             replace_paths=self.replace_paths,

@@ -158,10 +158,19 @@ class build_exe(Command):
             "with one of the following values: 15, 16 or 17 "
             "(version 15 includes UCRT for Windows 8.1 and below)",
         ),
+        (
+            "include-frozen-modules",
+            None,
+            "write bootstrap and core stdlib modules that freeze-core "
+            "embeds (such as encodings and __startup__) into "
+            "lib/library.zip or lib/ so a launcher other than the "
+            "cx_Freeze base executable can import them [default: off]",
+        ),
     ]
     boolean_options: ClassVar[list[str]] = [
         "no-compress",
         "include-msvcr",
+        "include-frozen-modules",
         "silent",
     ]
 
@@ -244,6 +253,7 @@ class build_exe(Command):
         self.build_exe = None
         self.include_msvcr = None
         self.include_msvcr_version = None
+        self.include_frozen_modules = False
         self.no_compress = False
         self.optimize = sys.flags.optimize
         self.path: list[str] = []
@@ -316,6 +326,8 @@ class build_exe(Command):
         else:
             self.include_msvcr = False
 
+        self.include_frozen_modules = bool(self.include_frozen_modules)
+
         # optimization level: 0,1,2
         self.optimize = int(self.optimize or sys.flags.optimize)
 
@@ -356,6 +368,7 @@ class build_exe(Command):
             metadata=metadata,
             include_msvcr=self.include_msvcr or False,
             include_msvcr_version=self.include_msvcr_version,
+            include_frozen_modules=self.include_frozen_modules,
             zip_filename=self.zip_filename,
         )
 
