@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-today = datetime.now(tz=timezone.utc)
+today = datetime.now(tz=UTC)
 print("Hello from cx_Freeze")
 print(f"The current date is {today:%B %d, %Y %H:%M:%S}\n")
 

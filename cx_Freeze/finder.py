@@ -761,10 +761,9 @@ class ModuleFinder:
             return builtin_modules
         for name in sys.builtin_module_names:
             builtin_modules[name] = "built-in"
-        if sys.version_info[:2] >= (3, 11):
-            names = _imp._frozen_module_names()  # noqa: SLF001 # ty: ignore
-            for name in names:
-                builtin_modules[name] = "frozen"
+        names = _imp._frozen_module_names()  # noqa: SLF001 # ty: ignore
+        for name in names:
+            builtin_modules[name] = "frozen"
         core_lib = resource_path("lib")
         if core_lib and core_lib.is_dir():
             # discard modules that exist in freeze-core 'lib'
@@ -916,12 +915,6 @@ class ModuleFinder:
             for module in valid_modules
             if module.name in self.builtin_modules
         }
-        if sys.version_info[:2] < (3, 11):
-            builtin |= {
-                module
-                for module in valid_modules
-                if module.file and module.file.name == "frozen"
-            }
         valid_modules -= builtin
         return sorted(valid_modules, key=lambda module: module.name)
 

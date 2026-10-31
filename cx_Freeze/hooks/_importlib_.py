@@ -31,8 +31,10 @@ class Hook(ModuleHook):
         """Set importlib._bootstrap_external as an alias."""
         finder.add_alias(module.name, "_frozen_importlib_external")
 
-    def importlib_metadata(self, finder: ModuleFinder, module: Module) -> None:
+    def importlib_metadata(
+        self,
+        finder: ModuleFinder,
+        module: Module,  # noqa: ARG002
+    ) -> None:
         """Include email as package (required if using Python 3.14+)."""
-        if module.name == "importlib.metadata":
-            module.ignore_names.add("pep517")  # Python 3.10
         finder.include_package("email")

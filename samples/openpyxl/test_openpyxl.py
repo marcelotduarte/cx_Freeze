@@ -2,7 +2,7 @@
 
 # https://openpyxl.readthedocs.io/en/default.
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from openpyxl import Workbook
 
@@ -18,7 +18,7 @@ ws["A1"] = 42
 ws.append([1, 2, 3])
 
 # Python types will automatically be converted
-ws["A2"] = datetime.now(tz=timezone.utc)
+ws["A2"] = datetime.now(tz=UTC)
 
 # Save the file
 fileName = "sample.xlsx"

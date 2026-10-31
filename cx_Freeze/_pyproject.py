@@ -2,14 +2,9 @@
 
 from __future__ import annotations
 
-import sys
+import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING, TypeAlias
-
-if sys.version_info[:2] >= (3, 11):
-    import tomllib
-else:
-    from setuptools.compat.py310 import tomllib
 
 if TYPE_CHECKING:
     _CommandOptions: TypeAlias = dict[str, dict[str, tuple[str, str]]]

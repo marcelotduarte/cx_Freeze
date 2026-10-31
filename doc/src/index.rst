@@ -7,7 +7,7 @@ as the original script. It is cross-platform and should work on any platform
 that Python runs on.
 
 The current version of :program:`cx_Freeze` is |version|
-that supports Python_ 3.10 to 3.15, including free-threading versions of
+that supports Python_ 3.11 to 3.15, including free-threading versions of
 Python 3.14 and 3.15.
 
 .. versionchanged:: 8.5

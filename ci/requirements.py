@@ -4,12 +4,8 @@ from __future__ import annotations
 
 import contextlib
 import sys
+import tomllib
 from pathlib import Path
-
-if sys.version_info[:2] >= (3, 11):
-    import tomllib
-else:
-    from setuptools.compat.py310 import tomllib
 
 
 def main() -> None:

@@ -18,10 +18,10 @@ __all__ = ["Hook"]
 
 # The sample/pandas is used to test using the following:
 #
-# - Ubuntu 22.04 w/ Python 3.10 and numpy+mkl
+# - Ubuntu w/ Python 3.11 and numpy+mkl
 # pip install -i https://pypi.anaconda.org/intel/simple numpy
 #
-# - Windows w/ Python 3.10 to 3.12 using cgohlke/numpy-mkl-wheels
+# - Windows w/ Python 3.12 using cgohlke/numpy-mkl-wheels
 # Download: https://github.com/cgohlke/numpy-mkl-wheels/releases/
 
 

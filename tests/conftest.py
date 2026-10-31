@@ -12,6 +12,7 @@ import string
 import subprocess
 import sys
 import sysconfig
+import tomllib
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,11 +23,6 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 import pytest
 from filelock import BaseFileLock, FileLock
 from packaging.requirements import InvalidRequirement, Requirement
-
-if sys.version_info[:2] >= (3, 11):
-    import tomllib
-else:
-    from setuptools.compat.py310 import tomllib
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

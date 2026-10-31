@@ -1,6 +1,6 @@
 """Sample to show the datetime in RFC1123 (timezone is required)."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from zoneinfo import TZPATH, ZoneInfo, available_timezones
 
 RFC1123 = "%a, %d %b %Y %H:%M:%S %z"
@@ -8,7 +8,7 @@ RFC1123 = "%a, %d %b %Y %H:%M:%S %z"
 print("TZPATH:", TZPATH)
 print("Available timezones:", len(available_timezones()))
 
-utc_time = datetime.now(timezone.utc)
+utc_time = datetime.now(UTC)
 print("UTC time:", utc_time.strftime(RFC1123))
 
 tz1 = ZoneInfo("America/Sao_Paulo")

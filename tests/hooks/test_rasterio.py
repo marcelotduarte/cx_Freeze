@@ -32,8 +32,8 @@ pyproject.toml
     name = "test_rasterio"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version < '3.11'",
-        "numpy>=2;python_version >= '3.11'",
+        "numpy<2;python_version <= '3.11'",
+        "numpy>=2;python_version > '3.11'",
         "rasterio",
     ]
 
