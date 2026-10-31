@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import platform
+import shutil
 from contextlib import suppress
 from copy import deepcopy
 from ctypes.util import find_library
@@ -16,6 +17,7 @@ from setuptools import Distribution
 
 from cx_Freeze._compat import IS_LINUX
 from cx_Freeze.command.bdist_appimage import bdist_appimage
+from cx_Freeze.common import resource_path
 from cx_Freeze.exception import PlatformError
 
 if TYPE_CHECKING:
@@ -232,3 +234,57 @@ def test_bdist_appimage_simple(tmp_package: TempPackage) -> None:
     if os.getenv("GITHUB_REPOSITORY"):
         zsync_created = app.parent / f"{app.name}.zsync"
         assert zsync_created.is_file(), f"file not found: {zsync_created}"
+
+
+SOURCE_VALID_ICON = """
+test_icon.py
+    import os
+    import sys
+
+    print("Hello from cx_Freeze")
+    icon = os.path.join(sys.prefix, "icon.png")
+    found = "found" if os.path.exists(icon) else "not found"
+    print(icon, found)
+pyproject.toml
+    [project]
+    name = "hello"
+    version = "0.1.2.3"
+    description = "Sample cx_Freeze script"
+
+    [[tool.cxfreeze.executables]]
+    script = "test_icon.py"
+    icon = "icon"
+
+    [tool.cxfreeze.build_exe]
+    include-msvcr = true
+    excludes = ["tkinter"]
+    silent = false
+"""
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_appimage_valid_icon(tmp_package: TempPackage) -> None:
+    """Test bdist_appimage with valid icon."""
+    tmp_package.create(SOURCE_VALID_ICON)
+    # copy valid icons: cp $SRC/freeze_core/icons/py.* $DST/icon.*
+    src_dir = resource_path("icons")
+    assert src_dir is not None
+    for src in src_dir.glob("py.*"):
+        shutil.copyfile(
+            src, tmp_package.path.joinpath("icon").with_suffix(src.suffix)
+        )
+    result = tmp_package.freeze("cxfreeze bdist_appimage")
+    result.stdout.no_fnmatch_line("WARNING: Icon file not found")
+
+    name = "hello"
+    version = "0.1.2.3"
+    arch = platform.machine()
+
+    app = tmp_package.path / "dist" / f"{name}-{version}-{arch}.AppImage"
+    assert app.is_file(), f"file not found: {app}"
+
+    if find_library("fuse") is not None:  # libfuse.so.2 found
+        result = tmp_package.run(app)
+    else:
+        result = tmp_package.run(f"{app} --appimage-extract-and-run")
+    result.stdout.fnmatch_lines(["Hello from cx_Freeze", "*/icon.png found"])
