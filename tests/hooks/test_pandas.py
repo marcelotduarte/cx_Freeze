@@ -60,10 +60,10 @@ pyproject.toml
     name = "test_pandas"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version < '3.11'",
-        "numpy>=2;python_version >= '3.11'",
-        "pandas<2.3;python_version < '3.11'",
-        "pandas>=2.3;python_version >= '3.11'",
+        "numpy<2;python_version <= '3.11'",
+        "numpy>=2;python_version > '3.11'",
+        "pandas<2.3;python_version <= '3.11'",
+        "pandas>=2.3;python_version > '3.11'",
     ]
 
     [tool.cxfreeze]

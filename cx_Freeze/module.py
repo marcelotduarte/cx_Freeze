@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 import socket
 from contextlib import suppress
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import cached_property, partial
 from importlib.machinery import EXTENSION_SUFFIXES
 from keyword import iskeyword
@@ -400,7 +400,7 @@ class ConstantsModule:
 
         It consists of declaration statements for each of the values.
         """
-        today = datetime.now(tz=timezone.utc)
+        today = datetime.now(tz=UTC)
         source_timestamp = 0
         for module in modules:
             if (
@@ -411,7 +411,7 @@ class ConstantsModule:
                 continue
             timestamp = module.file.stat().st_mtime
             source_timestamp = max(source_timestamp, timestamp)
-        stamp = datetime.fromtimestamp(source_timestamp, tz=timezone.utc)
+        stamp = datetime.fromtimestamp(source_timestamp, tz=UTC)
         self.values["BUILD_TIMESTAMP"] = today.strftime(self.time_format)
         self.values["BUILD_HOST"] = socket.gethostname().split(".")[0]
         self.values["SOURCE_TIMESTAMP"] = stamp.strftime(self.time_format)

@@ -228,7 +228,7 @@ if os.name != "nt":
 # Ignore modules removed in python versions > 3.0.
 PY_VERSION = sys.version_info[:2]
 
-if PY_VERSION >= (3, 10):
+if PY_VERSION >= (3, 11):
     DEFAULT_IGNORE_NAMES |= {
         # 3.3
         "cElementTree",
@@ -241,9 +241,9 @@ if PY_VERSION >= (3, 10):
         # 3.10
         "formatter",
         "parser",
+        # 3.11
+        "binhex",
     }
-if PY_VERSION >= (3, 11):
-    DEFAULT_IGNORE_NAMES.add("binhex")
 if PY_VERSION >= (3, 12):
     DEFAULT_IGNORE_NAMES |= {
         "asynchat",  # available as pyasynchat
@@ -343,12 +343,7 @@ if PY_VERSION >= (3, 12):
 if PY_VERSION >= (3, 14):
     DEFAULT_IGNORE_NAMES.add("backports.zstd")
 
-# Ignore new libraries in Python 3.10+.
-if PY_VERSION < (3, 11):
-    DEFAULT_IGNORE_NAMES |= {
-        "tomllib",
-        "wsgiref.types",
-    }
+# Ignore libraries that does not exist in Python 3.11-3.13.
 if PY_VERSION < (3, 14):
     DEFAULT_IGNORE_NAMES |= {
         "annotationlib",

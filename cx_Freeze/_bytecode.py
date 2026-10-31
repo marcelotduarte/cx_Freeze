@@ -37,7 +37,6 @@ else:
 
 
 CALL = opmap.get("CALL")  # Python 3.11+
-CALL_FUNCTION = opmap.get("CALL_FUNCTION")  # Python <= 3.10
 PRECALL = opmap.get("PRECALL")  # Python 3.11 only
 PUSH_NULL = opmap.get("PUSH_NULL")  # Python 3.11+
 
@@ -173,11 +172,7 @@ def scan_code(code: CodeType) -> Generator:
         if PRECALL and opc == PRECALL:
             continue  # ignore it in Python 3.11
 
-        if (opc, arg) == (CALL or CALL_FUNCTION, 1) and len(arguments) >= 2:
-            # Python 3.6-3.10 bytecode of a __import__ call:
-            # 1            0 LOAD_NAME                0 (__import__)
-            #              2 LOAD_CONST               0 ('pkgutil')
-            #              4 CALL_FUNCTION            1
+        if (opc, arg) == (CALL, 1) and len(arguments) >= 2:
             # Python 3.11 bytecode of a __import__ call:
             # 1            2 PUSH_NULL
             #              4 LOAD_NAME                0 (__import__)

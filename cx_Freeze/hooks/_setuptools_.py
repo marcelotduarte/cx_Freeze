@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import sys
 from importlib import metadata
 from typing import TYPE_CHECKING
 
@@ -81,22 +80,10 @@ class Hook(ModuleHook):
         )
 
     def setuptools_compat_py310(
-        self, finder: ModuleFinder, module: Module
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Ignore optional modules."""
-        if sys.version_info >= (3, 11):
-            module.ignore_names.add("tomli")
-        else:
-            module.ignore_names.add("tomllib")
-            if finder.include_module("tomli", module) is None:
-                if module.root.file is None:  # to make ty happy
-                    return
-                root_dir = module.root.file.parent
-                vendor_dir = root_dir / "_vendor"
-                if vendor_dir.is_dir():
-                    finder.path.append(os.path.normpath(vendor_dir))
-                    finder.include_module("tomli")
-                    finder.path.pop()
+        module.ignore_names.add("tomli")
 
     def setuptools_config__validate_pyproject_formats(
         self, _finder: ModuleFinder, module: Module

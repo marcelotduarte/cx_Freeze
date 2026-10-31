@@ -2,7 +2,7 @@ ci:
   skip: [blacken-docs]
 
 default_language_version:
-  python: python3.12
+  python: python3.14
 
 exclude: |
   (?x)^(
@@ -56,8 +56,6 @@ repos:
     rev: 57b21406f092110c18776e39b0bda50d37c945c8 # frozen: v2.4.3
     hooks:
       - id: codespell
-        additional_dependencies:
-          - tomli
         args: ["--ignore-words-list=lief,LIEF", "-w", "--skip=*.rtf"]
         exclude: (?x)^(cx_Freeze/hooks/global_names.py)$
 
@@ -68,7 +66,7 @@ repos:
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 70aae47092a06c153286d0ff6c87b282ed865be8 # frozen: v0.0.94
+    rev: 18b2b8bb1b9b90d2d21283756e89b07fc9c747bf # frozen: v0.0.95
     hooks:
       - id: ty
         args: [--no-sync]
