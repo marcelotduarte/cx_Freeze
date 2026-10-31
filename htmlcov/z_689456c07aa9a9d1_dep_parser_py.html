@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for cx_Freeze/dep_parser.py: 89.10%</title>
+    <title>Coverage for cx_Freeze/dep_parser.py: 85.58%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_4667309f.css" type="text/css">
     <script src="coverage_html_cb_54cfdca1.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>cx_Freeze<span class="sep">/</span>dep_parser.py</b>:
-            <span class="pc_cov">89.10%</span>
+            <span class="pc_cov">85.58%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">312 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">278<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">34<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">267<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">45<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">23<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_exception_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-31 08:56 +0000
+            created at 2026-10-31 09:54 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -414,21 +414,21 @@
     <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t">            <span class="key">if</span> <span class="nam">partname</span> <span class="op">==</span> <span class="nam">filename</span><span class="op">.</span><span class="nam">name</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t">            <span class="key">if</span> <span class="nam">partname</span> <span class="key">in</span> <span class="op">(</span><span class="str">&quot;not found&quot;</span><span class="op">,</span> <span class="str">&quot;(file not found)&quot;</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t">                <span class="nam">partname</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">parts</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t">                <span class="nam">search_path</span> <span class="op">=</span> <span class="op">[</span><span class="op">*</span><span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span><span class="op">,</span> <span class="nam">filename</span><span class="op">.</span><span class="nam">parent</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t">                <span class="key">for</span> <span class="nam">bin_path</span> <span class="key">in</span> <span class="nam">search_path</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t">                    <span class="nam">name</span> <span class="op">=</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">                    <span class="nam">partname</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">bin_path</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">                    <span class="key">if</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">                        <span class="nam">dependent_files</span><span class="op">.</span><span class="nam">add</span><span class="op">(</span><span class="nam">partname</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">                        <span class="key">if</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t">                <span class="nam">partname</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">parts</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t">                <span class="nam">search_path</span> <span class="op">=</span> <span class="op">[</span><span class="op">*</span><span class="nam">self</span><span class="op">.</span><span class="nam">search_path</span><span class="op">,</span> <span class="nam">filename</span><span class="op">.</span><span class="nam">parent</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t">                <span class="key">for</span> <span class="nam">bin_path</span> <span class="key">in</span> <span class="nam">search_path</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t">                    <span class="nam">name</span> <span class="op">=</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">                    <span class="nam">partname</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">bin_path</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">                    <span class="key">if</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">                        <span class="nam">dependent_files</span><span class="op">.</span><span class="nam">add</span><span class="op">(</span><span class="nam">partname</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">                        <span class="key">if</span> <span class="nam">name</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">                            <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">                        <span class="key">break</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">                        <span class="key">break</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t345" href="#t345">345</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">is_file</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t">                    <span class="nam">name</span> <span class="op">=</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">name</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t">                    <span class="key">if</span> <span class="nam">name</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t">                        <span class="nam">self</span><span class="op">.</span><span class="nam">_warnings</span><span class="op">[</span><span class="nam">name</span><span class="op">]</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">            <span class="key">if</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">startswith</span><span class="op">(</span><span class="str">&quot;(&quot;</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">            <span class="nam">pos</span> <span class="op">=</span> <span class="nam">partname</span><span class="op">.</span><span class="nam">find</span><span class="op">(</span><span class="str">&quot; (&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -572,7 +572,7 @@
             <a class="nav" href="z_689456c07aa9a9d1_exception_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-10-31 08:56 +0000
+            created at 2026-10-31 09:54 +0000
         </p>
     </div>
 </footer>
