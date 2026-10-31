@@ -254,30 +254,34 @@ class bdist_appimage(Command):
                 "using the first executable as entrypoint: "
                 f"{executable.target_name}"
             )
+        # get the main icon
         if executable.icon is None:
             icon_name = "logox128.png"
             icon_resource = resource_path(f"icons/{icon_name}")
             if icon_resource:
                 self.copy_file(os.fspath(icon_resource), icons_dir)
+            relative_reference = os.path.join(share_icons, icon_name)
         else:
             icon_name = executable.icon.name
-            self.move_file(os.path.join(appdir, icon_name), icons_dir)
-        relative_reference = os.path.join(share_icons, icon_name)
+            relative_reference = os.path.normpath(executable.icon)
 
-        # .DirIcon is a symlink to executable.icon or logox128.png
-        origin = os.path.join(appdir, ".DirIcon")
+        # app icon is main icon (or a symlink with the name of the app)
+        # i.e., target_name=hello, icon=icon.png, create symlink hello.png
+        app_icon = f"{self.target_name}{os.path.splitext(icon_name)[1]}"
+        origin = os.path.join(appdir, app_icon)
+        if not os.path.exists(origin):
+            self.execute(
+                os.symlink,
+                (relative_reference, origin, False),
+                msg=f"linking {origin} -> {relative_reference}",
+            )
+        # .DirIcon is a symlink to the app icon
+        # Note: appimagetool build 333 overwrites .DirIcon
+        dir_icon = os.path.join(appdir, ".DirIcon")
         self.execute(
             os.symlink,
-            (relative_reference, origin, False),
-            msg=f"linking {origin} -> {relative_reference}",
-        )
-        origin = os.path.join(
-            appdir, f"{self.target_name}{os.path.splitext(icon_name)[1]}"
-        )
-        self.execute(
-            os.symlink,
-            (relative_reference, origin, False),
-            msg=f"linking {origin} -> {relative_reference}",
+            (app_icon, dir_icon, False),
+            msg=f"linking {dir_icon} -> {origin}",
         )
 
         desktop_entry = f"""\
@@ -286,7 +290,7 @@ class bdist_appimage(Command):
             Name={self.target_name}
             Exec={executable.target_name}
             Comment={self.distribution.get_description()}
-            Icon=/{share_icons}/{os.path.splitext(icon_name)[0]}
+            Icon=/{os.path.splitext(icon_name)[0]}
             Categories=Development;
             Terminal={"false" if executable.app_type == "gui" else "true"}
             X-AppImage-Arch={ARCH}
@@ -375,11 +379,11 @@ class bdist_appimage(Command):
             data = data.encode()
         with open(outfile, "wb") as out:
             out.write(data)
-        st_mode = stat.S_IRUSR
+        st_mode = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
         if "w" in mode:
-            st_mode = st_mode | stat.S_IWUSR
+            st_mode = st_mode | stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH
         if "x" in mode:
-            st_mode = st_mode | stat.S_IXUSR
+            st_mode = st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
         os.chmod(outfile, st_mode)
         return (outfile, 1)
 
