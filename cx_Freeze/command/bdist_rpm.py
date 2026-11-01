@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 
 from setuptools import Command
 
-from cx_Freeze._compat import IS_CONDA, IS_LINUX, PYTHON_VERSION
+from cx_Freeze._compat import IS_LINUX, PYTHON_VERSION
 from cx_Freeze.exception import ExecError, FileError, PlatformError
 
 if TYPE_CHECKING:
@@ -285,7 +285,7 @@ class bdist_rpm(Command):
         if self.spec_only:
             spec_dir = dist_dir
         else:
-            rpm_base = cast("str", self.rpm_base)
+            rpm_base = os.path.abspath(cast("str", self.rpm_base))
             for data in ("SOURCES", "SPECS", "BUILD", "RPMS", "SRPMS"):
                 rpm_dir[data] = os.path.join(rpm_base, data)
                 self.mkpath(rpm_dir[data])
@@ -332,7 +332,14 @@ class bdist_rpm(Command):
         # build package, binary only (-bb)
         logger.info("building RPMs")
         if self._rpmbuild and self._rpm:
-            rpm_cmd = [self._rpmbuild, "-bb"]
+            rpm_cmd = [
+                self._rpmbuild,
+                "-bb",
+                "--define",
+                f"_topdir {rpm_base}",
+                "--define",
+                f"_dbpath {rpm_base}",
+            ]
             if not self.keep_temp:
                 rpm_cmd.append("--clean")
 
@@ -385,13 +392,15 @@ class bdist_rpm(Command):
         """
         # definitions and headers
         dist = self.distribution
-        rpm_base = cast("str", self.rpm_base)
+        rpm_base = os.path.abspath(cast("str", self.rpm_base))
         release = cast("str", self.release)
         spec_file = [
-            f"%define _topdir {os.path.abspath(rpm_base)}",
+            f"%define _topdir {rpm_base}",
+            f"%define _dbpath {rpm_base}",
             # cx_Freeze specific
             "%define __prelink_undo_cmd %{nil}",
             "%define __strip /bin/true",
+            "%define debug_package %{nil}",
             "",
             f"%define name {dist.get_name()}",
             f"%define version {dist.get_version().replace('-', '_')}",
@@ -408,10 +417,6 @@ class bdist_rpm(Command):
             "Prefix: %{_prefix}",
             f"BuildArch: {platform.machine()}",
         ]
-
-        # Fix for conda
-        if IS_CONDA:
-            spec_file.append("%define debug_package %{nil}")
 
         # Workaround for #14443 which affects some RPM based systems such as
         # RHEL6 (and probably derivatives)
@@ -482,7 +487,6 @@ class bdist_rpm(Command):
         else:
             def_setup_call = f"{sys.executable} {dist.script_name}"
         def_build = f"{def_setup_call} build_exe --optimize=1 --silent"
-        def_build = 'env CFLAGS="$RPM_OPT_FLAGS" ' + def_build
 
         # insert contents of files
 
