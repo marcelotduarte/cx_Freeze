@@ -48,7 +48,7 @@ class Hook(ModuleHook):
                 cert_file = ssl_paths.openssl_cafile
         if cert_file is None or not os.path.exists(cert_file):
             return
-        finder.include_files(os.path.abspath(cert_file), "share/certs.pem")
+        finder.include_files(Path(cert_file).resolve(), "share/certs.pem")
         # patch source code
         patch = r"""
             # cx_Freeze patch start
