@@ -19,6 +19,7 @@ from cx_Freeze._compat import (
     IS_MACOS,
     IS_MINGW,
     IS_WINDOWS,
+    IS_X86_64,
 )
 
 if TYPE_CHECKING:
@@ -198,12 +199,6 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    sys.version_info[:2] >= (3, 15),
-    raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) does not support Python 3.15 yet",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.skipif(
     IS_CONDA and (IS_LINUX or (IS_ARM_64 and IS_MACOS)),
     reason="vtkmodules (vtk) is too slow in conda-forge (Linux and OSX_ARM64)",
@@ -220,10 +215,33 @@ pyproject.toml
     reason="vtkmodules (vtk) not supported in mingw",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.xfail(
-    ABI_THREAD == "t" and not IS_LINUX,
+@pytest.mark.xfail(  # 3.15 only on Linux, Windows amd64 and macOs x86_64
+    sys.version_info[:2] >= (3, 15)
+    and not (
+        (IS_LINUX and (IS_ARM_64 or IS_X86_64))
+        or (IS_MACOS and IS_X86_64)
+        or (IS_WINDOWS and IS_X86_64)
+    ),
+    raises=ModuleNotFoundError,
+    reason="vtkmodules (vtk) does not support Python 3.15 in this platform",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+)
+@pytest.mark.xfail(  # 3.14t only on Linux and Windows amd64
+    sys.version_info[:2] == (3, 14)
+    and ABI_THREAD == "t"
+    and not (
+        (IS_LINUX and (IS_ARM_64 or IS_X86_64)) or (IS_WINDOWS and IS_X86_64)
+    ),
     raises=ModuleNotFoundError,
     reason="vtkmodules (vtk) support Python 3.14t only in Linux",
+    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
+)
+@pytest.mark.xfail(  # 3.15t only on Linux
+    sys.version_info[:2] == (3, 15)
+    and ABI_THREAD == "t"
+    and not (IS_LINUX and (IS_ARM_64 or IS_X86_64)),
+    raises=ModuleNotFoundError,
+    reason="vtkmodules (vtk) support Python 3.15t only in Linux aarch64",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
 @pytest.mark.venv

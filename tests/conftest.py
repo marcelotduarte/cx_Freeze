@@ -841,17 +841,13 @@ class TempPackageVenv(TempPackage):
         if not self.request.config.option.venv_keep_prefix:
             prefix = self.venv_prefix
             if self.backend == "conda":
-
-                def _conda_cleanup() -> None:
-                    cmd = f"conda remove --all -p {prefix} -q -y --offline"
-                    with (
-                        io.StringIO() as f,
-                        redirect_stdout(f),
-                        redirect_stderr(f),
-                    ):
-                        self.run(cmd, cwd=self.system_path)
-
-                self.request.config.add_cleanup(_conda_cleanup)
+                cmd = f"conda remove --all -p {prefix} -q -y --offline"
+                with (
+                    io.StringIO() as f,
+                    redirect_stdout(f),
+                    redirect_stderr(f),
+                ):
+                    self.run(cmd, cwd=self.system_path)
             elif self.backend == "mingw":
                 # venv is not used in mingw
                 pass
