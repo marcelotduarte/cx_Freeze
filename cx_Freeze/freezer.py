@@ -535,7 +535,7 @@ class Freezer:
             if path.match(binfile):
                 return True
         for binfile in self.default_bin_excludes:
-            if filename_noversion.match(binfile):
+            if filename.match(binfile) or filename_noversion.match(binfile):
                 return False
         for binpath in self.default_bin_path_includes:
             if dirname.is_relative_to(binpath):
@@ -900,7 +900,11 @@ class Freezer:
             self.finder.report_missing_modules()
         if self.silent < 3:
             # Display a list of dependencies that weren't found
-            names = {name for name, value in self._warnings.items() if value}
+            names = {
+                name
+                for name, value in self._warnings.items()
+                if value and self._should_copy_file(Path(name))
+            }
             copied = {file.name for file in self.files_copied}
             missing = names.difference(copied)
             if missing:
@@ -1392,11 +1396,14 @@ class LinuxFreezer(Freezer, ELFParser):
             "ld64.so",
             "ld-linux.so",
             "ld-linux-*.so*",  # ld-linux-x86-64.so.2, ld-linux-aarch64.so.2
-            "libc.so*",
-            "libdl.so*",
-            "libm.so*",
-            "libpthread.so*",
-            "libutil.so*",
+            "libc.so.6",
+            "libdl.so.2",
+            "libm.so.6",
+            "libpthread.so.0",
+            "libresolv.so.2",
+            "librt.so.1",
+            "libthread_db.so.1",
+            "libutil.so.1",
             # musllinux
             "ld-musl-*.so",
         ]
@@ -1414,10 +1421,10 @@ class LinuxFreezer(Freezer, ELFParser):
     def _get_top_dependencies(self, source: StrPath) -> None:  # noqa: ARG002
         lib_files = self.finder.lib_files
         for src in map(Path, self.default_bin_includes):
-            tgt = f"lib/{src.name}"
-            lib_files.setdefault(src, tgt)
+            target = f"lib/{src.name}"
+            lib_files[src] = target
             if IS_CONDA:
-                self.finder.include_files(src, tgt)
+                self.finder.include_files(src, target)
 
     def _post_copy_hook(
         self,

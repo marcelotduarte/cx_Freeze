@@ -65,8 +65,10 @@ wheel:
 	./ci/build-wheel.sh --install
 
 .PHONY: tests
-tests: wheel
+tests:
 	./ci/install-tools.sh --tests
+	@rm -rf build dist wheelhouse
+	./ci/build-wheel.sh --install
 	cp pyproject.toml "$(COV_TMPDIR)"/
 	cp -a samples "$(COV_TMPDIR)"/
 	cp -a tests "$(COV_TMPDIR)"/
@@ -76,9 +78,10 @@ tests: wheel
 	cd "$(COV_TMPDIR)" && pytest -rpfEsXx -nauto --dist=loadfile tests/hooks/test_*.py || true
 
 .PHONY: cov
-cov: wheel
+cov:
 	./ci/install-tools.sh --tests
-	@rm -rf build/coverage_html_report
+	@rm -rf build dist wheelhouse
+	./ci/build-wheel.sh --install
 	cp pyproject.toml "$(COV_TMPDIR)"/
 	cp -a samples "$(COV_TMPDIR)"/
 	cp -a tests "$(COV_TMPDIR)"/

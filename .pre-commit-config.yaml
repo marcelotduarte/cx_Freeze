@@ -66,13 +66,13 @@ repos:
         types_or: [yaml, markdown, html, css, scss, javascript, json]
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 18b2b8bb1b9b90d2d21283756e89b07fc9c747bf # frozen: v0.0.95
+    rev: 9389fceae2108b9cc4a7dd47d5bd0f62be2ffd08 # frozen: v0.0.96
     hooks:
       - id: ty
         args: [--no-sync]
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: c92afdf2c6ca336aaa8f39e2bd8d48f62dbd8e1f # frozen: v1.31.1
+    rev: 06a39750ec31860bb44f2acf67182c40016cd1e7 # frozen: v1.32.0
     hooks:
       - id: zizmor
         args: ["--fix=all", "--no-progress", "-p"]

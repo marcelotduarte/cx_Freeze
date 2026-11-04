@@ -82,8 +82,10 @@ def skip_unsupported(qt_impl: str) -> str | None:
     """Skip if the Qt variant is not supported in the test system."""
     msg = None
     if IS_CONDA:
-        if qt_impl == "PyQt6":
-            msg = f"{qt_impl} not supported in conda"
+        if qt_impl == "PyQt5" and sys.version_info[:2] >= (3, 15):
+            msg = "PyQt5 does not support Python 3.15 on conda"
+        elif qt_impl == "PyQt6" and sys.version_info[:2] >= (3, 15):
+            msg = "PyQt6 does not support Python 3.15 on conda"
         elif qt_impl == "PySide2" and sys.version_info[:2] >= (3, 13):
             msg = "PySide2 does not support Python 3.13+ on conda"
     elif qt_impl == "PySide2":
@@ -127,10 +129,10 @@ def test_qt(tmp_package: TempPackage, qt_impl: str) -> None:
         pytest.skip(msg)
 
     tmp_package.map_package_to_conda |= {
-        "PyQt5": "pyqt=5",
-        "PyQt6": "pyqt=6",
-        "PySide2": "pyside2",
-        "PySide6": "pyside6",
+        "PyQt5": "pyqt=5",  # 5.15.11
+        "PyQt6": "pyqt6",  # 6.11.0
+        "PySide2": "pyside2",  # 5.15.15
+        "PySide6": "pyside6",  # 6.11.3
     }
     tmp_package.map_package_to_mingw |= {
         "PyQt5": "python-pyqt5",

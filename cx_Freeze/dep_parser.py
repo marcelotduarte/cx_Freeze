@@ -371,6 +371,8 @@ class ELFParser(Parser):
             library = self.find_library(name, search_path)
             if library:
                 dependent_files.add(library)
+                if name in self._warnings:
+                    self._warnings[name] = False
             elif name not in self._warnings:
                 self._warnings[name] = True
         return dependent_files
