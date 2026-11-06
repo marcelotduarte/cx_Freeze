@@ -27,6 +27,13 @@ class Hook(ModuleHook):
             for source in bin_dir.glob("libspatialindex_c-*"):
                 target = f"lib/{source.name}"
                 finder.lib_files[source] = target
+        dist = module.root.distribution
+        if dist and dist.installer == "conda":
+            bin_dir = Path(sys.base_prefix, "lib")
+            for src in bin_dir.glob("libspatialindex_c.*"):
+                source = src.resolve()
+                target = f"lib/{source.name}"
+                finder.lib_files[source] = target
         spatialindex = None
         for source, target in finder.lib_files.items():
             if source.name.startswith(("spatialindex", "libspatialindex")):
@@ -50,3 +57,6 @@ class Hook(ModuleHook):
             loader.get_filename(module.name),
             _optimize=finder.optimize,
         )
+
+    def rtree_index(self, _finder: ModuleFinder, module: Module) -> None:
+        module.ignore_names.add("numpy")

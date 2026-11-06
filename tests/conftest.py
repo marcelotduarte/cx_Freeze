@@ -827,7 +827,7 @@ class TempPackageVenv(TempPackage):
         # create venv
         prefix = self.venv_prefix
         if self.backend == "uv":
-            python = f"{PYTHON_VERSION}{ABI_THREAD}"
+            python = self.python.resolve()
             cmd = f"uv venv --clear --python={python} {prefix}"
         else:
             cmd = f"{self.python} -m venv --clear --upgrade-deps {prefix}"
