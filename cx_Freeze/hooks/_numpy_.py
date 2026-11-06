@@ -48,7 +48,7 @@ class Hook(ModuleHook):
         """Patch numpy package.
 
         Supported pypi and conda-forge versions.
-        Tested numpy versions of pypi from 1.21.2 to 2.5.1.
+        Tested numpy versions of pypi from 1.21.2 to 2.5.4.
         """
         dist = module.distribution
         version = tuple(map(int, dist.version[:2])) if dist else (1, 21)

@@ -17,7 +17,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for shapely.
 
-    Supported pypi versions (tested from 1.8.0 to 2.1.0).
+    Supported pypi versions (tested from 1.8.0 to 2.2.0).
     """
 
     # Note: shapely 1.8.5 supports Python <= 3.11

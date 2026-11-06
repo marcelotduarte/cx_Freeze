@@ -16,7 +16,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for pycparser.
 
-    Supported versions: 2.21 to 3.0.
+    Supported versions: 2.21 to 3.12.
     """
 
     def pycparser(self, finder: ModuleFinder, module: Module) -> None:

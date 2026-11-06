@@ -15,14 +15,10 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for vtkmodules (VTK package).
 
-    Supported pypi versions (tested from 9.2.6 to 9.4.2).
+    Supported pypi versions (tested from 9.2.6 to 9.7.2).
     """
 
-    def vtkmodules(
-        self,
-        finder: ModuleFinder,  # noqa:ARG002
-        module: Module,
-    ) -> None:
+    def vtkmodules(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore optional modules in the VTK (vtkmodules) package."""
         module.update_distribution("vtk")
         module.ignore_names.add("_vtkmodules_static")
