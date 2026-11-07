@@ -22,7 +22,7 @@ class Hook(ModuleHook):
     def zmq(self, finder: ModuleFinder, module: Module) -> None:
         """Links dynamically to zmq.libzmq or shared lib.
 
-        Tested pyzmq 16.0.4 to 27.0.0.
+        Tested pyzmq 16.0.4 to 27.3.0.
         """
         # Globals
         module.global_names.update(

@@ -165,9 +165,7 @@ class Hook(ModuleHook):
         )
 
     def multiprocessing_synchronize(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Ignore modules not found in current OS."""
         module.ignore_names.update(

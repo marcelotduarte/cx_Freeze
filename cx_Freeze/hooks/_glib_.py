@@ -16,11 +16,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for glib."""
 
-    def glib(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
-    ) -> None:
+    def glib(self, _finder: ModuleFinder, module: Module) -> None:
         """Ignore globals that are imported."""
         module.global_names.update(
             [

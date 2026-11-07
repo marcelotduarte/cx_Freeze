@@ -20,7 +20,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for AV (pyAV).
 
-    Supported pypi versions (tested from 11.0 to 16.0.1).
+    Supported pypi versions (tested from 11.0 to 19.0.2).
     """
 
     def av(self, finder: ModuleFinder, module: Module) -> None:
@@ -37,6 +37,12 @@ class Hook(ModuleHook):
             finder.lib_files[source] = target
             finder.include_files(source, target)
 
+    def av_audio(self, _finder: ModuleFinder, module: Module) -> None:
+        module.global_names.add("_AudioCodecName")
+
+    def av_audio_frame(self, _finder: ModuleFinder, module: Module) -> None:
+        module.ignore_names.add("numpy")
+
     def av_container(
         self,
         finder: ModuleFinder,
@@ -44,3 +50,22 @@ class Hook(ModuleHook):
     ) -> None:
         """Newer version of AV needs uuid."""
         finder.include_module("uuid")
+
+    def av_sidedata_encparams(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        module.ignore_names.add("numpy")
+
+    def av_sidedata_motionvectors(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        module.ignore_names.add("numpy")
+
+    def av_subtitles(self, _finder: ModuleFinder, module: Module) -> None:
+        module.global_names.add("_SubtitleCodecName")
+
+    def av_video(self, _finder: ModuleFinder, module: Module) -> None:
+        module.global_names.add("_VideoCodecName")
+
+    def av_video_frame(self, _finder: ModuleFinder, module: Module) -> None:
+        module.ignore_names.add("numpy")

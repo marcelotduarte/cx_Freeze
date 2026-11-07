@@ -65,11 +65,7 @@ class Hook(ModuleHook):
         """Load an extension module."""
         finder.include_package("sklearn.externals.array_api_compat.numpy.fft")
 
-    def sklearn_utils(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
-    ) -> None:
+    def sklearn_utils(self, _finder: ModuleFinder, module: Module) -> None:
         module.ignore_names.update(["matplotlib", "pandas"])
 
     def sklearn_utils__estimator_html_repr(
@@ -100,16 +96,12 @@ class Hook(ModuleHook):
                 )
 
     def sklearn_utils__mask(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         module.ignore_names.update(["pandas"])
 
     def sklearn_utils__param_validation(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         module.ignore_names.update(["pandas"])
 
@@ -149,8 +141,6 @@ class Hook(ModuleHook):
             )
 
     def sklearn_utils_validation(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         module.ignore_names.update(["pandas.api.types"])

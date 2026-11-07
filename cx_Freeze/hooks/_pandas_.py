@@ -21,8 +21,9 @@ class Hook(ModuleHook):
         """Patch the pandas package.
 
         Supported pypi and conda-forge versions.
-        Tested pandas versions of pypi from 1.3.3 to 3.0.6.
+        Tested pandas versions of pypi from 1.3.3 to 3.1.1
         """
+        module.ignore_names.add("_dependency")
         finder.exclude_module("pandas.conftest")
         finder.exclude_module("pandas.testing")
         finder.exclude_module("pandas._testing")
@@ -30,6 +31,9 @@ class Hook(ModuleHook):
         finder.include_package("pandas._config")
         finder.include_package("pandas._libs")
         finder.include_package("pandas.core")
+        # _hard_dependencies
+        finder.include_module("numpy")
+        finder.include_module("dateutil")
 
         loader = module.loader
         if not isinstance(loader, SourceFileLoader):
@@ -63,6 +67,12 @@ class Hook(ModuleHook):
     ) -> None:
         """Ignore optional module."""
         module.ignore_names.add("scipy.sparse")
+
+    def pandas_core_dtypes_base(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        """Ignore optional module."""
+        module.ignore_names.add("matplotlib.units")
 
     def pandas_core_dtypes_common(
         self, _finder: ModuleFinder, module: Module
@@ -235,6 +245,7 @@ class Hook(ModuleHook):
             "openpyxl.cell.cell",
             "openpyxl.descriptors.serialisable",
             "openpyxl.styles",
+            "openpyxl.utils",
             "openpyxl.workbook",
         }
 

@@ -17,7 +17,7 @@ __all__ = ["Hook"]
 class Hook(ModuleHook):
     """The Hook class for matplotlib.
 
-    Tested matplotlib versions of pypi from 3.3 to 3.11.1.
+    Tested matplotlib versions of pypi from 3.3 to 3.11.2.
     """
 
     def matplotlib(self, finder: ModuleFinder, module: Module) -> None:

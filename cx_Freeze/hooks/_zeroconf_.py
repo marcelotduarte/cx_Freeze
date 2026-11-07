@@ -17,9 +17,7 @@ class Hook(ModuleHook):
     """The Hook class for zeroconf."""
 
     def zeroconf__services(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Inclide global names to zeroconf hooks."""
         module.global_names.update(

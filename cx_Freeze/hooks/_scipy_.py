@@ -45,7 +45,7 @@ class Hook(ModuleHook):
     def scipy(self, finder: ModuleFinder, module: Module) -> None:
         """Optimize hook.
 
-        Supported pypi and conda-forge versions (tested until 1.18.0rc2).
+        Supported pypi and conda-forge versions (tested until 1.18.1).
         """
         dist = finder.import_distributions.get(module.name)
         if dist and dist.files:
@@ -94,9 +94,7 @@ class Hook(ModuleHook):
             )
 
     def scipy__lib_array_api_compat(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Set the module global names."""
         module.global_names.update(
@@ -112,9 +110,7 @@ class Hook(ModuleHook):
         finder.include_module("pydoc")
 
     def scipy__lib__testutils(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         module.exclude_names.update(
             ["Cython.Compiler.Version", "cython", "psutil"]
@@ -152,9 +148,7 @@ class Hook(ModuleHook):
         )
 
     def scipy_sparse_linalg__dsolve_linsolve(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Ignore optional module.
 
@@ -184,9 +178,7 @@ class Hook(ModuleHook):
         finder.include_package("scipy.special._precompute")
 
     def scipy_special__cephes(
-        self,
-        finder: ModuleFinder,  # noqa: ARG002
-        module: Module,
+        self, _finder: ModuleFinder, module: Module
     ) -> None:
         """Include global names.
 
