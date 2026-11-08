@@ -499,7 +499,7 @@ class Freezer:
         Finally, check the default variables.
 
         Files are included unless specifically excluded but inclusions take
-        precedence over exclusions.
+        precedence over exclusions, for user-defined values.
         """
         dirname = path.parent
         filename = Path(os.path.normcase(path.name))
@@ -530,19 +530,24 @@ class Freezer:
             if dirname.is_relative_to(binpath):
                 return False
 
-        # check the default variables
-        for binfile in self.default_bin_includes:
-            if path.match(binfile):
+        # check the path
+        for binpath in self.path:
+            if dirname.is_relative_to(binpath):
                 return True
+
+        # check the default variables
         for binfile in self.default_bin_excludes:
             if filename.match(binfile) or filename_noversion.match(binfile):
                 return False
-        for binpath in self.default_bin_path_includes:
-            if dirname.is_relative_to(binpath):
+        for binfile in self.default_bin_includes:
+            if path.match(binfile):
                 return True
         for binpath in self.default_bin_path_excludes:
             if dirname.is_relative_to(binpath):
                 return False
+        for binpath in self.default_bin_path_includes:
+            if dirname.is_relative_to(binpath):
+                return True
 
         return True
 
