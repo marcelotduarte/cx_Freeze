@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1___main___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-07 00:39 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
+            created at 2026-11-14 02:36 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -170,7 +170,7 @@
     <p class="pln"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">    <span class="str">&quot;&quot;&quot;Use a setuptools extension to customize Distribution options.&quot;&quot;&quot;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">    <span class="key">if</span> <span class="nam">getattr</span><span class="op">(</span><span class="nam">dist</span><span class="op">,</span> <span class="str">&quot;executables&quot;</span><span class="op">,</span> <span class="key">None</span><span class="op">)</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">        <span class="key">return</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">    <span class="nam">executables</span> <span class="op">=</span> <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span>  <span class="com"># ty: ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">    <span class="nam">executables</span> <span class="op">=</span> <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span>  <span class="com"># ty: ignore[missing-attribute]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">    <span class="nam">validate_executables</span><span class="op">(</span><span class="nam">dist</span><span class="op">,</span> <span class="str">&quot;executables&quot;</span><span class="op">,</span> <span class="nam">executables</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="com"># Enable package discovery for src-layout</span>&nbsp;</span><span class="r"></span></p>
@@ -192,7 +192,7 @@
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">    <span class="com"># Add build_exe as subcommand of setuptools build (plugin)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">    <span class="nam">build</span> <span class="op">=</span> <span class="nam">dist</span><span class="op">.</span><span class="nam">get_command_obj</span><span class="op">(</span><span class="str">&quot;build&quot;</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">    <span class="nam">build</span><span class="op">.</span><span class="nam">user_options</span><span class="op">.</span><span class="nam">insert</span><span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="op">(</span><span class="str">&quot;build-exe=&quot;</span><span class="op">,</span> <span class="key">None</span><span class="op">,</span> <span class="str">&quot;[REMOVED]&quot;</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">    <span class="nam">build</span><span class="op">.</span><span class="nam">build_exe</span> <span class="op">=</span> <span class="key">None</span>  <span class="com"># ty: ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">    <span class="nam">build</span><span class="op">.</span><span class="nam">build_exe</span> <span class="op">=</span> <span class="key">None</span>  <span class="com"># ty: ignore[missing-attribute]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">    <span class="nam">build</span><span class="op">.</span><span class="nam">sub_commands</span> <span class="op">=</span> <span class="op">[</span>  <span class="com"># ty: ignore[invalid-attribute-access]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t">        <span class="op">*</span><span class="nam">build</span><span class="op">.</span><span class="nam">sub_commands</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t116" href="#t116">116</a></span><span class="t">        <span class="op">(</span><span class="str">&quot;build_exe&quot;</span><span class="op">,</span> <span class="key">None</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -205,8 +205,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_689456c07aa9a9d1___main___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-07 00:39 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
+            created at 2026-11-14 02:36 +0000
         </p>
     </div>
 </footer>

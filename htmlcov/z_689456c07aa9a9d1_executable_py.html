@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_689456c07aa9a9d1_finder_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-07 00:39 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
+            created at 2026-11-14 02:36 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -371,14 +371,14 @@
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t">    <span class="com"># Returns valid Executable list</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t">    <span class="key">if</span> <span class="nam">getattr</span><span class="op">(</span><span class="nam">dist</span><span class="op">,</span> <span class="str">&quot;executables&quot;</span><span class="op">,</span> <span class="key">None</span><span class="op">)</span> <span class="op">==</span> <span class="nam">value</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t">        <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>  <span class="com"># ty: ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t">        <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>  <span class="com"># ty: ignore[missing-attribute]</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t">    <span class="nam">executables</span> <span class="op">=</span> <span class="nam">list</span><span class="op">(</span><span class="nam">value</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t">    <span class="key">for</span> <span class="nam">i</span><span class="op">,</span> <span class="nam">executable</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">executables</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t">        <span class="key">if</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">executable</span><span class="op">,</span> <span class="nam">str</span><span class="op">)</span><span class="op">:</span>  <span class="com"># only script is provided</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t296" href="#t296">296</a></span><span class="t">            <span class="nam">executables</span><span class="op">[</span><span class="nam">i</span><span class="op">]</span> <span class="op">=</span> <span class="nam">Executable</span><span class="op">(</span><span class="nam">executable</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t297" href="#t297">297</a></span><span class="t">        <span class="key">elif</span> <span class="nam">isinstance</span><span class="op">(</span><span class="nam">executable</span><span class="op">,</span> <span class="nam">Mapping</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t298" href="#t298">298</a></span><span class="t">            <span class="nam">executables</span><span class="op">[</span><span class="nam">i</span><span class="op">]</span> <span class="op">=</span> <span class="nam">Executable</span><span class="op">(</span><span class="op">**</span><span class="nam">executable</span><span class="op">)</span>  <span class="com"># ty: ignore</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t">    <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span><span class="op">.</span><span class="nam">extend</span><span class="op">(</span><span class="nam">executables</span><span class="op">)</span>  <span class="com"># ty: ignore[unresolved-attribute]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t299" href="#t299">299</a></span><span class="t">    <span class="nam">dist</span><span class="op">.</span><span class="nam">executables</span><span class="op">.</span><span class="nam">extend</span><span class="op">(</span><span class="nam">executables</span><span class="op">)</span>  <span class="com"># ty: ignore[missing-attribute]</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -387,8 +387,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_689456c07aa9a9d1_finder_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.0">coverage.py v7.17.0</a>,
-            created at 2026-11-07 00:39 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.17.3">coverage.py v7.17.3</a>,
+            created at 2026-11-14 02:36 +0000
         </p>
     </div>
 </footer>
