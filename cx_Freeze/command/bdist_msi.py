@@ -24,7 +24,7 @@ if IS_MINGW or IS_WINDOWS:
 
     warnings.filterwarnings("ignore", "'msilib' is deprecated")
     try:
-        from msilib import (  # ty: ignore[unresolved-import]
+        from msilib import (  # ty: ignore[import-not-found]
             CAB,  # ty: ignore
             PID_AUTHOR,  # ty: ignore
             PID_COMMENTS,  # ty: ignore
@@ -684,7 +684,7 @@ class bdist_msi(Command):
             "",
             "Next",
         )
-        group.add(  # ty: ignore[unresolved-attribute]
+        group.add(  # ty: ignore[missing-attribute]
             "Repair",
             0,
             18,
@@ -692,7 +692,7 @@ class bdist_msi(Command):
             17,
             "&Repair [ProductName]",
         )
-        group.add(  # ty: ignore[unresolved-attribute]
+        group.add(  # ty: ignore[missing-attribute]
             "Remove",
             0,
             36,

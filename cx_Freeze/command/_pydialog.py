@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from msilib import Control, Dialog  # ty: ignore[unresolved-import]
+from msilib import Control, Dialog  # ty: ignore[import-not-found]
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from msilib._msi import _Database  # ty: ignore[unresolved-import]
+    from msilib._msi import _Database  # ty: ignore[import-not-found]
 
 
 class PyDialog(Dialog):
