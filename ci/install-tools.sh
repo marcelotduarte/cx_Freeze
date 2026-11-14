@@ -206,7 +206,7 @@ else
     fi
 
     # Install dev tools
-    PY_VER_FOR_TOOLS="3.12"
+    PY_VER_FOR_TOOLS="3.14"
     if [ "$INSTALL_DEV" == "1" ] && [ -f requirements-dev.txt ]; then
         while read -r line; do
             name=$(echo "$line" | awk -F '[><=]+' '{ print $1 }')
