@@ -551,7 +551,7 @@ class Freezer:
     ) -> list[Executable]:
         """Return valid Executable list."""
         dist = Distribution(attrs={"executables": executables})
-        return dist.executables  # ty: ignore[unresolved-attribute]
+        return dist.executables  # ty: ignore[missing-attribute]
 
     @staticmethod
     def _validate_path(path: list[StrPath] | None) -> list[str]:

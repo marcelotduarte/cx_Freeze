@@ -34,7 +34,7 @@ class Install(_install):
 
     def expand_dirs(self) -> None:
         super().expand_dirs()
-        self._expand_attrs(["install_exe"])  # ty: ignore[unresolved-attribute]
+        self._expand_attrs(["install_exe"])  # ty: ignore[missing-attribute]
 
     def get_sub_commands(self) -> list[str]:
         sub_commands = super().get_sub_commands()[:]

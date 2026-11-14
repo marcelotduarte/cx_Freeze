@@ -143,7 +143,7 @@ class PEParser(Parser):
             lief = None
         else:
             try:
-                import lief  # noqa: PLC0415 # ty: ignore[unresolved-import]
+                import lief  # noqa: PLC0415 # ty: ignore[import-not-found]
             except ImportError:
                 lief = None  # ty: ignore[invalid-assignment]
             else:

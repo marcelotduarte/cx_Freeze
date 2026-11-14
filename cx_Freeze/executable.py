@@ -289,11 +289,11 @@ def validate_executables(
 
     # Returns valid Executable list
     if getattr(dist, "executables", None) == value:
-        dist.executables = []  # ty: ignore[unresolved-attribute]
+        dist.executables = []  # ty: ignore[missing-attribute]
     executables = list(value)
     for i, executable in enumerate(executables):
         if isinstance(executable, str):  # only script is provided
             executables[i] = Executable(executable)
         elif isinstance(executable, Mapping):
             executables[i] = Executable(**executable)  # ty: ignore
-    dist.executables.extend(executables)  # ty: ignore[unresolved-attribute]
+    dist.executables.extend(executables)  # ty: ignore[missing-attribute]
