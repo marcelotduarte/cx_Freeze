@@ -10,6 +10,7 @@ from __future__ import annotations
 import sys
 from importlib.metadata import version
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import setuptools
 
@@ -21,6 +22,9 @@ from cx_Freeze.executable import Executable, validate_executables
 from cx_Freeze.finder import ModuleFinder
 from cx_Freeze.freezer import Freezer
 from cx_Freeze.module import ConstantsModule, Module
+
+if TYPE_CHECKING:
+    from cx_Freeze._typing import Executables
 
 __all__ = [
     "ConstantsModule",
@@ -75,9 +79,12 @@ def setup(**attrs) -> setuptools.Distribution:  # noqa: D103
     command_options = attrs.setdefault("command_options", {})
     options = attrs.pop("options", {})
     update_command_options(command_options, pyproject_options, options)
-    executables = attrs.setdefault("executables", [])
+    executables: Executables | None = attrs.pop("executables", [])
     if pyproject_executables:
+        if executables is None:
+            executables = []
         executables.extend(pyproject_executables)
+    attrs["executables"] = executables
     return setuptools.setup(**attrs)
 
 

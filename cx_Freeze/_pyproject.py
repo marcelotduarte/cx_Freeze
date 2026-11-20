@@ -7,19 +7,20 @@ from pathlib import Path
 from typing import TYPE_CHECKING, TypeAlias
 
 if TYPE_CHECKING:
+    from cx_Freeze._typing import Executables
+
     _CommandOptions: TypeAlias = dict[str, dict[str, tuple[str, str]]]
-    _Executables: TypeAlias = list[str | dict[str, str]]
     _Options: TypeAlias = dict[str, dict[str, str]]
 
 
-def get_pyproject_options() -> tuple[_Options, _Executables]:
+def get_pyproject_options() -> tuple[_Options, Executables]:
     pyproject_toml = Path("pyproject.toml")
     if not pyproject_toml.exists():
         return {}, []
     with pyproject_toml.open("rb") as file:
         config = tomllib.load(file)
     tool_cxfreeze = config.get("tool", {}).get("cxfreeze", {})
-    executables: _Executables = tool_cxfreeze.pop("executables", [])
+    executables: Executables = tool_cxfreeze.pop("executables", None) or []
     for i, executable in enumerate(executables):
         if isinstance(executable, dict):
             executables[i] = {
