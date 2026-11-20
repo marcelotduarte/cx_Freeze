@@ -13,6 +13,8 @@ StrPath: TypeAlias = str | PathLike[str]
 
 DeferredList: TypeAlias = list[tuple[Module, Module, list[str]]]
 
+Executables: TypeAlias = list[str | dict[str, str]]
+
 IncludesList: TypeAlias = Sequence[StrPath | tuple[StrPath, StrPath | None]]
 
 InternalIncludesList: TypeAlias = list[tuple[Path, PurePath]]
@@ -23,6 +25,7 @@ HANDLE: TypeAlias = int | None
 __all__ = [
     "HANDLE",
     "DeferredList",
+    "Executables",
     "IncludesList",
     "InternalIncludesList",
     "StrPath",

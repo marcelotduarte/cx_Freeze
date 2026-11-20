@@ -176,13 +176,18 @@ def main() -> None:
     verbose = args.verbose
 
     # help
-    if "-h" in argv or "--help" in argv:
-        if command is None:
+    if argv and set(argv).issubset(["-h", "--help", "--help-commands"]):
+        arg_help = "--help-commands" if "--help-commands" in argv else "--help"
+        if command is None and arg_help == "--help":
             parser.print_help()
         else:
+            script_args = []
+            if command is not None:
+                script_args.append(command)
+            script_args.append(arg_help)
             setup(
                 executables=None,
-                script_args=[command, "--help"],
+                script_args=script_args,
                 script_name=parser.prog,
             )
         parser.exit()

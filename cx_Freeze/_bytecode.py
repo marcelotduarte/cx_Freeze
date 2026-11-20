@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from cx_Freeze.module import Module
 
-from dis import _unpack_opargs  # ty: ignore[import-not-found]
+from dis import _unpack_opargs  # ty: ignore[missing-module-member]
 
 if sys.version_info[:2] >= (3, 13):
     unpack_opargs = _unpack_opargs
@@ -27,7 +27,7 @@ else:
 
 
 if sys.version_info[:2] >= (3, 14):
-    from dis import _common_constants  # ty: ignore[import-not-found]
+    from dis import _common_constants  # ty: ignore[missing-module-member]
 else:
     _common_constants = []
 if sys.version_info[:2] >= (3, 15):

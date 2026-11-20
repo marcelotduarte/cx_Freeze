@@ -36,11 +36,18 @@ def test_cxfreeze_help(tmp_package: TempPackage) -> None:
     result.stdout.fnmatch_lines("usage: *")
 
 
-def test_cxfreeze_additional_help(tmp_package: TempPackage) -> None:
+def test_cxfreeze_help_commands(tmp_package: TempPackage) -> None:
+    """Test cxfreeze help."""
+    tmp_package.create(SOURCE)
+    result = tmp_package.freeze("cxfreeze --help-commands")
+    result.stdout.fnmatch_lines("Standard commands:")
+
+
+def test_cxfreeze_help_for_command(tmp_package: TempPackage) -> None:
     """Test cxfreeze additional help."""
     tmp_package.create(SOURCE)
     result = tmp_package.freeze("cxfreeze build_exe --help")
-    result.stdout.fnmatch_lines("*--help-commands*")
+    result.stdout.fnmatch_lines("Options for 'build_exe' command:")
 
 
 def test_cxfreeze_debug_verbose(tmp_package: TempPackage) -> None:

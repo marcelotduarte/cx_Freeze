@@ -78,6 +78,20 @@ def test_bdist_appimage_download_runtime(tmp_path: Path) -> None:
     assert cmd.fullname == "foo-0.0"
 
 
+SOURCE = """
+test.py
+    print("Hello from cx_Freeze")
+"""
+
+
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
+def test_bdist_appimage_help(tmp_package: TempPackage) -> None:
+    """Test cxfreeze additional help."""
+    tmp_package.create(SOURCE)
+    result = tmp_package.freeze("cxfreeze bdist_appimage --help")
+    result.stdout.fnmatch_lines("Options for 'bdist_appimage' command:")
+
+
 @pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_appimage_target_name() -> None:
     """Test the bdist_appimage with extra target_name option."""

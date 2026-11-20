@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from msilib import Control, Dialog  # ty: ignore[import-not-found]
+import msilib  # ty: ignore[import-not-found]
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from msilib._msi import _Database  # ty: ignore[import-not-found]
 
 
-class PyDialog(Dialog):
+class PyDialog(msilib.Dialog):  # ty: ignore[missing-attribute]
     """Dialog class with a fixed layout.
 
     Controls at the top, then a ruler, then a list of buttons:
@@ -33,7 +33,7 @@ class PyDialog(Dialog):
         cancel: str,
         bitmap: bool = True,  # noqa: ARG002
     ) -> None:
-        Dialog.__init__(
+        msilib.Dialog.__init__(  # ty: ignore[missing-attribute]
             self, db, name, x, y, w, h, attr, title, first, default, cancel
         )
         ruler = self.h - 36
@@ -55,7 +55,7 @@ class PyDialog(Dialog):
         tabnext: str | None,
         name: str = "Back",
         active: bool = True,
-    ) -> Control:
+    ) -> msilib.Control:  # ty: ignore[missing-attribute]
         """Add a back button.
 
         With a given title, the tab-next button, its name in the Control table,
@@ -74,7 +74,7 @@ class PyDialog(Dialog):
         tabnext: str | None,
         name: str = "Cancel",
         active: bool = True,
-    ) -> Control:
+    ) -> msilib.Control:  # ty: ignore[missing-attribute]
         """Add a cancel button.
 
         With a given title, the tab-next button, its name in the Control table,
@@ -93,7 +93,7 @@ class PyDialog(Dialog):
         tabnext: str | None,
         name: str = "Next",
         active: bool = True,
-    ) -> Control:
+    ) -> msilib.Control:  # ty: ignore[missing-attribute]
         """Add a Next button.
 
         With a given title, the tab-next button, its name in the Control table,
@@ -108,7 +108,7 @@ class PyDialog(Dialog):
 
     def xbutton(
         self, name: str, title: str, tabnext: str | None, xpos: int
-    ) -> Control:
+    ) -> msilib.Control:  # ty: ignore[missing-attribute]
         """Add a button.
 
         With a given title, the tab-next button, its name in the Control table,
