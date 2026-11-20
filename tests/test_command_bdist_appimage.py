@@ -84,6 +84,7 @@ test.py
 """
 
 
+@pytest.mark.skipif(not IS_LINUX, reason="Linux test")
 def test_bdist_appimage_help(tmp_package: TempPackage) -> None:
     """Test cxfreeze additional help."""
     tmp_package.create(SOURCE)
