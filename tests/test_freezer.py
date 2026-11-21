@@ -116,11 +116,9 @@ def test_freezer_default_bin_includes(tmp_package: TempPackage) -> None:
             expected = f"libpython{py_version}.so*"
     elif IS_MACOS:
         expected = f"Python{ABI_THREAD.upper()}"
-    elif ENABLE_SHARED:  # Linux
+    else:  # Linux
         expected = f"libpython{py_version}.so*"
-    else:
-        assert freezer.default_bin_includes == []
-        return
+
     names = []
     for path in map(Path, freezer.default_bin_path_includes):
         names += [
