@@ -159,7 +159,7 @@ def copy_qt_files(
 ) -> None:
     """Copy Qt plugins, resources, translations, etc."""
     for source_path, target_path in _get_qt_files(name, variable, arg):
-        finder.lib_files[source_path] = target_path.as_posix()
+        finder.lib_files.setdefault(source_path, target_path.as_posix())
         finder.include_files(source_path, target_path)
 
 
@@ -204,8 +204,7 @@ class QtHook(ModuleHook):
             if IS_MACOS:
                 patterns.append("*.dylib")
         for pattern in patterns:
-            for source, target in _get_qt_files(name, variable, pattern):
-                finder.lib_files.setdefault(source, target.as_posix())
+            copy_qt_files(finder, name, variable, pattern)
 
     def qt_qtdesigner(self, finder: ModuleFinder, module: Module) -> None:
         """Include plugins for the module."""
