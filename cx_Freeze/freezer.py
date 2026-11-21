@@ -1337,7 +1337,7 @@ class DarwinFreezer(Freezer, Parser):
             if path.match(binfile):
                 return True
         for binfile in self.default_bin_excludes:
-            if filename.match(binfile) or filename_noversion.match(binfile):
+            if filename_noversion.match(binfile):
                 return False
         for binpath in self.default_bin_path_includes:
             if dirname.is_relative_to(binpath):
