@@ -431,7 +431,7 @@ class Freezer:
     def _default_bin_path_includes(self) -> list[str]:
         """Return the directories with files that should be included.
 
-        (Overridden on Windows, inherited in macOS).
+        (Overridden on Windows, inherited in Linux and macOS).
         """
         bin_path = [
             sysconfig.get_config_var("LIBDIR"),
@@ -499,7 +499,8 @@ class Freezer:
         Finally, check the default variables.
 
         Files are included unless specifically excluded but inclusions take
-        precedence over exclusions.
+        precedence over exclusions, for user-defined values.
+        (Overridden on macOS).
         """
         dirname = path.parent
         filename = Path(os.path.normcase(path.name))
@@ -531,18 +532,18 @@ class Freezer:
                 return False
 
         # check the default variables
-        for binfile in self.default_bin_includes:
-            if path.match(binfile):
-                return True
         for binfile in self.default_bin_excludes:
             if filename.match(binfile) or filename_noversion.match(binfile):
                 return False
-        for binpath in self.default_bin_path_includes:
-            if dirname.is_relative_to(binpath):
+        for binfile in self.default_bin_includes:
+            if path.match(binfile):
                 return True
         for binpath in self.default_bin_path_excludes:
             if dirname.is_relative_to(binpath):
                 return False
+        for binpath in self.default_bin_path_includes:
+            if dirname.is_relative_to(binpath):
+                return True
 
         return True
 
@@ -595,13 +596,16 @@ class Freezer:
 
         For bin_path_includes and bin_path_excludes.
         """
-        if bin_path is None:
-            return []
-        return [
-            os.fspath(path.resolve())
-            for path in map(Path, bin_path)
-            if path.is_dir()
-        ]
+        resolved: list[str] = []
+        if bin_path is not None:
+            for path in map(Path, bin_path):
+                if not path.is_dir():
+                    continue
+                norm_path = os.path.normcase(path.resolve())
+                if norm_path in resolved:
+                    continue
+                resolved.append(norm_path)
+        return resolved
 
     def _populate_zip_options(
         self,
@@ -1417,6 +1421,14 @@ class LinuxFreezer(Freezer, ELFParser):
             "/usr/lib32",
             "/usr/lib64",
         ]
+
+    def _default_bin_path_includes(self) -> list[str]:
+        # use manylinux distributed files if available
+        bin_path = super()._default_bin_path_includes()
+        core_lib = resource_path("lib")
+        if core_lib:
+            bin_path = [core_lib, *bin_path]
+        return self._validate_bin_path(bin_path)
 
     def _get_top_dependencies(self, source: StrPath) -> None:  # noqa: ARG002
         lib_files = self.finder.lib_files
