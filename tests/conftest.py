@@ -468,6 +468,13 @@ class TempPackage:
                 conda_name = f"{conda_name}{req.specifier!s}"
             packages[i] = conda_name
 
+        # Add metapackage python-freethreading or python-gil
+        # to avoid interpreter switching by the solver
+        if ABI_THREAD == "t":
+            packages.append("python-freethreading")
+        else:
+            packages.append("python-gil")
+
         packages: str = " ".join(packages)
         cmd = f"conda install -p {self.prefix} -q -y -S {packages}"
         if deps is False:
@@ -826,11 +833,11 @@ class TempPackageVenv(TempPackage):
     def _venv_pip(self) -> None:
         # create venv
         prefix = self.venv_prefix
+        python = self.python.resolve()
         if self.backend == "uv":
-            python = self.python.resolve()
             cmd = f"uv venv --clear --python={python} {prefix}"
         else:
-            cmd = f"{self.python} -m venv --clear --upgrade-deps {prefix}"
+            cmd = f"{python} -m venv --clear --upgrade-deps {prefix}"
         self.run(cmd, cwd=self.system_path)
 
     def cleanup(self) -> None:
