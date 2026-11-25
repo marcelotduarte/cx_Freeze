@@ -79,6 +79,14 @@ if [ "$IS_CONDA" == "1" ]; then
     # Packages to install
     pkgs=("python-build")
 
+    # Add metapackage python-freethreading or python-gil
+    ABI_THREAD=$(python -c "import sysconfig; print(sysconfig.get_config_var('abi_thread') or '', end='')")
+    if [ "$ABI_THREAD" == "t" ]; then
+        pkgs+=("python-freethreading")
+    else
+        pkgs+=("python-gil")
+    fi
+
     # Dependencies of the project
     if [ -f requirements.txt ]; then
         SYS_PLATFORM=$(python -c "import sys; print(sys.platform, end='')")
