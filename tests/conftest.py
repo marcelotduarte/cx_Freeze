@@ -468,13 +468,6 @@ class TempPackage:
                 conda_name = f"{conda_name}{req.specifier!s}"
             packages[i] = conda_name
 
-        # Add metapackage python-freethreading or python-gil
-        # to avoid interpreter switching by the solver
-        if ABI_THREAD == "t":
-            packages.append("python-freethreading")
-        else:
-            packages.append("python-gil")
-
         packages: str = " ".join(packages)
         cmd = f"conda install -p {self.prefix} -q -y -S {packages}"
         if deps is False:
@@ -827,6 +820,12 @@ class TempPackageVenv(TempPackage):
         # create a new conda environment
         prefix = self.venv_prefix
         cmd = f"conda create -p {prefix} -q -y python={PYTHON_VERSION}"
+        # Add metapackage python-freethreading or python-gil
+        # to avoid interpreter switching by the solver
+        if ABI_THREAD == "t":
+            cmd += " python-freethreading"
+        else:
+            cmd += " python-gil"
         cmd += " --solver rattler"
         self.run(cmd, cwd=self.system_path)
 

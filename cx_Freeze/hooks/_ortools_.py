@@ -22,3 +22,8 @@ class Hook(ModuleHook):
         distribution = module.distribution
         if distribution and distribution.installer == "conda":
             finder.include_module("numpy")
+
+    def ortools_constraint_solver_pywrapcp(
+        self, _finder: ModuleFinder, module: Module
+    ) -> None:
+        module.ignore_names.add("_pywrapcp")
