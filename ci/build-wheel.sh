@@ -224,6 +224,7 @@ if [ "$INSTALL" == "1" ]; then
             PKG_CONDA="$WHEELHOUSE/conda/$LOWER_NAME/noarch/$PKG_BASENAME-pypi_0.conda"
         fi
         $CONDA_EXE remove "$NORMALIZED_NAME" --force --yes || true
+        $CONDA_EXE clean --index-cache --yes || true
         $CONDA_EXE install "$PKG_CONDA" --no-deps --yes
     else
         if [ "$IS_MINGW" == "1" ]; then

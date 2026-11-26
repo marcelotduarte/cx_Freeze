@@ -147,6 +147,8 @@ class PEParser(Parser):
             except ImportError:
                 lief = None  # ty: ignore[invalid-assignment]
             else:
+                import lief.logging  # noqa: PLC0415 # ty: ignore[import-not-found]
+
                 lief.logging.set_level(lief.logging.LEVEL.ERROR)
         super().__init__(path, bin_path_includes, silent, warnings)
         if lief:
