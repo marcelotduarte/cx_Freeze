@@ -93,7 +93,7 @@ pyproject.toml
     [project]
     name = "test_ortools"
     version = "0.1.2.3"
-    dependencies = ["ortools"]
+    dependencies = ["ortools<10"]
 
     [tool.cxfreeze]
     executables = ["test_ortools.py"]
