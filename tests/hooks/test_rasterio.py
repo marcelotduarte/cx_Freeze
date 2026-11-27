@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 import pytest
@@ -32,8 +31,6 @@ pyproject.toml
     name = "test_rasterio"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version <= '3.11'",
-        "numpy>=2;python_version > '3.11'",
         "rasterio",
     ]
 
@@ -47,12 +44,7 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_MINGW,
-    raises=ModuleNotFoundError,
-    reason="rasterio not supported in mingw",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
+@pytest.mark.skipif(IS_MINGW, reason="rasterio not supported in mingw")
 @pytest.mark.venv
 @zip_packages
 def test_rasterio(tmp_package: TempPackage, zip_packages: bool) -> None:

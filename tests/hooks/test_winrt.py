@@ -56,12 +56,7 @@ pyproject.toml
 """
 
 
-@pytest.mark.xfail(
-    IS_MINGW,
-    raises=ModuleNotFoundError,
-    reason="pywinrt not supported in mingw",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
+@pytest.mark.skipif(IS_MINGW, reason="pywinrt not supported in mingw")
 @pytest.mark.xfail(
     IS_CONDA,
     raises=ModuleNotFoundError,

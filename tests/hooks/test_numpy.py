@@ -53,10 +53,7 @@ pyproject.toml
     name = "test_matplotlib"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version <= '3.11'",
-        "numpy>=2;python_version > '3.11'",
-        "matplotlib<3.7;python_version <= '3.11'",
-        "matplotlib>=3.7;python_version > '3.11'",
+        "matplotlib",
     ]
 
     [tool.cxfreeze]
@@ -112,10 +109,7 @@ pyproject.toml
     name = "test_shapely"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version <= '3.11'",
-        "numpy>=2;python_version > '3.11'",
-        "shapely<2.1;python_version <= '3.11'",
-        "shapely>=2.1;python_version > '3.11'",
+        "shapely",
     ]
 
     [tool.cxfreeze]
