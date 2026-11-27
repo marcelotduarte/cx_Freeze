@@ -198,7 +198,7 @@ pyproject.toml
 
 ORTOOLS_VERSIONS = []
 version_info = sys.version_info[:2]
-if version_info <= (3, 11):
+if version_info <= (3, 11) and not (IS_WINDOWS and IS_ARM_64):
     ORTOOLS_VERSIONS.append("ortools~=9.6.0")
 if IS_LINUX:
     from platform import libc_ver
@@ -208,20 +208,22 @@ if IS_LINUX:
     if version < (2, 28):
         # for Python 3.11-3.14
         ORTOOLS_VERSIONS.append("ortools>=9.11.0,<10.0.0")
-    elif (version_info <= (3, 14) and ABI_THREAD == "") or (
-        version_info == (3, 14) and ABI_THREAD == "t"
-    ):
-        # for Python 3.11-3.14 and 3.14t
-        ORTOOLS_VERSIONS.append("ortools>=9.15.0,<10.0.0")
-        if ABI_THREAD == "":
+    else:
+        if (version_info <= (3, 14) and ABI_THREAD == "") or (
+            version_info == (3, 14) and ABI_THREAD == "t"
+        ):
+            # for Python 3.11-3.14 and 3.14t
+            ORTOOLS_VERSIONS.append("ortools>=9.15.0,<10.0.0")
+        if ABI_THREAD == "" and not IS_ARM_64 and not IS_CONDA:
             # for Python 3.11-3.15
             ORTOOLS_VERSIONS.append("ortools>=10.0.0rc1")
 elif ABI_THREAD == "" and not (IS_WINDOWS and IS_ARM_64):
     if version_info <= (3, 14):
         # for Python 3.11-3.14 on macOS and Windows
         ORTOOLS_VERSIONS.append("ortools>=9.15.0,<10.0.0")
-    # for Python 3.11-3.15 on macOS and Windows
-    ORTOOLS_VERSIONS.append("ortools>=10.0.0rc1")
+    if not IS_CONDA:
+        # for Python 3.11-3.15 on macOS and Windows
+        ORTOOLS_VERSIONS.append("ortools>=10.0.0rc1")
 
 
 @pytest.mark.skipif(IS_MINGW, reason="ortools not supported in mingw")

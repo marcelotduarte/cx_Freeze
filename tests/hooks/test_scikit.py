@@ -43,10 +43,7 @@ pyproject.toml
     name = "test_scipy"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version <= '3.11'",
-        "numpy>=2;python_version > '3.11'",
-        "scipy<1.16;python_version <= '3.11'",
-        "scipy>=1.16;python_version > '3.11'",
+        "scipy",
     ]
 
     [tool.cxfreeze]
@@ -114,10 +111,7 @@ pyproject.toml
     name = "test_skimage"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version <= '3.11'",
-        "numpy>=2;python_version > '3.11'",
-        "scikit-image<0.26;python_version <= '3.11'",
-        "scikit-image>=0.26;python_version > '3.11'",
+        "scikit-image",
     ]
 
     [tool.cxfreeze]
@@ -167,9 +161,7 @@ pyproject.toml
     name = "test_sklearn"
     version = "0.1.2.3"
     dependencies = [
-        "numpy<2;python_version <= '3.11'",
-        "scikit-learn<1.7;python_version <= '3.11'",
-        "scikit-learn>=1.7;python_version > '3.11'",
+        "scikit-learn",
     ]
 
     [tool.cxfreeze]
