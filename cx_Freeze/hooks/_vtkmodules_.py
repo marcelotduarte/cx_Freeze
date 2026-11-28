@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cx_Freeze._compat import IS_MINGW
 from cx_Freeze.module import Module, ModuleHook
 
 if TYPE_CHECKING:
@@ -23,3 +24,5 @@ class Hook(ModuleHook):
         module.update_distribution("vtk")
         module.ignore_names.add("_vtkmodules_static")
         module.ignore_names.add("vtkmodules._build_paths")
+        if IS_MINGW and module.in_file_system == 0:
+            module.in_file_system = 2
