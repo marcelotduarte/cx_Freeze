@@ -8,16 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import (
-    ABI_THREAD,
-    IS_ARM_64,
-    IS_CONDA,
-    IS_LINUX,
-    IS_MACOS,
-    IS_MINGW,
-    IS_WINDOWS,
-    IS_X86_64,
-)
+from cx_Freeze._compat import ABI_THREAD, IS_CONDA, IS_LINUX, IS_X86_64
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -64,11 +55,6 @@ pyproject.toml
     reason="pymupdf support Python 3.14t only in Linux x86_64",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.skipif(
-    IS_CONDA and (IS_LINUX or IS_WINDOWS or (IS_ARM_64 and IS_MACOS)),
-    reason="pymupdf is broken in conda-forge (except on OSX64)",
-)
-@pytest.mark.skipif(IS_MINGW, reason="pymupdf is broken in mingw")
 @pytest.mark.venv
 @zip_packages
 def test_pymupdf(tmp_package: TempPackage, zip_packages: bool) -> None:

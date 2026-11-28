@@ -17,7 +17,6 @@ from cx_Freeze._compat import (
     IS_CONDA,
     IS_LINUX,
     IS_MACOS,
-    IS_MINGW,
     IS_WINDOWS,
     IS_X86_64,
 )
@@ -203,12 +202,6 @@ pyproject.toml
     reason="vtkmodules (vtk) does not support Windows arm64",
     strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
 )
-@pytest.mark.xfail(
-    IS_MINGW,
-    raises=ModuleNotFoundError,
-    reason="vtkmodules (vtk) not supported in mingw",
-    strict=not bool(int(os.getenv("PYTEST_LAX_XFAIL", "0"))),
-)
 @pytest.mark.xfail(  # 3.15 only on Linux, macOS and Windows x64
     sys.version_info[:2] >= (3, 15)
     and not (
@@ -246,6 +239,8 @@ pyproject.toml
 @zip_packages
 def test_vtk(tmp_package: TempPackage, zip_packages: bool) -> None:
     """Test if vtkmodules hook is working correctly."""
+    tmp_package.map_package_to_mingw["vtk"] = "vtk"
+
     tmp_package.create(SOURCE_TEST_VTK)
     if zip_packages:
         pyproject = tmp_package.path / "pyproject.toml"
