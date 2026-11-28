@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cx_Freeze._compat import IS_MINGW, IS_WINDOWS, IS_X86_32
+from cx_Freeze._compat import IS_WINDOWS
 
 if TYPE_CHECKING:
     from tests.conftest import TempPackage
@@ -49,9 +49,6 @@ def test_zoneinfo(tmp_package: TempPackage, zip_packages: bool) -> None:
     )
 
 
-@pytest.mark.skipif(
-    IS_MINGW and IS_X86_32, reason="tzdata not supported in mingw32"
-)
 @pytest.mark.venv
 @zip_packages
 def test_zoneinfo_and_tzdata(

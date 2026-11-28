@@ -722,7 +722,10 @@ class TempPackageVenv(TempPackage):
 
         The dependencies are read from pyproject.toml.
         """
-        if self.backend not in ("conda", "pip", "uv"):
+        if self.backend == "mingw":
+            # install only the dependencies from sample pyproject
+            if self._install_dependencies:
+                self.install_dependencies()
             return
         pyproject = self.system_path / "pyproject.toml"
         project_data = self._get_project(pyproject)
